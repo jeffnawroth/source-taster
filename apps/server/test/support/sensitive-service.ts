@@ -54,6 +54,10 @@ export function sensitiveService(options: {
     calls: [] as string[],
     mail: [] as { to: string; kind: "proof" | "replacement"; code: string }[],
     deleteStatus: undefined as number | undefined,
+    /** #101 Account Preferences; unset means "adopt the client's language". */
+    preferences: undefined as
+      | { language: "de" | "en"; citationStyle: string }
+      | undefined,
   };
   const now = () => Date.now() + state.offset;
   const proofs = new Map<Action, number>();
@@ -99,7 +103,7 @@ export function sensitiveService(options: {
             "access-control-allow-origin": origin,
             "access-control-allow-credentials": "true",
             "access-control-allow-headers": "content-type, authorization",
-            "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+            "access-control-allow-methods": "GET, POST, PATCH, DELETE, OPTIONS",
             vary: "origin",
           }
         : {};
@@ -131,6 +135,19 @@ export function sensitiveService(options: {
       return ok({ signedOut: true });
     }
     const body = request.body;
+    if (tail === "/preferences") {
+      // Merged with #101: the signed-in workspace reads and writes Account
+      // Preferences. The stand-in keeps them per session in memory only.
+      const language = String(request.headers["accept-language"] ?? "")
+        .toLowerCase()
+        .startsWith("de")
+        ? "de"
+        : "en";
+      state.preferences ??= { language, citationStyle: "apa" };
+      if (request.method === "PATCH")
+        state.preferences = { ...state.preferences, ...body };
+      return ok(state.preferences);
+    }
     if (tail === "/account/fresh-proof/challenges") {
       if (state.behavior === "unavailable")
         return problem(501, "not-implemented");
@@ -229,6 +246,7 @@ export function sensitiveService(options: {
       state.behavior = "delete";
       state.calls.length = 0;
       state.mail.length = 0;
+      state.preferences = undefined;
       proofs.clear();
       challenges.clear();
     },

@@ -354,6 +354,34 @@ for (const language of ["en", "de"] as const)
       await expect(page.getByText(identity.email)).toHaveCount(0);
       expect(tokenCalls()).toBe(calls);
       expect(fake.state.live).toBe(false);
+      // Merged with #101 Preferences: deletion ends the Account authority, so
+      // no Preferences read/write, Account token or new Guest identity follows
+      // until the user acts. Only the ADR-0023 closed local set may remain.
+      const afterDeletion = fake.state.calls.slice(
+        fake.state.calls.lastIndexOf("POST /account/deletion") + 1,
+      );
+      expect(
+        afterDeletion.filter((c) =>
+          /\/(preferences|account-tokens|session\/activity|guest-tokens)$/.test(
+            c,
+          ),
+        ),
+      ).toEqual([]);
+      const local = await page.evaluate(() =>
+        JSON.stringify(Object.entries(localStorage)),
+      );
+      expect(local).not.toContain(identity.accountId);
+      expect(local).not.toContain(identity.ownerId);
+      expect(local).not.toContain(identity.email);
+      const guestPreferences = await page.evaluate(() =>
+        localStorage.getItem("source-taster-guest-preferences-v1"),
+      );
+      if (guestPreferences !== null)
+        expect(Object.keys(JSON.parse(guestPreferences)).sort()).toEqual([
+          "citationStyle",
+          "language",
+          "theme",
+        ]);
     } finally {
       await context.close();
     }
