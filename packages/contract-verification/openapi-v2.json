@@ -4168,6 +4168,22 @@
                       "en"
                     ]
                   },
+                  "style": {
+                    "type": "string",
+                    "enum": [
+                      "apa",
+                      "mla",
+                      "chicago",
+                      "ieee",
+                      "vancouver",
+                      "harvard",
+                      "acs",
+                      "ama",
+                      "oxford",
+                      "springer",
+                      "din-iso-690"
+                    ]
+                  },
                   "documentName": {
                     "type": "string",
                     "minLength": 1,
@@ -4175,7 +4191,8 @@
                   }
                 },
                 "required": [
-                  "language"
+                  "language",
+                  "style"
                 ],
                 "additionalProperties": false
               }
@@ -4225,6 +4242,16 @@
           },
           "404": {
             "description": "No such Check or report for this Owner.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Another report job of this Owner is still running.",
             "content": {
               "application/problem+json": {
                 "schema": {

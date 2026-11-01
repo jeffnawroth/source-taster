@@ -23,3 +23,9 @@ await cp(
   new URL("../dist/citations/assets", import.meta.url),
   { recursive: true },
 );
+// ADR-0017 report fonts (SIL OFL 1.1, notice included) are read at run time.
+await cp(
+  new URL("../src/reports/fonts", import.meta.url),
+  new URL("../dist/reports/fonts", import.meta.url),
+  { recursive: true },
+);

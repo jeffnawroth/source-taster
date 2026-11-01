@@ -38,6 +38,7 @@ export const createReport = createRoute({
       content: { "application/json": { schema: ReportResponse } },
     },
     400: problem("Invalid request."),
+    409: problem("Another report job of this Owner is still running."),
     ...errors,
   },
 });

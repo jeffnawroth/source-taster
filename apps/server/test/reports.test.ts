@@ -19,7 +19,7 @@ import { LOCAL_OWNER } from "../src/entitlements.ts";
 import { setupDatabase } from "../scripts/db-setup.ts";
 import { startProcess, testDatabase } from "./support/processes.ts";
 import { startDoiFixtures } from "./support/doi-fixtures.ts";
-import { inspectPdf, roles } from "./support/pdf-inspect.ts";
+import { inspectPdf, rawCatalog, roles } from "./support/pdf-inspect.ts";
 
 const database = testDatabase();
 const db = createPrisma(database.appUrl);
@@ -141,7 +141,11 @@ async function checked() {
 }
 const create = (
   checkId: string,
-  body: unknown = { language: "en", documentName: "Thesis chapter 3.docx" },
+  body: unknown = {
+    language: "en",
+    style: "apa",
+    documentName: "Thesis chapter 3.docx",
+  },
 ) =>
   fetch(`${api}/v2/checks/${checkId}/reports`, {
     method: "POST",
@@ -151,7 +155,9 @@ const create = (
 async function ready(checkId: string, reportId: string) {
   for (let attempt = 0; attempt < 100; attempt++) {
     const status = ReportResponse.parse(
-      await (await fetch(`${api}/v2/checks/${checkId}/reports/${reportId}`)).json(),
+      await (
+        await fetch(`${api}/v2/checks/${checkId}/reports/${reportId}`)
+      ).json(),
     ).data;
     if (status.state !== "queued" && status.state !== "generating")
       return status;
@@ -179,12 +185,20 @@ it("lets an Owner whose scope includes reports download a tagged PDF with the Ch
   );
   expect(response.headers.get("cache-control")).toBe("no-store");
   expect(response.headers.get("x-content-type-options")).toBe("nosniff");
-  const pdf = await inspectPdf(new Uint8Array(await response.arrayBuffer()));
-  expect(pdf.markInfo).toMatchObject({ Marked: true });
-  expect(pdf.language).toBe("en");
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  const pdf = await inspectPdf(bytes);
+  expect(rawCatalog(bytes)).toEqual({
+    language: "en",
+    marked: true,
+    displayDocTitle: true,
+    hasStructTree: true,
+  });
   expect(pdf.title).toContain("Thesis chapter 3.docx");
-  expect(pdf.viewerPreferences).toMatchObject({ DisplayDocTitle: true });
-  expect(roles(pdf.pages[0]!.tree).slice(0, 3)).toEqual(["Document", "H1", "P"]);
+  expect(roles(pdf.pages[0]!.tree).slice(0, 3)).toEqual([
+    "Document",
+    "H1",
+    "P",
+  ]);
   expect(pdf.text).toContain("Thesis chapter 3.docx");
   expect(pdf.text).toContain(originalText);
   // The report is a separate job: no Quota is reserved or consumed for it.

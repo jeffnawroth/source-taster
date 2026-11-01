@@ -38,6 +38,7 @@ model Check {
   dispatchOrder  BigInt          @default(0) @map("dispatch_order")
   references     ReferenceSlot[]
   events         CheckEvent[]
+  reports        Report[]
 
   @@index([ownerId])
   @@index([contentExpiresAt], map: "checks_content_expiry")
@@ -162,4 +163,29 @@ model ManualOverride {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   result ReferenceResult @relation(fields: [resultId], references: [id], onDelete: Cascade)
   @@map("manual_overrides")
+}
+
+// ADR-0017 short-lived Verification report. The file and the options are
+// sealed with the same transient-content codec as every other Check content,
+// live at most 15 minutes and are deleted with the Check (the Check row stays
+// as the tombstone, so purge deletes reports explicitly).
+model Report {
+  id           String   @id @db.Uuid
+  checkId      String   @map("check_id") @db.Uuid
+  language     String
+  /// Sealed: citation style and the optional document name.
+  options      Json
+  /// queued | generating | ready | failed | cancelled
+  state        String
+  failure      String?
+  intermediate Boolean?
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  expiresAt    DateTime @map("expires_at") @db.Timestamptz(3)
+  /// Sealed base64 PDF; present only while state is ready.
+  file         Json?
+  check        Check    @relation(fields: [checkId], references: [id], onDelete: Cascade)
+
+  @@index([checkId])
+  @@index([expiresAt], map: "reports_expiry")
+  @@map("reports")
 }

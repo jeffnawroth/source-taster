@@ -32,9 +32,16 @@ import {
   ContentUnavailable,
 } from "./content.ts";
 import { EVENT_CHANNEL } from "./events.ts";
-import { REFERENCE_QUEUE } from "./queue.ts";
+import { REFERENCE_QUEUE, REPORT_QUEUE } from "./queue.ts";
 import type { Db } from "../db/prisma.ts";
+import type {
+  Report,
+  ReportFailure,
+  ReportLanguage,
+} from "@source-taster/contract-verification/report";
+import type { CitationStyle } from "@source-taster/contract-common";
 import type { Principal } from "../entitlements.ts";
+import type { ReportInput } from "../reports/model.ts";
 import { QuotaStale, type SlotRef } from "../quota/port.ts";
 
 const withSlots = {
@@ -424,17 +431,19 @@ export function createCheckStore(
     endedAt: Date | null;
     leaseExpiresAt: Date;
   };
-  function contentAlive(row: ContentRow) {
+  /** The instant the Check's content is deleted; Infinity while its lease holds it. */
+  function deletionDeadline(row: ContentRow) {
     const now = clock.now();
     // Once work has started, creation is no longer the retention origin. Before
     // the first end, only an expired lease can establish the eventual deadline.
-    const deadline =
-      row.startedAt && !row.endedAt
-        ? row.leaseExpiresAt.getTime() <= now
-          ? row.leaseExpiresAt.getTime() + settings.contentRetentionMs
-          : Infinity
-        : row.contentExpiresAt.getTime();
-    return !row.deletedAt && now < deadline;
+    return row.startedAt && !row.endedAt
+      ? row.leaseExpiresAt.getTime() <= now
+        ? row.leaseExpiresAt.getTime() + settings.contentRetentionMs
+        : Infinity
+      : row.contentExpiresAt.getTime();
+  }
+  function contentAlive(row: ContentRow) {
+    return !row.deletedAt && clock.now() < deletionDeadline(row);
   }
   function assertContentAlive(row: ContentRow) {
     if (!contentAlive(row)) throw new CheckExpired();
@@ -468,6 +477,8 @@ export function createCheckStore(
       });
     await tx.checkEvent.deleteMany({ where: { checkId: check.id } });
     await tx.referenceSlot.deleteMany({ where: { checkId: check.id } });
+    // The Check row stays as the tombstone, so its reports do not cascade.
+    await tx.report.deleteMany({ where: { checkId: check.id } });
     await tx.check.update({
       where: { id: check.id },
       data: {
@@ -507,6 +518,8 @@ export function createCheckStore(
         const now = clock.now();
         const day = keyDay(now);
         const tx = contentTransaction(raw, () => clock.now());
+        // ADR-0017: a report file lives at most 15 minutes, whatever its state.
+        await raw.$executeRaw`DELETE FROM verification.reports WHERE expires_at<=${new Date(now)}`;
         const due = await raw.$queryRaw<{ id: string }[]>`
         SELECT c.id FROM verification.checks c WHERE c.deleted_at IS NULL AND
         (EXISTS (SELECT 1 FROM verification.owner_tombstones t WHERE t.owner_id::text=lower(c.owner_id))
@@ -657,6 +670,54 @@ export function createCheckStore(
       };
     });
   }
+  // ADR-0017 reports. A report is a separate short-lived record of a Check: it
+  // consumes no Quota, never changes the Check and is deleted with it.
+  const reportLifetimeMs = 15 * 60_000;
+  const publicReport = {
+    id: true,
+    checkId: true,
+    language: true,
+    state: true,
+    failure: true,
+    intermediate: true,
+    expiresAt: true,
+  } as const;
+  type ReportRow = {
+    id: string;
+    checkId: string;
+    language: string;
+    state: string;
+    failure: string | null;
+    intermediate: boolean | null;
+    expiresAt: Date;
+  };
+  const toReport = (row: ReportRow): Report => ({
+    id: row.id,
+    checkId: row.checkId,
+    language: row.language as ReportLanguage,
+    state: row.state as Report["state"],
+    ...(row.failure ? { failure: row.failure as ReportFailure } : {}),
+    ...(row.intermediate === null ? {} : { intermediate: row.intermediate }),
+    expiresAt: row.expiresAt.toISOString(),
+  });
+  /** Expires 15 minutes after `from`, and never after the Check's content. */
+  const reportExpiry = (row: ContentRow, from: number) =>
+    new Date(Math.min(from + reportLifetimeMs, deletionDeadline(row)));
+  async function ownedReport(
+    tx: Tx,
+    principal: Principal,
+    checkId: string,
+    reportId: string,
+  ) {
+    const row = await lock(tx, checkId);
+    if (!row || row.ownerId !== principal.ownerId) return null;
+    assertContentAlive(row);
+    const report = await tx.report.findFirst({
+      where: { id: reportId, checkId },
+      select: publicReport,
+    });
+    return report ? { row, report } : null;
+  }
   async function ownerOperation(
     principal: Principal,
     id: string,
@@ -686,6 +747,228 @@ export function createCheckStore(
     },
     exportSnapshot: (principal: Principal, id: string) =>
       ownerSnapshot(principal, id, "read", 2),
+    reports: {
+      /** Null when the Check is not this Owner's. */
+      async create(
+        principal: Principal,
+        checkId: string,
+        request: {
+          language: ReportLanguage;
+          style: CitationStyle;
+          documentName?: string;
+        },
+      ): Promise<Report | null> {
+        return transaction(async (tx) => {
+          const row = await lock(tx, checkId);
+          if (!row || row.ownerId !== principal.ownerId) return null;
+          assertContentAlive(row);
+          const now = clock.now();
+          // One generating report per Owner bounds memory and worker time.
+          if (
+            (await tx.report.count({
+              where: {
+                state: { in: ["queued", "generating"] },
+                expiresAt: { gt: new Date(now) },
+                check: { ownerId: principal.ownerId },
+              },
+            })) > 0
+          )
+            throw new ReportBusy();
+          // A new report replaces this Check's earlier ones and their files.
+          await tx.report.deleteMany({ where: { checkId } });
+          const created = await tx.report.create({
+            data: {
+              id: randomUUID(),
+              checkId,
+              language: request.language,
+              options: {
+                style: request.style,
+                ...(request.documentName
+                  ? { documentName: request.documentName }
+                  : {}),
+              },
+              state: "queued",
+              expiresAt: reportExpiry(row, now),
+            },
+            select: publicReport,
+          });
+          await boss.send(
+            REPORT_QUEUE,
+            { reportId: created.id },
+            {
+              db: {
+                executeSql: async (sql, values) => ({
+                  rows: await tx.$queryRawUnsafe<unknown[]>(
+                    sql,
+                    ...(values ?? []),
+                  ),
+                }),
+              },
+            },
+          );
+          return toReport(created);
+        });
+      },
+      async get(principal: Principal, checkId: string, reportId: string) {
+        return transaction(async (tx) => {
+          const found = await ownedReport(tx, principal, checkId, reportId);
+          return found ? toReport(found.report) : null;
+        });
+      },
+      /** The finished bytes; null when no such report. Rechecked on every download. */
+      async file(principal: Principal, checkId: string, reportId: string) {
+        return transaction(async (tx) => {
+          const found = await ownedReport(tx, principal, checkId, reportId);
+          if (!found) return null;
+          if (found.report.expiresAt.getTime() <= clock.now())
+            throw new ReportExpired();
+          if (found.report.state !== "ready") throw new ReportNotReady();
+          try {
+            const sealed = await tx.report.findUniqueOrThrow({
+              where: { id: reportId },
+              select: { file: true },
+            });
+            return Buffer.from((sealed.file as { pdf: string }).pdf, "base64");
+          } catch (error) {
+            if (error instanceof ContentUnavailable) throw new ReportExpired();
+            throw error;
+          }
+        });
+      },
+      /** Cancels a job or discards a file. Never touches the Check or Quota. */
+      async cancel(principal: Principal, checkId: string, reportId: string) {
+        return transaction(async (tx) => {
+          const found = await ownedReport(tx, principal, checkId, reportId);
+          if (!found) return null;
+          if (
+            found.report.state === "failed" ||
+            found.report.state === "cancelled"
+          )
+            return toReport(found.report);
+          return toReport(
+            await tx.report.update({
+              where: { id: reportId },
+              data: { state: "cancelled", file: Prisma.DbNull },
+              select: publicReport,
+            }),
+          );
+        });
+      },
+      /**
+       * Worker side. Freezes the snapshot: everything the file will say is read
+       * here, in one locked cut, when generation begins (ADR-0017).
+       */
+      async claim(reportId: string): Promise<ReportWork | null> {
+        const found = await db.report.findUnique({
+          where: { id: reportId },
+          select: { checkId: true },
+        });
+        if (!found) return null;
+        return transaction(async (tx) => {
+          const row = await lock(tx, found.checkId);
+          const report = await tx.report.findUnique({
+            where: { id: reportId },
+            select: { ...publicReport },
+          });
+          if (!row || !report || report.state !== "queued") return null;
+          const now = clock.now();
+          if (!contentAlive(row) || report.expiresAt.getTime() <= now) {
+            await tx.report.delete({ where: { id: reportId } });
+            return null;
+          }
+          let options: { style: CitationStyle; documentName?: string };
+          try {
+            options = (
+              await tx.report.findUniqueOrThrow({
+                where: { id: reportId },
+                select: { options: true },
+              })
+            ).options as typeof options;
+          } catch (error) {
+            if (!(error instanceof ContentUnavailable)) throw error;
+            await tx.report.delete({ where: { id: reportId } });
+            return null;
+          }
+          await expireLocked(tx, row, now);
+          const snapshot = toCheck(
+            await tx.check.findUniqueOrThrow({
+              where: { id: found.checkId },
+              include: withSlots,
+            }),
+            renewalInterval,
+          );
+          await tx.report.update({
+            where: { id: reportId },
+            data: {
+              state: "generating",
+              intermediate: snapshot.state !== "ended",
+            },
+          });
+          return {
+            reportId,
+            subject: {
+              checkId: found.checkId,
+              ownerId: row.ownerId,
+              actorId: row.actorId,
+              ...(row.guestContextId
+                ? { guestContextId: row.guestContextId }
+                : {}),
+            },
+            input: {
+              check: snapshot,
+              language: report.language as ReportLanguage,
+              style: options.style,
+              ...(options.documentName
+                ? { documentName: options.documentName }
+                : {}),
+              capturedAt: new Date(now).toISOString(),
+            },
+          };
+        });
+      },
+      /**
+       * Worker side. Publishes only while the Check is alive and the job was not
+       * cancelled; the caller holds current authority. False: nothing was kept.
+       */
+      async finish(
+        reportId: string,
+        result: { pdf: Uint8Array } | { failure: ReportFailure },
+      ): Promise<boolean> {
+        const found = await db.report.findUnique({
+          where: { id: reportId },
+          select: { checkId: true },
+        });
+        if (!found) return false;
+        return transaction(async (tx) => {
+          const row = await lock(tx, found.checkId);
+          const report = await tx.report.findUnique({
+            where: { id: reportId },
+            select: publicReport,
+          });
+          if (!report || report.state !== "generating") return false;
+          const now = clock.now();
+          if (!row || !contentAlive(row) || report.expiresAt.getTime() <= now) {
+            await tx.report.delete({ where: { id: reportId } });
+            return false;
+          }
+          const data: Prisma.ReportUpdateInput =
+            "failure" in result
+              ? { state: "failed", failure: result.failure }
+              : {
+                  state: "ready",
+                  // The file lives 15 minutes from publication.
+                  expiresAt: reportExpiry(row, now),
+                  file: { pdf: Buffer.from(result.pdf).toString("base64") },
+                };
+          await tx.report.update({ where: { id: reportId }, data });
+          return true;
+        });
+      },
+      /** Worker side, no current authority or entitlement: drop without a file. */
+      async discard(reportId: string) {
+        await db.report.deleteMany({ where: { id: reportId } });
+      },
+    },
     async create(
       principal: Principal,
       references: StructuredReference[],
@@ -1619,3 +1902,13 @@ export type CheckStore = ReturnType<typeof createCheckStore>;
 export class ReferenceConflict extends Error {}
 
 export class CheckExpired extends ContentUnavailable {}
+/** ADR-0017: one report job per Owner at a time. */
+export class ReportBusy extends Error {}
+export class ReportNotReady extends Error {}
+export class ReportExpired extends Error {}
+/** Everything the worker needs, frozen when generation begins. */
+export interface ReportWork {
+  reportId: string;
+  subject: WorkSubject;
+  input: ReportInput;
+}

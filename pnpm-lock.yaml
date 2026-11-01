@@ -281,6 +281,9 @@ importers:
       '@source-taster/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@source-taster/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
       '@source-taster/website':
         specifier: workspace:*
         version: link:../website
