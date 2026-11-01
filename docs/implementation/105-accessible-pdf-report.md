@@ -1,6 +1,6 @@
 # #105 Download an accessible PDF Verification report (public half)
 
-Branch `t3/003ed1a4`, continued from the previous implementer's checkpoint
+Branch `t3/accessible-pdf-report` (worktree `t3-003ed1a4`), continued from the previous implementer's checkpoint
 `5bc1d1e` (`t3/3799420f`, fast-forward merged) on top of `457c3f2`, and merged
 with `origin/spec/70-launch-integration` at `5cce0e2`. Implemented under spec #70
 with the TDD skill. No push, PR, issue mutation, deployment, real provider,
@@ -77,10 +77,11 @@ order, headings, language, links, table headers and Unicode mapping. The
 tests above cover tags, reading order, headings, language, links and
 extractable text (pdf.js' text extraction is the proxy for the Unicode
 mapping). The report contains no tables, so table headers do not apply. veraPDF
-(the PDF/UA machine profile named in the research) is GPL/Java tooling, is not
-a dependency and was **not run**; the "automated PDF accessibility check" in
-the acceptance criteria is therefore met by these owned structure checks, not
-by a PDF/UA validator.
+(the PDF/UA machine profile named in the research) was **not run**: it needs
+its own ADR-0013 tooling decision and a Java runtime, and neither exists in this
+program. Whether the owned structure checks satisfy the acceptance criterion
+"automated PDF accessibility check passes for DE and EN samples" without a
+PDF/UA validator is **open for the client**; this ticket makes no such call.
 
 ### Not machine-verified (honest limits)
 
@@ -122,7 +123,7 @@ the ADR-0017 graph (fontkit 2.0.4, @swc/helpers 0.5.23, base64-js 0.0.8, fflate
 - Open notice items (inventoried, need human license review): brotli's Apache
   headers, missing standalone license files for fontkit/brotli/dfa, the
   unattributed base64 decoder ("Based on ... base64-arraybuffer") in fontkit's
-  `src/utils.js` and the HarfBuzz-derived shapers inside fontkit.
+  published `dist` builds and the HarfBuzz-derived shapers inside fontkit.
 - `pdfjs-dist` (used only by the test inspector) was already an exact-pinned
   dependency of `apps/server`; this ticket added `pdfkit` as the only dependency.
 

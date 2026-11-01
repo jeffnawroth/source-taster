@@ -87,7 +87,7 @@ Gate status recorded for #105 (local macOS arm64 run, no release or qualificatio
 - `pnpm audit:licenses` passes with no new exception (561 installed, 105 runtime).
 - The lockfile resolves exactly the ADR-0017 graph.
 - `pnpm audit --prod` for the server reports no known vulnerabilities. This is a supplementary registry query, **not** the ADR-0015 OSV scan: the checksum-pinned OSV-Scanner and its refreshed database exist only in CI, so `pnpm audit:dependencies` could not complete the advisory step locally (the website qualification step of that script passed). The full OSV scan therefore remains to be observed in CI before the exception takes effect.
-- The brotli Apache headers, missing standalone license files (fontkit, brotli, dfa), the unattributed base64 decoder in fontkit's `src/utils.js` and the HarfBuzz-derived shapers are inventoried but still need the human license review.
+- The brotli Apache headers, missing standalone license files (fontkit, brotli, dfa), the unattributed base64 decoder in fontkit's published `dist` builds and the HarfBuzz-derived shapers are inventoried but still need the human license review.
 
 ## Further launch qualification
 

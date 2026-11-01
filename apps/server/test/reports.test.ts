@@ -364,7 +364,10 @@ it("writes a German report in reading order with overview first, one numbered se
   expect(text).toContain("Seite 1 von");
   // The document name, the Correction suggestion section and the footer.
   expect(text).toContain("Bachelorarbeit Größe.docx");
+  // "Zitierstil" is printed only when a suggestion was actually rendered; the
+  // heading alone also appears in the "no suggestion" sentence.
   expect(text).toContain("Korrekturvorschlag");
+  expect(text).toContain("Zitierstil: apa");
   // The page footer is an Artifact: present on the page, absent from the tags.
   expect(artifactText(pdf.pages[0]!)).toContain("Seite 1 von");
   expect(JSON.stringify(pdf.pages[0]!.tree)).not.toContain("Seite 1 von");
