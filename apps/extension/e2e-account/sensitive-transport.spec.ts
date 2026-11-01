@@ -9,7 +9,9 @@ import * as clients from "@source-taster/contract-service/client";
 import * as contract from "@source-taster/contract-service";
 import { routes } from "@source-taster/contract-service/routes";
 
-const port = 4902;
+const port = Number(
+  process.env.SOURCE_TASTER_ACCOUNT_TEST_SERVICE_PORT ?? 4902,
+);
 const base = `http://127.0.0.1:${port}`;
 const credential = "s".repeat(43);
 const account = {

@@ -34,6 +34,8 @@ export async function bothPrograms(
     startWorker?: boolean;
     accounts?: boolean;
     clientLeaseMs?: number;
+    extensionOrigins?: string[];
+    accountPolicy?: Record<string, number>;
     verificationEnv?: Record<string, string>;
   } = {},
 ) {
@@ -335,6 +337,8 @@ export async function bothPrograms(
     await writeFile(
       accountConfigPath,
       JSON.stringify({
+        extensionOrigins: options.extensionOrigins ?? [],
+        ...(options.accountPolicy ? { policy: options.accountPolicy } : {}),
         secret: randomUUID() + randomUUID(),
         publicOrigin: "https://service.test.invalid",
         from: "signin@source-taster.invalid",
@@ -350,206 +354,215 @@ export async function bothPrograms(
       ? { SERVICE_ACCOUNT_AUTH_CONFIG: accountConfigPath }
       : {}),
   };
-  let service = launch(
-    join(privatePath, "apps/server"),
-    "test/authority-process.ts",
-    [],
-    senv,
-  );
-  await service.ready;
-  let serviceWorker = launch(
-    join(privatePath, "apps/server"),
-    "test/authority-worker.ts",
-    [],
-    senv,
-  );
-  await serviceWorker.ready;
-  let web = launch(serverPath, "test/support/guest-process.ts", [], venv);
-  await web.ready;
-  const worker = () =>
-    launch(serverPath, "test/support/guest-process.ts", ["worker"], venv);
-  if (options.startWorker !== false) await worker().ready;
-  return {
-    mail: () =>
-      service.command({ mailbox: true }) as Promise<
-        { subject: string; text: string }[]
-      >,
-    signIn: async (email = "account@example.invalid") => {
-      const call = (path: string, body: unknown, cookie?: string) =>
-        fetch(serviceUrl + path, {
-          method: "POST",
-          headers: {
-            origin: "https://web.test.invalid",
-            "content-type": "application/json",
-            ...(cookie ? { cookie } : {}),
-          },
-          body: JSON.stringify(body),
+  async function cleanup() {
+    await Promise.all(processes.map((p) => p.stop()));
+    proxy.closeAllConnections();
+    await new Promise<void>((r) => proxy.close(() => r()));
+    await fixtures.stop();
+    const cleanup = new pg.Client({ connectionString: adminUrl });
+    await cleanup.connect();
+    try {
+      await cleanup.query(
+        `DROP DATABASE ${cleanup.escapeIdentifier(database)} WITH (FORCE)`,
+      );
+      for (const role of roles)
+        await cleanup.query(`DROP ROLE ${cleanup.escapeIdentifier(role)}`);
+    } finally {
+      await cleanup.end();
+      await rm(directory, { recursive: true, force: true });
+    }
+  }
+  try {
+    let service = launch(
+      join(privatePath, "apps/server"),
+      "test/authority-process.ts",
+      [],
+      senv,
+    );
+    await service.ready;
+    let serviceWorker = launch(
+      join(privatePath, "apps/server"),
+      "test/authority-worker.ts",
+      [],
+      senv,
+    );
+    await serviceWorker.ready;
+    let web = launch(serverPath, "test/support/guest-process.ts", [], venv);
+    await web.ready;
+    const worker = () =>
+      launch(serverPath, "test/support/guest-process.ts", ["worker"], venv);
+    if (options.startWorker !== false) await worker().ready;
+    return {
+      mail: () =>
+        service.command({ mailbox: true }) as Promise<
+          { subject: string; text: string }[]
+        >,
+      signIn: async (email = "account@example.invalid") => {
+        const call = (path: string, body: unknown, cookie?: string) =>
+          fetch(serviceUrl + path, {
+            method: "POST",
+            headers: {
+              origin: "https://web.test.invalid",
+              "content-type": "application/json",
+              ...(cookie ? { cookie } : {}),
+            },
+            body: JSON.stringify(body),
+          });
+        const challenge = await call("/v1/sign-in/challenges", {
+          email,
+          language: "en",
         });
-      const challenge = await call("/v1/sign-in/challenges", {
-        email,
-        language: "en",
-      });
-      if (!challenge.ok) throw new Error(`Challenge ${challenge.status}`);
-      const pending = (await challenge.json()) as {
-        data: { challengeId: string };
-      };
-      const mail = (await service.command({ mailbox: true })) as {
-        text: string;
-      }[];
-      const code = mail.at(-1)!.text.match(/\b[0-9]{6}\b/)![0];
-      const confirmed = await call(
-        "/v1/sign-in/confirm",
-        { challengeId: pending.data.challengeId, code },
-        challenge.headers.get("set-cookie")!.split(";")[0],
-      );
-      if (!confirmed.ok) throw new Error(`Confirm ${confirmed.status}`);
-      const cookie = confirmed.headers.get("set-cookie")!.split(";")[0]!;
-      const token = await call("/v1/account-tokens", {}, cookie);
-      if (!token.ok) throw new Error(`Token ${token.status}`);
-      return {
-        cookie,
-        token: GuestTokenResponse.parse(await token.json()).data.accessToken,
-        data: (
-          (await confirmed.json()) as {
-            data: { accountId: string; ownerId: string };
-          }
-        ).data,
-        call: (path: string, body: unknown) => call(path, body, cookie),
-      };
-    },
-    now: () => now,
-    apiUrl,
-    serviceUrl,
-    fixtures,
-    access,
-    serviceInternal,
-    verificationInternal,
-    serviceConfig,
-    serviceConfigPath,
-    venv,
-    senv,
-    urls,
-    privatePath,
-    directory,
-    web: () => web,
-    service: () => service,
-    worker,
-    restartWeb: async () => {
-      await web.stop();
-      web = launch(serverPath, "test/support/guest-process.ts", [], venv);
-      await web.ready;
-    },
-    restartService: async () => {
-      await service.stop();
-      await serviceWorker.stop();
-      service = launch(
-        join(privatePath, "apps/server"),
-        "test/authority-process.ts",
-        [],
-        senv,
-      );
-      await service.ready;
-      serviceWorker = launch(
-        join(privatePath, "apps/server"),
-        "test/authority-worker.ts",
-        [],
-        senv,
-      );
-      await serviceWorker.ready;
-    },
-    advance: async (ms: number) => {
-      now += ms;
-      await Promise.all(
-        processes
-          .filter(
-            (p) => p.child.exitCode === null && p.child.signalCode === null,
-          )
-          .map((p) => p.command({ now })),
-      );
-    },
-    change: async (guestId: string, change: object, wait = true) => {
-      let result = (await service.command({ guestId, ...change })) as {
-        completed: boolean;
-        version: number;
-      };
-      if (wait && !result.completed)
-        await eventually(async () => {
-          result = (await service.command({
-            guestId,
-            status: true,
-            // Completion is per Guest and client, like the change itself.
-            client: (change as { client?: string }).client,
-          })) as typeof result;
-          return result.completed;
-        }, 5000);
-      return result;
-    },
-    holdWork: () => {
-      let arrived!: () => void, release!: () => void;
-      const gate = {
-        arrived: () => arrived(),
-        wait: new Promise<void>((r) => {
-          release = r;
-        }),
-      };
-      const waiting = new Promise<void>((r) => {
-        arrived = r;
-      });
-      workGate = gate;
-      return {
-        arrived: waiting,
-        release: () => {
-          workGate = undefined;
-          release();
-        },
-      };
-    },
-    delayWork: (ms: number) => {
-      workDelayMs = ms;
-    },
-    trap: (permission?: string, kind?: string, skip = 0) => {
-      let hit!: () => void, release!: () => void;
-      const arrived = new Promise<void>((r) => {
-        hit = r;
-      });
-      const wait = new Promise<void>((r) => {
-        release = r;
-      });
-      trap = { permission, kind, skip, hit, wait };
-      return { arrived, release };
-    },
-    issue: async (
-      guestId = randomUUID(),
-      client: "web" | "extension" = "web",
-    ) => {
-      const response = await fetch(`${serviceUrl}/v1/guest-tokens`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ guestId, client }),
-      });
-      if (!response.ok) throw new Error(`Guest issuance: ${response.status}`);
-      return {
-        guestId,
-        token: GuestTokenResponse.parse(await response.json()).data.accessToken,
-      };
-    },
-    stop: async () => {
-      await Promise.all(processes.map((p) => p.stop()));
-      proxy.closeAllConnections();
-      await new Promise<void>((r) => proxy.close(() => r()));
-      await fixtures.stop();
-      const cleanup = new pg.Client({ connectionString: adminUrl });
-      await cleanup.connect();
-      try {
-        await cleanup.query(
-          `DROP DATABASE ${cleanup.escapeIdentifier(database)} WITH (FORCE)`,
+        if (!challenge.ok) throw new Error(`Challenge ${challenge.status}`);
+        const pending = (await challenge.json()) as {
+          data: { challengeId: string };
+        };
+        const mail = (await service.command({ mailbox: true })) as {
+          text: string;
+        }[];
+        const code = mail.at(-1)!.text.match(/\b[0-9]{6}\b/)![0];
+        const confirmed = await call(
+          "/v1/sign-in/confirm",
+          { challengeId: pending.data.challengeId, code },
+          challenge.headers.get("set-cookie")!.split(";")[0],
         );
-        for (const role of roles)
-          await cleanup.query(`DROP ROLE ${cleanup.escapeIdentifier(role)}`);
-      } finally {
-        await cleanup.end();
-        await rm(directory, { recursive: true, force: true });
-      }
-    },
-  };
+        if (!confirmed.ok) throw new Error(`Confirm ${confirmed.status}`);
+        const cookie = confirmed.headers.get("set-cookie")!.split(";")[0]!;
+        const token = await call("/v1/account-tokens", {}, cookie);
+        if (!token.ok) throw new Error(`Token ${token.status}`);
+        return {
+          cookie,
+          token: GuestTokenResponse.parse(await token.json()).data.accessToken,
+          data: (
+            (await confirmed.json()) as {
+              data: { accountId: string; ownerId: string };
+            }
+          ).data,
+          call: (path: string, body: unknown) => call(path, body, cookie),
+        };
+      },
+      accountConfigPath,
+      now: () => now,
+      apiUrl,
+      serviceUrl,
+      fixtures,
+      access,
+      serviceInternal,
+      verificationInternal,
+      serviceConfig,
+      serviceConfigPath,
+      venv,
+      senv,
+      urls,
+      privatePath,
+      directory,
+      web: () => web,
+      service: () => service,
+      worker,
+      restartWeb: async () => {
+        await web.stop();
+        web = launch(serverPath, "test/support/guest-process.ts", [], venv);
+        await web.ready;
+      },
+      restartService: async (beforeStart?: () => Promise<void>) => {
+        await service.stop();
+        await serviceWorker.stop();
+        await beforeStart?.();
+        service = launch(
+          join(privatePath, "apps/server"),
+          "test/authority-process.ts",
+          [],
+          senv,
+        );
+        await service.ready;
+        serviceWorker = launch(
+          join(privatePath, "apps/server"),
+          "test/authority-worker.ts",
+          [],
+          senv,
+        );
+        await serviceWorker.ready;
+      },
+      advance: async (ms: number) => {
+        now += ms;
+        await Promise.all(
+          processes
+            .filter(
+              (p) => p.child.exitCode === null && p.child.signalCode === null,
+            )
+            .map((p) => p.command({ now })),
+        );
+      },
+      change: async (guestId: string, change: object, wait = true) => {
+        let result = (await service.command({ guestId, ...change })) as {
+          completed: boolean;
+          version: number;
+        };
+        if (wait && !result.completed)
+          await eventually(async () => {
+            result = (await service.command({
+              guestId,
+              status: true,
+              // Completion is per Guest and client, like the change itself.
+              client: (change as { client?: string }).client,
+            })) as typeof result;
+            return result.completed;
+          }, 5000);
+        return result;
+      },
+      holdWork: () => {
+        let arrived!: () => void, release!: () => void;
+        const gate = {
+          arrived: () => arrived(),
+          wait: new Promise<void>((r) => {
+            release = r;
+          }),
+        };
+        const waiting = new Promise<void>((r) => {
+          arrived = r;
+        });
+        workGate = gate;
+        return {
+          arrived: waiting,
+          release: () => {
+            workGate = undefined;
+            release();
+          },
+        };
+      },
+      delayWork: (ms: number) => {
+        workDelayMs = ms;
+      },
+      trap: (permission?: string, kind?: string, skip = 0) => {
+        let hit!: () => void, release!: () => void;
+        const arrived = new Promise<void>((r) => {
+          hit = r;
+        });
+        const wait = new Promise<void>((r) => {
+          release = r;
+        });
+        trap = { permission, kind, skip, hit, wait };
+        return { arrived, release };
+      },
+      issue: async (
+        guestId = randomUUID(),
+        client: "web" | "extension" = "web",
+      ) => {
+        const response = await fetch(`${serviceUrl}/v1/guest-tokens`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ guestId, client }),
+        });
+        if (!response.ok) throw new Error(`Guest issuance: ${response.status}`);
+        return {
+          guestId,
+          token: GuestTokenResponse.parse(await response.json()).data
+            .accessToken,
+        };
+      },
+      stop: cleanup,
+    };
+  } catch (error) {
+    await cleanup();
+    throw error;
+  }
 }

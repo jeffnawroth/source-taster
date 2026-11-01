@@ -467,6 +467,7 @@ export function AccountWorkspace({
       transport={transport}
       siteUrl={siteUrl}
       selectionIntake={selectionIntake}
+      deferQuotaRead={removal === "deleted"}
       onPreferencesChange={accountPreferences.change}
       accountControls={(language, quota) => (
         <>

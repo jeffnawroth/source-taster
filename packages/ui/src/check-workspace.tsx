@@ -97,6 +97,7 @@ export function CheckWorkspace({
   selectionIntake,
   upgradeUrl,
   accountHistory = false,
+  deferQuotaRead = false,
 }: {
   accountHistory?: boolean;
   initial: { preferences: Preferences; citationStyleReset: boolean };
@@ -117,6 +118,13 @@ export function CheckWorkspace({
   selectionIntake?: SelectionIntake;
   /** Where the host sells Plans; without it the upgrade offer is text only. */
   upgradeUrl?: string;
+  /**
+   * Hosted only: skip the mount-time Quota read. The Quota slot stays neutral
+   * (empty) and is read at the first Start, which stays fail-closed. For a
+   * Guest view that follows a completed Account deletion, so that opening it
+   * does not request a Guest token.
+   */
+  deferQuotaRead?: boolean;
 }) {
   const api = useMemo(() => verificationClient(transport), [transport]);
   const structureText = useMemo(
@@ -225,7 +233,7 @@ export function CheckWorkspace({
   const [quota, setQuota] = useState<OwnerQuota | null>(null);
   const [quotaState, setQuotaState] = useState<
     "loading" | "ready" | "unavailable"
-  >(hostedQuota ? "loading" : "ready");
+  >(hostedQuota && !deferQuotaRead ? "loading" : "ready");
   const lastQuota = useRef<OwnerQuota | null>(null);
   const [quotaChoice, setQuotaChoice] = useState<{
     required: number;
@@ -266,7 +274,7 @@ export function CheckWorkspace({
   // session answered "none"), so this read never mints a Guest while an
   // Account session is pending or failed; the transport refuses that itself.
   useEffect(() => {
-    if (!hostedQuota) return;
+    if (!hostedQuota || deferQuotaRead) return;
     let live = true;
     api.getQuota().then(
       (response) => {
@@ -284,7 +292,7 @@ export function CheckWorkspace({
     return () => {
       live = false;
     };
-  }, [api, hostedQuota]);
+  }, [api, hostedQuota, deferQuotaRead]);
   useEffect(
     () => () => {
       generation.current++;
