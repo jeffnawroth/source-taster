@@ -379,14 +379,9 @@ export function createCheckStore(
       current.apiVersion === 2 &&
       !current.guestContextId
     ) {
-      const consent = await tx.historyConsent.findUnique({
-        where: { ownerId: current.ownerId },
-      });
-      if (consent?.enabled) {
-        const days =
-          consent.extendedUntil && consent.extendedUntil.getTime() > now
-            ? 90
-            : 30;
+      const policy = await historyPolicy(tx, current.ownerId, now);
+      if (policy.enabled) {
+        const days = policy.paid ? 90 : 30;
         const sequence = await tx.$queryRaw<
           { value: bigint }[]
         >`SELECT nextval('verification.history_storage_order') AS value`;
@@ -623,10 +618,18 @@ export function createCheckStore(
     historyLocked: true,
   } as const;
   const DAY = 86_400_000;
-  async function historyRules(tx: Tx, ownerId: string, storingFree = false) {
+  async function historyPolicy(tx: Tx, ownerId: string, at: number) {
     const consent = await tx.historyConsent.findUnique({ where: { ownerId } });
-    const paid =
-      !!consent?.extendedUntil && consent.extendedUntil.getTime() > clock.now();
+    const enabled = consent?.enabled ?? false;
+    if (!consent?.extendedUntil || consent.extendedUntil.getTime() <= at)
+      return { enabled, paid: false };
+    const fence = await tx.authorityFence.findUnique({ where: { ownerId } });
+    return { enabled, paid: consent.authorityVersion >= (fence?.version ?? 1) };
+  }
+  async function historyRules(tx: Tx, ownerId: string, storingFree = false) {
+    // Publication uses the durable invalidation fence even without a fresh
+    // Quota reply, including an already-open stream or a held response.
+    const { enabled, paid } = await historyPolicy(tx, ownerId, clock.now());
     const entries = await tx.check.findMany({
       where: { ownerId, historyStoredAt: { not: null }, deletedAt: null },
       select: retentionMetadata,
@@ -660,7 +663,7 @@ export function createCheckStore(
           data: { historyLocked: locked },
         });
     }
-    return { enabled: consent?.enabled ?? false, paid };
+    return { enabled, paid };
   }
   async function historySnapshot(
     tx: Tx,

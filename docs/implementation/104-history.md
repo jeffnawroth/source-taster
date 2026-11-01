@@ -93,7 +93,9 @@ this seam:
    Couple reductions to the existing signed durable Owner-authority invalidation
    protocol and durably retry it. The public cache rejects replies older than
    its stored version or invalidation fence; it also checks the bounded timestamp
-   against the injected clock. Missing `history` fails closed to Free retention.
+   against the injected clock. Storage and publication also consult the durable
+   invalidation fence directly, so an earlier reply cannot publish paid content
+   after downgrade acknowledgement. Missing `history` fails closed to Free retention.
    No local paid Plan or independent entitlement catalog was added.
 3. The public API refreshes this bounded view outside store transactions and
    Owner guards, before Account requests and worker result commits. The service
@@ -125,6 +127,7 @@ Local evidence is in this worktree's ignored `.tmp/104/` directory.
 | Slice | Observed red | Green |
 | --- | --- | --- |
 | Opt in / retain / delete through HTTP | `red-http-ready.log`: History route 404 | `green-http-1.log` |
+| Signed downgrade during held publication | `red-downgrade-publication.log`: stale paid publication stayed unlocked | `green-downgrade-publication.log` |
 | Equal-clock storage order | `red-storage-order.log`: UUID order evicted the wrong entry | `green-storage-order.log` |
 | DE/EN web controls | `red-web.log`: missing Enable History | `green-web-1.log`, `web-expanded.log` |
 | Downgrade a displaced Free-stored entry | `red-downgrade-free-ready.log`: 5 entries instead of 6 | `green-downgrade-free.log` |

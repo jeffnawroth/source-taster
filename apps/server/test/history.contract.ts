@@ -554,3 +554,44 @@ test("Free keeps the last five stored Checks in storage order when the injected 
   );
   expect((await request(`checks/${ids[0]}`)).status).toBe(410);
 });
+
+test("a signed downgrade fence locks History publication even while an earlier Quota reply is in flight", async () => {
+  let snapshots = 0,
+    holdAt = Infinity;
+  let arrived!: () => void, release!: () => void;
+  const arrival = new Promise<void>((r) => {
+    arrived = r;
+  });
+  const held = new Promise<void>((r) => {
+    release = r;
+  });
+  const { api, account, request, create, paid } = await historyApi({
+    service: async (req) => {
+      if (req.url === "/internal/quota/snapshot" && ++snapshots === holdAt) {
+        arrived();
+        await held;
+        return { status: 200, body: { outcome: "granted", quota: oldQuota } };
+      }
+      return undefined;
+    },
+  });
+  paid();
+  await request("history", "PUT", { enabled: true });
+  await create();
+  await api.advance(31 * DAY);
+  const oldQuota = structuredClone(api.state.quota);
+  holdAt = snapshots + 2;
+  const pending = request("history");
+  try {
+    await arrival;
+    api.state.quota.features = ["check"];
+    api.state.quota.history.extendedUntil = null;
+    api.state.quota.history.authorityVersion = 2;
+    expect((await api.invalidateOwner(account, 2)).status).toBe(200);
+  } finally {
+    release();
+  }
+  const entry = (await historyData(await pending)).entries[0]!;
+  expect(entry.locked).toBe(true);
+  expect(entry.label).toBeUndefined();
+});

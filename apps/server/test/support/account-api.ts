@@ -111,6 +111,7 @@ export async function startAccountApi(
   const state = {
     /** What the (fake) private service answers for current Account authority. */
     allowed: true,
+    authorityVersion: 1,
     authorityCalls: [] as { kind: string; permission: string }[],
     quota: {
       ...quota,
@@ -187,7 +188,7 @@ export async function startAccountApi(
         return void res.end(
           JSON.stringify(
             state.allowed
-              ? { allowed: true, version: 1 }
+              ? { allowed: true, version: state.authorityVersion }
               : { allowed: false, reason: "revoked" },
           ),
         );
@@ -386,6 +387,38 @@ export async function startAccountApi(
           : {
               authorization: `Bearer ${signed(claims, "service+jwt", peer.privateKey, "st102-service")}`,
             },
+      });
+    },
+    /** Signed private-service invalidation; Account/Plan versions share this Owner fence. */
+    invalidateOwner: (account: AccountIdentity, version: number) => {
+      state.authorityVersion = version;
+      const path = "/internal/guest-authority/invalidate";
+      const body = JSON.stringify({
+        ownerId: account.ownerId,
+        actorId: account.accountId,
+        version,
+        cancelWork: false,
+      });
+      const seconds = Math.floor(now / 1000);
+      const claims = {
+        iss: issuer,
+        aud: audience,
+        purpose: "authority-invalidation",
+        iat: seconds,
+        nbf: seconds,
+        exp: seconds + 30,
+        jti: randomUUID(),
+        method: "POST",
+        path,
+        bodyHash: createHash("sha256").update(body).digest("base64url"),
+      };
+      return fetch(`${apiUrl}${path}`, {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${signed(claims, "service+jwt", peer.privateKey, "st102-service")}`,
+          "content-type": "application/json",
+        },
+        body,
       });
     },
     /** Hold the next Account authority call of this kind until released. */
