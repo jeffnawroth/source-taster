@@ -27,7 +27,7 @@ const secret = randomUUID();
 const identity = { ...newAccount(), email: "reader@example.org" };
 // A deleted Owner stays deleted, so every test signs in as a new Account.
 let api: Awaited<ReturnType<typeof startAccountApi>>;
-let fake: ReturnType<typeof sensitiveService>;
+let fake: Awaited<ReturnType<typeof sensitiveService>>;
 let enabled: { url: string; stop(): Promise<void> };
 let gated: { url: string; stop(): Promise<void> };
 
@@ -94,7 +94,7 @@ async function vite(flag: "enabled" | "disabled") {
   };
 }
 test.beforeAll(async () => {
-  fake = sensitiveService({
+  fake = await sensitiveService({
     prefix: "/v1",
     account: identity,
     secret,
@@ -114,6 +114,7 @@ test.afterAll(async () => {
   await enabled?.stop();
   await gated?.stop();
   await api?.stop();
+  await fake?.stop();
 });
 test.beforeEach(() => {
   // Each test starts with a live session, no proof and the default behavior.

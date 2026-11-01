@@ -32,6 +32,8 @@ export async function eventually(
 export async function bothPrograms(
   options: {
     startWorker?: boolean;
+    apiPort?: number;
+    servicePort?: number;
     accounts?: boolean;
     clientLeaseMs?: number;
     extensionOrigins?: string[];
@@ -194,11 +196,15 @@ export async function bothPrograms(
   }
   const [apiPort, servicePort, proxyPort] = await Promise.all([
     options.accounts
-      ? Promise.resolve(Number(process.env.SOURCE_TASTER_TEST_API_PORT ?? 3501))
+      ? Promise.resolve(
+          options.apiPort ??
+            Number(process.env.SOURCE_TASTER_TEST_API_PORT ?? 3501),
+        )
       : freePort(),
     options.accounts
       ? Promise.resolve(
-          Number(process.env.SOURCE_TASTER_TEST_SERVICE_PORT ?? 3502),
+          options.servicePort ??
+            Number(process.env.SOURCE_TASTER_TEST_SERVICE_PORT ?? 3502),
         )
       : freePort(),
     freePort(),
