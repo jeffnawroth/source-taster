@@ -1,0 +1,777 @@
+{
+  "publicSource": "a6adb0257a8414e3684c7cedbfc5b4ffb427ebbf",
+  "privateSource": "1b2d0f85d114a619096b34d51e3ae97ab31b89c2",
+  "publicIntegration": "1152dfaa929083896ac6741d36122c807e00b2a8",
+  "privateIntegration": "6537c7c525c391a43d7b55be0a33f0c25ee04c83",
+  "pin": "1152dfaa929083896ac6741d36122c807e00b2a8",
+  "overrides": false,
+  "tests": [
+    {
+      "name": "private-focused-final",
+      "passed": 55,
+      "exit": 0,
+      "cwd": "private/apps/server",
+      "command": "pnpm exec vitest run test/preferences.test.ts test/commerce.test.ts test/quota.test.ts test/sensitive.test.ts test/abuse.test.ts test/dpa.test.ts test/operator.test.ts",
+      "installBoundary": "published pin 1152dfaa",
+      "log": "private-phases-nov2-private-focused-final.log",
+      "bytes": 211,
+      "sha256": "9f2184943ff10197fc428dfe35ec3e1656f03890561ec38c11ad4197d2b1a57b"
+    },
+    {
+      "name": "server-abuse-both-pinned",
+      "passed": 4,
+      "exit": 0,
+      "cwd": "public/apps/server",
+      "command": "pnpm exec vitest run --config abuse-both.vitest.config.ts",
+      "installBoundary": "published pin 1152dfaa",
+      "log": "private-phases-nov2-server-abuse-both-pinned.log",
+      "bytes": 195,
+      "sha256": "fb0b356319e6e8ef75020a32387ca39b562b80696f04ee7986a8a6ffda0aee80"
+    },
+    {
+      "name": "sensitive-history-final",
+      "passed": 2,
+      "exit": 0,
+      "cwd": "public/apps/server",
+      "command": "pnpm exec vitest run --config sensitive.vitest.config.ts",
+      "installBoundary": "published pin 1152dfaa",
+      "log": "private-phases-nov2-sensitive-history-final.log",
+      "bytes": 194,
+      "sha256": "36ff3c934b39ed010f0f0c5623a46586a3e9b33623f1542aeb33eff9de380d60"
+    },
+    {
+      "name": "server-quota-pinned",
+      "passed": 9,
+      "exit": 0,
+      "cwd": "public/apps/server",
+      "command": "pnpm exec vitest run --config quota.vitest.config.ts",
+      "installBoundary": "published pin 1152dfaa",
+      "log": "private-phases-nov2-server-quota-pinned.log",
+      "bytes": 195,
+      "sha256": "0d8120f9bed8e5309baa742e97ae5acc08f148ac0fcfcda74aa9aa6e04d2dc3c"
+    },
+    {
+      "name": "web-sensitive-pinned",
+      "passed": 17,
+      "exit": 0,
+      "cwd": "public/apps/web",
+      "command": "pnpm exec playwright test --config sensitive.playwright.config.ts",
+      "installBoundary": "published pin 1152dfaa",
+      "log": "private-phases-nov2-web-sensitive-pinned.log",
+      "bytes": 5008,
+      "sha256": "7328c31ffd364b2dc7e4395b3c06600db8bc5b98d80c7ded11bb5a655e86931b"
+    },
+    {
+      "name": "preferences-pinned",
+      "passed": 9,
+      "exit": 0,
+      "cwd": "public/apps/extension",
+      "command": "pnpm exec playwright test --config preferences.playwright.config.ts",
+      "installBoundary": "published pin 1152dfaa",
+      "log": "private-phases-nov2-preferences-pinned.log",
+      "bytes": 1983,
+      "sha256": "d8117a3c6b9174671bccfe0655a70bbe52d1d26002039f60bb2a52ddf8a18526"
+    },
+    {
+      "name": "native-account-pinned",
+      "passed": 27,
+      "exit": 0,
+      "cwd": "public/apps/extension",
+      "command": "pnpm exec playwright test --config account.playwright.config.ts",
+      "installBoundary": "published pin 1152dfaa",
+      "log": "private-phases-nov2-native-account-pinned.log",
+      "bytes": 6284,
+      "sha256": "febabb2eeec764fa1e89db77872fd17018efb41a4817ad50727fe2032fd1a779"
+    },
+    {
+      "name": "native-private-pinned",
+      "passed": 5,
+      "exit": 0,
+      "cwd": "public/apps/extension",
+      "command": "pnpm exec playwright test --config private.playwright.config.ts",
+      "installBoundary": "published pin 1152dfaa",
+      "log": "private-phases-nov2-native-private-pinned.log",
+      "bytes": 879,
+      "sha256": "c2c283c37b0ca0a33467e5acc3073c25786445b1cf8ac8e6a957b9647c3b3756"
+    },
+    {
+      "name": "server-guest",
+      "passed": 33,
+      "exit": 0,
+      "cwd": "public/apps/server",
+      "command": "pnpm exec vitest run --config guest.vitest.config.ts",
+      "installBoundary": "earlier run; see handoff boundaries",
+      "log": "private-phases-nov2-server-guest.log",
+      "bytes": 198,
+      "sha256": "9864f2663f226c4fb3500e0183ba089f2acf245fc535ba02ec462fb960739149"
+    },
+    {
+      "name": "server-account",
+      "passed": 2,
+      "exit": 0,
+      "cwd": "public/apps/server",
+      "command": "pnpm exec vitest run --config account.vitest.config.ts",
+      "installBoundary": "earlier run; see handoff boundaries",
+      "log": "private-phases-nov2-server-account.log",
+      "bytes": 204,
+      "sha256": "cafc3a76e8e32b2954d31d8ea64a3044d36e870d7b1a07b3a593cba11c32a485"
+    },
+    {
+      "name": "server-extension-final",
+      "passed": 4,
+      "exit": 0,
+      "cwd": "public/apps/server",
+      "command": "pnpm exec vitest run --config extension.vitest.config.ts",
+      "installBoundary": "earlier run; see handoff boundaries",
+      "log": "private-phases-nov2-server-extension-final.log",
+      "bytes": 195,
+      "sha256": "215bb7dd0f965b5b9d3f4e2a2ad0de6b61d7199e2ea9f7fbf6279f478262a2b6"
+    },
+    {
+      "name": "server-dpa-final",
+      "passed": 1,
+      "exit": 0,
+      "cwd": "public/apps/server",
+      "command": "pnpm exec vitest run --config dpa.vitest.config.ts",
+      "installBoundary": "earlier run; see handoff boundaries",
+      "log": "private-phases-nov2-server-dpa-final.log",
+      "bytes": 218,
+      "sha256": "41f17609eef4c7858f94a12c87c36ad27ae64dd484c43dc364a968910ab679eb"
+    },
+    {
+      "name": "private-web",
+      "passed": 1,
+      "exit": 0,
+      "cwd": "private",
+      "command": "pnpm --filter @source-taster-service/web test:e2e",
+      "installBoundary": "earlier run; see handoff boundaries",
+      "log": "private-phases-nov2-private-web.log",
+      "bytes": 532,
+      "sha256": "fc08ccbc0f842586e6bf6e576de260dcce8a9fff4702b52f829f56ef54def19e"
+    },
+    {
+      "name": "web-quota",
+      "passed": 9,
+      "exit": 0,
+      "cwd": "public/apps/web",
+      "command": "pnpm exec playwright test --config quota.playwright.config.ts",
+      "installBoundary": "earlier run; see handoff boundaries",
+      "log": "private-phases-nov2-web-quota.log",
+      "bytes": 1464,
+      "sha256": "80e39e0d065b66b36d2a6c424111dd04db0e047c3112c0930f69d4fa4dac963c"
+    },
+    {
+      "name": "web-account",
+      "passed": 2,
+      "exit": 0,
+      "cwd": "public/apps/web",
+      "command": "pnpm exec playwright test --config account.playwright.config.ts",
+      "installBoundary": "earlier run; see handoff boundaries",
+      "log": "private-phases-nov2-web-account.log",
+      "bytes": 489,
+      "sha256": "833de13fdc094fa74aa790558381abc52b4ff92930f57da61d74b2572e151bc9"
+    },
+    {
+      "name": "web-dpa",
+      "passed": 4,
+      "exit": 0,
+      "cwd": "public/apps/web",
+      "command": "pnpm exec playwright test --config dpa.playwright.config.ts",
+      "installBoundary": "earlier run; see handoff boundaries",
+      "log": "private-phases-nov2-web-dpa.log",
+      "bytes": 657,
+      "sha256": "98a25572e6442804a921bcdaaae644b7008febf72b0db6e1c83a5eb9bea73dda"
+    },
+    {
+      "name": "native-dpa",
+      "passed": 4,
+      "exit": 0,
+      "cwd": "public/apps/extension",
+      "command": "pnpm exec playwright test --config dpa.playwright.config.ts",
+      "installBoundary": "earlier run; see handoff boundaries",
+      "log": "private-phases-nov2-native-dpa.log",
+      "bytes": 649,
+      "sha256": "be9128d10e227a69c1a64a6ac6e97d42e5c2707895ef382582d40fb3859e440d"
+    }
+  ],
+  "earlierFullRuns": [
+    {
+      "log": "private-phases-nov2-private-server-final.log",
+      "passed": 72,
+      "failed": 1,
+      "boundary": "before commerce merge; mail retry assertion corrected"
+    },
+    {
+      "log": "private-phases-nov2-private-server-after106.log",
+      "passed": 83,
+      "failed": 2,
+      "boundary": "invoice trigger and capture helper corrected; not final full-suite success"
+    }
+  ],
+  "logDigests": [
+    {
+      "log": "private-phases-nov2-dpa-green.log",
+      "bytes": 208,
+      "sha256": "bc6b4ab3416d9d85152a3e01512998783f5b51fb47862c860d0576d58e6d2483"
+    },
+    {
+      "log": "private-phases-nov2-dpa-language-red.log",
+      "bytes": 1419,
+      "sha256": "09d1193ae8a54c0f346c92d6328f56a62de524d09531043c60870250d3301976"
+    },
+    {
+      "log": "private-phases-nov2-dpa-red.log",
+      "bytes": 2310,
+      "sha256": "3eb57b3e8265bb20867b1c639ded48b714fa6d5125882095546c069e39af0057"
+    },
+    {
+      "log": "private-phases-nov2-dpa-red2.log",
+      "bytes": 1725,
+      "sha256": "f8dd88cd77c396ad6f2814b95f7bbf7e51e54a532d894b936b831272e4c82108"
+    },
+    {
+      "log": "private-phases-nov2-dpa-red3.log",
+      "bytes": 1235,
+      "sha256": "f6eddcd123be2531d194e76ea64b56c90d47835f1685806ba4d37a95d657f546"
+    },
+    {
+      "log": "private-phases-nov2-format-initial.log",
+      "bytes": 293,
+      "sha256": "0097a1a53ea10063ef85e969f567deb3210b8f46cb4b80555fda374e0583033a"
+    },
+    {
+      "log": "private-phases-nov2-native-account-pinned.log",
+      "bytes": 6284,
+      "sha256": "febabb2eeec764fa1e89db77872fd17018efb41a4817ad50727fe2032fd1a779"
+    },
+    {
+      "log": "private-phases-nov2-native-account.log",
+      "bytes": 5514,
+      "sha256": "bfe90e5dd97bcafe4f98709a730fd6841af2ea65e170f9d637ba0877973dcb53"
+    },
+    {
+      "log": "private-phases-nov2-native-dpa.log",
+      "bytes": 649,
+      "sha256": "be9128d10e227a69c1a64a6ac6e97d42e5c2707895ef382582d40fb3859e440d"
+    },
+    {
+      "log": "private-phases-nov2-native-private-pinned.log",
+      "bytes": 879,
+      "sha256": "c2c283c37b0ca0a33467e5acc3073c25786445b1cf8ac8e6a957b9647c3b3756"
+    },
+    {
+      "log": "private-phases-nov2-native-private.log",
+      "bytes": 3225,
+      "sha256": "8d6fe73cdc0a64ce2cbcdfb764cebfe551b1508926b683d5766baeed8089ae5d"
+    },
+    {
+      "log": "private-phases-nov2-pagefind-build-resumed.log",
+      "bytes": 30787,
+      "sha256": "82e31a74c5fed6dbbc34b6340d1c835c3c00b714ac14696fa7cbeed7851e94e2"
+    },
+    {
+      "log": "private-phases-nov2-pagefind-build.log",
+      "bytes": 12074,
+      "sha256": "01dcd739560390f47e75c79efd6ff7a1a99494dd8a44711c8a95a6d79c6e529a"
+    },
+    {
+      "log": "private-phases-nov2-pagefind-fetch.log",
+      "bytes": 29194,
+      "sha256": "f9428eff0a07303eaf430d312b316c70d6100835bda0e694a6aceeac640c0180"
+    },
+    {
+      "log": "private-phases-nov2-pagefind-verify.log",
+      "bytes": 98,
+      "sha256": "9f13fabac05bdeabf4b3c72b7670a332783263e0544b425afe88d162b3288d51"
+    },
+    {
+      "log": "private-phases-nov2-preferences-pinned.log",
+      "bytes": 1983,
+      "sha256": "d8117a3c6b9174671bccfe0655a70bbe52d1d26002039f60bb2a52ddf8a18526"
+    },
+    {
+      "log": "private-phases-nov2-preferences.log",
+      "bytes": 3946,
+      "sha256": "132046005f433ce78ef70c8a3f9fd676bec6a5b55ca45f3d43b4c73d322dd7ce"
+    },
+    {
+      "log": "private-phases-nov2-private-after106-frozen.log",
+      "bytes": 268,
+      "sha256": "a0342db34746c1a215afdba03cfb7e582f0356d95974519a46f7113cfc73d933"
+    },
+    {
+      "log": "private-phases-nov2-private-after106-pinned-types.log",
+      "bytes": 4242,
+      "sha256": "2eb7835b3510a8268dcfee83d40edf8cf797c3d2f04727e479955965468b6f6d"
+    },
+    {
+      "log": "private-phases-nov2-private-build-final.log",
+      "bytes": 3269,
+      "sha256": "39ac1fd7990aa38534454f4d575e986fc9832bff4a513ec5f01713dcd56eed93"
+    },
+    {
+      "log": "private-phases-nov2-private-build.log",
+      "bytes": 2738,
+      "sha256": "f1f689df338ea5de12b8f9fd32e5c67972018ddf2a7eaf482b63df58e91d93fd"
+    },
+    {
+      "log": "private-phases-nov2-private-catalog-after106.log",
+      "bytes": 240,
+      "sha256": "df18f23268ff1b29e9d3ce16037d61b1cec74db2cfa217d55fb5f17e43cebe85"
+    },
+    {
+      "log": "private-phases-nov2-private-eslint-pass.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "log": "private-phases-nov2-private-focused-final.log",
+      "bytes": 211,
+      "sha256": "9f2184943ff10197fc428dfe35ec3e1656f03890561ec38c11ad4197d2b1a57b"
+    },
+    {
+      "log": "private-phases-nov2-private-focused-pinned.log",
+      "bytes": 30212,
+      "sha256": "3a3a48254a33e1c522a72c845eab2acecc05f289a739ab96e11f0875b9723527"
+    },
+    {
+      "log": "private-phases-nov2-private-format.log",
+      "bytes": 205,
+      "sha256": "cda2696193183452355410acf08c42ad06b35c75f51b1aea372a416adbb057d6"
+    },
+    {
+      "log": "private-phases-nov2-private-frozen-install.log",
+      "bytes": 268,
+      "sha256": "268c15c7909072993dcf85d7f7c7823df8cf2f8a30793696cd25c056c97fbfe5"
+    },
+    {
+      "log": "private-phases-nov2-private-generate-after106.log",
+      "bytes": 185,
+      "sha256": "b695cba74e74f82db75b2fe3765178434f38d678becfe0ddc6794b3046e0282f"
+    },
+    {
+      "log": "private-phases-nov2-private-i18n-final.log",
+      "bytes": 607,
+      "sha256": "a5b92ec3b1e942d2d9715d06c80e449ed68185fd81f55014213383582592ef08"
+    },
+    {
+      "log": "private-phases-nov2-private-i18n.log",
+      "bytes": 606,
+      "sha256": "2784b916b86e32bc2c65bb2b97ad9ecc0c41e62815c04d6b7de5de11ac55af89"
+    },
+    {
+      "log": "private-phases-nov2-private-install.log",
+      "bytes": 352,
+      "sha256": "393e412d7ab0e989b5aeb56fb6b598658197d244f621979735e9c752acdc814e"
+    },
+    {
+      "log": "private-phases-nov2-private-lint-final.log",
+      "bytes": 213,
+      "sha256": "2ae83f4c22d857c7a418b3343cf29175ed9387cd8cf06ca4471eb364353c28b6"
+    },
+    {
+      "log": "private-phases-nov2-private-lint.log",
+      "bytes": 99,
+      "sha256": "26db9673ec89bc95699a8e66249537512722e2114018fc39c411bfb94c2d9eaa"
+    },
+    {
+      "log": "private-phases-nov2-private-override-install.log",
+      "bytes": 352,
+      "sha256": "b27a5123a835b136dcbf3ec572efc6be3b42b297706278c0d1cbc73abdb66669"
+    },
+    {
+      "log": "private-phases-nov2-private-pinned-build.log",
+      "bytes": 2738,
+      "sha256": "1852420db0db80c6467501ac96cfd7121414d5dad34ae95fbff0312f22f90b93"
+    },
+    {
+      "log": "private-phases-nov2-private-pinned-lint.log",
+      "bytes": 99,
+      "sha256": "26db9673ec89bc95699a8e66249537512722e2114018fc39c411bfb94c2d9eaa"
+    },
+    {
+      "log": "private-phases-nov2-private-pinned-types.log",
+      "bytes": 3145,
+      "sha256": "5af8e9f5db7db232c108476739eb2d7f38869813a9ab38daf9b81d2ddc818ce6"
+    },
+    {
+      "log": "private-phases-nov2-private-prisma-after106.log",
+      "bytes": 185,
+      "sha256": "67199a5ff8371ceb5193db2d3ae9119a5f14e78e79e5f8f0c3b3c36cd2e9c5b9"
+    },
+    {
+      "log": "private-phases-nov2-private-published-frozen.log",
+      "bytes": 267,
+      "sha256": "e3fe7dc4c173af6cdb4778cee5cbcde82e9e5be8e8616cbe798035855e0d03a9"
+    },
+    {
+      "log": "private-phases-nov2-private-published-install.log",
+      "bytes": 345,
+      "sha256": "919e45ceb11ce40e9a871e914569f1d595eefe4a72f70be9b2b101c791cef34e"
+    },
+    {
+      "log": "private-phases-nov2-private-server-after106.log",
+      "bytes": 2084,
+      "sha256": "0c29b142b337d751650f28d07587d3413ba219035b56b3d8e875b29007dbbcfb"
+    },
+    {
+      "log": "private-phases-nov2-private-server-final.log",
+      "bytes": 1254,
+      "sha256": "033c1ff49e79f7f5b18ac18023754b928011dc5d898d6442b71ffbfc33a2b5a2"
+    },
+    {
+      "log": "private-phases-nov2-private-server-initial.log",
+      "bytes": 592,
+      "sha256": "633be41f83b8d03471c3aeaa9e0fe2172df77136512808d7329c31b104e79787"
+    },
+    {
+      "log": "private-phases-nov2-private-typecheck-final.log",
+      "bytes": 2416,
+      "sha256": "8b567dbd6b914ee276e74d9230b3661b4da0b8aadfea19d2d5abd6d406e2f02b"
+    },
+    {
+      "log": "private-phases-nov2-private-typecheck.log",
+      "bytes": 2416,
+      "sha256": "5a2af7ae17ab607126edb047ee507675ed1ebb818f60f2683b4af1a637c6cccd"
+    },
+    {
+      "log": "private-phases-nov2-private-types-corrected.log",
+      "bytes": 23,
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    {
+      "log": "private-phases-nov2-private-types-pass.log",
+      "bytes": 23,
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    {
+      "log": "private-phases-nov2-private-web.log",
+      "bytes": 532,
+      "sha256": "fc08ccbc0f842586e6bf6e576de260dcce8a9fff4702b52f829f56ef54def19e"
+    },
+    {
+      "log": "private-phases-nov2-public-build-final.log",
+      "bytes": 16069,
+      "sha256": "7c3ca1ac6c9149c3650edc793d1cc234a9683b3e7ae0bf1e6a225fcffd6e162f"
+    },
+    {
+      "log": "private-phases-nov2-public-build-pass.log",
+      "bytes": 14885,
+      "sha256": "2ef7aa32824a60477e169dc04e100e8290b087d390da4912c806d29084847988"
+    },
+    {
+      "log": "private-phases-nov2-public-build.log",
+      "bytes": 5279,
+      "sha256": "750551fc6c1633305326ff0711b48ab7358a7f7d003e86feeb86066b9fd0384a"
+    },
+    {
+      "log": "private-phases-nov2-public-changed-eslint.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "log": "private-phases-nov2-public-i18n-final.log",
+      "bytes": 1099,
+      "sha256": "e7e620c7f45ecfe0c02d158ed137d20d8b02f3840bb516d97f3f5c3156359c48"
+    },
+    {
+      "log": "private-phases-nov2-public-i18n.log",
+      "bytes": 1099,
+      "sha256": "c3a7c592019f0c3602f680808d5218a3e62435cb2e4cf969bd360330c755a077"
+    },
+    {
+      "log": "private-phases-nov2-public-install.log",
+      "bytes": 1008,
+      "sha256": "2ed4fb0bdda64b53a2f27659d60b20199c1c72b83c59763d263210f714b9af60"
+    },
+    {
+      "log": "private-phases-nov2-public-lint-final.log",
+      "bytes": 11489,
+      "sha256": "2754febab46d50811c467fb9acb3c2a9508d6ecda465c5bf3097562fc2b6619f"
+    },
+    {
+      "log": "private-phases-nov2-public-lint-pass.log",
+      "bytes": 11489,
+      "sha256": "d3979dad43c0b23e346cb44ebf65c8aa4ed923f5f6e8894e559eb72d94aa5df4"
+    },
+    {
+      "log": "private-phases-nov2-public-lint.log",
+      "bytes": 6232,
+      "sha256": "d69b466f27ee918c555885062a411967da9acf24b0d6c2be4e03650de55b7673"
+    },
+    {
+      "log": "private-phases-nov2-public-server-build-after106.log",
+      "bytes": 64,
+      "sha256": "1fa28151d2ab4679a506873721fdb7d42f8ec93b57e62564f99038ba66a003a3"
+    },
+    {
+      "log": "private-phases-nov2-public-server-build.log",
+      "bytes": 64,
+      "sha256": "1fa28151d2ab4679a506873721fdb7d42f8ec93b57e62564f99038ba66a003a3"
+    },
+    {
+      "log": "private-phases-nov2-public-server-types-final.log",
+      "bytes": 23,
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    {
+      "log": "private-phases-nov2-public-typecheck-final.log",
+      "bytes": 12331,
+      "sha256": "c68ff6fc9ffe4df09f784592bd5746edd603f20b8f9ca6524b0471cee4fa5c6b"
+    },
+    {
+      "log": "private-phases-nov2-public-typecheck-pass.log",
+      "bytes": 11658,
+      "sha256": "12a1ec515d531e34741cf6ba721d6ab28d99559b67da8d314a690e2966369fd8"
+    },
+    {
+      "log": "private-phases-nov2-public-typecheck.log",
+      "bytes": 6422,
+      "sha256": "52a6209aae9b631a719d0af84ef84e2dce2a577bf1ff7f1eedd1aa2f616c32d6"
+    },
+    {
+      "log": "private-phases-nov2-release-clean.log",
+      "bytes": 160,
+      "sha256": "d7b66fd9425176834b18995419c5c034d1fe3af22e46f3b27d2bad07ee5cc690"
+    },
+    {
+      "log": "private-phases-nov2-release-refusal.log",
+      "bytes": 181,
+      "sha256": "c7818802e2be3d239a0d5293bb9fba3c865df043be4baa8e7d6892f4e7c02b33"
+    },
+    {
+      "log": "private-phases-nov2-sensitive-history-final.log",
+      "bytes": 194,
+      "sha256": "36ff3c934b39ed010f0f0c5623a46586a3e9b33623f1542aeb33eff9de380d60"
+    },
+    {
+      "log": "private-phases-nov2-sensitive-history.log",
+      "bytes": 1551,
+      "sha256": "f025f6388c6011b1fa486212e90d5264d920e27e1f417cadc0e478aa9712a8a4"
+    },
+    {
+      "log": "private-phases-nov2-sensitive-initial.log",
+      "bytes": 1300,
+      "sha256": "a04628aa6a2416a2d39561f19bde366068bf27bc78b75fae94fe8dbfc701bbb9"
+    },
+    {
+      "log": "private-phases-nov2-sensitive.log",
+      "bytes": 1655,
+      "sha256": "d148bbf6ddc6855b22910abfc1260111ef4c748ea458e5adb7cb3bdfc6e1d652"
+    },
+    {
+      "log": "private-phases-nov2-server-abuse-both-final.log",
+      "bytes": 1142,
+      "sha256": "8861b75b1fe45e0afdf241a3e7077cb9b076649e9dd3faf7d9d823d0dbde40dd"
+    },
+    {
+      "log": "private-phases-nov2-server-abuse-both-pinned.log",
+      "bytes": 195,
+      "sha256": "fb0b356319e6e8ef75020a32387ca39b562b80696f04ee7986a8a6ffda0aee80"
+    },
+    {
+      "log": "private-phases-nov2-server-abuse-both.log",
+      "bytes": 218,
+      "sha256": "29531bad641b6ae6b31cf4cf99bfca47a647e5de6a0b670516f823d8f8881db5"
+    },
+    {
+      "log": "private-phases-nov2-server-account.log",
+      "bytes": 204,
+      "sha256": "cafc3a76e8e32b2954d31d8ea64a3044d36e870d7b1a07b3a593cba11c32a485"
+    },
+    {
+      "log": "private-phases-nov2-server-dpa-final.log",
+      "bytes": 218,
+      "sha256": "41f17609eef4c7858f94a12c87c36ad27ae64dd484c43dc364a968910ab679eb"
+    },
+    {
+      "log": "private-phases-nov2-server-extension-final.log",
+      "bytes": 195,
+      "sha256": "215bb7dd0f965b5b9d3f4e2a2ad0de6b61d7199e2ea9f7fbf6279f478262a2b6"
+    },
+    {
+      "log": "private-phases-nov2-server-extension.log",
+      "bytes": 1059,
+      "sha256": "17802dbf6d5ce11ec7da73dafdc95063b4d9052c3e2ddcebf04c9bc1204a82b2"
+    },
+    {
+      "log": "private-phases-nov2-server-guest.log",
+      "bytes": 198,
+      "sha256": "9864f2663f226c4fb3500e0183ba089f2acf245fc535ba02ec462fb960739149"
+    },
+    {
+      "log": "private-phases-nov2-server-quota-pinned.log",
+      "bytes": 195,
+      "sha256": "0d8120f9bed8e5309baa742e97ae5acc08f148ac0fcfcda74aa9aa6e04d2dc3c"
+    },
+    {
+      "log": "private-phases-nov2-server-quota.log",
+      "bytes": 195,
+      "sha256": "d9d34608dc7c02e6f7a65f2c0637ba88a62afbf05ac58a728460e175c731b13c"
+    },
+    {
+      "log": "private-phases-nov2-server-sensitive-final.log",
+      "bytes": 995,
+      "sha256": "8fec265a1912a11bac2257f907acb782085107402e77d4f64132a2cbd9f57f4e"
+    },
+    {
+      "log": "private-phases-nov2-server-sensitive-pinned.log",
+      "bytes": 204,
+      "sha256": "f7b1752cd20b01aa064998a2276b1a5d83ca117e09c26461c2f44e7f3460c4a4"
+    },
+    {
+      "log": "private-phases-nov2-server-sensitive.log",
+      "bytes": 204,
+      "sha256": "7a350d8782d7c1eb6e0a63e121ac0a9911052e1dedd083be4b3dfe92021a150f"
+    },
+    {
+      "log": "private-phases-nov2-web-account.log",
+      "bytes": 489,
+      "sha256": "833de13fdc094fa74aa790558381abc52b4ff92930f57da61d74b2572e151bc9"
+    },
+    {
+      "log": "private-phases-nov2-web-dpa.log",
+      "bytes": 657,
+      "sha256": "98a25572e6442804a921bcdaaae644b7008febf72b0db6e1c83a5eb9bea73dda"
+    },
+    {
+      "log": "private-phases-nov2-web-quota.log",
+      "bytes": 1464,
+      "sha256": "80e39e0d065b66b36d2a6c424111dd04db0e047c3112c0930f69d4fa4dac963c"
+    },
+    {
+      "log": "private-phases-nov2-web-sensitive-pinned.log",
+      "bytes": 5008,
+      "sha256": "7328c31ffd364b2dc7e4395b3c06600db8bc5b98d80c7ded11bb5a655e86931b"
+    },
+    {
+      "log": "private-phases-nov2-web-sensitive.log",
+      "bytes": 7138,
+      "sha256": "cc9a3e3bcbcafe09930542b04912be2c9ec9532023460a91351d36f195920c1f"
+    }
+  ],
+  "release": {
+    "exit": 78,
+    "log": "private-phases-nov2-release-clean.log"
+  },
+  "dependencyGate": "blocked; minimatch 10.2.6, no compatible patched 10.x; inherited current graph audit not rerun",
+  "qualification": "not granted",
+  "staticChecks": [
+    {
+      "name": "public-static-types",
+      "cwd": "public",
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "private-phases-nov2-public-static-types.log",
+      "bytes": 11665,
+      "sha256": "0f31dbe4dc2086eef4c907c9f43002834f6e084240e3f96d475334d9f9f91a8e"
+    },
+    {
+      "name": "public-static-lint",
+      "cwd": "public",
+      "command": "pnpm lint",
+      "exit": 0,
+      "log": "private-phases-nov2-public-static-lint.log",
+      "bytes": 11497,
+      "sha256": "dd6d35dc03af0f286eac6302d1605a5681470b581a9ff6ad1460ffba89ff46a4"
+    },
+    {
+      "name": "private-static-types",
+      "cwd": "private",
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "private-phases-nov2-private-static-types.log",
+      "bytes": 2416,
+      "sha256": "1814faa24ac4f2ac387e30bf5daaa39e20016dfcd123aaddaf786f7a70d4da1c"
+    },
+    {
+      "name": "private-static-lint",
+      "cwd": "private",
+      "command": "pnpm lint",
+      "exit": 0,
+      "log": "private-phases-nov2-private-static-lint.log",
+      "bytes": 99,
+      "sha256": "26db9673ec89bc95699a8e66249537512722e2114018fc39c411bfb94c2d9eaa"
+    },
+    {
+      "name": "public-build-pass",
+      "cwd": "public",
+      "command": "pnpm build",
+      "exit": 0,
+      "log": "private-phases-nov2-public-build-pass.log",
+      "bytes": 14885,
+      "sha256": "2ef7aa32824a60477e169dc04e100e8290b087d390da4912c806d29084847988"
+    },
+    {
+      "name": "private-pinned-build",
+      "cwd": "private",
+      "command": "pnpm build",
+      "exit": 0,
+      "log": "private-phases-nov2-private-pinned-build.log",
+      "bytes": 2738,
+      "sha256": "1852420db0db80c6467501ac96cfd7121414d5dad34ae95fbff0312f22f90b93"
+    },
+    {
+      "name": "public-i18n-final",
+      "cwd": "public",
+      "command": "pnpm i18n:check",
+      "exit": 0,
+      "log": "private-phases-nov2-public-i18n-final.log",
+      "bytes": 1099,
+      "sha256": "e7e620c7f45ecfe0c02d158ed137d20d8b02f3840bb516d97f3f5c3156359c48"
+    },
+    {
+      "name": "private-i18n-final",
+      "cwd": "private",
+      "command": "pnpm i18n:check",
+      "exit": 0,
+      "log": "private-phases-nov2-private-i18n-final.log",
+      "bytes": 607,
+      "sha256": "a5b92ec3b1e942d2d9715d06c80e449ed68185fd81f55014213383582592ef08"
+    },
+    {
+      "name": "private-published-install",
+      "cwd": "private",
+      "command": "pnpm install",
+      "exit": 0,
+      "log": "private-phases-nov2-private-published-install.log",
+      "bytes": 345,
+      "sha256": "919e45ceb11ce40e9a871e914569f1d595eefe4a72f70be9b2b101c791cef34e"
+    },
+    {
+      "name": "private-published-frozen",
+      "cwd": "private",
+      "command": "pnpm install --frozen-lockfile",
+      "exit": 0,
+      "log": "private-phases-nov2-private-published-frozen.log",
+      "bytes": 267,
+      "sha256": "e3fe7dc4c173af6cdb4778cee5cbcde82e9e5be8e8616cbe798035855e0d03a9"
+    },
+    {
+      "name": "pagefind-verify",
+      "cwd": "public",
+      "command": "pnpm pagefind:verify",
+      "exit": 0,
+      "log": "private-phases-nov2-pagefind-verify.log",
+      "bytes": 98,
+      "sha256": "9f13fabac05bdeabf4b3c72b7670a332783263e0544b425afe88d162b3288d51"
+    }
+  ],
+  "ancestry": {
+    "public": {
+      "0d6c984e1d4c363bb21acbc17a34f46134f6e38a": true,
+      "56e54109d3519ee45883fdb89e05982879e63954": true,
+      "36aea2a7b04a20426b5081790827b4e63b88d3c5": true,
+      "1152dfaa929083896ac6741d36122c807e00b2a8": true
+    },
+    "private": {
+      "5d28e9103f000edaeafc39a58c906f2b8ebc0730": true,
+      "f73dd5670f8a78b1b0d161b8b2b8a220fe458039": true,
+      "7416c7944837af60aa9982a13062a035f0750757": true,
+      "f9429e38aa19088a7874ea59cf794b59697804a8": true,
+      "6537c7c525c391a43d7b55be0a33f0c25ee04c83": true
+    }
+  },
+  "installedComparisons": 102,
+  "noLocalOverrides": true
+}
