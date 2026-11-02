@@ -103,8 +103,8 @@ interrupted; overlapping attempts are superseded by the successful serial
 
 ## Publication pins and limits
 
-The private committed transport/evidence pins remain at the published
-`39f1409939cc950f9ce7874183a8d69567024ba9`. Development uses intentionally
+The private committed transport/evidence pins, after the final integration merge,
+are at published `36aea2a7b04a20426b5081790827b4e63b88d3c5`. Development uses intentionally
 uncommitted `pnpm-workspace.yaml` and lockfile overrides, now pointing only at
 this public worktree. They must remain local. These local tests do not prove
 that the committed private pins contain the new commerce contracts.
@@ -132,7 +132,7 @@ requires a future restricted maintenance procedure; no application delete route
 is enabled. Retained Orders likewise require a reviewed retention policy.
 
 
-## Final cross-program and client checks
+## Acceptance before the final integration merge
 
 The same PostgreSQL 5441 instance and API/service ports 5501/5502 were used
 serially. For public real both-program runs, export these exact values:
@@ -181,9 +181,9 @@ All four contract trees reproduce without changes after
 also pass after the final test addition (`private-typecheck-final.log`,
 `private-lint-final.log`, both with the `106-nov2-` prefix).
 
-A final fetch still reports public integration
-`c0cb0baf99302b759440524b9d0deb47751d43a6` and private integration
-`63952462cb70bc2c8ce17fdcc464d7c17fd564b1`; both are already ancestors.
+At the earlier validation boundary, the fetched public integration was
+`c0cb0baf99302b759440524b9d0deb47751d43a6` and the private integration was
+`63952462cb70bc2c8ce17fdcc464d7c17fd564b1`; both remain ancestors.
 All saved history remains. No root/integration source worktree was edited.
 The temporary merge-preservation stash was removed after restoring the two
 intentional local override files; unrelated shared-repository stashes remain.
@@ -215,3 +215,99 @@ times were 04:26:19/04:26:54/04:26:55 UTC on 2 November, inside those attempts;
 all other remaining databases predated this run. After verifying no active
 connections, those three databases and their corresponding `service_…` roles
 were dropped. Older databases were preserved. Ports 5501/5502/5503 are free.
+
+
+## Latest committed integration merge (supersedes earlier tips/pins)
+
+A final fetch discovered newly published public integration
+`36aea2a7b04a20426b5081790827b4e63b88d3c5`. Merge `5ccc7ac` preserves that
+entire DPA client history together with the saved #106 history, keeping both
+commerce and DPA exports/routes/messages and regenerating contract artifacts
+from source. The first combined test exposed a real pair mismatch:
+`dpaAccountUrl` from the public fixture was rejected by the older private
+configuration (`106-nov2-latest-both-quota-commerce.log`: 7 pass / 2 fail).
+No schema check or fixture assertion was relaxed.
+
+The newer **local committed private integration** was already at
+`164d18ae0af2d54d13a95db996673105ae11c412`, while its remote-tracking ref
+still pointed at `6395246`. Merge `b83830b` incorporates that matching DPA
+implementation into the assigned private branch, retaining both Prisma model
+sets, both service mounts, and both language catalogs. It also inherits the
+already published `36aea2a` dependency/evidence pins. Those committed pins
+still lack #106 commerce additions; publication and a subsequent private repin
+remain mandatory. The uncommitted development overrides are preserved and
+continue to link only the assigned public worktree.
+
+All four merged public contract trees rebuild without further changes
+(`106-nov2-latest-contract-reproducibility.log`). Direct affected public
+typechecks, lint, formatting and DE/EN completeness pass. A build initially
+overlapped contract regeneration and lost a generated client during resolution;
+`106-nov2-latest-public-build.log` records that failed attempt. The serial
+server/web/Chromium/Firefox rebuild passes
+(`106-nov2-latest-public-build-serial.log`). The latest combined private
+`pnpm typecheck`, `pnpm lint`, `pnpm build` and `pnpm i18n:check` pass
+(`106-nov2-combined-private-{types,lint,build,i18n}.log`). Earlier server and
+browser results remain historical evidence; the repeated acceptance on this
+merged pair is recorded below.
+
+
+## Acceptance on the published DPA integration pair
+
+The local private integration's subsequent evidence-only commit
+`f9429e38aa19088a7874ea59cf794b59697804a8` is also merged, through `8b4df85`;
+no Account, Operator, DPA or commerce implementation changed in that addition.
+The user independently confirmed public `36aea2a` and private `f9429e3` as the
+published integration pair. The inherited five private pins use published
+`36aea2a`; the parent's normal/frozen installation and byte-verification evidence
+is preserved in its DPA handoff. Our #106 development still uses local overrides
+because these published pins do not contain the commerce contract additions.
+
+Repeated serial acceptance on the merged pair:
+
+- `106-nov2-combined-private-server.log`: **70/70**, nine files (all private
+  server seams, including eleven commerce regressions and preserved DPA cases).
+- `106-nov2-combined-both-quota-commerce.log`: **9/9**, both real programs.
+- `106-nov2-combined-both-authority.log`: **33/33**, both real programs,
+  including the newly integrated surviving-stream authorization fence.
+
+These commands use the exact same owned PostgreSQL/port/worktree variables
+shown above. No unrelated DPA browser/qualification suite is claimed or rerun.
+The later Activation-only correction and its focused revalidation follow below;
+the 70-test result is not relabeled as a new 71-test full run.
+
+
+## Final Activation correction and focused acceptance
+
+Private `2c1786d59997c96bb23b525bc5f76576c97c247a` fixes a final worker-outage
+edge: a pack paid without immediate-start consent could be activated on day 21
+but backdated to scheduled day 14, losing seven usable days. The new HTTP test
+fails on that shortened expiry (`106-nov2-activation-red.log`). Activation now
+records its actual execution time and gives the full catalog validity from that
+time. The original scheduled deadline remains immutable evidence. The Order API
+shows actual Activation after activation, and the scheduled date while pending.
+
+- `106-nov2-activation-green-commerce.log`: **12/12**, all private commerce
+  cases after the correction, including this red/green regression.
+- `106-nov2-final-both-commerce.log`: **1/1**, real both-program paid purchase
+  and Check settlement after the correction, using:
+  `pnpm --filter @source-taster/server exec vitest run --config quota.vitest.config.ts test/commerce.contract.ts`
+  with the same PostgreSQL/worktree/port environment above.
+- Final private typecheck and build pass (`106-nov2-final-private-types.log`,
+  `106-nov2-final-private-build.log`). A first final lint found only the newly
+  extended handoff's formatting; the formatted final lint is recorded separately.
+
+The final correction touches only private commerce Activation/view behavior.
+The earlier 70-test full private run, nine-test Quota/commerce run and 33-test
+current-authority run are retained as the integration evidence; only the
+affected commerce suite and actual both-program purchase were repeated after
+that correction. No unperformed full 71-test run is claimed.
+
+
+Final client revalidation after the correction passes: native Chromium forwarding
+**1/1**, DE/EN Order page plus axe **2/2**, Operator browser **2/2**. Logs:
+`106-nov2-final-native-forwarding.log`, `106-nov2-final-order-browser.log`,
+`106-nov2-final-operator-browser.log`. The commands/environments are the same
+as those shown above. `docs/evidence/106-check-pack-nov2.json` commits exact
+commands, integration/implementation boundaries, actual test counts, log sizes
+and SHA-256 digests, including all four red-before-green failures. It explicitly
+distinguishes the full-suite boundary from the final focused revalidation.
