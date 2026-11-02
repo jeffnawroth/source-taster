@@ -1,0 +1,367 @@
+{
+  "issue": 107,
+  "recordedAt": "2026-11-02T20:07:12.861791+00:00",
+  "public": {
+    "branch": "t3/pro-subscriptions-plan-changes-cancel",
+    "worktree": "/Users/jeffnawroth/.t3/worktrees/source-taster/t3-09a90f9c",
+    "implementationAndTestBoundary": "4949e23d410c475608c2b0911aaf7db06c7b3a34",
+    "integration": "164e3cbc358e706ee91de0cf66159e117e320e11"
+  },
+  "private": {
+    "branch": "t3/107-pro-subscriptions",
+    "worktree": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106",
+    "implementationBoundary": "1f69c8ba6e60bd9d78a31c88c75163c63d19ac24",
+    "integration": "c08dbff70975b1ba54240077460a48caa981389b"
+  },
+  "scope": "Local implementation acceptance; synthetic external payment/mail only; real PostgreSQL, actual programs and native Chromium. No live provider/legal/deployment qualification.",
+  "acceptance": [
+    {
+      "check": "private full server",
+      "passed": 96,
+      "exitCode": 0,
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55421/postgres SOURCE_TASTER_TEST_SERVICE_PORT=5502 pnpm --filter @source-taster-service/server exec vitest run",
+      "implementationBoundary": "699888cdfa9cfdcaf12b2350a57dea85ea2d5ebf",
+      "log": "107-resumed-private-server.log",
+      "sha256": "5290cc2c7aaa2671fb6f7a7727910b47757b4a66a924467761c3781681cfefb2",
+      "bytes": 209
+    },
+    {
+      "check": "subscription API after contact correction",
+      "passed": 12,
+      "exitCode": 0,
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55421/postgres SOURCE_TASTER_TEST_SERVICE_PORT=5502 pnpm --filter @source-taster-service/server exec vitest run test/subscription.test.ts",
+      "implementationBoundary": "1f69c8ba6e60bd9d78a31c88c75163c63d19ac24",
+      "log": "107-email-change-green-subscriptions.log",
+      "sha256": "bf72f2425e7c8399b33592c7dfb347f7ed71442ea18cb5f2f5f0ce14ba0c1769",
+      "bytes": 206
+    },
+    {
+      "check": "DE/EN commerce browser and axe",
+      "passed": 4,
+      "exitCode": 0,
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55421/postgres SOURCE_TASTER_TEST_SERVICE_PORT=5502 SOURCE_TASTER_TEST_COMMERCE_WEB_PORT=5442 pnpm --filter @source-taster-service/web exec playwright test --config commerce.playwright.config.ts",
+      "implementationBoundary": "1f69c8ba6e60bd9d78a31c88c75163c63d19ac24",
+      "log": "107-resumed-browser.log",
+      "sha256": "9fd2a77a4492223bea6af092e487daf2a18d7d517b5f59aa4e5bf5911b88c551",
+      "bytes": 1040
+    },
+    {
+      "check": "both actual programs Quota/commerce",
+      "passed": 10,
+      "exitCode": 0,
+      "cwd": "/Users/jeffnawroth/.t3/worktrees/source-taster/t3-09a90f9c",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55421/postgres SOURCE_TASTER_TEST_API_PORT=5501 SOURCE_TASTER_TEST_SERVICE_PORT=5502 SOURCE_TASTER_SERVICE_WORKTREE=/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106 pnpm --filter @source-taster/server exec vitest run --config quota.vitest.config.ts",
+      "implementationBoundary": "4949e23d410c475608c2b0911aaf7db06c7b3a34",
+      "log": "107-resumed-both-quota-commerce.log",
+      "sha256": "4da04c1ffcbc26632d050f27b4c291e845feac778b2fd811c7b21121ca3277c3",
+      "bytes": 197
+    },
+    {
+      "check": "both actual programs authority/SSE/deletion",
+      "passed": 33,
+      "exitCode": 0,
+      "cwd": "/Users/jeffnawroth/.t3/worktrees/source-taster/t3-09a90f9c",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55421/postgres SOURCE_TASTER_TEST_API_PORT=5501 SOURCE_TASTER_TEST_SERVICE_PORT=5502 SOURCE_TASTER_SERVICE_WORKTREE=/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106 pnpm --filter @source-taster/server exec vitest run --config guest.vitest.config.ts",
+      "implementationBoundary": "4949e23d410c475608c2b0911aaf7db06c7b3a34",
+      "log": "107-resumed-both-authority.log",
+      "sha256": "6cdc7e91354d329362dfa26fd391bb7beaf538bc3e45d834def366ca625bbf8c",
+      "bytes": 198
+    },
+    {
+      "check": "native Chromium signed-in forwarding with actual programs",
+      "passed": 1,
+      "exitCode": 0,
+      "cwd": "/Users/jeffnawroth/.t3/worktrees/source-taster/t3-09a90f9c",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55421/postgres SOURCE_TASTER_TEST_API_PORT=5501 SOURCE_TASTER_TEST_SERVICE_PORT=5502 SOURCE_TASTER_SERVICE_WORKTREE=/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106 pnpm --filter @source-taster/extension exec playwright test --config private.playwright.config.ts e2e-private/commerce.spec.ts",
+      "implementationBoundary": "4949e23d410c475608c2b0911aaf7db06c7b3a34",
+      "log": "107-resumed-native-real.log",
+      "sha256": "098acb65ad81d07ee680db1c1b902db314854738116562d3559be229f1e3589c",
+      "bytes": 359
+    },
+    {
+      "check": "static verification",
+      "exitCode": 0,
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106",
+      "command": "pnpm typecheck",
+      "log": "107-final-private-types.log",
+      "sha256": "4963d4ae05b3f29bf6f90b9b46fc9da04c53d2b09782369915f91a979106fd06",
+      "bytes": 2412
+    },
+    {
+      "check": "static verification",
+      "exitCode": 0,
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106",
+      "command": "pnpm lint",
+      "log": "107-final-private-lint.log",
+      "sha256": "26db9673ec89bc95699a8e66249537512722e2114018fc39c411bfb94c2d9eaa",
+      "bytes": 99
+    },
+    {
+      "check": "static verification",
+      "exitCode": 0,
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106",
+      "command": "pnpm build",
+      "log": "107-final-private-build.log",
+      "sha256": "38cf248604c45d0e9776af3471cb4707fb62bbd7a62443dc3ac635f3347bcf44",
+      "bytes": 3264
+    },
+    {
+      "check": "static verification",
+      "exitCode": 0,
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106",
+      "command": "pnpm i18n:check",
+      "log": "107-resumed-private-i18n.log",
+      "sha256": "ede51b43dad0672d7aec25097d3e53d2e85aa1d92ed662925ed4967de6bb98ac",
+      "bytes": 606
+    },
+    {
+      "check": "static verification",
+      "exitCode": 0,
+      "cwd": "/Users/jeffnawroth/.t3/worktrees/source-taster/t3-09a90f9c",
+      "command": "pnpm --filter @source-taster/server --filter @source-taster/web --filter @source-taster/extension --filter @source-taster/ui --filter @source-taster/contract-common --filter @source-taster/contract-service --filter @source-taster/contract-internal --filter @source-taster/contract-verification typecheck",
+      "log": "107-resumed-public-types.log",
+      "sha256": "389e160c27feec6ba91a47009fda2bc41a8e4388b59f497e4a52727e1721560c",
+      "bytes": 698
+    },
+    {
+      "check": "static verification",
+      "exitCode": 0,
+      "cwd": "/Users/jeffnawroth/.t3/worktrees/source-taster/t3-09a90f9c",
+      "command": "pnpm exec eslint apps/server/test/commerce.contract.ts apps/extension/src/panel.tsx apps/extension/e2e-account/panel.spec.ts packages/ui/src/web-account-workspace.tsx packages/contract-common/src/index.ts packages/contract-service/src/commerce.ts packages/contract-service/src/routes.ts",
+      "log": "107-resumed-public-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "check": "static verification",
+      "exitCode": 0,
+      "cwd": "/Users/jeffnawroth/.t3/worktrees/source-taster/t3-09a90f9c",
+      "command": "pnpm --filter @source-taster/server --filter @source-taster/web --filter @source-taster/extension build",
+      "log": "107-resumed-public-build.log",
+      "sha256": "ad38ce965962a1251eb01eeda067ba00a40d0e41f63c8877539e791ee09abceb",
+      "bytes": 4083
+    },
+    {
+      "check": "static verification",
+      "exitCode": 0,
+      "cwd": "/Users/jeffnawroth/.t3/worktrees/source-taster/t3-09a90f9c",
+      "command": "pnpm --filter @source-taster/i18n i18n:check",
+      "log": "107-resumed-public-i18n.log",
+      "sha256": "cbbcc183a0b46ed3f01e64881514632cd8952fd119d606ea1644fd94f9f51c40",
+      "bytes": 60
+    },
+    {
+      "check": "static verification",
+      "exitCode": 0,
+      "cwd": "/Users/jeffnawroth/.t3/worktrees/source-taster/t3-09a90f9c",
+      "command": "pnpm --filter @source-taster/extension typecheck",
+      "log": "107-final-native-types.log",
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b",
+      "bytes": 23
+    },
+    {
+      "check": "static verification",
+      "exitCode": 0,
+      "cwd": "/Users/jeffnawroth/.t3/worktrees/source-taster/t3-09a90f9c",
+      "command": "pnpm exec eslint apps/extension/e2e-private/commerce.spec.ts",
+      "log": "107-final-native-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "check": "static verification",
+      "exitCode": 0,
+      "cwd": "/Users/jeffnawroth/.t3/worktrees/source-taster/t3-09a90f9c",
+      "command": "pnpm --filter './packages/contract-*' build",
+      "log": "107-resumed-contracts.log",
+      "sha256": "f739d74ffaf1fcb5512e35b2a8245d6244212bf1e78cd5ff28b920e963e452ed",
+      "bytes": 387
+    }
+  ],
+  "redBeforeGreen": [
+    {
+      "log": "107-initial-red.log",
+      "expected": "failure before correction",
+      "reason": "Pro not accepted by baseline catalog",
+      "sha256": "363c532ea0d1521faaf82c7f2710f782836e4e23be10d66b8a2877af64aeaa22",
+      "bytes": 1310,
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55421/postgres SOURCE_TASTER_TEST_SERVICE_PORT=5502 pnpm --filter @source-taster-service/server exec vitest run test/subscription.test.ts"
+    },
+    {
+      "log": "107-consent-red.log",
+      "expected": "failure before correction",
+      "reason": "later-consent mail lacks exact consent",
+      "sha256": "6ac1fe754e15955cd185fbd8f97b6761b081b1ae6f6813655cdc194cb44a423e",
+      "bytes": 2034,
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55421/postgres SOURCE_TASTER_TEST_SERVICE_PORT=5502 pnpm --filter @source-taster-service/server exec vitest run test/subscription.test.ts"
+    },
+    {
+      "log": "107-renewal-red.log",
+      "expected": "failure before correction",
+      "reason": "base Pro loses equal-expiry tie",
+      "sha256": "d67f45e959b92a105d5142790a7450d69075e2b7206982fd26322c04bd4139af",
+      "bytes": 1636,
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55421/postgres SOURCE_TASTER_TEST_SERVICE_PORT=5502 pnpm --filter @source-taster-service/server exec vitest run test/subscription.test.ts"
+    },
+    {
+      "log": "107-outoforder-red.log",
+      "expected": "failure before correction",
+      "reason": "renewal uses initial catalog snapshot",
+      "sha256": "773db7be2588e0e9531cd985a8cb2f6749a4c9b3260dd66111cabc591b24f0c6",
+      "bytes": 1541,
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55421/postgres SOURCE_TASTER_TEST_SERVICE_PORT=5502 pnpm --filter @source-taster-service/server exec vitest run test/subscription.test.ts"
+    },
+    {
+      "log": "107-monthly-red.log",
+      "expected": "failure before correction",
+      "reason": "non-monthly invoice incorrectly grants",
+      "sha256": "656f68e2238685d0870390d69f3da832a4adc9ff139ba141304263a06af87fd2",
+      "bytes": 1525,
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55421/postgres SOURCE_TASTER_TEST_SERVICE_PORT=5502 pnpm --filter @source-taster-service/server exec vitest run test/subscription.test.ts"
+    },
+    {
+      "log": "107-language-red.log",
+      "expected": "failure before correction",
+      "reason": "Order prose uses UI language; also corrected independent test date",
+      "sha256": "379aed2d99e8e6ab6db4d2a064c73a7d8bd0ee5180899c2b117bb17fd8ab871d",
+      "bytes": 3007,
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55421/postgres SOURCE_TASTER_TEST_SERVICE_PORT=5502 pnpm --filter @source-taster-service/server exec vitest run test/subscription.test.ts"
+    },
+    {
+      "log": "107-browser-red.log",
+      "expected": "failure before correction",
+      "reason": "missing pre-purchase indefinite renewal disclosure",
+      "sha256": "5b73fa2a6d1954e58c32c2fffbb5f0667cd09426bedc082afef2d75c9ffee36c",
+      "bytes": 4730,
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55421/postgres SOURCE_TASTER_TEST_SERVICE_PORT=5502 SOURCE_TASTER_TEST_COMMERCE_WEB_PORT=5442 pnpm --filter @source-taster-service/web exec playwright test --config commerce.playwright.config.ts test-commerce/plan.spec.ts"
+    },
+    {
+      "log": "107-production-route-red.log",
+      "expected": "failure before correction",
+      "reason": "production /plan returns 404",
+      "sha256": "1923c3d8fd99c3dd94030b4823aa9d5876a558538713a121e379a7acf3d9212d",
+      "bytes": 1158,
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55421/postgres SOURCE_TASTER_TEST_SERVICE_PORT=5502 pnpm --filter @source-taster-service/server exec vitest run test/subscription.test.ts -t 'production service'"
+    },
+    {
+      "log": "107-setup-sca-red.log",
+      "expected": "failure before correction",
+      "reason": "setup Checkout drops 3DS request",
+      "sha256": "896997a506d97a5f34d1435dc3b38edc69522101d398e74e0a976c0ceb27ae24",
+      "bytes": 1257,
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55421/postgres SOURCE_TASTER_TEST_SERVICE_PORT=5502 pnpm --filter @source-taster-service/server exec vitest run test/subscription.test.ts -t 'delayed Pro stores'"
+    },
+    {
+      "log": "107-cancel-renewal-red.log",
+      "expected": "failure before correction",
+      "reason": "paid-before-cancellation renewal event is dropped",
+      "sha256": "65929397c397e68bd757c7cf3dd91b8e763132c7173c5489a4b0fe67c7473200",
+      "bytes": 1507,
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55421/postgres SOURCE_TASTER_TEST_SERVICE_PORT=5502 pnpm --filter @source-taster-service/server exec vitest run test/subscription.test.ts -t 'cancellation reconciles'"
+    },
+    {
+      "log": "107-deletion-red.log",
+      "expected": "failure before correction",
+      "reason": "Account deletion succeeds while provider is unavailable",
+      "sha256": "8e58cd2f7367c16b7a1927ea16588d3eeafe81e02a60db1f66ff226106c7c082",
+      "bytes": 1235,
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55421/postgres SOURCE_TASTER_TEST_SERVICE_PORT=5502 pnpm --filter @source-taster-service/server exec vitest run test/subscription.test.ts -t 'Account deletion cannot'"
+    },
+    {
+      "log": "107-email-change-red.log",
+      "expected": "failure before correction",
+      "reason": "billing mail targets old Order email",
+      "sha256": "d8c18deb2ba9ef9dabaf3ec6a1e17fef8336420a1987ed11b39b442684166a6c",
+      "bytes": 1360,
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55421/postgres SOURCE_TASTER_TEST_SERVICE_PORT=5502 pnpm --filter @source-taster-service/server exec vitest run test/subscription.test.ts -t 'billing mail follows'"
+    },
+    {
+      "log": "107-browser-status-red.log",
+      "expected": "failure before correction",
+      "reason": "created receipt remains awaiting after confirmed activation",
+      "sha256": "d186cd29b0cc8b63eb2c0bc6e3e77fa30c701b2a402c888d4a67ad31b924570a",
+      "bytes": 3757,
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55421/postgres SOURCE_TASTER_TEST_SERVICE_PORT=5502 SOURCE_TASTER_TEST_COMMERCE_WEB_PORT=5442 pnpm --filter @source-taster-service/web exec playwright test --config commerce.playwright.config.ts test-commerce/plan.spec.ts"
+    }
+  ],
+  "releaseGuard": {
+    "cwd": "/Users/jeffnawroth/.t3/worktrees/source-taster/t3-09a90f9c",
+    "command": "node apps/server/scripts/release-check.ts",
+    "exitCode": 78,
+    "expected": "refusal",
+    "log": "107-release-refusal.log",
+    "sha256": "c7818802e2be3d239a0d5293bb9fba3c865df043be4baa8e7d6892f4e7c02b33"
+  },
+  "contractReproducibility": {
+    "trackedDiff": false,
+    "trees": {
+      "packages/contract-common": "fcf44b4a31a764c5ed9525413c8a6c194a30151f",
+      "packages/contract-internal": "860d6417f08d7737c1e1708e8eb690edfb5cd2bf",
+      "packages/contract-service": "81fb19acf7086b3cbe80230c8131be1002820ec7",
+      "packages/contract-verification": "99a6cbea509952ca6a005a283bdea9dd14871748"
+    }
+  },
+  "publication": {
+    "committedPrivatePins": "1152dfaa929083896ac6741d36122c807e00b2a8",
+    "pinLocations": [
+      "apps/server/package.json: @source-taster/contract-internal",
+      "apps/server/package.json: @source-taster/contract-service",
+      "apps/server/package.json: @source-taster/contract-verification",
+      "apps/web/package.json: @source-taster/contract-service",
+      "scripts/evidence.ts: contractCommit"
+    ],
+    "required": "Parent publishes this public history first, then repins all five locations, regenerates a normal private lockfile, verifies frozen installation and installed bytes. Linked tests do not qualify committed pins for #107.",
+    "noPushPrOrIssueMutation": true
+  },
+  "intentionalPrivateOverrides": {
+    "pnpm-workspace.yaml": {
+      "sha256": "f3c86334f268440ca601fba0a6dffdd38f35d7d66775abcebe65b857a5af8d37",
+      "committed": false
+    },
+    "pnpm-lock.yaml": {
+      "sha256": "116bbc39a77ff1cc85d28c60dfa497bad0eb1908d0eb966c3494311b364f72fc",
+      "committed": false
+    }
+  },
+  "preservation": {
+    "original106": "107-overrides-original/ (exact original files and binary patch)",
+    "recovery": "107-recovery/ (dirty private/public patches, override files, original public draft)",
+    "originalPrivateHistoryPreserved": true
+  },
+  "cleanup": {
+    "container": "/st107-owned-pg",
+    "id": "3c52548dc2bb3a461c66018d2938d2bf45e8fba0766838e91d8d7c392da41865",
+    "created": "2026-11-02T17:00:34.597780989Z",
+    "binding": "127.0.0.1:55421",
+    "ownership": "created by #107, ID recorded before recovery",
+    "activeClientBackendsBeforeRemoval": 0,
+    "removedId": "3c52548dc2bb3a461c66018d2938d2bf45e8fba0766838e91d8d7c392da41865",
+    "portsWithoutListeners": [5501, 5502, 5503, 5442],
+    "unrelatedResourcesTouched": false,
+    "recordedAt": "2026-11-02T20:05:58.163090+00:00"
+  },
+  "limits": [
+    "Full 96-test boundary precedes final contact/display correction; subsequent focused subscription 12/12 and browser 4/4 cover it. No full 97-test run claimed.",
+    "Live Stripe/PayPal/issuer SCA/merchant/retry behavior, legal/tax/EN16931 and actual mail remain qualification gates.",
+    "Selected/Better Auth 1.7.14/minimatch/advisory/source/load/calibration/activation/release/deployment gates unchanged.",
+    "No anonymous #108 statutory cancellation or #109 tax/e-invoice implementation.",
+    "No nested agent, other source checkout/integration edit, actual provider call or enabled-job change."
+  ],
+  "testPostgresSetupCommand": "docker run -d --name st107-owned-pg -e POSTGRES_PASSWORD=postgres -p 127.0.0.1:55421:5432 postgres:18"
+}
