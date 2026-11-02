@@ -5,6 +5,7 @@
 // tombstoning; it only lets the public UI, clients and verification program be
 // exercised against the documented contract. Real both-program acceptance is
 // listed in docs/implementation/102-sensitive-account-actions.md.
+import { bothPrograms, freePort } from "./both-programs.ts";
 import { randomUUID } from "node:crypto";
 import type {
   AccountIdentity,
@@ -36,7 +37,7 @@ type Action = "email-change" | "account-deletion";
 export type DeletionBehavior =
   "delete" | "fail" | "unavailable" | "in-progress";
 
-export function sensitiveService(options: {
+export async function sensitiveService(options: {
   prefix: "/v1" | "/v1/extension";
   account: FakeAccount;
   /** Web: the cookie value. Extension: the opaque session credential. */
@@ -45,6 +46,17 @@ export function sensitiveService(options: {
   /** The service now answers `allowed: false` for this Account's sessions. */
   revoke(): void;
 }) {
+  // Preferences now cross the real private-service boundary, including PostgreSQL.
+  // Sensitive-action fault injection below remains an explicitly isolated UI fixture.
+  const real = await bothPrograms({
+    accounts: true,
+    apiPort: await freePort(),
+    servicePort: await freePort(),
+  });
+  const accountSession = await real.signIn(
+    `preferences-${randomUUID()}@example.invalid`,
+  );
+  let initialized = false;
   const state = {
     email: options.account.email,
     live: true,
@@ -54,9 +66,6 @@ export function sensitiveService(options: {
     calls: [] as string[],
     mail: [] as { to: string; kind: "proof" | "replacement"; code: string }[],
     deleteStatus: undefined as number | undefined,
-    /** #101 Account Preferences; unset means "adopt the client's language". */
-    preferences: undefined as
-      { language: "de" | "en"; citationStyle: string } | undefined,
   };
   const now = () => Date.now() + state.offset;
   const proofs = new Map<Action, number>();
@@ -135,17 +144,44 @@ export function sensitiveService(options: {
     }
     const body = request.body;
     if (tail === "/preferences") {
-      // Merged with #101: the signed-in workspace reads and writes Account
-      // Preferences. The stand-in keeps them per session in memory only.
-      const language = String(request.headers["accept-language"] ?? "")
-        .toLowerCase()
-        .startsWith("de")
-        ? "de"
-        : "en";
-      state.preferences ??= { language, citationStyle: "apa" };
-      if (request.method === "PATCH")
-        state.preferences = { ...state.preferences, ...body };
-      return ok(state.preferences);
+      if (!initialized) {
+        const language = String(request.headers["accept-language"] ?? "")
+          .toLowerCase()
+          .startsWith("de")
+          ? "de"
+          : "en";
+        const setup = await fetch(real.serviceUrl + "/v1/preferences", {
+          method: "PATCH",
+          headers: {
+            origin: "https://web.test.invalid",
+            cookie: accountSession.cookie,
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({ language, citationStyle: "apa" }),
+        });
+        if (!setup.ok)
+          throw new Error("real-preferences-initialization-failed");
+        initialized = true;
+      }
+      const response = await fetch(real.serviceUrl + "/v1/preferences", {
+        method: request.method,
+        headers: {
+          origin: "https://web.test.invalid",
+          cookie: accountSession.cookie,
+          ...(request.method === "PATCH"
+            ? { "content-type": "application/json" }
+            : {}),
+        },
+        ...(request.method === "PATCH" ? { body: JSON.stringify(body) } : {}),
+      });
+      return {
+        status: response.status,
+        headers: {
+          "content-type":
+            response.headers.get("content-type") ?? "application/json",
+        },
+        body: (await response.json()) as unknown,
+      };
     }
     if (tail === "/account/fresh-proof/challenges") {
       if (state.behavior === "unavailable")
@@ -235,6 +271,23 @@ export function sensitiveService(options: {
     return undefined;
   }
   return {
+    stop: () => real.stop(),
+    setPreferences: async (preferences: {
+      language: "de" | "en";
+      citationStyle: string;
+    }) => {
+      const r = await fetch(real.serviceUrl + "/v1/preferences", {
+        method: "PATCH",
+        headers: {
+          origin: "https://web.test.invalid",
+          cookie: accountSession.cookie,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(preferences),
+      });
+      if (!r.ok) throw new Error("real-preferences-update-failed");
+      initialized = true;
+    },
     state,
     handle,
     /** Fresh session, no proof, default behavior; the mail outbox is emptied. */
@@ -245,7 +298,7 @@ export function sensitiveService(options: {
       state.behavior = "delete";
       state.calls.length = 0;
       state.mail.length = 0;
-      state.preferences = undefined;
+      initialized = false;
       proofs.clear();
       challenges.clear();
     },

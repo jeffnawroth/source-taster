@@ -43,7 +43,7 @@ async function withPanel(
   flags: { sensitive: boolean },
   run: (tools: {
     panel: Panel;
-    fake: ReturnType<typeof sensitiveService>;
+    fake: Awaited<ReturnType<typeof sensitiveService>>;
     requests: {
       method: string;
       path: string;
@@ -96,7 +96,7 @@ async function withPanel(
   });
   api.listen(apiPort, "127.0.0.1");
   await once(api, "listening");
-  const fake = sensitiveService({
+  const fake = await sensitiveService({
     prefix: "/v1/extension",
     account,
     secret,
@@ -179,6 +179,7 @@ async function withPanel(
     }
   } finally {
     await browser.close();
+    await fake.stop();
     await build.remove();
     await rm(profile, { recursive: true, force: true });
     server.closeAllConnections();

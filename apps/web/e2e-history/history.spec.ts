@@ -18,9 +18,9 @@ const identity = { ...newAccount(), email: "history@example.org" };
 const secret = "history-fixture-session";
 const webPort = process.env.SOURCE_TASTER_ACCOUNT_TEST_WEB_PORT ?? "5441";
 const webUrl = `http://127.0.0.1:${webPort}`;
-let fake: ReturnType<typeof sensitiveService>;
+let fake: Awaited<ReturnType<typeof sensitiveService>>;
 test.beforeAll(async () => {
-  fake = sensitiveService({
+  fake = await sensitiveService({
     prefix: "/v1",
     account: identity,
     secret,
@@ -72,6 +72,7 @@ test.afterAll(async () => {
     await done;
   }
   await api?.stop();
+  await fake?.stop();
 });
 for (const language of ["en", "de"] as const) {
   test(`Account opts in, finds, opens, restarts and revokes History (${language})`, async ({
@@ -79,7 +80,7 @@ for (const language of ["en", "de"] as const) {
   }) => {
     Object.assign(identity, newAccount());
     fake.reset();
-    fake.state.preferences = { language, citationStyle: "apa" };
+    await fake.setPreferences({ language, citationStyle: "apa" });
     await page.context().addCookies([
       {
         name: "st-fake",
@@ -190,7 +191,7 @@ test("locked entries explain the Plan rule and remain deletable", async ({
 }) => {
   Object.assign(identity, newAccount());
   fake.reset();
-  fake.state.preferences = { language: "en", citationStyle: "apa" };
+  await fake.setPreferences({ language: "en", citationStyle: "apa" });
   api.state.quota.features = ["check", "extended-history"];
   api.state.quota.history.extendedUntil = new Date(
     api.now() + 60 * 86_400_000,
