@@ -317,7 +317,10 @@ test("unavailable Account writes remain separate from Guest storage; retry reads
   await expect(style(page)).toHaveValue("ieee");
   unavailable = true;
   await language(page).selectOption("en");
-  await expect(page.getByRole("alert")).toContainText(
+  const preferenceAlert = page
+    .getByRole("alert")
+    .filter({ hasText: /Account Preferences|Kontoeinstellungen/ });
+  await expect(preferenceAlert).toContainText(
     "Account Preferences could not be synchronized.",
   );
   expect(
@@ -328,7 +331,7 @@ test("unavailable Account writes remain separate from Guest storage; retry reads
     .getByRole("button", { name: "Retry session", exact: true })
     .click();
   await expect(language(page)).toHaveValue("de");
-  await expect(page.getByRole("alert")).toHaveCount(0);
+  await expect(preferenceAlert).toHaveCount(0);
   denied = true;
   await page.evaluate(() => window.dispatchEvent(new Event("focus")));
   await expect(

@@ -74,7 +74,7 @@ test("real service mail proves control and deletes the Account; Guest Quota stay
     await page
       .getByRole("button", { name: "Send confirmation code", exact: true })
       .click();
-    const proof = page.getByRole("region", { name: "Account security" });
+    const proof = page.getByRole("region", { name: "Sign in", exact: true });
     await expect(
       proof.getByLabel("Six-digit code", { exact: true }),
     ).toBeVisible();
