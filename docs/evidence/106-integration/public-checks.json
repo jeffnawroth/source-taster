@@ -1,0 +1,83 @@
+[
+  {
+    "name": "public-install",
+    "cwd": "public",
+    "command": "pnpm install --frozen-lockfile",
+    "exit": 0,
+    "log": "106-integrated-nov2-public-install.log",
+    "bytes": 288,
+    "sha256": "7a4d1c2e28197ddb2b8eb4c47419137bd740069c9d272038627aa14a1ba6a8db"
+  },
+  {
+    "name": "public-generate",
+    "cwd": "public",
+    "command": "pnpm --filter @source-taster/server generate && pnpm --filter @source-taster/i18n generate",
+    "exit": 0,
+    "log": "106-integrated-nov2-public-generate.log",
+    "bytes": 424,
+    "sha256": "5e31c724855805f6a333fd19f16aeb56bb23da75c96a10ded45fc8aae0f4d2d6"
+  },
+  {
+    "name": "public-contracts",
+    "cwd": "public",
+    "command": "pnpm --filter './packages/contract-*' build",
+    "exit": 0,
+    "log": "106-integrated-nov2-public-contracts.log",
+    "bytes": 387,
+    "sha256": "1065fac06e85ed310c11bed7ff41954bd0ba55479ec9d2429fb95cdac9fb53a8"
+  },
+  {
+    "name": "public-artifacts",
+    "cwd": "public",
+    "command": "git diff --exit-code -- packages/contract-common packages/contract-internal packages/contract-service packages/contract-verification",
+    "exit": 0,
+    "log": "106-integrated-nov2-public-artifacts.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "pagefind-verify",
+    "cwd": "public",
+    "command": "pnpm pagefind:verify",
+    "exit": 0,
+    "log": "106-integrated-nov2-pagefind-verify.log",
+    "bytes": 98,
+    "sha256": "9f13fabac05bdeabf4b3c72b7670a332783263e0544b425afe88d162b3288d51"
+  },
+  {
+    "name": "public-typecheck",
+    "cwd": "public",
+    "command": "pnpm typecheck",
+    "exit": 0,
+    "log": "106-integrated-nov2-public-typecheck.log",
+    "bytes": 12782,
+    "sha256": "9b2aa660604eb9beb04b6048009c17f510f74efc55f93888d18cf15747213715"
+  },
+  {
+    "name": "public-lint",
+    "cwd": "public",
+    "command": "pnpm lint",
+    "exit": 0,
+    "log": "106-integrated-nov2-public-lint.log",
+    "bytes": 12617,
+    "sha256": "aff76a2861a2ce16babebbf52e92d1dca788aa6098afc13a80f89b9b411e7a18"
+  },
+  {
+    "name": "public-i18n",
+    "cwd": "public",
+    "command": "pnpm i18n:check",
+    "exit": 0,
+    "log": "106-integrated-nov2-public-i18n.log",
+    "bytes": 1053,
+    "sha256": "b3073d0e9c03c36978ae39e6d2769a5321dfa19f48d47905d6ad4b6b802a849f"
+  },
+  {
+    "name": "public-build",
+    "cwd": "public",
+    "command": "pnpm build",
+    "exit": 0,
+    "log": "106-integrated-nov2-public-build.log",
+    "bytes": 16036,
+    "sha256": "eea55473dac3bd2e1e020171c5c0e42151e68440f0c108d6465601490fc157d6"
+  }
+]
