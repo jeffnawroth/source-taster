@@ -1285,6 +1285,7 @@ export function createApp(
         async (stream) => {
           const lifetime = new AbortController();
           stream.onAbort(() => lifetime.abort());
+          let authorityRetries = 0;
           try {
             while (!stream.aborted) {
               const cycle = new AbortController();
@@ -1333,7 +1334,10 @@ export function createApp(
                   after >= snapshot.lastEventSeq
                 )
                   return;
-                if (batch.length) continue;
+                if (batch.length) {
+                  authorityRetries = 0;
+                  continue;
+                }
                 await wake;
                 if (!stream.aborted) {
                   const current = await authorize(c.req.raw, "check:read");
@@ -1342,6 +1346,19 @@ export function createApp(
                     stream.write(": heartbeat\n\n"),
                   );
                 }
+                authorityRetries = 0;
+              } catch (error) {
+                // Another session's logout may drain an allow already in flight.
+                // Publish nothing from that decision. Retry one complete cycle
+                // with fresh authority and the same ownership/History checks;
+                // a persistent denial still closes this stream.
+                if (
+                  !(error instanceof HTTPException) ||
+                  error.status !== 403 ||
+                  authorityRetries++ > 0
+                )
+                  throw error;
+                await wake;
               } finally {
                 lifetime.signal.removeEventListener("abort", abort);
                 cycle.abort();
