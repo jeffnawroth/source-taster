@@ -5,6 +5,8 @@ import {
   CheckPackOrderResponse,
   CheckPackOrdersResponse,
 } from "./commerce.ts";
+import { webDpaRoutes, extensionDpaRoutes } from "./dpa-routes.ts";
+export { webDpaRoutes, extensionDpaRoutes };
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 import { createRoute } from "@hono/zod-openapi";
 import {
@@ -468,6 +470,8 @@ export const routes = [
   getCommerceCatalog,
   createCheckPackOrder,
   getCheckPackOrders,
+  ...Object.values(webDpaRoutes),
+  ...Object.values(extensionDpaRoutes),
   getAccountPreferences,
   patchAccountPreferences,
   getExtensionPreferences,

@@ -1,3 +1,4 @@
+export { dpaClient, type DpaClient } from "./dpa-client.ts";
 import type { z } from "zod";
 import { AccountPreferencesPatch, ExtensionSignInConfirmRequest, SignInChallengeRequest, SignInConfirmRequest, GuestTokenRequest, ProblemDetails, AccountDeletionRequest, EmailChangeChallengeRequest, EmailChangeConfirmRequest, FreshProofChallengeRequest, FreshProofConfirmRequest } from "./index.ts";
 export declare class GuestTokenError extends Error {
@@ -23,6 +24,154 @@ export declare function accountSessionClient(options: {
     baseUrl: string;
     fetch?: typeof fetch;
 }): {
+    dpa: {
+        state: (language: "de" | "en") => Promise<{
+            packet: {
+                version: string;
+                language: "de" | "en";
+                documents: {
+                    kind: "agreement" | "annex" | "processing" | "subprocessors" | "toms";
+                    version: string;
+                    title: string;
+                    text: string;
+                }[];
+            } | null;
+            party: {
+                name: string;
+                address: string;
+                representative: string;
+            } | null;
+            partyRevision: number;
+            agreements: {
+                id: string;
+                operationId: string;
+                accountId: string;
+                concludedAt: string;
+                party: {
+                    name: string;
+                    address: string;
+                    representative: string;
+                };
+                partyRevision: number;
+                packet: {
+                    version: string;
+                    language: "de" | "en";
+                    documents: {
+                        kind: "agreement" | "annex" | "processing" | "subprocessors" | "toms";
+                        version: string;
+                        title: string;
+                        text: string;
+                    }[];
+                };
+                authorityAccepted: true;
+                businessUse: true;
+            }[];
+            notices: {
+                id: string;
+                agreementId: string;
+                version: string;
+                change: string;
+                intendedEffectiveAt: string;
+                objectionDeadline: string;
+                objectionRoute: string;
+                delivery: "queued" | "sent";
+                objection: string | null;
+                resolved: boolean;
+            }[];
+        }>;
+        challenge: (input: import("./dpa.ts").DpaChallengeRequest) => Promise<{
+            operationId: string;
+            status: "concluded" | "expired" | "pending";
+            expiresAt: string;
+            agreement: {
+                id: string;
+                operationId: string;
+                accountId: string;
+                concludedAt: string;
+                party: {
+                    name: string;
+                    address: string;
+                    representative: string;
+                };
+                partyRevision: number;
+                packet: {
+                    version: string;
+                    language: "de" | "en";
+                    documents: {
+                        kind: "agreement" | "annex" | "processing" | "subprocessors" | "toms";
+                        version: string;
+                        title: string;
+                        text: string;
+                    }[];
+                };
+                authorityAccepted: true;
+                businessUse: true;
+            } | null;
+        }>;
+        conclude: (input: import("./dpa.ts").DpaConcludeRequest) => Promise<{
+            operationId: string;
+            status: "concluded" | "expired" | "pending";
+            expiresAt: string;
+            agreement: {
+                id: string;
+                operationId: string;
+                accountId: string;
+                concludedAt: string;
+                party: {
+                    name: string;
+                    address: string;
+                    representative: string;
+                };
+                partyRevision: number;
+                packet: {
+                    version: string;
+                    language: "de" | "en";
+                    documents: {
+                        kind: "agreement" | "annex" | "processing" | "subprocessors" | "toms";
+                        version: string;
+                        title: string;
+                        text: string;
+                    }[];
+                };
+                authorityAccepted: true;
+                businessUse: true;
+            } | null;
+        }>;
+        operation: (id: string) => Promise<{
+            operationId: string;
+            status: "concluded" | "expired" | "pending";
+            expiresAt: string;
+            agreement: {
+                id: string;
+                operationId: string;
+                accountId: string;
+                concludedAt: string;
+                party: {
+                    name: string;
+                    address: string;
+                    representative: string;
+                };
+                partyRevision: number;
+                packet: {
+                    version: string;
+                    language: "de" | "en";
+                    documents: {
+                        kind: "agreement" | "annex" | "processing" | "subprocessors" | "toms";
+                        version: string;
+                        title: string;
+                        text: string;
+                    }[];
+                };
+                authorityAccepted: true;
+                businessUse: true;
+            } | null;
+        }>;
+        download: (id: string) => Promise<Blob>;
+        object: (input: {
+            noticeId: string;
+            reason: string;
+        }) => Promise<void>;
+    };
     preferences: () => Promise<{
         language: "de" | "en";
         citationStyle: string;
@@ -93,6 +242,154 @@ export declare function extensionSessionClient(options: {
     baseUrl: string;
     fetch?: typeof fetch;
 }): {
+    dpa: (credential: string) => {
+        state: (language: "de" | "en") => Promise<{
+            packet: {
+                version: string;
+                language: "de" | "en";
+                documents: {
+                    kind: "agreement" | "annex" | "processing" | "subprocessors" | "toms";
+                    version: string;
+                    title: string;
+                    text: string;
+                }[];
+            } | null;
+            party: {
+                name: string;
+                address: string;
+                representative: string;
+            } | null;
+            partyRevision: number;
+            agreements: {
+                id: string;
+                operationId: string;
+                accountId: string;
+                concludedAt: string;
+                party: {
+                    name: string;
+                    address: string;
+                    representative: string;
+                };
+                partyRevision: number;
+                packet: {
+                    version: string;
+                    language: "de" | "en";
+                    documents: {
+                        kind: "agreement" | "annex" | "processing" | "subprocessors" | "toms";
+                        version: string;
+                        title: string;
+                        text: string;
+                    }[];
+                };
+                authorityAccepted: true;
+                businessUse: true;
+            }[];
+            notices: {
+                id: string;
+                agreementId: string;
+                version: string;
+                change: string;
+                intendedEffectiveAt: string;
+                objectionDeadline: string;
+                objectionRoute: string;
+                delivery: "queued" | "sent";
+                objection: string | null;
+                resolved: boolean;
+            }[];
+        }>;
+        challenge: (input: import("./dpa.ts").DpaChallengeRequest) => Promise<{
+            operationId: string;
+            status: "concluded" | "expired" | "pending";
+            expiresAt: string;
+            agreement: {
+                id: string;
+                operationId: string;
+                accountId: string;
+                concludedAt: string;
+                party: {
+                    name: string;
+                    address: string;
+                    representative: string;
+                };
+                partyRevision: number;
+                packet: {
+                    version: string;
+                    language: "de" | "en";
+                    documents: {
+                        kind: "agreement" | "annex" | "processing" | "subprocessors" | "toms";
+                        version: string;
+                        title: string;
+                        text: string;
+                    }[];
+                };
+                authorityAccepted: true;
+                businessUse: true;
+            } | null;
+        }>;
+        conclude: (input: import("./dpa.ts").DpaConcludeRequest) => Promise<{
+            operationId: string;
+            status: "concluded" | "expired" | "pending";
+            expiresAt: string;
+            agreement: {
+                id: string;
+                operationId: string;
+                accountId: string;
+                concludedAt: string;
+                party: {
+                    name: string;
+                    address: string;
+                    representative: string;
+                };
+                partyRevision: number;
+                packet: {
+                    version: string;
+                    language: "de" | "en";
+                    documents: {
+                        kind: "agreement" | "annex" | "processing" | "subprocessors" | "toms";
+                        version: string;
+                        title: string;
+                        text: string;
+                    }[];
+                };
+                authorityAccepted: true;
+                businessUse: true;
+            } | null;
+        }>;
+        operation: (id: string) => Promise<{
+            operationId: string;
+            status: "concluded" | "expired" | "pending";
+            expiresAt: string;
+            agreement: {
+                id: string;
+                operationId: string;
+                accountId: string;
+                concludedAt: string;
+                party: {
+                    name: string;
+                    address: string;
+                    representative: string;
+                };
+                partyRevision: number;
+                packet: {
+                    version: string;
+                    language: "de" | "en";
+                    documents: {
+                        kind: "agreement" | "annex" | "processing" | "subprocessors" | "toms";
+                        version: string;
+                        title: string;
+                        text: string;
+                    }[];
+                };
+                authorityAccepted: true;
+                businessUse: true;
+            } | null;
+        }>;
+        download: (id: string) => Promise<Blob>;
+        object: (input: {
+            noticeId: string;
+            reason: string;
+        }) => Promise<void>;
+    };
     challenge: (input: z.infer<typeof SignInChallengeRequest>) => Promise<{
         challengeId: string;
         expiresIn: number;

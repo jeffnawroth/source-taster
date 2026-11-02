@@ -34,3 +34,5 @@ test-results-ai/
 apps/extension/test-results-history/
 test-results-report/
 test-results-private/
+
+apps/extension/test-results-dpa/

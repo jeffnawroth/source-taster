@@ -152,3 +152,4 @@ export const sensitiveProblemCodes = [
 ] as const;
 
 export * from "./commerce.ts";
+export * from "./dpa.ts";

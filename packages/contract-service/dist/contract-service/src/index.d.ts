@@ -704,3 +704,4 @@ export type AccountDeletion = z.infer<typeof AccountDeletionResponse>["data"];
 /** Problem `code` values the sensitive-action endpoints may use. */
 export declare const sensitiveProblemCodes: readonly ["fresh-proof-required", "fresh-proof-invalid", "fresh-proof-exhausted", "email-change-invalid", "rate-limited"];
 export * from "./commerce.ts";
+export * from "./dpa.ts";

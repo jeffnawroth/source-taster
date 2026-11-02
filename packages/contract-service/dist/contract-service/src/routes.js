@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { CommerceCatalogResponse, CheckPackOrderRequest, CheckPackOrderResponse, CheckPackOrdersResponse, } from "./commerce.js";
+import { webDpaRoutes, extensionDpaRoutes } from "./dpa-routes.js";
+export { webDpaRoutes, extensionDpaRoutes };
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 import { createRoute } from "@hono/zod-openapi";
 import { AccountPreferencesPatch, AccountPreferencesResponse, ExtensionSignInChallengeResponse, ExtensionSignInConfirmRequest, ExtensionSignInConfirmResponse, SignInChallengeRequest, SignInChallengeResponse, SignInConfirmRequest, AccountSessionResponse, AccountTokenResponse, SignOutRequest, SignOutResponse, GuestTokenRequest, GuestTokenResponse, PublicJwks, ProblemDetails, ServiceStatusResponse, AccountDeletionRequest, AccountDeletionResponse, EmailChangeChallengeRequest, EmailChangeChallengeResponse, EmailChangeConfirmRequest, FreshProofChallengeRequest, FreshProofChallengeResponse, FreshProofConfirmRequest, FreshProofResponse, } from "./index.js";
@@ -308,6 +310,8 @@ export const routes = [
     getCommerceCatalog,
     createCheckPackOrder,
     getCheckPackOrders,
+    ...Object.values(webDpaRoutes),
+    ...Object.values(extensionDpaRoutes),
     getAccountPreferences,
     patchAccountPreferences,
     getExtensionPreferences,

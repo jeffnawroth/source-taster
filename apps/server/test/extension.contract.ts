@@ -293,8 +293,12 @@ test("sign-out here ends only that client's live stream; the other client's stre
       expect((await reader.read()).done).toBe(false);
       return reader;
     };
-    const webStream = await open(web.token),
-      extStream = await open(ext.token);
+    const webStream = await open(web.token);
+    // Hold an authentic allow for the surviving session across the other
+    // session's sign-out fence. No authorization response is manufactured.
+    const held = b.trap("check:read", "request");
+    await held.arrived;
+    const extStream = await open(ext.token);
     const state = (reader: ReadableStreamDefaultReader<Uint8Array>) => {
       let settled: "open" | "ended" = "open";
       const pump = (async () => {
@@ -314,6 +318,7 @@ test("sign-out here ends only that client's live stream; the other client's stre
     expect((await ext.call("/sign-out", { everywhere: false })).status).toBe(
       200,
     );
+    held.release();
     await eventually(() => extState.current() === "ended");
     await new Promise((r) => setTimeout(r, 1500));
     expect(webState.current()).toBe("open");
