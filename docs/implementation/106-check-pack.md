@@ -205,3 +205,13 @@ dependency gate. No dependency exception or production-readiness claim is made.
 No new PostgreSQL container was created. Test-owned processes, browsers and
 fixture resources were stopped by their cleanup; the pre-existing assigned
 `st106b-pg` is left running, and unknown older resources are left untouched.
+
+
+Cleanup also identified three databases orphaned by the interrupted initial
+commands: `st_service_f67ab29a4bf243d791828ed7ba7539c3`,
+`st_service_e7f91162a6c844929ee0b42f1f1977e7` and
+`st_service_e6d7b8810fa24dda9571da2b66f983a5`. Their PostgreSQL directory birth
+times were 04:26:19/04:26:54/04:26:55 UTC on 2 November, inside those attempts;
+all other remaining databases predated this run. After verifying no active
+connections, those three databases and their corresponding `service_…` roles
+were dropped. Older databases were preserved. Ports 5501/5502/5503 are free.
