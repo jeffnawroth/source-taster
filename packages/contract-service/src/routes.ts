@@ -1,3 +1,8 @@
+import {
+  VatValidationRequest,
+  VatValidationResponse,
+  CommerceInvoicesResponse,
+} from "./commerce.ts";
 import { z } from "zod";
 import {
   CommerceCatalogResponse,
@@ -465,7 +470,76 @@ export const getCommerceInvoice = createRoute({
     503: problem,
   },
 });
+export const validateCommerceVat = createRoute({
+  method: "post",
+  path: "/v1/commerce/vat-validations",
+  summary: "Validate a business VAT ID before ordering",
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: VatValidationRequest } },
+    },
+  },
+  responses: {
+    200: {
+      description: "Validation outcome",
+      content: { "application/json": { schema: VatValidationResponse } },
+    },
+    400: problem,
+    401: problem,
+    403: problem,
+    503: problem,
+  },
+});
+export const getCommerceInvoices = createRoute({
+  method: "get",
+  path: "/v1/commerce/invoices",
+  summary: "List own archived invoices",
+  responses: {
+    200: {
+      description: "Invoices",
+      content: { "application/json": { schema: CommerceInvoicesResponse } },
+    },
+    401: problem,
+    403: problem,
+    503: problem,
+  },
+});
+export const getCommerceStructuredInvoice = createRoute({
+  method: "get",
+  path: "/v1/commerce/invoices/{id}/ubl",
+  summary: "Download exact archived structured invoice bytes",
+  request: { params: z.object({ id: z.string().min(1).max(255) }) },
+  responses: {
+    200: {
+      description: "Archived UBL",
+      content: { "application/xml": { schema: z.string() } },
+    },
+    401: problem,
+    403: problem,
+    404: problem,
+    503: problem,
+  },
+});
+export const extensionCommerceInvoices = createRoute({
+  ...getCommerceInvoices,
+  path: "/v1/extension/commerce/invoices",
+});
+export const extensionCommerceInvoice = createRoute({
+  ...getCommerceInvoice,
+  path: "/v1/extension/commerce/invoices/{id}",
+});
+export const extensionCommerceStructuredInvoice = createRoute({
+  ...getCommerceStructuredInvoice,
+  path: "/v1/extension/commerce/invoices/{id}/ubl",
+});
 export const routes = [
+  extensionCommerceInvoices,
+  extensionCommerceInvoice,
+  extensionCommerceStructuredInvoice,
+  validateCommerceVat,
+  getCommerceInvoices,
+  getCommerceStructuredInvoice,
   getCommerceInvoice,
   getCommerceCatalog,
   createCheckPackOrder,

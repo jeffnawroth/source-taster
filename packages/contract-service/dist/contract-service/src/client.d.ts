@@ -24,6 +24,18 @@ export declare function accountSessionClient(options: {
     baseUrl: string;
     fetch?: typeof fetch;
 }): {
+    invoices: {
+        list: () => Promise<{
+            id: string;
+            orderId: string;
+            issuedAt: string;
+            grossCents: number;
+            currency: "EUR";
+            formats: ("pdf" | "ubl")[];
+            structuredSha256: string | null;
+        }[]>;
+        download: (id: string, format: "pdf" | "ubl") => Promise<Blob>;
+    };
     dpa: {
         state: (language: "de" | "en") => Promise<{
             packet: {
@@ -242,6 +254,18 @@ export declare function extensionSessionClient(options: {
     baseUrl: string;
     fetch?: typeof fetch;
 }): {
+    invoices: (credential: string) => {
+        list: () => Promise<{
+            id: string;
+            orderId: string;
+            issuedAt: string;
+            grossCents: number;
+            currency: "EUR";
+            formats: ("pdf" | "ubl")[];
+            structuredSha256: string | null;
+        }[]>;
+        download: (id: string, format: "pdf" | "ubl") => Promise<Blob>;
+    };
     dpa: (credential: string) => {
         state: (language: "de" | "en") => Promise<{
             packet: {
@@ -458,3 +482,20 @@ export declare function extensionSessionClient(options: {
         }>;
     };
 };
+export declare function invoiceClient(options: {
+    baseUrl: string;
+    fetch?: typeof fetch;
+    credential?: string;
+}): {
+    list: () => Promise<{
+        id: string;
+        orderId: string;
+        issuedAt: string;
+        grossCents: number;
+        currency: "EUR";
+        formats: ("pdf" | "ubl")[];
+        structuredSha256: string | null;
+    }[]>;
+    download: (id: string, format: "pdf" | "ubl") => Promise<Blob>;
+};
+export type InvoiceClient = ReturnType<typeof invoiceClient>;

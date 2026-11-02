@@ -1,3 +1,4 @@
+import { CommerceInvoicesResponse } from "./commerce.ts";
 import { dpaClient } from "./dpa-client.ts";
 export { dpaClient, type DpaClient } from "./dpa-client.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
@@ -122,6 +123,7 @@ export function accountSessionClient(options: {
     return value;
   }
   return {
+    invoices: invoiceClient(options),
     dpa: dpaClient(options),
     preferences: async () =>
       AccountPreferencesResponse.parse(await call("/v1/preferences")).data,
@@ -256,6 +258,7 @@ export function extensionSessionClient(options: {
     return value;
   }
   return {
+    invoices: (credential: string) => invoiceClient({ ...options, credential }),
     dpa: (credential: string) => dpaClient({ ...options, credential }),
     challenge: async (input: z.infer<typeof SignInChallengeRequest>) =>
       ExtensionSignInChallengeResponse.parse(
@@ -375,3 +378,36 @@ export function extensionSessionClient(options: {
     },
   };
 }
+
+export function invoiceClient(options: {
+  baseUrl: string;
+  fetch?: typeof fetch;
+  credential?: string;
+}) {
+  async function get(path: string) {
+    const response = await (options.fetch ?? fetch)(
+      `${options.baseUrl}/v1/${options.credential ? "extension/" : ""}commerce/invoices${path}`,
+      {
+        credentials: options.credential ? "omit" : "include",
+        redirect: "error",
+        cache: "no-store",
+        headers: options.credential
+          ? {
+              authorization: `Bearer ${ExtensionCredential.parse(options.credential)}`,
+            }
+          : {},
+      },
+    );
+    if (!response.ok) throw new GuestTokenError(response.status);
+    return response;
+  }
+  return {
+    list: async () =>
+      CommerceInvoicesResponse.parse(await (await get("")).json()).data,
+    download: async (id: string, format: "pdf" | "ubl") =>
+      (
+        await get(`/${encodeURIComponent(id)}${format === "ubl" ? "/ubl" : ""}`)
+      ).blob(),
+  };
+}
+export type InvoiceClient = ReturnType<typeof invoiceClient>;

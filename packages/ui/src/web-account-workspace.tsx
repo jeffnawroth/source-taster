@@ -1,3 +1,5 @@
+import { InvoiceControls } from "./invoices.tsx";
+import type { InvoiceClient } from "@source-taster/contract-service/client";
 import { DpaControls } from "./dpa.tsx";
 import type { DpaClient } from "@source-taster/contract-service/client";
 // SPDX-License-Identifier: AGPL-3.0-or-later
@@ -21,13 +23,14 @@ import {
 } from "./sensitive-account-actions.tsx";
 export type SessionClient = Omit<
   ReturnType<typeof accountSessionClient>,
-  "session" | "sensitive" | "dpa"
+  "session" | "sensitive" | "dpa" | "invoices"
 > & {
   session(): Promise<AccountSession | null>;
   subscribe?(changed: () => void): () => void;
   /** Present only where the host enabled #102; absent means no such controls. */
   sensitive?: SensitiveActions;
   dpa?: DpaClient;
+  invoices?: InvoiceClient;
 };
 function errorMessage(error: unknown) {
   return error instanceof GuestTokenError && error.status === 429
@@ -497,6 +500,13 @@ export function AccountWorkspace({
             >
               {m.commerce_open()}
             </a>
+          )}
+          {session && !credentialFailure && client.invoices && (
+            <InvoiceControls
+              key={session.accountId}
+              client={client.invoices}
+              language={language}
+            />
           )}
           {accountPreferences.failure && (
             <p role="alert">

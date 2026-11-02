@@ -60,6 +60,7 @@ export declare const CheckPackOrderRequest: z.ZodObject<{
     operationKey: z.ZodUUID;
     catalogVersion: z.ZodString;
     legalVersion: z.ZodString;
+    vatValidationId: z.ZodOptional<z.ZodUUID>;
     acceptTerms: z.ZodLiteral<true>;
     immediateStart: z.ZodBoolean;
     language: z.ZodEnum<{
@@ -95,6 +96,7 @@ export declare const CheckPackOrder: z.ZodObject<{
     expiresAt: z.ZodNullable<z.ZodISODateTime>;
     checkoutUrl: z.ZodNullable<z.ZodURL>;
     invoiceId: z.ZodNullable<z.ZodString>;
+    taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
     confirmation: z.ZodString;
     mailStatus: z.ZodEnum<{
         queued: "queued";
@@ -124,6 +126,7 @@ export declare const CheckPackOrderResponse: z.ZodObject<{
         expiresAt: z.ZodNullable<z.ZodISODateTime>;
         checkoutUrl: z.ZodNullable<z.ZodURL>;
         invoiceId: z.ZodNullable<z.ZodString>;
+        taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
         confirmation: z.ZodString;
         mailStatus: z.ZodEnum<{
             queued: "queued";
@@ -185,11 +188,109 @@ export declare const CheckPackOrdersResponse: z.ZodObject<{
         expiresAt: z.ZodNullable<z.ZodISODateTime>;
         checkoutUrl: z.ZodNullable<z.ZodURL>;
         invoiceId: z.ZodNullable<z.ZodString>;
+        taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
         confirmation: z.ZodString;
         mailStatus: z.ZodEnum<{
             queued: "queued";
             sent: "sent";
         }>;
+    }, z.core.$strip>>;
+    quota: z.ZodUnion<readonly [z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                "check-pack": "check-pack";
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
+        history: z.ZodOptional<z.ZodObject<{
+            extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+            authorityVersion: z.ZodNumber;
+        }, z.core.$strip>>;
+    }, z.core.$strip>, z.ZodObject<{
+        status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
+    }, z.core.$strict>, z.ZodNull]>;
+}, z.core.$strip>;
+/** Public transport only: legal/provider implementation remains private. */
+export declare const VatValidationRequest: z.ZodObject<{
+    country: z.ZodString;
+    vatId: z.ZodString;
+}, z.core.$strict>;
+export declare const VatValidationResponse: z.ZodObject<{
+    data: z.ZodObject<{
+        id: z.ZodUUID;
+        country: z.ZodString;
+        vatId: z.ZodString;
+        status: z.ZodEnum<{
+            "country-mismatch": "country-mismatch";
+            invalid: "invalid";
+            superseded: "superseded";
+            unavailable: "unavailable";
+            valid: "valid";
+        }>;
+        checkedAt: z.ZodISODateTime;
+        expiresAt: z.ZodISODateTime;
+    }, z.core.$strip>;
+    quota: z.ZodUnion<readonly [z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                "check-pack": "check-pack";
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
+        history: z.ZodOptional<z.ZodObject<{
+            extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+            authorityVersion: z.ZodNumber;
+        }, z.core.$strip>>;
+    }, z.core.$strip>, z.ZodObject<{
+        status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
+    }, z.core.$strict>, z.ZodNull]>;
+}, z.core.$strip>;
+export declare const CommerceInvoicesResponse: z.ZodObject<{
+    data: z.ZodArray<z.ZodObject<{
+        id: z.ZodString;
+        orderId: z.ZodUUID;
+        issuedAt: z.ZodISODateTime;
+        grossCents: z.ZodNumber;
+        currency: z.ZodLiteral<"EUR">;
+        formats: z.ZodArray<z.ZodEnum<{
+            pdf: "pdf";
+            ubl: "ubl";
+        }>>;
+        structuredSha256: z.ZodNullable<z.ZodString>;
     }, z.core.$strip>>;
     quota: z.ZodUnion<readonly [z.ZodObject<{
         consumed: z.ZodNumber;

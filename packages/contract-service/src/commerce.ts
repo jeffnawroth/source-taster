@@ -24,6 +24,7 @@ export const CheckPackOrderRequest = z.strictObject({
   operationKey: z.uuid(),
   catalogVersion: z.string().regex(/^\d+$/),
   legalVersion: z.string().min(1).max(128),
+  vatValidationId: z.uuid().optional(),
   acceptTerms: z.literal(true),
   immediateStart: z.boolean(),
   language: z.enum(["de", "en"]),
@@ -44,6 +45,7 @@ export const CheckPackOrder = z.object({
   expiresAt: z.iso.datetime().nullable(),
   checkoutUrl: z.url().nullable(),
   invoiceId: z.string().nullable(),
+  taxEvidence: z.record(z.string(), z.unknown()).nullable().optional(),
   confirmation: z.string(),
   mailStatus: z.enum(["queued", "sent"]),
 });
@@ -53,3 +55,38 @@ export const CheckPackOrderResponse = envelope(CheckPackOrder).meta({
 export const CheckPackOrdersResponse = envelope(z.array(CheckPackOrder)).meta({
   id: "CheckPackOrdersResponse",
 });
+
+/** Public transport only: legal/provider implementation remains private. */
+export const VatValidationRequest = z.strictObject({
+  country: z.string().regex(/^[A-Z]{2}$/),
+  vatId: z.string().trim().min(3).max(40),
+});
+export const VatValidationResponse = envelope(
+  z.object({
+    id: z.uuid(),
+    country: z.string(),
+    vatId: z.string(),
+    status: z.enum([
+      "valid",
+      "invalid",
+      "unavailable",
+      "country-mismatch",
+      "superseded",
+    ]),
+    checkedAt: z.iso.datetime(),
+    expiresAt: z.iso.datetime(),
+  }),
+).meta({ id: "VatValidationResponse" });
+export const CommerceInvoicesResponse = envelope(
+  z.array(
+    z.object({
+      id: z.string(),
+      orderId: z.uuid(),
+      issuedAt: z.iso.datetime(),
+      grossCents: z.number().int(),
+      currency: z.literal("EUR"),
+      formats: z.array(z.enum(["pdf", "ubl"])),
+      structuredSha256: z.string().nullable(),
+    }),
+  ),
+).meta({ id: "CommerceInvoicesResponse" });
