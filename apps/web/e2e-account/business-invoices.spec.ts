@@ -99,9 +99,6 @@ for (const plan of ["check-pack", "pro"] as const)
     test(`real ${language} ${plan} business purchase and Account invoice downloads`, async ({
       browser,
     }) => {
-      const a = await both.signIn(
-        `business-browser-${plan}-${language}@example.invalid`,
-      );
       const context = await browser.newContext({ locale: language });
       const page = await context.newPage();
       try {
@@ -146,6 +143,10 @@ for (const plan of ["check-pack", "pro"] as const)
             { exact: true },
           ),
         ).toBeVisible();
+        const session = (await context.cookies(both.serviceUrl)).find(
+          (cookie) => cookie.name === "__Host-st-session",
+        )!;
+        const a = { cookie: `${session.name}=${session.value}` };
         await page.goto(
           `${both.serviceUrl}/${plan === "pro" ? "plan" : "order"}?language=${language}`,
         );
