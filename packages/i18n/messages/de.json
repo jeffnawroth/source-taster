@@ -490,5 +490,6 @@
   "report_footer": "Source Taster Prüfbericht",
   "report_scoring_versions": "Versionen der Bewertungsregeln in diesem Bericht",
   "report_not_verdict": "Für diese Referenz liegt kein Urteil vor.",
-  "report_retracted": "Für den besten Treffer ist ein Rückzug gemeldet; unabhängig vom Urteil."
+  "report_retracted": "Für den besten Treffer ist ein Rückzug gemeldet; unabhängig vom Urteil.",
+  "commerce_open": "Tarife und Prüfkontingente im Web"
 }

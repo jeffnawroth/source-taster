@@ -551,7 +551,8 @@
             "enum": [
               "guest",
               "free",
-              "credit"
+              "credit",
+              "check-pack"
             ]
           },
           "granted": {

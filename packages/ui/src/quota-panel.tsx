@@ -7,6 +7,8 @@ export function UpgradeLink({ href }: { href?: string }) {
   return href ? (
     <a
       href={href}
+      target="_blank"
+      rel="noopener noreferrer"
       className="ml-2 font-semibold underline"
       data-testid="quota-upgrade"
     >
