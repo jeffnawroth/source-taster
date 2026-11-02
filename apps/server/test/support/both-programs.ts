@@ -341,6 +341,7 @@ export async function bothPrograms(
         ...(options.accountPolicy ? { policy: options.accountPolicy } : {}),
         secret: randomUUID() + randomUUID(),
         publicOrigin: "https://service.test.invalid",
+        dpaAccountUrl: "https://web.test.invalid/",
         from: "signin@source-taster.invalid",
         smtp: { host: "127.0.0.1", port: 1, secure: false },
       }),

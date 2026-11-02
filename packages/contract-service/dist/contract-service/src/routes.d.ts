@@ -1,3 +1,5 @@
+import { webDpaRoutes, extensionDpaRoutes } from "./dpa-routes.ts";
+export { webDpaRoutes, extensionDpaRoutes };
 export declare const getServiceStatus: {
     method: "get";
     path: "/v1/status";
@@ -274,9 +276,9 @@ export declare const requestSignIn: {
                 "application/json": {
                     schema: import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            challengeId: import("zod").ZodUUID;
-                            expiresIn: import("zod").ZodNumber;
-                            resendAfter: import("zod").ZodNumber;
+                            accountId: import("zod").ZodUUID;
+                            ownerId: import("zod").ZodUUID;
+                            email: import("zod").ZodEmail;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -310,9 +312,9 @@ export declare const requestSignIn: {
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            accountId: import("zod").ZodUUID;
-                            ownerId: import("zod").ZodUUID;
-                            email: import("zod").ZodEmail;
+                            challengeId: import("zod").ZodUUID;
+                            expiresIn: import("zod").ZodNumber;
+                            resendAfter: import("zod").ZodNumber;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -532,9 +534,9 @@ export declare const confirmSignIn: {
                 "application/json": {
                     schema: import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            challengeId: import("zod").ZodUUID;
-                            expiresIn: import("zod").ZodNumber;
-                            resendAfter: import("zod").ZodNumber;
+                            accountId: import("zod").ZodUUID;
+                            ownerId: import("zod").ZodUUID;
+                            email: import("zod").ZodEmail;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -568,9 +570,9 @@ export declare const confirmSignIn: {
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            accountId: import("zod").ZodUUID;
-                            ownerId: import("zod").ZodUUID;
-                            email: import("zod").ZodEmail;
+                            challengeId: import("zod").ZodUUID;
+                            expiresIn: import("zod").ZodNumber;
+                            resendAfter: import("zod").ZodNumber;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -790,9 +792,9 @@ export declare const signOut: {
                 "application/json": {
                     schema: import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            challengeId: import("zod").ZodUUID;
-                            expiresIn: import("zod").ZodNumber;
-                            resendAfter: import("zod").ZodNumber;
+                            accountId: import("zod").ZodUUID;
+                            ownerId: import("zod").ZodUUID;
+                            email: import("zod").ZodEmail;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -826,9 +828,9 @@ export declare const signOut: {
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            accountId: import("zod").ZodUUID;
-                            ownerId: import("zod").ZodUUID;
-                            email: import("zod").ZodEmail;
+                            challengeId: import("zod").ZodUUID;
+                            expiresIn: import("zod").ZodNumber;
+                            resendAfter: import("zod").ZodNumber;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -4139,9 +4141,9 @@ export declare const webSensitiveRoutes: readonly [{
                 "application/json": {
                     schema: import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            challengeId: import("zod").ZodUUID;
-                            expiresIn: import("zod").ZodNumber;
-                            resendAfter: import("zod").ZodNumber;
+                            accountId: import("zod").ZodUUID;
+                            ownerId: import("zod").ZodUUID;
+                            email: import("zod").ZodEmail;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -4175,9 +4177,9 @@ export declare const webSensitiveRoutes: readonly [{
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            accountId: import("zod").ZodUUID;
-                            ownerId: import("zod").ZodUUID;
-                            email: import("zod").ZodEmail;
+                            challengeId: import("zod").ZodUUID;
+                            expiresIn: import("zod").ZodNumber;
+                            resendAfter: import("zod").ZodNumber;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -4510,9 +4512,9 @@ export declare const webSensitiveRoutes: readonly [{
                 "application/json": {
                     schema: import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            challengeId: import("zod").ZodUUID;
-                            expiresIn: import("zod").ZodNumber;
-                            resendAfter: import("zod").ZodNumber;
+                            accountId: import("zod").ZodUUID;
+                            ownerId: import("zod").ZodUUID;
+                            email: import("zod").ZodEmail;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -4546,9 +4548,9 @@ export declare const webSensitiveRoutes: readonly [{
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            accountId: import("zod").ZodUUID;
-                            ownerId: import("zod").ZodUUID;
-                            email: import("zod").ZodEmail;
+                            challengeId: import("zod").ZodUUID;
+                            expiresIn: import("zod").ZodNumber;
+                            resendAfter: import("zod").ZodNumber;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -4881,9 +4883,9 @@ export declare const webSensitiveRoutes: readonly [{
                 "application/json": {
                     schema: import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            challengeId: import("zod").ZodUUID;
-                            expiresIn: import("zod").ZodNumber;
-                            resendAfter: import("zod").ZodNumber;
+                            accountId: import("zod").ZodUUID;
+                            ownerId: import("zod").ZodUUID;
+                            email: import("zod").ZodEmail;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -4917,9 +4919,9 @@ export declare const webSensitiveRoutes: readonly [{
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            accountId: import("zod").ZodUUID;
-                            ownerId: import("zod").ZodUUID;
-                            email: import("zod").ZodEmail;
+                            challengeId: import("zod").ZodUUID;
+                            expiresIn: import("zod").ZodNumber;
+                            resendAfter: import("zod").ZodNumber;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -5252,9 +5254,9 @@ export declare const webSensitiveRoutes: readonly [{
                 "application/json": {
                     schema: import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            challengeId: import("zod").ZodUUID;
-                            expiresIn: import("zod").ZodNumber;
-                            resendAfter: import("zod").ZodNumber;
+                            accountId: import("zod").ZodUUID;
+                            ownerId: import("zod").ZodUUID;
+                            email: import("zod").ZodEmail;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -5288,9 +5290,9 @@ export declare const webSensitiveRoutes: readonly [{
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            accountId: import("zod").ZodUUID;
-                            ownerId: import("zod").ZodUUID;
-                            email: import("zod").ZodEmail;
+                            challengeId: import("zod").ZodUUID;
+                            expiresIn: import("zod").ZodNumber;
+                            resendAfter: import("zod").ZodNumber;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -5623,9 +5625,9 @@ export declare const webSensitiveRoutes: readonly [{
                 "application/json": {
                     schema: import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            challengeId: import("zod").ZodUUID;
-                            expiresIn: import("zod").ZodNumber;
-                            resendAfter: import("zod").ZodNumber;
+                            accountId: import("zod").ZodUUID;
+                            ownerId: import("zod").ZodUUID;
+                            email: import("zod").ZodEmail;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -5659,9 +5661,9 @@ export declare const webSensitiveRoutes: readonly [{
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            accountId: import("zod").ZodUUID;
-                            ownerId: import("zod").ZodUUID;
-                            email: import("zod").ZodEmail;
+                            challengeId: import("zod").ZodUUID;
+                            expiresIn: import("zod").ZodNumber;
+                            resendAfter: import("zod").ZodNumber;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -5995,9 +5997,9 @@ export declare const extensionSensitiveRoutes: readonly [{
                 "application/json": {
                     schema: import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            challengeId: import("zod").ZodUUID;
-                            expiresIn: import("zod").ZodNumber;
-                            resendAfter: import("zod").ZodNumber;
+                            accountId: import("zod").ZodUUID;
+                            ownerId: import("zod").ZodUUID;
+                            email: import("zod").ZodEmail;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -6031,9 +6033,9 @@ export declare const extensionSensitiveRoutes: readonly [{
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            accountId: import("zod").ZodUUID;
-                            ownerId: import("zod").ZodUUID;
-                            email: import("zod").ZodEmail;
+                            challengeId: import("zod").ZodUUID;
+                            expiresIn: import("zod").ZodNumber;
+                            resendAfter: import("zod").ZodNumber;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -6366,9 +6368,9 @@ export declare const extensionSensitiveRoutes: readonly [{
                 "application/json": {
                     schema: import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            challengeId: import("zod").ZodUUID;
-                            expiresIn: import("zod").ZodNumber;
-                            resendAfter: import("zod").ZodNumber;
+                            accountId: import("zod").ZodUUID;
+                            ownerId: import("zod").ZodUUID;
+                            email: import("zod").ZodEmail;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -6402,9 +6404,9 @@ export declare const extensionSensitiveRoutes: readonly [{
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            accountId: import("zod").ZodUUID;
-                            ownerId: import("zod").ZodUUID;
-                            email: import("zod").ZodEmail;
+                            challengeId: import("zod").ZodUUID;
+                            expiresIn: import("zod").ZodNumber;
+                            resendAfter: import("zod").ZodNumber;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -6737,9 +6739,9 @@ export declare const extensionSensitiveRoutes: readonly [{
                 "application/json": {
                     schema: import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            challengeId: import("zod").ZodUUID;
-                            expiresIn: import("zod").ZodNumber;
-                            resendAfter: import("zod").ZodNumber;
+                            accountId: import("zod").ZodUUID;
+                            ownerId: import("zod").ZodUUID;
+                            email: import("zod").ZodEmail;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -6773,9 +6775,9 @@ export declare const extensionSensitiveRoutes: readonly [{
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            accountId: import("zod").ZodUUID;
-                            ownerId: import("zod").ZodUUID;
-                            email: import("zod").ZodEmail;
+                            challengeId: import("zod").ZodUUID;
+                            expiresIn: import("zod").ZodNumber;
+                            resendAfter: import("zod").ZodNumber;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -7108,9 +7110,9 @@ export declare const extensionSensitiveRoutes: readonly [{
                 "application/json": {
                     schema: import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            challengeId: import("zod").ZodUUID;
-                            expiresIn: import("zod").ZodNumber;
-                            resendAfter: import("zod").ZodNumber;
+                            accountId: import("zod").ZodUUID;
+                            ownerId: import("zod").ZodUUID;
+                            email: import("zod").ZodEmail;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -7144,9 +7146,9 @@ export declare const extensionSensitiveRoutes: readonly [{
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            accountId: import("zod").ZodUUID;
-                            ownerId: import("zod").ZodUUID;
-                            email: import("zod").ZodEmail;
+                            challengeId: import("zod").ZodUUID;
+                            expiresIn: import("zod").ZodNumber;
+                            resendAfter: import("zod").ZodNumber;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -7479,9 +7481,9 @@ export declare const extensionSensitiveRoutes: readonly [{
                 "application/json": {
                     schema: import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            challengeId: import("zod").ZodUUID;
-                            expiresIn: import("zod").ZodNumber;
-                            resendAfter: import("zod").ZodNumber;
+                            accountId: import("zod").ZodUUID;
+                            ownerId: import("zod").ZodUUID;
+                            email: import("zod").ZodEmail;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -7515,9 +7517,9 @@ export declare const extensionSensitiveRoutes: readonly [{
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            accountId: import("zod").ZodUUID;
-                            ownerId: import("zod").ZodUUID;
-                            email: import("zod").ZodEmail;
+                            challengeId: import("zod").ZodUUID;
+                            expiresIn: import("zod").ZodNumber;
+                            resendAfter: import("zod").ZodNumber;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -7787,7 +7789,2441 @@ export declare const extensionSensitiveRoutes: readonly [{
 } & {
     getRoutingPath(): `/v1/account${string}` | `/v1/extension/account${string}`;
 }];
-export declare const routes: (({
+export declare const routes: ((({
+    security: {
+        ExtensionSession: never[];
+    }[];
+    method: "post";
+    path: "/v1/dpa/objections" | "/v1/extension/dpa/objections";
+    summary: string;
+    request: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        noticeId: import("zod").ZodUUID;
+                        reason: import("zod").ZodString;
+                    }, import("zod/v4/core").$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        data: import("zod").ZodObject<{
+                            recorded: import("zod").ZodLiteral<true>;
+                        }, import("zod/v4/core").$strip>;
+                        quota: import("zod").ZodNull;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        409: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+    };
+} | {
+    security?: undefined;
+    method: "post";
+    path: "/v1/dpa/objections" | "/v1/extension/dpa/objections";
+    summary: string;
+    request: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        noticeId: import("zod").ZodUUID;
+                        reason: import("zod").ZodString;
+                    }, import("zod/v4/core").$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        data: import("zod").ZodObject<{
+                            recorded: import("zod").ZodLiteral<true>;
+                        }, import("zod/v4/core").$strip>;
+                        quota: import("zod").ZodNull;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        409: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+    };
+}) & {
+    getRoutingPath(): "/v1/dpa/objections" | "/v1/extension/dpa/objections";
+}) | (({
+    security: {
+        ExtensionSession: never[];
+    }[];
+    method: "post";
+    path: "/v1/dpa/challenges" | "/v1/extension/dpa/challenges";
+    summary: string;
+    request: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        operationId: import("zod").ZodUUID;
+                        packetVersion: import("zod").ZodString;
+                        language: import("zod").ZodEnum<{
+                            de: "de";
+                            en: "en";
+                        }>;
+                        party: import("zod").ZodObject<{
+                            name: import("zod").ZodString;
+                            address: import("zod").ZodString;
+                            representative: import("zod").ZodString;
+                        }, import("zod/v4/core").$strict>;
+                        partyRevision: import("zod").ZodNumber;
+                        authorityAccepted: import("zod").ZodLiteral<true>;
+                        businessUse: import("zod").ZodLiteral<true>;
+                    }, import("zod/v4/core").$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        data: import("zod").ZodObject<{
+                            operationId: import("zod").ZodUUID;
+                            status: import("zod").ZodEnum<{
+                                concluded: "concluded";
+                                expired: "expired";
+                                pending: "pending";
+                            }>;
+                            expiresAt: import("zod").ZodISODateTime;
+                            agreement: import("zod").ZodNullable<import("zod").ZodObject<{
+                                id: import("zod").ZodUUID;
+                                operationId: import("zod").ZodUUID;
+                                accountId: import("zod").ZodUUID;
+                                concludedAt: import("zod").ZodISODateTime;
+                                party: import("zod").ZodObject<{
+                                    name: import("zod").ZodString;
+                                    address: import("zod").ZodString;
+                                    representative: import("zod").ZodString;
+                                }, import("zod/v4/core").$strict>;
+                                partyRevision: import("zod").ZodNumber;
+                                packet: import("zod").ZodObject<{
+                                    version: import("zod").ZodString;
+                                    language: import("zod").ZodEnum<{
+                                        de: "de";
+                                        en: "en";
+                                    }>;
+                                    documents: import("zod").ZodArray<import("zod").ZodObject<{
+                                        kind: import("zod").ZodEnum<{
+                                            agreement: "agreement";
+                                            annex: "annex";
+                                            processing: "processing";
+                                            subprocessors: "subprocessors";
+                                            toms: "toms";
+                                        }>;
+                                        version: import("zod").ZodString;
+                                        title: import("zod").ZodString;
+                                        text: import("zod").ZodString;
+                                    }, import("zod/v4/core").$strict>>;
+                                }, import("zod/v4/core").$strict>;
+                                authorityAccepted: import("zod").ZodLiteral<true>;
+                                businessUse: import("zod").ZodLiteral<true>;
+                            }, import("zod/v4/core").$strict>>;
+                        }, import("zod/v4/core").$strict>;
+                        quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
+                            consumed: import("zod").ZodNumber;
+                            remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
+                        }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        409: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        429: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+    };
+} | {
+    security?: undefined;
+    method: "post";
+    path: "/v1/dpa/challenges" | "/v1/extension/dpa/challenges";
+    summary: string;
+    request: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        operationId: import("zod").ZodUUID;
+                        packetVersion: import("zod").ZodString;
+                        language: import("zod").ZodEnum<{
+                            de: "de";
+                            en: "en";
+                        }>;
+                        party: import("zod").ZodObject<{
+                            name: import("zod").ZodString;
+                            address: import("zod").ZodString;
+                            representative: import("zod").ZodString;
+                        }, import("zod/v4/core").$strict>;
+                        partyRevision: import("zod").ZodNumber;
+                        authorityAccepted: import("zod").ZodLiteral<true>;
+                        businessUse: import("zod").ZodLiteral<true>;
+                    }, import("zod/v4/core").$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        data: import("zod").ZodObject<{
+                            operationId: import("zod").ZodUUID;
+                            status: import("zod").ZodEnum<{
+                                concluded: "concluded";
+                                expired: "expired";
+                                pending: "pending";
+                            }>;
+                            expiresAt: import("zod").ZodISODateTime;
+                            agreement: import("zod").ZodNullable<import("zod").ZodObject<{
+                                id: import("zod").ZodUUID;
+                                operationId: import("zod").ZodUUID;
+                                accountId: import("zod").ZodUUID;
+                                concludedAt: import("zod").ZodISODateTime;
+                                party: import("zod").ZodObject<{
+                                    name: import("zod").ZodString;
+                                    address: import("zod").ZodString;
+                                    representative: import("zod").ZodString;
+                                }, import("zod/v4/core").$strict>;
+                                partyRevision: import("zod").ZodNumber;
+                                packet: import("zod").ZodObject<{
+                                    version: import("zod").ZodString;
+                                    language: import("zod").ZodEnum<{
+                                        de: "de";
+                                        en: "en";
+                                    }>;
+                                    documents: import("zod").ZodArray<import("zod").ZodObject<{
+                                        kind: import("zod").ZodEnum<{
+                                            agreement: "agreement";
+                                            annex: "annex";
+                                            processing: "processing";
+                                            subprocessors: "subprocessors";
+                                            toms: "toms";
+                                        }>;
+                                        version: import("zod").ZodString;
+                                        title: import("zod").ZodString;
+                                        text: import("zod").ZodString;
+                                    }, import("zod/v4/core").$strict>>;
+                                }, import("zod/v4/core").$strict>;
+                                authorityAccepted: import("zod").ZodLiteral<true>;
+                                businessUse: import("zod").ZodLiteral<true>;
+                            }, import("zod/v4/core").$strict>>;
+                        }, import("zod/v4/core").$strict>;
+                        quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
+                            consumed: import("zod").ZodNumber;
+                            remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
+                        }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        409: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        429: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+    };
+}) & {
+    getRoutingPath(): "/v1/dpa/challenges" | "/v1/extension/dpa/challenges";
+}) | (({
+    security: {
+        ExtensionSession: never[];
+    }[];
+    method: "post";
+    path: "/v1/dpa/conclude" | "/v1/extension/dpa/conclude";
+    summary: string;
+    request: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        operationId: import("zod").ZodUUID;
+                        code: import("zod").ZodString;
+                    }, import("zod/v4/core").$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        data: import("zod").ZodObject<{
+                            operationId: import("zod").ZodUUID;
+                            status: import("zod").ZodEnum<{
+                                concluded: "concluded";
+                                expired: "expired";
+                                pending: "pending";
+                            }>;
+                            expiresAt: import("zod").ZodISODateTime;
+                            agreement: import("zod").ZodNullable<import("zod").ZodObject<{
+                                id: import("zod").ZodUUID;
+                                operationId: import("zod").ZodUUID;
+                                accountId: import("zod").ZodUUID;
+                                concludedAt: import("zod").ZodISODateTime;
+                                party: import("zod").ZodObject<{
+                                    name: import("zod").ZodString;
+                                    address: import("zod").ZodString;
+                                    representative: import("zod").ZodString;
+                                }, import("zod/v4/core").$strict>;
+                                partyRevision: import("zod").ZodNumber;
+                                packet: import("zod").ZodObject<{
+                                    version: import("zod").ZodString;
+                                    language: import("zod").ZodEnum<{
+                                        de: "de";
+                                        en: "en";
+                                    }>;
+                                    documents: import("zod").ZodArray<import("zod").ZodObject<{
+                                        kind: import("zod").ZodEnum<{
+                                            agreement: "agreement";
+                                            annex: "annex";
+                                            processing: "processing";
+                                            subprocessors: "subprocessors";
+                                            toms: "toms";
+                                        }>;
+                                        version: import("zod").ZodString;
+                                        title: import("zod").ZodString;
+                                        text: import("zod").ZodString;
+                                    }, import("zod/v4/core").$strict>>;
+                                }, import("zod/v4/core").$strict>;
+                                authorityAccepted: import("zod").ZodLiteral<true>;
+                                businessUse: import("zod").ZodLiteral<true>;
+                            }, import("zod/v4/core").$strict>>;
+                        }, import("zod/v4/core").$strict>;
+                        quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
+                            consumed: import("zod").ZodNumber;
+                            remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
+                        }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        409: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        429: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+    };
+} | {
+    security?: undefined;
+    method: "post";
+    path: "/v1/dpa/conclude" | "/v1/extension/dpa/conclude";
+    summary: string;
+    request: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        operationId: import("zod").ZodUUID;
+                        code: import("zod").ZodString;
+                    }, import("zod/v4/core").$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        data: import("zod").ZodObject<{
+                            operationId: import("zod").ZodUUID;
+                            status: import("zod").ZodEnum<{
+                                concluded: "concluded";
+                                expired: "expired";
+                                pending: "pending";
+                            }>;
+                            expiresAt: import("zod").ZodISODateTime;
+                            agreement: import("zod").ZodNullable<import("zod").ZodObject<{
+                                id: import("zod").ZodUUID;
+                                operationId: import("zod").ZodUUID;
+                                accountId: import("zod").ZodUUID;
+                                concludedAt: import("zod").ZodISODateTime;
+                                party: import("zod").ZodObject<{
+                                    name: import("zod").ZodString;
+                                    address: import("zod").ZodString;
+                                    representative: import("zod").ZodString;
+                                }, import("zod/v4/core").$strict>;
+                                partyRevision: import("zod").ZodNumber;
+                                packet: import("zod").ZodObject<{
+                                    version: import("zod").ZodString;
+                                    language: import("zod").ZodEnum<{
+                                        de: "de";
+                                        en: "en";
+                                    }>;
+                                    documents: import("zod").ZodArray<import("zod").ZodObject<{
+                                        kind: import("zod").ZodEnum<{
+                                            agreement: "agreement";
+                                            annex: "annex";
+                                            processing: "processing";
+                                            subprocessors: "subprocessors";
+                                            toms: "toms";
+                                        }>;
+                                        version: import("zod").ZodString;
+                                        title: import("zod").ZodString;
+                                        text: import("zod").ZodString;
+                                    }, import("zod/v4/core").$strict>>;
+                                }, import("zod/v4/core").$strict>;
+                                authorityAccepted: import("zod").ZodLiteral<true>;
+                                businessUse: import("zod").ZodLiteral<true>;
+                            }, import("zod/v4/core").$strict>>;
+                        }, import("zod/v4/core").$strict>;
+                        quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
+                            consumed: import("zod").ZodNumber;
+                            remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
+                        }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        409: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        429: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+    };
+}) & {
+    getRoutingPath(): "/v1/dpa/conclude" | "/v1/extension/dpa/conclude";
+}) | (({
+    security: {
+        ExtensionSession: never[];
+    }[];
+    method: "get";
+    path: "/v1/dpa/operations/{id}" | "/v1/extension/dpa/operations/{id}";
+    summary: string;
+    request: {
+        params: import("zod").ZodObject<{
+            id: import("zod").ZodUUID;
+        }, import("zod/v4/core").$strip>;
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        data: import("zod").ZodObject<{
+                            operationId: import("zod").ZodUUID;
+                            status: import("zod").ZodEnum<{
+                                concluded: "concluded";
+                                expired: "expired";
+                                pending: "pending";
+                            }>;
+                            expiresAt: import("zod").ZodISODateTime;
+                            agreement: import("zod").ZodNullable<import("zod").ZodObject<{
+                                id: import("zod").ZodUUID;
+                                operationId: import("zod").ZodUUID;
+                                accountId: import("zod").ZodUUID;
+                                concludedAt: import("zod").ZodISODateTime;
+                                party: import("zod").ZodObject<{
+                                    name: import("zod").ZodString;
+                                    address: import("zod").ZodString;
+                                    representative: import("zod").ZodString;
+                                }, import("zod/v4/core").$strict>;
+                                partyRevision: import("zod").ZodNumber;
+                                packet: import("zod").ZodObject<{
+                                    version: import("zod").ZodString;
+                                    language: import("zod").ZodEnum<{
+                                        de: "de";
+                                        en: "en";
+                                    }>;
+                                    documents: import("zod").ZodArray<import("zod").ZodObject<{
+                                        kind: import("zod").ZodEnum<{
+                                            agreement: "agreement";
+                                            annex: "annex";
+                                            processing: "processing";
+                                            subprocessors: "subprocessors";
+                                            toms: "toms";
+                                        }>;
+                                        version: import("zod").ZodString;
+                                        title: import("zod").ZodString;
+                                        text: import("zod").ZodString;
+                                    }, import("zod/v4/core").$strict>>;
+                                }, import("zod/v4/core").$strict>;
+                                authorityAccepted: import("zod").ZodLiteral<true>;
+                                businessUse: import("zod").ZodLiteral<true>;
+                            }, import("zod/v4/core").$strict>>;
+                        }, import("zod/v4/core").$strict>;
+                        quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
+                            consumed: import("zod").ZodNumber;
+                            remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
+                        }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        409: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        429: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+    };
+} | {
+    security?: undefined;
+    method: "get";
+    path: "/v1/dpa/operations/{id}" | "/v1/extension/dpa/operations/{id}";
+    summary: string;
+    request: {
+        params: import("zod").ZodObject<{
+            id: import("zod").ZodUUID;
+        }, import("zod/v4/core").$strip>;
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        data: import("zod").ZodObject<{
+                            operationId: import("zod").ZodUUID;
+                            status: import("zod").ZodEnum<{
+                                concluded: "concluded";
+                                expired: "expired";
+                                pending: "pending";
+                            }>;
+                            expiresAt: import("zod").ZodISODateTime;
+                            agreement: import("zod").ZodNullable<import("zod").ZodObject<{
+                                id: import("zod").ZodUUID;
+                                operationId: import("zod").ZodUUID;
+                                accountId: import("zod").ZodUUID;
+                                concludedAt: import("zod").ZodISODateTime;
+                                party: import("zod").ZodObject<{
+                                    name: import("zod").ZodString;
+                                    address: import("zod").ZodString;
+                                    representative: import("zod").ZodString;
+                                }, import("zod/v4/core").$strict>;
+                                partyRevision: import("zod").ZodNumber;
+                                packet: import("zod").ZodObject<{
+                                    version: import("zod").ZodString;
+                                    language: import("zod").ZodEnum<{
+                                        de: "de";
+                                        en: "en";
+                                    }>;
+                                    documents: import("zod").ZodArray<import("zod").ZodObject<{
+                                        kind: import("zod").ZodEnum<{
+                                            agreement: "agreement";
+                                            annex: "annex";
+                                            processing: "processing";
+                                            subprocessors: "subprocessors";
+                                            toms: "toms";
+                                        }>;
+                                        version: import("zod").ZodString;
+                                        title: import("zod").ZodString;
+                                        text: import("zod").ZodString;
+                                    }, import("zod/v4/core").$strict>>;
+                                }, import("zod/v4/core").$strict>;
+                                authorityAccepted: import("zod").ZodLiteral<true>;
+                                businessUse: import("zod").ZodLiteral<true>;
+                            }, import("zod/v4/core").$strict>>;
+                        }, import("zod/v4/core").$strict>;
+                        quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
+                            consumed: import("zod").ZodNumber;
+                            remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
+                        }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        409: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        429: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+    };
+}) & {
+    getRoutingPath(): "/v1/dpa/operations/:id" | "/v1/extension/dpa/operations/:id";
+}) | (({
+    security: {
+        ExtensionSession: never[];
+    }[];
+    method: "get";
+    path: "/v1/dpa/agreements/{id}/download" | "/v1/extension/dpa/agreements/{id}/download";
+    summary: string;
+    request: {
+        params: import("zod").ZodObject<{
+            id: import("zod").ZodUUID;
+        }, import("zod/v4/core").$strip>;
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        id: import("zod").ZodUUID;
+                        operationId: import("zod").ZodUUID;
+                        accountId: import("zod").ZodUUID;
+                        concludedAt: import("zod").ZodISODateTime;
+                        party: import("zod").ZodObject<{
+                            name: import("zod").ZodString;
+                            address: import("zod").ZodString;
+                            representative: import("zod").ZodString;
+                        }, import("zod/v4/core").$strict>;
+                        partyRevision: import("zod").ZodNumber;
+                        packet: import("zod").ZodObject<{
+                            version: import("zod").ZodString;
+                            language: import("zod").ZodEnum<{
+                                de: "de";
+                                en: "en";
+                            }>;
+                            documents: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    agreement: "agreement";
+                                    annex: "annex";
+                                    processing: "processing";
+                                    subprocessors: "subprocessors";
+                                    toms: "toms";
+                                }>;
+                                version: import("zod").ZodString;
+                                title: import("zod").ZodString;
+                                text: import("zod").ZodString;
+                            }, import("zod/v4/core").$strict>>;
+                        }, import("zod/v4/core").$strict>;
+                        authorityAccepted: import("zod").ZodLiteral<true>;
+                        businessUse: import("zod").ZodLiteral<true>;
+                    }, import("zod/v4/core").$strict>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+    };
+} | {
+    security?: undefined;
+    method: "get";
+    path: "/v1/dpa/agreements/{id}/download" | "/v1/extension/dpa/agreements/{id}/download";
+    summary: string;
+    request: {
+        params: import("zod").ZodObject<{
+            id: import("zod").ZodUUID;
+        }, import("zod/v4/core").$strip>;
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        id: import("zod").ZodUUID;
+                        operationId: import("zod").ZodUUID;
+                        accountId: import("zod").ZodUUID;
+                        concludedAt: import("zod").ZodISODateTime;
+                        party: import("zod").ZodObject<{
+                            name: import("zod").ZodString;
+                            address: import("zod").ZodString;
+                            representative: import("zod").ZodString;
+                        }, import("zod/v4/core").$strict>;
+                        partyRevision: import("zod").ZodNumber;
+                        packet: import("zod").ZodObject<{
+                            version: import("zod").ZodString;
+                            language: import("zod").ZodEnum<{
+                                de: "de";
+                                en: "en";
+                            }>;
+                            documents: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    agreement: "agreement";
+                                    annex: "annex";
+                                    processing: "processing";
+                                    subprocessors: "subprocessors";
+                                    toms: "toms";
+                                }>;
+                                version: import("zod").ZodString;
+                                title: import("zod").ZodString;
+                                text: import("zod").ZodString;
+                            }, import("zod/v4/core").$strict>>;
+                        }, import("zod/v4/core").$strict>;
+                        authorityAccepted: import("zod").ZodLiteral<true>;
+                        businessUse: import("zod").ZodLiteral<true>;
+                    }, import("zod/v4/core").$strict>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+    };
+}) & {
+    getRoutingPath(): "/v1/dpa/agreements/:id/download" | "/v1/extension/dpa/agreements/:id/download";
+}) | (({
+    security: {
+        ExtensionSession: never[];
+    }[];
+    method: "get";
+    path: "/v1/dpa/{language}" | "/v1/extension/dpa/{language}";
+    summary: string;
+    request: {
+        params: import("zod").ZodObject<{
+            language: import("zod").ZodEnum<{
+                de: "de";
+                en: "en";
+            }>;
+        }, import("zod/v4/core").$strip>;
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        data: import("zod").ZodObject<{
+                            packet: import("zod").ZodNullable<import("zod").ZodObject<{
+                                version: import("zod").ZodString;
+                                language: import("zod").ZodEnum<{
+                                    de: "de";
+                                    en: "en";
+                                }>;
+                                documents: import("zod").ZodArray<import("zod").ZodObject<{
+                                    kind: import("zod").ZodEnum<{
+                                        agreement: "agreement";
+                                        annex: "annex";
+                                        processing: "processing";
+                                        subprocessors: "subprocessors";
+                                        toms: "toms";
+                                    }>;
+                                    version: import("zod").ZodString;
+                                    title: import("zod").ZodString;
+                                    text: import("zod").ZodString;
+                                }, import("zod/v4/core").$strict>>;
+                            }, import("zod/v4/core").$strict>>;
+                            party: import("zod").ZodNullable<import("zod").ZodObject<{
+                                name: import("zod").ZodString;
+                                address: import("zod").ZodString;
+                                representative: import("zod").ZodString;
+                            }, import("zod/v4/core").$strict>>;
+                            partyRevision: import("zod").ZodNumber;
+                            agreements: import("zod").ZodArray<import("zod").ZodObject<{
+                                id: import("zod").ZodUUID;
+                                operationId: import("zod").ZodUUID;
+                                accountId: import("zod").ZodUUID;
+                                concludedAt: import("zod").ZodISODateTime;
+                                party: import("zod").ZodObject<{
+                                    name: import("zod").ZodString;
+                                    address: import("zod").ZodString;
+                                    representative: import("zod").ZodString;
+                                }, import("zod/v4/core").$strict>;
+                                partyRevision: import("zod").ZodNumber;
+                                packet: import("zod").ZodObject<{
+                                    version: import("zod").ZodString;
+                                    language: import("zod").ZodEnum<{
+                                        de: "de";
+                                        en: "en";
+                                    }>;
+                                    documents: import("zod").ZodArray<import("zod").ZodObject<{
+                                        kind: import("zod").ZodEnum<{
+                                            agreement: "agreement";
+                                            annex: "annex";
+                                            processing: "processing";
+                                            subprocessors: "subprocessors";
+                                            toms: "toms";
+                                        }>;
+                                        version: import("zod").ZodString;
+                                        title: import("zod").ZodString;
+                                        text: import("zod").ZodString;
+                                    }, import("zod/v4/core").$strict>>;
+                                }, import("zod/v4/core").$strict>;
+                                authorityAccepted: import("zod").ZodLiteral<true>;
+                                businessUse: import("zod").ZodLiteral<true>;
+                            }, import("zod/v4/core").$strict>>;
+                            notices: import("zod").ZodArray<import("zod").ZodObject<{
+                                id: import("zod").ZodUUID;
+                                agreementId: import("zod").ZodUUID;
+                                version: import("zod").ZodString;
+                                change: import("zod").ZodString;
+                                intendedEffectiveAt: import("zod").ZodISODateTime;
+                                objectionDeadline: import("zod").ZodISODateTime;
+                                objectionRoute: import("zod").ZodURL;
+                                delivery: import("zod").ZodEnum<{
+                                    queued: "queued";
+                                    sent: "sent";
+                                }>;
+                                objection: import("zod").ZodNullable<import("zod").ZodString>;
+                                resolved: import("zod").ZodBoolean;
+                            }, import("zod/v4/core").$strict>>;
+                        }, import("zod/v4/core").$strict>;
+                        quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
+                            consumed: import("zod").ZodNumber;
+                            remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
+                        }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+    };
+} | {
+    security?: undefined;
+    method: "get";
+    path: "/v1/dpa/{language}" | "/v1/extension/dpa/{language}";
+    summary: string;
+    request: {
+        params: import("zod").ZodObject<{
+            language: import("zod").ZodEnum<{
+                de: "de";
+                en: "en";
+            }>;
+        }, import("zod/v4/core").$strip>;
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: import("zod").ZodObject<{
+                        data: import("zod").ZodObject<{
+                            packet: import("zod").ZodNullable<import("zod").ZodObject<{
+                                version: import("zod").ZodString;
+                                language: import("zod").ZodEnum<{
+                                    de: "de";
+                                    en: "en";
+                                }>;
+                                documents: import("zod").ZodArray<import("zod").ZodObject<{
+                                    kind: import("zod").ZodEnum<{
+                                        agreement: "agreement";
+                                        annex: "annex";
+                                        processing: "processing";
+                                        subprocessors: "subprocessors";
+                                        toms: "toms";
+                                    }>;
+                                    version: import("zod").ZodString;
+                                    title: import("zod").ZodString;
+                                    text: import("zod").ZodString;
+                                }, import("zod/v4/core").$strict>>;
+                            }, import("zod/v4/core").$strict>>;
+                            party: import("zod").ZodNullable<import("zod").ZodObject<{
+                                name: import("zod").ZodString;
+                                address: import("zod").ZodString;
+                                representative: import("zod").ZodString;
+                            }, import("zod/v4/core").$strict>>;
+                            partyRevision: import("zod").ZodNumber;
+                            agreements: import("zod").ZodArray<import("zod").ZodObject<{
+                                id: import("zod").ZodUUID;
+                                operationId: import("zod").ZodUUID;
+                                accountId: import("zod").ZodUUID;
+                                concludedAt: import("zod").ZodISODateTime;
+                                party: import("zod").ZodObject<{
+                                    name: import("zod").ZodString;
+                                    address: import("zod").ZodString;
+                                    representative: import("zod").ZodString;
+                                }, import("zod/v4/core").$strict>;
+                                partyRevision: import("zod").ZodNumber;
+                                packet: import("zod").ZodObject<{
+                                    version: import("zod").ZodString;
+                                    language: import("zod").ZodEnum<{
+                                        de: "de";
+                                        en: "en";
+                                    }>;
+                                    documents: import("zod").ZodArray<import("zod").ZodObject<{
+                                        kind: import("zod").ZodEnum<{
+                                            agreement: "agreement";
+                                            annex: "annex";
+                                            processing: "processing";
+                                            subprocessors: "subprocessors";
+                                            toms: "toms";
+                                        }>;
+                                        version: import("zod").ZodString;
+                                        title: import("zod").ZodString;
+                                        text: import("zod").ZodString;
+                                    }, import("zod/v4/core").$strict>>;
+                                }, import("zod/v4/core").$strict>;
+                                authorityAccepted: import("zod").ZodLiteral<true>;
+                                businessUse: import("zod").ZodLiteral<true>;
+                            }, import("zod/v4/core").$strict>>;
+                            notices: import("zod").ZodArray<import("zod").ZodObject<{
+                                id: import("zod").ZodUUID;
+                                agreementId: import("zod").ZodUUID;
+                                version: import("zod").ZodString;
+                                change: import("zod").ZodString;
+                                intendedEffectiveAt: import("zod").ZodISODateTime;
+                                objectionDeadline: import("zod").ZodISODateTime;
+                                objectionRoute: import("zod").ZodURL;
+                                delivery: import("zod").ZodEnum<{
+                                    queued: "queued";
+                                    sent: "sent";
+                                }>;
+                                objection: import("zod").ZodNullable<import("zod").ZodString>;
+                                resolved: import("zod").ZodBoolean;
+                            }, import("zod/v4/core").$strict>>;
+                        }, import("zod/v4/core").$strict>;
+                        quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
+                            consumed: import("zod").ZodNumber;
+                            remaining: import("zod").ZodNumber;
+                            granted: import("zod").ZodNumber;
+                            reserved: import("zod").ZodNumber;
+                            warning: import("zod").ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: import("zod").ZodArray<import("zod").ZodObject<{
+                                kind: import("zod").ZodEnum<{
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                }>;
+                                granted: import("zod").ZodNumber;
+                                remaining: import("zod").ZodNumber;
+                                expiresAt: import("zod").ZodISODateTime;
+                            }, import("zod/v4/core").$strip>>;
+                            features: import("zod").ZodArray<import("zod").ZodString>;
+                            history: import("zod").ZodOptional<import("zod").ZodObject<{
+                                extendedUntil: import("zod").ZodNullable<import("zod").ZodISODateTime>;
+                                authorityVersion: import("zod").ZodNumber;
+                            }, import("zod/v4/core").$strip>>;
+                        }, import("zod/v4/core").$strip>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"not-implemented">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodObject<{
+                            status: import("zod").ZodLiteral<"unavailable">;
+                        }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: import("zod").ZodObject<{
+                        type: import("zod").ZodString;
+                        title: import("zod").ZodString;
+                        status: import("zod").ZodNumber;
+                        detail: import("zod").ZodOptional<import("zod").ZodString>;
+                        limit: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        available: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        required: import("zod").ZodOptional<import("zod").ZodNumber>;
+                        retryAt: import("zod").ZodOptional<import("zod").ZodISODateTime>;
+                        code: import("zod").ZodString;
+                        i18nKey: import("zod").ZodString;
+                    }, import("zod/v4/core").$strip>;
+                };
+            };
+        };
+    };
+}) & {
+    getRoutingPath(): "/v1/dpa/:language" | "/v1/extension/dpa/:language";
+}) | ({
     method: "get";
     path: "/v1/status";
     summary: string;
@@ -8060,9 +10496,9 @@ export declare const routes: (({
                 "application/json": {
                     schema: import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            challengeId: import("zod").ZodUUID;
-                            expiresIn: import("zod").ZodNumber;
-                            resendAfter: import("zod").ZodNumber;
+                            accountId: import("zod").ZodUUID;
+                            ownerId: import("zod").ZodUUID;
+                            email: import("zod").ZodEmail;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -8096,9 +10532,9 @@ export declare const routes: (({
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            accountId: import("zod").ZodUUID;
-                            ownerId: import("zod").ZodUUID;
-                            email: import("zod").ZodEmail;
+                            challengeId: import("zod").ZodUUID;
+                            expiresIn: import("zod").ZodNumber;
+                            resendAfter: import("zod").ZodNumber;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -9157,9 +11593,9 @@ export declare const routes: (({
                 "application/json": {
                     schema: import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            challengeId: import("zod").ZodUUID;
-                            expiresIn: import("zod").ZodNumber;
-                            resendAfter: import("zod").ZodNumber;
+                            accountId: import("zod").ZodUUID;
+                            ownerId: import("zod").ZodUUID;
+                            email: import("zod").ZodEmail;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;
@@ -9193,9 +11629,9 @@ export declare const routes: (({
                         }, import("zod/v4/core").$strict>, import("zod").ZodNull]>;
                     }, import("zod/v4/core").$strip> | import("zod").ZodObject<{
                         data: import("zod").ZodObject<{
-                            accountId: import("zod").ZodUUID;
-                            ownerId: import("zod").ZodUUID;
-                            email: import("zod").ZodEmail;
+                            challengeId: import("zod").ZodUUID;
+                            expiresIn: import("zod").ZodNumber;
+                            resendAfter: import("zod").ZodNumber;
                         }, import("zod/v4/core").$strict>;
                         quota: import("zod").ZodUnion<readonly [import("zod").ZodObject<{
                             consumed: import("zod").ZodNumber;

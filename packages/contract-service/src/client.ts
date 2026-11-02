@@ -1,3 +1,5 @@
+import { dpaClient } from "./dpa-client.ts";
+export { dpaClient, type DpaClient } from "./dpa-client.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 // Transport only: persistence, renewal policy and cryptography belong to clients/service.
 import type { z } from "zod";
@@ -120,6 +122,7 @@ export function accountSessionClient(options: {
     return value;
   }
   return {
+    dpa: dpaClient(options),
     preferences: async () =>
       AccountPreferencesResponse.parse(await call("/v1/preferences")).data,
     updatePreferences: async (patch: AccountPreferencesPatch) =>
@@ -253,6 +256,7 @@ export function extensionSessionClient(options: {
     return value;
   }
   return {
+    dpa: (credential: string) => dpaClient({ ...options, credential }),
     challenge: async (input: z.infer<typeof SignInChallengeRequest>) =>
       ExtensionSignInChallengeResponse.parse(
         await call(

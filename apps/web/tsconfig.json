@@ -4,7 +4,11 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
-    "lib": ["es2024", "dom", "dom.iterable"],
+    "lib": [
+      "es2024",
+      "dom",
+      "dom.iterable"
+    ],
     "allowImportingTsExtensions": true
   },
   "include": [
@@ -20,6 +24,7 @@
     "e2e-quota",
     "quota.playwright.config.ts",
     "e2e-abuse",
-    "e2e-report"
+    "e2e-report",
+    "e2e-dpa"
   ]
 }

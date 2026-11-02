@@ -57,6 +57,14 @@ export function extensionAccountSession(
     await local.remove(sessionKey);
   };
   return {
+    dpa: {
+      state: (language) => authenticated((c) => wire.dpa(c).state(language)),
+      challenge: (input) => authenticated((c) => wire.dpa(c).challenge(input)),
+      conclude: (input) => authenticated((c) => wire.dpa(c).conclude(input)),
+      operation: (id) => authenticated((c) => wire.dpa(c).operation(id)),
+      download: (id) => authenticated((c) => wire.dpa(c).download(id)),
+      object: (input) => authenticated((c) => wire.dpa(c).object(input)),
+    },
     ...(options.sensitive
       ? {
           sensitive: {

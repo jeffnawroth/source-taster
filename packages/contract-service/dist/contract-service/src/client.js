@@ -1,3 +1,5 @@
+import { dpaClient } from "./dpa-client.js";
+export { dpaClient } from "./dpa-client.js";
 import { AccountPreferencesPatch, AccountPreferencesResponse, ExtensionCredential, ExtensionSignInChallengeResponse, ExtensionSignInConfirmRequest, ExtensionSignInConfirmResponse, SignInChallengeRequest, SignInChallengeResponse, SignInConfirmRequest, AccountSessionResponse, AccountTokenResponse, SignOutResponse, SignOutRequest, GuestTokenRequest, GuestTokenResponse, ProblemDetails, AccountDeletionRequest, AccountDeletionResponse, EmailChangeChallengeRequest, EmailChangeChallengeResponse, EmailChangeConfirmRequest, FreshProofChallengeRequest, FreshProofChallengeResponse, FreshProofConfirmRequest, FreshProofResponse, } from "./index.js";
 export class GuestTokenError extends Error {
     status;
@@ -63,6 +65,7 @@ export function accountSessionClient(options) {
         return value;
     }
     return {
+        dpa: dpaClient(options),
         preferences: async () => AccountPreferencesResponse.parse(await call("/v1/preferences")).data,
         updatePreferences: async (patch) => AccountPreferencesResponse.parse(await call("/v1/preferences", "PATCH", AccountPreferencesPatch.parse(patch))).data,
         session: async () => AccountSessionResponse.parse(await call("/v1/session")).data,
@@ -106,6 +109,7 @@ export function extensionSessionClient(options) {
         return value;
     }
     return {
+        dpa: (credential) => dpaClient({ ...options, credential }),
         challenge: async (input) => ExtensionSignInChallengeResponse.parse(await call("/sign-in/challenges", "POST", undefined, SignInChallengeRequest.parse(input))).data,
         confirm: async (input) => ExtensionSignInConfirmResponse.parse(await call("/sign-in/confirm", "POST", undefined, ExtensionSignInConfirmRequest.parse(input))).data,
         preferences: async (credential) => AccountPreferencesResponse.parse(await call("/preferences", "GET", credential)).data,
