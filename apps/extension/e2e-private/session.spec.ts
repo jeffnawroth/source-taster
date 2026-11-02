@@ -88,6 +88,13 @@ for (const language of ["en", "de"] as const)
               reference: "Reference",
             };
       if (language === "de") await panel.select("combobox", "Language", "de");
+      await panel.select(
+        "combobox",
+        language === "de"
+          ? "Bevorzugter Zitierstil"
+          : "Preferred citation style",
+        "ieee",
+      );
       const email = `native-${language}@example.invalid`;
       await panel.click("button", labels.signin);
       await panel.fill("textbox", labels.email, email);
@@ -108,6 +115,56 @@ for (const language of ["en", "de"] as const)
         console.error("Service diagnostic", b.service().output());
         throw error;
       }
+      const web = await b.signIn(email);
+      expect((await b.mail()).at(-1)!.subject).toBe(
+        language === "de"
+          ? "Dein Anmeldecode für Source Taster"
+          : "Your Source Taster sign-in code",
+      );
+      const readPreferences = async () =>
+        (
+          (await (
+            await fetch(b.serviceUrl + "/v1/preferences", {
+              headers: {
+                origin: "https://web.test.invalid",
+                cookie: web.cookie,
+              },
+            })
+          ).json()) as { data: { language: string; citationStyle: string } }
+        ).data;
+      expect(await readPreferences()).toEqual({
+        language,
+        citationStyle: "ieee",
+      });
+      expect(
+        (
+          await fetch(b.serviceUrl + "/v1/preferences", {
+            method: "PATCH",
+            headers: {
+              origin: "https://web.test.invalid",
+              cookie: web.cookie,
+              "content-type": "application/json",
+            },
+            body: JSON.stringify({ citationStyle: "oxford" }),
+          })
+        ).status,
+      ).toBe(200);
+      await panel.evaluate('window.dispatchEvent(new Event("focus"))');
+      await expect
+        .poll(() =>
+          panel.evaluate('document.querySelectorAll("select")[1].value'),
+        )
+        .toBe("oxford");
+      await panel.select(
+        "combobox",
+        language === "de"
+          ? "Bevorzugter Zitierstil"
+          : "Preferred citation style",
+        "vancouver",
+      );
+      await expect
+        .poll(readPreferences)
+        .toEqual({ language, citationStyle: "vancouver" });
       const storage = await browser.storage();
       expect(storage[key]).toMatch(/^[A-Za-z0-9_-]{43}$/);
       expect(

@@ -1,17 +1,44 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// PUBLIC client witness: the private service is faked only at its external HTTP edge.
+// Client race injection at the HTTP edge; Preferences persist in the real private service.
 import type { Page } from "@playwright/test";
 import type { Panel } from "../e2e/support/chromium.ts";
 import { test, expect } from "@playwright/test";
 import { createServer } from "node:http";
 import { once } from "node:events";
+import { randomUUID } from "node:crypto";
+import {
+  bothPrograms,
+  freePort,
+} from "../../server/test/support/both-programs.ts";
+let real: Awaited<ReturnType<typeof bothPrograms>>;
+let realAccount: Awaited<ReturnType<typeof real.signIn>>;
+// Only an old/removed-style response is injected: closed writes cannot create one.
+let removedStyle = false;
+async function preferences(method = "GET", body?: unknown) {
+  const response = await fetch(real.serviceUrl + "/v1/preferences", {
+    method,
+    headers: {
+      origin: "https://web.test.invalid",
+      cookie: realAccount.cookie,
+      ...(body === undefined ? {} : { "content-type": "application/json" }),
+    },
+    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+  });
+  if (!response.ok) throw new Error(`real-preferences-${response.status}`);
+  return (
+    (await response.json()) as {
+      data: { language: string; citationStyle: string };
+    }
+  ).data;
+}
+const setStored = (body: unknown) => preferences("PATCH", body);
+const readStored = () => preferences();
 const account = {
   accountId: "11111111-1111-4111-8111-111111111111",
   ownerId: "22222222-2222-4222-8222-222222222222",
   email: "reader@example.org",
 };
 let signedIn = false;
-let stored = { language: "de", citationStyle: "ieee" };
 let patches: unknown[] = [];
 let registration: unknown;
 let denied = false;
@@ -73,9 +100,12 @@ const server = createServer((req, res) => {
     else if (path === "/v1/preferences") {
       if (req.method === "PATCH") {
         patches.push(body);
-        stored = { ...stored, ...body };
       } else reads++;
-      data = { ...stored };
+      const current = await preferences(req.method, body);
+      data = removedStyle
+        ? { ...current, citationStyle: "removed-style" }
+        : current;
+      if (req.method === "PATCH") removedStyle = false;
     }
     const send = () => {
       res.setHeader("content-type", "application/json");
@@ -100,6 +130,12 @@ const server = createServer((req, res) => {
   });
 });
 test.beforeAll(async () => {
+  real = await bothPrograms({
+    accounts: true,
+    startWorker: false,
+    apiPort: await freePort(),
+    servicePort: await freePort(),
+  });
   server.listen(
     Number(process.env.SOURCE_TASTER_ACCOUNT_TEST_SERVICE_PORT ?? 4802),
     "127.0.0.1",
@@ -109,10 +145,15 @@ test.beforeAll(async () => {
 test.afterAll(async () => {
   server.closeAllConnections();
   await new Promise<void>((resolve) => server.close(() => resolve()));
+  await real.stop();
 });
-test.beforeEach(() => {
+test.beforeEach(async () => {
+  realAccount = await real.signIn(
+    `preferences-${randomUUID()}@example.invalid`,
+  );
+  await setStored({ language: "de", citationStyle: "ieee" });
+  removedStyle = false;
   signedIn = false;
-  stored = { language: "de", citationStyle: "ieee" };
   patches = [];
   registration = undefined;
   denied = false;
@@ -179,7 +220,8 @@ test("open/refocus reads apply another client's values without changing unfinish
   await page
     .getByRole("textbox", { name: "Referenz", exact: true })
     .fill("Unfinished bibliography");
-  stored = { language: "en", citationStyle: "removed-style" };
+  await setStored({ language: "en" });
+  removedStyle = true;
   const before = reads;
   await page.evaluate(() => window.dispatchEvent(new Event("focus")));
   await expect.poll(() => reads).toBeGreaterThan(before);
@@ -194,7 +236,9 @@ test("open/refocus reads apply another client's values without changing unfinish
   expect(patches).toEqual([]);
   await style(page).selectOption("vancouver");
   await expect(page.getByRole("status")).toHaveCount(0);
-  await expect.poll(() => stored.citationStyle).toBe("vancouver");
+  await expect
+    .poll(async () => (await readStored()).citationStyle)
+    .toBe("vancouver");
   await page.reload();
   await expect(style(page)).toHaveValue("vancouver");
 });
@@ -224,7 +268,7 @@ test("a delayed refocus read cannot undo a later edit or a newer refocus respons
   };
   await page.evaluate(() => window.dispatchEvent(new Event("focus")));
   await expect.poll(() => !!older).toBe(true);
-  stored = { language: "de", citationStyle: "acs" };
+  await setStored({ language: "de", citationStyle: "acs" });
   await page.evaluate(() => window.dispatchEvent(new Event("focus")));
   await expect(style(page)).toHaveValue("acs");
   older();
@@ -313,7 +357,7 @@ test("a late Account reply after sign-out cannot change Guest values", async ({
   await page.goto("/");
   await expect(style(page)).toHaveValue("ieee");
   let release!: () => void;
-  stored = { language: "en", citationStyle: "acs" };
+  await setStored({ language: "en", citationStyle: "acs" });
   holdRead = (send) => {
     release = send;
   };
@@ -367,7 +411,7 @@ test("web and native Chromium panel share Account values on refocus while keepin
     await language(page).selectOption("en");
     await style(page).selectOption("oxford");
     await expect
-      .poll(() => stored)
+      .poll(readStored)
       .toEqual({ language: "en", citationStyle: "oxford" });
     await panel.evaluate('window.dispatchEvent(new Event("focus"))');
     await panel.find("combobox", "Preferred citation style");
@@ -379,7 +423,9 @@ test("web and native Chromium panel share Account values on refocus while keepin
     await panel.evaluate(
       'const select = document.querySelectorAll("select")[1]; select.value = "vancouver"; select.dispatchEvent(new Event("change", { bubbles: true }));',
     );
-    await expect.poll(() => stored.citationStyle).toBe("vancouver");
+    await expect
+      .poll(async () => (await readStored()).citationStyle)
+      .toBe("vancouver");
     await page.evaluate(() => window.dispatchEvent(new Event("focus")));
     await expect(style(page)).toHaveValue("vancouver");
     expect(await browser.storage()).toEqual({

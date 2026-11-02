@@ -7,6 +7,7 @@ import {
   AccountSessionResponse,
 } from "@source-taster/contract-service";
 import { CheckResponse } from "@source-taster/contract-verification";
+import { readSseFrames } from "@source-taster/contract-verification/client";
 import { bothPrograms } from "./support/both-programs.ts";
 import { physicsReference } from "./support/doi-fixtures.ts";
 
@@ -42,6 +43,17 @@ test("real private proof changes email, then tombstones and purges stored Checks
     });
     expect(created.status).toBe(201);
     const check = CheckResponse.parse(await created.json()).data;
+    const stream = await fetch(b.apiUrl + `/v1/checks/${check.id}/events`, {
+      headers: { authorization: `Bearer ${a.token}` },
+      signal: AbortSignal.timeout(20000),
+    });
+    expect(stream.status).toBe(200);
+    const frames = readSseFrames(stream.body!)[Symbol.asyncIterator]();
+    await frames.next();
+    const held = b.holdWork();
+    const worker = b.worker();
+    await worker.ready;
+    await held.arrived;
     await proof("email-change");
     const replacement = await call("/v1/account/email-change/challenges", {
       newEmail: "replacement-both@example.invalid",
@@ -67,6 +79,38 @@ test("real private proof changes email, then tombstones and purges stored Checks
       AccountDeletionResponse.parse(await deleted.json()).data.status,
     ).toBe("deleted");
     expect((await call("/v1/account-tokens", {})).status).toBe(401);
+    held.release();
+    const closed = await Promise.race([
+      (async () => {
+        try {
+          while (!(await frames.next()).done) {
+            /* drain only */
+          }
+        } catch {
+          /* revoked stream */
+        }
+        return true;
+      })(),
+      new Promise<boolean>((resolve) =>
+        setTimeout(() => resolve(false), 10000),
+      ),
+    ]);
+    expect(closed).toBe(true);
+    for (const path of [
+      `/v1/checks/${check.id}/events`,
+      `/v1/checks/${check.id}/export?format=csl-json`,
+      "/v2/history",
+    ]) {
+      expect(
+        (
+          await fetch(b.apiUrl + path, {
+            headers: { authorization: `Bearer ${a.token}` },
+          })
+        ).status,
+      ).toBe(403);
+    }
+    await worker.stop();
+    expect(b.fixtures.requests).toHaveLength(0);
     expect(
       (
         await fetch(b.apiUrl + `/v1/checks/${check.id}`, {
@@ -76,6 +120,38 @@ test("real private proof changes email, then tombstones and purges stored Checks
     ).toBe(403);
     await b.restartService();
     expect((await call("/v1/account-tokens", {})).status).toBe(401);
+    held.release();
+    const closed = await Promise.race([
+      (async () => {
+        try {
+          while (!(await frames.next()).done) {
+            /* drain only */
+          }
+        } catch {
+          /* revoked stream */
+        }
+        return true;
+      })(),
+      new Promise<boolean>((resolve) =>
+        setTimeout(() => resolve(false), 10000),
+      ),
+    ]);
+    expect(closed).toBe(true);
+    for (const path of [
+      `/v1/checks/${check.id}/events`,
+      `/v1/checks/${check.id}/export?format=csl-json`,
+      "/v2/history",
+    ]) {
+      expect(
+        (
+          await fetch(b.apiUrl + path, {
+            headers: { authorization: `Bearer ${a.token}` },
+          })
+        ).status,
+      ).toBe(403);
+    }
+    await worker.stop();
+    expect(b.fixtures.requests).toHaveLength(0);
   } finally {
     await b.stop();
   }
