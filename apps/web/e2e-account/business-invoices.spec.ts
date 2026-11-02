@@ -100,9 +100,17 @@ for (const language of ["en", "de"] as const)
   }) => {
     const a = await both.signIn(`business-browser-${language}@example.invalid`);
     const context = await browser.newContext({ locale: language });
-    const [name, value] = a.cookie.split("=");
+    const name = a.cookie.slice(0, a.cookie.indexOf("="));
+    const value = a.cookie.slice(a.cookie.indexOf("=") + 1);
     await context.addCookies([
-      { name: name!, value: value!, url: both.serviceUrl },
+      {
+        name,
+        value,
+        url: both.serviceUrl,
+        httpOnly: true,
+        secure: true,
+        sameSite: "Strict",
+      },
     ]);
     const page = await context.newPage();
     try {

@@ -320,6 +320,7 @@ export declare const createCheck: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -1349,6 +1350,7 @@ export declare const getQuota: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -1380,6 +1382,7 @@ export declare const getQuota: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -1628,6 +1631,7 @@ export declare const getCheck: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -2777,6 +2781,7 @@ export declare const cancelCheck: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -3926,6 +3931,7 @@ export declare const renewCheckLease: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -5260,6 +5266,7 @@ export declare const saveFields: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -6457,6 +6464,7 @@ export declare const recheckReference: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -7687,6 +7695,7 @@ export declare const editReferenceList: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -8895,6 +8904,7 @@ export declare const setManualOverride: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -10116,6 +10126,7 @@ export declare const importReferences: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -10465,6 +10476,7 @@ export declare const editSelection: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -12064,6 +12076,7 @@ export declare const previewSelection: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -12259,6 +12272,7 @@ export declare const getHistory: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -12466,6 +12480,7 @@ export declare const setHistory: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -12666,6 +12681,7 @@ export declare const deleteHistory: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -12839,6 +12855,7 @@ export declare const restartHistory: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;

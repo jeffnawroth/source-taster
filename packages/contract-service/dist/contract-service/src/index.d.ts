@@ -23,6 +23,7 @@ export declare const ServiceStatusResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;
@@ -70,6 +71,7 @@ export declare const GuestTokenResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;
@@ -152,6 +154,7 @@ export declare const AccountPreferencesResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;
@@ -198,6 +201,7 @@ export declare const SignInChallengeResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;
@@ -259,6 +263,7 @@ export declare const AccountSessionResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;
@@ -299,6 +304,7 @@ export declare const AccountTokenResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;
@@ -338,6 +344,7 @@ export declare const SignOutResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;
@@ -381,6 +388,7 @@ export declare const ExtensionSignInChallengeResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;
@@ -446,6 +454,7 @@ export declare const ExtensionSignInConfirmResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;
@@ -506,6 +515,7 @@ export declare const FreshProofChallengeResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;
@@ -570,6 +580,7 @@ export declare const FreshProofResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;
@@ -617,6 +628,7 @@ export declare const EmailChangeChallengeResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;
@@ -684,6 +696,7 @@ export declare const AccountDeletionResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;

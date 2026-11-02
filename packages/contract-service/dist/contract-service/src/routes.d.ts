@@ -32,6 +32,7 @@ export declare const getServiceStatus: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -103,6 +104,7 @@ export declare const issueGuestToken: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -299,6 +301,7 @@ export declare const requestSignIn: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -336,6 +339,7 @@ export declare const requestSignIn: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -371,6 +375,7 @@ export declare const requestSignIn: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -560,6 +565,7 @@ export declare const confirmSignIn: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -597,6 +603,7 @@ export declare const confirmSignIn: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -632,6 +639,7 @@ export declare const confirmSignIn: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -821,6 +829,7 @@ export declare const signOut: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -858,6 +867,7 @@ export declare const signOut: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -893,6 +903,7 @@ export declare const signOut: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -1042,6 +1053,7 @@ export declare const getAccountSession: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -1134,6 +1146,7 @@ export declare const recordSessionActivity: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -1246,6 +1259,7 @@ export declare const issueAccountToken: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -1410,6 +1424,7 @@ export declare const requestExtensionSignIn: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -1447,6 +1462,7 @@ export declare const requestExtensionSignIn: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -1482,6 +1498,7 @@ export declare const requestExtensionSignIn: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -1520,6 +1537,7 @@ export declare const requestExtensionSignIn: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -1560,6 +1578,7 @@ export declare const requestExtensionSignIn: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -1754,6 +1773,7 @@ export declare const confirmExtensionSignIn: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -1791,6 +1811,7 @@ export declare const confirmExtensionSignIn: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -1826,6 +1847,7 @@ export declare const confirmExtensionSignIn: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -1864,6 +1886,7 @@ export declare const confirmExtensionSignIn: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -1904,6 +1927,7 @@ export declare const confirmExtensionSignIn: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -2098,6 +2122,7 @@ export declare const getExtensionSession: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -2135,6 +2160,7 @@ export declare const getExtensionSession: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -2170,6 +2196,7 @@ export declare const getExtensionSession: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -2208,6 +2235,7 @@ export declare const getExtensionSession: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -2248,6 +2276,7 @@ export declare const getExtensionSession: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -2442,6 +2471,7 @@ export declare const issueExtensionAccountToken: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -2479,6 +2509,7 @@ export declare const issueExtensionAccountToken: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -2514,6 +2545,7 @@ export declare const issueExtensionAccountToken: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -2552,6 +2584,7 @@ export declare const issueExtensionAccountToken: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -2592,6 +2625,7 @@ export declare const issueExtensionAccountToken: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -2786,6 +2820,7 @@ export declare const recordExtensionSessionActivity: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -2823,6 +2858,7 @@ export declare const recordExtensionSessionActivity: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -2858,6 +2894,7 @@ export declare const recordExtensionSessionActivity: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -2896,6 +2933,7 @@ export declare const recordExtensionSessionActivity: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -2936,6 +2974,7 @@ export declare const recordExtensionSessionActivity: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -3130,6 +3169,7 @@ export declare const signOutExtension: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -3167,6 +3207,7 @@ export declare const signOutExtension: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -3202,6 +3243,7 @@ export declare const signOutExtension: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -3240,6 +3282,7 @@ export declare const signOutExtension: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -3280,6 +3323,7 @@ export declare const signOutExtension: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -3462,6 +3506,7 @@ export declare const getAccountPreferences: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -3644,6 +3689,7 @@ export declare const patchAccountPreferences: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -3826,6 +3872,7 @@ export declare const getExtensionPreferences: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -4008,6 +4055,7 @@ export declare const patchExtensionPreferences: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -4210,6 +4258,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -4247,6 +4296,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -4288,6 +4338,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -4328,6 +4379,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -4366,6 +4418,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -4586,6 +4639,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -4623,6 +4677,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -4664,6 +4719,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -4704,6 +4760,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -4742,6 +4799,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -4962,6 +5020,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -4999,6 +5058,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -5040,6 +5100,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -5080,6 +5141,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -5118,6 +5180,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -5338,6 +5401,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -5375,6 +5439,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -5416,6 +5481,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -5456,6 +5522,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -5494,6 +5561,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -5714,6 +5782,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -5751,6 +5820,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -5792,6 +5862,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -5832,6 +5903,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -5870,6 +5942,7 @@ export declare const webSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -6091,6 +6164,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -6128,6 +6202,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -6169,6 +6244,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -6209,6 +6285,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -6247,6 +6324,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -6467,6 +6545,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -6504,6 +6583,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -6545,6 +6625,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -6585,6 +6666,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -6623,6 +6705,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -6843,6 +6926,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -6880,6 +6964,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -6921,6 +7006,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -6961,6 +7047,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -6999,6 +7086,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -7219,6 +7307,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -7256,6 +7345,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -7297,6 +7387,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -7337,6 +7428,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -7375,6 +7467,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -7595,6 +7688,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -7632,6 +7726,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -7673,6 +7768,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -7713,6 +7809,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -7751,6 +7848,7 @@ export declare const extensionSensitiveRoutes: readonly [{
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -7907,6 +8005,14 @@ export declare const getCommerceCatalog: {
                                 currency: z.ZodLiteral<"EUR">;
                                 vatBps: z.ZodNumber;
                             }, z.core.$strip>>;
+                            pro: z.ZodDefault<z.ZodArray<z.ZodObject<{
+                                version: z.ZodString;
+                                quota: z.ZodNumber;
+                                grossCents: z.ZodNumber;
+                                currency: z.ZodLiteral<"EUR">;
+                                vatBps: z.ZodNumber;
+                                period: z.ZodLiteral<"month">;
+                            }, z.core.$strip>>>;
                             legal: z.ZodObject<{
                                 version: z.ZodString;
                                 terms: z.ZodString;
@@ -7930,6 +8036,7 @@ export declare const getCommerceCatalog: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -8073,6 +8180,7 @@ export declare const createCheckPackOrder: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -8246,6 +8354,7 @@ export declare const getCheckPackOrders: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -8424,6 +8533,817 @@ export declare const getCommerceInvoice: {
 } & {
     getRoutingPath(): "/v1/commerce/invoices/:id";
 };
+export declare const createSubscription: {
+    method: "post";
+    path: "/v1/commerce/subscriptions";
+    summary: string;
+    request: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        operationKey: z.ZodUUID;
+                        catalogVersion: z.ZodString;
+                        legalVersion: z.ZodString;
+                        vatValidationId: z.ZodOptional<z.ZodUUID>;
+                        acceptTerms: z.ZodLiteral<true>;
+                        immediateStart: z.ZodBoolean;
+                        language: z.ZodEnum<{
+                            de: "de";
+                            en: "en";
+                        }>;
+                        billing: z.ZodObject<{
+                            name: z.ZodString;
+                            address: z.ZodString;
+                            country: z.ZodString;
+                            vatId: z.ZodOptional<z.ZodString>;
+                        }, z.core.$strict>;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        data: z.ZodObject<{
+                            id: z.ZodUUID;
+                            status: z.ZodEnum<{
+                                active: "active";
+                                "awaiting-payment": "awaiting-payment";
+                                cancelled: "cancelled";
+                                cancelling: "cancelling";
+                                "payment-failed": "payment-failed";
+                                "pending-activation": "pending-activation";
+                            }>;
+                            offer: z.ZodObject<{
+                                version: z.ZodString;
+                                quota: z.ZodNumber;
+                                grossCents: z.ZodNumber;
+                                currency: z.ZodLiteral<"EUR">;
+                                vatBps: z.ZodNumber;
+                                period: z.ZodLiteral<"month">;
+                            }, z.core.$strip>;
+                            taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
+                            orderedAt: z.ZodISODateTime;
+                            activatesAt: z.ZodNullable<z.ZodISODateTime>;
+                            paidUntil: z.ZodNullable<z.ZodISODateTime>;
+                            cancelledAt: z.ZodNullable<z.ZodISODateTime>;
+                            endsAt: z.ZodNullable<z.ZodISODateTime>;
+                            checkoutUrl: z.ZodNullable<z.ZodURL>;
+                            canConsent: z.ZodBoolean;
+                            consentLegal: z.ZodObject<{
+                                version: z.ZodString;
+                                terms: z.ZodString;
+                                consent: z.ZodString;
+                                withdrawal: z.ZodString;
+                            }, z.core.$strip>;
+                            confirmation: z.ZodString;
+                            mailStatus: z.ZodEnum<{
+                                queued: "queued";
+                                sent: "sent";
+                            }>;
+                            invoices: z.ZodArray<z.ZodObject<{
+                                id: z.ZodString;
+                                startsAt: z.ZodISODateTime;
+                                endsAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>;
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                    pro: "pro";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
+                            history: z.ZodOptional<z.ZodObject<{
+                                extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+                                authorityVersion: z.ZodNumber;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
+                        }, z.core.$strict>, z.ZodNull]>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        409: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v1/commerce/subscriptions";
+};
+export declare const getSubscriptions: {
+    method: "get";
+    path: "/v1/commerce/subscriptions";
+    summary: string;
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        data: z.ZodArray<z.ZodObject<{
+                            id: z.ZodUUID;
+                            status: z.ZodEnum<{
+                                active: "active";
+                                "awaiting-payment": "awaiting-payment";
+                                cancelled: "cancelled";
+                                cancelling: "cancelling";
+                                "payment-failed": "payment-failed";
+                                "pending-activation": "pending-activation";
+                            }>;
+                            offer: z.ZodObject<{
+                                version: z.ZodString;
+                                quota: z.ZodNumber;
+                                grossCents: z.ZodNumber;
+                                currency: z.ZodLiteral<"EUR">;
+                                vatBps: z.ZodNumber;
+                                period: z.ZodLiteral<"month">;
+                            }, z.core.$strip>;
+                            taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
+                            orderedAt: z.ZodISODateTime;
+                            activatesAt: z.ZodNullable<z.ZodISODateTime>;
+                            paidUntil: z.ZodNullable<z.ZodISODateTime>;
+                            cancelledAt: z.ZodNullable<z.ZodISODateTime>;
+                            endsAt: z.ZodNullable<z.ZodISODateTime>;
+                            checkoutUrl: z.ZodNullable<z.ZodURL>;
+                            canConsent: z.ZodBoolean;
+                            consentLegal: z.ZodObject<{
+                                version: z.ZodString;
+                                terms: z.ZodString;
+                                consent: z.ZodString;
+                                withdrawal: z.ZodString;
+                            }, z.core.$strip>;
+                            confirmation: z.ZodString;
+                            mailStatus: z.ZodEnum<{
+                                queued: "queued";
+                                sent: "sent";
+                            }>;
+                            invoices: z.ZodArray<z.ZodObject<{
+                                id: z.ZodString;
+                                startsAt: z.ZodISODateTime;
+                                endsAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>>;
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                    pro: "pro";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
+                            history: z.ZodOptional<z.ZodObject<{
+                                extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+                                authorityVersion: z.ZodNumber;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
+                        }, z.core.$strict>, z.ZodNull]>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v1/commerce/subscriptions";
+};
+export declare const cancelSubscription: {
+    method: "post";
+    path: "/v1/commerce/subscriptions/{id}/cancel";
+    summary: string;
+    request: {
+        params: z.ZodObject<{
+            id: z.ZodUUID;
+        }, z.core.$strip>;
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        operationKey: z.ZodUUID;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        data: z.ZodObject<{
+                            id: z.ZodUUID;
+                            status: z.ZodEnum<{
+                                active: "active";
+                                "awaiting-payment": "awaiting-payment";
+                                cancelled: "cancelled";
+                                cancelling: "cancelling";
+                                "payment-failed": "payment-failed";
+                                "pending-activation": "pending-activation";
+                            }>;
+                            offer: z.ZodObject<{
+                                version: z.ZodString;
+                                quota: z.ZodNumber;
+                                grossCents: z.ZodNumber;
+                                currency: z.ZodLiteral<"EUR">;
+                                vatBps: z.ZodNumber;
+                                period: z.ZodLiteral<"month">;
+                            }, z.core.$strip>;
+                            taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
+                            orderedAt: z.ZodISODateTime;
+                            activatesAt: z.ZodNullable<z.ZodISODateTime>;
+                            paidUntil: z.ZodNullable<z.ZodISODateTime>;
+                            cancelledAt: z.ZodNullable<z.ZodISODateTime>;
+                            endsAt: z.ZodNullable<z.ZodISODateTime>;
+                            checkoutUrl: z.ZodNullable<z.ZodURL>;
+                            canConsent: z.ZodBoolean;
+                            consentLegal: z.ZodObject<{
+                                version: z.ZodString;
+                                terms: z.ZodString;
+                                consent: z.ZodString;
+                                withdrawal: z.ZodString;
+                            }, z.core.$strip>;
+                            confirmation: z.ZodString;
+                            mailStatus: z.ZodEnum<{
+                                queued: "queued";
+                                sent: "sent";
+                            }>;
+                            invoices: z.ZodArray<z.ZodObject<{
+                                id: z.ZodString;
+                                startsAt: z.ZodISODateTime;
+                                endsAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>;
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                    pro: "pro";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
+                            history: z.ZodOptional<z.ZodObject<{
+                                extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+                                authorityVersion: z.ZodNumber;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
+                        }, z.core.$strict>, z.ZodNull]>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        409: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v1/commerce/subscriptions/:id/cancel";
+};
+export declare const consentSubscription: {
+    method: "post";
+    path: "/v1/commerce/subscriptions/{id}/consent";
+    summary: string;
+    request: {
+        params: z.ZodObject<{
+            id: z.ZodUUID;
+        }, z.core.$strip>;
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        operationKey: z.ZodUUID;
+                        legalVersion: z.ZodString;
+                        immediateStart: z.ZodLiteral<true>;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        data: z.ZodObject<{
+                            id: z.ZodUUID;
+                            status: z.ZodEnum<{
+                                active: "active";
+                                "awaiting-payment": "awaiting-payment";
+                                cancelled: "cancelled";
+                                cancelling: "cancelling";
+                                "payment-failed": "payment-failed";
+                                "pending-activation": "pending-activation";
+                            }>;
+                            offer: z.ZodObject<{
+                                version: z.ZodString;
+                                quota: z.ZodNumber;
+                                grossCents: z.ZodNumber;
+                                currency: z.ZodLiteral<"EUR">;
+                                vatBps: z.ZodNumber;
+                                period: z.ZodLiteral<"month">;
+                            }, z.core.$strip>;
+                            taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
+                            orderedAt: z.ZodISODateTime;
+                            activatesAt: z.ZodNullable<z.ZodISODateTime>;
+                            paidUntil: z.ZodNullable<z.ZodISODateTime>;
+                            cancelledAt: z.ZodNullable<z.ZodISODateTime>;
+                            endsAt: z.ZodNullable<z.ZodISODateTime>;
+                            checkoutUrl: z.ZodNullable<z.ZodURL>;
+                            canConsent: z.ZodBoolean;
+                            consentLegal: z.ZodObject<{
+                                version: z.ZodString;
+                                terms: z.ZodString;
+                                consent: z.ZodString;
+                                withdrawal: z.ZodString;
+                            }, z.core.$strip>;
+                            confirmation: z.ZodString;
+                            mailStatus: z.ZodEnum<{
+                                queued: "queued";
+                                sent: "sent";
+                            }>;
+                            invoices: z.ZodArray<z.ZodObject<{
+                                id: z.ZodString;
+                                startsAt: z.ZodISODateTime;
+                                endsAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>;
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                    pro: "pro";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
+                            history: z.ZodOptional<z.ZodObject<{
+                                extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+                                authorityVersion: z.ZodNumber;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
+                        }, z.core.$strict>, z.ZodNull]>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        409: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v1/commerce/subscriptions/:id/consent";
+};
 export declare const validateCommerceVat: {
     method: "post";
     path: "/v1/commerce/vat-validations";
@@ -8477,6 +9397,7 @@ export declare const validateCommerceVat: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -8619,6 +9540,7 @@ export declare const getCommerceInvoices: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -8841,6 +9763,7 @@ export declare const extensionCommerceInvoices: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -9515,6 +10438,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -9762,6 +10686,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -10001,6 +10926,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -10236,6 +11162,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -10467,6 +11394,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -10694,6 +11622,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -11259,6 +12188,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -11465,6 +12395,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -11594,6 +12525,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -11664,6 +12596,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -11858,6 +12791,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -11895,6 +12829,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -11930,6 +12865,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -12078,6 +13014,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -12169,6 +13106,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -12280,6 +13218,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -12435,6 +13374,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -12472,6 +13412,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -12507,6 +13448,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -12545,6 +13487,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -12585,6 +13528,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -12766,6 +13710,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -12967,6 +13912,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -13004,6 +13950,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -13045,6 +13992,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -13085,6 +14033,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -13123,6 +14072,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -13278,6 +14228,14 @@ export declare const routes: ((({
                                 currency: z.ZodLiteral<"EUR">;
                                 vatBps: z.ZodNumber;
                             }, z.core.$strip>>;
+                            pro: z.ZodDefault<z.ZodArray<z.ZodObject<{
+                                version: z.ZodString;
+                                quota: z.ZodNumber;
+                                grossCents: z.ZodNumber;
+                                currency: z.ZodLiteral<"EUR">;
+                                vatBps: z.ZodNumber;
+                                period: z.ZodLiteral<"month">;
+                            }, z.core.$strip>>>;
                             legal: z.ZodObject<{
                                 version: z.ZodString;
                                 terms: z.ZodString;
@@ -13301,6 +14259,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -13443,6 +14402,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -13615,6 +14575,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -13793,6 +14754,813 @@ export declare const routes: ((({
     getRoutingPath(): "/v1/commerce/invoices/:id";
 }) | ({
     method: "post";
+    path: "/v1/commerce/subscriptions";
+    summary: string;
+    request: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        operationKey: z.ZodUUID;
+                        catalogVersion: z.ZodString;
+                        legalVersion: z.ZodString;
+                        vatValidationId: z.ZodOptional<z.ZodUUID>;
+                        acceptTerms: z.ZodLiteral<true>;
+                        immediateStart: z.ZodBoolean;
+                        language: z.ZodEnum<{
+                            de: "de";
+                            en: "en";
+                        }>;
+                        billing: z.ZodObject<{
+                            name: z.ZodString;
+                            address: z.ZodString;
+                            country: z.ZodString;
+                            vatId: z.ZodOptional<z.ZodString>;
+                        }, z.core.$strict>;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        data: z.ZodObject<{
+                            id: z.ZodUUID;
+                            status: z.ZodEnum<{
+                                active: "active";
+                                "awaiting-payment": "awaiting-payment";
+                                cancelled: "cancelled";
+                                cancelling: "cancelling";
+                                "payment-failed": "payment-failed";
+                                "pending-activation": "pending-activation";
+                            }>;
+                            offer: z.ZodObject<{
+                                version: z.ZodString;
+                                quota: z.ZodNumber;
+                                grossCents: z.ZodNumber;
+                                currency: z.ZodLiteral<"EUR">;
+                                vatBps: z.ZodNumber;
+                                period: z.ZodLiteral<"month">;
+                            }, z.core.$strip>;
+                            taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
+                            orderedAt: z.ZodISODateTime;
+                            activatesAt: z.ZodNullable<z.ZodISODateTime>;
+                            paidUntil: z.ZodNullable<z.ZodISODateTime>;
+                            cancelledAt: z.ZodNullable<z.ZodISODateTime>;
+                            endsAt: z.ZodNullable<z.ZodISODateTime>;
+                            checkoutUrl: z.ZodNullable<z.ZodURL>;
+                            canConsent: z.ZodBoolean;
+                            consentLegal: z.ZodObject<{
+                                version: z.ZodString;
+                                terms: z.ZodString;
+                                consent: z.ZodString;
+                                withdrawal: z.ZodString;
+                            }, z.core.$strip>;
+                            confirmation: z.ZodString;
+                            mailStatus: z.ZodEnum<{
+                                queued: "queued";
+                                sent: "sent";
+                            }>;
+                            invoices: z.ZodArray<z.ZodObject<{
+                                id: z.ZodString;
+                                startsAt: z.ZodISODateTime;
+                                endsAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>;
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                    pro: "pro";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
+                            history: z.ZodOptional<z.ZodObject<{
+                                extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+                                authorityVersion: z.ZodNumber;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
+                        }, z.core.$strict>, z.ZodNull]>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        409: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v1/commerce/subscriptions";
+}) | ({
+    method: "get";
+    path: "/v1/commerce/subscriptions";
+    summary: string;
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        data: z.ZodArray<z.ZodObject<{
+                            id: z.ZodUUID;
+                            status: z.ZodEnum<{
+                                active: "active";
+                                "awaiting-payment": "awaiting-payment";
+                                cancelled: "cancelled";
+                                cancelling: "cancelling";
+                                "payment-failed": "payment-failed";
+                                "pending-activation": "pending-activation";
+                            }>;
+                            offer: z.ZodObject<{
+                                version: z.ZodString;
+                                quota: z.ZodNumber;
+                                grossCents: z.ZodNumber;
+                                currency: z.ZodLiteral<"EUR">;
+                                vatBps: z.ZodNumber;
+                                period: z.ZodLiteral<"month">;
+                            }, z.core.$strip>;
+                            taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
+                            orderedAt: z.ZodISODateTime;
+                            activatesAt: z.ZodNullable<z.ZodISODateTime>;
+                            paidUntil: z.ZodNullable<z.ZodISODateTime>;
+                            cancelledAt: z.ZodNullable<z.ZodISODateTime>;
+                            endsAt: z.ZodNullable<z.ZodISODateTime>;
+                            checkoutUrl: z.ZodNullable<z.ZodURL>;
+                            canConsent: z.ZodBoolean;
+                            consentLegal: z.ZodObject<{
+                                version: z.ZodString;
+                                terms: z.ZodString;
+                                consent: z.ZodString;
+                                withdrawal: z.ZodString;
+                            }, z.core.$strip>;
+                            confirmation: z.ZodString;
+                            mailStatus: z.ZodEnum<{
+                                queued: "queued";
+                                sent: "sent";
+                            }>;
+                            invoices: z.ZodArray<z.ZodObject<{
+                                id: z.ZodString;
+                                startsAt: z.ZodISODateTime;
+                                endsAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>>;
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                    pro: "pro";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
+                            history: z.ZodOptional<z.ZodObject<{
+                                extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+                                authorityVersion: z.ZodNumber;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
+                        }, z.core.$strict>, z.ZodNull]>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v1/commerce/subscriptions";
+}) | ({
+    method: "post";
+    path: "/v1/commerce/subscriptions/{id}/cancel";
+    summary: string;
+    request: {
+        params: z.ZodObject<{
+            id: z.ZodUUID;
+        }, z.core.$strip>;
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        operationKey: z.ZodUUID;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        data: z.ZodObject<{
+                            id: z.ZodUUID;
+                            status: z.ZodEnum<{
+                                active: "active";
+                                "awaiting-payment": "awaiting-payment";
+                                cancelled: "cancelled";
+                                cancelling: "cancelling";
+                                "payment-failed": "payment-failed";
+                                "pending-activation": "pending-activation";
+                            }>;
+                            offer: z.ZodObject<{
+                                version: z.ZodString;
+                                quota: z.ZodNumber;
+                                grossCents: z.ZodNumber;
+                                currency: z.ZodLiteral<"EUR">;
+                                vatBps: z.ZodNumber;
+                                period: z.ZodLiteral<"month">;
+                            }, z.core.$strip>;
+                            taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
+                            orderedAt: z.ZodISODateTime;
+                            activatesAt: z.ZodNullable<z.ZodISODateTime>;
+                            paidUntil: z.ZodNullable<z.ZodISODateTime>;
+                            cancelledAt: z.ZodNullable<z.ZodISODateTime>;
+                            endsAt: z.ZodNullable<z.ZodISODateTime>;
+                            checkoutUrl: z.ZodNullable<z.ZodURL>;
+                            canConsent: z.ZodBoolean;
+                            consentLegal: z.ZodObject<{
+                                version: z.ZodString;
+                                terms: z.ZodString;
+                                consent: z.ZodString;
+                                withdrawal: z.ZodString;
+                            }, z.core.$strip>;
+                            confirmation: z.ZodString;
+                            mailStatus: z.ZodEnum<{
+                                queued: "queued";
+                                sent: "sent";
+                            }>;
+                            invoices: z.ZodArray<z.ZodObject<{
+                                id: z.ZodString;
+                                startsAt: z.ZodISODateTime;
+                                endsAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>;
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                    pro: "pro";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
+                            history: z.ZodOptional<z.ZodObject<{
+                                extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+                                authorityVersion: z.ZodNumber;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
+                        }, z.core.$strict>, z.ZodNull]>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        409: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v1/commerce/subscriptions/:id/cancel";
+}) | ({
+    method: "post";
+    path: "/v1/commerce/subscriptions/{id}/consent";
+    summary: string;
+    request: {
+        params: z.ZodObject<{
+            id: z.ZodUUID;
+        }, z.core.$strip>;
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        operationKey: z.ZodUUID;
+                        legalVersion: z.ZodString;
+                        immediateStart: z.ZodLiteral<true>;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        data: z.ZodObject<{
+                            id: z.ZodUUID;
+                            status: z.ZodEnum<{
+                                active: "active";
+                                "awaiting-payment": "awaiting-payment";
+                                cancelled: "cancelled";
+                                cancelling: "cancelling";
+                                "payment-failed": "payment-failed";
+                                "pending-activation": "pending-activation";
+                            }>;
+                            offer: z.ZodObject<{
+                                version: z.ZodString;
+                                quota: z.ZodNumber;
+                                grossCents: z.ZodNumber;
+                                currency: z.ZodLiteral<"EUR">;
+                                vatBps: z.ZodNumber;
+                                period: z.ZodLiteral<"month">;
+                            }, z.core.$strip>;
+                            taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
+                            orderedAt: z.ZodISODateTime;
+                            activatesAt: z.ZodNullable<z.ZodISODateTime>;
+                            paidUntil: z.ZodNullable<z.ZodISODateTime>;
+                            cancelledAt: z.ZodNullable<z.ZodISODateTime>;
+                            endsAt: z.ZodNullable<z.ZodISODateTime>;
+                            checkoutUrl: z.ZodNullable<z.ZodURL>;
+                            canConsent: z.ZodBoolean;
+                            consentLegal: z.ZodObject<{
+                                version: z.ZodString;
+                                terms: z.ZodString;
+                                consent: z.ZodString;
+                                withdrawal: z.ZodString;
+                            }, z.core.$strip>;
+                            confirmation: z.ZodString;
+                            mailStatus: z.ZodEnum<{
+                                queued: "queued";
+                                sent: "sent";
+                            }>;
+                            invoices: z.ZodArray<z.ZodObject<{
+                                id: z.ZodString;
+                                startsAt: z.ZodISODateTime;
+                                endsAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>;
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                    pro: "pro";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
+                            history: z.ZodOptional<z.ZodObject<{
+                                extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+                                authorityVersion: z.ZodNumber;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
+                        }, z.core.$strict>, z.ZodNull]>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        409: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v1/commerce/subscriptions/:id/consent";
+}) | ({
+    method: "post";
     path: "/v1/commerce/vat-validations";
     summary: string;
     request: {
@@ -13844,6 +15612,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -13985,6 +15754,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -14205,6 +15975,7 @@ export declare const routes: ((({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;

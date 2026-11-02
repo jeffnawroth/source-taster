@@ -181,6 +181,7 @@ export declare const structureDocument: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: import("zod").ZodNumber;
                                 remaining: import("zod").ZodNumber;
@@ -388,6 +389,7 @@ export declare const getDocumentSettings: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: import("zod").ZodNumber;
                                 remaining: import("zod").ZodNumber;
@@ -650,6 +652,7 @@ export declare const structureText: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: import("zod").ZodNumber;
                                 remaining: import("zod").ZodNumber;

@@ -320,7 +320,7 @@ export function WebAccountWorkspace({
       client={client}
       guest={guest}
       siteUrl={siteUrl}
-      upgradeUrl={`${serviceUrl.replace(/\/$/, "")}/order`}
+      upgradeUrl={`${serviceUrl.replace(/\/$/, "")}/plan`}
     />
   );
 }

@@ -197,6 +197,7 @@ export declare const createReport: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -429,6 +430,7 @@ export declare const getReport: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -784,6 +786,7 @@ export declare const cancelReport: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;

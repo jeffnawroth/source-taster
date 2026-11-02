@@ -54,6 +54,7 @@ export declare const createMailRehearsal: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -176,6 +177,7 @@ export declare const getMailRehearsal: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -670,6 +672,7 @@ export declare const quotaSnapshot: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -839,6 +842,7 @@ export declare const quotaReserve: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -870,6 +874,7 @@ export declare const quotaReserve: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -1530,6 +1535,7 @@ export declare const routes: (({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -1651,6 +1657,7 @@ export declare const routes: (({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -2140,6 +2147,7 @@ export declare const routes: (({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -2308,6 +2316,7 @@ export declare const routes: (({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -2339,6 +2348,7 @@ export declare const routes: (({
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
