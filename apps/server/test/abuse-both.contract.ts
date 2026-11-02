@@ -125,8 +125,12 @@ test("real concurrent entrances share the all-Guest budget across new identities
           ),
         ),
       );
+      // The private API is cross-origin. Verification remains same-origin
+      // (web proxy) or extension-privileged; it adds no public CORS policy.
       expect(response.headers.get("access-control-allow-origin")).toBe(
-        "https://web.test.invalid",
+        response.url.startsWith(b.serviceUrl)
+          ? "https://web.test.invalid"
+          : null,
       );
       expect(response.headers.get("cache-control")).toBe("no-store");
     }

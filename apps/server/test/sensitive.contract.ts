@@ -96,11 +96,7 @@ test("real private proof changes email, then tombstones and purges stored Checks
       ),
     ]);
     expect(closed).toBe(true);
-    for (const path of [
-      `/v1/checks/${check.id}/events`,
-      `/v1/checks/${check.id}/export?format=csl-json`,
-      "/v2/history",
-    ]) {
+    for (const path of [`/v1/checks/${check.id}/events`, "/v2/history"]) {
       expect(
         (
           await fetch(b.apiUrl + path, {
@@ -109,6 +105,18 @@ test("real private proof changes email, then tombstones and purges stored Checks
         ).status,
       ).toBe(403);
     }
+    expect(
+      (
+        await fetch(b.apiUrl + `/v2/checks/${check.id}/export`, {
+          method: "POST",
+          headers: {
+            authorization: `Bearer ${a.token}`,
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({ format: "csl-json", mode: "original" }),
+        })
+      ).status,
+    ).toBe(403);
     await worker.stop();
     expect(b.fixtures.requests).toHaveLength(0);
     expect(
@@ -120,38 +128,6 @@ test("real private proof changes email, then tombstones and purges stored Checks
     ).toBe(403);
     await b.restartService();
     expect((await call("/v1/account-tokens", {})).status).toBe(401);
-    held.release();
-    const closed = await Promise.race([
-      (async () => {
-        try {
-          while (!(await frames.next()).done) {
-            /* drain only */
-          }
-        } catch {
-          /* revoked stream */
-        }
-        return true;
-      })(),
-      new Promise<boolean>((resolve) =>
-        setTimeout(() => resolve(false), 10000),
-      ),
-    ]);
-    expect(closed).toBe(true);
-    for (const path of [
-      `/v1/checks/${check.id}/events`,
-      `/v1/checks/${check.id}/export?format=csl-json`,
-      "/v2/history",
-    ]) {
-      expect(
-        (
-          await fetch(b.apiUrl + path, {
-            headers: { authorization: `Bearer ${a.token}` },
-          })
-        ).status,
-      ).toBe(403);
-    }
-    await worker.stop();
-    expect(b.fixtures.requests).toHaveLength(0);
   } finally {
     await b.stop();
   }

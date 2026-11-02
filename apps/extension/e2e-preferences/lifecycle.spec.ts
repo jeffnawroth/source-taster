@@ -102,10 +102,10 @@ const server = createServer((req, res) => {
         patches.push(body);
       } else reads++;
       const current = await preferences(req.method, body);
+      if (req.method === "PATCH") removedStyle = false;
       data = removedStyle
         ? { ...current, citationStyle: "removed-style" }
         : current;
-      if (req.method === "PATCH") removedStyle = false;
     }
     const send = () => {
       res.setHeader("content-type", "application/json");
