@@ -338,13 +338,31 @@ it("shares the Crossref public pool across workers and honors cooldown across Ch
   await gate.arrived;
   await new Promise((resolve) => setTimeout(resolve, 250));
   expect(fixtures.requests.filter((r) => r.path === path)).toHaveLength(1);
+  // A worker can be descheduled while holding the shared permit. Reproduce a
+  // pause beyond expect.poll's default 1 s without advancing the domain clock
+  // or changing real source pacing/cooldown. Completion is not a latency gate.
+  first.child.kill("SIGSTOP");
+  second.child.kill("SIGSTOP");
+  const resume = setTimeout(() => {
+    first.child.kill("SIGCONT");
+    second.child.kill("SIGCONT");
+  }, 1_200);
   gate.release();
-  await expect
-    .poll(async () => [
-      (await snapshot(a.id)).state,
-      (await snapshot(b.id)).state,
-    ])
-    .toEqual(["ended", "ended"]);
+  try {
+    await expect
+      .poll(
+        async () => [
+          (await snapshot(a.id)).state,
+          (await snapshot(b.id)).state,
+        ],
+        { timeout: 5000 },
+      )
+      .toEqual(["ended", "ended"]);
+  } finally {
+    clearTimeout(resume);
+    first.child.kill("SIGCONT");
+    second.child.kill("SIGCONT");
+  }
   const initial = fixtures.requests.filter((r) => r.path === path).length;
   fixtures.respond(path, 429, {}, { "retry-after": "1" });
   const c = await create(["10.1038/nphys1170"]);
