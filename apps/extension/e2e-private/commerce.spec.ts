@@ -85,12 +85,10 @@ test("signed-in native panel opens actual web Plan management without forwarding
     expect(
       panel.requests.filter((request) => request.url.includes("/v1/commerce")),
     ).toEqual([]);
-    test
-      .info()
-      .annotations.push({
-        type: "browser",
-        description: `${browser.version}; actual programs; commerce remains configuration-gated`,
-      });
+    test.info().annotations.push({
+      type: "browser",
+      description: `${browser.version}; actual programs; commerce remains configuration-gated`,
+    });
   } finally {
     await browser?.close();
     await build?.remove();

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { InvoiceClient } from "@source-taster/contract-service/client";
 import { m } from "@source-taster/i18n";
 /** A current Account request authorizes every list/download; IDs are never credentials. */
@@ -10,6 +10,13 @@ export function InvoiceControls({
   client: InvoiceClient;
   language: "de" | "en";
 }) {
+  const active = useRef(true);
+  useEffect(() => {
+    active.current = true;
+    return () => {
+      active.current = false;
+    };
+  }, []);
   const [rows, setRows] =
     useState<Awaited<ReturnType<InvoiceClient["list"]>>>();
   const [busy, setBusy] = useState(false),
@@ -64,6 +71,7 @@ export function InvoiceControls({
               onClick={() =>
                 void run(async () => {
                   const blob = await client.download(row.id, format);
+                  if (!active.current) return;
                   const url = URL.createObjectURL(blob);
                   const link = document.createElement("a");
                   link.href = url;

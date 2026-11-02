@@ -94,122 +94,165 @@ test.afterAll(async () => {
     }
   await both?.stop();
 });
-for (const language of ["en", "de"] as const)
-  test(`real ${language} business purchase and Account invoice downloads`, async ({
-    browser,
-  }) => {
-    const a = await both.signIn(`business-browser-${language}@example.invalid`);
-    const context = await browser.newContext({ locale: language });
-    const name = a.cookie.slice(0, a.cookie.indexOf("="));
-    const value = a.cookie.slice(a.cookie.indexOf("=") + 1);
-    await context.addCookies([
-      {
-        name,
-        value,
-        url: both.serviceUrl,
-        httpOnly: true,
-        secure: true,
-        sameSite: "Strict",
-      },
-    ]);
-    const page = await context.newPage();
-    try {
-      await page.goto(`${both.serviceUrl}/order?language=${language}`);
-      await page
-        .getByLabel(language === "en" ? "Billing name" : "Rechnungsname", {
-          exact: true,
-        })
-        .fill("Synthetic business");
-      await page
-        .getByLabel(
-          language === "en" ? "Billing address" : "Rechnungsanschrift",
-          { exact: true },
-        )
-        .fill("Synthetic street 1");
-      await page
-        .getByLabel(
-          language === "en"
-            ? "VAT ID (optional)"
-            : "Umsatzsteuer-ID (optional)",
-          { exact: true },
-        )
-        .fill("DE123456789");
-      await page
-        .getByRole("button", {
-          name: language === "en" ? "Validate VAT ID" : "USt-IdNr. prüfen",
-          exact: true,
-        })
-        .click();
-      await expect(page.getByRole("status")).toContainText(
-        language === "en" ? "VAT ID validated" : "USt-IdNr. bestätigt",
+for (const plan of ["check-pack", "pro"] as const)
+  for (const language of ["en", "de"] as const)
+    test(`real ${language} ${plan} business purchase and Account invoice downloads`, async ({
+      browser,
+    }) => {
+      const a = await both.signIn(
+        `business-browser-${plan}-${language}@example.invalid`,
       );
-      await page.getByRole("checkbox").nth(0).check();
-      await page.getByRole("checkbox").nth(1).check();
-      const ordered = page.waitForResponse(
-        (r) =>
-          r.url().endsWith("/v1/commerce/orders") &&
-          r.request().method() === "POST",
-      );
-      await page
-        .getByRole("button", {
-          name:
+      const context = await browser.newContext({ locale: language });
+      const page = await context.newPage();
+      try {
+        await page.goto(webUrl);
+        await page
+          .getByRole("button", {
+            name: language === "en" ? "Sign in" : "Anmelden",
+            exact: true,
+          })
+          .click();
+        await page
+          .getByLabel(language === "en" ? "Email address" : "E-Mail-Adresse", {
+            exact: true,
+          })
+          .fill(`business-browser-${plan}-${language}@example.invalid`);
+        await page
+          .getByRole("button", {
+            name: language === "en" ? "Send code" : "Code senden",
+            exact: true,
+          })
+          .click();
+        await expect(
+          page.getByLabel(
+            language === "en" ? "Six-digit code" : "Sechsstelliger Code",
+          ),
+        ).toBeVisible();
+        const code = (await both.mail()).at(-1)!.text.match(/\b[0-9]{6}\b/)![0];
+        await page
+          .getByLabel(
+            language === "en" ? "Six-digit code" : "Sechsstelliger Code",
+          )
+          .fill(code);
+        await page
+          .getByRole("button", {
+            name: language === "en" ? "Confirm code" : "Code bestätigen",
+            exact: true,
+          })
+          .click();
+        await expect(
+          page.getByText(
+            `business-browser-${plan}-${language}@example.invalid`,
+            { exact: true },
+          ),
+        ).toBeVisible();
+        await page.goto(
+          `${both.serviceUrl}/${plan === "pro" ? "plan" : "order"}?language=${language}`,
+        );
+        await page
+          .getByLabel(language === "en" ? "Billing name" : "Rechnungsname", {
+            exact: true,
+          })
+          .fill("Synthetic business");
+        await page
+          .getByLabel(
+            language === "en" ? "Billing address" : "Rechnungsanschrift",
+            { exact: true },
+          )
+          .fill("Synthetic street 1");
+        await page
+          .getByLabel(
             language === "en"
-              ? "Order with obligation to pay"
-              : "zahlungspflichtig bestellen",
-        })
-        .click();
-      const order = (await (await ordered).json()) as { data: { id: string } };
-      const paid = once(fake, "message");
-      fake.send({
-        id: 1,
-        orderId: order.data.id,
-        now: both.now(),
-        url: both.serviceUrl,
-      });
-      await paid;
-      await eventually(async () => {
-        const r = await fetch(both.serviceUrl + "/v1/commerce/invoices", {
-          headers: { cookie: a.cookie },
+              ? "VAT ID (optional)"
+              : "Umsatzsteuer-ID (optional)",
+            { exact: true },
+          )
+          .fill("DE123456789");
+        await page
+          .getByRole("button", {
+            name: language === "en" ? "Validate VAT ID" : "USt-IdNr. prüfen",
+            exact: true,
+          })
+          .click();
+        await expect(page.getByRole("status")).toContainText(
+          language === "en" ? "VAT ID validated" : "USt-IdNr. bestätigt",
+        );
+        await page.getByRole("checkbox").nth(0).check();
+        await page.getByRole("checkbox").nth(1).check();
+        const ordered = page.waitForResponse(
+          (r) =>
+            r
+              .url()
+              .endsWith(
+                plan === "pro"
+                  ? "/v1/commerce/subscriptions"
+                  : "/v1/commerce/orders",
+              ) && r.request().method() === "POST",
+        );
+        await page
+          .getByRole("button", {
+            name:
+              language === "en"
+                ? "Order with obligation to pay"
+                : "zahlungspflichtig bestellen",
+          })
+          .click();
+        const order = (await (await ordered).json()) as {
+          data: { id: string };
+        };
+        const paid = once(fake, "message");
+        fake.send({
+          id: 1,
+          orderId: order.data.id,
+          now: both.now(),
+          url: both.serviceUrl,
         });
-        return ((await r.json()) as { data: unknown[] }).data.length > 0;
-      });
-      await fetch(both.serviceUrl + "/v1/preferences", {
-        method: "PATCH",
-        headers: {
-          cookie: a.cookie,
-          origin: "https://web.test.invalid",
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ language }),
-      });
-      await page.goto(webUrl);
-      // Account language is authoritative in the real service.
-      await page
-        .getByRole("button", {
-          name: language === "en" ? "Load invoices" : "Rechnungen laden",
-        })
-        .click();
-      const pdf = page.waitForEvent("download");
-      await page
-        .getByRole("button", {
-          name: language === "en" ? "Download PDF" : "PDF herunterladen",
-          exact: true,
-        })
-        .click();
-      expect((await pdf).suggestedFilename()).toBe("invoice.pdf");
-      const ubl = page.waitForEvent("download");
-      await page
-        .getByRole("button", {
-          name:
-            language === "en"
-              ? "Download e-invoice (XML)"
-              : "E-Rechnung herunterladen (XML)",
-          exact: true,
-        })
-        .click();
-      expect((await ubl).suggestedFilename()).toBe("invoice.xml");
-      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-    } finally {
-      await context.close();
-    }
-  });
+        await paid;
+        await eventually(async () => {
+          const r = await fetch(both.serviceUrl + "/v1/commerce/invoices", {
+            headers: { cookie: a.cookie },
+          });
+          return ((await r.json()) as { data: unknown[] }).data.length > 0;
+        });
+        await fetch(both.serviceUrl + "/v1/preferences", {
+          method: "PATCH",
+          headers: {
+            cookie: a.cookie,
+            origin: "https://web.test.invalid",
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({ language }),
+        });
+        await page.goto(webUrl);
+        // Account language is authoritative in the real service.
+        await page
+          .getByRole("button", {
+            name: language === "en" ? "Load invoices" : "Rechnungen laden",
+          })
+          .click();
+        const pdf = page.waitForEvent("download");
+        await page
+          .getByRole("button", {
+            name: language === "en" ? "Download PDF" : "PDF herunterladen",
+            exact: true,
+          })
+          .click();
+        expect((await pdf).suggestedFilename()).toBe("invoice.pdf");
+        const ubl = page.waitForEvent("download");
+        await page
+          .getByRole("button", {
+            name:
+              language === "en"
+                ? "Download e-invoice (XML)"
+                : "E-Rechnung herunterladen (XML)",
+            exact: true,
+          })
+          .click();
+        expect((await ubl).suggestedFilename()).toBe("invoice.xml");
+        expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(
+          [],
+        );
+      } finally {
+        await context.close();
+      }
+    });
