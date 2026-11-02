@@ -27,7 +27,7 @@ export const ProblemDetails = z
 /** One valid grant of the acting Owner, shown with its expiry (ADR-0004). */
 export const QuotaGrantView = z
     .object({
-    kind: z.enum(["guest", "free", "credit"]),
+    kind: z.enum(["guest", "free", "credit", "check-pack"]),
     granted: z.number().int().positive(),
     remaining: z.number().int().nonnegative(),
     expiresAt: z.iso.datetime(),

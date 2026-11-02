@@ -59,6 +59,567 @@
           "i18nKey"
         ]
       },
+      "CommerceCatalogResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "packs": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "version": {
+                      "type": "string",
+                      "pattern": "^\\d+$"
+                    },
+                    "quota": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0
+                    },
+                    "validityDays": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0
+                    },
+                    "grossCents": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0
+                    },
+                    "currency": {
+                      "type": "string",
+                      "enum": [
+                        "EUR"
+                      ]
+                    },
+                    "vatBps": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "version",
+                    "quota",
+                    "validityDays",
+                    "grossCents",
+                    "currency",
+                    "vatBps"
+                  ]
+                }
+              },
+              "legal": {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "type": "string"
+                  },
+                  "terms": {
+                    "type": "string"
+                  },
+                  "consent": {
+                    "type": "string"
+                  },
+                  "withdrawal": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "version",
+                  "terms",
+                  "consent",
+                  "withdrawal"
+                ]
+              }
+            },
+            "required": [
+              "packs",
+              "legal"
+            ]
+          },
+          "quota": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Quota"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "not-implemented"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "quota"
+        ]
+      },
+      "Quota": {
+        "type": "object",
+        "properties": {
+          "consumed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "remaining": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "granted": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reserved": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "warning": {
+            "$ref": "#/components/schemas/QuotaWarning"
+          },
+          "grants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuotaGrantView"
+            },
+            "maxItems": 50
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "maxItems": 20
+          },
+          "history": {
+            "type": "object",
+            "properties": {
+              "extendedUntil": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "authorityVersion": {
+                "type": "integer",
+                "exclusiveMinimum": 0
+              }
+            },
+            "required": [
+              "extendedUntil",
+              "authorityVersion"
+            ]
+          }
+        },
+        "required": [
+          "consumed",
+          "remaining",
+          "granted",
+          "reserved",
+          "warning",
+          "grants",
+          "features"
+        ]
+      },
+      "QuotaWarning": {
+        "type": "string",
+        "enum": [
+          "none",
+          "eighty",
+          "exhausted"
+        ]
+      },
+      "QuotaGrantView": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "guest",
+              "free",
+              "credit",
+              "check-pack"
+            ]
+          },
+          "granted": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "remaining": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "kind",
+          "granted",
+          "remaining",
+          "expiresAt"
+        ]
+      },
+      "CheckPackOrderResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "awaiting-payment",
+                  "paid",
+                  "active",
+                  "expired"
+                ]
+              },
+              "pack": {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "type": "string",
+                    "pattern": "^\\d+$"
+                  },
+                  "quota": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0
+                  },
+                  "validityDays": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0
+                  },
+                  "grossCents": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0
+                  },
+                  "currency": {
+                    "type": "string",
+                    "enum": [
+                      "EUR"
+                    ]
+                  },
+                  "vatBps": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "version",
+                  "quota",
+                  "validityDays",
+                  "grossCents",
+                  "currency",
+                  "vatBps"
+                ]
+              },
+              "immediateStart": {
+                "type": "boolean"
+              },
+              "orderedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "activatesAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "expiresAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "checkoutUrl": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "uri"
+              },
+              "invoiceId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "confirmation": {
+                "type": "string"
+              },
+              "mailStatus": {
+                "type": "string",
+                "enum": [
+                  "queued",
+                  "sent"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "status",
+              "pack",
+              "immediateStart",
+              "orderedAt",
+              "activatesAt",
+              "expiresAt",
+              "checkoutUrl",
+              "invoiceId",
+              "confirmation",
+              "mailStatus"
+            ]
+          },
+          "quota": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Quota"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "not-implemented"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "quota"
+        ]
+      },
+      "CheckPackOrdersResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "awaiting-payment",
+                    "paid",
+                    "active",
+                    "expired"
+                  ]
+                },
+                "pack": {
+                  "type": "object",
+                  "properties": {
+                    "version": {
+                      "type": "string",
+                      "pattern": "^\\d+$"
+                    },
+                    "quota": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0
+                    },
+                    "validityDays": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0
+                    },
+                    "grossCents": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0
+                    },
+                    "currency": {
+                      "type": "string",
+                      "enum": [
+                        "EUR"
+                      ]
+                    },
+                    "vatBps": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "version",
+                    "quota",
+                    "validityDays",
+                    "grossCents",
+                    "currency",
+                    "vatBps"
+                  ]
+                },
+                "immediateStart": {
+                  "type": "boolean"
+                },
+                "orderedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "activatesAt": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                },
+                "expiresAt": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                },
+                "checkoutUrl": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uri"
+                },
+                "invoiceId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "confirmation": {
+                  "type": "string"
+                },
+                "mailStatus": {
+                  "type": "string",
+                  "enum": [
+                    "queued",
+                    "sent"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "status",
+                "pack",
+                "immediateStart",
+                "orderedAt",
+                "activatesAt",
+                "expiresAt",
+                "checkoutUrl",
+                "invoiceId",
+                "confirmation",
+                "mailStatus"
+              ]
+            }
+          },
+          "quota": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Quota"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "not-implemented"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "quota"
+        ]
+      },
       "DpaOperationResponse": {
         "type": "object",
         "properties": {
@@ -276,114 +837,6 @@
         "required": [
           "data",
           "quota"
-        ]
-      },
-      "Quota": {
-        "type": "object",
-        "properties": {
-          "consumed": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "remaining": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "granted": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "reserved": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "warning": {
-            "$ref": "#/components/schemas/QuotaWarning"
-          },
-          "grants": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/QuotaGrantView"
-            },
-            "maxItems": 50
-          },
-          "features": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 40
-            },
-            "maxItems": 20
-          },
-          "history": {
-            "type": "object",
-            "properties": {
-              "extendedUntil": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "format": "date-time"
-              },
-              "authorityVersion": {
-                "type": "integer",
-                "exclusiveMinimum": 0
-              }
-            },
-            "required": [
-              "extendedUntil",
-              "authorityVersion"
-            ]
-          }
-        },
-        "required": [
-          "consumed",
-          "remaining",
-          "granted",
-          "reserved",
-          "warning",
-          "grants",
-          "features"
-        ]
-      },
-      "QuotaWarning": {
-        "type": "string",
-        "enum": [
-          "none",
-          "eighty",
-          "exhausted"
-        ]
-      },
-      "QuotaGrantView": {
-        "type": "object",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "enum": [
-              "guest",
-              "free",
-              "credit"
-            ]
-          },
-          "granted": {
-            "type": "integer",
-            "exclusiveMinimum": 0
-          },
-          "remaining": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "expiresAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "kind",
-          "granted",
-          "remaining",
-          "expiresAt"
         ]
       },
       "DpaStateResponse": {
@@ -1843,6 +2296,304 @@
     "parameters": {}
   },
   "paths": {
+    "/v1/commerce/invoices/{id}": {
+      "get": {
+        "summary": "Download an own archived invoice with a current web session",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Archived invoice PDF; no-store",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/commerce/catalog": {
+      "get": {
+        "summary": "Versioned Check packs and Order terms",
+        "responses": {
+          "200": {
+            "description": "Catalog",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommerceCatalogResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/commerce/orders": {
+      "post": {
+        "summary": "Conclude a binding Order before hosted payment collection",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "operationKey": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "catalogVersion": {
+                    "type": "string",
+                    "pattern": "^\\d+$"
+                  },
+                  "legalVersion": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "acceptTerms": {
+                    "type": "boolean",
+                    "enum": [
+                      true
+                    ]
+                  },
+                  "immediateStart": {
+                    "type": "boolean"
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "de",
+                      "en"
+                    ]
+                  },
+                  "billing": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      "address": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1000
+                      },
+                      "country": {
+                        "type": "string",
+                        "pattern": "^[A-Z]{2}$"
+                      },
+                      "vatId": {
+                        "type": "string",
+                        "maxLength": 40
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "address",
+                      "country"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "operationKey",
+                  "catalogVersion",
+                  "legalVersion",
+                  "acceptTerms",
+                  "immediateStart",
+                  "language",
+                  "billing"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckPackOrderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Own Orders and durable confirmations",
+        "responses": {
+          "200": {
+            "description": "Orders",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckPackOrdersResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/dpa/objections": {
       "post": {
         "summary": "Keep a supplier objection open; never infer consent from silence",

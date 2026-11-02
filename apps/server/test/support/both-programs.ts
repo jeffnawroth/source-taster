@@ -46,6 +46,7 @@ export async function bothPrograms(
     extensionOrigins?: string[];
     accountPolicy?: Record<string, number>;
     verificationEnv?: Record<string, string>;
+    serviceEnv?: Record<string, string>;
   } = {},
 ) {
   const privatePath = process.env.SOURCE_TASTER_SERVICE_WORKTREE;
@@ -350,7 +351,9 @@ export async function bothPrograms(
     await writeFile(
       accountConfigPath,
       JSON.stringify({
-        extensionOrigins: options.extensionOrigins ?? [],
+        ...(options.extensionOrigins
+          ? { extensionOrigins: options.extensionOrigins }
+          : {}),
         ...(options.accountPolicy ? { policy: options.accountPolicy } : {}),
         secret: randomUUID() + randomUUID(),
         publicOrigin: "https://service.test.invalid",
@@ -377,6 +380,7 @@ export async function bothPrograms(
     ...(options.abuse ? { SERVICE_ABUSE_CONFIG: abuseConfigPath } : {}),
     DATABASE_URL: urls[1]!,
     SERVICE_PORT: String(servicePort),
+    ...options.serviceEnv,
     SERVICE_GUEST_AUTH_CONFIG: serviceConfigPath,
     ...(options.accounts
       ? { SERVICE_ACCOUNT_AUTH_CONFIG: accountConfigPath }

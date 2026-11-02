@@ -391,6 +391,7 @@ export declare const dpaRoutes: (extension: boolean) => {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -637,6 +638,7 @@ export declare const dpaRoutes: (extension: boolean) => {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -876,6 +878,7 @@ export declare const dpaRoutes: (extension: boolean) => {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -1110,6 +1113,7 @@ export declare const dpaRoutes: (extension: boolean) => {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -1341,6 +1345,7 @@ export declare const dpaRoutes: (extension: boolean) => {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -1567,6 +1572,7 @@ export declare const dpaRoutes: (extension: boolean) => {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -2133,6 +2139,7 @@ export declare const dpaRoutes: (extension: boolean) => {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -2338,6 +2345,7 @@ export declare const dpaRoutes: (extension: boolean) => {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -2833,6 +2841,7 @@ export declare const webDpaRoutes: {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -3079,6 +3088,7 @@ export declare const webDpaRoutes: {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -3318,6 +3328,7 @@ export declare const webDpaRoutes: {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -3552,6 +3563,7 @@ export declare const webDpaRoutes: {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -3783,6 +3795,7 @@ export declare const webDpaRoutes: {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -4009,6 +4022,7 @@ export declare const webDpaRoutes: {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -4575,6 +4589,7 @@ export declare const webDpaRoutes: {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -4780,6 +4795,7 @@ export declare const webDpaRoutes: {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -5275,6 +5291,7 @@ export declare const extensionDpaRoutes: {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -5521,6 +5538,7 @@ export declare const extensionDpaRoutes: {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -5760,6 +5778,7 @@ export declare const extensionDpaRoutes: {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -5994,6 +6013,7 @@ export declare const extensionDpaRoutes: {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -6225,6 +6245,7 @@ export declare const extensionDpaRoutes: {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -6451,6 +6472,7 @@ export declare const extensionDpaRoutes: {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -7017,6 +7039,7 @@ export declare const extensionDpaRoutes: {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
@@ -7222,6 +7245,7 @@ export declare const extensionDpaRoutes: {
                                 }>;
                                 grants: z.ZodArray<z.ZodObject<{
                                     kind: z.ZodEnum<{
+                                        "check-pack": "check-pack";
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";

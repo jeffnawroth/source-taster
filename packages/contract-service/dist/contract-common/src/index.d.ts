@@ -20,6 +20,7 @@ export type ProblemDetails = z.infer<typeof ProblemDetails>;
 /** One valid grant of the acting Owner, shown with its expiry (ADR-0004). */
 export declare const QuotaGrantView: z.ZodObject<{
     kind: z.ZodEnum<{
+        "check-pack": "check-pack";
         credit: "credit";
         free: "free";
         guest: "guest";
@@ -54,6 +55,7 @@ export declare const Quota: z.ZodObject<{
     }>;
     grants: z.ZodArray<z.ZodObject<{
         kind: z.ZodEnum<{
+            "check-pack": "check-pack";
             credit: "credit";
             free: "free";
             guest: "guest";
@@ -87,6 +89,7 @@ export declare const QuotaSlot: z.ZodUnion<readonly [z.ZodObject<{
     }>;
     grants: z.ZodArray<z.ZodObject<{
         kind: z.ZodEnum<{
+            "check-pack": "check-pack";
             credit: "credit";
             free: "free";
             guest: "guest";
@@ -121,6 +124,7 @@ export declare function envelope<T extends z.ZodType>(data: T): z.ZodObject<{
         }>;
         grants: z.ZodArray<z.ZodObject<{
             kind: z.ZodEnum<{
+                "check-pack": "check-pack";
                 credit: "credit";
                 free: "free";
                 guest: "guest";

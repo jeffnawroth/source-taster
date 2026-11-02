@@ -491,6 +491,7 @@
   "report_scoring_versions": "Versionen der Bewertungsregeln in diesem Bericht",
   "report_not_verdict": "Für diese Referenz liegt kein Urteil vor.",
   "report_retracted": "Für den besten Treffer ist ein Rückzug gemeldet; unabhängig vom Urteil.",
+  "commerce_open": "Tarife und Prüfkontingente im Web",
   "dpa_title": "Datenverarbeitungsvereinbarung",
   "dpa_review": "Prüfe das vollständige versionierte Paket und deine Vertragspartei vor dem Abschluss.",
   "dpa_legal_review": "Der Vertragsinhalt erfordert menschliche rechtliche Prüfung. Dieser Produktablauf trifft keine Aussage zur rechtlichen Eignung.",
