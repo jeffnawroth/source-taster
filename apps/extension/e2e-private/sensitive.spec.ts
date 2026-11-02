@@ -33,6 +33,7 @@ test("native panel deletes through actual captured-mail proof and defers Guest Q
     await writeFile(b.serviceConfigPath, JSON.stringify(b.serviceConfig));
     await b.restartService();
     const panel = await browser.openPanel();
+    await panel.waitForText("main", undefined, "20 of 20 checks left");
     const code = async () =>
       (await b.mail()).at(-1)!.text.match(/\b[0-9]{6}\b/)![0];
     await panel.click("button", "Sign in");
@@ -75,7 +76,7 @@ test("native panel deletes through actual captured-mail proof and defers Guest Q
     await expect
       .poll(
         () =>
-          panel.requests.slice(before).filter((r) => /guest-tokens/.test(r.url))
+          panel.requests.slice(before).filter((r) => /\/v2\/quota/.test(r.url))
             .length,
       )
       .toBe(1);

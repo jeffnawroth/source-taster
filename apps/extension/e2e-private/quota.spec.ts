@@ -16,7 +16,7 @@ test("native panel shows real Guest Quota and persisted consumption after reopen
     SOURCE_TASTER_EXTENSION_SERVICE_URL: b.serviceUrl,
     SOURCE_TASTER_EXTENSION_WEBSITE_URL: b.apiUrl,
   });
-  const browser = await launchChromium(build.outDir, profile);
+  let browser = await launchChromium(build.outDir, profile);
   try {
     await allowOrigins(b, [browser.origin]);
     let panel = await browser.openPanel();
@@ -27,6 +27,8 @@ test("native panel shows real Guest Quota and persisted consumption after reopen
     const guestId = (await browser.storage())["source-taster-guest-id-v1"];
     expect(guestId).toBeTruthy();
     panel.detach();
+    await browser.close();
+    browser = await launchChromium(build.outDir, profile);
     panel = await browser.openPanel();
     await panel.waitForText("main", undefined, "19 of 20 checks left");
     expect((await browser.storage())["source-taster-guest-id-v1"]).toBe(
