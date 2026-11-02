@@ -44,9 +44,13 @@ export function InvoiceControls({
         <article key={row.id}>
           <h3>{row.id}</h3>
           <p>
-            <time dateTime={row.issuedAt}>
-              {new Intl.DateTimeFormat(language).format(new Date(row.issuedAt))}
-            </time>
+            {row.issuedAt && (
+              <time dateTime={row.issuedAt}>
+                {new Intl.DateTimeFormat(language).format(
+                  new Date(row.issuedAt),
+                )}
+              </time>
+            )}
             {" · "}
             {new Intl.NumberFormat(language, {
               style: "currency",

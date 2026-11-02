@@ -82,11 +82,13 @@ export const CommerceInvoicesResponse = envelope(
     z.object({
       id: z.string(),
       orderId: z.uuid(),
-      issuedAt: z.iso.datetime(),
+      issuedAt: z.iso.datetime().nullable(),
       grossCents: z.number().int(),
       currency: z.literal("EUR"),
       formats: z.array(z.enum(["pdf", "ubl"])),
       structuredSha256: z.string().nullable(),
     }),
   ),
-).meta({ id: "CommerceInvoicesResponse" });
+)
+  .extend({ nextCursor: z.string().nullable().optional() })
+  .meta({ id: "CommerceInvoicesResponse" });

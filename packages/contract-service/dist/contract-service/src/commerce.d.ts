@@ -283,7 +283,7 @@ export declare const CommerceInvoicesResponse: z.ZodObject<{
     data: z.ZodArray<z.ZodObject<{
         id: z.ZodString;
         orderId: z.ZodUUID;
-        issuedAt: z.ZodISODateTime;
+        issuedAt: z.ZodNullable<z.ZodISODateTime>;
         grossCents: z.ZodNumber;
         currency: z.ZodLiteral<"EUR">;
         formats: z.ZodArray<z.ZodEnum<{
@@ -323,4 +323,5 @@ export declare const CommerceInvoicesResponse: z.ZodObject<{
     }, z.core.$strict>, z.ZodObject<{
         status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
+    nextCursor: z.ZodOptional<z.ZodNullable<z.ZodString>>;
 }, z.core.$strip>;

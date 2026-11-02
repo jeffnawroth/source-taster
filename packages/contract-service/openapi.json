@@ -29,7 +29,10 @@
                   "format": "uuid"
                 },
                 "issuedAt": {
-                  "type": "string",
+                  "type": [
+                    "string",
+                    "null"
+                  ],
                   "format": "date-time"
                 },
                 "grossCents": {
@@ -107,6 +110,12 @@
               {
                 "type": "null"
               }
+            ]
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
             ]
           }
         },
@@ -2505,6 +2514,18 @@
     "/v1/extension/commerce/invoices": {
       "get": {
         "summary": "List own archived invoices",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            "required": false,
+            "name": "after",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Invoices",
@@ -2773,6 +2794,18 @@
     "/v1/commerce/invoices": {
       "get": {
         "summary": "List own archived invoices",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            "required": false,
+            "name": "after",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Invoices",

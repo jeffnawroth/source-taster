@@ -495,6 +495,9 @@ export const getCommerceInvoices = createRoute({
   method: "get",
   path: "/v1/commerce/invoices",
   summary: "List own archived invoices",
+  request: {
+    query: z.object({ after: z.string().min(1).max(255).optional() }),
+  },
   responses: {
     200: {
       description: "Invoices",

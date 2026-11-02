@@ -8580,6 +8580,11 @@ export declare const getCommerceInvoices: {
     method: "get";
     path: "/v1/commerce/invoices";
     summary: string;
+    request: {
+        query: z.ZodObject<{
+            after: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>;
+    };
     responses: {
         200: {
             description: string;
@@ -8589,7 +8594,7 @@ export declare const getCommerceInvoices: {
                         data: z.ZodArray<z.ZodObject<{
                             id: z.ZodString;
                             orderId: z.ZodUUID;
-                            issuedAt: z.ZodISODateTime;
+                            issuedAt: z.ZodNullable<z.ZodISODateTime>;
                             grossCents: z.ZodNumber;
                             currency: z.ZodLiteral<"EUR">;
                             formats: z.ZodArray<z.ZodEnum<{
@@ -8629,6 +8634,7 @@ export declare const getCommerceInvoices: {
                         }, z.core.$strict>, z.ZodObject<{
                             status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
+                        nextCursor: z.ZodOptional<z.ZodNullable<z.ZodString>>;
                     }, z.core.$strip>;
                 };
             };
@@ -8796,6 +8802,11 @@ export declare const extensionCommerceInvoices: {
     getRoutingPath(): "/v1/commerce/invoices";
     method: "get";
     summary: string;
+    request: {
+        query: z.ZodObject<{
+            after: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>;
+    };
     responses: {
         200: {
             description: string;
@@ -8805,7 +8816,7 @@ export declare const extensionCommerceInvoices: {
                         data: z.ZodArray<z.ZodObject<{
                             id: z.ZodString;
                             orderId: z.ZodUUID;
-                            issuedAt: z.ZodISODateTime;
+                            issuedAt: z.ZodNullable<z.ZodISODateTime>;
                             grossCents: z.ZodNumber;
                             currency: z.ZodLiteral<"EUR">;
                             formats: z.ZodArray<z.ZodEnum<{
@@ -8845,6 +8856,7 @@ export declare const extensionCommerceInvoices: {
                         }, z.core.$strict>, z.ZodObject<{
                             status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
+                        nextCursor: z.ZodOptional<z.ZodNullable<z.ZodString>>;
                     }, z.core.$strip>;
                 };
             };
@@ -13934,6 +13946,11 @@ export declare const routes: ((({
     method: "get";
     path: "/v1/commerce/invoices";
     summary: string;
+    request: {
+        query: z.ZodObject<{
+            after: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>;
+    };
     responses: {
         200: {
             description: string;
@@ -13943,7 +13960,7 @@ export declare const routes: ((({
                         data: z.ZodArray<z.ZodObject<{
                             id: z.ZodString;
                             orderId: z.ZodUUID;
-                            issuedAt: z.ZodISODateTime;
+                            issuedAt: z.ZodNullable<z.ZodISODateTime>;
                             grossCents: z.ZodNumber;
                             currency: z.ZodLiteral<"EUR">;
                             formats: z.ZodArray<z.ZodEnum<{
@@ -13983,6 +14000,7 @@ export declare const routes: ((({
                         }, z.core.$strict>, z.ZodObject<{
                             status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
+                        nextCursor: z.ZodOptional<z.ZodNullable<z.ZodString>>;
                     }, z.core.$strip>;
                 };
             };
@@ -14148,6 +14166,11 @@ export declare const routes: ((({
     getRoutingPath(): "/v1/commerce/invoices";
     method: "get";
     summary: string;
+    request: {
+        query: z.ZodObject<{
+            after: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>;
+    };
     responses: {
         200: {
             description: string;
@@ -14157,7 +14180,7 @@ export declare const routes: ((({
                         data: z.ZodArray<z.ZodObject<{
                             id: z.ZodString;
                             orderId: z.ZodUUID;
-                            issuedAt: z.ZodISODateTime;
+                            issuedAt: z.ZodNullable<z.ZodISODateTime>;
                             grossCents: z.ZodNumber;
                             currency: z.ZodLiteral<"EUR">;
                             formats: z.ZodArray<z.ZodEnum<{
@@ -14197,6 +14220,7 @@ export declare const routes: ((({
                         }, z.core.$strict>, z.ZodObject<{
                             status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
+                        nextCursor: z.ZodOptional<z.ZodNullable<z.ZodString>>;
                     }, z.core.$strip>;
                 };
             };

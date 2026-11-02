@@ -402,8 +402,24 @@ export function invoiceClient(options: {
     return response;
   }
   return {
-    list: async () =>
-      CommerceInvoicesResponse.parse(await (await get("")).json()).data,
+    list: async () => {
+      const rows: z.infer<typeof CommerceInvoicesResponse>["data"] = [];
+      const seen = new Set<string>();
+      let cursor: string | null | undefined;
+      do {
+        const page = CommerceInvoicesResponse.parse(
+          await (
+            await get(cursor ? `?after=${encodeURIComponent(cursor)}` : "")
+          ).json(),
+        );
+        rows.push(...page.data);
+        cursor = page.nextCursor;
+        if (cursor && seen.has(cursor))
+          throw new Error("invalid-invoice-pagination");
+        if (cursor) seen.add(cursor);
+      } while (cursor);
+      return rows;
+    },
     download: async (id: string, format: "pdf" | "ubl") =>
       (
         await get(`/${encodeURIComponent(id)}${format === "ubl" ? "/ubl" : ""}`)

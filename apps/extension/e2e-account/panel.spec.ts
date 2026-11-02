@@ -178,6 +178,43 @@ async function withPanel(
       );
       return;
     }
+    if (req.url?.startsWith("/v1/extension/commerce/invoices")) {
+      if (req.headers.authorization !== `Bearer ${credential}`) {
+        res.writeHead(401);
+        res.end("{}");
+        return;
+      }
+      if (req.url === "/v1/extension/commerce/invoices") {
+        res.setHeader("content-type", "application/json");
+        res.end(
+          JSON.stringify({
+            data: [
+              {
+                id: "in_synthetic109",
+                orderId: "11111111-1111-4111-8111-111111111111",
+                issuedAt: "2026-11-10T09:00:00Z",
+                grossCents: 1190,
+                currency: "EUR",
+                formats: ["pdf", "ubl"],
+                structuredSha256: "0".repeat(64),
+              },
+            ],
+            quota: null,
+          }),
+        );
+      } else {
+        res.setHeader(
+          "content-type",
+          req.url.endsWith("/ubl") ? "application/xml" : "application/pdf",
+        );
+        res.end(
+          req.url.endsWith("/ubl")
+            ? "<synthetic-client-transport-fixture/>"
+            : "%PDF-synthetic-client-transport-fixture",
+        );
+      }
+      return;
+    }
     let data: unknown = account;
     let status = 200;
     if (state.unavailable) status = state.unavailable === "missing" ? 404 : 503;
@@ -836,5 +873,41 @@ test("purchasing and Plan entries open the private web Order page without sendin
     expect(
       requests.find((r) => r.path === "/order?language=en")?.auth,
     ).toBeUndefined();
+  });
+});
+
+test("native Account invoice access uses current extension credentials without web forwarding", async () => {
+  await withPanel(async ({ panel, browser, requests }) => {
+    await signIn(panel);
+    await panel.click("button", "Load invoices");
+    await panel.find("button", "Download PDF");
+    await panel.click("button", "Download PDF");
+    await until(
+      () =>
+        requests.find(
+          (r) => r.path === "/v1/extension/commerce/invoices/in_synthetic109",
+        ),
+      "invoice PDF request",
+    );
+    await panel.click("button", "Download e-invoice (XML)");
+    await until(
+      () =>
+        requests.find(
+          (r) =>
+            r.path === "/v1/extension/commerce/invoices/in_synthetic109/ubl",
+        ),
+      "invoice XML request",
+    );
+    const invoiceRequests = requests.filter((r) =>
+      r.path.startsWith("/v1/extension/commerce/invoices"),
+    );
+    expect(invoiceRequests).toHaveLength(3);
+    expect(
+      invoiceRequests.every((r) => r.auth === `Bearer ${credential}`),
+    ).toBe(true);
+    expect(await browser.storage()).toEqual({
+      [guestKey]: guestId,
+      [key]: credential,
+    });
   });
 });

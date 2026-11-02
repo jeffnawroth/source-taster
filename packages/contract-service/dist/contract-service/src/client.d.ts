@@ -28,7 +28,7 @@ export declare function accountSessionClient(options: {
         list: () => Promise<{
             id: string;
             orderId: string;
-            issuedAt: string;
+            issuedAt: string | null;
             grossCents: number;
             currency: "EUR";
             formats: ("pdf" | "ubl")[];
@@ -258,7 +258,7 @@ export declare function extensionSessionClient(options: {
         list: () => Promise<{
             id: string;
             orderId: string;
-            issuedAt: string;
+            issuedAt: string | null;
             grossCents: number;
             currency: "EUR";
             formats: ("pdf" | "ubl")[];
@@ -490,7 +490,7 @@ export declare function invoiceClient(options: {
     list: () => Promise<{
         id: string;
         orderId: string;
-        issuedAt: string;
+        issuedAt: string | null;
         grossCents: number;
         currency: "EUR";
         formats: ("pdf" | "ubl")[];
