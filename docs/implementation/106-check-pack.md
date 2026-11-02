@@ -1,87 +1,207 @@
-# #106 Check pack purchase
+# #106 Check-pack implementation and acceptance — 2 November 2026
 
-The public branch starts at `6faa4db0cd7eec58fd865d5adce03f0adbd63da8`
-(the prepared integration worktree). Commerce implementation and its Order page
-remain in `source-taster-service`, under ADR-0001. Only transport contracts,
-client links and both-program acceptance live here.
+## History and program boundary
 
-## Contracts and clients
+Public branch `t3/complete-issue-106-commerce` in
+`/Users/jeffnawroth/.t3/worktrees/source-taster/t3-1661c6d1` preserves saved
+`8405a6e` and integration `c0cb0baf99302b759440524b9d0deb47751d43a6`
+through merge `c19073b`. Private branch `t3/106-check-pack` in
+`/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106` preserves
+saved `484e90f` and integration `63952462cb70bc2c8ce17fdcc464d7c17fd564b1`
+through merge `01ccacd`. Private implementation commit: `25eb768`.
 
-- `contract-service`: versioned Check-pack catalog and localized legal packet;
-  binding Order request; own Orders with durable confirmation, payment and
-  Activation status; authenticated archived-invoice PDF download. The Order
-  request has an operation key, catalog/legal versions, required terms acceptance,
-  separate immediate-start choice and billing details. Clients cannot supply a
-  price, Quota amount, payment state or grant.
-- `contract-common`: Quota grant display adds `check-pack`. Internal and
-  verification artifacts were regenerated using their package build scripts.
-- Hosted web and extension hosts provide `/order?language=de|en` on the private
-  service. The shared Quota and AI upgrade offers use this destination. The
-  extension opens a web tab and sends no extension credential to that page;
-  purchasing uses the independent web session.
-- The shared Account controls include a DE/EN Plans/Check-packs link, even before
-  the Quota warning threshold. No provider code, private UI or commerce domain
-  implementation is bundled into the extension or public web app.
+The public program owns only dual-licensed transport contracts, purchase links
+and verification/client acceptance. The private service owns the catalog,
+Order page, billing, legal evidence, Stripe adapter, invoice archive and mail.
+The public merge retains both the report and commerce translations. Regenerating
+the report transport from source in `adf1679` adds the missing `check-pack` grant
+to its generated declarations; no generated file was hand-edited.
 
-## Private integration
+## Acceptance coverage
 
-Use private worktree
-`/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106`, branch
-`t3/106-check-pack`. The service extends the existing `quota_catalog` with priced
-Check-pack versions and creates grants/credit entries in the existing Owner
-Quota journal. There is no second balance.
+- Versioned catalog entries supply price, Quota, validity and features. Orders
+  retain exact catalog, billing and legal snapshots when the catalog changes.
+- The private DE/EN Order page shows exact configured terms and withdrawal text,
+  a gross VAT-inclusive total next to the obligation-to-pay button, required
+  terms acceptance, and a separate initially unticked immediate-start consent.
+- Only an authenticated current web session with an allowed Origin can order.
+  Strict input contracts reject client prices/payment/grant fields. Provider
+  customer and hosted payment creation have stable Order idempotency keys.
+- A success redirect grants nothing. The signature-checked durable inbox reads
+  back the paid invoice and stored Checkout association and validates amounts.
+  Invoice business identity and event delivery are separately deduplicated.
+- Consent activates on confirmed payment; otherwise activation waits until the
+  fourteen-day withdrawal period ends. Full validity starts at Activation.
+  Expired packs stop contributing Quota/features. Free remains alongside packs;
+  real journal reservations consume the earliest-expiring grant first.
+- Binding Order evidence and archived PDF/structured invoices reject mutation,
+  deletion and truncation. Invoice access requires the current owning web
+  session and stops after eight full calendar years following the invoice year.
+- Order and purchase/invoice notifications use the durable private outbox,
+  localized multipart mail, exact legal snapshots and the archived PDF attached.
+  Failed mail stays queued and the confirmation remains available in the product.
+- Reconciliation discovers lost events through stored Checkouts and queues each
+  invoice durably. An unpaid invoice or unavailable Checkout cannot stop recovery
+  of other paid purchases. Existing per-invoice backoff remains in force.
+- #111 now displays the latest locally recorded Check-pack Order payment state
+  (`none`, `awaiting-payment`, `paid`, `expired`); commerce disabled stays
+  `unavailable`. This is not a live Stripe availability assertion. Its protected
+  response contains no billing address, legal packet or verification content.
+- The extension's Plan/purchase entry opens the safe private web Order page in
+  a new tab with `noopener noreferrer`, without forwarding an extension token or
+  making commerce requests in the panel. The web uses its independent session.
 
-The private worker drains a durable signature-verified webhook inbox, reads back
-paid invoices and their association with stored Checkouts, archives PDF and
-structured invoice data, and activates grants once per Stripe invoice. A
-success redirect does not grant anything. Without immediate-start consent,
-Activation waits until the 14-day withdrawal period has ended; the pack's full
-validity starts at Activation. Order/purchase mail uses a durable outbox, the
-SMTP port and an attached archived invoice PDF. The private handoff describes
-configuration, retry/reconciliation behavior and remaining limits.
+## Reproducible local evidence
 
-Private tests use uncommitted workspace overrides pointing at this public
-worktree's contract packages. Do not commit those overrides. After this public
-commit is published, replace the commit segment in these private pins with the
-public handoff commit SHA (reported by the implementation agent):
+Current logs live in
+`/Users/jeffnawroth/Developer/Repositories/source-taster/.tmp/spec-70-orchestration/106-nov2-*`.
+Historical `/tmp/st106-*` names from earlier handoffs are not new evidence.
+The pre-existing assigned `st106b-pg` PostgreSQL 18 instance on 5441 was reused;
+API/service ports were 5501/5502 and the Order browser used 5503. Fixtures create
+and remove their own databases, roles, temporary configurations and browsers.
+No unknown container was removed and shared PostgreSQL 5433 was not used.
 
-- `apps/server/package.json`: `@source-taster/contract-internal`,
-  `@source-taster/contract-service`, `@source-taster/contract-verification`.
-- `apps/web/package.json`: `@source-taster/contract-service`.
-- `scripts/evidence.ts`: `contractCommit`.
-- Regenerate `pnpm-lock.yaml`. No implementation package crosses the boundary.
+Test-first cycles at the already approved seams:
 
-## Local evidence
+- `legal-red-focused.log` fails because the service role can overwrite legal
+  evidence; `legal-green.log` passes after the immutable-evidence migration.
+- `operator-red.log` sees `unavailable` where a configured shop must report no
+  Order; `operator-green.log` passes after commerce/#111 composition.
+- `reconcile-red.log` fails when the first unpaid invoice aborts reconciliation;
+  `reconcile-green.log` passes with durable per-invoice processing.
 
-Logs: `/tmp/st106-*` on the implementation machine. Own PostgreSQL 18 container
-`st106-commerce-pg`, port 5451; application ports 5601/5602. Fixtures create and
-remove only their own databases/roles. The container is removed after validation.
+Commands run from the matching repository root (all log basenames below carry
+prefix `106-nov2-`). Private database commands use
+`DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:5441/postgres`
+and `SOURCE_TASTER_TEST_SERVICE_PORT=5502`:
 
-- `st106-commerce-red1.log`: catalog HTTP 404 before implementation.
-- `st106-commerce-red2.log`: a lost webhook left Quota at 400 instead of 700;
-  `st106-commerce-green2.log` passes after Checkout reconciliation.
-- `st106-browser-red.log`: missing Order page; `st106-browser-green.log`: DE/EN
-  binding-page behavior and axe checks pass.
-- `st106-commerce-life.log`: private API lifecycle regressions (4 tests).
-- `st106-both-commerce.log`: both real programs; paid pack appears in the
-  verification Quota API, then a real Check consumes one Reference through the
-  existing settlement protocol. This test is part of `test:quota`.
-- `st106-extension-link.log`: native Chromium panel opens the web Order page
-  without sending an extension credential or calling commerce APIs in-panel.
+- `pnpm --filter @source-taster-service/server exec vitest run`: **62/62**, eight
+  files (`private-server-final.log`), including ten commerce tests, current
+  authority, Quota, Operator and real captured-SMTP regressions.
+- `SOURCE_TASTER_TEST_COMMERCE_WEB_PORT=5503 pnpm --filter
+  @source-taster-service/web exec playwright test --config
+  commerce.playwright.config.ts`: **2/2**, DE/EN plus axe (`order-browser.log`).
+- Private `pnpm typecheck`, `pnpm lint`, `pnpm build`, `pnpm i18n:check`: pass
+  (`private-typecheck.log`, `private-lint.log`, `private-build.log`,
+  `private-i18n.log`).
+- Public direct `tsc -p tsconfig.json` and package lint for server, web, extension,
+  UI and affected contracts pass; DE/EN completeness, Prettier, server/web and
+  both extension-target builds pass (`public-*-focused.log`, `public-lint.log`,
+  `public-i18n.log`, `public-format.log`, `core-build.log`, `public-web-build.log`,
+  `public-extension-build.log`).
+- Direct `node apps/server/scripts/release-check.ts` refuses with **exit 78**
+  (`release-direct.log`): missing eligible measurement, calibration and real-load
+  evidence. This is the intended release gate, not acceptance of a release.
 
-Final integration-tip regression results are recorded below before handoff.
-The extra lifecycle and extension-forwarding tests were added after the first
-implementation, so their initial green runs are regression evidence, not
-additional red/green cycles.
+The first public server build lacked the core build artifacts; building core
+first corrected it. The root public `pnpm typecheck` cannot complete in this
+fresh checkout without the controlled Pagefind source build; its log records
+that missing prerequisite. The affected packages were checked directly. An
+initial private `pnpm ... test -- ...` invocation did not filter Vitest and was
+interrupted; overlapping attempts are superseded by the successful serial
+62-test run. No interrupted run is counted as a pass.
 
-## Limits
+## Publication pins and limits
 
-Business VAT-ID validation, reverse charge and the EN 16931 integration belong
-to #109; Operator catalog editing belongs to #112. This slice stores the supplied
-VAT ID and explicitly records that VIES validation has not occurred. Its test
-price is fixture data, not a chosen commercial price. Legal packets and the
-merchant's inclusive German tax-rate ID must be configured in the private
-service; no default legal copy or sellable catalog row is installed.
+The private committed transport/evidence pins remain at the published
+`39f1409939cc950f9ce7874183a8d69567024ba9`. Development uses intentionally
+uncommitted `pnpm-workspace.yaml` and lockfile overrides, now pointing only at
+this public worktree. They must remain local. These local tests do not prove
+that the committed private pins contain the new commerce contracts.
 
-The tests use the local fake's pinned Stripe REST/webhook protocol fixtures.
-They do not perform live Stripe, PayPal, issuer/SCA or SMTP interactions.
+The parent must publish this public branch before repinning the three server
+transport dependencies, web service dependency and `scripts/evidence.ts`, then
+regenerate the private lockfile without local overrides and verify a frozen
+installation. Never pin an unreachable SHA. No push, PR or issue mutation was
+performed here.
+
+Stripe fixtures are synthetic regressions against the pinned 2024-06-20 protocol,
+not recorded merchant-account captures. Card/PayPal fields and a 3DS request are
+verified locally; actual PayPal enablement, forced issuer challenge, merchant
+approval and real provider/mail delivery remain qualification work. No actual
+payment or external mail was sent. The fixture EUR 11.90 price is not a chosen
+commercial price; no sellable default catalog or legal packet is seeded.
+
+Legal/tax review, Q01–Q11, EN 16931, the Better Auth Selected-release gate,
+dependency/security/source-rights checks, calibration and real-load gates remain.
+#107/#108/#109 are not implemented here; VAT ID validation/reverse charge,
+refund/Withdrawal/later-consent workflows, subscriptions and accounting export
+remain their explicit follow-up seams. SMTP acceptance before a receipt commit
+can still resend a stable Message-ID after a crash. Expired invoice deletion
+requires a future restricted maintenance procedure; no application delete route
+is enabled. Retained Orders likewise require a reviewed retention policy.
+
+
+## Final cross-program and client checks
+
+The same PostgreSQL 5441 instance and API/service ports 5501/5502 were used
+serially. For public real both-program runs, export these exact values:
+
+```sh
+export DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:5441/postgres
+export SOURCE_TASTER_TEST_API_PORT=5501
+export SOURCE_TASTER_TEST_SERVICE_PORT=5502
+export SOURCE_TASTER_SERVICE_WORKTREE=/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106
+pnpm --filter @source-taster/server exec vitest run --config quota.vitest.config.ts
+pnpm --filter @source-taster/server exec vitest run --config guest.vitest.config.ts
+```
+
+- `106-nov2-both-quota-commerce.log`: **9/9**, two files, both real programs.
+  The paid pack becomes visible at the verification Quota API; a real Check
+  consumes one Reference through the existing settlement journal.
+- `106-nov2-both-authority.log`: **33/33**, real signed assertions, current
+  authority, permission/key rotation, worker fencing, protected output and SSE
+  regressions. The deployable unmeasured hosted program still refuses activation.
+- `106-nov2-commerce-final.log`: **11/11** private commerce cases. This reruns
+  all ten commerce cases from the 62-test server pass plus the final test-only
+  regression for stale legal/catalog versions, rejected client payment fields
+  and abandoned Order expiry. The extra regression required no production change
+  and is not claimed as an additional red/green cycle.
+- `106-nov2-native-forwarding-green.log`: **1/1**, actual unpacked native
+  Chromium panel opens the safe web Order page with no extension credential.
+  The first attempt (`native-forwarding.log`) stopped at fixture setup because
+  the explicit PostgreSQL URLs were omitted; it is not a product failure or a
+  passing test. The corrected command from the public root was:
+
+```sh
+DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:5441/postgres \
+DATABASE_TEST_URL=postgres://st106_native:st106_fixture_only@127.0.0.1:5441/st106_native \
+SOURCE_TASTER_ACCOUNT_TEST_API_PORT=5501 \
+SOURCE_TASTER_ACCOUNT_TEST_SERVICE_PORT=5502 \
+SOURCE_TASTER_ACCOUNT_TEST_WEB_PORT=5503 \
+pnpm --filter @source-taster/extension exec playwright test --config account.playwright.config.ts --grep 'purchasing and Plan entries'
+```
+
+The native fixture derives unique database/role names from that test URL and
+removes them. Its password is local synthetic fixture data only.
+
+All four contract trees reproduce without changes after
+`pnpm --filter './packages/contract-*' build`
+(`106-nov2-contract-reproducibility.log`). Final private typecheck and lint
+also pass after the final test addition (`private-typecheck-final.log`,
+`private-lint-final.log`, both with the `106-nov2-` prefix).
+
+A final fetch still reports public integration
+`c0cb0baf99302b759440524b9d0deb47751d43a6` and private integration
+`63952462cb70bc2c8ce17fdcc464d7c17fd564b1`; both are already ancestors.
+All saved history remains. No root/integration source worktree was edited.
+The temporary merge-preservation stash was removed after restoring the two
+intentional local override files; unrelated shared-repository stashes remain.
+
+
+The private Operator browser checks also pass **2/2**
+(`106-nov2-operator-browser.log`), including DE/EN fresh-proof credit and lost
+response recovery, using this command from the private root:
+
+```sh
+DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:5441/postgres \
+SOURCE_TASTER_TEST_SERVICE_PORT=5502 SERVICE_E2E_PORT=5503 \
+pnpm --filter @source-taster-service/web exec playwright test --config operator.playwright.config.ts
+```
+
+The pre-existing private dependency advisory noted by the integration handoff
+(`minimatch@10.2.6`, GHSA-g3hv-75wg-m249 / CVE-2026-118764) remains an open
+dependency gate. No dependency exception or production-readiness claim is made.
+No new PostgreSQL container was created. Test-owned processes, browsers and
+fixture resources were stopped by their cleanup; the pre-existing assigned
+`st106b-pg` is left running, and unknown older resources are left untouched.
