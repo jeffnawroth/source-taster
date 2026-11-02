@@ -812,7 +812,7 @@ test("browser restart restores only the extension session and never restores Che
   });
 });
 
-test("purchasing and Plan entries open the private web Order page without sending an extension credential", async () => {
+test("purchasing and Plan entries open the private web Plan management page without sending an extension credential", async () => {
   await withPanel(async ({ panel, requests }) => {
     const link = await panel.find("link", "Plans and Check packs on the web");
     expect(
@@ -821,20 +821,20 @@ test("purchasing and Plan entries open the private web Order page without sendin
         "function() { return {href:this.href,target:this.target,rel:this.rel}; }",
       ),
     ).toMatchObject({
-      href: `http://127.0.0.1:${servicePort}/order?language=en`,
+      href: `http://127.0.0.1:${servicePort}/plan?language=en`,
       target: "_blank",
       rel: "noopener noreferrer",
     });
     await panel.click("link", "Plans and Check packs on the web");
     await until(
-      () => requests.some((r) => r.path === "/order?language=en"),
-      "web Order page was not opened",
+      () => requests.some((r) => r.path === "/plan?language=en"),
+      "web Plan management page was not opened",
     );
     expect(requests.filter((r) => r.path.startsWith("/v1/commerce"))).toEqual(
       [],
     );
     expect(
-      requests.find((r) => r.path === "/order?language=en")?.auth,
+      requests.find((r) => r.path === "/plan?language=en")?.auth,
     ).toBeUndefined();
   });
 });

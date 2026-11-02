@@ -3733,6 +3733,7 @@ export declare const CheckResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;
@@ -4726,6 +4727,7 @@ export declare const QuotaResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;
@@ -4757,6 +4759,7 @@ export declare const QuotaResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;
@@ -7111,6 +7114,7 @@ export declare const SelectionPreviewResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;
@@ -7166,6 +7170,7 @@ export declare const HistoryResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;

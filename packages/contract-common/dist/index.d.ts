@@ -24,6 +24,7 @@ export declare const QuotaGrantView: z.ZodObject<{
         credit: "credit";
         free: "free";
         guest: "guest";
+        pro: "pro";
     }>;
     granted: z.ZodNumber;
     remaining: z.ZodNumber;
@@ -59,6 +60,7 @@ export declare const Quota: z.ZodObject<{
             credit: "credit";
             free: "free";
             guest: "guest";
+            pro: "pro";
         }>;
         granted: z.ZodNumber;
         remaining: z.ZodNumber;
@@ -93,6 +95,7 @@ export declare const QuotaSlot: z.ZodUnion<readonly [z.ZodObject<{
             credit: "credit";
             free: "free";
             guest: "guest";
+            pro: "pro";
         }>;
         granted: z.ZodNumber;
         remaining: z.ZodNumber;
@@ -128,6 +131,7 @@ export declare function envelope<T extends z.ZodType>(data: T): z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;

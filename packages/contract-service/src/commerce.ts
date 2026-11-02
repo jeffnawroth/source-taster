@@ -9,9 +9,13 @@ export const CheckPack = z.object({
   currency: z.literal("EUR"),
   vatBps: z.number().int().nonnegative(),
 });
+export const ProOffer = CheckPack.omit({ validityDays: true }).extend({
+  period: z.literal("month"),
+});
 export const CommerceCatalogResponse = envelope(
   z.object({
     packs: z.array(CheckPack),
+    pro: z.array(ProOffer).default([]),
     legal: z.object({
       version: z.string(),
       terms: z.string(),
@@ -52,4 +56,51 @@ export const CheckPackOrderResponse = envelope(CheckPackOrder).meta({
 });
 export const CheckPackOrdersResponse = envelope(z.array(CheckPackOrder)).meta({
   id: "CheckPackOrdersResponse",
+});
+
+export const SubscriptionRequest = CheckPackOrderRequest;
+export const SubscriptionOperation = z.strictObject({ operationKey: z.uuid() });
+export const SubscriptionConsent = SubscriptionOperation.extend({
+  legalVersion: z.string(),
+  immediateStart: z.literal(true),
+});
+export const Subscription = z.object({
+  id: z.uuid(),
+  status: z.enum([
+    "awaiting-payment",
+    "pending-activation",
+    "active",
+    "payment-failed",
+    "cancelling",
+    "cancelled",
+  ]),
+  offer: ProOffer,
+  orderedAt: z.iso.datetime(),
+  activatesAt: z.iso.datetime().nullable(),
+  paidUntil: z.iso.datetime().nullable(),
+  cancelledAt: z.iso.datetime().nullable(),
+  endsAt: z.iso.datetime().nullable(),
+  checkoutUrl: z.url().nullable(),
+  canConsent: z.boolean(),
+  consentLegal: z.object({
+    version: z.string(),
+    terms: z.string(),
+    consent: z.string(),
+    withdrawal: z.string(),
+  }),
+  confirmation: z.string(),
+  mailStatus: z.enum(["queued", "sent"]),
+  invoices: z.array(
+    z.object({
+      id: z.string(),
+      startsAt: z.iso.datetime(),
+      endsAt: z.iso.datetime(),
+    }),
+  ),
+});
+export const SubscriptionResponse = envelope(Subscription).meta({
+  id: "SubscriptionResponse",
+});
+export const SubscriptionsResponse = envelope(z.array(Subscription)).meta({
+  id: "SubscriptionsResponse",
 });

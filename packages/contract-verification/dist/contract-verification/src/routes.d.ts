@@ -367,6 +367,7 @@ export declare const createCheck: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -737,6 +738,7 @@ export declare const getCheck: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -1085,6 +1087,7 @@ export declare const structureReferences: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -1455,6 +1458,7 @@ export declare const cancelCheck: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;
@@ -1844,6 +1848,7 @@ export declare const renewCheckLease: {
                                     credit: "credit";
                                     free: "free";
                                     guest: "guest";
+                                    pro: "pro";
                                 }>;
                                 granted: z.ZodNumber;
                                 remaining: z.ZodNumber;

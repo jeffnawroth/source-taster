@@ -3174,7 +3174,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
         reserved: number;
         warning: "eighty" | "exhausted" | "none";
         grants: {
-            kind: "check-pack" | "credit" | "free" | "guest";
+            kind: "check-pack" | "credit" | "free" | "guest" | "pro";
             granted: number;
             remaining: number;
             expiresAt: string;

@@ -59,7 +59,7 @@ createRoot(document.getElementById("root")!).render(
         siteUrl={config.websiteUrl}
         upgradeUrl={
           config.mode === "hosted"
-            ? `${config.serviceUrl!.replace(/\/$/, "")}/order`
+            ? `${config.serviceUrl!.replace(/\/$/, "")}/plan`
             : undefined
         }
         selectionIntake={selectionIntake}
@@ -72,7 +72,7 @@ createRoot(document.getElementById("root")!).render(
         siteUrl={config.websiteUrl}
         upgradeUrl={
           config.mode === "hosted"
-            ? `${config.serviceUrl!.replace(/\/$/, "")}/order`
+            ? `${config.serviceUrl!.replace(/\/$/, "")}/plan`
             : undefined
         }
         selectionIntake={selectionIntake}

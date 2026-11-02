@@ -552,7 +552,8 @@
               "guest",
               "free",
               "credit",
-              "check-pack"
+              "check-pack",
+              "pro"
             ]
           },
           "granted": {

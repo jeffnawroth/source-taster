@@ -395,6 +395,7 @@ export declare const dpaRoutes: (extension: boolean) => {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -642,6 +643,7 @@ export declare const dpaRoutes: (extension: boolean) => {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -882,6 +884,7 @@ export declare const dpaRoutes: (extension: boolean) => {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -1117,6 +1120,7 @@ export declare const dpaRoutes: (extension: boolean) => {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -1349,6 +1353,7 @@ export declare const dpaRoutes: (extension: boolean) => {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -1576,6 +1581,7 @@ export declare const dpaRoutes: (extension: boolean) => {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -2143,6 +2149,7 @@ export declare const dpaRoutes: (extension: boolean) => {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -2349,6 +2356,7 @@ export declare const dpaRoutes: (extension: boolean) => {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -2845,6 +2853,7 @@ export declare const webDpaRoutes: {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -3092,6 +3101,7 @@ export declare const webDpaRoutes: {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -3332,6 +3342,7 @@ export declare const webDpaRoutes: {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -3567,6 +3578,7 @@ export declare const webDpaRoutes: {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -3799,6 +3811,7 @@ export declare const webDpaRoutes: {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -4026,6 +4039,7 @@ export declare const webDpaRoutes: {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -4593,6 +4607,7 @@ export declare const webDpaRoutes: {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -4799,6 +4814,7 @@ export declare const webDpaRoutes: {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -5295,6 +5311,7 @@ export declare const extensionDpaRoutes: {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -5542,6 +5559,7 @@ export declare const extensionDpaRoutes: {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -5782,6 +5800,7 @@ export declare const extensionDpaRoutes: {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -6017,6 +6036,7 @@ export declare const extensionDpaRoutes: {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -6249,6 +6269,7 @@ export declare const extensionDpaRoutes: {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -6476,6 +6497,7 @@ export declare const extensionDpaRoutes: {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -7043,6 +7065,7 @@ export declare const extensionDpaRoutes: {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;
@@ -7249,6 +7272,7 @@ export declare const extensionDpaRoutes: {
                                         credit: "credit";
                                         free: "free";
                                         guest: "guest";
+                                        pro: "pro";
                                     }>;
                                     granted: z.ZodNumber;
                                     remaining: z.ZodNumber;

@@ -1,3 +1,4 @@
+import { SubscriptionRequest, SubscriptionOperation, SubscriptionConsent, SubscriptionResponse, SubscriptionsResponse, } from "./commerce.js";
 import { z } from "zod";
 import { CommerceCatalogResponse, CheckPackOrderRequest, CheckPackOrderResponse, CheckPackOrdersResponse, } from "./commerce.js";
 import { webDpaRoutes, extensionDpaRoutes } from "./dpa-routes.js";
@@ -305,7 +306,95 @@ export const getCommerceInvoice = createRoute({
         503: problem,
     },
 });
+export const createSubscription = createRoute({
+    method: "post",
+    path: "/v1/commerce/subscriptions",
+    summary: "Subscribe to monthly Pro through an own binding Order",
+    request: {
+        body: {
+            required: true,
+            content: { "application/json": { schema: SubscriptionRequest } },
+        },
+    },
+    responses: {
+        200: {
+            description: "Subscription",
+            content: { "application/json": { schema: SubscriptionResponse } },
+        },
+        400: problem,
+        401: problem,
+        403: problem,
+        409: problem,
+        503: problem,
+    },
+});
+export const getSubscriptions = createRoute({
+    method: "get",
+    path: "/v1/commerce/subscriptions",
+    summary: "Own subscription management, including failed payments",
+    responses: {
+        200: {
+            description: "Subscriptions",
+            content: { "application/json": { schema: SubscriptionsResponse } },
+        },
+        401: problem,
+        403: problem,
+        503: problem,
+    },
+});
+export const cancelSubscription = createRoute({
+    method: "post",
+    path: "/v1/commerce/subscriptions/{id}/cancel",
+    summary: "Record cancellation at the end of the paid period",
+    request: {
+        params: z.object({ id: z.uuid() }),
+        body: {
+            required: true,
+            content: { "application/json": { schema: SubscriptionOperation } },
+        },
+    },
+    responses: {
+        200: {
+            description: "Durable cancellation receipt",
+            content: { "application/json": { schema: SubscriptionResponse } },
+        },
+        400: problem,
+        401: problem,
+        403: problem,
+        404: problem,
+        409: problem,
+        503: problem,
+    },
+});
+export const consentSubscription = createRoute({
+    method: "post",
+    path: "/v1/commerce/subscriptions/{id}/consent",
+    summary: "Separately consent to earlier Pro activation",
+    request: {
+        params: z.object({ id: z.uuid() }),
+        body: {
+            required: true,
+            content: { "application/json": { schema: SubscriptionConsent } },
+        },
+    },
+    responses: {
+        200: {
+            description: "Activation consent",
+            content: { "application/json": { schema: SubscriptionResponse } },
+        },
+        400: problem,
+        401: problem,
+        403: problem,
+        404: problem,
+        409: problem,
+        503: problem,
+    },
+});
 export const routes = [
+    createSubscription,
+    getSubscriptions,
+    cancelSubscription,
+    consentSubscription,
     getCommerceInvoice,
     getCommerceCatalog,
     createCheckPackOrder,

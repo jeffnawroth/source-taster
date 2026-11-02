@@ -297,6 +297,7 @@ export declare const DocumentStructuringResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;
@@ -334,6 +335,7 @@ export declare const DocumentSettingsResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;
@@ -493,6 +495,7 @@ export declare const TextStructuringResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;

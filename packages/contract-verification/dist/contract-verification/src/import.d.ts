@@ -257,6 +257,7 @@ export declare const ImportResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;

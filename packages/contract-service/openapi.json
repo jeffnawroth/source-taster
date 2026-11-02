@@ -13,101 +13,111 @@
       }
     },
     "schemas": {
-      "ProblemDetails": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "status": {
-            "type": "integer"
-          },
-          "detail": {
-            "type": "string"
-          },
-          "limit": {
-            "type": "integer",
-            "exclusiveMinimum": 0
-          },
-          "available": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "required": {
-            "type": "integer",
-            "exclusiveMinimum": 0
-          },
-          "retryAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "code": {
-            "type": "string"
-          },
-          "i18nKey": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "type",
-          "title",
-          "status",
-          "code",
-          "i18nKey"
-        ]
-      },
-      "CommerceCatalogResponse": {
+      "SubscriptionResponse": {
         "type": "object",
         "properties": {
           "data": {
             "type": "object",
             "properties": {
-              "packs": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "version": {
-                      "type": "string",
-                      "pattern": "^\\d+$"
-                    },
-                    "quota": {
-                      "type": "integer",
-                      "exclusiveMinimum": 0
-                    },
-                    "validityDays": {
-                      "type": "integer",
-                      "exclusiveMinimum": 0
-                    },
-                    "grossCents": {
-                      "type": "integer",
-                      "exclusiveMinimum": 0
-                    },
-                    "currency": {
-                      "type": "string",
-                      "enum": [
-                        "EUR"
-                      ]
-                    },
-                    "vatBps": {
-                      "type": "integer",
-                      "minimum": 0
-                    }
-                  },
-                  "required": [
-                    "version",
-                    "quota",
-                    "validityDays",
-                    "grossCents",
-                    "currency",
-                    "vatBps"
-                  ]
-                }
+              "id": {
+                "type": "string",
+                "format": "uuid"
               },
-              "legal": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "awaiting-payment",
+                  "pending-activation",
+                  "active",
+                  "payment-failed",
+                  "cancelling",
+                  "cancelled"
+                ]
+              },
+              "offer": {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "type": "string",
+                    "pattern": "^\\d+$"
+                  },
+                  "quota": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0
+                  },
+                  "grossCents": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0
+                  },
+                  "currency": {
+                    "type": "string",
+                    "enum": [
+                      "EUR"
+                    ]
+                  },
+                  "vatBps": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "period": {
+                    "type": "string",
+                    "enum": [
+                      "month"
+                    ]
+                  }
+                },
+                "required": [
+                  "version",
+                  "quota",
+                  "grossCents",
+                  "currency",
+                  "vatBps",
+                  "period"
+                ]
+              },
+              "orderedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "activatesAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "paidUntil": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "cancelledAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "endsAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "checkoutUrl": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "uri"
+              },
+              "canConsent": {
+                "type": "boolean"
+              },
+              "consentLegal": {
                 "type": "object",
                 "properties": {
                   "version": {
@@ -129,11 +139,57 @@
                   "consent",
                   "withdrawal"
                 ]
+              },
+              "confirmation": {
+                "type": "string"
+              },
+              "mailStatus": {
+                "type": "string",
+                "enum": [
+                  "queued",
+                  "sent"
+                ]
+              },
+              "invoices": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "startsAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "endsAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "startsAt",
+                    "endsAt"
+                  ]
+                }
               }
             },
             "required": [
-              "packs",
-              "legal"
+              "id",
+              "status",
+              "offer",
+              "orderedAt",
+              "activatesAt",
+              "paidUntil",
+              "cancelledAt",
+              "endsAt",
+              "checkoutUrl",
+              "canConsent",
+              "consentLegal",
+              "confirmation",
+              "mailStatus",
+              "invoices"
             ]
           },
           "quota": {
@@ -268,7 +324,8 @@
               "guest",
               "free",
               "credit",
-              "check-pack"
+              "check-pack",
+              "pro"
             ]
           },
           "granted": {
@@ -289,6 +346,448 @@
           "granted",
           "remaining",
           "expiresAt"
+        ]
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "available": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "required": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "retryAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "code": {
+            "type": "string"
+          },
+          "i18nKey": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "code",
+          "i18nKey"
+        ]
+      },
+      "SubscriptionsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "awaiting-payment",
+                    "pending-activation",
+                    "active",
+                    "payment-failed",
+                    "cancelling",
+                    "cancelled"
+                  ]
+                },
+                "offer": {
+                  "type": "object",
+                  "properties": {
+                    "version": {
+                      "type": "string",
+                      "pattern": "^\\d+$"
+                    },
+                    "quota": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0
+                    },
+                    "grossCents": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0
+                    },
+                    "currency": {
+                      "type": "string",
+                      "enum": [
+                        "EUR"
+                      ]
+                    },
+                    "vatBps": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "period": {
+                      "type": "string",
+                      "enum": [
+                        "month"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "version",
+                    "quota",
+                    "grossCents",
+                    "currency",
+                    "vatBps",
+                    "period"
+                  ]
+                },
+                "orderedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "activatesAt": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                },
+                "paidUntil": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                },
+                "cancelledAt": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                },
+                "endsAt": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                },
+                "checkoutUrl": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uri"
+                },
+                "canConsent": {
+                  "type": "boolean"
+                },
+                "consentLegal": {
+                  "type": "object",
+                  "properties": {
+                    "version": {
+                      "type": "string"
+                    },
+                    "terms": {
+                      "type": "string"
+                    },
+                    "consent": {
+                      "type": "string"
+                    },
+                    "withdrawal": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "version",
+                    "terms",
+                    "consent",
+                    "withdrawal"
+                  ]
+                },
+                "confirmation": {
+                  "type": "string"
+                },
+                "mailStatus": {
+                  "type": "string",
+                  "enum": [
+                    "queued",
+                    "sent"
+                  ]
+                },
+                "invoices": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "startsAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "endsAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "startsAt",
+                      "endsAt"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "status",
+                "offer",
+                "orderedAt",
+                "activatesAt",
+                "paidUntil",
+                "cancelledAt",
+                "endsAt",
+                "checkoutUrl",
+                "canConsent",
+                "consentLegal",
+                "confirmation",
+                "mailStatus",
+                "invoices"
+              ]
+            }
+          },
+          "quota": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Quota"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "not-implemented"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "quota"
+        ]
+      },
+      "CommerceCatalogResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "packs": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "version": {
+                      "type": "string",
+                      "pattern": "^\\d+$"
+                    },
+                    "quota": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0
+                    },
+                    "validityDays": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0
+                    },
+                    "grossCents": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0
+                    },
+                    "currency": {
+                      "type": "string",
+                      "enum": [
+                        "EUR"
+                      ]
+                    },
+                    "vatBps": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "version",
+                    "quota",
+                    "validityDays",
+                    "grossCents",
+                    "currency",
+                    "vatBps"
+                  ]
+                }
+              },
+              "pro": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "version": {
+                      "type": "string",
+                      "pattern": "^\\d+$"
+                    },
+                    "quota": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0
+                    },
+                    "grossCents": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0
+                    },
+                    "currency": {
+                      "type": "string",
+                      "enum": [
+                        "EUR"
+                      ]
+                    },
+                    "vatBps": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "period": {
+                      "type": "string",
+                      "enum": [
+                        "month"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "version",
+                    "quota",
+                    "grossCents",
+                    "currency",
+                    "vatBps",
+                    "period"
+                  ]
+                },
+                "default": []
+              },
+              "legal": {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "type": "string"
+                  },
+                  "terms": {
+                    "type": "string"
+                  },
+                  "consent": {
+                    "type": "string"
+                  },
+                  "withdrawal": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "version",
+                  "terms",
+                  "consent",
+                  "withdrawal"
+                ]
+              }
+            },
+            "required": [
+              "packs",
+              "legal"
+            ]
+          },
+          "quota": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Quota"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "not-implemented"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "quota"
         ]
       },
       "CheckPackOrderResponse": {
@@ -2296,6 +2795,425 @@
     "parameters": {}
   },
   "paths": {
+    "/v1/commerce/subscriptions": {
+      "post": {
+        "summary": "Subscribe to monthly Pro through an own binding Order",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "operationKey": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "catalogVersion": {
+                    "type": "string",
+                    "pattern": "^\\d+$"
+                  },
+                  "legalVersion": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "acceptTerms": {
+                    "type": "boolean",
+                    "enum": [
+                      true
+                    ]
+                  },
+                  "immediateStart": {
+                    "type": "boolean"
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "de",
+                      "en"
+                    ]
+                  },
+                  "billing": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      "address": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1000
+                      },
+                      "country": {
+                        "type": "string",
+                        "pattern": "^[A-Z]{2}$"
+                      },
+                      "vatId": {
+                        "type": "string",
+                        "maxLength": 40
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "address",
+                      "country"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "operationKey",
+                  "catalogVersion",
+                  "legalVersion",
+                  "acceptTerms",
+                  "immediateStart",
+                  "language",
+                  "billing"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Subscription",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Own subscription management, including failed payments",
+        "responses": {
+          "200": {
+            "description": "Subscriptions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/commerce/subscriptions/{id}/cancel": {
+      "post": {
+        "summary": "Record cancellation at the end of the paid period",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "operationKey": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "operationKey"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Durable cancellation receipt",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/commerce/subscriptions/{id}/consent": {
+      "post": {
+        "summary": "Separately consent to earlier Pro activation",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "operationKey": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "legalVersion": {
+                    "type": "string"
+                  },
+                  "immediateStart": {
+                    "type": "boolean",
+                    "enum": [
+                      true
+                    ]
+                  }
+                },
+                "required": [
+                  "operationKey",
+                  "legalVersion",
+                  "immediateStart"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Activation consent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/commerce/invoices/{id}": {
       "get": {
         "summary": "Download an own archived invoice with a current web session",

@@ -37,6 +37,7 @@ export declare const MailRehearsalResponse: z.ZodObject<{
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;
@@ -186,6 +187,7 @@ export declare const QuotaSnapshotResponse: z.ZodDiscriminatedUnion<[z.ZodObject
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;
@@ -226,6 +228,7 @@ export declare const QuotaReserveResponse: z.ZodDiscriminatedUnion<[z.ZodObject<
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;
@@ -257,6 +260,7 @@ export declare const QuotaReserveResponse: z.ZodDiscriminatedUnion<[z.ZodObject<
                 credit: "credit";
                 free: "free";
                 guest: "guest";
+                pro: "pro";
             }>;
             granted: z.ZodNumber;
             remaining: z.ZodNumber;
