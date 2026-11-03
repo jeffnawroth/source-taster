@@ -1,0 +1,69 @@
+{
+  "recordedAt": "2026-11-03T12:10:46.726242+00:00",
+  "source": {
+    "publicCode": "e4df8f3ccf56c15a9b4de4d1fe651dd7715160e1",
+    "privateCode": "043df519ea3952cb5bb44892d16b22ad92f131fe"
+  },
+  "mergedIntegration": {
+    "public": "c74b1a1208d06a155352e3ec5e56be685da59a5a",
+    "private": "f3f9a5bb8d28ff889df7c500e27ba5e027fa3794"
+  },
+  "original": {
+    "head": "f95d936daa7209179076ff5ca2a20962b5148449",
+    "sha256": {
+      "pnpm-lock.yaml": "238d91a5102bda6ade4a41fdbfea36a2268c8d491800c4a02bb5389a7afc4925",
+      "pnpm-workspace.yaml": "6a69326c1cf4a95a11ce8d405b27671ffa92b1fd488a9716722f3b6c289181ab"
+    }
+  },
+  "currentOverrides": {
+    "pnpm-workspace.yaml": "43bad5f776a2b7f01a828fa3a73d9b68652f628090775ade2b1796cb828922f1",
+    "pnpm-lock.yaml": "dc8fde32425323ee75cbe295388eff9b1e419df2ce631fad4d72e3880e8e05b0"
+  },
+  "allowedDirtyPrivate": [
+    "pnpm-workspace.yaml",
+    "pnpm-lock.yaml"
+  ],
+  "artifactReproduction": {
+    "files": 79,
+    "changed": []
+  },
+  "validation": "source-linked; not final published-pin acceptance",
+  "redactedSyntheticCredentialLogs": [
+    "113-merged-operator-browser.log"
+  ],
+  "finalIntegratedSourceHeads": {
+    "public": "c5c66c4de6973d7b0f3f944915c90e0b404a1da0",
+    "private": "1e93e0da00ecef81a0daff09381699605ce69452"
+  },
+  "latestIntegrationDelta": "Documentation/evidence only after 13f8681/d617245; runtime, contracts, renewal dates, permissions and cache-drain source unchanged.",
+  "tests": {
+    "bothPrograms": {
+      "passed": 3,
+      "log": "113-merged-both.log"
+    },
+    "catalogPropagation": {
+      "passed": 1,
+      "log": "113-merged-catalog.log"
+    },
+    "privateFocused": {
+      "passed": 24,
+      "files": 5,
+      "log": "113-merged-private-focused.log"
+    },
+    "dsrBrowsers": {
+      "passed": 2,
+      "log": "113-dsr-browser-accepted.log"
+    },
+    "operatorBrowsers": {
+      "passed": 4,
+      "log": "113-operator-browser-accepted.log"
+    }
+  },
+  "checkLogSha256": {
+    "113-merged-both.log": "a140d78dd95d33b3fa5dbe88475fab9db3d0824313cfad95ee32662b79d61671",
+    "113-merged-catalog.log": "226ba586a4ef5345cc9ff92449d3b0bd6b26809ffd068949c7d91809a935bb61",
+    "113-merged-private-focused.log": "d074aa6f40d3d52ee295a64b83a6b78f70798666a7e79320319d8805ec593b17",
+    "113-dsr-browser-accepted.log": "8bb61bc91f19ccc575dd14ecd95cbf8bb71e2fd32e828169e9c2a78c048edf02",
+    "113-operator-browser-accepted.log": "c76cc92bcf9ba28a5307a9c1023b1b71c3468164fb57c0067c0854a2e2cd9a18"
+  }
+}
