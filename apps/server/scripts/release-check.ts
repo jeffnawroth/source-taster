@@ -11,16 +11,20 @@ import { checkRelease } from "./quality/release.ts";
 import {
   loadExtraction,
   resolveConfiguration,
+  readConfigurationFile,
 } from "./quality/configuration.ts";
 
 let expected;
+let configurationDigest: string | undefined;
 try {
   const file = process.env.SOURCE_TASTER_QUALITY_CONFIGURATION;
   if (file) {
+    configurationDigest = (await readConfigurationFile(file)).digest;
     const extraction = process.env.SOURCE_TASTER_QUALITY_EXTRACTION
       ? await loadExtraction(process.env.SOURCE_TASTER_QUALITY_EXTRACTION)
       : undefined;
     expected = {
+      extractionCodeDigest: extraction?.codeDigest,
       configuration: await resolveConfiguration(
         file,
         extraction?.model ?? null,
@@ -43,6 +47,7 @@ const result = await checkRelease({
   code: codeVersion(),
   runtimeCalibration: scoringRulesCalibration,
   expected,
+  configurationDigest,
 });
 if (!result.releasable) {
   console.error(

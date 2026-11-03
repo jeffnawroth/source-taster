@@ -64,6 +64,7 @@ type CheckRow = {
   lastSeq: number;
   endReason: string | null;
   document?: unknown;
+  measuredConfiguration?: unknown;
   references: {
     position: number;
     originalText: string;
@@ -80,6 +81,8 @@ type CheckRow = {
     }[];
     results?: {
       id: string;
+      measuredConfigurationId?: string | null;
+      scoringRulesVersion?: string | null;
       revision: number;
       generation: number;
       createdAt: Date;
@@ -96,6 +99,9 @@ type CheckRow = {
 function toCheck(row: CheckRow, leaseRenewAfterMs: number): Check {
   return {
     id: row.id,
+    measuredConfigurationId: (
+      row.measuredConfiguration as ActiveConfiguration | null
+    )?.id,
     document: (row.document ?? null) as BibliographyDocument | null,
     state: row.state as Check["state"],
     lastEventSeq: row.lastSeq,
@@ -141,6 +147,8 @@ function toCheck(row: CheckRow, leaseRenewAfterMs: number): Check {
         })),
         results: (slot.results ?? []).map((r) => ({
           id: r.id,
+          measuredConfigurationId: r.measuredConfigurationId ?? undefined,
+          scoringRulesVersion: r.scoringRulesVersion ?? undefined,
           revision: r.revision,
           generation: r.generation,
           createdAt: r.createdAt.toISOString(),
@@ -331,9 +339,27 @@ export function createCheckStore(
         claimUntil: null,
       },
     });
+    const selected = (
+      await tx.check.findUniqueOrThrow({
+        where: { id: checkId },
+        select: { measuredConfiguration: true },
+      })
+    ).measuredConfiguration as
+      (ActiveConfiguration & { rulesVersion?: string }) | null;
+    if (
+      outcome.kind === "verdict" &&
+      selected &&
+      outcome.measuredConfigurationId !== selected.id
+    )
+      throw new Error("configuration-result-mismatch");
     await tx.referenceResult.create({
       data: {
         id: randomUUID(),
+        measuredConfigurationId: selected?.id,
+        scoringRulesVersion:
+          outcome.kind === "verdict"
+            ? outcome.scoringRules.version
+            : selected?.rulesVersion,
         checkId,
         position: slot,
         generation,
@@ -1275,6 +1301,13 @@ export function createCheckStore(
       async discard(reportId: string) {
         await db.report.deleteMany({ where: { id: reportId } });
       },
+    },
+    async configurationFor(id: string) {
+      const row = await db.check.findUnique({
+        where: { id },
+        select: { measuredConfiguration: true },
+      });
+      return row?.measuredConfiguration as ActiveConfiguration | null;
     },
     async create(
       principal: Principal,

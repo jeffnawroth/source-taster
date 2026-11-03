@@ -15,7 +15,9 @@ import {
   readConfigurationFile,
   resolveConfiguration,
 } from "./configuration.ts";
+import { evidenceDigest } from "./evidence.ts";
 import { qualifiedAi } from "./extraction.ts";
+import { scoringRules } from "../checks/scoring-rules.ts";
 import { scoringRulesCalibration } from "../checks/scoring-calibration.ts";
 import { parseSearchSettings, type Config } from "../config.ts";
 import { createDevelopmentProfile } from "@source-taster/core";
@@ -63,10 +65,25 @@ export function measuredConfigurations(
       configurationDigest: file.digest,
       ai: port?.configuration ?? null,
       model: port?.model ?? null,
+      extractionCodeDigest: port?.codeDigest ?? null,
       unicode: process.versions.unicode,
       icu: process.versions.icu,
     };
     const id = ConfigurationId.parse(configurationDigest(identity));
+    const expected = {
+      configuration,
+      aiModel: port?.model ?? null,
+      aiConfiguration: port?.configuration ?? null,
+      extractionCodeDigest: port?.codeDigest,
+    };
+    const evidenceInput = {
+      root: entry.root,
+      loadReport: entry.loadReport,
+      configurationDigest: file.digest,
+      expected,
+      code,
+    };
+    const before = await evidenceDigest(evidenceInput);
     const release = await checkRelease({
       root: entry.root,
       code,
@@ -74,43 +91,46 @@ export function measuredConfigurations(
       configurationDigest: file.digest,
       now: clock.now(),
       runtimeCalibration: scoringRulesCalibration,
-      expected: {
-        configuration,
-        aiModel: port?.model ?? null,
-        aiConfiguration: port?.configuration ?? null,
-      },
+      expected,
     });
     const reasons = [...release.reasons];
     if (!qualifiedAi(port?.model ?? null, port?.configuration))
       reasons.push("provider-not-qualified");
-    // Bind the approval and replay receipt bytes, not their self-reported flags.
-    const evidence: unknown[] = [release];
-    for (const source of configuration.enabledSources) {
-      try {
-        evidence.push(
-          await readFile(
-            `${entry.root}/source-qualifications/${source}.json`,
-            "utf8",
-          ),
-        );
-      } catch {
-        evidence.push(null);
-      }
-    }
+    const evidence = await evidenceDigest(evidenceInput);
+    if (
+      evidence !== before ||
+      (await readConfigurationFile(entry.configuration)).digest !== file.digest
+    )
+      reasons.push("measurement-evidence-changed");
+    // Process-wide dispatch settings cannot be switched per Check or silently
+    // replaced by the currently running pool. Require deployment compatibility.
+    const deployed = parseSearchSettings(
+      process.env.SOURCE_TASTER_SEARCH_SETTINGS,
+    );
+    if (
+      searchSettings.workerConcurrency !== deployed.workerConcurrency ||
+      searchSettings.activeReferencesPerCheck !==
+        deployed.activeReferencesPerCheck
+    )
+      reasons.push("worker-settings-mismatch");
     const summary = MeasuredConfiguration.parse({
       id,
       codeVersion: code.sha,
       configurationDigest: file.digest,
-      rulesVersion: configurationDigest({
-        profile,
-        unicode: process.versions.unicode,
-        icu: process.versions.icu,
-      }),
+      rulesVersion: scoringRules(profile).version,
       model: port?.model ?? null,
       sources: configuration.enabledSources,
       eligible: reasons.length === 0,
-      reasons: [...new Set(reasons)],
-      evidenceDigest: configurationDigest(evidence),
+      reasons: [
+        ...new Set(
+          reasons.map((reason) =>
+            reason.startsWith("reference-test-set-unavailable:")
+              ? "reference-test-set-unavailable"
+              : reason,
+          ),
+        ),
+      ],
+      evidenceDigest: evidence,
       checkedAt: new Date(clock.now()).toISOString(),
     });
     return { summary, configuration, port, searchSettings, profile };

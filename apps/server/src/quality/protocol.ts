@@ -1,3 +1,5 @@
+import { AsyncLocalStorage } from "node:async_hooks";
+import type { ExtractionPort } from "../ai/port.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import type { OpenAPIHono } from "@hono/zod-openapi";
 import {
@@ -35,7 +37,9 @@ export function mountConfigurations(
       ?.match(/^Bearer ([A-Za-z0-9_.-]+)$/)?.[1];
     if (!token) fail("unauthenticated");
     const claims = verify(settings, token, body, clock.now());
-    const parsed = ConfigurationInspection.safeParse(JSON.parse(body));
+    const parsed = ConfigurationInspection.safeParse(
+      await c.req.json().catch(() => null),
+    );
     if (!parsed.success) fail("invalid-request");
     // Atomic durable replay prevention spans restarts and all web processes.
     const consumed =
@@ -59,7 +63,11 @@ export function configurationSelection(
   registry = measuredConfigurations(),
   clock = { now: Date.now },
 ) {
-  async function current(): Promise<ActiveConfiguration> {
+  const context = new AsyncLocalStorage<{
+    active: ActiveConfiguration;
+    port?: ExtractionPort;
+  }>();
+  async function available(): Promise<ActiveConfiguration> {
     const path = "/internal/configuration/active",
       body = "{}";
     try {
@@ -79,7 +87,6 @@ export function configurationSelection(
       if (text.length > 4096) throw new Error();
       const active = ActiveConfigurationResponse.parse(JSON.parse(text)).active;
       if (!active) throw new Error();
-      await validate(active);
       return active;
     } catch {
       return fail("authority-unavailable");
@@ -94,5 +101,32 @@ export function configurationSelection(
       fail("authority-unavailable");
     return found;
   }
-  return { current, validate };
+  async function current() {
+    const active = context.getStore()?.active ?? (await available());
+    const found = await validate(active);
+    return { ...active, rulesVersion: found.summary.rulesVersion };
+  }
+  return {
+    current,
+    validate,
+    available,
+    identity: () => context.getStore()?.active.id ?? "unselected",
+    extraction: () => context.getStore()?.port,
+    async scope<T>(
+      request: Request,
+      operation: () => Promise<T>,
+      stored?: ActiveConfiguration | null,
+    ) {
+      if (
+        request.method !== "POST" ||
+        !/^\/v[12]\/(?:checks$|structurings$|document-structurings$|checks\/[^/]+\/selection$)/.test(
+          new URL(request.url).pathname,
+        )
+      )
+        return operation();
+      const active = stored ?? (await available());
+      const found = await validate(active);
+      return context.run({ active, port: found.port }, operation);
+    },
+  };
 }

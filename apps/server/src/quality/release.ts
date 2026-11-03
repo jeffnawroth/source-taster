@@ -4,7 +4,10 @@
 // measurement log for exactly this code version and fixture state passes the
 // Quality gate. Targets are recomputed from the logged outcomes against the
 // private Reference test set; what a log says about itself is never trusted.
-import { sourceQualification } from "./source-qualification.ts";
+import {
+  sourceQualification,
+  providerQualification,
+} from "./source-qualification.ts";
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { z } from "zod";
@@ -58,6 +61,7 @@ const MeasurementLog = z.object({
     fixtureState: z.string(),
     datasetState: z.string(),
     codeVersion: z.object({ sha: z.string(), dirty: z.boolean() }),
+    extractionCodeDigest: z.string().nullable().optional(),
     aiModel: z.string().nullable(),
     aiConfiguration: z.unknown().optional(),
     enabledSources: z.array(z.string()),
@@ -90,6 +94,7 @@ export interface ReleaseInput {
   /** The frozen configuration being released/activated, never inferred from a log. */
   expected?: {
     configuration: GateConfiguration;
+    extractionCodeDigest?: string;
     aiModel: string | null;
     aiConfiguration: AiConfiguration | null;
   };
@@ -109,11 +114,20 @@ export async function checkRelease(
     path: input.loadReport,
     code: input.code,
     expected: input.expected && {
+      configurationDigest: input.configurationDigest,
       enabledSources: input.expected.configuration.enabledSources,
       searchSettings: input.expected.configuration.searchSettings ?? null,
     },
   });
   const codeReasons = [
+    ...(await providerQualification({
+      root: input.root,
+      configurationDigest: input.configurationDigest,
+      aiModel: input.expected?.aiModel ?? null,
+      aiConfiguration: input.expected?.aiConfiguration,
+      codeVersion: input.code.sha,
+      now: input.now,
+    })),
     ...(await sourceQualification({
       root: input.root,
       sources: input.expected?.configuration.enabledSources ?? [],
@@ -187,6 +201,7 @@ export async function checkRelease(
           comparisonParameters: log.configuration.comparisonParameters,
           searchSettings: log.configuration.searchSettings,
           calibration: log.configuration.calibration,
+          extractionCodeDigest: log.configuration.extractionCodeDigest ?? null,
           aiModel: log.configuration.aiModel,
           aiConfiguration: log.configuration.aiConfiguration ?? null,
         },
@@ -195,6 +210,7 @@ export async function checkRelease(
           comparisonParameters: wanted.configuration.comparisonParameters ?? {},
           searchSettings: wanted.configuration.searchSettings ?? null,
           calibration: wanted.configuration.calibration ?? null,
+          extractionCodeDigest: wanted.extractionCodeDigest ?? null,
           aiModel: wanted.aiModel,
           aiConfiguration: wanted.aiConfiguration,
         },

@@ -1442,6 +1442,8 @@ export declare const SetManualOverrideRequest: z.ZodObject<{
 }, z.core.$strict>;
 export type SetManualOverrideRequest = z.infer<typeof SetManualOverrideRequest>;
 export declare const HistoricalResult: z.ZodObject<{
+    measuredConfigurationId: z.ZodOptional<z.ZodString>;
+    scoringRulesVersion: z.ZodOptional<z.ZodString>;
     id: z.ZodUUID;
     revision: z.ZodNumber;
     generation: z.ZodNumber;
@@ -1977,6 +1979,8 @@ export declare const ReferenceSlot: z.ZodObject<{
         createdAt: z.ZodString;
     }, z.core.$strip>>;
     results: z.ZodArray<z.ZodObject<{
+        measuredConfigurationId: z.ZodOptional<z.ZodString>;
+        scoringRulesVersion: z.ZodOptional<z.ZodString>;
         id: z.ZodUUID;
         revision: z.ZodNumber;
         generation: z.ZodNumber;
@@ -2763,6 +2767,7 @@ export declare const ReferenceSlot: z.ZodObject<{
 }, z.core.$strip>;
 export type ReferenceSlot = z.infer<typeof ReferenceSlot>;
 export declare const Check: z.ZodObject<{
+    measuredConfigurationId: z.ZodOptional<z.ZodString>;
     id: z.ZodUUID;
     state: z.ZodEnum<{
         ended: "ended";
@@ -2937,6 +2942,8 @@ export declare const Check: z.ZodObject<{
             createdAt: z.ZodString;
         }, z.core.$strip>>;
         results: z.ZodArray<z.ZodObject<{
+            measuredConfigurationId: z.ZodOptional<z.ZodString>;
+            scoringRulesVersion: z.ZodOptional<z.ZodString>;
             id: z.ZodUUID;
             revision: z.ZodNumber;
             generation: z.ZodNumber;
@@ -3761,6 +3768,7 @@ export declare const CheckResponse: z.ZodObject<{
         status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
     data: z.ZodObject<{
+        measuredConfigurationId: z.ZodOptional<z.ZodString>;
         id: z.ZodUUID;
         state: z.ZodEnum<{
             ended: "ended";
@@ -3935,6 +3943,8 @@ export declare const CheckResponse: z.ZodObject<{
                 createdAt: z.ZodString;
             }, z.core.$strip>>;
             results: z.ZodArray<z.ZodObject<{
+                measuredConfigurationId: z.ZodOptional<z.ZodString>;
+                scoringRulesVersion: z.ZodOptional<z.ZodString>;
                 id: z.ZodUUID;
                 revision: z.ZodNumber;
                 generation: z.ZodNumber;
@@ -4954,6 +4964,8 @@ export declare const ReferenceUpdatedEvent: z.ZodObject<{
             createdAt: z.ZodString;
         }, z.core.$strip>>>;
         results: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            measuredConfigurationId: z.ZodOptional<z.ZodString>;
+            scoringRulesVersion: z.ZodOptional<z.ZodString>;
             id: z.ZodUUID;
             revision: z.ZodNumber;
             generation: z.ZodNumber;
@@ -5908,6 +5920,8 @@ export declare const CheckEvent: z.ZodDiscriminatedUnion<[z.ZodObject<{
             createdAt: z.ZodString;
         }, z.core.$strip>>>;
         results: z.ZodOptional<z.ZodArray<z.ZodObject<{
+            measuredConfigurationId: z.ZodOptional<z.ZodString>;
+            scoringRulesVersion: z.ZodOptional<z.ZodString>;
             id: z.ZodUUID;
             revision: z.ZodNumber;
             generation: z.ZodNumber;

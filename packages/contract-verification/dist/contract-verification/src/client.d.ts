@@ -64,6 +64,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
             authorsTruncated?: boolean | undefined;
         }[];
     }) => Promise<{
+        measuredConfigurationId?: string | undefined;
         id: string;
         state: "ended" | "running";
         lastEventSeq: number;
@@ -211,6 +212,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
         }[];
     }>;
     cancelCheck: (checkId: string) => Promise<{
+        measuredConfigurationId?: string | undefined;
         id: string;
         state: "ended" | "running";
         lastEventSeq: number;
@@ -358,6 +360,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
         }[];
     }>;
     renewCheckLease: (checkId: string) => Promise<{
+        measuredConfigurationId?: string | undefined;
         id: string;
         state: "ended" | "running";
         lastEventSeq: number;
@@ -505,6 +508,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
         }[];
     }>;
     getCheck: (checkId: string) => Promise<{
+        measuredConfigurationId?: string | undefined;
         id: string;
         state: "ended" | "running";
         lastEventSeq: number;

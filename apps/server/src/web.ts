@@ -29,11 +29,12 @@ await runMain(async (config) => {
   const db = createPrisma(config.databaseUrl);
   const boss = await createQueue(config.databaseUrl);
   const events = await listenForEvents(config.databaseUrl);
+  const selection =
+    config.mode === "hosted" && config.hosted
+      ? configurationSelection(config.hosted)
+      : undefined;
   const checks = createCheckStore(db, boss, {
-    configuration:
-      config.mode === "hosted" && config.hosted
-        ? configurationSelection(config.hosted)
-        : undefined,
+    configuration: selection,
     settings: {
       contentRetentionMs: config.contentRetentionMs,
       clientLeaseMs: config.clientLeaseMs,
@@ -79,7 +80,8 @@ await runMain(async (config) => {
   const app = createApp({
     entrance,
     structuring: createParser({ referenceLimit: config.referenceLimit }),
-    extraction: await activeExtraction(),
+    extraction: selection ? undefined : await activeExtraction(),
+    configuration: selection,
     events,
     heartbeatMs: config.sseHeartbeatMs,
     referenceLimit: config.referenceLimit,

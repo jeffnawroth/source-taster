@@ -134,6 +134,7 @@ export declare const createCheck: {
                 "application/json": {
                     schema: z.ZodObject<{
                         data: z.ZodObject<{
+                            measuredConfigurationId: z.ZodOptional<z.ZodString>;
                             id: z.ZodUUID;
                             state: z.ZodEnum<{
                                 ended: "ended";
@@ -510,6 +511,7 @@ export declare const getCheck: {
                 "application/json": {
                     schema: z.ZodObject<{
                         data: z.ZodObject<{
+                            measuredConfigurationId: z.ZodOptional<z.ZodString>;
                             id: z.ZodUUID;
                             state: z.ZodEnum<{
                                 ended: "ended";
@@ -1239,6 +1241,7 @@ export declare const cancelCheck: {
                 "application/json": {
                     schema: z.ZodObject<{
                         data: z.ZodObject<{
+                            measuredConfigurationId: z.ZodOptional<z.ZodString>;
                             id: z.ZodUUID;
                             state: z.ZodEnum<{
                                 ended: "ended";
@@ -1634,6 +1637,7 @@ export declare const renewCheckLease: {
                 "application/json": {
                     schema: z.ZodObject<{
                         data: z.ZodObject<{
+                            measuredConfigurationId: z.ZodOptional<z.ZodString>;
                             id: z.ZodUUID;
                             state: z.ZodEnum<{
                                 ended: "ended";

@@ -436,6 +436,7 @@ export declare const CheckState: z.ZodEnum<{
 export type CheckState = z.infer<typeof CheckState>;
 export declare const CheckId: z.ZodUUID;
 export declare const Check: z.ZodObject<{
+    measuredConfigurationId: z.ZodOptional<z.ZodString>;
     id: z.ZodUUID;
     state: z.ZodEnum<{
         ended: "ended";
@@ -657,6 +658,7 @@ export declare const Check: z.ZodObject<{
 export type Check = z.infer<typeof Check>;
 export declare const CheckResponse: z.ZodObject<{
     data: z.ZodObject<{
+        measuredConfigurationId: z.ZodOptional<z.ZodString>;
         id: z.ZodUUID;
         state: z.ZodEnum<{
             ended: "ended";

@@ -61,6 +61,9 @@
       "Check": {
         "type": "object",
         "properties": {
+          "measuredConfigurationId": {
+            "type": "string"
+          },
           "id": {
             "type": "string",
             "format": "uuid"

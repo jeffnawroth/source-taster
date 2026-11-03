@@ -3,6 +3,7 @@
 // Scoring rules calibration from the code, recomputes every target from the
 // logged outcomes and the private Reference test set, and never trusts what a
 // measurement log says about itself. Synthetic, generated population only.
+import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import {
   mkdir,
@@ -33,7 +34,12 @@ beforeEach(async () => {
   calibratedCode.loadReport = join(root, "load-report.json");
   await writeFile(
     calibratedCode.loadReport,
-    JSON.stringify(passingReport({ enabledSources: [] })),
+    JSON.stringify(
+      passingReport({
+        enabledSources: [],
+        reviewedConfiguration: { digest: `sha256:${"d".repeat(64)}` },
+      }),
+    ),
   );
 });
 afterEach(async () => {
@@ -66,6 +72,33 @@ async function writeMeasured(
     logDirty?: boolean;
   } = {},
 ) {
+  // Controlled source-only evidence for validator regressions; no qualification.
+  const approvalBytes = Buffer.from(
+    "CONTROLLED TEST ONLY: no real provider approval",
+  );
+  const approvalDigest = `sha256:${createHash("sha256").update(approvalBytes).digest("hex")}`;
+  await mkdir(join(root, "qualification-artifacts"), { recursive: true });
+  await writeFile(
+    join(root, "qualification-artifacts", approvalDigest.slice(7)),
+    approvalBytes,
+  );
+  await mkdir(join(root, "qualifications", "d".repeat(64)), {
+    recursive: true,
+  });
+  await writeFile(
+    join(root, "qualifications", "d".repeat(64), "provider-approval.json"),
+    JSON.stringify({
+      format: "source-taster-provider-approval/1",
+      configurationDigest: `sha256:${"d".repeat(64)}`,
+      aiConfigurationDigest: `sha256:${createHash("sha256").update(JSON.stringify(syntheticAiConfiguration)).digest("hex")}`,
+      codeVersion: sha,
+      reviewedBy: "controlled-test-only",
+      contractRecord: approvalDigest,
+      processingAndStorage: "EU-only",
+      retention: "zero",
+      expiresAt: "2099-01-01T00:00:00.000Z",
+    }),
+  );
   const directory = join(root, "reference-test-set");
   await mkdir(directory, { recursive: true });
   await writeFile(
@@ -149,6 +182,7 @@ async function writeMeasured(
 }
 const calibratedCode = {
   loadReport: undefined as string | undefined,
+  configurationDigest: `sha256:${"d".repeat(64)}`,
   code: { sha, dirty: false },
   runtimeCalibration: "synthetic-calibrated",
   expected: {
@@ -235,7 +269,7 @@ it("refuses without a private measurement location", async () => {
   const result = await checkRelease({ root: undefined, ...calibratedCode });
   expect(result).toEqual({
     releasable: false,
-    reasons: ["no-measurement-location"],
+    reasons: ["provider-approval-missing", "no-measurement-location"],
   });
 });
 
@@ -444,5 +478,103 @@ it("refuses source activation without #138/#140/#136 rights and approved recordi
     });
     expect(result.releasable).toBe(false);
     expect(result.reasons).toContain(`source-qualification-missing:${source}`);
+  }
+});
+
+it("requires current provider approval beyond an adapter's EU and zero-retention declaration", async () => {
+  await writeMeasured();
+  await rm(
+    join(root, "qualifications", "d".repeat(64), "provider-approval.json"),
+    { force: true },
+  );
+  const result = await checkRelease({ root, ...calibratedCode });
+  expect(result.releasable).toBe(false);
+  expect(result.reasons).toContain("provider-approval-missing");
+});
+
+it("rejects self-reported source replay success without the actual approved recording and API-result artifacts", async () => {
+  await writeMeasured();
+  const directory = join(root, "qualifications", "d".repeat(64));
+  for (const source of [
+    "openlibrary",
+    "googlebooks",
+    "url",
+    "internetarchive",
+    "semanticscholar",
+  ] as const) {
+    await writeFile(
+      join(directory, `${source}.json`),
+      JSON.stringify({
+        format: "source-taster-source-qualification/1",
+        source,
+        codeVersion: sha,
+        configurationDigest: calibratedCode.configurationDigest,
+        reviewedBy: "controlled-test-only",
+        rightsRecord: `sha256:${"1".repeat(64)}`,
+        serviceUse: "approved",
+        storage: "approved",
+        expiresAt: "2099-01-01T00:00:00.000Z",
+        replay: {
+          provenance: "rights-cleared-private-recordings",
+          recordings: `sha256:${"2".repeat(64)}`,
+          report: `sha256:${"3".repeat(64)}`,
+          adapterVersion: "controlled-test-only",
+          cases: [
+            "isbn",
+            "bibliographic-search",
+            "original-page",
+            "availability",
+            "capture",
+            "batch",
+            "search",
+          ].map((kind) => ({
+            kind,
+            requests: 1,
+            matched: 1,
+            schemaErrors: 0,
+            identityErrors: 0,
+          })),
+        },
+      }),
+    );
+    const result = await checkRelease({
+      root,
+      ...calibratedCode,
+      expected: {
+        ...calibratedCode.expected,
+        configuration: {
+          ...calibratedCode.expected.configuration,
+          enabledSources: [source],
+        },
+      },
+    });
+    expect(result.releasable).toBe(false);
+    expect(result.reasons).toContain(`source-qualification-invalid:${source}`);
+  }
+});
+
+it("refuses withdrawn, expired, mismatched and invented provider approval artifacts", async () => {
+  await writeMeasured();
+  const path = join(
+    root,
+    "qualifications",
+    "d".repeat(64),
+    "provider-approval.json",
+  );
+  const original = JSON.parse(await readFile(path, "utf8")) as Record<
+    string,
+    unknown
+  >;
+  for (const change of [
+    { expiresAt: "2000-01-01T00:00:00.000Z" },
+    { codeVersion: "b".repeat(40) },
+    { configurationDigest: `sha256:${"a".repeat(64)}` },
+    { contractRecord: `sha256:${"e".repeat(64)}` },
+    { processingAndStorage: "US" },
+  ]) {
+    await writeFile(path, JSON.stringify({ ...original, ...change }));
+    expect((await checkRelease({ root, ...calibratedCode })).reasons).toContain(
+      "provider-approval-invalid",
+    );
   }
 });

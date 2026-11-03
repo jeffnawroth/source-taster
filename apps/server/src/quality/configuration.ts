@@ -113,8 +113,12 @@ export async function resolveConfiguration(
 
 /** Imports an operator-provided AI extraction adapter (the ExtractionPort). */
 export async function loadExtraction(module: string): Promise<ExtractionPort> {
+  const bytes = await readFile(resolve(module));
+  const codeDigest = `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
   const port = (
-    (await import(pathToFileURL(resolve(module)).href)) as { default?: unknown }
+    (await import(
+      `${pathToFileURL(resolve(module)).href}?digest=${codeDigest}`
+    )) as { default?: unknown }
   ).default as Partial<ExtractionPort> | undefined;
   if (
     !port ||
@@ -132,5 +136,7 @@ export async function loadExtraction(module: string): Promise<ExtractionPort> {
         `${module}: AI configuration is invalid; supply the exact ADR-0010 identity and EU-only, zero-retention qualification declaration.`,
       );
   }
-  return port as ExtractionPort;
+  if (!(await readFile(resolve(module))).equals(bytes))
+    throw new Error("Extraction adapter changed during load");
+  return { ...port, codeDigest } as ExtractionPort;
 }

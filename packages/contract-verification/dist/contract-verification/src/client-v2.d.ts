@@ -5,6 +5,7 @@ export { ApiError, CheckStreamError, readSseFrames, type CredentialSupplier, typ
 export type WatchCheckOptions = WatchOptions<CheckEvent>;
 export declare function verificationClient(options?: VerificationClientOptions): {
     cancelCheck: (checkId: string) => Promise<{
+        measuredConfigurationId?: string | undefined;
         id: string;
         state: "ended" | "running";
         lastEventSeq: number;
@@ -157,6 +158,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 createdAt: string;
             }[];
             results: {
+                measuredConfigurationId?: string | undefined;
+                scoringRulesVersion?: string | undefined;
                 id: string;
                 revision: number;
                 generation: number;
@@ -620,6 +623,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
         }[];
     }>;
     renewCheckLease: (checkId: string) => Promise<{
+        measuredConfigurationId?: string | undefined;
         id: string;
         state: "ended" | "running";
         lastEventSeq: number;
@@ -772,6 +776,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 createdAt: string;
             }[];
             results: {
+                measuredConfigurationId?: string | undefined;
+                scoringRulesVersion?: string | undefined;
                 id: string;
                 revision: number;
                 generation: number;
@@ -1235,6 +1241,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
         }[];
     }>;
     getCheck: (checkId: string) => Promise<{
+        measuredConfigurationId?: string | undefined;
         id: string;
         state: "ended" | "running";
         lastEventSeq: number;
@@ -1387,6 +1394,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 createdAt: string;
             }[];
             results: {
+                measuredConfigurationId?: string | undefined;
+                scoringRulesVersion?: string | undefined;
                 id: string;
                 revision: number;
                 generation: number;
@@ -1944,6 +1953,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
         }[];
     }>;
     restartHistory: (id: string, maxReferences?: number) => Promise<{
+        measuredConfigurationId?: string | undefined;
         id: string;
         state: "ended" | "running";
         lastEventSeq: number;
@@ -2096,6 +2106,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 createdAt: string;
             }[];
             results: {
+                measuredConfigurationId?: string | undefined;
+                scoringRulesVersion?: string | undefined;
                 id: string;
                 revision: number;
                 generation: number;
@@ -2562,6 +2574,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
     createCheck: (input: string | CreateCheckRequest, choice?: {
         maxReferences?: number;
     }) => Promise<{
+        measuredConfigurationId?: string | undefined;
         id: string;
         state: "ended" | "running";
         lastEventSeq: number;
@@ -2714,6 +2727,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 createdAt: string;
             }[];
             results: {
+                measuredConfigurationId?: string | undefined;
+                scoringRulesVersion?: string | undefined;
                 id: string;
                 revision: number;
                 generation: number;
@@ -3204,6 +3219,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
         status: "unavailable";
     } | null>;
     setManualOverride: (id: string, slot: number, input: SetManualOverrideRequest) => Promise<{
+        measuredConfigurationId?: string | undefined;
         id: string;
         state: "ended" | "running";
         lastEventSeq: number;
@@ -3356,6 +3372,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 createdAt: string;
             }[];
             results: {
+                measuredConfigurationId?: string | undefined;
+                scoringRulesVersion?: string | undefined;
                 id: string;
                 revision: number;
                 generation: number;
@@ -3927,6 +3945,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
         referenceLimit: number;
     }>;
     editSelection: (checkId: string, input: EditSelectionRequest) => Promise<{
+        measuredConfigurationId?: string | undefined;
         id: string;
         state: "ended" | "running";
         lastEventSeq: number;
@@ -4079,6 +4098,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 createdAt: string;
             }[];
             results: {
+                measuredConfigurationId?: string | undefined;
+                scoringRulesVersion?: string | undefined;
                 id: string;
                 revision: number;
                 generation: number;
@@ -4749,6 +4770,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
         }[];
     }>;
     saveFields: (id: string, slot: number, input: SaveFieldsRequest) => Promise<{
+        measuredConfigurationId?: string | undefined;
         id: string;
         state: "ended" | "running";
         lastEventSeq: number;
@@ -4901,6 +4923,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 createdAt: string;
             }[];
             results: {
+                measuredConfigurationId?: string | undefined;
+                scoringRulesVersion?: string | undefined;
                 id: string;
                 revision: number;
                 generation: number;
@@ -5364,6 +5388,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
         }[];
     }>;
     recheckReference: (id: string, slot: number, input: RecheckRequest) => Promise<{
+        measuredConfigurationId?: string | undefined;
         id: string;
         state: "ended" | "running";
         lastEventSeq: number;
@@ -5516,6 +5541,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 createdAt: string;
             }[];
             results: {
+                measuredConfigurationId?: string | undefined;
+                scoringRulesVersion?: string | undefined;
                 id: string;
                 revision: number;
                 generation: number;
@@ -5979,6 +6006,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
         }[];
     }>;
     editReferenceList: (id: string, input: EditReferenceListRequest) => Promise<{
+        measuredConfigurationId?: string | undefined;
         id: string;
         state: "ended" | "running";
         lastEventSeq: number;
@@ -6131,6 +6159,8 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 createdAt: string;
             }[];
             results: {
+                measuredConfigurationId?: string | undefined;
+                scoringRulesVersion?: string | undefined;
                 id: string;
                 revision: number;
                 generation: number;
