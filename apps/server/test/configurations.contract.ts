@@ -5,7 +5,7 @@ import {
 } from "@source-taster/contract-internal";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Actual programs and real owned PostgreSQL. No qualified/activated production state.
-import { mkdtemp, writeFile, rm } from "node:fs/promises";
+import { mkdtemp, writeFile, mkdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createHash, randomUUID, sign, createPrivateKey } from "node:crypto";
@@ -28,7 +28,10 @@ test("two programs expose truthful missing gates and refuse forged, stale, repla
       ],
     }),
   );
-  await writeFile(registry, JSON.stringify([{ configuration: file }]));
+  await writeFile(
+    registry,
+    JSON.stringify([{ configuration: file, root: directory }]),
+  );
   const both = await bothPrograms({
     accounts: true,
     startWorker: false,
@@ -97,12 +100,35 @@ test("two programs expose truthful missing gates and refuse forged, stale, repla
       expect.arrayContaining([
         "uncalibrated",
         "no-load-report",
-        "no-measurement-location",
+        "reference-test-set-unavailable",
         ...config.sources.map(
           (s: string) => `source-qualification-missing:${s}`,
         ),
       ]),
     );
+    // Unrelated configuration approvals/logs neither change this identity nor
+    // invalidate its evidence binding. Private paths never cross the protocol.
+    expect(config.reasons.join(" ")).not.toContain(directory);
+    await mkdir(join(directory, "qualifications", "unrelated"), {
+      recursive: true,
+    });
+    await writeFile(
+      join(directory, "qualifications", "unrelated", "provider-approval.json"),
+      JSON.stringify({ controlled: "unrelated" }),
+    );
+    const refreshed = z
+      .object({
+        data: z.object({
+          configurations: ConfigurationInspectionResponse.shape.configurations,
+        }),
+      })
+      .parse(
+        await (
+          await call("/v1/operator/configurations", undefined, cookie)
+        ).json(),
+      ).data.configurations[0]!;
+    expect(refreshed.id).toBe(config.id);
+    expect(refreshed.evidenceDigest).toBe(config.evidenceDigest);
     const command = {
       operationId: randomUUID(),
       accountId: operator.data.accountId,

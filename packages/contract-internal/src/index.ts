@@ -264,6 +264,16 @@ export type AbuseDecision = z.infer<typeof AbuseDecision>;
  * measurement outcomes, Check text or provider secrets cross this interface. */
 export const ConfigurationId = z.string().regex(/^sha256:[a-f0-9]{64}$/);
 export const MeasuredConfiguration = z.strictObject({
+  provider: z
+    .strictObject({
+      path: z.string(),
+      region: z.string(),
+      countries: z.array(z.string()),
+      zeroRetention: z.boolean(),
+    })
+    .nullable(),
+  comparisonParameters: z.record(z.string(), z.number()),
+  searchSettings: z.record(z.string(), z.unknown()),
   id: ConfigurationId,
   codeVersion: z.string().regex(/^[a-f0-9]{40}$/),
   configurationDigest: ConfigurationId,

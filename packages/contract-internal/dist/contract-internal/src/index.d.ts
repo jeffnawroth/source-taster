@@ -426,6 +426,14 @@ export type AbuseDecision = z.infer<typeof AbuseDecision>;
  * measurement outcomes, Check text or provider secrets cross this interface. */
 export declare const ConfigurationId: z.ZodString;
 export declare const MeasuredConfiguration: z.ZodObject<{
+    provider: z.ZodNullable<z.ZodObject<{
+        path: z.ZodString;
+        region: z.ZodString;
+        countries: z.ZodArray<z.ZodString>;
+        zeroRetention: z.ZodBoolean;
+    }, z.core.$strict>>;
+    comparisonParameters: z.ZodRecord<z.ZodString, z.ZodNumber>;
+    searchSettings: z.ZodRecord<z.ZodString, z.ZodUnknown>;
     id: z.ZodString;
     codeVersion: z.ZodString;
     configurationDigest: z.ZodString;
@@ -446,6 +454,14 @@ export declare const ConfigurationInspection: z.ZodDiscriminatedUnion<[z.ZodObje
 }, z.core.$strict>], "action">;
 export declare const ConfigurationInspectionResponse: z.ZodObject<{
     configurations: z.ZodArray<z.ZodObject<{
+        provider: z.ZodNullable<z.ZodObject<{
+            path: z.ZodString;
+            region: z.ZodString;
+            countries: z.ZodArray<z.ZodString>;
+            zeroRetention: z.ZodBoolean;
+        }, z.core.$strict>>;
+        comparisonParameters: z.ZodRecord<z.ZodString, z.ZodNumber>;
+        searchSettings: z.ZodRecord<z.ZodString, z.ZodUnknown>;
         id: z.ZodString;
         codeVersion: z.ZodString;
         configurationDigest: z.ZodString;

@@ -94,6 +94,12 @@ export function measuredConfigurations(
       expected,
     });
     const reasons = [...release.reasons];
+    if (
+      process.env.SOURCE_TASTER_DOI_PREVIEW !== "uncalibrated" ||
+      (configuration.enabledSources.length > 0 &&
+        process.env.SOURCE_TASTER_BIBLIOGRAPHIC_PREVIEW !== "uncalibrated")
+    )
+      reasons.push("runtime-route-unavailable");
     if (!qualifiedAi(port?.model ?? null, port?.configuration))
       reasons.push("provider-not-qualified");
     const evidence = await evidenceDigest(evidenceInput);
@@ -113,7 +119,18 @@ export function measuredConfigurations(
         deployed.activeReferencesPerCheck
     )
       reasons.push("worker-settings-mismatch");
+    const ai = port?.configuration;
     const summary = MeasuredConfiguration.parse({
+      provider: ai
+        ? {
+            path: ai.providerPath,
+            region: ai.region,
+            countries: ai.processingAndStorageCountries,
+            zeroRetention: ai.zeroRetention,
+          }
+        : null,
+      comparisonParameters: profile,
+      searchSettings,
       id,
       codeVersion: code.sha,
       configurationDigest: file.digest,
