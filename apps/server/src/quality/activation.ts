@@ -14,6 +14,7 @@ import {
   loadExtraction,
   readConfigurationFile,
   resolveConfiguration,
+  measuredConfigurationId,
 } from "./configuration.ts";
 import { evidenceDigest } from "./evidence.ts";
 import { qualifiedAi } from "./extraction.ts";
@@ -59,17 +60,16 @@ export function measuredConfigurations(
     const profile = createDevelopmentProfile(
       configuration.comparisonParameters ?? {},
     );
-    const identity = {
-      code,
-      configuration,
-      configurationDigest: file.digest,
-      ai: port?.configuration ?? null,
-      model: port?.model ?? null,
-      extractionCodeDigest: port?.codeDigest ?? null,
-      unicode: process.versions.unicode,
-      icu: process.versions.icu,
-    };
-    const id = ConfigurationId.parse(configurationDigest(identity));
+    const id = ConfigurationId.parse(
+      measuredConfigurationId(
+        code,
+        file.digest,
+        configuration,
+        port?.model ?? null,
+        port?.configuration ?? null,
+        port?.codeDigest ?? null,
+      ),
+    );
     const expected = {
       configuration,
       aiModel: port?.model ?? null,
@@ -186,19 +186,23 @@ export function measuredConfigurations(
         }),
       );
     },
-    async resolve(id: string) {
+    async resolve(id: string, evidenceDigest?: string) {
       for (const entry of await load()) {
         try {
           const found = await inspect(entry);
-          if (found.summary.id === id) return found;
+          if (
+            found.summary.id === id &&
+            (!evidenceDigest || found.summary.evidenceDigest === evidenceDigest)
+          )
+            return found;
         } catch {
           /* An unrelated invalid deployment entry cannot revoke this configuration. */
         }
       }
       throw new Error("unknown-measured-configuration");
     },
-    async executable(id: string, config: Config) {
-      const found = await this.resolve(id);
+    async executable(id: string, config: Config, evidenceDigest?: string) {
+      const found = await this.resolve(id, evidenceDigest);
       if (!found.summary.eligible) throw new Error("configuration-ineligible");
       const active: Config = {
         ...config,

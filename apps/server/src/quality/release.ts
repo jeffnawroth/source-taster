@@ -8,6 +8,7 @@ import {
   sourceQualification,
   providerQualification,
 } from "./source-qualification.ts";
+import { measuredConfigurationId } from "./configuration.ts";
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { z } from "zod";
@@ -119,10 +120,22 @@ export async function checkRelease(
       searchSettings: input.expected.configuration.searchSettings ?? null,
     },
   });
+  const configurationId =
+    input.expected && input.configurationDigest
+      ? measuredConfigurationId(
+          input.code,
+          input.configurationDigest,
+          input.expected.configuration,
+          input.expected.aiModel,
+          input.expected.aiConfiguration,
+          input.expected.extractionCodeDigest ?? null,
+        )
+      : undefined;
   const codeReasons = [
     ...(await providerQualification({
       root: input.root,
       configurationDigest: input.configurationDigest,
+      configurationId,
       aiModel: input.expected?.aiModel ?? null,
       aiConfiguration: input.expected?.aiConfiguration,
       codeVersion: input.code.sha,
@@ -130,6 +143,8 @@ export async function checkRelease(
     })),
     ...(await sourceQualification({
       root: input.root,
+      configurationId,
+      comparisonParameters: input.expected?.configuration.comparisonParameters,
       sources: input.expected?.configuration.enabledSources ?? [],
       codeVersion: input.code.sha,
       configurationDigest: input.configurationDigest,

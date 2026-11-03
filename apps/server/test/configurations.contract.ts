@@ -134,10 +134,20 @@ test("two programs expose truthful missing gates and refuse forged, stale, repla
       invalidFile,
       JSON.stringify({ enabledSources: [], passed: true }),
     );
+    const alternate = join(directory, "alternate-evidence");
+    await mkdir(join(alternate, "reference-test-set"), { recursive: true });
+    await writeFile(
+      join(alternate, "reference-test-set", "manifest.json"),
+      JSON.stringify({
+        kind: "reference-test-set",
+        version: "controlled-other-version",
+      }),
+    );
     await writeFile(
       registry,
       JSON.stringify([
         { configuration: invalidFile, root: directory },
+        { configuration: file, root: alternate },
         { configuration: file, root: directory },
       ]),
     );
@@ -154,10 +164,12 @@ test("two programs expose truthful missing gates and refuse forged, stale, repla
         }),
       })
       .parse(await isolated.json()).data.configurations;
-    expect(isolatedConfigs).toHaveLength(2);
+    expect(isolatedConfigs).toHaveLength(3);
     expect(isolatedConfigs[0]!.eligible).toBe(false);
     expect(isolatedConfigs[0]!.reasons).toContain("configuration-invalid");
     expect(isolatedConfigs[1]!.id).toBe(config.id);
+    expect(isolatedConfigs[1]!.evidenceDigest).not.toBe(config.evidenceDigest);
+    expect(isolatedConfigs[2]!.id).toBe(config.id);
     const command = {
       operationId: randomUUID(),
       accountId: operator.data.accountId,
@@ -195,7 +207,11 @@ test("two programs expose truthful missing gates and refuse forged, stale, repla
         }),
       });
     expect((await request()).status).toBe(503); // no active configuration, no silent default
-    const body = JSON.stringify({ action: "list" }),
+    const body = JSON.stringify({
+        action: "validate",
+        id: config.id,
+        evidenceDigest: config.evidenceDigest,
+      }),
       path = "/internal/configuration/inspect",
       iat = Math.floor(both.now() / 1000);
     const header = Buffer.from(
@@ -234,7 +250,12 @@ test("two programs expose truthful missing gates and refuse forged, stale, repla
       (await inspect(JSON.stringify({ action: "validate", id: config.id })))
         .status,
     ).toBe(401);
-    expect((await inspect()).status).toBe(200);
+    const matching = await inspect();
+    expect(matching.status).toBe(200);
+    expect(
+      ConfigurationInspectionResponse.parse(await matching.json())
+        .configurations[0]!.evidenceDigest,
+    ).toBe(config.evidenceDigest);
     expect((await inspect()).status).toBe(401);
     await both.restartWeb();
     expect((await inspect()).status).toBe(401);

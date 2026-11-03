@@ -288,7 +288,11 @@ export const MeasuredConfiguration = z.strictObject({
 export type MeasuredConfiguration = z.infer<typeof MeasuredConfiguration>;
 export const ConfigurationInspection = z.discriminatedUnion("action", [
   z.strictObject({ action: z.literal("list") }),
-  z.strictObject({ action: z.literal("validate"), id: ConfigurationId }),
+  z.strictObject({
+    action: z.literal("validate"),
+    id: ConfigurationId,
+    evidenceDigest: ConfigurationId,
+  }),
 ]);
 export const ConfigurationInspectionResponse = z.strictObject({
   configurations: z.array(MeasuredConfiguration).max(100),

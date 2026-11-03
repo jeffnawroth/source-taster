@@ -52,7 +52,14 @@ export function mountConfigurations(
       const configurations =
         parsed.data.action === "list"
           ? await registry.list()
-          : [(await registry.resolve(parsed.data.id)).summary];
+          : [
+              (
+                await registry.resolve(
+                  parsed.data.id,
+                  parsed.data.evidenceDigest,
+                )
+              ).summary,
+            ];
       return c.json(ConfigurationInspectionResponse.parse({ configurations }));
     } catch {
       return c.json({ code: "configuration-unavailable" }, 503);
@@ -105,7 +112,7 @@ export function configurationSelection(
   }
   async function validate(active: ActiveConfiguration) {
     try {
-      const found = await registry.resolve(active.id);
+      const found = await registry.resolve(active.id, active.evidenceDigest);
       if (
         !found.summary.eligible ||
         found.summary.evidenceDigest !== active.evidenceDigest

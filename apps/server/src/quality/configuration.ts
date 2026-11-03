@@ -140,3 +140,28 @@ export async function loadExtraction(module: string): Promise<ExtractionPort> {
     throw new Error("Extraction adapter changed during load");
   return { ...port, codeDigest } as ExtractionPort;
 }
+
+/** Complete immutable identity shared by measurement eligibility and activation. */
+export function measuredConfigurationId(
+  code: { sha: string; dirty: boolean },
+  configurationDigest: string,
+  configuration: GateConfiguration,
+  aiModel: string | null,
+  aiConfiguration: AiConfiguration | null,
+  extractionCodeDigest: string | null = null,
+) {
+  return `sha256:${createHash("sha256")
+    .update(
+      JSON.stringify({
+        code,
+        configuration,
+        configurationDigest,
+        ai: aiConfiguration,
+        model: aiModel,
+        extractionCodeDigest,
+        unicode: process.versions.unicode,
+        icu: process.versions.icu,
+      }),
+    )
+    .digest("hex")}`;
+}

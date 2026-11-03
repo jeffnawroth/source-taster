@@ -3,7 +3,9 @@
 // an Operator command, adapter declaration or public synthetic fixture.
 import { createHash } from "node:crypto";
 import { ReferenceOutcome } from "@source-taster/contract-verification/v2";
-import { normalizeIsbn } from "@source-taster/core";
+import { isDeepStrictEqual } from "node:util";
+import { scoringRules } from "../checks/scoring-rules.ts";
+import { createDevelopmentProfile, normalizeIsbn } from "@source-taster/core";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { z } from "zod";
@@ -22,6 +24,7 @@ const Receipt = z.strictObject({
   source: z.string(),
   codeVersion: z.string(),
   configurationDigest: digest,
+  measuredConfigurationId: digest,
   reviewedBy: z.string().min(1),
   rightsRecord: digest,
   serviceUse: z.literal("approved"),
@@ -74,6 +77,7 @@ const ReplayReport = z.strictObject({
   source: z.string(),
   codeVersion: z.string(),
   configurationDigest: digest,
+  measuredConfigurationId: digest,
   recordings: digest,
   cases: z
     .array(
@@ -106,7 +110,11 @@ const ApprovedRecordings = z.strictObject({
     )
     .min(1),
 });
-async function replayMatches(root: string, receipt: z.infer<typeof Receipt>) {
+async function replayMatches(
+  root: string,
+  receipt: z.infer<typeof Receipt>,
+  parameters?: Record<string, number>,
+) {
   // Approval and recording bytes must still exist and retain their approved hash.
   await qualificationArtifact(root, receipt.rightsRecord);
   const recordings = ApprovedRecordings.parse(
@@ -132,6 +140,7 @@ async function replayMatches(root: string, receipt: z.infer<typeof Receipt>) {
     report.source !== receipt.source ||
     report.codeVersion !== receipt.codeVersion ||
     report.configurationDigest !== receipt.configurationDigest ||
+    report.measuredConfigurationId !== receipt.measuredConfigurationId ||
     report.recordings !== receipt.replay.recordings
   )
     return false;
@@ -151,6 +160,15 @@ async function replayMatches(root: string, receipt: z.infer<typeof Receipt>) {
         outcome.kind !== "verdict" ||
         !["correct", "exists-with-deviations"].includes(outcome.verdict) ||
         outcome.failedSources.length
+      )
+        return false;
+      const rules = scoringRules(createDevelopmentProfile(parameters ?? {}));
+      if (
+        !isDeepStrictEqual(outcome.scoringRules.profile, rules.profile) ||
+        (outcome.scoringRules.version !== rules.version &&
+          !outcome.scoringRules.version.startsWith(`${rules.version}-`)) ||
+        outcome.scoringRules.unicode !== rules.unicode ||
+        outcome.scoringRules.icu !== rules.icu
       )
         return false;
       if (["original-page", "availability", "capture"].includes(kind)) {
@@ -200,6 +218,8 @@ async function replayMatches(root: string, receipt: z.infer<typeof Receipt>) {
 export async function sourceQualification(input: {
   root?: string;
   sources: string[];
+  configurationId?: string;
+  comparisonParameters?: Record<string, number>;
   codeVersion: string;
   configurationDigest?: string;
   now?: number;
@@ -230,7 +250,12 @@ export async function sourceQualification(input: {
     const receipt = parsed.data;
     let replayValid = false;
     try {
-      if (input.root) replayValid = await replayMatches(input.root, receipt);
+      if (input.root)
+        replayValid = await replayMatches(
+          input.root,
+          receipt,
+          input.comparisonParameters,
+        );
     } catch {
       /* Missing, synthetic, malformed or mismatched evidence refuses. */
     }
@@ -238,6 +263,8 @@ export async function sourceQualification(input: {
       !replayValid ||
       !input.root ||
       !input.configurationDigest ||
+      !input.configurationId ||
+      receipt.measuredConfigurationId !== input.configurationId ||
       receipt.source !== source ||
       receipt.codeVersion !== input.codeVersion ||
       receipt.configurationDigest !== input.configurationDigest ||
@@ -260,6 +287,7 @@ export async function sourceQualification(input: {
 const ProviderApproval = z.strictObject({
   format: z.literal("source-taster-provider-approval/1"),
   configurationDigest: digest,
+  measuredConfigurationId: digest,
   aiConfigurationDigest: digest,
   codeVersion: z.string(),
   reviewedBy: z.string().min(1),
@@ -271,6 +299,7 @@ const ProviderApproval = z.strictObject({
 export async function providerQualification(input: {
   root?: string;
   configurationDigest?: string;
+  configurationId?: string;
   aiModel: string | null;
   aiConfiguration: unknown;
   codeVersion: string;
@@ -301,7 +330,9 @@ export async function providerQualification(input: {
     return ["provider-approval-invalid"];
   }
   const aiDigest = `sha256:${createHash("sha256").update(JSON.stringify(input.aiConfiguration)).digest("hex")}`;
-  return approval.configurationDigest !== input.configurationDigest ||
+  return !input.configurationId ||
+    approval.measuredConfigurationId !== input.configurationId ||
+    approval.configurationDigest !== input.configurationDigest ||
     approval.aiConfigurationDigest !== aiDigest ||
     approval.codeVersion !== input.codeVersion ||
     Date.parse(approval.expiresAt) <= (input.now ?? Date.now())

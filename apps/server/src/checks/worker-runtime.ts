@@ -169,7 +169,11 @@ export async function startWorkerRuntime(
           signal: abort.signal,
         });
         const execution = attempt.measuredConfiguration
-          ? await registry.executable(attempt.measuredConfiguration.id, config)
+          ? await registry.executable(
+              attempt.measuredConfiguration.id,
+              config,
+              attempt.measuredConfiguration.evidenceDigest,
+            )
           : undefined;
         if (selection && !execution)
           throw new Error("configuration-snapshot-missing");

@@ -451,6 +451,7 @@ export declare const ConfigurationInspection: z.ZodDiscriminatedUnion<[z.ZodObje
 }, z.core.$strict>, z.ZodObject<{
     action: z.ZodLiteral<"validate">;
     id: z.ZodString;
+    evidenceDigest: z.ZodString;
 }, z.core.$strict>], "action">;
 export declare const ConfigurationInspectionResponse: z.ZodObject<{
     configurations: z.ZodArray<z.ZodObject<{

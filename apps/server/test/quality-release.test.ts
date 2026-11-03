@@ -17,6 +17,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, expect, it } from "vitest";
+import { measuredConfigurationId } from "../src/quality/configuration.ts";
 import { checkRelease } from "../scripts/quality/release.ts";
 import type { GateRecord, RecordOutcome } from "../scripts/quality/targets.ts";
 import {
@@ -90,6 +91,13 @@ async function writeMeasured(
     JSON.stringify({
       format: "source-taster-provider-approval/1",
       configurationDigest: `sha256:${"d".repeat(64)}`,
+      measuredConfigurationId: measuredConfigurationId(
+        calibratedCode.code,
+        calibratedCode.configurationDigest,
+        calibratedCode.expected.configuration,
+        calibratedCode.expected.aiModel,
+        calibratedCode.expected.aiConfiguration,
+      ),
       aiConfigurationDigest: `sha256:${createHash("sha256").update(JSON.stringify(syntheticAiConfiguration)).digest("hex")}`,
       codeVersion: sha,
       reviewedBy: "controlled-test-only",
@@ -509,6 +517,16 @@ it("rejects self-reported source replay success without the actual approved reco
         source,
         codeVersion: sha,
         configurationDigest: calibratedCode.configurationDigest,
+        measuredConfigurationId: measuredConfigurationId(
+          calibratedCode.code,
+          calibratedCode.configurationDigest,
+          {
+            ...calibratedCode.expected.configuration,
+            enabledSources: [source],
+          },
+          calibratedCode.expected.aiModel,
+          calibratedCode.expected.aiConfiguration,
+        ),
         reviewedBy: "controlled-test-only",
         rightsRecord: `sha256:${"1".repeat(64)}`,
         serviceUse: "approved",
@@ -570,6 +588,7 @@ it("refuses withdrawn, expired, mismatched and invented provider approval artifa
     { codeVersion: "b".repeat(40) },
     { configurationDigest: `sha256:${"a".repeat(64)}` },
     { contractRecord: `sha256:${"e".repeat(64)}` },
+    { measuredConfigurationId: `sha256:${"0".repeat(64)}` },
     { processingAndStorage: "US" },
   ]) {
     await writeFile(path, JSON.stringify({ ...original, ...change }));
