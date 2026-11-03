@@ -1247,8 +1247,8 @@
       "bytes": 678
     },
     "108-integrated-handoff-generate.log": {
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "bytes": 0
+      "sha256": "6ba77bf0cb3114b41d5b563313fb435cf37a91ec66d1b1b9a26d0b2f1a9cb8ff",
+      "bytes": 405
     },
     "108-integrated-installed-bytes-final.log": {
       "sha256": "8f6c40dec86402494b66ebb3c1f8f504a093ba023e1df1d18aae4a0852a6d81f",
@@ -1458,10 +1458,6 @@
       "sha256": "36f2f30b0d393a643b0a5713feceebdf0b9ad90f1e3d3ef72b600c8fbc8e3c53",
       "bytes": 1546
     },
-    "108-integrated-results.jsonl": {
-      "sha256": "97538ab1072875c4eba82ce7705dac462b973b8f22e7142374f564914b133b1c",
-      "bytes": 17633
-    },
     "108-integrated-retry-job.json": {
       "sha256": "5d92452371e595da8a1bbbe209e373fb2057225ec219502088e62dc6cea5e241",
       "bytes": 379
@@ -1514,5 +1510,12 @@
     "initialExplicitCheckExitCode": 1,
     "initialLog": "108-integrated-public-handoff-format-initial.log",
     "correction": "Normal Prettier formatting of the final JSON in both integration checkouts, followed by an explicit check; application bytes unchanged."
-  }
+  },
+  "appendOnlyRunnerLedgerSnapshot": {
+    "file": "108-integrated-results.jsonl",
+    "sha256": "97538ab1072875c4eba82ce7705dac462b973b8f22e7142374f564914b133b1c",
+    "bytes": 17633,
+    "hashScope": "First recorded byte count at handoff generation; later documentation checks and publication receipts append to this ledger."
+  },
+  "manifestBoundary": "Static retained log/script hashes cover complete files. The append-only runner ledger uses the separately declared prefix snapshot. The handoff-generation log hash was finalized after its writer closed; no application or test result changed."
 }
