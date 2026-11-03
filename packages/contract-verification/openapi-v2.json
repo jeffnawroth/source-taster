@@ -103,6 +103,25 @@
               "authorityVersion": {
                 "type": "integer",
                 "exclusiveMinimum": 0
+              },
+              "settingsVersion": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "freeHistoryChecks": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000
+              },
+              "freeHistoryDays": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 365
+              },
+              "paidHistoryDays": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 365
               }
             },
             "required": [

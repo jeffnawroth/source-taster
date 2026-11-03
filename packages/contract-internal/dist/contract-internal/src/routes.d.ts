@@ -64,6 +64,10 @@ export declare const createMailRehearsal: {
                             history: z.ZodOptional<z.ZodObject<{
                                 extendedUntil: z.ZodNullable<z.ZodISODateTime>;
                                 authorityVersion: z.ZodNumber;
+                                settingsVersion: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+                                paidHistoryDays: z.ZodOptional<z.ZodNumber>;
                             }, z.core.$strip>>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
@@ -187,6 +191,10 @@ export declare const getMailRehearsal: {
                             history: z.ZodOptional<z.ZodObject<{
                                 extendedUntil: z.ZodNullable<z.ZodISODateTime>;
                                 authorityVersion: z.ZodNumber;
+                                settingsVersion: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+                                paidHistoryDays: z.ZodOptional<z.ZodNumber>;
                             }, z.core.$strip>>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
@@ -682,6 +690,10 @@ export declare const quotaSnapshot: {
                             history: z.ZodOptional<z.ZodObject<{
                                 extendedUntil: z.ZodNullable<z.ZodISODateTime>;
                                 authorityVersion: z.ZodNumber;
+                                settingsVersion: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+                                paidHistoryDays: z.ZodOptional<z.ZodNumber>;
                             }, z.core.$strip>>;
                         }, z.core.$strip>;
                     }, z.core.$strict>, z.ZodObject<{
@@ -852,6 +864,10 @@ export declare const quotaReserve: {
                             history: z.ZodOptional<z.ZodObject<{
                                 extendedUntil: z.ZodNullable<z.ZodISODateTime>;
                                 authorityVersion: z.ZodNumber;
+                                settingsVersion: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+                                paidHistoryDays: z.ZodOptional<z.ZodNumber>;
                             }, z.core.$strip>>;
                         }, z.core.$strip>;
                     }, z.core.$strict>, z.ZodObject<{
@@ -884,6 +900,10 @@ export declare const quotaReserve: {
                             history: z.ZodOptional<z.ZodObject<{
                                 extendedUntil: z.ZodNullable<z.ZodISODateTime>;
                                 authorityVersion: z.ZodNumber;
+                                settingsVersion: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+                                paidHistoryDays: z.ZodOptional<z.ZodNumber>;
                             }, z.core.$strip>>;
                         }, z.core.$strip>;
                     }, z.core.$strict>, z.ZodObject<{
@@ -1287,6 +1307,10 @@ export declare const getAbusePolicy: {
                     schema: z.ZodObject<{
                         version: z.ZodString;
                         cacheMs: z.ZodNumber;
+                        initial: z.ZodOptional<z.ZodObject<{
+                            referenceLimit: z.ZodNumber;
+                            uploadBytes: z.ZodNumber;
+                        }, z.core.$strict>>;
                         public: z.ZodObject<{
                             principal: z.ZodRecord<z.ZodString, z.ZodObject<{
                                 limit: z.ZodNumber;
@@ -1661,6 +1685,10 @@ export declare const routes: (({
                             history: z.ZodOptional<z.ZodObject<{
                                 extendedUntil: z.ZodNullable<z.ZodISODateTime>;
                                 authorityVersion: z.ZodNumber;
+                                settingsVersion: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+                                paidHistoryDays: z.ZodOptional<z.ZodNumber>;
                             }, z.core.$strip>>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
@@ -1783,6 +1811,10 @@ export declare const routes: (({
                             history: z.ZodOptional<z.ZodObject<{
                                 extendedUntil: z.ZodNullable<z.ZodISODateTime>;
                                 authorityVersion: z.ZodNumber;
+                                settingsVersion: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+                                paidHistoryDays: z.ZodOptional<z.ZodNumber>;
                             }, z.core.$strip>>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
@@ -2273,6 +2305,10 @@ export declare const routes: (({
                             history: z.ZodOptional<z.ZodObject<{
                                 extendedUntil: z.ZodNullable<z.ZodISODateTime>;
                                 authorityVersion: z.ZodNumber;
+                                settingsVersion: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+                                paidHistoryDays: z.ZodOptional<z.ZodNumber>;
                             }, z.core.$strip>>;
                         }, z.core.$strip>;
                     }, z.core.$strict>, z.ZodObject<{
@@ -2442,6 +2478,10 @@ export declare const routes: (({
                             history: z.ZodOptional<z.ZodObject<{
                                 extendedUntil: z.ZodNullable<z.ZodISODateTime>;
                                 authorityVersion: z.ZodNumber;
+                                settingsVersion: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+                                paidHistoryDays: z.ZodOptional<z.ZodNumber>;
                             }, z.core.$strip>>;
                         }, z.core.$strip>;
                     }, z.core.$strict>, z.ZodObject<{
@@ -2474,6 +2514,10 @@ export declare const routes: (({
                             history: z.ZodOptional<z.ZodObject<{
                                 extendedUntil: z.ZodNullable<z.ZodISODateTime>;
                                 authorityVersion: z.ZodNumber;
+                                settingsVersion: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+                                paidHistoryDays: z.ZodOptional<z.ZodNumber>;
                             }, z.core.$strip>>;
                         }, z.core.$strip>;
                     }, z.core.$strict>, z.ZodObject<{
@@ -2874,6 +2918,10 @@ export declare const routes: (({
                     schema: z.ZodObject<{
                         version: z.ZodString;
                         cacheMs: z.ZodNumber;
+                        initial: z.ZodOptional<z.ZodObject<{
+                            referenceLimit: z.ZodNumber;
+                            uploadBytes: z.ZodNumber;
+                        }, z.core.$strict>>;
                         public: z.ZodObject<{
                             principal: z.ZodRecord<z.ZodString, z.ZodObject<{
                                 limit: z.ZodNumber;

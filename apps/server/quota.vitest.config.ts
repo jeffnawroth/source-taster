@@ -2,7 +2,11 @@
 import { defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
-    include: ["test/quota.contract.ts", "test/commerce.contract.ts"],
+    include: [
+      "test/quota.contract.ts",
+      "test/commerce.contract.ts",
+      "test/catalog.contract.ts",
+    ],
     fileParallelism: false,
     testTimeout: 60000,
     hookTimeout: 90000,

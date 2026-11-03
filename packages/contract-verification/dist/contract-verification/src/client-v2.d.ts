@@ -3183,6 +3183,10 @@ export declare function verificationClient(options?: VerificationClientOptions):
         history?: {
             extendedUntil: string | null;
             authorityVersion: number;
+            settingsVersion?: number | undefined;
+            freeHistoryChecks?: number | undefined;
+            freeHistoryDays?: number | undefined;
+            paidHistoryDays?: number | undefined;
         } | undefined;
     } | {
         status: "not-implemented";

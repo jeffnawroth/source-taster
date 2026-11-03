@@ -203,6 +203,7 @@ export async function startWorkerRuntime(
                 ? (quota.history?.extendedUntil ?? null)
                 : null,
               quota.history?.authorityVersion ?? 0,
+              quota.history,
             ),
           );
         }

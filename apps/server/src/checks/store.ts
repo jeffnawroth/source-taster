@@ -388,7 +388,9 @@ export function createCheckStore(
     ) {
       const policy = await historyPolicy(tx, current.ownerId, now);
       if (policy.enabled) {
-        const days = policy.paid ? 90 : 30;
+        const days = policy.paid
+          ? policy.paidHistoryDays
+          : policy.freeHistoryDays;
         const sequence = await tx.$queryRaw<
           { value: bigint }[]
         >`SELECT nextval('verification.history_storage_order') AS value`;
@@ -398,6 +400,7 @@ export function createCheckStore(
             historyOrder: sequence[0]!.value,
             historyStoredAt: new Date(now),
             historyDays: days,
+            historyPaid: policy.paid,
             contentExpiresAt: new Date(now + days * 86_400_000),
           },
         });
@@ -408,7 +411,7 @@ export function createCheckStore(
           contentTransaction(raw, () => clock.now(), undefined, checkId),
           checkId,
         );
-        await historyRules(tx, current.ownerId, days === 30);
+        await historyRules(tx, current.ownerId, !policy.paid);
       }
     }
   }
@@ -626,21 +629,32 @@ export function createCheckStore(
     historyStoredAt: true,
     historyOrder: true,
     historyDays: true,
+    historyPaid: true,
     historyLocked: true,
   } as const;
   const DAY = 86_400_000;
   async function historyPolicy(tx: Tx, ownerId: string, at: number) {
     const consent = await tx.historyConsent.findUnique({ where: { ownerId } });
     const enabled = consent?.enabled ?? false;
+    const initial = {
+      freeHistoryChecks: consent?.freeHistoryChecks ?? 5,
+      freeHistoryDays: consent?.freeHistoryDays ?? 30,
+      paidHistoryDays: consent?.paidHistoryDays ?? 90,
+    };
     if (!consent?.extendedUntil || consent.extendedUntil.getTime() <= at)
-      return { enabled, paid: false };
+      return { enabled, paid: false, ...initial };
     const fence = await tx.authorityFence.findUnique({ where: { ownerId } });
-    return { enabled, paid: consent.authorityVersion >= (fence?.version ?? 1) };
+    return {
+      enabled,
+      paid: consent.authorityVersion >= (fence?.version ?? 1),
+      ...initial,
+    };
   }
   async function historyRules(tx: Tx, ownerId: string, storingFree = false) {
     // Publication uses the durable invalidation fence even without a fresh
     // Quota reply, including an already-open stream or a held response.
-    const { enabled, paid } = await historyPolicy(tx, ownerId, clock.now());
+    const { enabled, paid, freeHistoryDays, freeHistoryChecks } =
+      await historyPolicy(tx, ownerId, clock.now());
     const entries = await tx.check.findMany({
       where: { ownerId, historyStoredAt: { not: null }, deletedAt: null },
       select: retentionMetadata,
@@ -657,16 +671,18 @@ export function createCheckStore(
         ? entries.filter(
             (e) =>
               contentAlive(e) &&
-              e.historyStoredAt!.getTime() + 30 * DAY > clock.now(),
-          )[5]
+              e.historyStoredAt!.getTime() + freeHistoryDays * DAY >
+                clock.now(),
+          )[freeHistoryChecks]
         : undefined;
-    if (displaced?.historyDays === 30) await purgeLocked(tx, displaced);
+    if (displaced && !displaced.historyPaid) await purgeLocked(tx, displaced);
     let usable = 0;
     for (const entry of entries) {
-      if (entry.id === displaced?.id && entry.historyDays === 30) continue;
+      if (entry.id === displaced?.id && !entry.historyPaid) continue;
       if (!contentAlive(entry)) continue;
-      const young = entry.historyStoredAt!.getTime() + 30 * DAY > clock.now();
-      const locked = !paid && (!young || usable >= 5);
+      const young =
+        entry.historyStoredAt!.getTime() + freeHistoryDays * DAY > clock.now();
+      const locked = !paid && (!young || usable >= freeHistoryChecks);
       if (!locked) usable++;
       if (entry.historyLocked !== locked)
         await tx.check.update({
@@ -995,6 +1011,12 @@ export function createCheckStore(
       principal: Pick<Principal, "ownerId" | "actorId" | "guestContextId">,
       extendedUntil: string | null,
       authorityVersion = 0,
+      initial?: {
+        settingsVersion?: number;
+        freeHistoryChecks?: number;
+        freeHistoryDays?: number;
+        paidHistoryDays?: number;
+      },
     ) {
       if (principal.guestContextId) return;
       await transaction(async (tx) => {
@@ -1016,6 +1038,12 @@ export function createCheckStore(
           (previous?.authorityVersion ?? 0) >= (fence?.version ?? 1)
         )
           return;
+        const currentInitial =
+          initial &&
+          initial.settingsVersion !== undefined &&
+          initial.settingsVersion >= (previous?.settingsVersion ?? 0)
+            ? initial
+            : undefined;
         const until = authorityVersion >= minimum ? extendedUntil : null;
         const version = Math.max(minimum, authorityVersion);
         await tx.historyConsent.upsert({
@@ -1025,10 +1053,12 @@ export function createCheckStore(
             accountId: principal.actorId,
             extendedUntil: until ? new Date(until) : null,
             authorityVersion: version,
+            ...currentInitial,
           },
           update: {
             extendedUntil: until ? new Date(until) : null,
             authorityVersion: version,
+            ...currentInitial,
           },
         });
         await historyRules(tx, principal.ownerId);

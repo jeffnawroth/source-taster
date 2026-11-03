@@ -497,6 +497,16 @@ export async function bothPrograms(
       web: () => web,
       service: () => service,
       worker,
+      additionalWeb: async (port: number) => {
+        const instance = launch(
+          serverPath,
+          "test/support/guest-process.ts",
+          [],
+          { ...venv, SOURCE_TASTER_PORT: String(port) },
+        );
+        await instance.ready;
+        return { url: `http://127.0.0.1:${port}`, stop: instance.stop };
+      },
       restartWeb: async () => {
         await web.stop();
         web = launch(serverPath, "test/support/guest-process.ts", [], venv);

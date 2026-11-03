@@ -36,6 +36,7 @@ model Check {
   deletedAt      DateTime?       @map("deleted_at") @db.Timestamptz(3)
   historyStoredAt DateTime? @map("history_stored_at") @db.Timestamptz(3)
   historyOrder BigInt @default(0) @map("history_order")
+  historyPaid Boolean @default(false) @map("history_paid")
   historyDays Int? @map("history_days")
   historyLocked Boolean @default(false) @map("history_locked")
   endReason      String?         @map("end_reason")
@@ -175,6 +176,10 @@ model HistoryConsent {
   accountId String @map("account_id")
   enabled Boolean @default(false)
   authorityVersion Int @default(0) @map("authority_version")
+  settingsVersion Int @default(0) @map("settings_version")
+  freeHistoryChecks Int @default(5) @map("free_history_checks")
+  freeHistoryDays Int @default(30) @map("free_history_days")
+  paidHistoryDays Int @default(90) @map("paid_history_days")
   extendedUntil DateTime? @map("extended_until") @db.Timestamptz(3)
   @@map("history_consents")
 }
