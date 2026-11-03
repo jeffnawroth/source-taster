@@ -67,6 +67,7 @@ import { HTTPException } from "hono/http-exception";
 import type { StructuredReference } from "@source-taster/core";
 import { ContentUnavailable } from "../checks/content.ts";
 import {
+  RightsExportTooLarge,
   ReferenceConflict,
   CheckExpired,
   HistoryLocked,
@@ -390,6 +391,8 @@ export function createApp(
   });
 
   app.onError((error) => {
+    if (error instanceof RightsExportTooLarge)
+      return problemResponse("export-size-limit");
     if (error instanceof InvalidBibliographySelection)
       return problemResponse("invalid-request");
     if (error instanceof HistoryLocked)

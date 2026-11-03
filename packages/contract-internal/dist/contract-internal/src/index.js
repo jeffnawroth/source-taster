@@ -221,3 +221,17 @@ export const AbuseDecision = z
     }),
 ])
     .meta({ id: "AbuseDecision" });
+/** Recipient-only rights delivery. Opaque credential travels only from recipient to
+ * verification and in a signed authority request; no content travels to service. */
+export const RightsAuthorityRequest = z.strictObject({
+    requestId: z.uuid(),
+    accessToken: z.string().regex(/^[A-Za-z0-9_-]{43}$/),
+    phase: z.enum(["authorize", "delivered"]),
+});
+export const RightsAuthorityResponse = z.strictObject({
+    requestId: z.uuid(),
+    accountId: z.uuid(),
+    ownerId: z.uuid(),
+    expiresAt: z.iso.datetime(),
+    purpose: z.literal("data-subject-delivery"),
+});

@@ -914,6 +914,99 @@ export function createCheckStore(
     return (await ownerSnapshot(principal, id, action, version))?.check ?? null;
   }
   return {
+    /** ADR-0014: full retained Account evidence, independent of paid/locked presentation.
+     * No temporary artifact or retention mutation. Owner guard and purge barrier cover
+     * content materialization; authority is read again before bytes leave this boundary. */
+    async dataSubjectSnapshot(
+      accountId: string,
+      ownerId: string,
+      beforeReturn: () => Promise<void>,
+    ) {
+      return transaction(async (tx) => {
+        await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${ownerId},96))::text`;
+        const consent = await tx.historyConsent.findFirst({
+          where: { ownerId, accountId },
+        });
+        const checks = await tx.check.findMany({
+          where: {
+            ownerId,
+            actorId: accountId,
+            guestContextId: null,
+            deletedAt: null,
+            contentExpiresAt: { gt: new Date(clock.now()) },
+          },
+          orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+          take: 1001,
+          include: {
+            references: {
+              orderBy: { position: "asc" },
+              include: {
+                revisions: { orderBy: { revision: "asc" } },
+                results: {
+                  orderBy: { generation: "asc" },
+                  include: { manualOverride: true },
+                },
+              },
+            },
+            events: { orderBy: { seq: "asc" } },
+          },
+        });
+        if (checks.length > 1000) throw new RightsExportTooLarge();
+        const ids = checks.map((c) => c.id);
+        const reports = await tx.report.findMany({
+          where: {
+            checkId: { in: ids },
+            expiresAt: { gt: new Date(clock.now()) },
+          },
+          orderBy: { id: "asc" },
+        });
+        const metadata = await tx.check.findMany({
+          where: { ownerId, actorId: accountId, guestContextId: null },
+          select: {
+            id: true,
+            state: true,
+            createdAt: true,
+            startedAt: true,
+            endedAt: true,
+            contentExpiresAt: true,
+            deletedAt: true,
+            historyStoredAt: true,
+            historyLocked: true,
+          },
+          orderBy: { id: "asc" },
+          take: 10001,
+        });
+        if (metadata.length > 10000) throw new RightsExportTooLarge();
+        // Execution leases, claims, queue jobs and key material are not personal export credentials.
+        const result = {
+          format: "source-taster-verification-data-subject-v1",
+          accountId,
+          ownerId,
+          generatedAt: new Date(clock.now()).toISOString(),
+          historyConsent: consent,
+          checkMetadata: metadata,
+          checks: checks.map(
+            ({ leaseExpiresAt: _lease, dispatchOrder: _dispatch, ...c }) => ({
+              ...c,
+              references: c.references.map(({ claimUntil: _claim, ...r }) => r),
+            }),
+          ),
+          reports,
+        };
+        const bytes = JSON.stringify(result, (_, v: unknown) =>
+          typeof v === "bigint" ? String(v) : v,
+        );
+        if (Buffer.byteLength(bytes) > 32_000_000)
+          throw new RightsExportTooLarge();
+        await beforeReturn();
+        if (
+          checks.some((c) => c.contentExpiresAt.getTime() <= clock.now()) ||
+          reports.some((r) => r.expiresAt.getTime() <= clock.now())
+        )
+          throw new CheckExpired();
+        return bytes;
+      });
+    },
     async syncHistory(
       principal: Pick<Principal, "ownerId" | "actorId" | "guestContextId">,
       extendedUntil: string | null,
@@ -2218,3 +2311,5 @@ export interface ReportWork {
   subject: WorkSubject;
   input: ReportInput;
 }
+
+export class RightsExportTooLarge extends Error {}

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import { mountDataSubjectDelivery } from "../../src/exports/data-subject.ts";
 // SOURCE-ONLY loopback integration. Never imported by src, scripts or build.
 // Real uncalibrated DOI/core + lifecycle + service authority. No gate receipt.
 import { createAbuseLimiter } from "../../src/abuse/limiter.ts";
@@ -75,6 +76,12 @@ if (process.argv[2] === "worker") {
     entitlements: authority.entitlements,
   });
   mountInternalRoutes(app, authority);
+  mountDataSubjectDelivery(
+    app,
+    loadHostedSettings(process.env.SOURCE_TASTER_AUTH_CONFIG),
+    checks,
+    clock,
+  );
   const server = serve({
     fetch: app.fetch,
     hostname: "127.0.0.1",

@@ -2,6 +2,8 @@
 import { createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 import {
+  RightsAuthorityRequest,
+  RightsAuthorityResponse,
   AbusePolicy,
   AbuseEntrance,
   AbuseDecision,
@@ -239,7 +241,30 @@ export const countAbuseEntrance = createRoute({
     503: problem,
   },
 });
+export const authorizeDataSubject = createRoute({
+  method: "post",
+  path: "/internal/data-subject-authority",
+  summary:
+    "Current purpose-limited recipient authority and content-free delivery acknowledgement",
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: RightsAuthorityRequest } },
+    },
+  },
+  responses: {
+    200: {
+      description: "Current verified recipient scope, never export content",
+      content: { "application/json": { schema: RightsAuthorityResponse } },
+    },
+    400: problem,
+    401: problem,
+    403: problem,
+    503: problem,
+  },
+});
 export const routes = [
+  authorizeDataSubject,
   getAbusePolicy,
   countAbuseEntrance,
   quotaSnapshot,
