@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { expect, test } from "vitest";
 import {
+  CancellationResponse,
   CheckPackOrderResponse,
   SubscriptionResponse,
   CommerceCatalogResponse,
@@ -131,6 +132,43 @@ test.each(["check-pack", "pro"])(
         consumed: 1,
         remaining: available - 1,
       });
+      if (plan === "pro") {
+        const down = once(fake, "message");
+        fake.send({
+          id: 2,
+          providerDown: true,
+          now: both.now(),
+          url: both.serviceUrl,
+        });
+        await down;
+        const input = {
+          operationKey: randomUUID(),
+          contractReference: order.id,
+          email: "commerce@example.invalid",
+          language: "de",
+        };
+        const cancellation = await fetch(
+          both.serviceUrl + "/v1/commerce/cancellations",
+          {
+            method: "POST",
+            headers: {
+              origin: "https://web.test.invalid",
+              "content-type": "application/json",
+            },
+            body: JSON.stringify(input),
+          },
+        );
+        expect(cancellation.status).toBe(200);
+        expect(
+          CancellationResponse.parse(await cancellation.json()).data.receivedAt,
+        ).toBe(new Date(both.now()).toISOString());
+        const receipts = (await both.mail()).filter(
+          (m) => m.subject === "Kündigung des Abonnements erhalten",
+        );
+        expect(receipts).toHaveLength(1);
+        expect(receipts[0]!.text).toContain(new Date(both.now()).toISOString());
+        expect(await quota()).toMatchObject({ consumed: 1, remaining: 999 });
+      }
     } finally {
       await both?.stop();
       if (fake.exitCode === null) {
