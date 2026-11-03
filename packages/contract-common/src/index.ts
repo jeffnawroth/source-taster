@@ -67,6 +67,10 @@ export const Quota = z
       .object({
         extendedUntil: z.iso.datetime().nullable(),
         authorityVersion: z.number().int().positive(),
+        settingsVersion: z.number().int().nonnegative().optional(),
+        freeHistoryChecks: z.number().int().min(1).max(1000).optional(),
+        freeHistoryDays: z.number().int().min(1).max(365).optional(),
+        paidHistoryDays: z.number().int().min(1).max(365).optional(),
       })
       .optional(),
   })

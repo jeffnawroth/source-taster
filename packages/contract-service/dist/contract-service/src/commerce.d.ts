@@ -66,6 +66,10 @@ export declare const CommerceCatalogResponse: z.ZodObject<{
         history: z.ZodOptional<z.ZodObject<{
             extendedUntil: z.ZodNullable<z.ZodISODateTime>;
             authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
         }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
@@ -176,6 +180,10 @@ export declare const CheckPackOrderResponse: z.ZodObject<{
         history: z.ZodOptional<z.ZodObject<{
             extendedUntil: z.ZodNullable<z.ZodISODateTime>;
             authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
         }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
@@ -239,6 +247,10 @@ export declare const CheckPackOrdersResponse: z.ZodObject<{
         history: z.ZodOptional<z.ZodObject<{
             extendedUntil: z.ZodNullable<z.ZodISODateTime>;
             authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
         }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
@@ -385,6 +397,10 @@ export declare const SubscriptionResponse: z.ZodObject<{
         history: z.ZodOptional<z.ZodObject<{
             extendedUntil: z.ZodNullable<z.ZodISODateTime>;
             authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
         }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
@@ -462,6 +478,10 @@ export declare const SubscriptionsResponse: z.ZodObject<{
         history: z.ZodOptional<z.ZodObject<{
             extendedUntil: z.ZodNullable<z.ZodISODateTime>;
             authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
         }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
@@ -515,6 +535,10 @@ export declare const VatValidationResponse: z.ZodObject<{
         history: z.ZodOptional<z.ZodObject<{
             extendedUntil: z.ZodNullable<z.ZodISODateTime>;
             authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
         }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
@@ -561,6 +585,10 @@ export declare const CommerceInvoicesResponse: z.ZodObject<{
         history: z.ZodOptional<z.ZodObject<{
             extendedUntil: z.ZodNullable<z.ZodISODateTime>;
             authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
         }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;

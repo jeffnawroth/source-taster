@@ -165,6 +165,10 @@ export const AbusePolicy = z
     .strictObject({
     version: z.string().min(1).max(80),
     cacheMs: z.number().int().min(1).max(30_000),
+    initial: z.strictObject({
+        referenceLimit: z.number().int().min(1).max(1000),
+        uploadBytes: z.number().int().min(1).max(20971520),
+    }).optional(),
     public: AbuseBudgets,
     shared: AbuseBudgets,
 })

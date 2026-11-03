@@ -33,6 +33,10 @@ export declare const ServiceStatusResponse: z.ZodObject<{
         history: z.ZodOptional<z.ZodObject<{
             extendedUntil: z.ZodNullable<z.ZodISODateTime>;
             authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
         }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
@@ -81,6 +85,10 @@ export declare const GuestTokenResponse: z.ZodObject<{
         history: z.ZodOptional<z.ZodObject<{
             extendedUntil: z.ZodNullable<z.ZodISODateTime>;
             authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
         }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
@@ -164,6 +172,10 @@ export declare const AccountPreferencesResponse: z.ZodObject<{
         history: z.ZodOptional<z.ZodObject<{
             extendedUntil: z.ZodNullable<z.ZodISODateTime>;
             authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
         }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
@@ -211,6 +223,10 @@ export declare const SignInChallengeResponse: z.ZodObject<{
         history: z.ZodOptional<z.ZodObject<{
             extendedUntil: z.ZodNullable<z.ZodISODateTime>;
             authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
         }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
@@ -273,6 +289,10 @@ export declare const AccountSessionResponse: z.ZodObject<{
         history: z.ZodOptional<z.ZodObject<{
             extendedUntil: z.ZodNullable<z.ZodISODateTime>;
             authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
         }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
@@ -314,6 +334,10 @@ export declare const AccountTokenResponse: z.ZodObject<{
         history: z.ZodOptional<z.ZodObject<{
             extendedUntil: z.ZodNullable<z.ZodISODateTime>;
             authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
         }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
@@ -354,6 +378,10 @@ export declare const SignOutResponse: z.ZodObject<{
         history: z.ZodOptional<z.ZodObject<{
             extendedUntil: z.ZodNullable<z.ZodISODateTime>;
             authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
         }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
@@ -398,6 +426,10 @@ export declare const ExtensionSignInChallengeResponse: z.ZodObject<{
         history: z.ZodOptional<z.ZodObject<{
             extendedUntil: z.ZodNullable<z.ZodISODateTime>;
             authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
         }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
@@ -464,6 +496,10 @@ export declare const ExtensionSignInConfirmResponse: z.ZodObject<{
         history: z.ZodOptional<z.ZodObject<{
             extendedUntil: z.ZodNullable<z.ZodISODateTime>;
             authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
         }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
@@ -525,6 +561,10 @@ export declare const FreshProofChallengeResponse: z.ZodObject<{
         history: z.ZodOptional<z.ZodObject<{
             extendedUntil: z.ZodNullable<z.ZodISODateTime>;
             authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
         }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
@@ -590,6 +630,10 @@ export declare const FreshProofResponse: z.ZodObject<{
         history: z.ZodOptional<z.ZodObject<{
             extendedUntil: z.ZodNullable<z.ZodISODateTime>;
             authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
         }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
@@ -638,6 +682,10 @@ export declare const EmailChangeChallengeResponse: z.ZodObject<{
         history: z.ZodOptional<z.ZodObject<{
             extendedUntil: z.ZodNullable<z.ZodISODateTime>;
             authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
         }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
@@ -706,6 +754,10 @@ export declare const AccountDeletionResponse: z.ZodObject<{
         history: z.ZodOptional<z.ZodObject<{
             extendedUntil: z.ZodNullable<z.ZodISODateTime>;
             authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
         }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;

@@ -12,6 +12,7 @@ import { fail, problemResponse } from "../http/problems.ts";
 import { HTTPException } from "hono/http-exception";
 import { OriginSettings, originForWindow } from "./origin.ts";
 export interface EntranceLimiter {
+  initial?(): Promise<AbusePolicy["initial"]>;
   enter(
     request: Request,
     peer: string | undefined,
@@ -128,6 +129,9 @@ export function createAbuseLimiter(
   }, 1000);
   timer.unref();
   return {
+    async initial() {
+      return (await policy()).initial;
+    },
     async enter(
       request: Request,
       peer: string | undefined,

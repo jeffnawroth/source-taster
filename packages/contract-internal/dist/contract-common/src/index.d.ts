@@ -70,6 +70,10 @@ export declare const Quota: z.ZodObject<{
     history: z.ZodOptional<z.ZodObject<{
         extendedUntil: z.ZodNullable<z.ZodISODateTime>;
         authorityVersion: z.ZodNumber;
+        settingsVersion: z.ZodOptional<z.ZodNumber>;
+        freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+        freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+        paidHistoryDays: z.ZodOptional<z.ZodNumber>;
     }, z.core.$strip>>;
 }, z.core.$strip>;
 export type Quota = z.infer<typeof Quota>;
@@ -105,6 +109,10 @@ export declare const QuotaSlot: z.ZodUnion<readonly [z.ZodObject<{
     history: z.ZodOptional<z.ZodObject<{
         extendedUntil: z.ZodNullable<z.ZodISODateTime>;
         authorityVersion: z.ZodNumber;
+        settingsVersion: z.ZodOptional<z.ZodNumber>;
+        freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+        freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+        paidHistoryDays: z.ZodOptional<z.ZodNumber>;
     }, z.core.$strip>>;
 }, z.core.$strip>, z.ZodObject<{
     status: z.ZodLiteral<"not-implemented">;
@@ -141,6 +149,10 @@ export declare function envelope<T extends z.ZodType>(data: T): z.ZodObject<{
         history: z.ZodOptional<z.ZodObject<{
             extendedUntil: z.ZodNullable<z.ZodISODateTime>;
             authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
         }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;

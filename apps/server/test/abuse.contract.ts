@@ -304,3 +304,22 @@ test("inconsistent Plan windows fail closed instead of creating a Plan-switch re
   service.policy.public.principal.pro.windowMs = 120000;
   expect((await service.request()).status).toBe(503);
 });
+
+test("Operator input limits propagate through the bounded policy cache to the verification API", async () => {
+  service = await abuseService();
+  Object.assign(service.policy, {
+    initial: { referenceLimit: 1, uploadBytes: 1024 },
+  });
+  service.policy.public.principal.free.limit = 1000;
+  const response = await service.request("input-limit", {
+    path: "/v2/checks",
+    body: JSON.stringify({
+      references: [
+        { originalText: "One", fields: {} },
+        { originalText: "Two", fields: {} },
+      ],
+    }),
+  });
+  expect(response.status).toBe(400);
+  expect(ProblemDetails.parse(await response.json()).limit).toBe(1);
+});

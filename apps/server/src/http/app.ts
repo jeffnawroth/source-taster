@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // HTTP surface of the web process: the published /v1 contract.
 
+import { AsyncLocalStorage } from "node:async_hooks";
+const initialContext = new AsyncLocalStorage<{
+  referenceLimit: number;
+  uploadBytes: number;
+}>();
 import {
   structureDocument,
   structureText,
@@ -119,15 +124,22 @@ export function createApp(
     checks,
     events,
     heartbeatMs,
-    referenceLimit,
+    referenceLimit: configuredReferenceLimit,
     clock = { now: Date.now },
     documentExtractor = unavailableExtractor,
     documentMetrics = logMetrics,
     documentConcurrency = 2,
-    documentInputBytes = documentSizeLimit,
+    documentInputBytes: configuredDocumentBytes = documentSizeLimit,
   }: AppDeps,
   apiVersion = 1,
 ) {
+  const referenceLimit = () =>
+    initialContext.getStore()?.referenceLimit ?? configuredReferenceLimit;
+  const documentInputBytes = () =>
+    Math.min(
+      configuredDocumentBytes,
+      initialContext.getStore()?.uploadBytes ?? configuredDocumentBytes,
+    );
   const receipts = previewReceipts(clock);
   async function authorize(
     request: Request,
@@ -151,6 +163,7 @@ export function createApp(
           principal,
           until,
           quota.history?.authorityVersion ?? 0,
+          quota.history,
         ),
       );
     }
@@ -195,7 +208,7 @@ export function createApp(
     const reason = await aiEligibility(principal);
     if (reason) {
       const parsed = regions
-        ? structureSelection(structuring, text, regions, referenceLimit)
+        ? structureSelection(structuring, text, regions, referenceLimit())
         : structuring.structure(text);
       return {
         ...parsed,
@@ -210,7 +223,7 @@ export function createApp(
       text,
       regions,
       parser: structuring,
-      limit: referenceLimit,
+      limit: referenceLimit(),
       port: extraction!,
       signal,
       authorize: async () => {
@@ -249,7 +262,7 @@ export function createApp(
           return structuring.structure("");
         },
       },
-      referenceLimit,
+      referenceLimit(),
     );
     const prepared: NonNullable<EditSelectionRequest["prepared"]> = [];
     for (const text of inputs) {
@@ -411,6 +424,8 @@ export function createApp(
           entitlements,
         );
       }
+      const initial = await entrance.initial?.();
+      if (initial) return initialContext.run(initial, next);
       await next();
     });
 
@@ -449,7 +464,12 @@ export function createApp(
     } catch (error) {
       if (!(error instanceof ReferenceLimitExceeded)) throw error;
       return {
-        structuring: structureSelection(structuring, text, [], referenceLimit),
+        structuring: structureSelection(
+          structuring,
+          text,
+          [],
+          referenceLimit(),
+        ),
         referenceLimitExceeded: true,
       };
     }
@@ -499,7 +519,7 @@ export function createApp(
         c,
         principal,
         "structuring:create",
-        { inputBytes: documentInputBytes },
+        { inputBytes: documentInputBytes() },
         200,
       );
     });
@@ -513,7 +533,7 @@ export function createApp(
       try {
         const form = await readUpload(
           c.req.raw,
-          documentInputBytes,
+          documentInputBytes(),
           (c.env as Partial<HttpBindings> | undefined)?.incoming,
         );
         c.req.bodyCache.formData = form;
@@ -526,8 +546,8 @@ export function createApp(
       const principal = await authorize(c.req.raw, "structuring:create");
       const file: unknown = c.req.valid("form").file;
       if (!(file instanceof File)) fail("invalid-request");
-      if (file.size > documentInputBytes)
-        fail("document-size-limit", undefined, documentInputBytes);
+      if (file.size > documentInputBytes())
+        fail("document-size-limit", undefined, documentInputBytes());
       const bytes = new Uint8Array(await file.arrayBuffer());
       const format = sniffFormat(bytes);
       if (!format) fail("document-unsupported");
@@ -686,7 +706,7 @@ export function createApp(
   if (apiVersion === 2)
     app.openapi(v2.importReferences, async (c) => {
       const principal = await authorize(c.req.raw, "structuring:create");
-      const data = importLibrary(c.req.valid("json"), referenceLimit);
+      const data = importLibrary(c.req.valid("json"), referenceLimit());
       return output(c, principal, "structuring:create", data, 200);
     });
 
@@ -743,7 +763,7 @@ export function createApp(
                   document.selection.regions,
                 )
               : "library" in input
-                ? importLibrary(input.library, referenceLimit)
+                ? importLibrary(input.library, referenceLimit())
                 : "text" in input
                   ? apiVersion === 2
                     ? await structureCurrent(
@@ -757,12 +777,12 @@ export function createApp(
           parsed &&
           parsed.references.length +
             (apiVersion === 1 ? parsed.rejected.length : 0) >
-            referenceLimit
+            referenceLimit()
         )
           fail(
             "reference-limit",
-            `At most ${referenceLimit} References can be checked at once.`,
-            referenceLimit,
+            `At most ${referenceLimit()} References can be checked at once.`,
+            referenceLimit(),
           );
         // v2 reviews rejected text separately; it never becomes a billed slot.
         if (
@@ -805,11 +825,11 @@ export function createApp(
           );
         throw error;
       }
-      if (references.length > referenceLimit)
+      if (references.length > referenceLimit())
         fail(
           "reference-limit",
-          `At most ${referenceLimit} References can be checked at once.`,
-          referenceLimit,
+          `At most ${referenceLimit()} References can be checked at once.`,
+          referenceLimit(),
         );
       if (!references.length) fail("invalid-request");
       // First-N (ADR-0005): only the first N References start; the rest end as
@@ -896,7 +916,7 @@ export function createApp(
           checkId,
           c.req.valid("json"),
           prepared.parser,
-          referenceLimit,
+          referenceLimit(),
         ),
       );
       if (!data) fail("check-not-found");
@@ -930,7 +950,7 @@ export function createApp(
               checkId,
               request,
               prepared.parser,
-              referenceLimit,
+              referenceLimit(),
             );
             return preview
               ? checks.plan(principal, checkId, {
@@ -951,7 +971,7 @@ export function createApp(
                 add: [],
                 remove: [],
               },
-              referenceLimit,
+              referenceLimit(),
               { regions: request.regions, parser: prepared.parser },
               reserved,
             ),
@@ -998,7 +1018,7 @@ export function createApp(
               principal,
               checkId,
               request,
-              referenceLimit,
+              referenceLimit(),
               undefined,
               reserved,
             ),
@@ -1398,12 +1418,12 @@ export function createApp(
           checks,
           events,
           heartbeatMs,
-          referenceLimit,
+          referenceLimit: configuredReferenceLimit,
           clock,
           documentExtractor,
           documentMetrics,
           documentConcurrency,
-          documentInputBytes,
+          documentInputBytes: configuredDocumentBytes,
         },
         2,
       ),
