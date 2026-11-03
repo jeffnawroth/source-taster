@@ -68,6 +68,30 @@ test("both actual programs deliver separate retained data only with independentl
       body: JSON.stringify({ text: physicsReference }),
     });
     const check = CheckResponse.parse(await created.json()).data;
+    await expect
+      .poll(
+        async () =>
+          CheckResponse.parse(
+            await (
+              await fetch(`${both.apiUrl}/v1/checks/${check.id}`, { headers })
+            ).json(),
+          ).data.state,
+        { timeout: 15000 },
+      )
+      .toBe("ended");
+    const guest = await both.issue();
+    const guestCreated = await fetch(both.apiUrl + "/v1/checks", {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${guest.token}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        text: `Guest-only content 113 ${physicsReference}`,
+      }),
+    });
+    expect(guestCreated.status).toBe(201);
+    const guestCheck = CheckResponse.parse(await guestCreated.json()).data;
     const command = {
       operationId: randomUUID(),
       accountId: a.data.accountId,
@@ -128,6 +152,8 @@ test("both actual programs deliver separate retained data only with independentl
     const payload = (await verification.json()) as {
       checks: { id: string; references: { originalText: string }[] }[];
     };
+    expect(payload.checks.some((c) => c.id === guestCheck.id)).toBe(false);
+    expect(JSON.stringify(payload)).not.toContain("Guest-only content 113");
     expect(
       payload.checks.find((c) => c.id === check.id)?.references[0]
         ?.originalText,
@@ -137,6 +163,32 @@ test("both actual programs deliver separate retained data only with independentl
     expect(JSON.stringify(await service.json())).not.toContain(
       physicsReference,
     );
+    const beforeReceipt = await call(
+      `/v1/operator/data-subject/${command.operationId}`,
+      undefined,
+      operator,
+    );
+    expect(await beforeReceipt.json()).toMatchObject({
+      data: {
+        status: "verified",
+        parts: { service: "pending", verification: "pending" },
+      },
+    });
+    for (const origin of [both.serviceUrl, both.apiUrl]) {
+      const receipt = await fetch(origin + path + "/received", {
+        method: "POST",
+        headers: { authorization: `Bearer ${grant.accessToken}` },
+      });
+      expect(receipt.status).toBe(200);
+      expect(
+        (
+          await fetch(origin + path + "/received", {
+            method: "POST",
+            headers: { authorization: `Bearer ${grant.accessToken}` },
+          })
+        ).status,
+      ).toBe(200);
+    }
     const status = await call(
       `/v1/operator/data-subject/${command.operationId}`,
       undefined,
@@ -155,6 +207,13 @@ test("both actual programs deliver separate retained data only with independentl
         })
       ).status,
     ).not.toBe(200);
+    await both.advance(86370000);
+    const afterContentExpiry = await download(both.apiUrl);
+    expect(afterContentExpiry.status).toBe(200);
+    expect(await afterContentExpiry.json()).toMatchObject({
+      checks: [],
+      reports: [],
+    });
     await a.call("/v1/sign-out", { everywhere: false });
     expect((await download(both.apiUrl)).status).toBe(403);
     expect((await download(both.serviceUrl)).status).toBe(403);

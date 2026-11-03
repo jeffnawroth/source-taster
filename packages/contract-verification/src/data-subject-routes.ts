@@ -50,3 +50,35 @@ export const downloadDataSubject = createRoute({
     503: problem,
   },
 });
+
+/** A recipient acknowledgement follows complete consumption of this part's bytes;
+ * serving headers or accepting SMTP is not a delivery receipt. */
+export const acknowledgeDataSubject = createRoute({
+  method: "post",
+  path: "/v1/data-subject/{id}/received",
+  summary: "Verified recipient confirms receiving the verification part",
+  request: {
+    params: z.object({ id: z.uuid() }),
+    headers: z.object({
+      authorization: z.string().regex(/^Bearer [A-Za-z0-9_-]{43}$/),
+    }),
+  },
+  responses: {
+    200: {
+      description: "Idempotent recipient receipt, with current authority",
+      content: {
+        "application/json": {
+          schema: z.object({
+            requestId: z.uuid(),
+            part: z.literal("verification"),
+            received: z.literal(true),
+          }),
+        },
+      },
+    },
+    400: problem,
+    401: problem,
+    403: problem,
+    503: problem,
+  },
+});

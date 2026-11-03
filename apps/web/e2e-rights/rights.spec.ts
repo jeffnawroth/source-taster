@@ -217,16 +217,22 @@ for (const language of ["en", "de"] as const)
           "source-taster-verification-data-subject-v1",
         ],
       ] as const) {
+        const button = userPage.getByRole("button", {
+          name: buttonName,
+          exact: true,
+        });
+        await expect(button).toBeEnabled();
         const downloadPromise = userPage.waitForEvent("download");
-        await userPage
-          .getByRole("button", { name: buttonName, exact: true })
-          .press("Enter");
+        await button.press("Enter");
         const download = await downloadPromise;
         const path = await download.path();
         const data = JSON.parse(await readFile(path, "utf8")) as {
           format: string;
         };
         expect(data.format).toBe(format);
+        await expect(userPage.getByRole("status")).toHaveText(
+          en ? "Download received" : "Download empfangen",
+        );
       }
       await context.close();
     } finally {

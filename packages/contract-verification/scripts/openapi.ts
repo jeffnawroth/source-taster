@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
-import { downloadDataSubject } from "../src/data-subject-routes.ts";
+import {
+  downloadDataSubject,
+  acknowledgeDataSubject,
+} from "../src/data-subject-routes.ts";
 import { writeFile } from "node:fs/promises";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import {
@@ -13,6 +16,7 @@ import {
 const app = new OpenAPIHono();
 for (const route of [
   downloadDataSubject,
+  acknowledgeDataSubject,
   cancelCheck,
   renewCheckLease,
   createCheck,
@@ -40,6 +44,7 @@ const { structureDocument, getDocumentSettings, structureText } =
   await import("../src/document-routes.ts");
 for (const route of [
   downloadDataSubject,
+  acknowledgeDataSubject,
   structureText,
   structureDocument,
   getDocumentSettings,
