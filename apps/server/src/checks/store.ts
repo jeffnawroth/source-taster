@@ -1,3 +1,4 @@
+import { verificationSnapshot } from "../exports/snapshot.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // The Check lock serializes lifecycle, immutable evidence and ordered events.
 import type { ActiveConfiguration } from "@source-taster/contract-internal";
@@ -943,6 +944,25 @@ export function createCheckStore(
     return (await ownerSnapshot(principal, id, action, version))?.check ?? null;
   }
   return {
+    dataSubjectStream(
+      requestId: string,
+      accountId: string,
+      ownerId: string,
+      credential: string,
+      expiresAt: string,
+      restart?: string,
+    ) {
+      return verificationSnapshot(
+        db,
+        requestId,
+        accountId,
+        ownerId,
+        credential,
+        expiresAt,
+        clock,
+        restart,
+      );
+    },
     async syncHistory(
       principal: Pick<Principal, "ownerId" | "actorId" | "guestContextId">,
       extendedUntil: string | null,
@@ -2161,6 +2181,9 @@ export function createCheckStore(
     /** Expiry work; runs before a process serves or works (ADR-0005 restore). */
     sweep,
     async maintain() {
+      await db.exportSnapshot.deleteMany({
+        where: { expiresAt: { lte: new Date(clock.now()) } },
+      });
       await sweep();
       const running = await db.check.findMany({
         where: { references: { some: { status: "running" } } },

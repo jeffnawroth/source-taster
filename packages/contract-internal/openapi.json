@@ -6,6 +6,52 @@
   },
   "components": {
     "schemas": {
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "available": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "required": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "retryAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "code": {
+            "type": "string"
+          },
+          "i18nKey": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "code",
+          "i18nKey"
+        ]
+      },
       "AbusePolicy": {
         "type": "object",
         "properties": {
@@ -237,52 +283,6 @@
           "shared"
         ],
         "additionalProperties": false
-      },
-      "ProblemDetails": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "status": {
-            "type": "integer"
-          },
-          "detail": {
-            "type": "string"
-          },
-          "limit": {
-            "type": "integer",
-            "exclusiveMinimum": 0
-          },
-          "available": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "required": {
-            "type": "integer",
-            "exclusiveMinimum": 0
-          },
-          "retryAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "code": {
-            "type": "string"
-          },
-          "i18nKey": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "type",
-          "title",
-          "status",
-          "code",
-          "i18nKey"
-        ]
       },
       "AbuseDecision": {
         "oneOf": [
@@ -1023,6 +1023,137 @@
     "parameters": {}
   },
   "paths": {
+    "/internal/data-subject-authority": {
+      "post": {
+        "summary": "Current purpose-limited recipient authority and content-free delivery acknowledgement",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "accessToken": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{43}$"
+                  },
+                  "phase": {
+                    "type": "string",
+                    "enum": [
+                      "authorize",
+                      "served",
+                      "delivered"
+                    ]
+                  },
+                  "completionVerifier": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "completionToken": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{43}$"
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "accessToken",
+                  "phase"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Current verified recipient scope, never export content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "requestId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "accountId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "ownerId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "expiresAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "purpose": {
+                      "type": "string",
+                      "enum": [
+                        "data-subject-delivery"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "requestId",
+                    "accountId",
+                    "ownerId",
+                    "expiresAt",
+                    "purpose"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/internal/abuse/policy": {
       "post": {
         "summary": "Operator-maintained entrance budgets; signed abuse-entrance assertion, briefly cached settings only",

@@ -93,6 +93,10 @@
     "./ai": {
       "types": "./dist/contract-verification/src/ai.d.ts",
       "default": "./dist/contract-verification/src/ai.js"
+    },
+    "./data-subject-routes": {
+      "types": "./dist/contract-verification/src/data-subject-routes.d.ts",
+      "default": "./dist/contract-verification/src/data-subject-routes.js"
     }
   },
   "scripts": {

@@ -21,6 +21,7 @@
     "quota.playwright.config.ts",
     "e2e-abuse",
     "e2e-report",
-    "e2e-dpa"
+    "e2e-dpa",
+    "e2e-rights"
   ]
 }

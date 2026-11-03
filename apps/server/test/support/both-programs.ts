@@ -42,6 +42,8 @@ export async function bothPrograms(
     apiPort?: number;
     servicePort?: number;
     accounts?: boolean;
+    serviceAllowedOrigins?: string[];
+    verificationPublicOrigin?: string;
     clientLeaseMs?: number;
     extensionOrigins?: string[];
     accountPolicy?: Record<string, number>;
@@ -313,10 +315,15 @@ export async function bothPrograms(
     verificationAudience: "https://verification.test.invalid",
     verificationIssuer: "https://verification.test.invalid",
     verificationOrigin: apiUrl,
+    ...(options.verificationPublicOrigin
+      ? { verificationPublicOrigin: options.verificationPublicOrigin }
+      : {}),
     accessKey: access.key,
     internalKey: serviceInternal.key,
     verificationJwks: { keys: [verificationInternal.jwk] },
-    allowedOrigins: options.accounts ? ["https://web.test.invalid"] : [],
+    allowedOrigins:
+      options.serviceAllowedOrigins ??
+      (options.accounts ? ["https://web.test.invalid"] : []),
   };
   const serviceConfigPath = join(directory, "service.json"),
     verificationConfigPath = join(directory, "verification.json");

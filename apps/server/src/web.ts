@@ -3,6 +3,7 @@ import {
   mountConfigurations,
 } from "./quality/protocol.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import { mountDataSubjectDelivery } from "./exports/data-subject.ts";
 // The web process: serves the /v1 HTTP API and the Check event streams.
 
 import { createAbuseLimiter } from "./abuse/limiter.ts";
@@ -91,9 +92,11 @@ await runMain(async (config) => {
     documentConcurrency: config.documentLimits.concurrency,
     documentInputBytes: config.documentLimits.inputBytes,
   });
-  if (authority) mountInternalRoutes(app, authority);
-  if (config.mode === "hosted" && config.hosted)
+  if (authority && config.hosted) {
+    mountInternalRoutes(app, authority);
+    mountDataSubjectDelivery(app, config.hosted, checks);
     mountConfigurations(app, db, config.hosted);
+  }
   if (website) {
     // The website only answers what the API does not own (ADR-0020).
     const serveWebsite = website;

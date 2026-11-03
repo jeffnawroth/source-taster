@@ -489,3 +489,23 @@ export declare const ActiveConfigurationResponse: z.ZodObject<{
         version: z.ZodNumber;
     }, z.core.$strict>>;
 }, z.core.$strict>;
+/** Recipient-only rights delivery. Opaque credential travels only from recipient to
+ * verification and in a signed authority request; no content travels to service. */
+export declare const RightsAuthorityRequest: z.ZodObject<{
+    requestId: z.ZodUUID;
+    accessToken: z.ZodString;
+    phase: z.ZodEnum<{
+        authorize: "authorize";
+        delivered: "delivered";
+        served: "served";
+    }>;
+    completionVerifier: z.ZodOptional<z.ZodString>;
+    completionToken: z.ZodOptional<z.ZodString>;
+}, z.core.$strict>;
+export declare const RightsAuthorityResponse: z.ZodObject<{
+    requestId: z.ZodUUID;
+    accountId: z.ZodUUID;
+    ownerId: z.ZodUUID;
+    expiresAt: z.ZodISODateTime;
+    purpose: z.ZodLiteral<"data-subject-delivery">;
+}, z.core.$strict>;

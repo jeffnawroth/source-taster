@@ -1,0 +1,49 @@
+{
+  "containerId": "bfd4f96c1ec6870825e39426cef913a3a04a0a0c8cf8cf0b1b2d29d5493f5793",
+  "name": "/st113-owned-pg",
+  "taskLabel": "113",
+  "anonymousVolumesRemoved": [
+    "e23440863e33f8a0c7c0b0599e018e64bd3b7cd9f179c99f01d477791f847e91"
+  ],
+  "containerAbsent": true,
+  "applicationPortsListeningBeforeCleanup": {
+    "5501": false,
+    "5503": false,
+    "5442": false
+  },
+  "fixtureFilesRemoved": [
+    "browser-cd41eced-be2d-4074-99f2-d81404548364.json",
+    "browser-635e27f3-d2ce-4c97-a8d4-cfde37a9547a.json.done",
+    "setup-c2d4c296-3f9e-47dc-a777-4e9cdbe78345.json.done",
+    "setup-31ea0d27-3192-4a8f-8ee8-57b819df032e.json",
+    "setup-aa7ba9c5-087d-472f-9757-4a2522fa5455.json.done",
+    "setup-c2d4c296-3f9e-47dc-a777-4e9cdbe78345.json",
+    "setup-429a2c83-556c-48f5-a016-6e44fa257085.json",
+    "setup-aa7ba9c5-087d-472f-9757-4a2522fa5455.json",
+    "browser-1b4f8e82-4d84-499c-bb8a-7f1475ad9449.json.done",
+    "browser-ec94f500-7490-42db-8cd7-c577beed0c81.json.done",
+    "browser-ce58a25e-49d0-4876-b954-d1fb1ea54f3b.json",
+    "browser-88054113-49c9-475e-90d2-7ba0da50059a.json",
+    "browser-cad306fc-aa03-4306-b0f8-be62c9fb22a8.json",
+    "setup-429a2c83-556c-48f5-a016-6e44fa257085.json.done",
+    "browser-88054113-49c9-475e-90d2-7ba0da50059a.json.done",
+    "browser-8885ef3a-88ad-4f15-848c-f20244e5e4d7.json",
+    "browser-1b4f8e82-4d84-499c-bb8a-7f1475ad9449.json",
+    "browser-ce58a25e-49d0-4876-b954-d1fb1ea54f3b.json.done",
+    "browser-ec94f500-7490-42db-8cd7-c577beed0c81.json",
+    "browser-cad306fc-aa03-4306-b0f8-be62c9fb22a8.json.done",
+    "browser-cd41eced-be2d-4074-99f2-d81404548364.json.done",
+    "browser-635e27f3-d2ce-4c97-a8d4-cfde37a9547a.json",
+    "setup-31ea0d27-3192-4a8f-8ee8-57b819df032e.json.done",
+    "browser-8885ef3a-88ad-4f15-848c-f20244e5e4d7.json.done",
+    "apps/web/test-results",
+    "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106/apps/web/test-results"
+  ],
+  "preserved": [
+    "original and pre-integration override backups",
+    "113 evidence logs",
+    "controlled Pagefind cache",
+    "source worktrees/history"
+  ],
+  "untouched": "all unrelated containers, databases, roles, ports and scheduler jobs"
+}
