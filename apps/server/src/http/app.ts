@@ -134,7 +134,10 @@ export function createApp(
   apiVersion = 1,
 ) {
   const referenceLimit = () =>
-    initialContext.getStore()?.referenceLimit ?? configuredReferenceLimit;
+    Math.min(
+      configuredReferenceLimit,
+      initialContext.getStore()?.referenceLimit ?? configuredReferenceLimit,
+    );
   const documentInputBytes = () =>
     Math.min(
       configuredDocumentBytes,
@@ -423,9 +426,9 @@ export function createApp(
             .remoteAddress,
           entitlements,
         );
+        const initial = await entrance.initial?.();
+        if (initial) return initialContext.run(initial, next);
       }
-      const initial = await entrance.initial?.();
-      if (initial) return initialContext.run(initial, next);
       await next();
     });
 
