@@ -1,0 +1,1518 @@
+{
+  "issue": 108,
+  "recordedAt": "2026-11-03T06:09:53.315442+00:00",
+  "sourcesAndBefore": [
+    {
+      "workspace": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "before": "592b74970998804477016f6c53775fcda66542bb",
+      "source": "8fa5a9956053e7579488b3705ed2d94c3a4607a2"
+    },
+    {
+      "workspace": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "before": "7c76642bbd1ab99351e9d0c909b202ce69bdc425",
+      "source": "f95d936daa7209179076ff5ca2a20962b5148449"
+    }
+  ],
+  "ancestry": [
+    {
+      "workspace": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "head": "367f62447d4cd0dff11a367f41af788c7f474cb0",
+      "confirmedAncestors": [
+        "8fa5a9956053e7579488b3705ed2d94c3a4607a2",
+        "592b74970998804477016f6c53775fcda66542bb",
+        "1db784def38d7b77720afd66672016203f9220dc",
+        "2775228f3d7606e3b6151d12a693e3094694fb88"
+      ]
+    },
+    {
+      "workspace": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "head": "d11faf7e130f7cee5406415417ee7691e47b3279",
+      "confirmedAncestors": [
+        "f95d936daa7209179076ff5ca2a20962b5148449",
+        "7c76642bbd1ab99351e9d0c909b202ce69bdc425",
+        "42fb5697868f7248cbc6adb757e5a24853cf4466",
+        "bcf5620e0ee9dd8dfd458bf3853ededceed82492"
+      ]
+    }
+  ],
+  "testBoundary": {
+    "recordedAt": "2026-11-03T05:23:09.522139+00:00",
+    "publicCodeHead": "367f62447d4cd0dff11a367f41af788c7f474cb0",
+    "privateCodeHead": "7977e027d209bdcafe49bba4871949d302d52ef8",
+    "ownedPostgreSQL": "127.0.0.1:55711",
+    "apiPort": 5701,
+    "privatePorts": [5702, 5703],
+    "browserPort": 5471,
+    "sitePreviewOrigin": "http://127.0.0.1:5702",
+    "publishedSiteOrigin": null,
+    "siteProductionClaim": false,
+    "syntheticAdaptersOnly": [
+      "payment",
+      "VIES",
+      "Billit",
+      "captured-mail",
+      "clock"
+    ],
+    "realSeams": [
+      "PostgreSQL",
+      "HTTP",
+      "SSE",
+      "download",
+      "browser",
+      "actual Saxon/official pinned Schematron"
+    ],
+    "runnerSha256": "744afb68ed806f6c24ebd63b5b7436c2b86cf665377b27fc5ec3eed3c26b770e",
+    "noOverrides": true,
+    "noNestedAgents": true
+  },
+  "publishedTransport": {
+    "recordedAt": "2026-11-03T05:21:52.459689+00:00",
+    "pin": "367f62447d4cd0dff11a367f41af788c7f474cb0",
+    "remote": "367f62447d4cd0dff11a367f41af788c7f474cb0\trefs/heads/spec/70-launch-integration",
+    "github": {
+      "sha": "367f62447d4cd0dff11a367f41af788c7f474cb0",
+      "url": "https://github.com/jeffnawroth/source-taster/commit/367f62447d4cd0dff11a367f41af788c7f474cb0"
+    },
+    "PR": "https://github.com/jeffnawroth/source-taster/pull/139",
+    "immediatelyLinked": true
+  },
+  "installedContracts": {
+    "publicPin": "367f62447d4cd0dff11a367f41af788c7f474cb0",
+    "fivePins": [
+      {
+        "file": "apps/server/package.json",
+        "package": "@source-taster/contract-internal",
+        "sha": "367f62447d4cd0dff11a367f41af788c7f474cb0"
+      },
+      {
+        "file": "apps/server/package.json",
+        "package": "@source-taster/contract-service",
+        "sha": "367f62447d4cd0dff11a367f41af788c7f474cb0"
+      },
+      {
+        "file": "apps/server/package.json",
+        "package": "@source-taster/contract-verification",
+        "sha": "367f62447d4cd0dff11a367f41af788c7f474cb0"
+      },
+      {
+        "file": "apps/web/package.json",
+        "package": "@source-taster/contract-service",
+        "sha": "367f62447d4cd0dff11a367f41af788c7f474cb0"
+      },
+      {
+        "file": "scripts/evidence.ts",
+        "constant": "contractCommit",
+        "sha": "367f62447d4cd0dff11a367f41af788c7f474cb0"
+      }
+    ],
+    "workspacePolicyUnchanged": true,
+    "onlyPinSubstitutions": true,
+    "betterAuth": "1.7.14",
+    "registryGraphUnchanged": true,
+    "lockfileSha256": "262429c9e68fd5401d50c5113bee9423b03b59f517b3dfe5347dbeff279b0f48",
+    "installed": [
+      {
+        "consumer": "server",
+        "package": "@source-taster/contract-internal",
+        "installedRelativePath": "node_modules/.pnpm/@source-taster+contract-internal@git+https+++github.com+jeffnawroth+source-taster.git+3_6576279831abce528bc481dcfdfb8cf6/node_modules/@source-taster/contract-internal",
+        "pin": "367f62447d4cd0dff11a367f41af788c7f474cb0",
+        "fileCount": 10,
+        "files": {
+          "LICENSE-AGPL": "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee",
+          "LICENSE-MIT": "b9554a8a6132ad023b367aeb8fbc10b24d97fb6da115bbfdac3f79717828a85a",
+          "dist/contract-common/src/index.d.ts": "c307238586e36d008907c9ce3b65483694a69509ad220cce8422d6f275bc200b",
+          "dist/contract-common/src/index.js": "8e70553fee48350b82c6c2c94f2783b27362725d5a7d178b01ec546c5ba696be",
+          "dist/contract-internal/src/index.d.ts": "2a4500887dde81f3805bbbec6b1ee719ab23651235e676108650a3732dc66c05",
+          "dist/contract-internal/src/index.js": "920c6b466626b3a042db8127e5441dc6bad7aae93059d7b1a30e8c1d625eed2c",
+          "dist/contract-internal/src/routes.d.ts": "63bec77050e0577ccb1a09970885d3107274c1d5304549762b3f64d0d5b2b8bb",
+          "dist/contract-internal/src/routes.js": "85d3dc38ba085ac1f1beb7c2df84a210c09470615b1c9d7cdb0665e50a8b6f35",
+          "openapi.json": "b684d15d11829fe0880519c49819c715bc05cf1a0b6142e570093dbce15ee272",
+          "package.json": "933a0b7c2f8573e48ddf0f487606455e49f5fa66cd54d2e463a216cf6b2e25e6"
+        }
+      },
+      {
+        "consumer": "server",
+        "package": "@source-taster/contract-service",
+        "installedRelativePath": "node_modules/.pnpm/@source-taster+contract-service@git+https+++github.com+jeffnawroth+source-taster.git+36_01a7938de26b5c69ad7d230698877ac9/node_modules/@source-taster/contract-service",
+        "pin": "367f62447d4cd0dff11a367f41af788c7f474cb0",
+        "fileCount": 20,
+        "files": {
+          "LICENSE-AGPL": "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee",
+          "LICENSE-MIT": "b9554a8a6132ad023b367aeb8fbc10b24d97fb6da115bbfdac3f79717828a85a",
+          "dist/contract-common/src/index.d.ts": "c307238586e36d008907c9ce3b65483694a69509ad220cce8422d6f275bc200b",
+          "dist/contract-common/src/index.js": "8e70553fee48350b82c6c2c94f2783b27362725d5a7d178b01ec546c5ba696be",
+          "dist/contract-service/src/client.d.ts": "8dbd4da6704da797e7ae276f86b430601b9ac22f4bcb0f9d93843811180b8d8e",
+          "dist/contract-service/src/client.js": "151103b4340fefda59f9ae31bc71196dbbcd612b8d73fdaef20e3e58f500c5d4",
+          "dist/contract-service/src/commerce.d.ts": "f75ef097a42dd86fd40305f32c5695d98b2d2d232384416fa9ceedfad1010a4d",
+          "dist/contract-service/src/commerce.js": "6ddf2c0fa21da0398722ee2f358624d16db6f4a5c5b85670168a2430e4670d22",
+          "dist/contract-service/src/dpa-client.d.ts": "17e79d8a0d3e01d127dc243ef1c7b048fc607676006780c6a32bf33a9551e1e6",
+          "dist/contract-service/src/dpa-client.js": "270758316222793c9dfa65da1bdeced5d1b272dbd2e589cdbacbf71b5233b098",
+          "dist/contract-service/src/dpa-routes.d.ts": "f87abb206fec2f92d6c7047ed41b2d408847ad41665fce09626c5337bd408cd5",
+          "dist/contract-service/src/dpa-routes.js": "bdeaee599f9d16c56fdb3b79e1acb0eb3f9fc3efcfcdb562d3c1072dbe4fa51c",
+          "dist/contract-service/src/dpa.d.ts": "05c2ed6792f082202f0caae191a09116f7d57437e3bfee389c34a64e65e34f11",
+          "dist/contract-service/src/dpa.js": "a522ab621d83048ec1e30540f0823fc090f9d06c8931c9ecb2e482dff8e7278b",
+          "dist/contract-service/src/index.d.ts": "26780a1b4449640ba5c9c965b2a99ef60a619db05a9d0854a274de2f14f1b13d",
+          "dist/contract-service/src/index.js": "3d10f2449771ac9632c4b7c118784e5767c7629a63f80bb76b6d7e19d473a40d",
+          "dist/contract-service/src/routes.d.ts": "e842116885a5d0b1f9491ecd11bd39df83d3110ee2a18cc2f7707e43813a6a80",
+          "dist/contract-service/src/routes.js": "84fa9cfa62daeb3f796ef94d9911f989782f9295a9fcfd81596dcdd7078473dd",
+          "openapi.json": "8c7589c59984b646eee076c24a1b303b27775a49badd90feefb140bb3c1e1ad9",
+          "package.json": "93b4e910fa3ed9ca1adcaa2e11b432dddb29ac419c6509531d2736fc6e83e067"
+        }
+      },
+      {
+        "consumer": "server",
+        "package": "@source-taster/contract-verification",
+        "installedRelativePath": "node_modules/.pnpm/@source-taster+contract-verification@git+https+++github.com+jeffnawroth+source-taster.g_5efbf18d3a95c4da27923d4254901f3a/node_modules/@source-taster/contract-verification",
+        "pin": "367f62447d4cd0dff11a367f41af788c7f474cb0",
+        "fileCount": 52,
+        "files": {
+          "LICENSE-AGPL": "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee",
+          "LICENSE-MIT": "b9554a8a6132ad023b367aeb8fbc10b24d97fb6da115bbfdac3f79717828a85a",
+          "README.md": "d99bd544dddd92b90efd95c329d264904d67d031dc68008f36818ed2f91bf4f9",
+          "dist/contract-common/src/index.d.ts": "c307238586e36d008907c9ce3b65483694a69509ad220cce8422d6f275bc200b",
+          "dist/contract-common/src/index.js": "8e70553fee48350b82c6c2c94f2783b27362725d5a7d178b01ec546c5ba696be",
+          "dist/contract-verification/src/ai.d.ts": "1f05b34b7572f464554ec3827ee1337221f19a3f440d97db57de29149f1b07b3",
+          "dist/contract-verification/src/ai.js": "a84bc69e6af0b6d3c6eab4779b0a4a1100810a738ea129f585efa2698c0c3b33",
+          "dist/contract-verification/src/bibliography-client.d.ts": "22697c6a4fa1b711cd9f2653950c1e6036acc27f82e4f8977327a96d135b9895",
+          "dist/contract-verification/src/bibliography-client.js": "48b0832ad0b454a5906427c2728a2e4303630e72a1551a83740a824bed370015",
+          "dist/contract-verification/src/bibliography-routes.d.ts": "24ea6eb0361cd1b82e459bb74e010d361d83504d7ddb2e26f042476e44b6274d",
+          "dist/contract-verification/src/bibliography-routes.js": "8b89c493bc528c58ae6a34418c17cb2de043a8409598d97a89b51e55e092c6fb",
+          "dist/contract-verification/src/bibliography.d.ts": "bbe07699d57b35175a3e13d8f44782b13df5606be50dda7ee59dc76eb5a67852",
+          "dist/contract-verification/src/bibliography.js": "6cdb92700d623a25e0dbf4fb674f7f8acb0904d787631be3d5ca1e8001a9fc04",
+          "dist/contract-verification/src/client-v2.d.ts": "347ba31622ba11e45c243a68b118cc418a51c4f4e364651b92c176d6e7fb4db3",
+          "dist/contract-verification/src/client-v2.js": "fd859bf033a5463a87f0fdb2da595a91c45afa140a6877b7a4b79b901fa0df5c",
+          "dist/contract-verification/src/client.d.ts": "e7f5646d4df61799cac140116049021f6f60c7bf83b658d72296544976b4dff3",
+          "dist/contract-verification/src/client.js": "f32ab557b21d70bcb8ae7cd626763be8a44d1a8eb84a7179af658ff6d48b468a",
+          "dist/contract-verification/src/document-client.d.ts": "1c6297c81f2457559eb2ec52ee25cbbc5f0795484473867e09e37f81647cc546",
+          "dist/contract-verification/src/document-client.js": "81a16ccce1dcaeef6893aaba1a3568fbdd34db58f6d6d8585024a2ab07713c57",
+          "dist/contract-verification/src/document-routes.d.ts": "5700a4a21cadacae0581d3f96990b248efc08f69041f852f33901b8e476b295c",
+          "dist/contract-verification/src/document-routes.js": "45ae16af5a55739c5d10aa62ccf9cb7c4735da345be30b2a8f582c5034216c00",
+          "dist/contract-verification/src/document.d.ts": "49b00f3a36bad81062f265e130428f05f4367ca775a779502346249623015087",
+          "dist/contract-verification/src/document.js": "f34d0a10fae3299483c35664818efa519a1187ca24044fe2d600221a0f226a78",
+          "dist/contract-verification/src/export-client.d.ts": "1f57f4a24f9fae4c0d56324461ee712931b1c255bcfad3ada05a2497075cde52",
+          "dist/contract-verification/src/export-client.js": "8df5154d4f35506368ce334e99a1b9748fb999a0cab79b406cdb855e02c0cd99",
+          "dist/contract-verification/src/export-routes.d.ts": "b2ff60f8bc410cd0b1cb1cae832db6017bb722c42fc0c417f3c763d0c95dc4cf",
+          "dist/contract-verification/src/export-routes.js": "0512fa604a17cb7f017159ca6fe1b377ccf96b78058f63080bc3759a191d93b7",
+          "dist/contract-verification/src/export.d.ts": "75d89d326553a33544270038eeecf5954a44f277e397695815f75550cae6ad99",
+          "dist/contract-verification/src/export.js": "546bfe4e112b0d05d4181caf432a4b4732bdbefa725d05cdeb99d086b1d90eb4",
+          "dist/contract-verification/src/import.d.ts": "8621c682f8f8f49b945219c5434bf91f0f6aef22aa4eaea334bb42d0e73096b3",
+          "dist/contract-verification/src/import.js": "1cd3c53b215eff4056cccb2437616561fba51cdbb868388d08105e5dd1a7830e",
+          "dist/contract-verification/src/index.d.ts": "5bb9cd00fe436187cc55e365b5ef806e3718130a37e37cc06d9721e4c093cd64",
+          "dist/contract-verification/src/index.js": "7a97a7e142f18341fbbe79d80e7b55bfab0296c79f690cd97aae35ac345b4178",
+          "dist/contract-verification/src/report-client.d.ts": "2eb1b8a3b7f56d4f1b2c70a8192f0d84a079c97e4d2b5d2abf48e81026033326",
+          "dist/contract-verification/src/report-client.js": "bd9c71a6d147c8569f1e9305321fc8b7479486f12251014760e8c36e76930eb0",
+          "dist/contract-verification/src/report-routes.d.ts": "bc2e2e1c03f1d560b58174cbc94953ccd435b433baa47b5eb71589c60f23be08",
+          "dist/contract-verification/src/report-routes.js": "bfb48112d1ad4e03439414cf605709834ea0e34420990b917851dd6135fc0347",
+          "dist/contract-verification/src/report.d.ts": "29dd2d26f35a0e42cb0fa16c870cf1770a36406451f719064f1a1594ff309ddf",
+          "dist/contract-verification/src/report.js": "8b39e0880440bf54b2b13be8eb621d80f38d541e59f14bd4a9d67096396fd7b5",
+          "dist/contract-verification/src/routes-v2.d.ts": "6e4569e55117abe823f2f6ea0e23d7c9aa902e03538414147ba4684c0255833c",
+          "dist/contract-verification/src/routes-v2.js": "b2302c884dd53324f83985f43fa0360842d5fc83f43a8507c42314d5dad9a012",
+          "dist/contract-verification/src/routes.d.ts": "48ef7dd635eef384a5acc288317dade9fbdc95706c1e1831a169c168dcb8188b",
+          "dist/contract-verification/src/routes.js": "ff0246efc7d42da87ecae907b0d3c4dca0208cc1e41c3184902ed81aa8faa64f",
+          "dist/contract-verification/src/structuring.d.ts": "185fedf49ecb57123b9d64d2dfa9888f2ad4482a5b577d5a3a71e56e9604e287",
+          "dist/contract-verification/src/structuring.js": "ed5f96f9a1d5378e174019c1296b07f214e7646355e3e7e86a9265bdb929d367",
+          "dist/contract-verification/src/v2.d.ts": "4261103abb9174ed36d4a9c13822df6194472e646fb116a8d17683fb27b15bfc",
+          "dist/contract-verification/src/v2.js": "2bac1e2909c28eda53cc2e4e45a14de0f84d8d55df951d27ee103c612a4e56ae",
+          "dist/contract-verification/src/verification.d.ts": "5905b5837c6559c05fa377aba004a710a4c2351c5ac2880d627061e643c8fb92",
+          "dist/contract-verification/src/verification.js": "1f0434ef7bf6241977a52223b2d91a8187fa514e6647ccba84f0153501f93434",
+          "openapi-v2.json": "7e355802e08aa4624e5d573925d48d57a6d4ee8c0b4345738495eef5a5e5681d",
+          "openapi.json": "a90684302a019ad24b79fbc4de9dd38f51fd54d097e36f3e181f17ba3b583638",
+          "package.json": "721328dc856e3a94620186e6cf8bf31bd84ac6eb5fe66e56d3003b46d5c756db"
+        }
+      },
+      {
+        "consumer": "web",
+        "package": "@source-taster/contract-service",
+        "installedRelativePath": "node_modules/.pnpm/@source-taster+contract-service@git+https+++github.com+jeffnawroth+source-taster.git+36_01a7938de26b5c69ad7d230698877ac9/node_modules/@source-taster/contract-service",
+        "pin": "367f62447d4cd0dff11a367f41af788c7f474cb0",
+        "fileCount": 20,
+        "files": {
+          "LICENSE-AGPL": "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee",
+          "LICENSE-MIT": "b9554a8a6132ad023b367aeb8fbc10b24d97fb6da115bbfdac3f79717828a85a",
+          "dist/contract-common/src/index.d.ts": "c307238586e36d008907c9ce3b65483694a69509ad220cce8422d6f275bc200b",
+          "dist/contract-common/src/index.js": "8e70553fee48350b82c6c2c94f2783b27362725d5a7d178b01ec546c5ba696be",
+          "dist/contract-service/src/client.d.ts": "8dbd4da6704da797e7ae276f86b430601b9ac22f4bcb0f9d93843811180b8d8e",
+          "dist/contract-service/src/client.js": "151103b4340fefda59f9ae31bc71196dbbcd612b8d73fdaef20e3e58f500c5d4",
+          "dist/contract-service/src/commerce.d.ts": "f75ef097a42dd86fd40305f32c5695d98b2d2d232384416fa9ceedfad1010a4d",
+          "dist/contract-service/src/commerce.js": "6ddf2c0fa21da0398722ee2f358624d16db6f4a5c5b85670168a2430e4670d22",
+          "dist/contract-service/src/dpa-client.d.ts": "17e79d8a0d3e01d127dc243ef1c7b048fc607676006780c6a32bf33a9551e1e6",
+          "dist/contract-service/src/dpa-client.js": "270758316222793c9dfa65da1bdeced5d1b272dbd2e589cdbacbf71b5233b098",
+          "dist/contract-service/src/dpa-routes.d.ts": "f87abb206fec2f92d6c7047ed41b2d408847ad41665fce09626c5337bd408cd5",
+          "dist/contract-service/src/dpa-routes.js": "bdeaee599f9d16c56fdb3b79e1acb0eb3f9fc3efcfcdb562d3c1072dbe4fa51c",
+          "dist/contract-service/src/dpa.d.ts": "05c2ed6792f082202f0caae191a09116f7d57437e3bfee389c34a64e65e34f11",
+          "dist/contract-service/src/dpa.js": "a522ab621d83048ec1e30540f0823fc090f9d06c8931c9ecb2e482dff8e7278b",
+          "dist/contract-service/src/index.d.ts": "26780a1b4449640ba5c9c965b2a99ef60a619db05a9d0854a274de2f14f1b13d",
+          "dist/contract-service/src/index.js": "3d10f2449771ac9632c4b7c118784e5767c7629a63f80bb76b6d7e19d473a40d",
+          "dist/contract-service/src/routes.d.ts": "e842116885a5d0b1f9491ecd11bd39df83d3110ee2a18cc2f7707e43813a6a80",
+          "dist/contract-service/src/routes.js": "84fa9cfa62daeb3f796ef94d9911f989782f9295a9fcfd81596dcdd7078473dd",
+          "openapi.json": "8c7589c59984b646eee076c24a1b303b27775a49badd90feefb140bb3c1e1ad9",
+          "package.json": "93b4e910fa3ed9ca1adcaa2e11b432dddb29ac419c6509531d2736fc6e83e067"
+        }
+      }
+    ]
+  },
+  "counts": {
+    "private-focused": 46,
+    "private-full": 113,
+    "both-quota-commerce": 10,
+    "both-authority": 33,
+    "real-purchase-browser": 4,
+    "private-browser": 8,
+    "both-cancellation-browser": 2
+  },
+  "checks": [
+    {
+      "name": "public-install",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": ["pnpm", "install", "--frozen-lockfile"],
+      "exitCode": 0,
+      "seconds": 0.12,
+      "log": "108-integrated-public-install.log",
+      "sha256": "753a3247d851750c8034bfa48280e5e570003bdaa610aee9a5dfb55b6c1c5a9d",
+      "bytes": 268
+    },
+    {
+      "name": "contract-common",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/contract-common",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 0.21,
+      "log": "108-integrated-contract-common.log",
+      "sha256": "24c42b76aecef2c39c8a5639a3536efb936b03bdac9a8f8be50c0e71ffbc7af8",
+      "bytes": 29
+    },
+    {
+      "name": "contract-internal",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/contract-internal",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 0.37,
+      "log": "108-integrated-contract-internal.log",
+      "sha256": "99ffb5cfaaa7975ee406c1bc012dfd72afacd0fcd3515f58f619e91f0c534630",
+      "bytes": 24
+    },
+    {
+      "name": "contract-service",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/contract-service",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 0.44,
+      "log": "108-integrated-contract-service.log",
+      "sha256": "99ffb5cfaaa7975ee406c1bc012dfd72afacd0fcd3515f58f619e91f0c534630",
+      "bytes": 24
+    },
+    {
+      "name": "contract-verification",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/contract-verification",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 0.45,
+      "log": "108-integrated-contract-verification.log",
+      "sha256": "99ffb5cfaaa7975ee406c1bc012dfd72afacd0fcd3515f58f619e91f0c534630",
+      "bytes": 24
+    },
+    {
+      "name": "public-prisma",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": ["pnpm", "--filter", "@source-taster/server", "generate"],
+      "exitCode": 0,
+      "seconds": 0.66,
+      "log": "108-integrated-public-prisma.log",
+      "sha256": "0580543ed9d9684992da90517196a3bcf23e527416bc9354470aff795156296f",
+      "bytes": 184
+    },
+    {
+      "name": "public-catalog",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": ["pnpm", "--filter", "@source-taster/i18n", "generate"],
+      "exitCode": 0,
+      "seconds": 1.75,
+      "log": "108-integrated-public-catalog.log",
+      "sha256": "df18f23268ff1b29e9d3ce16037d61b1cec74db2cfa217d55fb5f17e43cebe85",
+      "bytes": 240
+    },
+    {
+      "name": "public-contract-repro",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "git",
+        "diff",
+        "--exit-code",
+        "--",
+        "packages/contract-common",
+        "packages/contract-internal",
+        "packages/contract-service",
+        "packages/contract-verification"
+      ],
+      "exitCode": 0,
+      "seconds": 0.03,
+      "log": "108-integrated-public-contract-repro.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "name": "private-prisma",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/server",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 0.85,
+      "log": "108-integrated-private-prisma-prepin.log",
+      "sha256": "46c4839cc50be628695fc720a760af0942d6cab4893984ccc2b9ea1b07920992",
+      "bytes": 185,
+      "originalRecordedLogName": "108-integrated-private-prisma.log"
+    },
+    {
+      "name": "private-catalog",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/i18n",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 1.55,
+      "log": "108-integrated-private-catalog.log",
+      "sha256": "df18f23268ff1b29e9d3ce16037d61b1cec74db2cfa217d55fb5f17e43cebe85",
+      "bytes": 240
+    },
+    {
+      "name": "en16931-prepare",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": ["pnpm", "prepare:en16931"],
+      "exitCode": 0,
+      "seconds": 0.24,
+      "log": "108-integrated-en16931-prepare.log",
+      "sha256": "93df4fb7d3d9f3e0a23342250a022b2f6945528c9ad4de2a79218c008161d8df",
+      "bytes": 290
+    },
+    {
+      "name": "pagefind-fetch",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": ["pnpm", "pagefind:fetch"],
+      "exitCode": 0,
+      "seconds": 40.0,
+      "log": "108-integrated-pagefind-fetch.log",
+      "sha256": "075378add82507f94ef23aa96a221d63b05680fa2769875c5befdad3512f16ed",
+      "bytes": 967
+    },
+    {
+      "name": "pg-create",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "docker",
+        "run",
+        "-d",
+        "--name",
+        "st108-integrated-pg",
+        "--label",
+        "source-taster.task=108-integrated-nov3",
+        "-e",
+        "POSTGRES_PASSWORD=postgres",
+        "-p",
+        "127.0.0.1:55711:5432",
+        "postgres:18"
+      ],
+      "exitCode": 0,
+      "seconds": 0.61,
+      "log": "108-integrated-pg-create.log",
+      "sha256": "d5b256b049ff26df95ee010ca9fe17717157470ae54cbd71fa23371d116643a7",
+      "bytes": 65
+    },
+    {
+      "name": "pagefind-build",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": ["pnpm", "pagefind:build"],
+      "exitCode": 0,
+      "seconds": 38.7,
+      "log": "108-integrated-pagefind-build.log",
+      "sha256": "a0bc29e6cd54628c8dedbff4ae8f6c2e8d24696728d7655981e5b25384d7b850",
+      "bytes": 6618
+    },
+    {
+      "name": "pagefind-verify",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": ["pnpm", "pagefind:verify"],
+      "exitCode": 0,
+      "seconds": 8.36,
+      "log": "108-integrated-pagefind-verify.log",
+      "sha256": "9f13fabac05bdeabf4b3c72b7670a332783263e0544b425afe88d162b3288d51",
+      "bytes": 98
+    },
+    {
+      "name": "public-typecheck",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": ["pnpm", "typecheck"],
+      "exitCode": 0,
+      "seconds": 24.04,
+      "log": "108-integrated-public-typecheck.log",
+      "sha256": "3efa6792ae20f728f5152440385b50522ca4e07bf31fe926fcb88ebb1f036718",
+      "bytes": 11590
+    },
+    {
+      "name": "public-lint",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": ["pnpm", "lint"],
+      "exitCode": 0,
+      "seconds": 32.78,
+      "log": "108-integrated-public-lint.log",
+      "sha256": "5945511e2c0ccd5467bd3aca2eb33f6fd6be7724164a416c436fc43fcf8d1d89",
+      "bytes": 11435
+    },
+    {
+      "name": "public-i18n-check",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": ["pnpm", "i18n:check"],
+      "exitCode": 0,
+      "seconds": 0.26,
+      "log": "108-integrated-public-i18n-check.log",
+      "sha256": "a1912706b850bab3673000f1dd49871d0158e9b2ffccc13bbf8d86f43c6c7b04",
+      "bytes": 1049
+    },
+    {
+      "name": "public-build",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": ["pnpm", "build"],
+      "exitCode": 0,
+      "seconds": 19.5,
+      "log": "108-integrated-public-build.log",
+      "sha256": "4d9246ca0240a33941810a99995072019bc41d806ae1a7cd3827410c6a771ea4",
+      "bytes": 14847
+    },
+    {
+      "name": "public-clean",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": ["git", "diff", "--exit-code"],
+      "exitCode": 0,
+      "seconds": 0.04,
+      "log": "108-integrated-public-clean.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "name": "public-transport-push",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": ["git", "push", "origin", "HEAD:spec/70-launch-integration"],
+      "exitCode": 0,
+      "seconds": 2.46,
+      "log": "108-integrated-public-transport-push.log",
+      "sha256": "d0d9d529b435339d3db2fa7cb7e74ccc14b193898ec8b469fac5d30d7cbfa24c",
+      "bytes": 366
+    },
+    {
+      "name": "private-install",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": ["pnpm", "install"],
+      "exitCode": 0,
+      "seconds": 3.33,
+      "log": "108-integrated-private-install.log",
+      "sha256": "8bf5a5dbb2def3c565c7608108f3ae70990636886e168730f722f9dda29335c1",
+      "bytes": 356
+    },
+    {
+      "name": "release-refusal-direct",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster/apps/server",
+      "command": ["node", "scripts/release-check.ts"],
+      "exitCode": 78,
+      "seconds": 0.45,
+      "log": "108-integrated-release-refusal-direct.log",
+      "sha256": "d7b66fd9425176834b18995419c5c034d1fe3af22e46f3b27d2bad07ee5cc690",
+      "bytes": 160
+    },
+    {
+      "name": "private-frozen",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": ["pnpm", "install", "--frozen-lockfile"],
+      "exitCode": 0,
+      "seconds": 0.14,
+      "log": "108-integrated-private-frozen.log",
+      "sha256": "24e715427b22e7084f4908b8dc73b82ede97590fc238a334bbae8f1ee9ec0305",
+      "bytes": 268
+    },
+    {
+      "name": "installed-bytes",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "python3",
+        "/Users/jeffnawroth/Developer/Repositories/source-taster/.tmp/spec-70-orchestration/108-integrated-verify-pins.py"
+      ],
+      "exitCode": 0,
+      "seconds": 1.07,
+      "log": "108-integrated-installed-bytes.log",
+      "sha256": "8f6c40dec86402494b66ebb3c1f8f504a093ba023e1df1d18aae4a0852a6d81f",
+      "bytes": 160
+    },
+    {
+      "name": "private-prisma",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/server",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 0.85,
+      "log": "108-integrated-private-prisma.log",
+      "sha256": "6f430a1cf9978d8448e0cb0c0244b1b16108edcea633f70f19c223f659edf1ea",
+      "bytes": 185
+    },
+    {
+      "name": "private-catalog",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/i18n",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 1.62,
+      "log": "108-integrated-private-catalog.log",
+      "sha256": "df18f23268ff1b29e9d3ce16037d61b1cec74db2cfa217d55fb5f17e43cebe85",
+      "bytes": 240
+    },
+    {
+      "name": "private-types",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": ["pnpm", "typecheck"],
+      "exitCode": 0,
+      "seconds": 2.07,
+      "log": "108-integrated-private-types.log",
+      "sha256": "a6861c794e6c7bb19b386449c01f742be5107068738552cea41ffda2f8b7c635",
+      "bytes": 2412
+    },
+    {
+      "name": "site-browser-fixture-build",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": ["pnpm", "--filter", "@source-taster/website", "build"],
+      "exitCode": 0,
+      "seconds": 19.35,
+      "log": "108-integrated-site-browser-fixture-build.log",
+      "sha256": "c9a2b0c6f5ce9f2066b65eebd03f2b0d752a8df20b223f451668dbecae34a031",
+      "bytes": 4315
+    },
+    {
+      "name": "private-lint",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": ["pnpm", "lint"],
+      "exitCode": 1,
+      "seconds": 8.72,
+      "log": "108-integrated-private-lint.log",
+      "sha256": "3fe50b346c0f7cdfb3fbbff088be70321d9df4d72d7fce5e90772d12a9b2513e",
+      "bytes": 261
+    },
+    {
+      "name": "private-source-handoff-format",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "exec",
+        "prettier",
+        "--write",
+        "docs/evidence/108-consumer-cancellation.json",
+        "docs/validation-108.md"
+      ],
+      "exitCode": 0,
+      "seconds": 0.19,
+      "log": "108-integrated-private-source-handoff-format.log",
+      "sha256": "79496168f9519a111ec7e22089b2f211d108c8c57d2d3a28a4575ab8e4c3211e",
+      "bytes": 78
+    },
+    {
+      "name": "private-lint-final",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": ["pnpm", "lint"],
+      "exitCode": 0,
+      "seconds": 9.0,
+      "log": "108-integrated-private-lint-final.log",
+      "sha256": "26db9673ec89bc95699a8e66249537512722e2114018fc39c411bfb94c2d9eaa",
+      "bytes": 99
+    },
+    {
+      "name": "private-i18n",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": ["pnpm", "i18n:check"],
+      "exitCode": 0,
+      "seconds": 0.11,
+      "log": "108-integrated-private-i18n.log",
+      "sha256": "052f75d7c9c1c5c1144a74782a0570589ec91297d5cf27150634888eabb6e516",
+      "bytes": 606
+    },
+    {
+      "name": "private-build",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": ["pnpm", "build"],
+      "exitCode": 0,
+      "seconds": 1.22,
+      "log": "108-integrated-private-build.log",
+      "sha256": "e2409176fb376cbfb755bdf3a30a0f2dbb105041970f3b31940008d0bc3af4af",
+      "bytes": 3265
+    },
+    {
+      "name": "private-licenses",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": ["pnpm", "audit:licenses"],
+      "exitCode": 0,
+      "seconds": 0.29,
+      "log": "108-integrated-private-licenses.log",
+      "sha256": "32868ec50d7c8ed98fa642748ef0bd7002fd389f0b1af9570b01b9371ccce13c",
+      "bytes": 81
+    },
+    {
+      "name": "public-prisma-local",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": ["pnpm", "--filter", "@source-taster/server", "generate"],
+      "exitCode": 0,
+      "seconds": 0.68,
+      "log": "108-integrated-public-prisma-local.log",
+      "sha256": "677ea6b94db3b42d85d197ead1b6c5f4ce9c99cc4257b26b08f276cc9869f960",
+      "bytes": 184
+    },
+    {
+      "name": "public-catalog-local",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": ["pnpm", "--filter", "@source-taster/i18n", "generate"],
+      "exitCode": 0,
+      "seconds": 1.87,
+      "log": "108-integrated-public-catalog-local.log",
+      "sha256": "df18f23268ff1b29e9d3ce16037d61b1cec74db2cfa217d55fb5f17e43cebe85",
+      "bytes": 240
+    },
+    {
+      "name": "private-prisma-local",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/server",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 0.77,
+      "log": "108-integrated-private-prisma-local.log",
+      "sha256": "98e13827b50d166bcbf547cf2970c5b34302c4ea6927d4181e29825c8b7bb3a4",
+      "bytes": 185
+    },
+    {
+      "name": "private-catalog-local",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/i18n",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 1.44,
+      "log": "108-integrated-private-catalog-local.log",
+      "sha256": "df18f23268ff1b29e9d3ce16037d61b1cec74db2cfa217d55fb5f17e43cebe85",
+      "bytes": 240
+    },
+    {
+      "name": "generated-reproducibility-final",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "python3",
+        "/Users/jeffnawroth/Developer/Repositories/source-taster/.tmp/spec-70-orchestration/108-integrated-reproduce.py"
+      ],
+      "exitCode": 0,
+      "seconds": 4.45,
+      "log": "108-integrated-generated-reproducibility-final.log",
+      "sha256": "c48421586b0cc43aaa70688570a97f1183b50f7e530362974c4aee889f228b29",
+      "bytes": 1437
+    },
+    {
+      "name": "private-focused",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/server",
+        "exec",
+        "vitest",
+        "run",
+        "test/cancellation.test.ts",
+        "test/subscription.test.ts",
+        "test/commerce.test.ts",
+        "test/abuse.test.ts",
+        "test/business-tax.test.ts"
+      ],
+      "exitCode": 0,
+      "seconds": 128.43,
+      "log": "108-integrated-private-focused.log",
+      "sha256": "f99606cded17d274ad35ff8b5ed47965e2ab32e8a73ceb8f1fb028fae640388e",
+      "bytes": 215
+    },
+    {
+      "name": "private-full",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/server",
+        "exec",
+        "vitest",
+        "run"
+      ],
+      "exitCode": 0,
+      "seconds": 290.71,
+      "log": "108-integrated-private-full.log",
+      "sha256": "6a55d2f684b140500297267bd0c85b45693a64ebcf61da159d06f7476b080cf7",
+      "bytes": 219
+    },
+    {
+      "name": "both-quota-commerce",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/server",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        "quota.vitest.config.ts"
+      ],
+      "exitCode": 0,
+      "seconds": 65.1,
+      "log": "108-integrated-both-quota-commerce.log",
+      "sha256": "13b65c7c767e40863bdf78f0c8380870f73ba6427663a6a3a8c58d2b45ee6927",
+      "bytes": 194
+    },
+    {
+      "name": "both-authority",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/server",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        "guest.vitest.config.ts"
+      ],
+      "exitCode": 0,
+      "seconds": 170.94,
+      "log": "108-integrated-both-authority.log",
+      "sha256": "bffeb33cd3752ca0ea11a7c2c1a4ce3402dd5d29cccf5f3746995e933e36f355",
+      "bytes": 195
+    },
+    {
+      "name": "real-purchase-browser",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/web",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "account.playwright.config.ts",
+        "business-invoices.spec.ts"
+      ],
+      "exitCode": 0,
+      "seconds": 18.78,
+      "log": "108-integrated-real-purchase-browser.log",
+      "sha256": "3b8af3b20758d76c6547750457c4dba07b26280567892a2bf487cc73418b55ca",
+      "bytes": 783
+    },
+    {
+      "name": "private-browser",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/web",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "commerce.playwright.config.ts"
+      ],
+      "exitCode": 0,
+      "seconds": 18.93,
+      "log": "108-integrated-private-browser.log",
+      "sha256": "ce591b514efb979302826b5d977007efb81877c429dc56e8707fe6faf512f5fd",
+      "bytes": 1529
+    },
+    {
+      "name": "both-cancellation-browser",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/web",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "guest.playwright.config.ts",
+        "cancellation.spec.ts"
+      ],
+      "exitCode": 0,
+      "seconds": 18.33,
+      "log": "108-integrated-both-cancellation-browser.log",
+      "sha256": "ad05df63f6ef802c8751eb8ed466eb1e2b48e5a786a61dd439e895e9513997a0",
+      "bytes": 539
+    },
+    {
+      "name": "frozen-after",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "python3",
+        ".tmp/spec-70-orchestration/108-integrated-frozen-after.py"
+      ],
+      "exitCode": 0,
+      "seconds": 0.19,
+      "log": "108-integrated-frozen-after.log",
+      "sha256": "e3de59780c82654100b7ccbb7153e262cfb179c006823457a385cc5698061d5e",
+      "bytes": 668
+    },
+    {
+      "name": "installed-bytes-final",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "python3",
+        ".tmp/spec-70-orchestration/108-integrated-verify-pins.py"
+      ],
+      "exitCode": 0,
+      "seconds": 0.77,
+      "log": "108-integrated-installed-bytes-final.log",
+      "sha256": "8f6c40dec86402494b66ebb3c1f8f504a093ba023e1df1d18aae4a0852a6d81f",
+      "bytes": 160
+    },
+    {
+      "name": "cleanup",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "python3",
+        ".tmp/spec-70-orchestration/108-integrated-cleanup.py"
+      ],
+      "exitCode": 0,
+      "seconds": 0.72,
+      "log": "108-integrated-cleanup.log",
+      "sha256": "bd8a284d1692218b71d3cc1a4e6f2ea85317916f80bca9f193d3b37dc321a4f7",
+      "bytes": 739
+    }
+  ],
+  "logNameRecovery": [
+    {
+      "originalLog": "108-integrated-private-prisma.log",
+      "recoveredLog": "108-integrated-private-prisma-prepin.log",
+      "sha256": "46c4839cc50be628695fc720a760af0942d6cab4893984ccc2b9ea1b07920992",
+      "method": "Exact earlier tool-captured stdout, including its 106ms generator timing; hash verified against the unchanged original runner receipt."
+    }
+  ],
+  "failedOrExpectedRefusalRuns": [
+    {
+      "name": "release-refusal-direct",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster/apps/server",
+      "command": ["node", "scripts/release-check.ts"],
+      "exitCode": 78,
+      "seconds": 0.45,
+      "log": "108-integrated-release-refusal-direct.log",
+      "sha256": "d7b66fd9425176834b18995419c5c034d1fe3af22e46f3b27d2bad07ee5cc690",
+      "bytes": 160,
+      "interpretation": "Expected fail-closed release guard (78)."
+    },
+    {
+      "name": "private-lint",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": ["pnpm", "lint"],
+      "exitCode": 1,
+      "seconds": 8.72,
+      "log": "108-integrated-private-lint.log",
+      "sha256": "3fe50b346c0f7cdfb3fbbff088be70321d9df4d72d7fce5e90772d12a9b2513e",
+      "bytes": 261,
+      "interpretation": "Source private handoff JSON/Markdown formatting only. Formatted normally in INTEGRATION, followed by passing aggregate lint. Source checkout unchanged."
+    }
+  ],
+  "generatedReproducibility": [
+    {
+      "tree": "public Prisma",
+      "files": 21,
+      "identical": true,
+      "manifestSha256": "9348de92142b434b6419a39402cae57f5c6fdb5394aebac04c6bb30aaad60cfd"
+    },
+    {
+      "tree": "public catalog",
+      "files": 1082,
+      "identical": true,
+      "manifestSha256": "9641ba4e6f6222e71e9e6d3fce82530ad01d0e628b9f1066408a2185688efe2e"
+    },
+    {
+      "tree": "private Prisma",
+      "files": 61,
+      "identical": true,
+      "manifestSha256": "d4fa830d92d3dcdce8c38050ac5e7990c2862d26851fb7330076fba969024ebe"
+    },
+    {
+      "tree": "private catalog",
+      "files": 322,
+      "identical": true,
+      "manifestSha256": "c657bb49dcbaa89cd3a2b3058d0ec9220df1bb139f3584758cb0a846a372d21e"
+    }
+  ],
+  "artifactsUnchangedThroughoutAcceptance": [
+    {
+      "tree": "public Prisma",
+      "files": 21,
+      "manifestSha256": "9348de92142b434b6419a39402cae57f5c6fdb5394aebac04c6bb30aaad60cfd",
+      "unchangedThroughoutAcceptance": true
+    },
+    {
+      "tree": "public catalog",
+      "files": 1082,
+      "manifestSha256": "9641ba4e6f6222e71e9e6d3fce82530ad01d0e628b9f1066408a2185688efe2e",
+      "unchangedThroughoutAcceptance": true
+    },
+    {
+      "tree": "private Prisma",
+      "files": 61,
+      "manifestSha256": "d4fa830d92d3dcdce8c38050ac5e7990c2862d26851fb7330076fba969024ebe",
+      "unchangedThroughoutAcceptance": true
+    },
+    {
+      "tree": "private catalog",
+      "files": 322,
+      "manifestSha256": "c657bb49dcbaa89cd3a2b3058d0ec9220df1bb139f3584758cb0a846a372d21e",
+      "unchangedThroughoutAcceptance": true
+    }
+  ],
+  "validatorToolchain": {
+    "inputs": {
+      "jar": {
+        "url": "https://repo.maven.apache.org/maven2/net/sf/saxon/Saxon-HE/10.9/Saxon-HE-10.9.jar",
+        "sha256": "491d8edf4ec811d15c2b2417b007218b9b938f15e4dfbad004025beb4e70e960"
+      },
+      "rules": {
+        "url": "https://github.com/ConnectingEurope/eInvoicing-EN16931/releases/download/validation-1.3.17/en16931-ubl-1.3.17.zip",
+        "sha256": "bf02a0e3f6cbe692a4a28e70be7bdcaded5612b4169b543e13d6cb4f33c29e92",
+        "stylesheetSha256": "fc4e6cfa8596bba0c2abd19038a98960c6ee9fc1f44566787c115efd4f4aca7c"
+      }
+    },
+    "config": {
+      "java": "java",
+      "jar": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration/.tmp/en16931/saxon.jar",
+      "jarSha256": "491d8edf4ec811d15c2b2417b007218b9b938f15e4dfbad004025beb4e70e960",
+      "stylesheet": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration/.tmp/en16931/rules/xslt/EN16931-UBL-validation.xslt",
+      "stylesheetSha256": "fc4e6cfa8596bba0c2abd19038a98960c6ee9fc1f44566787c115efd4f4aca7c",
+      "rulesVersion": "ConnectingEurope EN16931 UBL 1.3.17"
+    },
+    "files": {
+      "saxon.jar": {
+        "bytes": 5754909,
+        "sha256": "491d8edf4ec811d15c2b2417b007218b9b938f15e4dfbad004025beb4e70e960"
+      },
+      "rules.zip": {
+        "bytes": 2651001,
+        "sha256": "bf02a0e3f6cbe692a4a28e70be7bdcaded5612b4169b543e13d6cb4f33c29e92"
+      },
+      "rules/xslt/EN16931-UBL-validation.xslt": {
+        "bytes": 898710,
+        "sha256": "fc4e6cfa8596bba0c2abd19038a98960c6ee9fc1f44566787c115efd4f4aca7c"
+      }
+    }
+  },
+  "cleanup": {
+    "recordedAt": "2026-11-03T06:08:26.050517+00:00",
+    "container": "/st108-integrated-pg",
+    "containerId": "d8140e34ee5d28ef09494d506fb374f24ff600a244baaf7bf64235b3e75168dc",
+    "label": {
+      "source-taster.task": "108-integrated-nov3"
+    },
+    "binding": "127.0.0.1:55711",
+    "ownershipVerified": true,
+    "activeOtherClientBackends": 0,
+    "remainingFixtureDatabases": [],
+    "remainingFixtureRoles": [],
+    "removedOwnedContainer": "d8140e34ee5d28ef09494d506fb374f24ff600a244baaf7bf64235b3e75168dc",
+    "portsWithoutListeners": [5701, 5702, 5703, 5471, 55711],
+    "unrelatedResourcesTouched": false,
+    "fixturesCompletedOwnProcessDatabaseRoleProfileCleanup": true,
+    "retainedIgnoredCaches": [
+      "public controlled Pagefind cache",
+      "private hash-pinned external validator cache"
+    ]
+  },
+  "sourceWorkspacesUnchanged": {
+    "recordedAt": "2026-11-03T06:08:53.471664+00:00",
+    "sources": [
+      {
+        "path": "/Users/jeffnawroth/.t3/worktrees/source-taster/t3-ea7ef1ba",
+        "head": "8fa5a9956053e7579488b3705ed2d94c3a4607a2",
+        "status": ""
+      },
+      {
+        "path": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-106",
+        "head": "f95d936daa7209179076ff5ca2a20962b5148449",
+        "status": " M pnpm-lock.yaml\n M pnpm-workspace.yaml\n"
+      }
+    ],
+    "intentionalSource106OverrideHashes": {
+      "pnpm-workspace.yaml": "6a69326c1cf4a95a11ce8d405b27671ffa92b1fd488a9716722f3b6c289181ab",
+      "pnpm-lock.yaml": "238d91a5102bda6ade4a41fdbfea36a2268c8d491800c4a02bb5389a7afc4925"
+    },
+    "unchanged": true,
+    "sourceWorkspaceWrites": false
+  },
+  "retryJob": {
+    "recordedAt": "2026-11-03T06:08:53.472178+00:00",
+    "scheduledTaskId": "scheduled-task:c344cd3a-19e4-4ee6-a95c-5aeaf37506ca",
+    "enabled": true,
+    "schedule": {
+      "type": "interval",
+      "everyMs": 18000000
+    },
+    "action": "Read-only list_scheduled_tasks recheck at final handoff; enabled=true and everyMs=18000000 unchanged.",
+    "nextRunAt": "2026-11-03T10:35:53.332Z"
+  },
+  "hostedPRStateBeforeHandoffPush": {
+    "public": {
+      "headRefOid": "367f62447d4cd0dff11a367f41af788c7f474cb0",
+      "isDraft": true,
+      "reviewDecision": "",
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-11-03T05:55:07Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/jeffnawroth/source-taster/actions/runs/41583458036/job/125743690134",
+          "name": "checks",
+          "startedAt": "2026-11-03T05:22:43Z",
+          "status": "COMPLETED",
+          "workflowName": "Walking skeleton"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-11-03T05:44:27Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/jeffnawroth/source-taster/actions/runs/41583458036/job/125743689887",
+          "name": "dependencies",
+          "startedAt": "2026-11-03T05:22:43Z",
+          "status": "COMPLETED",
+          "workflowName": "Walking skeleton"
+        }
+      ],
+      "url": "https://github.com/jeffnawroth/source-taster/pull/139"
+    },
+    "private": {
+      "headRefOid": "7c76642bbd1ab99351e9d0c909b202ce69bdc425",
+      "isDraft": true,
+      "reviewDecision": "",
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-11-03T05:17:34Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/jeffnawroth/source-taster-service/actions/runs/41581907597/job/125738439308",
+          "name": "checks",
+          "startedAt": "2026-11-03T05:06:14Z",
+          "status": "COMPLETED",
+          "workflowName": "Private service skeleton"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-11-03T05:07:06Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/jeffnawroth/source-taster-service/actions/runs/41581907597/job/125738439494",
+          "name": "dependencies",
+          "startedAt": "2026-11-03T05:06:14Z",
+          "status": "COMPLETED",
+          "workflowName": "Private service skeleton"
+        }
+      ],
+      "url": "https://github.com/jeffnawroth/source-taster-service/pull/9"
+    }
+  },
+  "hostedCIFailureObservation": {
+    "public": "Transport 367f624: dependencies passed; checks failed with 674/677 server tests passing. Failures: maximum-Check cancellation returned 500; two report lifecycle cases stayed generating instead of ready. Failure log retained. These checks are not waived or represented as local #108 passes; no unrelated broad rerun or application fix is included in this publication.",
+    "private": "Previous published 7c76642: checks passed; dependency gate failed on one advisory. The inherited minimatch/dependency gate remains. Final-push hosted status is recorded separately at handback."
+  },
+  "historicalSourceBoundaries": {
+    "sourceFocused": "46/46 plus final 413 case, private browser 8/8, actual-program browser 2/2, authority 33/33 and final commerce 2/2 at documented source heads.",
+    "sourceEarlierQuota": "10/10 before #109 is historical, not repinned acceptance.",
+    "sourcePrivateFull": "No #108 source full-private-suite claim. This publication actually ran the complete final 113/113 suite.",
+    "sourceRedAndSetupRuns": "Original missing route, German Operator locale, late-invoice end extension, provider intake-lock delay, correction action and plain 413 red/green cases and setup/override failures remain recorded in the inherited source handoffs; they are not relabeled as integrated passes."
+  },
+  "qualificationLimits": [
+    "No live VIES, Billit, payment or external mail call, merchant approval, delivery proof, final legal wording or legal/tax qualification.",
+    "EN16931 UBL Schematron 1.3.17 under actual Saxon-HE 10.9 only; no UBL XSD, XRechnung/national CIUS, full Peppol or real correct-seller PO sample qualification.",
+    "Supplier contract/DPA/fees, Stripe mapping, non-Peppol availability/delivery, OAuth lifecycle, external JVM/Saxon/rules distribution licensing and tax-advisor evidence/conflict/reverse-charge/retention review remain gates.",
+    "All Selected/Better Auth 1.7.14, minimatch/dependency/advisory, mandatory source activation/rights, load, calibration/Quality gate/Measured configuration, security, legal/tax/provider, browser/accessibility, deployment and release gates remain; no forced-major override or waiver.",
+    "Chromium, axe and CSS zoom fixtures are not native browser, screen-reader, PDF/UA or Q01 qualification.",
+    "No production cancellation service origin was supplied. Static-site publication requires the actual HTTPS origin; tests use loopback preview only. Hosted web retains its existing private-service setting and public verification proxy.",
+    "No issue closure, ready-for-review transition, deployment, activation, nested agents, Claude, shell worktrees, predecessor access or scheduler mutation.",
+    "#112/#113 and whole-spec final review remain separate. The five-hour job stays enabled."
+  ],
+  "logAndScriptHashes": {
+    "108-integrated-ancestry.json": {
+      "sha256": "444fbedcbdf75dc1a70aa674a5655e79dcea0169eb39f5a359a9ccd1b7f6cb7c",
+      "bytes": 771
+    },
+    "108-integrated-both-authority.log": {
+      "sha256": "bffeb33cd3752ca0ea11a7c2c1a4ce3402dd5d29cccf5f3746995e933e36f355",
+      "bytes": 195
+    },
+    "108-integrated-both-cancellation-browser.log": {
+      "sha256": "ad05df63f6ef802c8751eb8ed466eb1e2b48e5a786a61dd439e895e9513997a0",
+      "bytes": 539
+    },
+    "108-integrated-both-quota-commerce.log": {
+      "sha256": "13b65c7c767e40863bdf78f0c8380870f73ba6427663a6a3a8c58d2b45ee6927",
+      "bytes": 194
+    },
+    "108-integrated-cleanup.json": {
+      "sha256": "595f24d875567a7ca6c4e02d6ac53bd09d978d0155c7d5cd946e96f7dfa37877",
+      "bytes": 813
+    },
+    "108-integrated-cleanup.log": {
+      "sha256": "bd8a284d1692218b71d3cc1a4e6f2ea85317916f80bca9f193d3b37dc321a4f7",
+      "bytes": 739
+    },
+    "108-integrated-cleanup.py": {
+      "sha256": "b6cbef14afbd9e1086f5631b197f58c88b22096047575c70d7f9b1dd4d268849",
+      "bytes": 2277
+    },
+    "108-integrated-contract-common.log": {
+      "sha256": "24c42b76aecef2c39c8a5639a3536efb936b03bdac9a8f8be50c0e71ffbc7af8",
+      "bytes": 29
+    },
+    "108-integrated-contract-internal.log": {
+      "sha256": "99ffb5cfaaa7975ee406c1bc012dfd72afacd0fcd3515f58f619e91f0c534630",
+      "bytes": 24
+    },
+    "108-integrated-contract-service.log": {
+      "sha256": "99ffb5cfaaa7975ee406c1bc012dfd72afacd0fcd3515f58f619e91f0c534630",
+      "bytes": 24
+    },
+    "108-integrated-contract-verification.log": {
+      "sha256": "99ffb5cfaaa7975ee406c1bc012dfd72afacd0fcd3515f58f619e91f0c534630",
+      "bytes": 24
+    },
+    "108-integrated-en16931-prepare.log": {
+      "sha256": "93df4fb7d3d9f3e0a23342250a022b2f6945528c9ad4de2a79218c008161d8df",
+      "bytes": 290
+    },
+    "108-integrated-freeze.py": {
+      "sha256": "49d226b448477f8421a4bf2c41d7e737885a85650786935a5cbf3bad1a1b25cf",
+      "bytes": 810
+    },
+    "108-integrated-frozen-after.json": {
+      "sha256": "7c8dd8c5423b2bf37fe37310aa95fd40cc5727981420e8410a6b31b41bfdd454",
+      "bytes": 758
+    },
+    "108-integrated-frozen-after.log": {
+      "sha256": "e3de59780c82654100b7ccbb7153e262cfb179c006823457a385cc5698061d5e",
+      "bytes": 668
+    },
+    "108-integrated-frozen-after.py": {
+      "sha256": "621c7c092f0510c1903fc384b447fc44173bb1287826c825890fbc908ba6fb28",
+      "bytes": 1094
+    },
+    "108-integrated-generated-reproducibility-final.log": {
+      "sha256": "c48421586b0cc43aaa70688570a97f1183b50f7e530362974c4aee889f228b29",
+      "bytes": 1437
+    },
+    "108-integrated-generated-reproducibility.json": {
+      "sha256": "d0232682b523cdecb2c8cf50212e2eba7327c3c74c4cb4c222229bc1e4a142e7",
+      "bytes": 678
+    },
+    "108-integrated-handoff-generate.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "108-integrated-installed-bytes-final.log": {
+      "sha256": "8f6c40dec86402494b66ebb3c1f8f504a093ba023e1df1d18aae4a0852a6d81f",
+      "bytes": 160
+    },
+    "108-integrated-installed-bytes.json": {
+      "sha256": "922f8e6d53a8b28319406c160deec6e4d570a71a3e230719244c0e54b52a39f3",
+      "bytes": 14591
+    },
+    "108-integrated-installed-bytes.log": {
+      "sha256": "8f6c40dec86402494b66ebb3c1f8f504a093ba023e1df1d18aae4a0852a6d81f",
+      "bytes": 160
+    },
+    "108-integrated-log-recovery.json": {
+      "sha256": "fc6ab1638ebcd52dff7f025425290ac1df2bd9c2748e3eef9d9cf063bbce8820",
+      "bytes": 365
+    },
+    "108-integrated-owned-container.txt": {
+      "sha256": "d5b256b049ff26df95ee010ca9fe17717157470ae54cbd71fa23371d116643a7",
+      "bytes": 65
+    },
+    "108-integrated-pagefind-build.log": {
+      "sha256": "a0bc29e6cd54628c8dedbff4ae8f6c2e8d24696728d7655981e5b25384d7b850",
+      "bytes": 6618
+    },
+    "108-integrated-pagefind-fetch.log": {
+      "sha256": "075378add82507f94ef23aa96a221d63b05680fa2769875c5befdad3512f16ed",
+      "bytes": 967
+    },
+    "108-integrated-pagefind-verify.log": {
+      "sha256": "9f13fabac05bdeabf4b3c72b7670a332783263e0544b425afe88d162b3288d51",
+      "bytes": 98
+    },
+    "108-integrated-pg-create.log": {
+      "sha256": "d5b256b049ff26df95ee010ca9fe17717157470ae54cbd71fa23371d116643a7",
+      "bytes": 65
+    },
+    "108-integrated-private-browser.log": {
+      "sha256": "ce591b514efb979302826b5d977007efb81877c429dc56e8707fe6faf512f5fd",
+      "bytes": 1529
+    },
+    "108-integrated-private-build.log": {
+      "sha256": "e2409176fb376cbfb755bdf3a30a0f2dbb105041970f3b31940008d0bc3af4af",
+      "bytes": 3265
+    },
+    "108-integrated-private-catalog-local.log": {
+      "sha256": "df18f23268ff1b29e9d3ce16037d61b1cec74db2cfa217d55fb5f17e43cebe85",
+      "bytes": 240
+    },
+    "108-integrated-private-catalog.log": {
+      "sha256": "df18f23268ff1b29e9d3ce16037d61b1cec74db2cfa217d55fb5f17e43cebe85",
+      "bytes": 240
+    },
+    "108-integrated-private-checks.py": {
+      "sha256": "845ac01cfe4a9eb1b1784375a78e5a46c4a94a644dec2c9904110be75ee03673",
+      "bytes": 889
+    },
+    "108-integrated-private-ci-before-handoff.json": {
+      "sha256": "84ceefc567710d84456349b96aeea526dff8f83719986d87799a88f362863b7c",
+      "bytes": 809
+    },
+    "108-integrated-private-ci-before.json": {
+      "sha256": "84ceefc567710d84456349b96aeea526dff8f83719986d87799a88f362863b7c",
+      "bytes": 809
+    },
+    "108-integrated-private-ci-failure.log": {
+      "sha256": "7c34efe224c2f32dcba3eeea125e29503efdd172d5682bbae53269731efeb8c0",
+      "bytes": 42317
+    },
+    "108-integrated-private-focused.log": {
+      "sha256": "f99606cded17d274ad35ff8b5ed47965e2ab32e8a73ceb8f1fb028fae640388e",
+      "bytes": 215
+    },
+    "108-integrated-private-frozen.log": {
+      "sha256": "24e715427b22e7084f4908b8dc73b82ede97590fc238a334bbae8f1ee9ec0305",
+      "bytes": 268
+    },
+    "108-integrated-private-full.log": {
+      "sha256": "6a55d2f684b140500297267bd0c85b45693a64ebcf61da159d06f7476b080cf7",
+      "bytes": 219
+    },
+    "108-integrated-private-i18n.log": {
+      "sha256": "052f75d7c9c1c5c1144a74782a0570589ec91297d5cf27150634888eabb6e516",
+      "bytes": 606
+    },
+    "108-integrated-private-install.log": {
+      "sha256": "8bf5a5dbb2def3c565c7608108f3ae70990636886e168730f722f9dda29335c1",
+      "bytes": 356
+    },
+    "108-integrated-private-licenses.log": {
+      "sha256": "32868ec50d7c8ed98fa642748ef0bd7002fd389f0b1af9570b01b9371ccce13c",
+      "bytes": 81
+    },
+    "108-integrated-private-lint-final.log": {
+      "sha256": "26db9673ec89bc95699a8e66249537512722e2114018fc39c411bfb94c2d9eaa",
+      "bytes": 99
+    },
+    "108-integrated-private-lint.log": {
+      "sha256": "3fe50b346c0f7cdfb3fbbff088be70321d9df4d72d7fce5e90772d12a9b2513e",
+      "bytes": 261
+    },
+    "108-integrated-private-merge.log": {
+      "sha256": "79dbfc5f41789f4b6fc0412ce6fa2230493738244bcceacae2f0b260a70a264b",
+      "bytes": 1797
+    },
+    "108-integrated-private-prisma-local.log": {
+      "sha256": "98e13827b50d166bcbf547cf2970c5b34302c4ea6927d4181e29825c8b7bb3a4",
+      "bytes": 185
+    },
+    "108-integrated-private-prisma-prepin.log": {
+      "sha256": "46c4839cc50be628695fc720a760af0942d6cab4893984ccc2b9ea1b07920992",
+      "bytes": 185
+    },
+    "108-integrated-private-prisma.log": {
+      "sha256": "6f430a1cf9978d8448e0cb0c0244b1b16108edcea633f70f19c223f659edf1ea",
+      "bytes": 185
+    },
+    "108-integrated-private-source-handoff-format.log": {
+      "sha256": "79496168f9519a111ec7e22089b2f211d108c8c57d2d3a28a4575ab8e4c3211e",
+      "bytes": 78
+    },
+    "108-integrated-private-types.log": {
+      "sha256": "a6861c794e6c7bb19b386449c01f742be5107068738552cea41ffda2f8b7c635",
+      "bytes": 2412
+    },
+    "108-integrated-public-build.log": {
+      "sha256": "4d9246ca0240a33941810a99995072019bc41d806ae1a7cd3827410c6a771ea4",
+      "bytes": 14847
+    },
+    "108-integrated-public-catalog-local.log": {
+      "sha256": "df18f23268ff1b29e9d3ce16037d61b1cec74db2cfa217d55fb5f17e43cebe85",
+      "bytes": 240
+    },
+    "108-integrated-public-catalog.log": {
+      "sha256": "df18f23268ff1b29e9d3ce16037d61b1cec74db2cfa217d55fb5f17e43cebe85",
+      "bytes": 240
+    },
+    "108-integrated-public-checks.py": {
+      "sha256": "00b9f98c69be99f07efe49eb24b7267d03ca38472bc5ad25e9287de615e22507",
+      "bytes": 1002
+    },
+    "108-integrated-public-ci-before-handoff.json": {
+      "sha256": "8af22f69f5d5a7fda1f4fdbb1091699174ca3360345ee890ca2c78766e4c8c98",
+      "bytes": 771
+    },
+    "108-integrated-public-ci-failure.log": {
+      "sha256": "9c032c9376a089ba76e182f397a1f256d18cd296f91aac2bd6ae6f7e9761ae46",
+      "bytes": 402933
+    },
+    "108-integrated-public-ci-transport.json": {
+      "sha256": "aa60543de16c1d8a4e38a56a52c6e873909ddfa78c4fbe599a8c881d4629cd7c",
+      "bytes": 761
+    },
+    "108-integrated-public-clean.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "108-integrated-public-contract-repro.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "108-integrated-public-i18n-check.log": {
+      "sha256": "a1912706b850bab3673000f1dd49871d0158e9b2ffccc13bbf8d86f43c6c7b04",
+      "bytes": 1049
+    },
+    "108-integrated-public-install.log": {
+      "sha256": "753a3247d851750c8034bfa48280e5e570003bdaa610aee9a5dfb55b6c1c5a9d",
+      "bytes": 268
+    },
+    "108-integrated-public-lint.log": {
+      "sha256": "5945511e2c0ccd5467bd3aca2eb33f6fd6be7724164a416c436fc43fcf8d1d89",
+      "bytes": 11435
+    },
+    "108-integrated-public-merge.log": {
+      "sha256": "d9e5ee45e9ebc35a75ad99800f5ee11da2a61170fbe6f71779e2fbe3804714bf",
+      "bytes": 1418
+    },
+    "108-integrated-public-prisma-local.log": {
+      "sha256": "677ea6b94db3b42d85d197ead1b6c5f4ce9c99cc4257b26b08f276cc9869f960",
+      "bytes": 184
+    },
+    "108-integrated-public-prisma.log": {
+      "sha256": "0580543ed9d9684992da90517196a3bcf23e527416bc9354470aff795156296f",
+      "bytes": 184
+    },
+    "108-integrated-public-reachability.json": {
+      "sha256": "6e620a5580eb7f1a9f2a37e8322d9cdaae00cbaa07648fda1173d09acd2d082d",
+      "bytes": 477
+    },
+    "108-integrated-public-transport-push.log": {
+      "sha256": "d0d9d529b435339d3db2fa7cb7e74ccc14b193898ec8b469fac5d30d7cbfa24c",
+      "bytes": 366
+    },
+    "108-integrated-public-typecheck.log": {
+      "sha256": "3efa6792ae20f728f5152440385b50522ca4e07bf31fe926fcb88ebb1f036718",
+      "bytes": 11590
+    },
+    "108-integrated-real-purchase-browser.log": {
+      "sha256": "3b8af3b20758d76c6547750457c4dba07b26280567892a2bf487cc73418b55ca",
+      "bytes": 783
+    },
+    "108-integrated-release-refusal-direct.log": {
+      "sha256": "d7b66fd9425176834b18995419c5c034d1fe3af22e46f3b27d2bad07ee5cc690",
+      "bytes": 160
+    },
+    "108-integrated-reproduce.py": {
+      "sha256": "36f2f30b0d393a643b0a5713feceebdf0b9ad90f1e3d3ef72b600c8fbc8e3c53",
+      "bytes": 1546
+    },
+    "108-integrated-results.jsonl": {
+      "sha256": "97538ab1072875c4eba82ce7705dac462b973b8f22e7142374f564914b133b1c",
+      "bytes": 17633
+    },
+    "108-integrated-retry-job.json": {
+      "sha256": "5d92452371e595da8a1bbbe209e373fb2057225ec219502088e62dc6cea5e241",
+      "bytes": 379
+    },
+    "108-integrated-run.py": {
+      "sha256": "3859e920e613f3a3611c198265176f3516743bd0f22d36baf8e334817231c150",
+      "bytes": 757
+    },
+    "108-integrated-site-browser-fixture-build.log": {
+      "sha256": "c9a2b0c6f5ce9f2066b65eebd03f2b0d752a8df20b223f451668dbecae34a031",
+      "bytes": 4315
+    },
+    "108-integrated-source-before.json": {
+      "sha256": "1e388172fe974c915e3ef13624cbc49d3e537ffb7d8b3810328a23995054f284",
+      "bytes": 367
+    },
+    "108-integrated-source-unchanged.json": {
+      "sha256": "ffadc0daa97414b180b363882aeb0143c2855e4930d89d7ae586091afcdcb383",
+      "bytes": 744
+    },
+    "108-integrated-start.json": {
+      "sha256": "98f2eff3361cf2555756f4a770bc461b48019c666b58fab1b07d4d1f4cfe5fda",
+      "bytes": 423
+    },
+    "108-integrated-test-boundary.json": {
+      "sha256": "d603182cfb4023ef89845d708be2a85334442ff548c711175033215d2f7cdf0d",
+      "bytes": 804
+    },
+    "108-integrated-tests.py": {
+      "sha256": "744afb68ed806f6c24ebd63b5b7436c2b86cf665377b27fc5ec3eed3c26b770e",
+      "bytes": 2005
+    },
+    "108-integrated-toolchain.json": {
+      "sha256": "5b5b0c40e9905d809f4a7d3bccab76336fa4c69e7e3c00c7c10a9cd30cda875b",
+      "bytes": 1531
+    },
+    "108-integrated-verify-pins.py": {
+      "sha256": "3ab931f06c88875951062f18ea0733ef868da663dfff025e46066932749f9909",
+      "bytes": 4143
+    },
+    "108-integrated-write-handoff.py": {
+      "sha256": "93dc4198018923ac8d4a17d66b6efe0a9b5fa9e3f79cd543ccf3601baa56b349",
+      "bytes": 16585
+    }
+  },
+  "publicationBoundary": "Tested application and transport bytes are the named code heads. Final commits add English evidence/handoffs only; final published heads and links are receipted in ignored 108-integrated-published-handoff.json after both pushes.",
+  "ownershipRelease": "Exclusive public-root/private-INTEGRATION ownership released at clean published handback. Source workspaces and retry schedule unchanged.",
+  "publicationDocumentationFormatting": {
+    "publicPolicy": "docs are excluded from default Prettier checks; an additional explicit check found JSON wrapping only.",
+    "initialExplicitCheckExitCode": 1,
+    "initialLog": "108-integrated-public-handoff-format-initial.log",
+    "correction": "Normal Prettier formatting of the final JSON in both integration checkouts, followed by an explicit check; application bytes unchanged."
+  }
+}
