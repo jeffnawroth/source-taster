@@ -99,3 +99,18 @@ export const SubscriptionResponse = envelope(Subscription).meta({
 export const SubscriptionsResponse = envelope(z.array(Subscription)).meta({
     id: "SubscriptionsResponse",
 });
+/** No session or paid permission. The response deliberately does not reveal a match,
+ * contract end, mail recipient, provider, or delivery status. */
+export const CancellationRequest = z.strictObject({
+    operationKey: z.uuid(),
+    contractReference: z.uuid(),
+    email: z
+        .email()
+        .max(254)
+        .transform((v) => v.trim().toLowerCase()),
+    language: z.enum(["de", "en"]),
+});
+export const CancellationResponse = envelope(z.strictObject({
+    operationKey: z.uuid(),
+    receivedAt: z.iso.datetime(),
+})).meta({ id: "CancellationResponse" });

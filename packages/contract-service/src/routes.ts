@@ -1,3 +1,4 @@
+import { CancellationRequest, CancellationResponse } from "./commerce.ts";
 import {
   SubscriptionRequest,
   SubscriptionOperation,
@@ -556,7 +557,30 @@ export const consentSubscription = createRoute({
     503: problem,
   },
 });
+export const submitCancellation = createRoute({
+  method: "post",
+  path: "/v1/commerce/cancellations",
+  summary: "Public statutory cancellation intake without login",
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: CancellationRequest } },
+    },
+  },
+  responses: {
+    200: {
+      description: "Durably received; matching and mail status remain private",
+      content: { "application/json": { schema: CancellationResponse } },
+    },
+    400: problem,
+    403: problem,
+    409: problem,
+    413: problem,
+    503: problem,
+  },
+});
 export const routes = [
+  submitCancellation,
   createSubscription,
   getSubscriptions,
   cancelSubscription,

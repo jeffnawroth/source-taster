@@ -1,3 +1,4 @@
+import { CancellationLink } from "./cancellation-link.tsx";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import React from "react";
 import { createRoot } from "react-dom/client";
@@ -40,6 +41,12 @@ createRoot(document.getElementById("root")!).render(
         preferenceStorage={preferenceStorage}
         transport={{ client: "web/0.0.0" }}
         siteUrl={import.meta.env.VITE_SOURCE_TASTER_WEBSITE_URL}
+      />
+    )}
+    {serviceUrl && (
+      <CancellationLink
+        serviceUrl={serviceUrl}
+        language={initial.preferences.language}
       />
     )}
   </React.StrictMode>,

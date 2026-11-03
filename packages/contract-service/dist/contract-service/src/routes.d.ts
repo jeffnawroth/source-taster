@@ -9336,6 +9336,173 @@ export declare const consentSubscription: {
 } & {
     getRoutingPath(): "/v1/commerce/subscriptions/:id/consent";
 };
+export declare const submitCancellation: {
+    method: "post";
+    path: "/v1/commerce/cancellations";
+    summary: string;
+    request: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        operationKey: z.ZodUUID;
+                        contractReference: z.ZodUUID;
+                        email: z.ZodPipe<z.ZodEmail, z.ZodTransform<string, string>>;
+                        language: z.ZodEnum<{
+                            de: "de";
+                            en: "en";
+                        }>;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        data: z.ZodObject<{
+                            operationKey: z.ZodUUID;
+                            receivedAt: z.ZodISODateTime;
+                        }, z.core.$strict>;
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                    pro: "pro";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
+                            history: z.ZodOptional<z.ZodObject<{
+                                extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+                                authorityVersion: z.ZodNumber;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
+                        }, z.core.$strict>, z.ZodNull]>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        409: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        413: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v1/commerce/cancellations";
+};
 export declare const routes: ((({
     security: {
         ExtensionSession: never[];
@@ -14843,4 +15010,170 @@ export declare const routes: ((({
     };
 } & {
     getRoutingPath(): "/v1/commerce/subscriptions/:id/consent";
+}) | ({
+    method: "post";
+    path: "/v1/commerce/cancellations";
+    summary: string;
+    request: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        operationKey: z.ZodUUID;
+                        contractReference: z.ZodUUID;
+                        email: z.ZodPipe<z.ZodEmail, z.ZodTransform<string, string>>;
+                        language: z.ZodEnum<{
+                            de: "de";
+                            en: "en";
+                        }>;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        data: z.ZodObject<{
+                            operationKey: z.ZodUUID;
+                            receivedAt: z.ZodISODateTime;
+                        }, z.core.$strict>;
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                    pro: "pro";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
+                            history: z.ZodOptional<z.ZodObject<{
+                                extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+                                authorityVersion: z.ZodNumber;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
+                        }, z.core.$strict>, z.ZodNull]>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        409: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        413: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v1/commerce/cancellations";
 }))[];

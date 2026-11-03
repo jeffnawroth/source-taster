@@ -524,5 +524,6 @@
   "dpa_sent": "Hinweis-E-Mail gesendet; vertragliche Benachrichtigung erfordert weiterhin Prüfung",
   "dpa_recovery_pending": "Für diesen Vorgang ist noch kein Abschluss bestätigt. Prüfe erneut oder beginne eine neue Prüfung.",
   "dpa_expired": "Das Bestätigungsfenster ist abgelaufen. Beginne eine neue Prüfung.",
-  "dpa_party_change": "Ein Wechsel der aktuellen Vertragspartei erfordert ein geprüftes Supportverfahren."
+  "dpa_party_change": "Ein Wechsel der aktuellen Vertragspartei erfordert ein geprüftes Supportverfahren.",
+  "cancellation_button": "Verträge hier kündigen"
 }

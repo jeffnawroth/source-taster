@@ -524,5 +524,6 @@
   "dpa_sent": "Notice email sent; contractual notification still requires review",
   "dpa_recovery_pending": "This operation has no confirmed conclusion yet. You can check again or start a new review.",
   "dpa_expired": "The confirmation window expired. Start a new review.",
-  "dpa_party_change": "Changing the current Contracting party requires a reviewed support procedure."
+  "dpa_party_change": "Changing the current Contracting party requires a reviewed support procedure.",
+  "cancellation_button": "Cancel contracts here"
 }

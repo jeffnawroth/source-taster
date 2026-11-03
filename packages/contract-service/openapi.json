@@ -13,6 +13,229 @@
       }
     },
     "schemas": {
+      "CancellationResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "operationKey": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "receivedAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "operationKey",
+              "receivedAt"
+            ],
+            "additionalProperties": false
+          },
+          "quota": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Quota"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "not-implemented"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "quota"
+        ]
+      },
+      "Quota": {
+        "type": "object",
+        "properties": {
+          "consumed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "remaining": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "granted": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reserved": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "warning": {
+            "$ref": "#/components/schemas/QuotaWarning"
+          },
+          "grants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuotaGrantView"
+            },
+            "maxItems": 50
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "maxItems": 20
+          },
+          "history": {
+            "type": "object",
+            "properties": {
+              "extendedUntil": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "authorityVersion": {
+                "type": "integer",
+                "exclusiveMinimum": 0
+              }
+            },
+            "required": [
+              "extendedUntil",
+              "authorityVersion"
+            ]
+          }
+        },
+        "required": [
+          "consumed",
+          "remaining",
+          "granted",
+          "reserved",
+          "warning",
+          "grants",
+          "features"
+        ]
+      },
+      "QuotaWarning": {
+        "type": "string",
+        "enum": [
+          "none",
+          "eighty",
+          "exhausted"
+        ]
+      },
+      "QuotaGrantView": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "guest",
+              "free",
+              "credit",
+              "check-pack",
+              "pro"
+            ]
+          },
+          "granted": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "remaining": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "kind",
+          "granted",
+          "remaining",
+          "expiresAt"
+        ]
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "available": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "required": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "retryAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "code": {
+            "type": "string"
+          },
+          "i18nKey": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "code",
+          "i18nKey"
+        ]
+      },
       "SubscriptionResponse": {
         "type": "object",
         "properties": {
@@ -236,162 +459,6 @@
         "required": [
           "data",
           "quota"
-        ]
-      },
-      "Quota": {
-        "type": "object",
-        "properties": {
-          "consumed": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "remaining": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "granted": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "reserved": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "warning": {
-            "$ref": "#/components/schemas/QuotaWarning"
-          },
-          "grants": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/QuotaGrantView"
-            },
-            "maxItems": 50
-          },
-          "features": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 40
-            },
-            "maxItems": 20
-          },
-          "history": {
-            "type": "object",
-            "properties": {
-              "extendedUntil": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "format": "date-time"
-              },
-              "authorityVersion": {
-                "type": "integer",
-                "exclusiveMinimum": 0
-              }
-            },
-            "required": [
-              "extendedUntil",
-              "authorityVersion"
-            ]
-          }
-        },
-        "required": [
-          "consumed",
-          "remaining",
-          "granted",
-          "reserved",
-          "warning",
-          "grants",
-          "features"
-        ]
-      },
-      "QuotaWarning": {
-        "type": "string",
-        "enum": [
-          "none",
-          "eighty",
-          "exhausted"
-        ]
-      },
-      "QuotaGrantView": {
-        "type": "object",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "enum": [
-              "guest",
-              "free",
-              "credit",
-              "check-pack",
-              "pro"
-            ]
-          },
-          "granted": {
-            "type": "integer",
-            "exclusiveMinimum": 0
-          },
-          "remaining": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "expiresAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "kind",
-          "granted",
-          "remaining",
-          "expiresAt"
-        ]
-      },
-      "ProblemDetails": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "status": {
-            "type": "integer"
-          },
-          "detail": {
-            "type": "string"
-          },
-          "limit": {
-            "type": "integer",
-            "exclusiveMinimum": 0
-          },
-          "available": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "required": {
-            "type": "integer",
-            "exclusiveMinimum": 0
-          },
-          "retryAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "code": {
-            "type": "string"
-          },
-          "i18nKey": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "type",
-          "title",
-          "status",
-          "code",
-          "i18nKey"
         ]
       },
       "SubscriptionsResponse": {
@@ -2795,6 +2862,112 @@
     "parameters": {}
   },
   "paths": {
+    "/v1/commerce/cancellations": {
+      "post": {
+        "summary": "Public statutory cancellation intake without login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "operationKey": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "contractReference": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "email": {
+                    "type": "string",
+                    "maxLength": 254,
+                    "format": "email"
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "de",
+                      "en"
+                    ]
+                  }
+                },
+                "required": [
+                  "operationKey",
+                  "contractReference",
+                  "email",
+                  "language"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Durably received; matching and mail status remain private",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CancellationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/commerce/subscriptions": {
       "post": {
         "summary": "Subscribe to monthly Pro through an own binding Order",
