@@ -525,5 +525,12 @@
   "dpa_recovery_pending": "Für diesen Vorgang ist noch kein Abschluss bestätigt. Prüfe erneut oder beginne eine neue Prüfung.",
   "dpa_expired": "Das Bestätigungsfenster ist abgelaufen. Beginne eine neue Prüfung.",
   "dpa_party_change": "Ein Wechsel der aktuellen Vertragspartei erfordert ein geprüftes Supportverfahren.",
+  "invoices_title": "Rechnungen",
+  "invoices_load": "Rechnungen laden",
+  "invoices_loading": "Rechnungen werden geladen…",
+  "invoices_unavailable": "Rechnungen sind nicht verfügbar. Bitte erneut versuchen.",
+  "invoices_empty": "Noch keine Rechnungen.",
+  "invoices_pdf": "PDF herunterladen",
+  "invoices_ubl": "E-Rechnung herunterladen (XML)",
   "cancellation_button": "Verträge hier kündigen"
 }

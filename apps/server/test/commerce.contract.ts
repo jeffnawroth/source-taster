@@ -29,7 +29,11 @@ test.each(["check-pack", "pro"])(
       ["test/commerce-provider-process.ts"],
       {
         cwd: join(privatePath, "apps/server"),
-        env: { PATH: process.env.PATH, NODE_ENV: "test" },
+        env: {
+          PATH: process.env.PATH,
+          NODE_ENV: "test",
+          SERVICE_TEST_EN16931_CONFIG: process.env.SERVICE_TEST_EN16931_CONFIG,
+        },
         stdio: ["ignore", "pipe", "pipe", "ipc"],
       },
     );
@@ -60,9 +64,19 @@ test.each(["check-pack", "pro"])(
       const catalog = CommerceCatalogResponse.parse(
         await (await fetch(both.serviceUrl + "/v1/commerce/catalog")).json(),
       ).data;
+      const proofResponse = await a.call("/v1/commerce/vat-validations", {
+        country: "DE",
+        vatId: "DE123456789",
+      });
+      expect(proofResponse.status).toBe(200);
+      const proof = (await proofResponse.json()) as {
+        data: { id: string; status: string };
+      };
+      expect(proof.data.status).toBe("valid");
       const r = await a.call(
         plan === "pro" ? "/v1/commerce/subscriptions" : "/v1/commerce/orders",
         {
+          vatValidationId: proof.data.id,
           operationKey: randomUUID(),
           catalogVersion: (plan === "pro" ? catalog.pro[0]! : catalog.packs[0]!)
             .version,
@@ -74,6 +88,7 @@ test.each(["check-pack", "pro"])(
             name: "Buyer",
             address: "Example street 1",
             country: "DE",
+            vatId: "DE123456789",
           },
         },
       );
@@ -103,6 +118,18 @@ test.each(["check-pack", "pro"])(
           "verification-report",
         ]) as unknown,
       });
+      const read = (path: string) =>
+        fetch(both!.serviceUrl + path, { headers: { cookie: a.cookie } });
+      const invoices = await read("/v1/commerce/invoices");
+      expect(invoices.status).toBe(200);
+      const listed = (await invoices.json()) as {
+        data: { id: string; formats: string[] }[];
+      };
+      expect(listed.data).toHaveLength(1);
+      expect(listed.data[0]!.formats).toEqual(["pdf", "ubl"]);
+      const xml = await read(`/v1/commerce/invoices/${listed.data[0]!.id}/ubl`);
+      expect(xml.status).toBe(200);
+      expect(await xml.text()).toContain("urn:cen.eu:en16931:2017");
       const created = await fetch(both.apiUrl + "/v2/checks", {
         method: "POST",
         headers: {

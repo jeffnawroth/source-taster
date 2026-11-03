@@ -1,0 +1,326 @@
+{
+  "recordedAtUtc": "2026-11-03T04:43:19.519919+00:00",
+  "publicSource": "b441a0881e830da7df928458cdba183397e8ef57",
+  "privateSource": "7dffa34726824c43fc9a878e73066489b189aed8",
+  "publicBranch": "t3/e5c6cd1d",
+  "privateBranch": "t3/109-business-tax-invoices-nov2",
+  "integrationAncestors": {
+    "public": [
+      "164e3cbc358e706ee91de0cf66159e117e320e11",
+      "2775228f3d7606e3b6151d12a693e3094694fb88"
+    ],
+    "private": [
+      "702d681",
+      "c08dbff70975b1ba54240077460a48caa981389b",
+      "e9a39fde6837e5c6ccb649680b798365af4f549e"
+    ]
+  },
+  "checks": [
+    {
+      "repository": "public",
+      "command": "pnpm typecheck",
+      "log": "109-delivery-public-typecheck.log",
+      "sha256": "0e40ea42712622348ae355300fc57b5c64909dd806a868d5a53107decb64d52a",
+      "result": "passed",
+      "sourceBoundary": "final source bytes"
+    },
+    {
+      "repository": "public",
+      "command": "pnpm lint",
+      "log": "109-delivery-public-lint.log",
+      "sha256": "27b574d0147155aa5db5d4a3481d5c0d3cb23344a178524852cdd34a6fd23c95",
+      "result": "passed",
+      "sourceBoundary": "final source bytes"
+    },
+    {
+      "repository": "public",
+      "command": "pnpm i18n:check",
+      "log": "109-delivery-public-i18n.log",
+      "sha256": "aee261aa7c6b1c0e5cab49bdfe47f3736c4f9d91f88ac335533ba3e8df7a0582",
+      "result": "passed",
+      "sourceBoundary": "final source bytes"
+    },
+    {
+      "repository": "public",
+      "command": "pnpm build",
+      "log": "109-delivery-public-build.log",
+      "sha256": "1be0cc2eb381137f14ff8d69b472b9574a750c38fe16c51d30ef0ab1bb3161a2",
+      "result": "passed",
+      "sourceBoundary": "final source bytes"
+    },
+    {
+      "repository": "private",
+      "command": "pnpm typecheck",
+      "log": "109-delivery-private-typecheck.log",
+      "sha256": "136d6b461b95636b95a914eb7880386f81f02d5a1c7665d7f10c23b0162b3110",
+      "result": "passed",
+      "sourceBoundary": "final source bytes"
+    },
+    {
+      "repository": "private",
+      "command": "pnpm lint",
+      "log": "109-delivery-private-lint.log",
+      "sha256": "26db9673ec89bc95699a8e66249537512722e2114018fc39c411bfb94c2d9eaa",
+      "result": "passed",
+      "sourceBoundary": "final source bytes"
+    },
+    {
+      "repository": "private",
+      "command": "pnpm i18n:check",
+      "log": "109-delivery-private-i18n.log",
+      "sha256": "4a344b61290c05ab4c96f269ede029486004deb5984b8972898802416a2198b7",
+      "result": "passed",
+      "sourceBoundary": "final source bytes"
+    },
+    {
+      "repository": "private",
+      "command": "pnpm build",
+      "log": "109-delivery-private-build.log",
+      "sha256": "0c60bdcaba18322004bf9a2482db01123726abe046e07c46da90f226629db6ed",
+      "result": "passed",
+      "sourceBoundary": "final source bytes"
+    },
+    {
+      "repository": "private",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55811/postgres pnpm --filter @source-taster-service/server exec vitest run",
+      "log": "109-final-private-tests.log",
+      "sha256": "b9de082898a47ef910e3e80312e4e8af11df9119b386a96a26108c7d7e5d7728",
+      "result": "104/104 passed",
+      "sourceBoundary": "392184ea90b303e9a4f4231281bac48d68742776; before purchase-page invalidation correction, published-pin metadata merge and final legacy-period list fallback; no full 105-test run claimed"
+    },
+    {
+      "repository": "private",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55811/postgres pnpm --filter @source-taster-service/server exec vitest run test/business-tax.test.ts test/commerce.test.ts test/subscription.test.ts test/sensitive.test.ts",
+      "log": "109-accepted-private-regressions.log",
+      "sha256": "dac688ffb91fc15ffa3eb2f5543b6df165341f779f1920c79fe3a2f3ec35d490",
+      "result": "34/34 passed",
+      "sourceBoundary": "64d0dbaaeddd4d192a0115d93aa8a44ce8849eec; before final legacy-period fallback"
+    },
+    {
+      "repository": "private",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55811/postgres pnpm --filter @source-taster-service/server exec vitest run test/business-tax.test.ts",
+      "log": "109-accepted-business-tax.log",
+      "sha256": "0cf688eebb37188539352816a87dfaa332fb4bf3851ce8a27209f1d863cefccd",
+      "result": "8/8 passed",
+      "sourceBoundary": "final source bytes"
+    },
+    {
+      "repository": "public",
+      "command": "SERVICE_TEST_EN16931_CONFIG=/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-100-102/.tmp/en16931/validator.json SOURCE_TASTER_TEST_API_PORT=5801 SOURCE_TASTER_TEST_SERVICE_PORT=5803 SOURCE_TASTER_SERVICE_WORKTREE=/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-100-102 DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55811/postgres pnpm --filter @source-taster/server exec vitest run --config quota.vitest.config.ts",
+      "log": "109-accepted-both-programs.log",
+      "sha256": "dc95c21b6b2a536e17a28fcab933fdbb3b1a2c0db42ec3db6535f3d9424cf27c",
+      "result": "10/10 passed",
+      "sourceBoundary": "public b441a08 + private 64d0dba; final later change reads legacy retained period prices only"
+    },
+    {
+      "repository": "public",
+      "command": "SERVICE_TEST_EN16931_CONFIG=/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-100-102/.tmp/en16931/validator.json SOURCE_TASTER_TEST_API_PORT=5801 SOURCE_TASTER_TEST_SERVICE_PORT=5803 SOURCE_TASTER_SERVICE_WORKTREE=/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-100-102 DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55811/postgres SOURCE_TASTER_ACCOUNT_TEST_WEB_PORT=5483 pnpm --filter @source-taster/web exec playwright test --config account.playwright.config.ts business-invoices.spec.ts",
+      "log": "109-accepted-real-browser.log",
+      "sha256": "fcf27d4eb6a89b8d9961c37935a4f19c5cbe624d989ff77b340312a9a0082317",
+      "result": "4/4 DE/EN Check-pack/Pro actual-program browser purchase/list/PDF/XML/axe cases passed",
+      "sourceBoundary": "public b441a08 + private 64d0dba; before legacy-only fallback"
+    },
+    {
+      "repository": "private",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55811/postgres SOURCE_TASTER_TEST_COMMERCE_WEB_PORT=5483 pnpm --filter @source-taster-service/web exec playwright test --config commerce.playwright.config.ts",
+      "log": "109-accepted-private-browser2.log",
+      "sha256": "ad71d030f7b49111ae71bc19217ba14fd3ecce77c4b99db248e0383389d52420",
+      "result": "6/6 passed",
+      "sourceBoundary": "public b441a08 + private 64d0dba; before legacy-only fallback"
+    },
+    {
+      "repository": "public",
+      "command": "DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55811/postgres DATABASE_TEST_URL=postgres://st109_native:st109_fixture_only@127.0.0.1:55811/st109_native SOURCE_TASTER_ACCOUNT_TEST_API_PORT=5801 SOURCE_TASTER_ACCOUNT_TEST_SERVICE_PORT=5803 SOURCE_TASTER_ACCOUNT_TEST_WEB_PORT=5483 pnpm --filter @source-taster/extension exec playwright test --config account.playwright.config.ts panel.spec.ts -g \"native Account invoice|purchasing and Plan\"",
+      "log": "109-accepted-native.log",
+      "sha256": "12e74d092d7d9642750ad5acff1b5c9519f7ba369737351df83c1bef361aa3e7",
+      "result": "2/2 passed; real native/verification/PostgreSQL, synthetic private-service HTTP edge",
+      "sourceBoundary": "final source bytes"
+    },
+    {
+      "repository": "public",
+      "command": "SOURCE_TASTER_TEST_API_PORT=5801 SOURCE_TASTER_TEST_SERVICE_PORT=5803 SOURCE_TASTER_SERVICE_WORKTREE=/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-100-102 DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:55811/postgres pnpm --filter @source-taster/extension exec playwright test --config private.playwright.config.ts commerce.spec.ts",
+      "log": "109-accepted-native-real-programs.log",
+      "sha256": "a49bc3e9a36d6a04034f8ac26f31e6b9fa13898fd227468f47c380ec6f4f5b7c",
+      "result": "1/1 actual-program native safe-forwarding case passed",
+      "sourceBoundary": "final source bytes"
+    },
+    {
+      "repository": "public",
+      "command": "pnpm pagefind:fetch",
+      "log": "109-pagefind-fetch.log",
+      "sha256": "be322fa600cd36dfe7fb7481f91e22cc657e25468ed0f27799f9b706515b262e",
+      "result": "passed normal controlled prerequisite",
+      "sourceBoundary": "final source bytes"
+    },
+    {
+      "repository": "public",
+      "command": "pnpm pagefind:build",
+      "log": "109-pagefind-build2.log",
+      "sha256": "db874f2575e9bbe9d7ef3d68bbe9611eb81d30c16ea5ef5a1981814aaa6aeb52",
+      "result": "passed normal controlled prerequisite",
+      "sourceBoundary": "final source bytes"
+    },
+    {
+      "repository": "public",
+      "command": "pnpm pagefind:verify",
+      "log": "109-pagefind-verify.log",
+      "sha256": "9f13fabac05bdeabf4b3c72b7670a332783263e0544b425afe88d162b3288d51",
+      "result": "passed normal controlled prerequisite",
+      "sourceBoundary": "final source bytes"
+    },
+    {
+      "repository": "public",
+      "command": "pnpm --filter '@source-taster/contract-*' build",
+      "log": "109-all-contracts-build.log",
+      "sha256": "765156c78c03bf3c95a91e94823795daef03b26945adde6e569d87ceefce9704",
+      "result": "all four transport packages rebuilt; final git diff --exit-code for tracked contract directories passed",
+      "sourceBoundary": "final source bytes"
+    },
+    {
+      "repository": "private",
+      "command": "pnpm audit:licenses",
+      "log": "109-private-licenses.log",
+      "sha256": "1d1b9d8fe2af770c7eb8f537cb622d6a960ee16050a1c248295100678867329c",
+      "result": "386 installed packages reviewed; 106 runtime packages",
+      "sourceBoundary": "final source bytes"
+    },
+    {
+      "repository": "private",
+      "command": "pnpm audit --prod --json",
+      "log": "109-private-npm-audit.json",
+      "sha256": "dc52691b73c754a7b5fc310ba67020fec2399d4098e6cbf77639e8c300e11bef",
+      "result": "0 advisories in this narrow production npm report; inherited gates remain",
+      "sourceBoundary": "final source bytes"
+    },
+    {
+      "repository": "private",
+      "command": "pnpm prepare:en16931",
+      "log": "109-prepare-validator.log",
+      "sha256": "93df4fb7d3d9f3e0a23342250a022b2f6945528c9ad4de2a79218c008161d8df",
+      "result": "actual hash-pinned Saxon and official Schematron prepared; Java 27.0.1.0.3",
+      "sourceBoundary": "final source bytes"
+    }
+  ],
+  "committedPrivatePin": "3a0b39b99cc28739433380c8183c763cb729eb28",
+  "pinRequirements": [
+    "Publish this public history first; no push authorized here.",
+    "Repin server contract-internal/service/verification, web contract-service, and scripts/evidence.ts to the resulting reachable public commit.",
+    "Regenerate canonical private lockfile, prove frozen installation and verify installed generated bytes before integration acceptance."
+  ],
+  "intentionalUncommittedOverrides": {
+    "pnpm-workspace.yaml": {
+      "developmentSha256": "ca30cd73bcd14332e075d69883754207dad96f28b4c435174a53231824473771",
+      "committedSha256": "fbeeed630242d1a9cf5cbcd5515320c14ddb4ef383c147ab84a7de13d8ee8c32"
+    },
+    "pnpm-lock.yaml": {
+      "developmentSha256": "a40cca4e44fef131e587d549828af1e7c1d002f25a49951b2ee9df606e859fb4",
+      "committedSha256": "b4775ca0c35f9aa2478af54241cf73aebdcad59604b8cdcedf9c7ae256c7b5c3"
+    }
+  },
+  "installedContracts": [
+    {
+      "consumer": "server",
+      "package": "contract-service",
+      "resolved": "/Users/jeffnawroth/.t3/worktrees/source-taster/t3-e5c6cd1d/packages/contract-service",
+      "hashes": {
+        "package.json": "93b4e910fa3ed9ca1adcaa2e11b432dddb29ac419c6509531d2736fc6e83e067",
+        "dist/contract-service/src/index.js": "3d10f2449771ac9632c4b7c118784e5767c7629a63f80bb76b6d7e19d473a40d",
+        "openapi.json": "d7a84953931c42a9d0e0afc1ab82d2443a95b374b0d808cf099bb4963c651128",
+        "dist/contract-service/src/commerce.js": "d8ac03da3bab3f932fb087278f3fd1889bf147d3e5f2d8cb6fe244cab883a612",
+        "dist/contract-service/src/routes.js": "2bf50e38ec4a6b93699a70f67291c8cd750caf789f53f67528c9ff8edff43f9b"
+      }
+    },
+    {
+      "consumer": "server",
+      "package": "contract-internal",
+      "resolved": "/Users/jeffnawroth/.t3/worktrees/source-taster/t3-e5c6cd1d/packages/contract-internal",
+      "hashes": {
+        "package.json": "933a0b7c2f8573e48ddf0f487606455e49f5fa66cd54d2e463a216cf6b2e25e6",
+        "dist/contract-internal/src/index.js": "920c6b466626b3a042db8127e5441dc6bad7aae93059d7b1a30e8c1d625eed2c"
+      }
+    },
+    {
+      "consumer": "server",
+      "package": "contract-verification",
+      "resolved": "/Users/jeffnawroth/.t3/worktrees/source-taster/t3-e5c6cd1d/packages/contract-verification",
+      "hashes": {
+        "package.json": "721328dc856e3a94620186e6cf8bf31bd84ac6eb5fe66e56d3003b46d5c756db",
+        "dist/contract-verification/src/index.js": "7a97a7e142f18341fbbe79d80e7b55bfab0296c79f690cd97aae35ac345b4178"
+      }
+    },
+    {
+      "consumer": "web",
+      "package": "contract-service",
+      "resolved": "/Users/jeffnawroth/.t3/worktrees/source-taster/t3-e5c6cd1d/packages/contract-service",
+      "hashes": {
+        "package.json": "93b4e910fa3ed9ca1adcaa2e11b432dddb29ac419c6509531d2736fc6e83e067",
+        "dist/contract-service/src/index.js": "3d10f2449771ac9632c4b7c118784e5767c7629a63f80bb76b6d7e19d473a40d",
+        "openapi.json": "d7a84953931c42a9d0e0afc1ab82d2443a95b374b0d808cf099bb4963c651128",
+        "dist/contract-service/src/commerce.js": "d8ac03da3bab3f932fb087278f3fd1889bf147d3e5f2d8cb6fe244cab883a612",
+        "dist/contract-service/src/routes.js": "2bf50e38ec4a6b93699a70f67291c8cd750caf789f53f67528c9ff8edff43f9b"
+      }
+    }
+  ],
+  "validator": {
+    "jar": {
+      "url": "https://repo.maven.apache.org/maven2/net/sf/saxon/Saxon-HE/10.9/Saxon-HE-10.9.jar",
+      "sha256": "491d8edf4ec811d15c2b2417b007218b9b938f15e4dfbad004025beb4e70e960"
+    },
+    "rules": {
+      "url": "https://github.com/ConnectingEurope/eInvoicing-EN16931/releases/download/validation-1.3.17/en16931-ubl-1.3.17.zip",
+      "sha256": "bf02a0e3f6cbe692a4a28e70be7bdcaded5612b4169b543e13d6cb4f33c29e92",
+      "stylesheetSha256": "fc4e6cfa8596bba0c2abd19038a98960c6ee9fc1f44566787c115efd4f4aca7c"
+    }
+  },
+  "qualificationLimits": [
+    "EN16931 UBL Schematron only; no UBL XSD, XRechnung/national CIUS or full Peppol qualification.",
+    "Synthetic external Stripe/VIES/Billit fixtures and captured mail are not live supplier, merchant, tax, legal or delivery approval.",
+    "Stripe\u2013Billit mapping, OAuth lifecycle, correct-seller PO sample, non-Peppol file availability/delivery, DPA/costs, advisor rules/retention remain pre-launch gates.",
+    "All Selected/Better Auth 1.7.14, minimatch/dependency, source/load/calibration/security/deployment/browser and release-78 gates remain."
+  ],
+  "exceptions": [
+    "One live VIES discovery request with synthetic invalid DE000000000 was disclosed; no real taxpayer data/credential and no acceptance claim.",
+    "An initial post-merge private browser setup omitted the owned PostgreSQL URL; ::1/127.0.0.1:5433 connections were refused. No shared database connection or mutation occurred; accepted rerun explicitly used 55811.",
+    "Earlier browser setup failures and artifact-regeneration suite failure are retained as failures, not acceptance evidence."
+  ],
+  "cleanup": {
+    "ownedPostgresContainer": "st109-owned-pg",
+    "containerId": "efffd7619227e9b2c0c657e0e95d30944088c7661585fa38d53fad0ac7632fd3",
+    "port": 55811,
+    "action": "stopped and removed on final handoff; no other container removed",
+    "retainedIgnoredCaches": [
+      "public .tmp/pagefind controlled tools",
+      "private .tmp/en16931 validator tools"
+    ],
+    "scheduledFiveHourJob": "untouched; no scheduler action performed",
+    "source106And108": "untouched",
+    "listenersAtFinalReceipt": "No listeners on 55811, 5801, 5803 or 5483; only the owned PostgreSQL container was removed."
+  },
+  "redEvidence": [
+    {
+      "log": "109-vat-red.log",
+      "sha256": "b0741ad3cca540bf86da8ee546ce41a183f45157a1f92b9314c2a054bdddcece",
+      "failure": "An unvalidated VAT string authorized a binding Order."
+    },
+    {
+      "log": "109-invoice-red.log",
+      "sha256": "dcd60802ba5b6ae2f9b53d0753677151d08e924ede207751b09c9e3544c20ed4",
+      "failure": "Account invoice-list endpoint was missing."
+    },
+    {
+      "log": "109-tax-rate-red.log",
+      "sha256": "204912ae21733483ed79ff981dda14baaea5066c77dfce6c9051a897a9641a46",
+      "failure": "A mismatched provider tax-rate identity granted Quota."
+    },
+    {
+      "log": "109-pro-vat-red.log",
+      "sha256": "53544261041a5a4ed5fb6cf2a6f73ba2164294de3571ae3c49c7a3408e3f5b70",
+      "failure": "Merged Pro accepted VAT without proof."
+    },
+    {
+      "log": "109-legacy-period-red.log",
+      "sha256": "2021094624332a1e77900eecd5ae96e730cf37c2705a3791c553b053edd51e33",
+      "failure": "Legacy renewal listing used initial 1190 instead of retained period 2380."
+    }
+  ]
+}
