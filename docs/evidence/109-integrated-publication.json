@@ -1,0 +1,1399 @@
+{
+  "recordedAt": "2026-11-03T05:05:14.393160+00:00",
+  "boundary": {
+    "recordedAt": "2026-11-03T04:56:16.206154+00:00",
+    "publicCodeHead": "ba42c6e82937241277c1653e800be944b7e0b932",
+    "privateCodeHead": "8e00e8771535547bee99c821d61d6e592600d6a5",
+    "publicCodeTree": "fe3cb37226d21bc5b880f067b51ea961b5ea559a",
+    "privateCodeTree": "b9d03ff68ed0d310a5108c1b2c6874e8b5c660ca",
+    "testEnvironment": {
+      "DATABASE_ADMIN_URL": "postgres://postgres:postgres@127.0.0.1:55711/postgres",
+      "DATABASE_TEST_URL": "postgres://st109_integrated_native:st109_fixture_only@127.0.0.1:55711/st109_integrated_native",
+      "SOURCE_TASTER_TEST_API_PORT": "5701",
+      "SOURCE_TASTER_TEST_SERVICE_PORT": "5702",
+      "SOURCE_TASTER_TEST_COMMERCE_WEB_PORT": "5471",
+      "SOURCE_TASTER_ACCOUNT_TEST_API_PORT": "5701",
+      "SOURCE_TASTER_ACCOUNT_TEST_SERVICE_PORT": "5702",
+      "SOURCE_TASTER_ACCOUNT_TEST_WEB_PORT": "5471",
+      "SOURCE_TASTER_SERVICE_WORKTREE": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "SERVICE_TEST_EN16931_CONFIG": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration/.tmp/en16931/validator.json"
+    },
+    "runnerSha256": "a9fdf579afcb871bff6859aab2c7a32b947ec06808d235e31ec88666f9b2b72a",
+    "artifactsFrozenBeforeTests": true,
+    "noLiveProviderCalls": true,
+    "noNestedAgents": true,
+    "sourceBoundaryNote": "The focused suite began on the identical five-pin working-tree bytes immediately before pin commit 8e00e87 was recorded; no file bytes changed during the commit. All subsequent suites use that committed tree."
+  },
+  "ancestry": {
+    "public": {
+      "mergeHead": "ba42c6e82937241277c1653e800be944b7e0b932",
+      "initialHead": "2775228f3d7606e3b6151d12a693e3094694fb88",
+      "source": "1db784def38d7b77720afd66672016203f9220dc",
+      "ancestors": [
+        "2775228f3d7606e3b6151d12a693e3094694fb88",
+        "1db784def38d7b77720afd66672016203f9220dc",
+        "3a0b39b99cc28739433380c8183c763cb729eb28",
+        "164e3cbc358e706ee91de0cf66159e117e320e11"
+      ],
+      "sourceLogDigestsVerified": [
+        {
+          "log": "109-delivery-public-typecheck.log",
+          "sha256": "0e40ea42712622348ae355300fc57b5c64909dd806a868d5a53107decb64d52a"
+        },
+        {
+          "log": "109-delivery-public-lint.log",
+          "sha256": "27b574d0147155aa5db5d4a3481d5c0d3cb23344a178524852cdd34a6fd23c95"
+        },
+        {
+          "log": "109-delivery-public-i18n.log",
+          "sha256": "aee261aa7c6b1c0e5cab49bdfe47f3736c4f9d91f88ac335533ba3e8df7a0582"
+        },
+        {
+          "log": "109-delivery-public-build.log",
+          "sha256": "1be0cc2eb381137f14ff8d69b472b9574a750c38fe16c51d30ef0ab1bb3161a2"
+        },
+        {
+          "log": "109-delivery-private-typecheck.log",
+          "sha256": "136d6b461b95636b95a914eb7880386f81f02d5a1c7665d7f10c23b0162b3110"
+        },
+        {
+          "log": "109-delivery-private-lint.log",
+          "sha256": "26db9673ec89bc95699a8e66249537512722e2114018fc39c411bfb94c2d9eaa"
+        },
+        {
+          "log": "109-delivery-private-i18n.log",
+          "sha256": "4a344b61290c05ab4c96f269ede029486004deb5984b8972898802416a2198b7"
+        },
+        {
+          "log": "109-delivery-private-build.log",
+          "sha256": "0c60bdcaba18322004bf9a2482db01123726abe046e07c46da90f226629db6ed"
+        },
+        {
+          "log": "109-final-private-tests.log",
+          "sha256": "b9de082898a47ef910e3e80312e4e8af11df9119b386a96a26108c7d7e5d7728"
+        },
+        {
+          "log": "109-accepted-private-regressions.log",
+          "sha256": "dac688ffb91fc15ffa3eb2f5543b6df165341f779f1920c79fe3a2f3ec35d490"
+        },
+        {
+          "log": "109-accepted-business-tax.log",
+          "sha256": "0cf688eebb37188539352816a87dfaa332fb4bf3851ce8a27209f1d863cefccd"
+        },
+        {
+          "log": "109-accepted-both-programs.log",
+          "sha256": "dc95c21b6b2a536e17a28fcab933fdbb3b1a2c0db42ec3db6535f3d9424cf27c"
+        },
+        {
+          "log": "109-accepted-real-browser.log",
+          "sha256": "fcf27d4eb6a89b8d9961c37935a4f19c5cbe624d989ff77b340312a9a0082317"
+        },
+        {
+          "log": "109-accepted-private-browser2.log",
+          "sha256": "ad71d030f7b49111ae71bc19217ba14fd3ecce77c4b99db248e0383389d52420"
+        },
+        {
+          "log": "109-accepted-native.log",
+          "sha256": "12e74d092d7d9642750ad5acff1b5c9519f7ba369737351df83c1bef361aa3e7"
+        },
+        {
+          "log": "109-accepted-native-real-programs.log",
+          "sha256": "a49bc3e9a36d6a04034f8ac26f31e6b9fa13898fd227468f47c380ec6f4f5b7c"
+        },
+        {
+          "log": "109-pagefind-fetch.log",
+          "sha256": "be322fa600cd36dfe7fb7481f91e22cc657e25468ed0f27799f9b706515b262e"
+        },
+        {
+          "log": "109-pagefind-build2.log",
+          "sha256": "db874f2575e9bbe9d7ef3d68bbe9611eb81d30c16ea5ef5a1981814aaa6aeb52"
+        },
+        {
+          "log": "109-pagefind-verify.log",
+          "sha256": "9f13fabac05bdeabf4b3c72b7670a332783263e0544b425afe88d162b3288d51"
+        },
+        {
+          "log": "109-all-contracts-build.log",
+          "sha256": "765156c78c03bf3c95a91e94823795daef03b26945adde6e569d87ceefce9704"
+        },
+        {
+          "log": "109-private-licenses.log",
+          "sha256": "1d1b9d8fe2af770c7eb8f537cb622d6a960ee16050a1c248295100678867329c"
+        },
+        {
+          "log": "109-private-npm-audit.json",
+          "sha256": "dc52691b73c754a7b5fc310ba67020fec2399d4098e6cbf77639e8c300e11bef"
+        },
+        {
+          "log": "109-prepare-validator.log",
+          "sha256": "93df4fb7d3d9f3e0a23342250a022b2f6945528c9ad4de2a79218c008161d8df"
+        }
+      ]
+    },
+    "private": {
+      "mergeHead": "6e3891a33d811796d5f037f8ae6542fc38bf418f",
+      "initialHead": "e9a39fde6837e5c6ccb649680b798365af4f549e",
+      "source": "42fb5697868f7248cbc6adb757e5a24853cf4466",
+      "ancestors": [
+        "e9a39fde6837e5c6ccb649680b798365af4f549e",
+        "42fb5697868f7248cbc6adb757e5a24853cf4466",
+        "bcf5620",
+        "c08dbff70975b1ba54240077460a48caa981389b",
+        "702d681"
+      ],
+      "sourceLogDigestsVerified": [
+        {
+          "log": "109-delivery-public-typecheck.log",
+          "sha256": "0e40ea42712622348ae355300fc57b5c64909dd806a868d5a53107decb64d52a"
+        },
+        {
+          "log": "109-delivery-public-lint.log",
+          "sha256": "27b574d0147155aa5db5d4a3481d5c0d3cb23344a178524852cdd34a6fd23c95"
+        },
+        {
+          "log": "109-delivery-public-i18n.log",
+          "sha256": "aee261aa7c6b1c0e5cab49bdfe47f3736c4f9d91f88ac335533ba3e8df7a0582"
+        },
+        {
+          "log": "109-delivery-public-build.log",
+          "sha256": "1be0cc2eb381137f14ff8d69b472b9574a750c38fe16c51d30ef0ab1bb3161a2"
+        },
+        {
+          "log": "109-delivery-private-typecheck.log",
+          "sha256": "136d6b461b95636b95a914eb7880386f81f02d5a1c7665d7f10c23b0162b3110"
+        },
+        {
+          "log": "109-delivery-private-lint.log",
+          "sha256": "26db9673ec89bc95699a8e66249537512722e2114018fc39c411bfb94c2d9eaa"
+        },
+        {
+          "log": "109-delivery-private-i18n.log",
+          "sha256": "4a344b61290c05ab4c96f269ede029486004deb5984b8972898802416a2198b7"
+        },
+        {
+          "log": "109-delivery-private-build.log",
+          "sha256": "0c60bdcaba18322004bf9a2482db01123726abe046e07c46da90f226629db6ed"
+        },
+        {
+          "log": "109-final-private-tests.log",
+          "sha256": "b9de082898a47ef910e3e80312e4e8af11df9119b386a96a26108c7d7e5d7728"
+        },
+        {
+          "log": "109-accepted-private-regressions.log",
+          "sha256": "dac688ffb91fc15ffa3eb2f5543b6df165341f779f1920c79fe3a2f3ec35d490"
+        },
+        {
+          "log": "109-accepted-business-tax.log",
+          "sha256": "0cf688eebb37188539352816a87dfaa332fb4bf3851ce8a27209f1d863cefccd"
+        },
+        {
+          "log": "109-accepted-both-programs.log",
+          "sha256": "dc95c21b6b2a536e17a28fcab933fdbb3b1a2c0db42ec3db6535f3d9424cf27c"
+        },
+        {
+          "log": "109-accepted-real-browser.log",
+          "sha256": "fcf27d4eb6a89b8d9961c37935a4f19c5cbe624d989ff77b340312a9a0082317"
+        },
+        {
+          "log": "109-accepted-private-browser2.log",
+          "sha256": "ad71d030f7b49111ae71bc19217ba14fd3ecce77c4b99db248e0383389d52420"
+        },
+        {
+          "log": "109-accepted-native.log",
+          "sha256": "12e74d092d7d9642750ad5acff1b5c9519f7ba369737351df83c1bef361aa3e7"
+        },
+        {
+          "log": "109-accepted-native-real-programs.log",
+          "sha256": "a49bc3e9a36d6a04034f8ac26f31e6b9fa13898fd227468f47c380ec6f4f5b7c"
+        },
+        {
+          "log": "109-pagefind-fetch.log",
+          "sha256": "be322fa600cd36dfe7fb7481f91e22cc657e25468ed0f27799f9b706515b262e"
+        },
+        {
+          "log": "109-pagefind-build2.log",
+          "sha256": "db874f2575e9bbe9d7ef3d68bbe9611eb81d30c16ea5ef5a1981814aaa6aeb52"
+        },
+        {
+          "log": "109-pagefind-verify.log",
+          "sha256": "9f13fabac05bdeabf4b3c72b7670a332783263e0544b425afe88d162b3288d51"
+        },
+        {
+          "log": "109-all-contracts-build.log",
+          "sha256": "765156c78c03bf3c95a91e94823795daef03b26945adde6e569d87ceefce9704"
+        },
+        {
+          "log": "109-private-licenses.log",
+          "sha256": "1d1b9d8fe2af770c7eb8f537cb622d6a960ee16050a1c248295100678867329c"
+        },
+        {
+          "log": "109-private-npm-audit.json",
+          "sha256": "dc52691b73c754a7b5fc310ba67020fec2399d4098e6cbf77639e8c300e11bef"
+        },
+        {
+          "log": "109-prepare-validator.log",
+          "sha256": "93df4fb7d3d9f3e0a23342250a022b2f6945528c9ad4de2a79218c008161d8df"
+        }
+      ]
+    }
+  },
+  "publicTransport": {
+    "pin": "ba42c6e82937241277c1653e800be944b7e0b932",
+    "remoteHead": "ba42c6e82937241277c1653e800be944b7e0b932",
+    "apiSha": "ba42c6e82937241277c1653e800be944b7e0b932"
+  },
+  "checks": [
+    {
+      "name": "public-install",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "install",
+        "--frozen-lockfile"
+      ],
+      "exitCode": 0,
+      "seconds": 0.15,
+      "log": "109-integrated-public-install.log",
+      "sha256": "48b219c694c22cce0788d2c039dd5b14371faa9cdab81250b481ebaad475377b",
+      "bytes": 268
+    },
+    {
+      "name": "contract-common",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/contract-common",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 0.21,
+      "log": "109-integrated-contract-common.log",
+      "sha256": "24c42b76aecef2c39c8a5639a3536efb936b03bdac9a8f8be50c0e71ffbc7af8",
+      "bytes": 29
+    },
+    {
+      "name": "contract-internal",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/contract-internal",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 0.36,
+      "log": "109-integrated-contract-internal.log",
+      "sha256": "99ffb5cfaaa7975ee406c1bc012dfd72afacd0fcd3515f58f619e91f0c534630",
+      "bytes": 24
+    },
+    {
+      "name": "contract-service",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/contract-service",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 0.43,
+      "log": "109-integrated-contract-service.log",
+      "sha256": "99ffb5cfaaa7975ee406c1bc012dfd72afacd0fcd3515f58f619e91f0c534630",
+      "bytes": 24
+    },
+    {
+      "name": "contract-verification",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/contract-verification",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 0.45,
+      "log": "109-integrated-contract-verification.log",
+      "sha256": "99ffb5cfaaa7975ee406c1bc012dfd72afacd0fcd3515f58f619e91f0c534630",
+      "bytes": 24
+    },
+    {
+      "name": "public-prisma",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/server",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 0.65,
+      "log": "109-integrated-public-prisma.log",
+      "sha256": "0580543ed9d9684992da90517196a3bcf23e527416bc9354470aff795156296f",
+      "bytes": 184
+    },
+    {
+      "name": "public-catalog",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/i18n",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 1.75,
+      "log": "109-integrated-public-catalog.log",
+      "sha256": "df18f23268ff1b29e9d3ce16037d61b1cec74db2cfa217d55fb5f17e43cebe85",
+      "bytes": 240
+    },
+    {
+      "name": "public-contract-repro",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "git",
+        "diff",
+        "--exit-code",
+        "--",
+        "packages/contract-common",
+        "packages/contract-internal",
+        "packages/contract-service",
+        "packages/contract-verification"
+      ],
+      "exitCode": 0,
+      "seconds": 0.03,
+      "log": "109-integrated-public-contract-repro.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "name": "prepare-validator",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "prepare:en16931"
+      ],
+      "exitCode": 0,
+      "seconds": 1.95,
+      "log": "109-integrated-prepare-validator.log",
+      "sha256": "dbfa27618730a1f1b62c091519c07e817d604449033d08744be26189aabb3866",
+      "bytes": 640
+    },
+    {
+      "name": "pagefind-fetch",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "pagefind:fetch"
+      ],
+      "exitCode": 0,
+      "seconds": 39.18,
+      "log": "109-integrated-pagefind-fetch.log",
+      "sha256": "075378add82507f94ef23aa96a221d63b05680fa2769875c5befdad3512f16ed",
+      "bytes": 967
+    },
+    {
+      "name": "pagefind-build",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "pagefind:build"
+      ],
+      "exitCode": 0,
+      "seconds": 36.65,
+      "log": "109-integrated-pagefind-build.log",
+      "sha256": "03a4822af774dafda4bbcc7294f4fcfc5b5cbcb5d7a767aba8c72ae488e63449",
+      "bytes": 6618
+    },
+    {
+      "name": "pagefind-verify",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "pagefind:verify"
+      ],
+      "exitCode": 0,
+      "seconds": 8.87,
+      "log": "109-integrated-pagefind-verify.log",
+      "sha256": "9f13fabac05bdeabf4b3c72b7670a332783263e0544b425afe88d162b3288d51",
+      "bytes": 98
+    },
+    {
+      "name": "public-typecheck",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "seconds": 16.21,
+      "log": "109-integrated-public-typecheck.log",
+      "sha256": "3ff3fdd6db3ff2cbd92a5a63be1150229b34ee00ed327d34a12da2bec58ec1dd",
+      "bytes": 11635
+    },
+    {
+      "name": "public-lint",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "lint"
+      ],
+      "exitCode": 0,
+      "seconds": 17.88,
+      "log": "109-integrated-public-lint.log",
+      "sha256": "9e80754509987e8db3f7f1b3168671fde1e943c563df2a4a5c0d1c55be22c125",
+      "bytes": 11463
+    },
+    {
+      "name": "public-i18n-check",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "i18n:check"
+      ],
+      "exitCode": 0,
+      "seconds": 0.11,
+      "log": "109-integrated-public-i18n-check.log",
+      "sha256": "312bef8aa370ae9ecd35f04ad04212a5b18cb4abeda2682e20b1b69acf0cc378",
+      "bytes": 1070
+    },
+    {
+      "name": "public-build",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 13.08,
+      "log": "109-integrated-public-build.log",
+      "sha256": "8f645ed8eada72cb4c31d6d05d725f9bc03b016543b6c2d50970bc6d7614df5b",
+      "bytes": 14860
+    },
+    {
+      "name": "public-clean",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "git",
+        "diff",
+        "--exit-code"
+      ],
+      "exitCode": 0,
+      "seconds": 0.01,
+      "log": "109-integrated-public-clean.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "name": "public-push",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "git",
+        "push",
+        "origin",
+        "HEAD:spec/70-launch-integration"
+      ],
+      "exitCode": 0,
+      "seconds": 2.44,
+      "log": "109-integrated-public-push.log",
+      "sha256": "83d7d88893c4c4c67e4b9f8454177021b85124b4623f26779bf75008bd33a7b9",
+      "bytes": 366
+    },
+    {
+      "name": "private-install",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "install",
+        "--no-frozen-lockfile"
+      ],
+      "exitCode": 0,
+      "seconds": 4.4,
+      "log": "109-integrated-private-install.log",
+      "sha256": "7614ff4fbe6518d53eb45eaaa997564f2433f2d76179857d4b1d4adaf7f7051a",
+      "bytes": 411
+    },
+    {
+      "name": "private-frozen",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "install",
+        "--frozen-lockfile"
+      ],
+      "exitCode": 0,
+      "seconds": 0.09,
+      "log": "109-integrated-private-frozen.log",
+      "sha256": "99c22668cf9fbdc63dcd905a2b517a839520b5b13b24fa48d966863700e40cdb",
+      "bytes": 268
+    },
+    {
+      "name": "installed-bytes",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "python3",
+        "/Users/jeffnawroth/Developer/Repositories/source-taster/.tmp/spec-70-orchestration/109-integrated-verify-pins.py"
+      ],
+      "exitCode": 0,
+      "seconds": 0.85,
+      "log": "109-integrated-installed-bytes.log",
+      "sha256": "7ca2cfe61ee1b443b7461b55c0f2a332a3e13b6256e9d1b5bca2bf06e04659f9",
+      "bytes": 160
+    },
+    {
+      "name": "private-prisma",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/server",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 0.82,
+      "log": "109-integrated-private-prisma.log",
+      "sha256": "2b7eec1c62352fa9c12cc5b2e93b51fa79ce72d3dccb8166c590979bc2ad025c",
+      "bytes": 185
+    },
+    {
+      "name": "private-catalog",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/i18n",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 1.46,
+      "log": "109-integrated-private-catalog.log",
+      "sha256": "df18f23268ff1b29e9d3ce16037d61b1cec74db2cfa217d55fb5f17e43cebe85",
+      "bytes": 240
+    },
+    {
+      "name": "private-types",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "seconds": 2.01,
+      "log": "109-integrated-private-types.log",
+      "sha256": "830b75750527a8033378f74df8271a6929eaf18f2567a8d7a073f67bcbca658c",
+      "bytes": 3680
+    },
+    {
+      "name": "private-lint",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "lint"
+      ],
+      "exitCode": 0,
+      "seconds": 8.43,
+      "log": "109-integrated-private-lint.log",
+      "sha256": "26db9673ec89bc95699a8e66249537512722e2114018fc39c411bfb94c2d9eaa",
+      "bytes": 99
+    },
+    {
+      "name": "private-i18n",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "i18n:check"
+      ],
+      "exitCode": 0,
+      "seconds": 0.11,
+      "log": "109-integrated-private-i18n.log",
+      "sha256": "d70d51ab94259ee1354559ca2d63c15bf9b8ebe73d2f9a95d774bcbcf4bb3a8b",
+      "bytes": 606
+    },
+    {
+      "name": "private-build",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 1.21,
+      "log": "109-integrated-private-build.log",
+      "sha256": "c25a5c2beeb731919462875dfc516235b108197bf75b4478f58c74282c9d4e42",
+      "bytes": 4533
+    },
+    {
+      "name": "generated-reproducibility",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "python3",
+        ".tmp/spec-70-orchestration/109-integrated-reproduce.py"
+      ],
+      "exitCode": 1,
+      "seconds": 3.19,
+      "log": "109-integrated-generated-reproducibility.log",
+      "sha256": "eb5c9f6fc5df1aeb2482106af4c0c3965365cc3ddcd2777888e7981d553556f1",
+      "bytes": 1615
+    },
+    {
+      "name": "catalog-diagnostic",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "python3",
+        ".tmp/spec-70-orchestration/109-integrated-catalog-diagnostic.py"
+      ],
+      "exitCode": 0,
+      "seconds": 16.65,
+      "log": "109-integrated-catalog-diagnostic.log",
+      "sha256": "cad533f52a66cec0ba518ef4914aa853dff90c51d060f500a6f056a69da74444",
+      "bytes": 19528
+    },
+    {
+      "name": "public-prisma-local",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/server",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 0.63,
+      "log": "109-integrated-public-prisma-local.log",
+      "sha256": "e527299027353f8c0051dda208537dca9e4241871ebbe251cfc60264a692d4da",
+      "bytes": 184
+    },
+    {
+      "name": "public-catalog-local",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/i18n",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 1.69,
+      "log": "109-integrated-public-catalog-local.log",
+      "sha256": "df18f23268ff1b29e9d3ce16037d61b1cec74db2cfa217d55fb5f17e43cebe85",
+      "bytes": 240
+    },
+    {
+      "name": "private-prisma-local",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/server",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 0.71,
+      "log": "109-integrated-private-prisma-local.log",
+      "sha256": "1a2391278ffc6c9f121664b2b960dc6b7041017b225d13405467229852b57d65",
+      "bytes": 184
+    },
+    {
+      "name": "private-catalog-local",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/i18n",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 1.33,
+      "log": "109-integrated-private-catalog-local.log",
+      "sha256": "df18f23268ff1b29e9d3ce16037d61b1cec74db2cfa217d55fb5f17e43cebe85",
+      "bytes": 240
+    },
+    {
+      "name": "generated-reproducibility-final",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "python3",
+        "/Users/jeffnawroth/Developer/Repositories/source-taster/.tmp/spec-70-orchestration/109-integrated-reproduce.py"
+      ],
+      "exitCode": 0,
+      "seconds": 4.36,
+      "log": "109-integrated-generated-reproducibility-final.log",
+      "sha256": "76b87c13838420c1bc02e5be0dfb6e928592266d5c96e0bdd39ae377fa4061cc",
+      "bytes": 1437
+    },
+    {
+      "name": "release-refusal",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/server",
+        "release:check"
+      ],
+      "exitCode": 1,
+      "seconds": 0.57,
+      "log": "109-integrated-release-refusal.log",
+      "sha256": "05d90590a006d1119919df6472ac0980dfb1e1520236650221ec9ae9474db32c",
+      "bytes": 393
+    },
+    {
+      "name": "private-licenses",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "audit:licenses"
+      ],
+      "exitCode": 0,
+      "seconds": 0.3,
+      "log": "109-integrated-private-licenses.log",
+      "sha256": "32868ec50d7c8ed98fa642748ef0bd7002fd389f0b1af9570b01b9371ccce13c",
+      "bytes": 81
+    },
+    {
+      "name": "release-refusal-direct",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster/apps/server",
+      "command": [
+        "node",
+        "scripts/release-check.ts"
+      ],
+      "exitCode": 78,
+      "seconds": 0.44,
+      "log": "109-integrated-release-refusal-direct.log",
+      "sha256": "d7b66fd9425176834b18995419c5c034d1fe3af22e46f3b27d2bad07ee5cc690",
+      "bytes": 160
+    },
+    {
+      "name": "private-focused",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/server",
+        "exec",
+        "vitest",
+        "run",
+        "test/business-tax.test.ts",
+        "test/commerce.test.ts",
+        "test/subscription.test.ts",
+        "test/sensitive.test.ts"
+      ],
+      "exitCode": 0,
+      "seconds": 94.5,
+      "log": "109-integrated-private-focused.log",
+      "sha256": "cd82e7c87641718ff4205464d8f86ee4b32eb033d6544a08c404d4c9d6dc627a",
+      "bytes": 214
+    },
+    {
+      "name": "private-full",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/server",
+        "exec",
+        "vitest",
+        "run"
+      ],
+      "exitCode": 0,
+      "seconds": 255.15,
+      "log": "109-integrated-private-full.log",
+      "sha256": "8c3313fd9b8f5b54ab9ae89aeba9101d0a794783beaf2f6131b11f3d5b7ea8bf",
+      "bytes": 219
+    },
+    {
+      "name": "both-quota-commerce",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/server",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        "quota.vitest.config.ts"
+      ],
+      "exitCode": 0,
+      "seconds": 64.46,
+      "log": "109-integrated-both-quota-commerce.log",
+      "sha256": "6bafd982b4d9e237d50c1151b65b58ab30ea60f7cef50a40610882e6dcc550ea",
+      "bytes": 194
+    },
+    {
+      "name": "both-authority",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/server",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        "guest.vitest.config.ts"
+      ],
+      "exitCode": 0,
+      "seconds": 172.4,
+      "log": "109-integrated-both-authority.log",
+      "sha256": "752bae69fc8f861f402c72610d26131bc0a9f62c0e1dc8c9aa35529e08195f05",
+      "bytes": 195
+    },
+    {
+      "name": "real-purchase-browser",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/web",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "account.playwright.config.ts",
+        "business-invoices.spec.ts"
+      ],
+      "exitCode": 0,
+      "seconds": 18.04,
+      "log": "109-integrated-real-purchase-browser.log",
+      "sha256": "bbdfeef640402ed44efe341e902d51bf16a813cec819608ec7746f73cd716d18",
+      "bytes": 783
+    },
+    {
+      "name": "private-browser",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/web",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "commerce.playwright.config.ts"
+      ],
+      "exitCode": 0,
+      "seconds": 10.72,
+      "log": "109-integrated-private-browser.log",
+      "sha256": "91a01f4e4521a2e9c8700d877d97f395414e97b6f6cc3f47186da67ca03b49bf",
+      "bytes": 1249
+    },
+    {
+      "name": "native-invoices",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/extension",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "account.playwright.config.ts",
+        "panel.spec.ts",
+        "-g",
+        "native Account invoice|purchasing and Plan"
+      ],
+      "exitCode": 0,
+      "seconds": 6.29,
+      "log": "109-integrated-native-invoices.log",
+      "sha256": "38948d373e51ceaf45bfcfc6cf0943a1505051bc285f074a955b2c91ab7b16f9",
+      "bytes": 2707
+    },
+    {
+      "name": "native-real-forward",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/extension",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "private.playwright.config.ts",
+        "commerce.spec.ts"
+      ],
+      "exitCode": 0,
+      "seconds": 6.92,
+      "log": "109-integrated-native-real-forward.log",
+      "sha256": "94c690aa09ab5f89ddfc7d69aecf093313296294f4515bd32be884be2542d7f5",
+      "bytes": 359
+    },
+    {
+      "name": "frozen-after",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "python3",
+        ".tmp/spec-70-orchestration/109-integrated-frozen-after.py"
+      ],
+      "exitCode": 0,
+      "seconds": 0.17,
+      "log": "109-integrated-frozen-after.log",
+      "sha256": "94a97fd44cd7c6711debce8bc74bb471eeb33d440ad161bf8d3215e24ea4c826",
+      "bytes": 668
+    },
+    {
+      "name": "installed-bytes-final",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "python3",
+        ".tmp/spec-70-orchestration/109-integrated-verify-pins.py"
+      ],
+      "exitCode": 0,
+      "seconds": 0.97,
+      "log": "109-integrated-installed-bytes-final.log",
+      "sha256": "7ca2cfe61ee1b443b7461b55c0f2a332a3e13b6256e9d1b5bca2bf06e04659f9",
+      "bytes": 160
+    },
+    {
+      "name": "cleanup",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "python3",
+        ".tmp/spec-70-orchestration/109-integrated-cleanup.py"
+      ],
+      "exitCode": 0,
+      "seconds": 0.75,
+      "log": "109-integrated-cleanup.log",
+      "sha256": "4f1e3563b583ac07f871fd6d489b60febfbc4f3d808c28a6460dbd32aa123cb6",
+      "bytes": 739
+    }
+  ],
+  "counts": {
+    "private-focused": 35,
+    "private-full": 105,
+    "both-quota-commerce": 10,
+    "both-authority": 33,
+    "real-purchase-browser": 4,
+    "private-browser": 6,
+    "native-invoices": 2,
+    "native-real-forward": 1
+  },
+  "installedContracts": {
+    "publicPin": "ba42c6e82937241277c1653e800be944b7e0b932",
+    "fivePins": [
+      {
+        "file": "apps/server/package.json",
+        "package": "@source-taster/contract-internal",
+        "sha": "ba42c6e82937241277c1653e800be944b7e0b932"
+      },
+      {
+        "file": "apps/server/package.json",
+        "package": "@source-taster/contract-service",
+        "sha": "ba42c6e82937241277c1653e800be944b7e0b932"
+      },
+      {
+        "file": "apps/server/package.json",
+        "package": "@source-taster/contract-verification",
+        "sha": "ba42c6e82937241277c1653e800be944b7e0b932"
+      },
+      {
+        "file": "apps/web/package.json",
+        "package": "@source-taster/contract-service",
+        "sha": "ba42c6e82937241277c1653e800be944b7e0b932"
+      },
+      {
+        "file": "scripts/evidence.ts",
+        "constant": "contractCommit",
+        "sha": "ba42c6e82937241277c1653e800be944b7e0b932"
+      }
+    ],
+    "workspacePolicyUnchanged": true,
+    "onlyPinSubstitutions": true,
+    "betterAuth": "1.7.14",
+    "registryGraphUnchanged": true,
+    "lockfileSha256": "aff1a89121ed713efe560028581502cc3d63c1399b2647794264d35fe58fae81",
+    "installed": [
+      {
+        "consumer": "server",
+        "package": "@source-taster/contract-internal",
+        "installedRelativePath": "node_modules/.pnpm/@source-taster+contract-internal@git+https+++github.com+jeffnawroth+source-taster.git+b_6b7f163153b3c8e3f702973fb523235a/node_modules/@source-taster/contract-internal",
+        "pin": "ba42c6e82937241277c1653e800be944b7e0b932",
+        "fileCount": 10,
+        "files": {
+          "LICENSE-AGPL": "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee",
+          "LICENSE-MIT": "b9554a8a6132ad023b367aeb8fbc10b24d97fb6da115bbfdac3f79717828a85a",
+          "dist/contract-common/src/index.d.ts": "c307238586e36d008907c9ce3b65483694a69509ad220cce8422d6f275bc200b",
+          "dist/contract-common/src/index.js": "8e70553fee48350b82c6c2c94f2783b27362725d5a7d178b01ec546c5ba696be",
+          "dist/contract-internal/src/index.d.ts": "2a4500887dde81f3805bbbec6b1ee719ab23651235e676108650a3732dc66c05",
+          "dist/contract-internal/src/index.js": "920c6b466626b3a042db8127e5441dc6bad7aae93059d7b1a30e8c1d625eed2c",
+          "dist/contract-internal/src/routes.d.ts": "63bec77050e0577ccb1a09970885d3107274c1d5304549762b3f64d0d5b2b8bb",
+          "dist/contract-internal/src/routes.js": "85d3dc38ba085ac1f1beb7c2df84a210c09470615b1c9d7cdb0665e50a8b6f35",
+          "openapi.json": "b684d15d11829fe0880519c49819c715bc05cf1a0b6142e570093dbce15ee272",
+          "package.json": "933a0b7c2f8573e48ddf0f487606455e49f5fa66cd54d2e463a216cf6b2e25e6"
+        }
+      },
+      {
+        "consumer": "server",
+        "package": "@source-taster/contract-service",
+        "installedRelativePath": "node_modules/.pnpm/@source-taster+contract-service@git+https+++github.com+jeffnawroth+source-taster.git+ba_8a485afdca67bb6df2a2e45d75dc906f/node_modules/@source-taster/contract-service",
+        "pin": "ba42c6e82937241277c1653e800be944b7e0b932",
+        "fileCount": 20,
+        "files": {
+          "LICENSE-AGPL": "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee",
+          "LICENSE-MIT": "b9554a8a6132ad023b367aeb8fbc10b24d97fb6da115bbfdac3f79717828a85a",
+          "dist/contract-common/src/index.d.ts": "c307238586e36d008907c9ce3b65483694a69509ad220cce8422d6f275bc200b",
+          "dist/contract-common/src/index.js": "8e70553fee48350b82c6c2c94f2783b27362725d5a7d178b01ec546c5ba696be",
+          "dist/contract-service/src/client.d.ts": "8dbd4da6704da797e7ae276f86b430601b9ac22f4bcb0f9d93843811180b8d8e",
+          "dist/contract-service/src/client.js": "151103b4340fefda59f9ae31bc71196dbbcd612b8d73fdaef20e3e58f500c5d4",
+          "dist/contract-service/src/commerce.d.ts": "646ed8e8bf5a3f84cde0f35633ea3acefd4abb630d6cf8dee1a5f956b3d8c34a",
+          "dist/contract-service/src/commerce.js": "d8ac03da3bab3f932fb087278f3fd1889bf147d3e5f2d8cb6fe244cab883a612",
+          "dist/contract-service/src/dpa-client.d.ts": "17e79d8a0d3e01d127dc243ef1c7b048fc607676006780c6a32bf33a9551e1e6",
+          "dist/contract-service/src/dpa-client.js": "270758316222793c9dfa65da1bdeced5d1b272dbd2e589cdbacbf71b5233b098",
+          "dist/contract-service/src/dpa-routes.d.ts": "f87abb206fec2f92d6c7047ed41b2d408847ad41665fce09626c5337bd408cd5",
+          "dist/contract-service/src/dpa-routes.js": "bdeaee599f9d16c56fdb3b79e1acb0eb3f9fc3efcfcdb562d3c1072dbe4fa51c",
+          "dist/contract-service/src/dpa.d.ts": "05c2ed6792f082202f0caae191a09116f7d57437e3bfee389c34a64e65e34f11",
+          "dist/contract-service/src/dpa.js": "a522ab621d83048ec1e30540f0823fc090f9d06c8931c9ecb2e482dff8e7278b",
+          "dist/contract-service/src/index.d.ts": "26780a1b4449640ba5c9c965b2a99ef60a619db05a9d0854a274de2f14f1b13d",
+          "dist/contract-service/src/index.js": "3d10f2449771ac9632c4b7c118784e5767c7629a63f80bb76b6d7e19d473a40d",
+          "dist/contract-service/src/routes.d.ts": "857ed164747cf039bee647b0bccd6f8012d52938d70c752dc05ae685839f84a8",
+          "dist/contract-service/src/routes.js": "2bf50e38ec4a6b93699a70f67291c8cd750caf789f53f67528c9ff8edff43f9b",
+          "openapi.json": "d7a84953931c42a9d0e0afc1ab82d2443a95b374b0d808cf099bb4963c651128",
+          "package.json": "93b4e910fa3ed9ca1adcaa2e11b432dddb29ac419c6509531d2736fc6e83e067"
+        }
+      },
+      {
+        "consumer": "server",
+        "package": "@source-taster/contract-verification",
+        "installedRelativePath": "node_modules/.pnpm/@source-taster+contract-verification@git+https+++github.com+jeffnawroth+source-taster.g_c351e38a075adc80be2b052f4d3847ba/node_modules/@source-taster/contract-verification",
+        "pin": "ba42c6e82937241277c1653e800be944b7e0b932",
+        "fileCount": 52,
+        "files": {
+          "LICENSE-AGPL": "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee",
+          "LICENSE-MIT": "b9554a8a6132ad023b367aeb8fbc10b24d97fb6da115bbfdac3f79717828a85a",
+          "README.md": "d99bd544dddd92b90efd95c329d264904d67d031dc68008f36818ed2f91bf4f9",
+          "dist/contract-common/src/index.d.ts": "c307238586e36d008907c9ce3b65483694a69509ad220cce8422d6f275bc200b",
+          "dist/contract-common/src/index.js": "8e70553fee48350b82c6c2c94f2783b27362725d5a7d178b01ec546c5ba696be",
+          "dist/contract-verification/src/ai.d.ts": "1f05b34b7572f464554ec3827ee1337221f19a3f440d97db57de29149f1b07b3",
+          "dist/contract-verification/src/ai.js": "a84bc69e6af0b6d3c6eab4779b0a4a1100810a738ea129f585efa2698c0c3b33",
+          "dist/contract-verification/src/bibliography-client.d.ts": "22697c6a4fa1b711cd9f2653950c1e6036acc27f82e4f8977327a96d135b9895",
+          "dist/contract-verification/src/bibliography-client.js": "48b0832ad0b454a5906427c2728a2e4303630e72a1551a83740a824bed370015",
+          "dist/contract-verification/src/bibliography-routes.d.ts": "24ea6eb0361cd1b82e459bb74e010d361d83504d7ddb2e26f042476e44b6274d",
+          "dist/contract-verification/src/bibliography-routes.js": "8b89c493bc528c58ae6a34418c17cb2de043a8409598d97a89b51e55e092c6fb",
+          "dist/contract-verification/src/bibliography.d.ts": "bbe07699d57b35175a3e13d8f44782b13df5606be50dda7ee59dc76eb5a67852",
+          "dist/contract-verification/src/bibliography.js": "6cdb92700d623a25e0dbf4fb674f7f8acb0904d787631be3d5ca1e8001a9fc04",
+          "dist/contract-verification/src/client-v2.d.ts": "347ba31622ba11e45c243a68b118cc418a51c4f4e364651b92c176d6e7fb4db3",
+          "dist/contract-verification/src/client-v2.js": "fd859bf033a5463a87f0fdb2da595a91c45afa140a6877b7a4b79b901fa0df5c",
+          "dist/contract-verification/src/client.d.ts": "e7f5646d4df61799cac140116049021f6f60c7bf83b658d72296544976b4dff3",
+          "dist/contract-verification/src/client.js": "f32ab557b21d70bcb8ae7cd626763be8a44d1a8eb84a7179af658ff6d48b468a",
+          "dist/contract-verification/src/document-client.d.ts": "1c6297c81f2457559eb2ec52ee25cbbc5f0795484473867e09e37f81647cc546",
+          "dist/contract-verification/src/document-client.js": "81a16ccce1dcaeef6893aaba1a3568fbdd34db58f6d6d8585024a2ab07713c57",
+          "dist/contract-verification/src/document-routes.d.ts": "5700a4a21cadacae0581d3f96990b248efc08f69041f852f33901b8e476b295c",
+          "dist/contract-verification/src/document-routes.js": "45ae16af5a55739c5d10aa62ccf9cb7c4735da345be30b2a8f582c5034216c00",
+          "dist/contract-verification/src/document.d.ts": "49b00f3a36bad81062f265e130428f05f4367ca775a779502346249623015087",
+          "dist/contract-verification/src/document.js": "f34d0a10fae3299483c35664818efa519a1187ca24044fe2d600221a0f226a78",
+          "dist/contract-verification/src/export-client.d.ts": "1f57f4a24f9fae4c0d56324461ee712931b1c255bcfad3ada05a2497075cde52",
+          "dist/contract-verification/src/export-client.js": "8df5154d4f35506368ce334e99a1b9748fb999a0cab79b406cdb855e02c0cd99",
+          "dist/contract-verification/src/export-routes.d.ts": "b2ff60f8bc410cd0b1cb1cae832db6017bb722c42fc0c417f3c763d0c95dc4cf",
+          "dist/contract-verification/src/export-routes.js": "0512fa604a17cb7f017159ca6fe1b377ccf96b78058f63080bc3759a191d93b7",
+          "dist/contract-verification/src/export.d.ts": "75d89d326553a33544270038eeecf5954a44f277e397695815f75550cae6ad99",
+          "dist/contract-verification/src/export.js": "546bfe4e112b0d05d4181caf432a4b4732bdbefa725d05cdeb99d086b1d90eb4",
+          "dist/contract-verification/src/import.d.ts": "8621c682f8f8f49b945219c5434bf91f0f6aef22aa4eaea334bb42d0e73096b3",
+          "dist/contract-verification/src/import.js": "1cd3c53b215eff4056cccb2437616561fba51cdbb868388d08105e5dd1a7830e",
+          "dist/contract-verification/src/index.d.ts": "5bb9cd00fe436187cc55e365b5ef806e3718130a37e37cc06d9721e4c093cd64",
+          "dist/contract-verification/src/index.js": "7a97a7e142f18341fbbe79d80e7b55bfab0296c79f690cd97aae35ac345b4178",
+          "dist/contract-verification/src/report-client.d.ts": "2eb1b8a3b7f56d4f1b2c70a8192f0d84a079c97e4d2b5d2abf48e81026033326",
+          "dist/contract-verification/src/report-client.js": "bd9c71a6d147c8569f1e9305321fc8b7479486f12251014760e8c36e76930eb0",
+          "dist/contract-verification/src/report-routes.d.ts": "bc2e2e1c03f1d560b58174cbc94953ccd435b433baa47b5eb71589c60f23be08",
+          "dist/contract-verification/src/report-routes.js": "bfb48112d1ad4e03439414cf605709834ea0e34420990b917851dd6135fc0347",
+          "dist/contract-verification/src/report.d.ts": "29dd2d26f35a0e42cb0fa16c870cf1770a36406451f719064f1a1594ff309ddf",
+          "dist/contract-verification/src/report.js": "8b39e0880440bf54b2b13be8eb621d80f38d541e59f14bd4a9d67096396fd7b5",
+          "dist/contract-verification/src/routes-v2.d.ts": "6e4569e55117abe823f2f6ea0e23d7c9aa902e03538414147ba4684c0255833c",
+          "dist/contract-verification/src/routes-v2.js": "b2302c884dd53324f83985f43fa0360842d5fc83f43a8507c42314d5dad9a012",
+          "dist/contract-verification/src/routes.d.ts": "48ef7dd635eef384a5acc288317dade9fbdc95706c1e1831a169c168dcb8188b",
+          "dist/contract-verification/src/routes.js": "ff0246efc7d42da87ecae907b0d3c4dca0208cc1e41c3184902ed81aa8faa64f",
+          "dist/contract-verification/src/structuring.d.ts": "185fedf49ecb57123b9d64d2dfa9888f2ad4482a5b577d5a3a71e56e9604e287",
+          "dist/contract-verification/src/structuring.js": "ed5f96f9a1d5378e174019c1296b07f214e7646355e3e7e86a9265bdb929d367",
+          "dist/contract-verification/src/v2.d.ts": "4261103abb9174ed36d4a9c13822df6194472e646fb116a8d17683fb27b15bfc",
+          "dist/contract-verification/src/v2.js": "2bac1e2909c28eda53cc2e4e45a14de0f84d8d55df951d27ee103c612a4e56ae",
+          "dist/contract-verification/src/verification.d.ts": "5905b5837c6559c05fa377aba004a710a4c2351c5ac2880d627061e643c8fb92",
+          "dist/contract-verification/src/verification.js": "1f0434ef7bf6241977a52223b2d91a8187fa514e6647ccba84f0153501f93434",
+          "openapi-v2.json": "7e355802e08aa4624e5d573925d48d57a6d4ee8c0b4345738495eef5a5e5681d",
+          "openapi.json": "a90684302a019ad24b79fbc4de9dd38f51fd54d097e36f3e181f17ba3b583638",
+          "package.json": "721328dc856e3a94620186e6cf8bf31bd84ac6eb5fe66e56d3003b46d5c756db"
+        }
+      },
+      {
+        "consumer": "web",
+        "package": "@source-taster/contract-service",
+        "installedRelativePath": "node_modules/.pnpm/@source-taster+contract-service@git+https+++github.com+jeffnawroth+source-taster.git+ba_8a485afdca67bb6df2a2e45d75dc906f/node_modules/@source-taster/contract-service",
+        "pin": "ba42c6e82937241277c1653e800be944b7e0b932",
+        "fileCount": 20,
+        "files": {
+          "LICENSE-AGPL": "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee",
+          "LICENSE-MIT": "b9554a8a6132ad023b367aeb8fbc10b24d97fb6da115bbfdac3f79717828a85a",
+          "dist/contract-common/src/index.d.ts": "c307238586e36d008907c9ce3b65483694a69509ad220cce8422d6f275bc200b",
+          "dist/contract-common/src/index.js": "8e70553fee48350b82c6c2c94f2783b27362725d5a7d178b01ec546c5ba696be",
+          "dist/contract-service/src/client.d.ts": "8dbd4da6704da797e7ae276f86b430601b9ac22f4bcb0f9d93843811180b8d8e",
+          "dist/contract-service/src/client.js": "151103b4340fefda59f9ae31bc71196dbbcd612b8d73fdaef20e3e58f500c5d4",
+          "dist/contract-service/src/commerce.d.ts": "646ed8e8bf5a3f84cde0f35633ea3acefd4abb630d6cf8dee1a5f956b3d8c34a",
+          "dist/contract-service/src/commerce.js": "d8ac03da3bab3f932fb087278f3fd1889bf147d3e5f2d8cb6fe244cab883a612",
+          "dist/contract-service/src/dpa-client.d.ts": "17e79d8a0d3e01d127dc243ef1c7b048fc607676006780c6a32bf33a9551e1e6",
+          "dist/contract-service/src/dpa-client.js": "270758316222793c9dfa65da1bdeced5d1b272dbd2e589cdbacbf71b5233b098",
+          "dist/contract-service/src/dpa-routes.d.ts": "f87abb206fec2f92d6c7047ed41b2d408847ad41665fce09626c5337bd408cd5",
+          "dist/contract-service/src/dpa-routes.js": "bdeaee599f9d16c56fdb3b79e1acb0eb3f9fc3efcfcdb562d3c1072dbe4fa51c",
+          "dist/contract-service/src/dpa.d.ts": "05c2ed6792f082202f0caae191a09116f7d57437e3bfee389c34a64e65e34f11",
+          "dist/contract-service/src/dpa.js": "a522ab621d83048ec1e30540f0823fc090f9d06c8931c9ecb2e482dff8e7278b",
+          "dist/contract-service/src/index.d.ts": "26780a1b4449640ba5c9c965b2a99ef60a619db05a9d0854a274de2f14f1b13d",
+          "dist/contract-service/src/index.js": "3d10f2449771ac9632c4b7c118784e5767c7629a63f80bb76b6d7e19d473a40d",
+          "dist/contract-service/src/routes.d.ts": "857ed164747cf039bee647b0bccd6f8012d52938d70c752dc05ae685839f84a8",
+          "dist/contract-service/src/routes.js": "2bf50e38ec4a6b93699a70f67291c8cd750caf789f53f67528c9ff8edff43f9b",
+          "openapi.json": "d7a84953931c42a9d0e0afc1ab82d2443a95b374b0d808cf099bb4963c651128",
+          "package.json": "93b4e910fa3ed9ca1adcaa2e11b432dddb29ac419c6509531d2736fc6e83e067"
+        }
+      }
+    ]
+  },
+  "generatedReproducibility": [
+    {
+      "tree": "public Prisma",
+      "files": 21,
+      "identical": true,
+      "manifestSha256": "9348de92142b434b6419a39402cae57f5c6fdb5394aebac04c6bb30aaad60cfd"
+    },
+    {
+      "tree": "public catalog",
+      "files": 1080,
+      "identical": true,
+      "manifestSha256": "94b32267b477595c7d0df40a269c993b9d50d792624d75bee6170cc032de643d"
+    },
+    {
+      "tree": "private Prisma",
+      "files": 60,
+      "identical": true,
+      "manifestSha256": "2af4bf8b724b7f7a96d0cb219908aa921fd16844923dcb754440b66e94c7b0e1"
+    },
+    {
+      "tree": "private catalog",
+      "files": 296,
+      "identical": true,
+      "manifestSha256": "c7d91cb7eecee8ad2c6784f65208fb0598698e2fc3772667ccd0e564a113b814"
+    }
+  ],
+  "toolchain": {
+    "config": {
+      "java": "java",
+      "jar": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration/.tmp/en16931/saxon.jar",
+      "jarSha256": "491d8edf4ec811d15c2b2417b007218b9b938f15e4dfbad004025beb4e70e960",
+      "stylesheet": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration/.tmp/en16931/rules/xslt/EN16931-UBL-validation.xslt",
+      "stylesheetSha256": "fc4e6cfa8596bba0c2abd19038a98960c6ee9fc1f44566787c115efd4f4aca7c",
+      "rulesVersion": "ConnectingEurope EN16931 UBL 1.3.17"
+    },
+    "files": {
+      "jar": {
+        "path": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration/.tmp/en16931/saxon.jar",
+        "sha256": "491d8edf4ec811d15c2b2417b007218b9b938f15e4dfbad004025beb4e70e960"
+      },
+      "stylesheet": {
+        "path": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration/.tmp/en16931/rules/xslt/EN16931-UBL-validation.xslt",
+        "sha256": "fc4e6cfa8596bba0c2abd19038a98960c6ee9fc1f44566787c115efd4f4aca7c"
+      },
+      "rulesZip": {
+        "path": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration/.tmp/en16931/rules.zip",
+        "sha256": "bf02a0e3f6cbe692a4a28e70be7bdcaded5612b4169b543e13d6cb4f33c29e92"
+      }
+    },
+    "javaVersion": "openjdk version \"27.0.1.0.3\" 2026-10-24\nOpenJDK Runtime Environment Homebrew (build 27.0.1.0.3)\nOpenJDK 64-Bit Server VM Homebrew (build 27.0.1.0.3, mixed mode, sharing)\n",
+    "scope": "EN16931 UBL Schematron 1.3.17 with Saxon-HE 10.9 only; not UBL XSD, XRechnung/national CIUS, full Peppol, live supplier, tax or legal qualification",
+    "inputs": {
+      "jar": {
+        "url": "https://repo.maven.apache.org/maven2/net/sf/saxon/Saxon-HE/10.9/Saxon-HE-10.9.jar",
+        "sha256": "491d8edf4ec811d15c2b2417b007218b9b938f15e4dfbad004025beb4e70e960"
+      },
+      "rules": {
+        "url": "https://github.com/ConnectingEurope/eInvoicing-EN16931/releases/download/validation-1.3.17/en16931-ubl-1.3.17.zip",
+        "sha256": "bf02a0e3f6cbe692a4a28e70be7bdcaded5612b4169b543e13d6cb4f33c29e92",
+        "stylesheetSha256": "fc4e6cfa8596bba0c2abd19038a98960c6ee9fc1f44566787c115efd4f4aca7c"
+      }
+    }
+  },
+  "sourceWorkspacesUnchanged": {
+    "dirtySourceOverrideHashesOnly": {
+      "pnpm-workspace.yaml": {
+        "sha256": "ca30cd73bcd14332e075d69883754207dad96f28b4c435174a53231824473771",
+        "matchesSourceHandoff": true
+      },
+      "pnpm-lock.yaml": {
+        "sha256": "a40cca4e44fef131e587d549828af1e7c1d002f25a49951b2ee9df606e859fb4",
+        "matchesSourceHandoff": true
+      }
+    },
+    "publicSourceHead": "1db784def38d7b77720afd66672016203f9220dc",
+    "privateSourceHead": "42fb5697868f7248cbc6adb757e5a24853cf4466",
+    "readOnlyAudit": true,
+    "sourceWrites": false
+  },
+  "artifactsUnchangedThroughoutAcceptance": [
+    {
+      "tree": "public Prisma",
+      "files": 21,
+      "manifestSha256": "9348de92142b434b6419a39402cae57f5c6fdb5394aebac04c6bb30aaad60cfd",
+      "unchangedThroughoutAcceptance": true
+    },
+    {
+      "tree": "public catalog",
+      "files": 1080,
+      "manifestSha256": "94b32267b477595c7d0df40a269c993b9d50d792624d75bee6170cc032de643d",
+      "unchangedThroughoutAcceptance": true
+    },
+    {
+      "tree": "private Prisma",
+      "files": 60,
+      "manifestSha256": "2af4bf8b724b7f7a96d0cb219908aa921fd16844923dcb754440b66e94c7b0e1",
+      "unchangedThroughoutAcceptance": true
+    },
+    {
+      "tree": "private catalog",
+      "files": 296,
+      "manifestSha256": "c7d91cb7eecee8ad2c6784f65208fb0598698e2fc3772667ccd0e564a113b814",
+      "unchangedThroughoutAcceptance": true
+    }
+  ],
+  "failedOrExpectedRefusalRuns": [
+    {
+      "name": "generated-reproducibility",
+      "exitCode": 1,
+      "log": "109-integrated-generated-reproducibility.log",
+      "sha256": "eb5c9f6fc5df1aeb2482106af4c0c3965365cc3ddcd2777888e7981d553556f1",
+      "interpretation": "Diagnostic failure: cached generated README held absolute documentation paths from the source checkout. Only README differed, executable catalog bytes identical. Normal local generation followed by repeat generation passes; no generated file hand edit."
+    },
+    {
+      "name": "release-refusal",
+      "exitCode": 1,
+      "log": "109-integrated-release-refusal.log",
+      "sha256": "05d90590a006d1119919df6472ac0980dfb1e1520236650221ec9ae9474db32c",
+      "interpretation": "Expected fail-closed release refusal; pnpm wraps child exit 78 as 1."
+    },
+    {
+      "name": "release-refusal-direct",
+      "exitCode": 78,
+      "log": "109-integrated-release-refusal-direct.log",
+      "sha256": "d7b66fd9425176834b18995419c5c034d1fe3af22e46f3b27d2bad07ee5cc690",
+      "interpretation": "Expected fail-closed direct release guard exit 78."
+    }
+  ],
+  "catalogDiagnostic": {
+    "changedAfterCachedBuild": [
+      "README.md"
+    ],
+    "diffs": {
+      "README.md": "--- \n+++ \n@@ -2,7 +2,7 @@\n \n > Generated by [Paraglide JS](https://paraglidejs.com). Do not edit: every file here is overwritten on the next compile.\n \n-Compiled from: `/Users/jeffnawroth/Developer/Repositories/source-taster/packages/i18n/project.inlang`\n+Compiled from: `/Users/jeffnawroth/.t3/worktrees/source-taster/t3-e5c6cd1d/packages/i18n/project.inlang`\n \n ## What is this folder?\n \n@@ -10,16 +10,16 @@\n \n ## Edit the source, not this folder\n \n-- **Text and translations:** the translation files of the inlang project (see `pathPattern` in `/Users/jeffnawroth/Developer/Repositories/source-taster/packages/i18n/project.inlang/settings.json`, for example `messages/{locale}.json`). Add, rename and fix messages there.\n-- **Locales and file format:** `/Users/jeffnawroth/Developer/Repositories/source-taster/packages/i18n/project.inlang/settings.json`.\n-- **Compiler options** (`strategy`, `outdir`, ...): the bundler plugin options or `/Users/jeffnawroth/Developer/Repositories/source-taster/packages/i18n/project.inlang/paraglide.config.*`.\n-- **Regenerate:** the bundler plugin (for example `paraglideVitePlugin`) recompiles on dev and build. Without a bundler, run `npx @inlang/paraglide-js compile --project /Users/jeffnawroth/Developer/Repositories/source-taster/packages/i18n/project.inlang --outdir <this folder>`. This folder is git-ignored (see `.gitignore`), so don't commit it.\n+- **Text and translations:** the translation files of the inlang project (see `pathPattern` in `/Users/jeffnawroth/.t3/worktrees/source-taster/t3-e5c6cd1d/packages/i18n/project.inlang/settings.json`, for example `messages/{locale}.json`). Add, rename and fix messages there.\n+- **Locales and file format:** `/Users/jeffnawroth/.t3/worktrees/source-taster/t3-e5c6cd1d/packages/i18n/project.inlang/settings.json`.\n+- **Compiler options** (`strategy`, `outdir`, ...): the bundler plugin options or `/Users/jeffnawroth/.t3/worktrees/source-taster/t3-e5c6cd1d/packages/i18n/project.inlang/paraglide.config.*`.\n+- **Regenerate:** the bundler plugin (for example `paraglideVitePlugin`) recompiles on dev and build. Without a bundler, run `npx @inlang/paraglide-js compile --project /Users/jeffnawroth/.t3/worktrees/source-taster/t3-e5c6cd1d/packages/i18n/project.inlang --outdir <this folder>`. This folder is git-ignored (see `.gitignore`), so don't commit it.\n \n If a new message has no `m.*` function yet, the output is stale: recompile (for example, restart the dev server).\n \n ## inlang vs. Paraglide JS\n \n-- **inlang** owns the localization project: messages, translation files, `settings.json`, plugins, and the tooling around them. Use the inlang CLI for [checks](https://inlang.com/m/2qj2w8pu/app-inlang-cli#check) (`npx @inlang/cli check --project /Users/jeffnawroth/Developer/Repositories/source-taster/packages/i18n/project.inlang` finds missing translations and unused messages) and [machine translation](https://inlang.com/m/2qj2w8pu/app-inlang-cli#machine-translate). Translators can use [Fink](https://inlang.com/m/tdozzpar/app-inlang-finkLocalizationEditor), designers [Parrot](https://inlang.com/m/gkrpgoir/app-parrot-figmaPlugin) in Figma, and developers [Sherlock](https://inlang.com/m/r7kp499g/app-inlang-ideExtension) in VS Code. The project folder has its own README.\n+- **inlang** owns the localization project: messages, translation files, `settings.json`, plugins, and the tooling around them. Use the inlang CLI for [checks](https://inlang.com/m/2qj2w8pu/app-inlang-cli#check) (`npx @inlang/cli check --project /Users/jeffnawroth/.t3/worktrees/source-taster/t3-e5c6cd1d/packages/i18n/project.inlang` finds missing translations and unused messages) and [machine translation](https://inlang.com/m/2qj2w8pu/app-inlang-cli#machine-translate). Translators can use [Fink](https://inlang.com/m/tdozzpar/app-inlang-finkLocalizationEditor), designers [Parrot](https://inlang.com/m/gkrpgoir/app-parrot-figmaPlugin) in Figma, and developers [Sherlock](https://inlang.com/m/r7kp499g/app-inlang-ideExtension) in VS Code. The project folder has its own README.\n - **Paraglide JS** owns this folder: message functions, the locale runtime, and server middleware.\n - The file format (inlang message format, i18next, ICU MessageFormat, ...) is an inlang plugin. Switching formats doesn't change your `m.*` calls. See [file formats](https://paraglidejs.com/file-formats). Switching to a runtime library such as i18next gives up the compiled typesafety and tree-shaking; inlang's checks, machine translation and editors keep working through a format plugin. See the [comparison](https://paraglidejs.com/comparison).\n \n"
+    }
+  },
+  "cleanup": {
+    "recordedAt": "2026-11-03T05:04:51.936091+00:00",
+    "container": "/st109-integrated-pg",
+    "containerId": "958dde7ebd5e90aa6699eab5246382be331a13b12ff671b6ee8c80e016c67b9e",
+    "label": {
+      "source-taster.task": "109-integrated-nov3"
+    },
+    "binding": "127.0.0.1:55711",
+    "ownershipVerified": true,
+    "activeOtherClientBackends": 0,
+    "remainingFixtureDatabases": [],
+    "remainingFixtureRoles": [],
+    "removedOwnedContainer": "958dde7ebd5e90aa6699eab5246382be331a13b12ff671b6ee8c80e016c67b9e",
+    "portsWithoutListeners": [
+      5701,
+      5702,
+      5703,
+      5471,
+      55711
+    ],
+    "unrelatedResourcesTouched": false,
+    "fixturesCompletedOwnProcessDatabaseRoleProfileCleanup": true,
+    "retainedIgnoredCaches": [
+      "public controlled Pagefind cache",
+      "private hash-pinned external validator cache"
+    ]
+  },
+  "retryJob": {
+    "recordedAt": "2026-11-03T04:54:46.641Z",
+    "task": {
+      "scheduledTaskId": "scheduled-task:c344cd3a-19e4-4ee6-a95c-5aeaf37506ca",
+      "title": "Spec #70 nach Codex-Reset fortsetzen (alle 5 Stunden)",
+      "enabled": true,
+      "schedule": {
+        "type": "interval",
+        "everyMs": 18000000
+      },
+      "nextRunAt": "2026-11-03T05:35:52.646Z"
+    },
+    "action": "read only; no scheduler mutation"
+  },
+  "qualificationLimits": [
+    "EN16931 UBL Schematron 1.3.17 with Saxon-HE 10.9 only; no UBL XSD, XRechnung/national CIUS, full Peppol, live supplier/merchant, tax, legal or delivery qualification.",
+    "Billit retrieval uses documented protocol and independently authored synthetic fixtures, not a real merchant invoice or correct-seller PO sample. The supplier contract/DPA/fees, Stripe mapping, non-Peppol file availability/delivery, OAuth lifecycle and tax-advisor evidence/conflict/reverse-charge/retention review remain open.",
+    "External EUPL rules/JVM/Saxon licensing and deployment qualification remain gates. No rule/JVM source is imported into application modules.",
+    "All Selected/Better Auth 1.7.14, minimatch/dependency, mandatory source activation/rights, load, calibration/Quality gate, security, legal/tax/provider, browser/accessibility, deployment and release gates remain. minimatch 10.2.6 has no approved compatible 10.x fix; no forced-major waiver.",
+    "No issue closure, ready-for-review transition, qualification waiver, fallback provider, PDF-only invoice, unvalidated VAT or guessed rate is authorized. #108 remains separate; #113 legal/DSR/export retrieval remains separate."
+  ],
+  "sourceHistoryLimits": [
+    "Source full 104/104 applies before final legacy retained-period read correction; source final 8/8 tax and other counts remain at their documented boundaries. This integrated run actually executes the final 105/105 suite.",
+    "Source-disclosed synthetic live VIES discovery call and refused shared-5433 browser setup are retained historical exceptions; neither was repeated or counted here."
+  ],
+  "ciBefore": {
+    "public": "Previous public checks failed on commerce.spec.ts formatting; the exact #109 source already contains the formatting correction and current local aggregate lint passes.",
+    "private": "Previous private dependency CI remains gated by one minimatch advisory; dependency graph is unchanged apart from exact public commit pins."
+  },
+  "hostedPRStateBeforeHandoffPush": {
+    "public": {
+      "headRefOid": "ba42c6e82937241277c1653e800be944b7e0b932",
+      "isDraft": true,
+      "reviewDecision": "",
+      "state": "OPEN",
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/jeffnawroth/source-taster/actions/runs/41580545797/job/125734097602",
+          "name": "checks",
+          "startedAt": "2026-11-03T04:51:48Z",
+          "status": "IN_PROGRESS",
+          "workflowName": "Walking skeleton"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/jeffnawroth/source-taster/actions/runs/41580545797/job/125734097360",
+          "name": "dependencies",
+          "startedAt": "2026-11-03T04:51:48Z",
+          "status": "IN_PROGRESS",
+          "workflowName": "Walking skeleton"
+        }
+      ]
+    },
+    "private": {
+      "headRefOid": "e9a39fde6837e5c6ccb649680b798365af4f549e",
+      "isDraft": true,
+      "reviewDecision": "",
+      "state": "OPEN",
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-11-02T20:35:39Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/jeffnawroth/source-taster-service/actions/runs/41519175734/job/125530453719",
+          "name": "checks",
+          "startedAt": "2026-11-02T20:26:19Z",
+          "status": "COMPLETED",
+          "workflowName": "Private service skeleton"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-11-02T20:27:19Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/jeffnawroth/source-taster-service/actions/runs/41519175734/job/125530454197",
+          "name": "dependencies",
+          "startedAt": "2026-11-02T20:26:26Z",
+          "status": "COMPLETED",
+          "workflowName": "Private service skeleton"
+        }
+      ]
+    }
+  },
+  "releaseGuard": 78,
+  "ownership": "Exclusive root/private-INTEGRATION ownership released after publication; source workspaces, private main, #108 and retry schedule unchanged."
+}
