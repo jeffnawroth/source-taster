@@ -41,6 +41,7 @@ const selection = process.env.SOURCE_TASTER_MEASURED_CONFIGURATIONS
       loadHostedSettings(process.env.SOURCE_TASTER_AUTH_CONFIG),
       registry,
       clock,
+      db,
     )
   : undefined;
 const checks = createCheckStore(db, boss, {

@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { AsyncLocalStorage } from "node:async_hooks";
 import type { ExtractionPort } from "../ai/port.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
@@ -62,6 +63,7 @@ export function configurationSelection(
   settings: HostedSettings,
   registry = measuredConfigurations(),
   clock = { now: Date.now },
+  db?: Db,
 ) {
   const context = new AsyncLocalStorage<{
     active: ActiveConfiguration;
@@ -86,20 +88,33 @@ export function configurationSelection(
       const text = await response.text();
       if (text.length > 4096) throw new Error();
       const active = ActiveConfigurationResponse.parse(JSON.parse(text)).active;
-      if (!active) throw new Error();
+      if (!active || !db) throw new Error();
+      const binding = createHash("sha256")
+        .update(JSON.stringify(active))
+        .digest("hex");
+      // Durable monotonic authority survives both program restarts. A restored
+      // service must catch up; a lower version or same-version rebind refuses.
+      const fenced = await db.$queryRaw<
+        { version: bigint }[]
+      >`INSERT INTO verification.configuration_authority_fence (id,version,binding) VALUES (1,${active.version},${binding}) ON CONFLICT (id) DO UPDATE SET version=EXCLUDED.version,binding=EXCLUDED.binding WHERE configuration_authority_fence.version<EXCLUDED.version OR (configuration_authority_fence.version=EXCLUDED.version AND configuration_authority_fence.binding=EXCLUDED.binding) RETURNING version`;
+      if (!fenced.length) throw new Error();
       return active;
     } catch {
       return fail("authority-unavailable");
     }
   }
   async function validate(active: ActiveConfiguration) {
-    const found = await registry.resolve(active.id);
-    if (
-      !found.summary.eligible ||
-      found.summary.evidenceDigest !== active.evidenceDigest
-    )
-      fail("authority-unavailable");
-    return found;
+    try {
+      const found = await registry.resolve(active.id);
+      if (
+        !found.summary.eligible ||
+        found.summary.evidenceDigest !== active.evidenceDigest
+      )
+        throw new Error();
+      return found;
+    } catch {
+      return fail("authority-unavailable");
+    }
   }
   async function current() {
     const active = context.getStore()?.active ?? (await available());

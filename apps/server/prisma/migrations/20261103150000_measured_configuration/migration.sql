@@ -24,3 +24,5 @@ BEGIN
 END $$;
 CREATE TRIGGER immutable_result_configuration BEFORE UPDATE ON verification.reference_results
 FOR EACH ROW EXECUTE FUNCTION verification.keep_result_configuration();
+
+CREATE TABLE verification.configuration_authority_fence (id smallint PRIMARY KEY CHECK(id=1), version bigint NOT NULL CHECK(version>0), binding text NOT NULL);

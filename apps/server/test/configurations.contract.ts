@@ -129,6 +129,35 @@ test("two programs expose truthful missing gates and refuse forged, stale, repla
       ).data.configurations[0]!;
     expect(refreshed.id).toBe(config.id);
     expect(refreshed.evidenceDigest).toBe(config.evidenceDigest);
+    const invalidFile = join(directory, "invalid-configuration.json");
+    await writeFile(
+      invalidFile,
+      JSON.stringify({ enabledSources: [], passed: true }),
+    );
+    await writeFile(
+      registry,
+      JSON.stringify([
+        { configuration: invalidFile, root: directory },
+        { configuration: file, root: directory },
+      ]),
+    );
+    const isolated = await call(
+      "/v1/operator/configurations",
+      undefined,
+      cookie,
+    );
+    expect(isolated.status).toBe(200);
+    const isolatedConfigs = z
+      .object({
+        data: z.object({
+          configurations: ConfigurationInspectionResponse.shape.configurations,
+        }),
+      })
+      .parse(await isolated.json()).data.configurations;
+    expect(isolatedConfigs).toHaveLength(2);
+    expect(isolatedConfigs[0]!.eligible).toBe(false);
+    expect(isolatedConfigs[0]!.reasons).toContain("configuration-invalid");
+    expect(isolatedConfigs[1]!.id).toBe(config.id);
     const command = {
       operationId: randomUUID(),
       accountId: operator.data.accountId,

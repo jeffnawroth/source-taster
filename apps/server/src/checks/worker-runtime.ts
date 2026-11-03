@@ -47,11 +47,14 @@ export async function startWorkerRuntime(
     configuration?: ReturnType<typeof configurationSelection>;
   } = {},
 ) {
-  const registry = measuredConfigurations();
+  const registry = measuredConfigurations(
+    process.env.SOURCE_TASTER_MEASURED_CONFIGURATIONS,
+    options.clock,
+  );
   const selection =
     options.configuration ??
     (config.mode === "hosted" && config.hosted
-      ? configurationSelection(config.hosted, registry, options.clock)
+      ? configurationSelection(config.hosted, registry, options.clock, db)
       : undefined);
   const settings = {
     contentRetentionMs: config.contentRetentionMs,

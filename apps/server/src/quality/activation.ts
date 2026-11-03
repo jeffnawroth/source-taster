@@ -152,16 +152,48 @@ export function measuredConfigurations(
     });
     return { summary, configuration, port, searchSettings, profile };
   }
+  async function invalid(entry: z.infer<typeof Registry>[number]) {
+    const code = codeVersion();
+    const bytes = await readFile(entry.configuration).catch(() =>
+      Buffer.from("unavailable"),
+    );
+    const digest = `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
+    return MeasuredConfiguration.parse({
+      id: configurationDigest({ invalid: digest, code }),
+      codeVersion: code.sha,
+      configurationDigest: digest,
+      rulesVersion: "unavailable",
+      model: null,
+      provider: null,
+      comparisonParameters: {},
+      searchSettings: {},
+      sources: [],
+      eligible: false,
+      reasons: ["configuration-invalid"],
+      evidenceDigest: digest,
+      checkedAt: new Date(clock.now()).toISOString(),
+    });
+  }
   return {
     async list() {
       return Promise.all(
-        (await load()).map(async (entry) => (await inspect(entry)).summary),
+        (await load()).map(async (entry) => {
+          try {
+            return (await inspect(entry)).summary;
+          } catch {
+            return invalid(entry);
+          }
+        }),
       );
     },
     async resolve(id: string) {
       for (const entry of await load()) {
-        const found = await inspect(entry);
-        if (found.summary.id === id) return found;
+        try {
+          const found = await inspect(entry);
+          if (found.summary.id === id) return found;
+        } catch {
+          /* An unrelated invalid deployment entry cannot revoke this configuration. */
+        }
       }
       throw new Error("unknown-measured-configuration");
     },

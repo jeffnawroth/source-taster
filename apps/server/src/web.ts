@@ -31,7 +31,7 @@ await runMain(async (config) => {
   const events = await listenForEvents(config.databaseUrl);
   const selection =
     config.mode === "hosted" && config.hosted
-      ? configurationSelection(config.hosted)
+      ? configurationSelection(config.hosted, undefined, undefined, db)
       : undefined;
   const checks = createCheckStore(db, boss, {
     configuration: selection,
