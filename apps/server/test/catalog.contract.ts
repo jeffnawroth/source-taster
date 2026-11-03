@@ -46,8 +46,8 @@ test("Operator limits and Initial values reach two real verification instances w
   const both = await bothPrograms({
     accounts: true,
     startWorker: false,
-    apiPort: 5801,
-    servicePort: 5803,
+    apiPort: Number(process.env.SOURCE_TASTER_TEST_API_PORT ?? 5801),
+    servicePort: Number(process.env.SOURCE_TASTER_TEST_SERVICE_PORT ?? 5803),
     serviceEnv: {
       SERVICE_OPERATOR_SETUP: setup,
       SERVICE_OPERATOR_SESSION_EPOCH: "112-independent-test-operator-epoch",
@@ -107,7 +107,9 @@ test("Operator limits and Initial values reach two real verification instances w
     expect(login.status).toBe(200);
     const cookie = login.headers.get("set-cookie")!.split(";")[0]!;
     const account = await both.signIn("consumer@example.invalid");
-    const second = await both.additionalWeb(5802);
+    const second = await both.additionalWeb(
+      Number(process.env.SOURCE_TASTER_TEST_SECOND_API_PORT ?? 5802),
+    );
     const request = (origin = both.apiUrl) =>
       fetch(origin + "/v2/checks", {
         method: "POST",
