@@ -1,5 +1,5 @@
-import { mountDataSubjectDelivery } from "../../src/exports/data-subject.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import { mountDataSubjectDelivery } from "../../src/exports/data-subject.ts";
 // SOURCE-ONLY loopback integration. Never imported by src, scripts or build.
 // Real uncalibrated DOI/core + lifecycle + service authority. No gate receipt.
 import { createAbuseLimiter } from "../../src/abuse/limiter.ts";

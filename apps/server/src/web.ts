@@ -1,5 +1,5 @@
-import { mountDataSubjectDelivery } from "./exports/data-subject.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import { mountDataSubjectDelivery } from "./exports/data-subject.ts";
 // The web process: serves the /v1 HTTP API and the Check event streams.
 
 import { createAbuseLimiter } from "./abuse/limiter.ts";

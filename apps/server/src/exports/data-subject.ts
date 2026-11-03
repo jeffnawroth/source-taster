@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import { downloadDataSubject } from "@source-taster/contract-verification/data-subject-routes";
 import type { OpenAPIHono } from "@hono/zod-openapi";
 import { z } from "zod";
 import { RightsAuthorityResponse } from "@source-taster/contract-internal";
@@ -14,6 +15,7 @@ export function mountDataSubjectDelivery(
   checks: CheckStore,
   clock = { now: Date.now },
 ) {
+  app.openAPIRegistry.registerPath(downloadDataSubject);
   const path = "/internal/data-subject-authority";
   app.use("/v1/data-subject/*", async (c, next) => {
     const origin = c.req.header("origin");

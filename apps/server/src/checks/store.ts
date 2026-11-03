@@ -935,7 +935,7 @@ export function createCheckStore(
             events: { orderBy: { seq: "asc" } },
           },
         });
-        if (checks.length > 1000) throw new Error("rights-export-too-large");
+        if (checks.length > 1000) throw new RightsExportTooLarge();
         const ids = checks.map((c) => c.id);
         const reports = await tx.report.findMany({
           where: {
@@ -960,7 +960,7 @@ export function createCheckStore(
           orderBy: { id: "asc" },
           take: 10001,
         });
-        if (metadata.length > 10000) throw new Error("rights-export-too-large");
+        if (metadata.length > 10000) throw new RightsExportTooLarge();
         // Execution leases, claims, queue jobs and key material are not personal export credentials.
         const result = {
           format: "source-taster-verification-data-subject-v1",
@@ -981,7 +981,7 @@ export function createCheckStore(
           typeof v === "bigint" ? String(v) : v,
         );
         if (Buffer.byteLength(bytes) > 32_000_000)
-          throw new Error("rights-export-too-large");
+          throw new RightsExportTooLarge();
         await beforeReturn();
         if (
           checks.some((c) => c.contentExpiresAt.getTime() <= clock.now()) ||
@@ -2281,3 +2281,5 @@ export interface ReportWork {
   subject: WorkSubject;
   input: ReportInput;
 }
+
+export class RightsExportTooLarge extends Error {}

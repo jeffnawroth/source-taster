@@ -532,5 +532,6 @@
   "invoices_empty": "No invoices yet.",
   "invoices_pdf": "Download PDF",
   "invoices_ubl": "Download e-invoice (XML)",
-  "cancellation_button": "Cancel contracts here"
+  "cancellation_button": "Cancel contracts here",
+  "problem_export_size_limit": "This export exceeds the delivery limit. Contact support for a bounded delivery without extending retention."
 }
