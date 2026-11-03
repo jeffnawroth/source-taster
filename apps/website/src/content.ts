@@ -4,6 +4,7 @@ export { languages, type Language } from "./metadata.ts";
 export const copy = {
   en: {
     home: "Home",
+    cancellation: "Cancel contracts here",
     searchLicenses: "Search licenses and source",
     docs: "Documentation",
     faq: "FAQ",
@@ -37,6 +38,7 @@ export const copy = {
   },
   de: {
     home: "Startseite",
+    cancellation: "Verträge hier kündigen",
     searchLicenses: "Suchlizenzen und Quellcode",
     docs: "Dokumentation",
     faq: "Häufige Fragen",

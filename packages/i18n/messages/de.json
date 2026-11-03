@@ -531,5 +531,6 @@
   "invoices_unavailable": "Rechnungen sind nicht verfügbar. Bitte erneut versuchen.",
   "invoices_empty": "Noch keine Rechnungen.",
   "invoices_pdf": "PDF herunterladen",
-  "invoices_ubl": "E-Rechnung herunterladen (XML)"
+  "invoices_ubl": "E-Rechnung herunterladen (XML)",
+  "cancellation_button": "Verträge hier kündigen"
 }

@@ -13,64 +13,26 @@
       }
     },
     "schemas": {
-      "CommerceInvoicesResponse": {
+      "CancellationResponse": {
         "type": "object",
         "properties": {
           "data": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "orderId": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "issuedAt": {
-                  "type": [
-                    "string",
-                    "null"
-                  ],
-                  "format": "date-time"
-                },
-                "grossCents": {
-                  "type": "integer"
-                },
-                "currency": {
-                  "type": "string",
-                  "enum": [
-                    "EUR"
-                  ]
-                },
-                "formats": {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "enum": [
-                      "pdf",
-                      "ubl"
-                    ]
-                  }
-                },
-                "structuredSha256": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
-                }
+            "type": "object",
+            "properties": {
+              "operationKey": {
+                "type": "string",
+                "format": "uuid"
               },
-              "required": [
-                "id",
-                "orderId",
-                "issuedAt",
-                "grossCents",
-                "currency",
-                "formats",
-                "structuredSha256"
-              ]
-            }
+              "receivedAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "operationKey",
+              "receivedAt"
+            ],
+            "additionalProperties": false
           },
           "quota": {
             "anyOf": [
@@ -110,12 +72,6 @@
               {
                 "type": "null"
               }
-            ]
-          },
-          "nextCursor": {
-            "type": [
-              "string",
-              "null"
             ]
           }
         },
@@ -278,6 +234,117 @@
           "status",
           "code",
           "i18nKey"
+        ]
+      },
+      "CommerceInvoicesResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "orderId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "issuedAt": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                },
+                "grossCents": {
+                  "type": "integer"
+                },
+                "currency": {
+                  "type": "string",
+                  "enum": [
+                    "EUR"
+                  ]
+                },
+                "formats": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "pdf",
+                      "ubl"
+                    ]
+                  }
+                },
+                "structuredSha256": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "orderId",
+                "issuedAt",
+                "grossCents",
+                "currency",
+                "formats",
+                "structuredSha256"
+              ]
+            }
+          },
+          "quota": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Quota"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "not-implemented"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "quota"
         ]
       },
       "VatValidationResponse": {
@@ -3024,6 +3091,112 @@
     "parameters": {}
   },
   "paths": {
+    "/v1/commerce/cancellations": {
+      "post": {
+        "summary": "Public statutory cancellation intake without login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "operationKey": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "contractReference": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "email": {
+                    "type": "string",
+                    "maxLength": 254,
+                    "format": "email"
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "de",
+                      "en"
+                    ]
+                  }
+                },
+                "required": [
+                  "operationKey",
+                  "contractReference",
+                  "email",
+                  "language"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Durably received; matching and mail status remain private",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CancellationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Denied or unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/extension/commerce/invoices": {
       "get": {
         "summary": "List own archived invoices",

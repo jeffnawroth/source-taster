@@ -1,3 +1,4 @@
+import { CancellationRequest, CancellationResponse } from "./commerce.js";
 import { VatValidationRequest, VatValidationResponse, CommerceInvoicesResponse, SubscriptionRequest, SubscriptionOperation, SubscriptionConsent, SubscriptionResponse, SubscriptionsResponse, } from "./commerce.js";
 import { z } from "zod";
 import { CommerceCatalogResponse, CheckPackOrderRequest, CheckPackOrderResponse, CheckPackOrdersResponse, } from "./commerce.js";
@@ -456,7 +457,30 @@ export const extensionCommerceStructuredInvoice = createRoute({
     ...getCommerceStructuredInvoice,
     path: "/v1/extension/commerce/invoices/{id}/ubl",
 });
+export const submitCancellation = createRoute({
+    method: "post",
+    path: "/v1/commerce/cancellations",
+    summary: "Public statutory cancellation intake without login",
+    request: {
+        body: {
+            required: true,
+            content: { "application/json": { schema: CancellationRequest } },
+        },
+    },
+    responses: {
+        200: {
+            description: "Durably received; matching and mail status remain private",
+            content: { "application/json": { schema: CancellationResponse } },
+        },
+        400: problem,
+        403: problem,
+        409: problem,
+        413: problem,
+        503: problem,
+    },
+});
 export const routes = [
+    submitCancellation,
     extensionCommerceInvoices,
     extensionCommerceInvoice,
     extensionCommerceStructuredInvoice,
