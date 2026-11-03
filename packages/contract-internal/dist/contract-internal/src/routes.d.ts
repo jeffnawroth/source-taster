@@ -1519,7 +1519,10 @@ export declare const authorizeDataSubject: {
                         phase: z.ZodEnum<{
                             authorize: "authorize";
                             delivered: "delivered";
+                            served: "served";
                         }>;
+                        completionVerifier: z.ZodOptional<z.ZodString>;
+                        completionToken: z.ZodOptional<z.ZodString>;
                     }, z.core.$strict>;
                 };
             };
@@ -3128,7 +3131,10 @@ export declare const routes: (({
                         phase: z.ZodEnum<{
                             authorize: "authorize";
                             delivered: "delivered";
+                            served: "served";
                         }>;
+                        completionVerifier: z.ZodOptional<z.ZodString>;
+                        completionToken: z.ZodOptional<z.ZodString>;
                     }, z.core.$strict>;
                 };
             };

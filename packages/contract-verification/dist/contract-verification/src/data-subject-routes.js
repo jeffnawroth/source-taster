@@ -3,7 +3,7 @@ import { createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 import { ProblemDetails } from "./index.js";
 const problem = {
-    description: "Current recipient authority, expiry or size failure",
+    description: "Current recipient authority, expiry or snapshot failure",
     content: { "application/problem+json": { schema: ProblemDetails } },
 };
 /** Recipient access only. This route does not initiate requests or expose an
@@ -14,6 +14,11 @@ export const downloadDataSubject = createRoute({
     summary: "Download this program's retained Account data directly as the verified recipient",
     request: {
         params: z.object({ id: z.uuid() }),
+        query: z.object({
+            parts: z.literal("1").optional(),
+            cursor: z.string().max(2048).optional(),
+            restart: z.uuid().optional(),
+        }),
         headers: z.object({
             authorization: z.string().regex(/^Bearer [A-Za-z0-9_-]{43}$/),
         }),
@@ -26,6 +31,11 @@ export const downloadDataSubject = createRoute({
                 "Content-Disposition": { schema: { type: "string" } },
             },
             content: {
+                "application/x-ndjson": {
+                    schema: z
+                        .string()
+                        .describe("Ordered bounded base64 part frames followed by a complete manifest with part/byte counts, per-part and whole SHA-256, chain, recipient completion token and signed resume cursor. Concatenate decoded part bytes in sequence to recover the complete JSON document. No final manifest means interrupted delivery."),
+                },
                 "application/json": {
                     schema: z
                         .object({
@@ -56,6 +66,16 @@ export const acknowledgeDataSubject = createRoute({
     summary: "Verified recipient confirms receiving the verification part",
     request: {
         params: z.object({ id: z.uuid() }),
+        body: {
+            required: true,
+            content: {
+                "application/json": {
+                    schema: z.object({
+                        completionToken: z.string().regex(/^[A-Za-z0-9_-]{43}$/),
+                    }),
+                },
+            },
+        },
         headers: z.object({
             authorization: z.string().regex(/^Bearer [A-Za-z0-9_-]{43}$/),
         }),

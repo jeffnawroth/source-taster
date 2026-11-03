@@ -4,7 +4,7 @@ import { writeFile, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { expect } from "vitest";
 import { bothPrograms } from "./both-programs.ts";
-export async function bothRights() {
+export async function bothRights(partBytes?: number) {
   const setup = join(
       process.env.SOURCE_TASTER_113_EVIDENCE!,
       `rights-fixture-${randomUUID()}.json`,
@@ -13,7 +13,11 @@ export async function bothRights() {
   await writeFile(reviews, "[]");
   const both = await bothPrograms({
     accounts: true,
+    verificationEnv: partBytes
+      ? { SOURCE_TASTER_EXPORT_PART_BYTES: String(partBytes) }
+      : {},
     serviceEnv: {
+      ...(partBytes ? { SERVICE_EXPORT_PART_BYTES: String(partBytes) } : {}),
       SERVICE_OPERATOR_SETUP: setup,
       SERVICE_RIGHTS_REVIEWS: reviews,
       SERVICE_OPERATOR_SESSION_EPOCH:
@@ -113,4 +117,47 @@ export async function bothRights() {
       );
     },
   };
+}
+
+/** Authorized fixture setup; assertions still observe the real HTTP/download seams. */
+export async function seedRightsInvoices(
+  databaseUrl: string,
+  ownerId: string,
+  prefix: string,
+  count = 3,
+) {
+  const { default: pg } = await import("pg");
+  const db = new pg.Client({ connectionString: databaseUrl });
+  await db.connect();
+  try {
+    for (let i = 0; i < count; i++)
+      await db.query(
+        `INSERT INTO service.commerce_invoices(id,"orderId","ownerId",pdf,ubl,structured,accounting,"issuedAt","grossCents","retainUntil") VALUES($1,$2,$3,$4,$5,'{}',$6,'2026-11-01',1190,'2035-01-01')`,
+        [
+          prefix + i,
+          randomUUID(),
+          ownerId,
+          Buffer.from("%PDF-retained-" + i + " exact bytes ".repeat(50)),
+          Buffer.from("<Invoice>exact</Invoice>"),
+          {
+            version: 1,
+            country: "DE",
+            currency: "EUR",
+            vatBps: 1900,
+            netCents: 1000,
+            taxCents: 190,
+            grossCents: 1190,
+            invoiceNumber: prefix + i,
+            issuedAt: "2026-11-01T00:00:00.000Z",
+            paidAt: "2026-11-01T00:00:00.000Z",
+            providerInvoiceId: prefix + i,
+            taxRateIds: ["retained"],
+            catalog: { version: "retained" },
+            taxEvidence: { policy: "retained" },
+          },
+        ],
+      );
+  } finally {
+    await db.end();
+  }
 }

@@ -10,11 +10,6 @@ import { HTTPException } from "hono/http-exception";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 
 const problems = {
-  "export-size-limit": {
-    status: 413,
-    title: "The export requires a bounded support delivery.",
-    i18nKey: "problem_export_size_limit",
-  },
   "abuse-limit": {
     status: 429,
     title: "Too many requests.",

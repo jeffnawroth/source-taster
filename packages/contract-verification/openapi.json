@@ -1439,6 +1439,35 @@
           {
             "schema": {
               "type": "string",
+              "enum": [
+                "1"
+              ]
+            },
+            "required": false,
+            "name": "parts",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 2048
+            },
+            "required": false,
+            "name": "cursor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": false,
+            "name": "restart",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
               "pattern": "^Bearer [A-Za-z0-9_-]{43}$"
             },
             "required": true,
@@ -1463,6 +1492,12 @@
               }
             },
             "content": {
+              "application/x-ndjson": {
+                "schema": {
+                  "type": "string",
+                  "description": "Ordered bounded base64 part frames followed by a complete manifest with part/byte counts, per-part and whole SHA-256, chain, recipient completion token and signed resume cursor. Concatenate decoded part bytes in sequence to recover the complete JSON document. No final manifest means interrupted delivery."
+                }
+              },
               "application/json": {
                 "schema": {
                   "type": "object",
@@ -1514,7 +1549,7 @@
             }
           },
           "400": {
-            "description": "Current recipient authority, expiry or size failure",
+            "description": "Current recipient authority, expiry or snapshot failure",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1524,7 +1559,7 @@
             }
           },
           "401": {
-            "description": "Current recipient authority, expiry or size failure",
+            "description": "Current recipient authority, expiry or snapshot failure",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1534,7 +1569,7 @@
             }
           },
           "403": {
-            "description": "Current recipient authority, expiry or size failure",
+            "description": "Current recipient authority, expiry or snapshot failure",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1544,7 +1579,7 @@
             }
           },
           "404": {
-            "description": "Current recipient authority, expiry or size failure",
+            "description": "Current recipient authority, expiry or snapshot failure",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1554,7 +1589,7 @@
             }
           },
           "413": {
-            "description": "Current recipient authority, expiry or size failure",
+            "description": "Current recipient authority, expiry or snapshot failure",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1564,7 +1599,7 @@
             }
           },
           "503": {
-            "description": "Current recipient authority, expiry or size failure",
+            "description": "Current recipient authority, expiry or snapshot failure",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1599,6 +1634,25 @@
             "in": "header"
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "completionToken": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{43}$"
+                  }
+                },
+                "required": [
+                  "completionToken"
+                ]
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Idempotent recipient receipt, with current authority",
@@ -1634,7 +1688,7 @@
             }
           },
           "400": {
-            "description": "Current recipient authority, expiry or size failure",
+            "description": "Current recipient authority, expiry or snapshot failure",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1644,7 +1698,7 @@
             }
           },
           "401": {
-            "description": "Current recipient authority, expiry or size failure",
+            "description": "Current recipient authority, expiry or snapshot failure",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1654,7 +1708,7 @@
             }
           },
           "403": {
-            "description": "Current recipient authority, expiry or size failure",
+            "description": "Current recipient authority, expiry or snapshot failure",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1664,7 +1718,7 @@
             }
           },
           "503": {
-            "description": "Current recipient authority, expiry or size failure",
+            "description": "Current recipient authority, expiry or snapshot failure",
             "content": {
               "application/problem+json": {
                 "schema": {

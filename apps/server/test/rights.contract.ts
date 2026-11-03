@@ -10,6 +10,26 @@ import { CheckResponse } from "@source-taster/contract-verification";
 import { bothPrograms } from "./support/both-programs.ts";
 import { physicsReference } from "./support/doi-fixtures.ts";
 
+interface ExportFrame {
+  type: string;
+  snapshotId: string;
+  program: string;
+  sequence: number;
+  cursor: string;
+  base64: string;
+  sha256: string;
+  completionToken: string;
+  parts: number;
+  bytes: number;
+  complete: boolean;
+  records: Record<string, string>;
+}
+interface RetainedExport {
+  checks: { references: { originalText: string }[] }[];
+  invoices: { id: string; pdf: { base64: string; sha256: string } }[];
+}
+const parseFrame = (line: string) => JSON.parse(line) as ExportFrame;
+const parseExport = (bytes: string) => JSON.parse(bytes) as RetainedExport;
 test("both actual programs deliver separate retained data only with independently verified recipient access", async () => {
   const setup = join(
     process.env.SOURCE_TASTER_113_EVIDENCE!,
@@ -175,19 +195,26 @@ test("both actual programs deliver separate retained data only with independentl
       },
     });
     for (const origin of [both.serviceUrl, both.apiUrl]) {
-      const receipt = await fetch(origin + path + "/received", {
-        method: "POST",
+      const delivered = await fetch(origin + path + "/download?parts=1", {
         headers: { authorization: `Bearer ${grant.accessToken}` },
       });
-      expect(receipt.status).toBe(200);
-      expect(
-        (
-          await fetch(origin + path + "/received", {
-            method: "POST",
-            headers: { authorization: `Bearer ${grant.accessToken}` },
-          })
-        ).status,
-      ).toBe(200);
+      expect(delivered.status).toBe(200);
+      const manifest = (await delivered.text())
+        .trim()
+        .split("\n")
+        .map((line) => parseFrame(line))
+        .at(-1)!;
+      const acknowledge = () =>
+        fetch(origin + path + "/received", {
+          method: "POST",
+          headers: {
+            authorization: `Bearer ${grant.accessToken}`,
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({ completionToken: manifest.completionToken }),
+        });
+      expect((await acknowledge()).status).toBe(200);
+      expect((await acknowledge()).status).toBe(200);
     }
     const status = await call(
       `/v1/operator/data-subject/${command.operationId}`,
@@ -356,9 +383,25 @@ test("reviewed deleted-Account delivery cannot resurrect Checks or transfer old 
       body: JSON.stringify({ text: physicsReference }),
     });
     expect(created.status).toBe(201);
+    const check = CheckResponse.parse(await created.json()).data;
+    await expect
+      .poll(
+        async () =>
+          CheckResponse.parse(
+            await (
+              await fetch(b.apiUrl + `/v1/checks/${check.id}`, {
+                headers: { authorization: `Bearer ${a.token}` },
+              })
+            ).json(),
+          ).data.state,
+        { timeout: 15000 },
+      )
+      .toBe("ended");
     const id = await b.initiate(a.data.accountId);
     const token = await b.verify(id, a.cookie);
-    expect((await b.download(id, token)).status).toBe(200);
+    const initial = await b.download(id, token);
+    expect(initial.status).toBe(200);
+    expect(((await initial.json()) as RetainedExport).checks).toHaveLength(1);
     await b.service().command({ accountId: a.data.accountId, deleted: true });
     expect((await b.download(id, token)).status).toBe(403);
     await writeFile(
@@ -401,3 +444,396 @@ test("reviewed deleted-Account delivery cannot resurrect Checks or transfer old 
     await b.cleanup();
   }
 });
+
+test("large retained exports stream bounded resumable parts from BOTH programs without truncating a single large record", async () => {
+  const b = await bothRights(1024);
+  try {
+    const a = await b.signIn("large-dsr@example.invalid");
+    const expected: string[] = [];
+    for (let i = 0; i < 3; i++) {
+      const originalText = `Retained ${i}: ` + "📖 large record ".repeat(120);
+      expected.push(originalText);
+      const response = await fetch(b.apiUrl + "/v2/checks", {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${a.token}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          references: [{ originalText, fields: { DOI: "10.1038/nphys1170" } }],
+        }),
+      });
+      expect(response.status).toBe(201);
+      const check = V2CheckResponse.parse(await response.json()).data;
+      await expect
+        .poll(
+          async () =>
+            V2CheckResponse.parse(
+              await (
+                await fetch(b.apiUrl + `/v2/checks/${check.id}`, {
+                  headers: { authorization: `Bearer ${a.token}` },
+                })
+              ).json(),
+            ).data.state,
+          { timeout: 15000 },
+        )
+        .toBe("ended");
+    }
+    const sql = new pg.Client({ connectionString: b.urls[1] });
+    await sql.connect();
+    const pdf = Buffer.from(
+      "%PDF-exact-large-archive" + "invoice-bytes".repeat(600),
+    );
+    try {
+      for (let i = 0; i < 3; i++)
+        await sql.query(
+          `INSERT INTO service.commerce_invoices(id,"orderId","ownerId",pdf,ubl,structured,"retainUntil") VALUES($1,$2,$3,$4,$5,$6,'2035-01-01')`,
+          [
+            `large-${i}`,
+            randomUUID(),
+            a.data.ownerId,
+            pdf,
+            Buffer.from("<Invoice>exact</Invoice>"),
+            { index: i },
+          ],
+        );
+    } finally {
+      await sql.end();
+    }
+    const id = await b.initiate(a.data.accountId);
+    const token = await b.verify(id, a.cookie);
+    for (const [program, origin] of [
+      ["verification", b.apiUrl],
+      ["service", b.serviceUrl],
+    ] as const) {
+      const url = origin + `/v1/data-subject/${id}/download?parts=1`;
+      const headers = { authorization: `Bearer ${token}` };
+      const response = await fetch(url, { headers });
+      expect(response.status, b.web().output() + b.service().output()).toBe(
+        200,
+      );
+      expect(response.headers.get("content-type")).toContain(
+        "application/x-ndjson",
+      );
+      const lines = (await response.text())
+        .trim()
+        .split("\n")
+        .map((line) => parseFrame(line));
+      const manifest = lines.pop()!;
+      expect(manifest).toMatchObject({
+        type: "manifest",
+        requestId: id,
+        program,
+        parts: lines.length,
+        complete: true,
+      });
+      expect(lines.length).toBeGreaterThan(5);
+      expect(
+        (
+          await fetch(origin + `/v1/data-subject/${id}/received`, {
+            method: "POST",
+            headers,
+          })
+        ).status,
+      ).toBe(403);
+
+      for (const [index, part] of lines.entries()) {
+        const bytes = Buffer.from(part.base64, "base64");
+        expect(bytes.length).toBeLessThanOrEqual(1024);
+        expect(part.sequence).toBe(index);
+        expect(part.sha256).toBe(
+          createHash("sha256").update(bytes).digest("hex"),
+        );
+      }
+      const bytes = Buffer.concat(
+        lines.map((part) => Buffer.from(part.base64, "base64")),
+      );
+      expect(manifest.sha256).toBe(
+        createHash("sha256").update(bytes).digest("hex"),
+      );
+      const data = parseExport(bytes.toString());
+      if (program === "verification")
+        expect(
+          data.checks
+            .map(
+              (c: { references: { originalText: string }[] }) =>
+                c.references[0]!.originalText,
+            )
+            .sort(),
+        ).toEqual(expected.sort());
+      else {
+        expect(data.invoices.map((invoice) => invoice.id).sort()).toEqual([
+          "large-0",
+          "large-1",
+          "large-2",
+        ]);
+        for (const invoice of data.invoices)
+          expect(Buffer.from(invoice.pdf.base64, "base64")).toEqual(pdf);
+        expect(bytes.toString()).not.toContain("Retained 0:");
+      }
+      const resumed = await fetch(
+        url + `&cursor=${encodeURIComponent(lines[1]!.cursor)}`,
+        { headers },
+      );
+      const remainder = (await resumed.text())
+        .trim()
+        .split("\n")
+        .map((line) => parseFrame(line));
+      expect(remainder.slice(0, -1)).toEqual(lines.slice(2));
+      expect(remainder.at(-1)).toEqual(manifest);
+      expect(
+        (
+          await fetch(
+            url + `&cursor=${encodeURIComponent(lines[1]!.cursor + "bad")}`,
+            { headers },
+          )
+        ).status,
+      ).toBe(403);
+      expect(
+        (
+          await fetch(origin + `/v1/data-subject/${id}/received`, {
+            method: "POST",
+            headers: { ...headers, "content-type": "application/json" },
+            body: JSON.stringify({ completionToken: manifest.completionToken }),
+          })
+        ).status,
+      ).toBe(200);
+    }
+    await a.call("/v1/sign-out", { everywhere: false });
+    for (const origin of [b.apiUrl, b.serviceUrl])
+      expect(
+        (
+          await fetch(origin + `/v1/data-subject/${id}/download?parts=1`, {
+            headers: { authorization: `Bearer ${token}` },
+          })
+        ).status,
+      ).toBe(403);
+  } finally {
+    await b.cleanup();
+  }
+});
+
+test("multipart cursors survive BOTH program restarts, reject substitutions, exclude late writes, and restart explicitly", async () => {
+  const b = await bothRights(1024);
+  try {
+    const a = await b.signIn("restart-dsr@example.invalid");
+    const id = await b.initiate(a.data.accountId),
+      token = await b.verify(id, a.cookie);
+    const headers = { authorization: `Bearer ${token}` };
+    for (const [program, origin] of [
+      ["verification", b.apiUrl],
+      ["service", b.serviceUrl],
+    ] as const) {
+      const url = origin + `/v1/data-subject/${id}/download?parts=1`;
+      const initial = await fetch(url, { headers });
+      expect(initial.status).toBe(200);
+      const all = (await initial.text())
+        .trim()
+        .split("\n")
+        .map((line) => parseFrame(line));
+      const manifest = all.at(-1)!;
+      const first = all[0]!;
+      expect(first.type).toBe("part");
+      if (program === "verification") await b.restartWeb();
+      else await b.restartService();
+      const resumed = await fetch(
+        url + "&cursor=" + encodeURIComponent(first.cursor),
+        { headers },
+      );
+      expect(resumed.status).toBe(200);
+      expect(
+        (await resumed.text())
+          .trim()
+          .split("\n")
+          .map((line) => parseFrame(line)),
+      ).toEqual(all.slice(1));
+      const otherOrigin = program === "verification" ? b.serviceUrl : b.apiUrl;
+      expect(
+        (
+          await fetch(
+            otherOrigin +
+              `/v1/data-subject/${id}/download?parts=1&cursor=${encodeURIComponent(first.cursor)}`,
+            { headers },
+          )
+        ).status,
+      ).toBe(403);
+      const sql = new pg.Client({
+        connectionString: b.urls[program === "verification" ? 0 : 1],
+      });
+      await sql.connect();
+      try {
+        if (program === "verification")
+          await sql.query(
+            `INSERT INTO verification.checks(id,owner_id,actor_id,state,content_expires_at,deleted_at) VALUES($1,$2,$3,'ended',now(),now())`,
+            [randomUUID(), a.data.ownerId, a.data.accountId],
+          );
+        else
+          await sql.query(
+            `INSERT INTO service.commerce_invoices(id,"orderId","ownerId",pdf,structured,"retainUntil") VALUES('late-snapshot',$1,$2,$3,'{}','2035-01-01')`,
+            [randomUUID(), a.data.ownerId, Buffer.from("%PDF-late")],
+          );
+      } finally {
+        await sql.end();
+      }
+      const stable = await fetch(
+        url + "&cursor=" + encodeURIComponent(first.cursor),
+        { headers },
+      );
+      expect(stable.status).toBe(200);
+      expect(
+        (await stable.text())
+          .trim()
+          .split("\n")
+          .map((line) => parseFrame(line))
+          .at(-1),
+      ).toEqual(manifest);
+      const fresh = await fetch(url + "&restart=" + randomUUID(), { headers });
+      expect(fresh.status).toBe(200);
+      const refreshed = (await fresh.text())
+        .trim()
+        .split("\n")
+        .map((line) => parseFrame(line));
+      expect(refreshed.at(-1)!.snapshotId).not.toBe(manifest.snapshotId);
+      if (program === "service")
+        expect(
+          parseExport(
+            Buffer.concat(
+              refreshed
+                .slice(0, -1)
+                .map((frame) => Buffer.from(frame.base64, "base64")),
+            ).toString(),
+          ).invoices,
+        ).toHaveLength(1);
+    }
+    const wrong = await b.signIn("other-recipient-dsr@example.invalid");
+    const wrongRequest = await b.initiate(wrong.data.accountId),
+      wrongToken = await b.verify(wrongRequest, wrong.cookie);
+    for (const origin of [b.apiUrl, b.serviceUrl])
+      expect(
+        (
+          await fetch(origin + `/v1/data-subject/${id}/download?parts=1`, {
+            headers: { authorization: `Bearer ${wrongToken}` },
+          })
+        ).status,
+      ).toBe(403);
+    const actor = (
+      (await (
+        await b.call("/v1/operator/session", undefined, b.operator)
+      ).json()) as { data: { accountId: string } }
+    ).data.accountId;
+    const revoked = new pg.Client({ connectionString: b.urls[1] });
+    await revoked.connect();
+    try {
+      await revoked.query(
+        `UPDATE service."OperatorRole" SET permissions=array_remove(permissions,'exports:write') WHERE "accountId"=$1`,
+        [actor],
+      );
+    } finally {
+      await revoked.end();
+    }
+    for (const origin of [b.apiUrl, b.serviceUrl])
+      expect(
+        (
+          await fetch(origin + `/v1/data-subject/${id}/download?parts=1`, {
+            headers,
+          })
+        ).status,
+      ).toBe(403);
+  } finally {
+    await b.cleanup();
+  }
+});
+
+for (const program of ["verification", "service"] as const)
+  test(`${program} stream aborts on current retention expiry and cannot acknowledge a partial body`, async () => {
+    const b = await bothRights(512);
+    try {
+      const a = await b.signIn("expiry-large@example.invalid");
+      if (program === "verification") {
+        const created = await fetch(b.apiUrl + "/v1/checks", {
+          method: "POST",
+          headers: {
+            authorization: `Bearer ${a.token}`,
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({ text: physicsReference }),
+        });
+        const check = CheckResponse.parse(await created.json()).data;
+        await expect
+          .poll(
+            async () =>
+              CheckResponse.parse(
+                await (
+                  await fetch(b.apiUrl + `/v1/checks/${check.id}`, {
+                    headers: { authorization: `Bearer ${a.token}` },
+                  })
+                ).json(),
+              ).data.state,
+            { timeout: 15000 },
+          )
+          .toBe("ended");
+      } else {
+        const sql = new pg.Client({ connectionString: b.urls[1] });
+        await sql.connect();
+        try {
+          await sql.query(
+            `INSERT INTO service.commerce_invoices(id,"orderId","ownerId",pdf,structured,"retainUntil") VALUES('expiring-large',$1,$2,$3,'{}',$4)`,
+            [
+              randomUUID(),
+              a.data.ownerId,
+              Buffer.from("exact".repeat(10000)),
+              new Date(b.now() + 600000),
+            ],
+          );
+        } finally {
+          await sql.end();
+        }
+      }
+      const id = await b.initiate(a.data.accountId),
+        token = await b.verify(id, a.cookie);
+      const origin = program === "verification" ? b.apiUrl : b.serviceUrl;
+      const headers = { authorization: `Bearer ${token}` };
+      const response = await fetch(
+        origin + `/v1/data-subject/${id}/download?parts=1`,
+        { headers },
+      );
+      expect(response.status).toBe(200);
+      const reader = response.body!.getReader();
+      const first = await reader.read();
+      expect(first.done).toBe(false);
+      await b.advance(program === "verification" ? 86350000 : 600001);
+      let completed = false,
+        sawManifest = Buffer.from(first.value!)
+          .toString()
+          .includes('"type":"manifest"');
+      try {
+        for (;;) {
+          const row = await reader.read();
+          if (row.done) {
+            completed = true;
+            break;
+          }
+          sawManifest ||= Buffer.from(row.value)
+            .toString()
+            .includes('"type":"manifest"');
+        }
+      } catch {
+        /* The HTTP body is deliberately interrupted on expiry. */
+      } finally {
+        await reader.cancel().catch(() => {});
+      }
+      expect(completed).toBe(false);
+      expect(sawManifest).toBe(false);
+      expect(
+        (
+          await fetch(origin + `/v1/data-subject/${id}/received`, {
+            method: "POST",
+            headers: { ...headers, "content-type": "application/json" },
+            body: JSON.stringify({ completionToken: "a".repeat(43) }),
+          })
+        ).status,
+      ).toBe(403);
+    } finally {
+      await b.cleanup();
+    }
+  });

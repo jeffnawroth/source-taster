@@ -1045,8 +1045,17 @@
                     "type": "string",
                     "enum": [
                       "authorize",
+                      "served",
                       "delivered"
                     ]
+                  },
+                  "completionVerifier": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "completionToken": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{43}$"
                   }
                 },
                 "required": [

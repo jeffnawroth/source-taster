@@ -265,7 +265,15 @@ export type AbuseDecision = z.infer<typeof AbuseDecision>;
 export const RightsAuthorityRequest = z.strictObject({
   requestId: z.uuid(),
   accessToken: z.string().regex(/^[A-Za-z0-9_-]{43}$/),
-  phase: z.enum(["authorize", "delivered"]),
+  phase: z.enum(["authorize", "served", "delivered"]),
+  completionVerifier: z
+    .string()
+    .regex(/^[a-f0-9]{64}$/)
+    .optional(),
+  completionToken: z
+    .string()
+    .regex(/^[A-Za-z0-9_-]{43}$/)
+    .optional(),
 });
 export const RightsAuthorityResponse = z.strictObject({
   requestId: z.uuid(),

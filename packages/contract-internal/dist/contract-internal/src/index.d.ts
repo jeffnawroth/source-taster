@@ -430,7 +430,10 @@ export declare const RightsAuthorityRequest: z.ZodObject<{
     phase: z.ZodEnum<{
         authorize: "authorize";
         delivered: "delivered";
+        served: "served";
     }>;
+    completionVerifier: z.ZodOptional<z.ZodString>;
+    completionToken: z.ZodOptional<z.ZodString>;
 }, z.core.$strict>;
 export declare const RightsAuthorityResponse: z.ZodObject<{
     requestId: z.ZodUUID;

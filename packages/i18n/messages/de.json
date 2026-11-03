@@ -532,6 +532,5 @@
   "invoices_empty": "Noch keine Rechnungen.",
   "invoices_pdf": "PDF herunterladen",
   "invoices_ubl": "E-Rechnung herunterladen (XML)",
-  "cancellation_button": "Verträge hier kündigen",
-  "problem_export_size_limit": "Dieser Export überschreitet die Zustellgrenze. Kontaktieren Sie den Support für eine begrenzte Zustellung ohne Verlängerung der Aufbewahrung."
+  "cancellation_button": "Verträge hier kündigen"
 }

@@ -19,7 +19,11 @@
       "types": "./dist/contract-internal/src/routes.d.ts",
       "default": "./dist/contract-internal/src/routes.js"
     },
-    "./openapi.json": "./openapi.json"
+    "./openapi.json": "./openapi.json",
+    "./delivery": {
+      "types": "./dist/contract-internal/src/delivery.d.ts",
+      "default": "./dist/contract-internal/src/delivery.js"
+    }
   },
   "scripts": {
     "build": "node scripts/build.ts",

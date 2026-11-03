@@ -1,3 +1,10 @@
+import {
+  deliveryBody,
+  deliveryCursor,
+  jsonTokens,
+  partLimit,
+} from "@source-taster/contract-internal/delivery";
+import { createHash, randomUUID } from "node:crypto";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import {
   downloadDataSubject,
@@ -27,7 +34,7 @@ export function mountDataSubjectDelivery(
     if (origin === new URL(settings.serviceIssuer).origin) {
       c.header("Access-Control-Allow-Origin", origin);
       c.header("Vary", "Origin");
-      c.header("Access-Control-Allow-Headers", "Authorization");
+      c.header("Access-Control-Allow-Headers", "Authorization, Content-Type");
       c.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     }
     if (c.req.method === "OPTIONS") c.res = c.body(null, 204);
@@ -36,7 +43,11 @@ export function mountDataSubjectDelivery(
     c.header("Referrer-Policy", "no-referrer");
     c.header("X-Content-Type-Options", "nosniff");
   });
-  async function authority(c: Context, phase: "authorize" | "delivered") {
+  async function authority(
+    c: Context,
+    phase: "authorize" | "served" | "delivered",
+    completion?: { completionVerifier?: string; completionToken?: string },
+  ) {
     const accessToken = c.req
       .header("authorization")
       ?.match(/^Bearer ([A-Za-z0-9_-]{43})$/)?.[1];
@@ -48,6 +59,7 @@ export function mountDataSubjectDelivery(
       requestId: requestId.success ? requestId.data : "",
       accessToken,
       phase,
+      ...completion,
     });
     let response: Response;
     try {
@@ -82,26 +94,72 @@ export function mountDataSubjectDelivery(
   }
   app.get("/v1/data-subject/:id/download", async (c) => {
     const allowed = await authority(c, "authorize");
-    const bytes = await checks.dataSubjectSnapshot(
+    const credential = c.req.header("authorization")!;
+    const exported = await checks.dataSubjectStream(
+      allowed.requestId,
       allowed.accountId,
       allowed.ownerId,
-      async () => {
-        const current = await authority(c, "authorize");
-        if (
-          current.accountId !== allowed.accountId ||
-          current.ownerId !== allowed.ownerId
-        )
-          fail("forbidden");
-      },
+      credential,
+      allowed.expiresAt,
+      c.req.query("restart") ??
+        (c.req.query("parts") === "1" ? undefined : randomUUID()),
     );
+    const context = {
+      records: exported.records,
+      snapshotId: exported.snapshot.id,
+      requestId: allowed.requestId,
+      program: "verification" as const,
+      generatedAt: exported.snapshot.createdAt.toISOString(),
+      expiresAt: allowed.expiresAt,
+      credentialHash: createHash("sha256").update(credential).digest("hex"),
+    };
+    const cursor = c.req.query("cursor");
+    try {
+      deliveryCursor(settings.internalKey.pem, context, cursor);
+    } catch {
+      fail("forbidden");
+    }
+    const validate = async () => {
+      const current = await authority(c, "authorize");
+      if (
+        current.accountId !== allowed.accountId ||
+        current.ownerId !== allowed.ownerId
+      )
+        fail("forbidden");
+      await exported.validate();
+    };
+    await validate();
+    const multipart = c.req.query("parts") === "1";
+    const bytes = deliveryBody({
+      source: jsonTokens(exported.document),
+      context,
+      secret: settings.internalKey.pem,
+      partBytes: partLimit(process.env.SOURCE_TASTER_EXPORT_PART_BYTES),
+      multipart,
+      cursor,
+      validate,
+      completed: async (completionVerifier) => {
+        if (multipart) await authority(c, "served", { completionVerifier });
+      },
+    });
     c.header(
       "Content-Disposition",
       'attachment; filename="verification-data.json"',
     );
-    return c.body(bytes, 200, { "Content-Type": "application/json" });
+    return new Response(bytes, {
+      status: 200,
+      headers: {
+        ...Object.fromEntries(c.res.headers),
+        "Content-Type": multipart ? "application/x-ndjson" : "application/json",
+      },
+    });
   });
   app.post("/v1/data-subject/:id/received", async (c) => {
-    const received = await authority(c, "delivered");
+    const input = z
+      .object({ completionToken: z.string().regex(/^[A-Za-z0-9_-]{43}$/) })
+      .safeParse(await c.req.json().catch(() => null));
+    if (!input.success) fail("forbidden");
+    const received = await authority(c, "delivered", input.data);
     return c.json({
       requestId: received.requestId,
       part: "verification",

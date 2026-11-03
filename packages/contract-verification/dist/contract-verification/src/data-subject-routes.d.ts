@@ -9,6 +9,11 @@ export declare const downloadDataSubject: {
         params: z.ZodObject<{
             id: z.ZodUUID;
         }, z.core.$strip>;
+        query: z.ZodObject<{
+            parts: z.ZodOptional<z.ZodLiteral<"1">>;
+            cursor: z.ZodOptional<z.ZodString>;
+            restart: z.ZodOptional<z.ZodUUID>;
+        }, z.core.$strip>;
         headers: z.ZodObject<{
             authorization: z.ZodString;
         }, z.core.$strip>;
@@ -30,6 +35,9 @@ export declare const downloadDataSubject: {
                 };
             };
             content: {
+                "application/x-ndjson": {
+                    schema: z.ZodString;
+                };
                 "application/json": {
                     schema: z.ZodObject<{
                         format: z.ZodLiteral<"source-taster-verification-data-subject-v1">;
@@ -170,6 +178,16 @@ export declare const acknowledgeDataSubject: {
         params: z.ZodObject<{
             id: z.ZodUUID;
         }, z.core.$strip>;
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        completionToken: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
         headers: z.ZodObject<{
             authorization: z.ZodString;
         }, z.core.$strip>;

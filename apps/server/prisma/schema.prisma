@@ -208,3 +208,24 @@ model Report {
   @@index([expiresAt], map: "reports_expiry")
   @@map("reports")
 }
+
+// Content-free, recipient-bound membership. Never stores manuscript or ciphertext copies.
+model ExportSnapshot {
+ id String @id @db.Uuid
+ requestId String @map("request_id") @db.Uuid
+ binding String
+ createdAt DateTime @map("created_at") @db.Timestamptz(3)
+ expiresAt DateTime @map("expires_at") @db.Timestamptz(3)
+ @@unique([requestId,binding])
+ @@map("export_snapshots")
+}
+model ExportMember {
+ snapshotId String @map("snapshot_id") @db.Uuid
+ collection String
+ parent String @default("")
+ sort String
+ key Json
+ version String
+ @@id([snapshotId,collection,parent,sort])
+ @@map("export_members")
+}
