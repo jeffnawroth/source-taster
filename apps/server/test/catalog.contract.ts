@@ -239,8 +239,74 @@ test("Operator limits and Initial values reach two real verification instances w
         },
       },
     });
+    const state = CatalogSnapshot.parse(
+      await (await call("/v1/operator/catalog", undefined, cookie)).json(),
+    ).data;
+    const narrow = structuredClone(budgets);
+    for (const plan of Object.values(narrow.principal)) plan.windowMs = 300000;
+    const change = {
+      ...next,
+      operationId: randomUUID(),
+      expectedVersion: state.version,
+      effectiveFrom: new Date(both.now() + 120000).toISOString(),
+      limits: { ...next.limits, public: narrow },
+    };
+    expect(
+      (await call("/v1/operator/catalog/drafts", change, cookie)).status,
+    ).toBe(200);
+    const windowActivation = {
+      ...command,
+      operationId: randomUUID(),
+      draftId: change.operationId,
+    };
+    await both.advance(61000);
+    const windowProof = await both.signIn("operator@example.invalid");
+    expect(
+      (
+        await call(
+          "/v1/operator/fresh-proof",
+          windowActivation,
+          `${cookie}; ${windowProof.cookie}`,
+        )
+      ).status,
+    ).toBe(200);
+    expect(
+      (await call("/v1/operator/operations", windowActivation, cookie)).status,
+    ).toBe(200);
+    await both.advance(60000);
+    const anonymous = (origin = both.apiUrl) =>
+      fetch(origin + "/v1/structurings", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ text: "Synthetic reference" }),
+      });
+    expect((await anonymous()).status).toBe(503);
+    expect((await anonymous(second.url)).status).toBe(503);
+    await both.restartService();
+    expect((await anonymous()).status).toBe(503);
+    await both.advance(86400000);
+    const guest = await both.issue();
+    const guestQuota = await fetch(both.apiUrl + "/v2/quota", {
+      headers: { authorization: `Bearer ${guest.token}` },
+    });
+    expect(guestQuota.status).toBe(200);
+    expect(await guestQuota.json()).toMatchObject({
+      data: { granted: 23, remaining: 23 },
+    });
+    const at = new Date(both.now());
+    await both.advance(
+      Date.UTC(at.getUTCFullYear(), at.getUTCMonth() + 1, 1, 2) - both.now(),
+    );
+    const renewed = await both.signIn("consumer@example.invalid");
+    const freeQuota = await fetch(both.apiUrl + "/v2/quota", {
+      headers: { authorization: `Bearer ${renewed.token}` },
+    });
+    expect(freeQuota.status).toBe(200);
+    expect(await freeQuota.json()).toMatchObject({
+      data: { granted: 113, remaining: 113 },
+    });
     await both.service().stop();
-    expect((await request()).status).toBe(503);
+    expect((await anonymous()).status).toBe(503);
   } finally {
     await both.stop();
     await rm(directory, { recursive: true, force: true });
