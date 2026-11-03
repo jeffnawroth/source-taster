@@ -8111,6 +8111,7 @@ export declare const createCheckPackOrder: {
                         operationKey: z.ZodUUID;
                         catalogVersion: z.ZodString;
                         legalVersion: z.ZodString;
+                        vatValidationId: z.ZodOptional<z.ZodUUID>;
                         acceptTerms: z.ZodLiteral<true>;
                         immediateStart: z.ZodBoolean;
                         language: z.ZodEnum<{
@@ -8156,6 +8157,7 @@ export declare const createCheckPackOrder: {
                             expiresAt: z.ZodNullable<z.ZodISODateTime>;
                             checkoutUrl: z.ZodNullable<z.ZodURL>;
                             invoiceId: z.ZodNullable<z.ZodString>;
+                            taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
                             confirmation: z.ZodString;
                             mailStatus: z.ZodEnum<{
                                 queued: "queued";
@@ -8329,6 +8331,7 @@ export declare const getCheckPackOrders: {
                             expiresAt: z.ZodNullable<z.ZodISODateTime>;
                             checkoutUrl: z.ZodNullable<z.ZodURL>;
                             invoiceId: z.ZodNullable<z.ZodString>;
+                            taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
                             confirmation: z.ZodString;
                             mailStatus: z.ZodEnum<{
                                 queued: "queued";
@@ -8543,6 +8546,7 @@ export declare const createSubscription: {
                         operationKey: z.ZodUUID;
                         catalogVersion: z.ZodString;
                         legalVersion: z.ZodString;
+                        vatValidationId: z.ZodOptional<z.ZodUUID>;
                         acceptTerms: z.ZodLiteral<true>;
                         immediateStart: z.ZodBoolean;
                         language: z.ZodEnum<{
@@ -8584,6 +8588,7 @@ export declare const createSubscription: {
                                 vatBps: z.ZodNumber;
                                 period: z.ZodLiteral<"month">;
                             }, z.core.$strip>;
+                            taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
                             orderedAt: z.ZodISODateTime;
                             activatesAt: z.ZodNullable<z.ZodISODateTime>;
                             paidUntil: z.ZodNullable<z.ZodISODateTime>;
@@ -8771,6 +8776,7 @@ export declare const getSubscriptions: {
                                 vatBps: z.ZodNumber;
                                 period: z.ZodLiteral<"month">;
                             }, z.core.$strip>;
+                            taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
                             orderedAt: z.ZodISODateTime;
                             activatesAt: z.ZodNullable<z.ZodISODateTime>;
                             paidUntil: z.ZodNullable<z.ZodISODateTime>;
@@ -8935,6 +8941,7 @@ export declare const cancelSubscription: {
                                 vatBps: z.ZodNumber;
                                 period: z.ZodLiteral<"month">;
                             }, z.core.$strip>;
+                            taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
                             orderedAt: z.ZodISODateTime;
                             activatesAt: z.ZodNullable<z.ZodISODateTime>;
                             paidUntil: z.ZodNullable<z.ZodISODateTime>;
@@ -9158,6 +9165,7 @@ export declare const consentSubscription: {
                                 vatBps: z.ZodNumber;
                                 period: z.ZodLiteral<"month">;
                             }, z.core.$strip>;
+                            taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
                             orderedAt: z.ZodISODateTime;
                             activatesAt: z.ZodNullable<z.ZodISODateTime>;
                             paidUntil: z.ZodNullable<z.ZodISODateTime>;
@@ -9335,6 +9343,706 @@ export declare const consentSubscription: {
     };
 } & {
     getRoutingPath(): "/v1/commerce/subscriptions/:id/consent";
+};
+export declare const validateCommerceVat: {
+    method: "post";
+    path: "/v1/commerce/vat-validations";
+    summary: string;
+    request: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        country: z.ZodString;
+                        vatId: z.ZodString;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        data: z.ZodObject<{
+                            id: z.ZodUUID;
+                            country: z.ZodString;
+                            vatId: z.ZodString;
+                            status: z.ZodEnum<{
+                                "country-mismatch": "country-mismatch";
+                                invalid: "invalid";
+                                superseded: "superseded";
+                                unavailable: "unavailable";
+                                valid: "valid";
+                            }>;
+                            checkedAt: z.ZodISODateTime;
+                            expiresAt: z.ZodISODateTime;
+                        }, z.core.$strip>;
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                    pro: "pro";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
+                            history: z.ZodOptional<z.ZodObject<{
+                                extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+                                authorityVersion: z.ZodNumber;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
+                        }, z.core.$strict>, z.ZodNull]>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v1/commerce/vat-validations";
+};
+export declare const getCommerceInvoices: {
+    method: "get";
+    path: "/v1/commerce/invoices";
+    summary: string;
+    request: {
+        query: z.ZodObject<{
+            after: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>;
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        data: z.ZodArray<z.ZodObject<{
+                            id: z.ZodString;
+                            orderId: z.ZodUUID;
+                            issuedAt: z.ZodNullable<z.ZodISODateTime>;
+                            grossCents: z.ZodNumber;
+                            currency: z.ZodLiteral<"EUR">;
+                            formats: z.ZodArray<z.ZodEnum<{
+                                pdf: "pdf";
+                                ubl: "ubl";
+                            }>>;
+                            structuredSha256: z.ZodNullable<z.ZodString>;
+                        }, z.core.$strip>>;
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                    pro: "pro";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
+                            history: z.ZodOptional<z.ZodObject<{
+                                extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+                                authorityVersion: z.ZodNumber;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
+                        }, z.core.$strict>, z.ZodNull]>;
+                        nextCursor: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v1/commerce/invoices";
+};
+export declare const getCommerceStructuredInvoice: {
+    method: "get";
+    path: "/v1/commerce/invoices/{id}/ubl";
+    summary: string;
+    request: {
+        params: z.ZodObject<{
+            id: z.ZodString;
+        }, z.core.$strip>;
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/xml": {
+                    schema: z.ZodString;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v1/commerce/invoices/:id/ubl";
+};
+export declare const extensionCommerceInvoices: {
+    getRoutingPath(): "/v1/commerce/invoices";
+    method: "get";
+    summary: string;
+    request: {
+        query: z.ZodObject<{
+            after: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>;
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        data: z.ZodArray<z.ZodObject<{
+                            id: z.ZodString;
+                            orderId: z.ZodUUID;
+                            issuedAt: z.ZodNullable<z.ZodISODateTime>;
+                            grossCents: z.ZodNumber;
+                            currency: z.ZodLiteral<"EUR">;
+                            formats: z.ZodArray<z.ZodEnum<{
+                                pdf: "pdf";
+                                ubl: "ubl";
+                            }>>;
+                            structuredSha256: z.ZodNullable<z.ZodString>;
+                        }, z.core.$strip>>;
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                    pro: "pro";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
+                            history: z.ZodOptional<z.ZodObject<{
+                                extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+                                authorityVersion: z.ZodNumber;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
+                        }, z.core.$strict>, z.ZodNull]>;
+                        nextCursor: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+    path: "/v1/extension/commerce/invoices";
+} & {
+    getRoutingPath(): "/v1/extension/commerce/invoices";
+};
+export declare const extensionCommerceInvoice: {
+    getRoutingPath(): "/v1/commerce/invoices/:id";
+    method: "get";
+    summary: string;
+    request: {
+        params: z.ZodObject<{
+            id: z.ZodString;
+        }, z.core.$strip>;
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/pdf": {
+                    schema: z.ZodString;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+    path: "/v1/extension/commerce/invoices/{id}";
+} & {
+    getRoutingPath(): "/v1/extension/commerce/invoices/:id";
+};
+export declare const extensionCommerceStructuredInvoice: {
+    getRoutingPath(): "/v1/commerce/invoices/:id/ubl";
+    method: "get";
+    summary: string;
+    request: {
+        params: z.ZodObject<{
+            id: z.ZodString;
+        }, z.core.$strip>;
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/xml": {
+                    schema: z.ZodString;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+    path: "/v1/extension/commerce/invoices/{id}/ubl";
+} & {
+    getRoutingPath(): "/v1/extension/commerce/invoices/:id/ubl";
 };
 export declare const routes: ((({
     security: {
@@ -13625,6 +14333,7 @@ export declare const routes: ((({
                         operationKey: z.ZodUUID;
                         catalogVersion: z.ZodString;
                         legalVersion: z.ZodString;
+                        vatValidationId: z.ZodOptional<z.ZodUUID>;
                         acceptTerms: z.ZodLiteral<true>;
                         immediateStart: z.ZodBoolean;
                         language: z.ZodEnum<{
@@ -13670,6 +14379,7 @@ export declare const routes: ((({
                             expiresAt: z.ZodNullable<z.ZodISODateTime>;
                             checkoutUrl: z.ZodNullable<z.ZodURL>;
                             invoiceId: z.ZodNullable<z.ZodString>;
+                            taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
                             confirmation: z.ZodString;
                             mailStatus: z.ZodEnum<{
                                 queued: "queued";
@@ -13842,6 +14552,7 @@ export declare const routes: ((({
                             expiresAt: z.ZodNullable<z.ZodISODateTime>;
                             checkoutUrl: z.ZodNullable<z.ZodURL>;
                             invoiceId: z.ZodNullable<z.ZodString>;
+                            taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
                             confirmation: z.ZodString;
                             mailStatus: z.ZodEnum<{
                                 queued: "queued";
@@ -14054,6 +14765,7 @@ export declare const routes: ((({
                         operationKey: z.ZodUUID;
                         catalogVersion: z.ZodString;
                         legalVersion: z.ZodString;
+                        vatValidationId: z.ZodOptional<z.ZodUUID>;
                         acceptTerms: z.ZodLiteral<true>;
                         immediateStart: z.ZodBoolean;
                         language: z.ZodEnum<{
@@ -14095,6 +14807,7 @@ export declare const routes: ((({
                                 vatBps: z.ZodNumber;
                                 period: z.ZodLiteral<"month">;
                             }, z.core.$strip>;
+                            taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
                             orderedAt: z.ZodISODateTime;
                             activatesAt: z.ZodNullable<z.ZodISODateTime>;
                             paidUntil: z.ZodNullable<z.ZodISODateTime>;
@@ -14281,6 +14994,7 @@ export declare const routes: ((({
                                 vatBps: z.ZodNumber;
                                 period: z.ZodLiteral<"month">;
                             }, z.core.$strip>;
+                            taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
                             orderedAt: z.ZodISODateTime;
                             activatesAt: z.ZodNullable<z.ZodISODateTime>;
                             paidUntil: z.ZodNullable<z.ZodISODateTime>;
@@ -14444,6 +15158,7 @@ export declare const routes: ((({
                                 vatBps: z.ZodNumber;
                                 period: z.ZodLiteral<"month">;
                             }, z.core.$strip>;
+                            taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
                             orderedAt: z.ZodISODateTime;
                             activatesAt: z.ZodNullable<z.ZodISODateTime>;
                             paidUntil: z.ZodNullable<z.ZodISODateTime>;
@@ -14666,6 +15381,7 @@ export declare const routes: ((({
                                 vatBps: z.ZodNumber;
                                 period: z.ZodLiteral<"month">;
                             }, z.core.$strip>;
+                            taxEvidence: z.ZodOptional<z.ZodNullable<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
                             orderedAt: z.ZodISODateTime;
                             activatesAt: z.ZodNullable<z.ZodISODateTime>;
                             paidUntil: z.ZodNullable<z.ZodISODateTime>;
@@ -14843,4 +15559,698 @@ export declare const routes: ((({
     };
 } & {
     getRoutingPath(): "/v1/commerce/subscriptions/:id/consent";
+}) | ({
+    method: "post";
+    path: "/v1/commerce/vat-validations";
+    summary: string;
+    request: {
+        body: {
+            required: true;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        country: z.ZodString;
+                        vatId: z.ZodString;
+                    }, z.core.$strict>;
+                };
+            };
+        };
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        data: z.ZodObject<{
+                            id: z.ZodUUID;
+                            country: z.ZodString;
+                            vatId: z.ZodString;
+                            status: z.ZodEnum<{
+                                "country-mismatch": "country-mismatch";
+                                invalid: "invalid";
+                                superseded: "superseded";
+                                unavailable: "unavailable";
+                                valid: "valid";
+                            }>;
+                            checkedAt: z.ZodISODateTime;
+                            expiresAt: z.ZodISODateTime;
+                        }, z.core.$strip>;
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                    pro: "pro";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
+                            history: z.ZodOptional<z.ZodObject<{
+                                extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+                                authorityVersion: z.ZodNumber;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
+                        }, z.core.$strict>, z.ZodNull]>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        400: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v1/commerce/vat-validations";
+}) | ({
+    method: "get";
+    path: "/v1/commerce/invoices";
+    summary: string;
+    request: {
+        query: z.ZodObject<{
+            after: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>;
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        data: z.ZodArray<z.ZodObject<{
+                            id: z.ZodString;
+                            orderId: z.ZodUUID;
+                            issuedAt: z.ZodNullable<z.ZodISODateTime>;
+                            grossCents: z.ZodNumber;
+                            currency: z.ZodLiteral<"EUR">;
+                            formats: z.ZodArray<z.ZodEnum<{
+                                pdf: "pdf";
+                                ubl: "ubl";
+                            }>>;
+                            structuredSha256: z.ZodNullable<z.ZodString>;
+                        }, z.core.$strip>>;
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                    pro: "pro";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
+                            history: z.ZodOptional<z.ZodObject<{
+                                extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+                                authorityVersion: z.ZodNumber;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
+                        }, z.core.$strict>, z.ZodNull]>;
+                        nextCursor: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v1/commerce/invoices";
+}) | ({
+    method: "get";
+    path: "/v1/commerce/invoices/{id}/ubl";
+    summary: string;
+    request: {
+        params: z.ZodObject<{
+            id: z.ZodString;
+        }, z.core.$strip>;
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/xml": {
+                    schema: z.ZodString;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+} & {
+    getRoutingPath(): "/v1/commerce/invoices/:id/ubl";
+}) | ({
+    getRoutingPath(): "/v1/commerce/invoices";
+    method: "get";
+    summary: string;
+    request: {
+        query: z.ZodObject<{
+            after: z.ZodOptional<z.ZodString>;
+        }, z.core.$strip>;
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/json": {
+                    schema: z.ZodObject<{
+                        data: z.ZodArray<z.ZodObject<{
+                            id: z.ZodString;
+                            orderId: z.ZodUUID;
+                            issuedAt: z.ZodNullable<z.ZodISODateTime>;
+                            grossCents: z.ZodNumber;
+                            currency: z.ZodLiteral<"EUR">;
+                            formats: z.ZodArray<z.ZodEnum<{
+                                pdf: "pdf";
+                                ubl: "ubl";
+                            }>>;
+                            structuredSha256: z.ZodNullable<z.ZodString>;
+                        }, z.core.$strip>>;
+                        quota: z.ZodUnion<readonly [z.ZodObject<{
+                            consumed: z.ZodNumber;
+                            remaining: z.ZodNumber;
+                            granted: z.ZodNumber;
+                            reserved: z.ZodNumber;
+                            warning: z.ZodEnum<{
+                                eighty: "eighty";
+                                exhausted: "exhausted";
+                                none: "none";
+                            }>;
+                            grants: z.ZodArray<z.ZodObject<{
+                                kind: z.ZodEnum<{
+                                    "check-pack": "check-pack";
+                                    credit: "credit";
+                                    free: "free";
+                                    guest: "guest";
+                                    pro: "pro";
+                                }>;
+                                granted: z.ZodNumber;
+                                remaining: z.ZodNumber;
+                                expiresAt: z.ZodISODateTime;
+                            }, z.core.$strip>>;
+                            features: z.ZodArray<z.ZodString>;
+                            history: z.ZodOptional<z.ZodObject<{
+                                extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+                                authorityVersion: z.ZodNumber;
+                            }, z.core.$strip>>;
+                        }, z.core.$strip>, z.ZodObject<{
+                            status: z.ZodLiteral<"not-implemented">;
+                        }, z.core.$strict>, z.ZodObject<{
+                            status: z.ZodLiteral<"unavailable">;
+                        }, z.core.$strict>, z.ZodNull]>;
+                        nextCursor: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+    path: "/v1/extension/commerce/invoices";
+} & {
+    getRoutingPath(): "/v1/extension/commerce/invoices";
+}) | ({
+    getRoutingPath(): "/v1/commerce/invoices/:id";
+    method: "get";
+    summary: string;
+    request: {
+        params: z.ZodObject<{
+            id: z.ZodString;
+        }, z.core.$strip>;
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/pdf": {
+                    schema: z.ZodString;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+    path: "/v1/extension/commerce/invoices/{id}";
+} & {
+    getRoutingPath(): "/v1/extension/commerce/invoices/:id";
+}) | ({
+    getRoutingPath(): "/v1/commerce/invoices/:id/ubl";
+    method: "get";
+    summary: string;
+    request: {
+        params: z.ZodObject<{
+            id: z.ZodString;
+        }, z.core.$strip>;
+    };
+    responses: {
+        200: {
+            description: string;
+            content: {
+                "application/xml": {
+                    schema: z.ZodString;
+                };
+            };
+        };
+        401: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        403: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        404: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+        503: {
+            description: string;
+            content: {
+                "application/problem+json": {
+                    schema: z.ZodObject<{
+                        type: z.ZodString;
+                        title: z.ZodString;
+                        status: z.ZodNumber;
+                        detail: z.ZodOptional<z.ZodString>;
+                        limit: z.ZodOptional<z.ZodNumber>;
+                        available: z.ZodOptional<z.ZodNumber>;
+                        required: z.ZodOptional<z.ZodNumber>;
+                        retryAt: z.ZodOptional<z.ZodISODateTime>;
+                        code: z.ZodString;
+                        i18nKey: z.ZodString;
+                    }, z.core.$strip>;
+                };
+            };
+        };
+    };
+    path: "/v1/extension/commerce/invoices/{id}/ubl";
+} & {
+    getRoutingPath(): "/v1/extension/commerce/invoices/:id/ubl";
 }))[];

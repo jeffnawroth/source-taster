@@ -1,3 +1,4 @@
+import { CommerceInvoicesResponse } from "./commerce.js";
 import { dpaClient } from "./dpa-client.js";
 export { dpaClient } from "./dpa-client.js";
 import { AccountPreferencesPatch, AccountPreferencesResponse, ExtensionCredential, ExtensionSignInChallengeResponse, ExtensionSignInConfirmRequest, ExtensionSignInConfirmResponse, SignInChallengeRequest, SignInChallengeResponse, SignInConfirmRequest, AccountSessionResponse, AccountTokenResponse, SignOutResponse, SignOutRequest, GuestTokenRequest, GuestTokenResponse, ProblemDetails, AccountDeletionRequest, AccountDeletionResponse, EmailChangeChallengeRequest, EmailChangeChallengeResponse, EmailChangeConfirmRequest, FreshProofChallengeRequest, FreshProofChallengeResponse, FreshProofConfirmRequest, FreshProofResponse, } from "./index.js";
@@ -65,6 +66,7 @@ export function accountSessionClient(options) {
         return value;
     }
     return {
+        invoices: invoiceClient(options),
         dpa: dpaClient(options),
         preferences: async () => AccountPreferencesResponse.parse(await call("/v1/preferences")).data,
         updatePreferences: async (patch) => AccountPreferencesResponse.parse(await call("/v1/preferences", "PATCH", AccountPreferencesPatch.parse(patch))).data,
@@ -109,6 +111,7 @@ export function extensionSessionClient(options) {
         return value;
     }
     return {
+        invoices: (credential) => invoiceClient({ ...options, credential }),
         dpa: (credential) => dpaClient({ ...options, credential }),
         challenge: async (input) => ExtensionSignInChallengeResponse.parse(await call("/sign-in/challenges", "POST", undefined, SignInChallengeRequest.parse(input))).data,
         confirm: async (input) => ExtensionSignInConfirmResponse.parse(await call("/sign-in/confirm", "POST", undefined, ExtensionSignInConfirmRequest.parse(input))).data,
@@ -126,5 +129,40 @@ export function extensionSessionClient(options) {
             emailChangeConfirm: async (credential, input) => AccountSessionResponse.parse(await call("/account/email-change/confirm", "POST", credential, EmailChangeConfirmRequest.parse(input))).data,
             deleteAccount: async (credential, input) => AccountDeletionResponse.parse(await call("/account/deletion", "POST", credential, AccountDeletionRequest.parse(input))).data,
         },
+    };
+}
+export function invoiceClient(options) {
+    async function get(path) {
+        const response = await (options.fetch ?? fetch)(`${options.baseUrl}/v1/${options.credential ? "extension/" : ""}commerce/invoices${path}`, {
+            credentials: options.credential ? "omit" : "include",
+            redirect: "error",
+            cache: "no-store",
+            headers: options.credential
+                ? {
+                    authorization: `Bearer ${ExtensionCredential.parse(options.credential)}`,
+                }
+                : {},
+        });
+        if (!response.ok)
+            throw new GuestTokenError(response.status);
+        return response;
+    }
+    return {
+        list: async () => {
+            const rows = [];
+            const seen = new Set();
+            let cursor;
+            do {
+                const page = CommerceInvoicesResponse.parse(await (await get(cursor ? `?after=${encodeURIComponent(cursor)}` : "")).json());
+                rows.push(...page.data);
+                cursor = page.nextCursor;
+                if (cursor && seen.has(cursor))
+                    throw new Error("invalid-invoice-pagination");
+                if (cursor)
+                    seen.add(cursor);
+            } while (cursor);
+            return rows;
+        },
+        download: async (id, format) => (await get(`/${encodeURIComponent(id)}${format === "ubl" ? "/ubl" : ""}`)).blob(),
     };
 }
