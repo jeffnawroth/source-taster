@@ -10,6 +10,13 @@ interface Props {
 const { language, page, legal } = Astro.props;
 const t = copy[language];
 const preview = process.env.SOURCE_TASTER_WEBSITE_PREVIEW !== '0';
+const cancellationService = process.env.SOURCE_TASTER_CANCELLATION_SERVICE_ORIGIN;
+if (cancellationService) {
+  const origin = new URL(cancellationService);
+  if (origin.username || origin.password || origin.pathname !== '/' || origin.search || origin.hash || (origin.protocol !== 'https:' && !(preview && origin.protocol === 'http:' && ['127.0.0.1', 'localhost'].includes(origin.hostname)))) throw new Error('Cancellation service must be an HTTPS origin (loopback HTTP in preview)');
+}
+if (!preview && !cancellationService) throw new Error('Publication requires the statutory cancellation service origin');
+const cancellationLabel = t.cancellation;
 const other = language === 'en' ? 'de' : 'en';
 const site = (id: string) => pathFor(language, { id, section: 'site' });
 ---
@@ -56,6 +63,7 @@ const site = (id: string) => pathFor(language, { id, section: 'site' });
       <slot />
     </main>
     <footer><nav aria-label={t.legal}>
+      {cancellationService && <a href={`${cancellationService.replace(/\/$/, '')}/cancel?language=${language}`} referrerpolicy="no-referrer">{cancellationLabel}</a>}
       <a href={site('legal-notice')}>{t.notice}</a>
       <a href={site('terms')}>{t.terms}</a>
       <a href={site('privacy')}>{t.privacy}</a>

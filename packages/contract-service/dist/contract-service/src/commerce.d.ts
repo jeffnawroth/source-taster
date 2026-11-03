@@ -597,3 +597,52 @@ export declare const CommerceInvoicesResponse: z.ZodObject<{
     }, z.core.$strict>, z.ZodNull]>;
     nextCursor: z.ZodOptional<z.ZodNullable<z.ZodString>>;
 }, z.core.$strip>;
+/** No session or paid permission. The response deliberately does not reveal a match,
+ * contract end, mail recipient, provider, or delivery status. */
+export declare const CancellationRequest: z.ZodObject<{
+    operationKey: z.ZodUUID;
+    contractReference: z.ZodUUID;
+    email: z.ZodPipe<z.ZodEmail, z.ZodTransform<string, string>>;
+    language: z.ZodEnum<{
+        de: "de";
+        en: "en";
+    }>;
+}, z.core.$strict>;
+export declare const CancellationResponse: z.ZodObject<{
+    data: z.ZodObject<{
+        operationKey: z.ZodUUID;
+        receivedAt: z.ZodISODateTime;
+    }, z.core.$strict>;
+    quota: z.ZodUnion<readonly [z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                "check-pack": "check-pack";
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+                pro: "pro";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
+        history: z.ZodOptional<z.ZodObject<{
+            extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+            authorityVersion: z.ZodNumber;
+        }, z.core.$strip>>;
+    }, z.core.$strip>, z.ZodObject<{
+        status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
+    }, z.core.$strict>, z.ZodNull]>;
+}, z.core.$strip>;

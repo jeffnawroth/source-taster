@@ -531,5 +531,6 @@
   "invoices_unavailable": "Invoices are unavailable. Please try again.",
   "invoices_empty": "No invoices yet.",
   "invoices_pdf": "Download PDF",
-  "invoices_ubl": "Download e-invoice (XML)"
+  "invoices_ubl": "Download e-invoice (XML)",
+  "cancellation_button": "Cancel contracts here"
 }
