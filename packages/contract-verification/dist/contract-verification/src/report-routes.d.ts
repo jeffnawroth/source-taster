@@ -207,6 +207,10 @@ export declare const createReport: {
                             history: z.ZodOptional<z.ZodObject<{
                                 extendedUntil: z.ZodNullable<z.ZodISODateTime>;
                                 authorityVersion: z.ZodNumber;
+                                settingsVersion: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+                                paidHistoryDays: z.ZodOptional<z.ZodNumber>;
                             }, z.core.$strip>>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
@@ -440,6 +444,10 @@ export declare const getReport: {
                             history: z.ZodOptional<z.ZodObject<{
                                 extendedUntil: z.ZodNullable<z.ZodISODateTime>;
                                 authorityVersion: z.ZodNumber;
+                                settingsVersion: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+                                paidHistoryDays: z.ZodOptional<z.ZodNumber>;
                             }, z.core.$strip>>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;
@@ -796,6 +804,10 @@ export declare const cancelReport: {
                             history: z.ZodOptional<z.ZodObject<{
                                 extendedUntil: z.ZodNullable<z.ZodISODateTime>;
                                 authorityVersion: z.ZodNumber;
+                                settingsVersion: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+                                freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+                                paidHistoryDays: z.ZodOptional<z.ZodNumber>;
                             }, z.core.$strip>>;
                         }, z.core.$strip>, z.ZodObject<{
                             status: z.ZodLiteral<"not-implemented">;

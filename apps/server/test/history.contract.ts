@@ -703,3 +703,32 @@ test("worker History entitlement refresh sends only Owner and actor IDs to the p
   for (const call of snapshots)
     expect(Object.keys(call.body).sort()).toEqual(["actorId", "ownerId"]);
 });
+
+test("Operator Initial values govern new History while existing deadlines stay immutable", async () => {
+  const { api, request, history, create, paid } = await historyApi();
+  await request("history", "PUT", { enabled: true });
+  const old = await create("Old terms");
+  const original = (await history()).entries[0]!.expiresAt;
+  Object.assign(api.state.quota.history, {
+    settingsVersion: 1,
+    freeHistoryChecks: 2,
+    freeHistoryDays: 12,
+    paidHistoryDays: 61,
+  });
+  await api.advance(1000);
+  const next = await create("New terms");
+  const entries = (await history()).entries;
+  expect(entries.find((e) => e.id === next)!.expiresAt).toBe(
+    new Date(api.now() + 12 * DAY).toISOString(),
+  );
+  expect(entries.find((e) => e.id === old)!.expiresAt).toBe(original);
+  await api.advance(1000);
+  await create("Third");
+  expect((await history()).entries).toHaveLength(2);
+  paid();
+  await api.advance(1000);
+  const extended = await create("Paid new terms");
+  expect(
+    (await history()).entries.find((e) => e.id === extended)!.expiresAt,
+  ).toBe(new Date(api.now() + 61 * DAY).toISOString());
+});

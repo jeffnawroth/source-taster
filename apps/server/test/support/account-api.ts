@@ -115,7 +115,14 @@ export async function startAccountApi(
     authorityCalls: [] as { kind: string; permission: string }[],
     quota: {
       ...quota,
-      history: { extendedUntil: null as string | null, authorityVersion: 1 },
+      history: {
+        extendedUntil: null as string | null,
+        authorityVersion: 1,
+        settingsVersion: 0,
+        freeHistoryChecks: 5,
+        freeHistoryDays: 30,
+        paidHistoryDays: 90,
+      },
     },
     quotaCalls: [] as { path: string; body: Record<string, unknown> }[],
   };
