@@ -160,6 +160,7 @@ export declare const createCheck: {
                                     }>;
                                 }, z.core.$strict>, z.ZodObject<{
                                     kind: z.ZodLiteral<"verdict">;
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                     verdict: z.ZodEnum<{
                                         correct: "correct";
                                         "doi-conflict": "doi-conflict";
@@ -535,6 +536,7 @@ export declare const getCheck: {
                                     }>;
                                 }, z.core.$strict>, z.ZodObject<{
                                     kind: z.ZodLiteral<"verdict">;
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                     verdict: z.ZodEnum<{
                                         correct: "correct";
                                         "doi-conflict": "doi-conflict";
@@ -1263,6 +1265,7 @@ export declare const cancelCheck: {
                                     }>;
                                 }, z.core.$strict>, z.ZodObject<{
                                     kind: z.ZodLiteral<"verdict">;
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                     verdict: z.ZodEnum<{
                                         correct: "correct";
                                         "doi-conflict": "doi-conflict";
@@ -1657,6 +1660,7 @@ export declare const renewCheckLease: {
                                     }>;
                                 }, z.core.$strict>, z.ZodObject<{
                                     kind: z.ZodLiteral<"verdict">;
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                     verdict: z.ZodEnum<{
                                         correct: "correct";
                                         "doi-conflict": "doi-conflict";

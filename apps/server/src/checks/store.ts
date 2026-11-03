@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // The Check lock serializes lifecycle, immutable evidence and ordered events.
+import type { ActiveConfiguration } from "@source-taster/contract-internal";
 import { randomBytes, randomUUID } from "node:crypto";
 import {
   CheckEvent,
@@ -237,6 +238,7 @@ export const defaultLifecycleSettings: LifecycleSettings = {
   activeReferencesPerCheck: 10,
 };
 export interface ReferenceAttempt {
+  measuredConfiguration?: ActiveConfiguration;
   guestContextId?: string;
   checkId: string;
   slot: number;
@@ -286,6 +288,7 @@ export function createCheckStore(
   options: {
     clock?: LifecycleClock;
     settings?: Partial<LifecycleSettings>;
+    configuration?: { current(): Promise<ActiveConfiguration> };
   } = {},
 ) {
   const clock = options.clock ?? { now: Date.now };
@@ -1287,6 +1290,9 @@ export function createCheckStore(
         const row = await tx.check.create({
           data: {
             id: start.id ?? randomUUID(),
+            measuredConfiguration: options.configuration
+              ? await options.configuration.current()
+              : undefined,
             apiVersion,
             document: document
               ? (JSON.parse(JSON.stringify(document)) as Prisma.InputJsonValue)
@@ -1957,6 +1963,8 @@ export function createCheckStore(
           },
         });
         return {
+          measuredConfiguration: check.measuredConfiguration as
+            ActiveConfiguration | undefined,
           apiVersion: check.apiVersion,
           checkId: check.id,
           slot: slot.position,

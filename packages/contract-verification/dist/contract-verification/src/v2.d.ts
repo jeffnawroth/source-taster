@@ -554,6 +554,7 @@ export declare const SourceEvidence: z.ZodObject<{
 }, z.core.$strip>;
 export declare const VerdictResult: z.ZodObject<{
     kind: z.ZodLiteral<"verdict">;
+    measuredConfigurationId: z.ZodOptional<z.ZodString>;
     verdict: z.ZodEnum<{
         correct: "correct";
         "doi-conflict": "doi-conflict";
@@ -922,6 +923,7 @@ export declare const ReferenceOutcome: z.ZodDiscriminatedUnion<[z.ZodObject<{
     }>;
 }, z.core.$strict>, z.ZodObject<{
     kind: z.ZodLiteral<"verdict">;
+    measuredConfigurationId: z.ZodOptional<z.ZodString>;
     verdict: z.ZodEnum<{
         correct: "correct";
         "doi-conflict": "doi-conflict";
@@ -1454,6 +1456,7 @@ export declare const HistoricalResult: z.ZodObject<{
         }>;
     }, z.core.$strict>, z.ZodObject<{
         kind: z.ZodLiteral<"verdict">;
+        measuredConfigurationId: z.ZodOptional<z.ZodString>;
         verdict: z.ZodEnum<{
             correct: "correct";
             "doi-conflict": "doi-conflict";
@@ -1988,6 +1991,7 @@ export declare const ReferenceSlot: z.ZodObject<{
             }>;
         }, z.core.$strict>, z.ZodObject<{
             kind: z.ZodLiteral<"verdict">;
+            measuredConfigurationId: z.ZodOptional<z.ZodString>;
             verdict: z.ZodEnum<{
                 correct: "correct";
                 "doi-conflict": "doi-conflict";
@@ -2385,6 +2389,7 @@ export declare const ReferenceSlot: z.ZodObject<{
         }>;
     }, z.core.$strict>, z.ZodObject<{
         kind: z.ZodLiteral<"verdict">;
+        measuredConfigurationId: z.ZodOptional<z.ZodString>;
         verdict: z.ZodEnum<{
             correct: "correct";
             "doi-conflict": "doi-conflict";
@@ -2946,6 +2951,7 @@ export declare const Check: z.ZodObject<{
                 }>;
             }, z.core.$strict>, z.ZodObject<{
                 kind: z.ZodLiteral<"verdict">;
+                measuredConfigurationId: z.ZodOptional<z.ZodString>;
                 verdict: z.ZodEnum<{
                     correct: "correct";
                     "doi-conflict": "doi-conflict";
@@ -3343,6 +3349,7 @@ export declare const Check: z.ZodObject<{
             }>;
         }, z.core.$strict>, z.ZodObject<{
             kind: z.ZodLiteral<"verdict">;
+            measuredConfigurationId: z.ZodOptional<z.ZodString>;
             verdict: z.ZodEnum<{
                 correct: "correct";
                 "doi-conflict": "doi-conflict";
@@ -3942,6 +3949,7 @@ export declare const CheckResponse: z.ZodObject<{
                     }>;
                 }, z.core.$strict>, z.ZodObject<{
                     kind: z.ZodLiteral<"verdict">;
+                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
                     verdict: z.ZodEnum<{
                         correct: "correct";
                         "doi-conflict": "doi-conflict";
@@ -4339,6 +4347,7 @@ export declare const CheckResponse: z.ZodObject<{
                 }>;
             }, z.core.$strict>, z.ZodObject<{
                 kind: z.ZodLiteral<"verdict">;
+                measuredConfigurationId: z.ZodOptional<z.ZodString>;
                 verdict: z.ZodEnum<{
                     correct: "correct";
                     "doi-conflict": "doi-conflict";
@@ -4959,6 +4968,7 @@ export declare const ReferenceUpdatedEvent: z.ZodObject<{
                 }>;
             }, z.core.$strict>, z.ZodObject<{
                 kind: z.ZodLiteral<"verdict">;
+                measuredConfigurationId: z.ZodOptional<z.ZodString>;
                 verdict: z.ZodEnum<{
                     correct: "correct";
                     "doi-conflict": "doi-conflict";
@@ -5356,6 +5366,7 @@ export declare const ReferenceUpdatedEvent: z.ZodObject<{
             }>;
         }, z.core.$strict>, z.ZodObject<{
             kind: z.ZodLiteral<"verdict">;
+            measuredConfigurationId: z.ZodOptional<z.ZodString>;
             verdict: z.ZodEnum<{
                 correct: "correct";
                 "doi-conflict": "doi-conflict";
@@ -5911,6 +5922,7 @@ export declare const CheckEvent: z.ZodDiscriminatedUnion<[z.ZodObject<{
                 }>;
             }, z.core.$strict>, z.ZodObject<{
                 kind: z.ZodLiteral<"verdict">;
+                measuredConfigurationId: z.ZodOptional<z.ZodString>;
                 verdict: z.ZodEnum<{
                     correct: "correct";
                     "doi-conflict": "doi-conflict";
@@ -6308,6 +6320,7 @@ export declare const CheckEvent: z.ZodDiscriminatedUnion<[z.ZodObject<{
             }>;
         }, z.core.$strict>, z.ZodObject<{
             kind: z.ZodLiteral<"verdict">;
+            measuredConfigurationId: z.ZodOptional<z.ZodString>;
             verdict: z.ZodEnum<{
                 correct: "correct";
                 "doi-conflict": "doi-conflict";

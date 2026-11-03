@@ -78,6 +78,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 status: "cancelled" | "failed" | "not-checked" | "running";
             } | {
                 kind: "verdict";
+                measuredConfigurationId?: string | undefined;
                 verdict: "correct" | "doi-conflict" | "exists-with-deviations" | "mixed-citation" | "not-found" | "not-verifiable";
                 reference: {
                     originalText: string;
@@ -224,6 +225,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 status: "cancelled" | "failed" | "not-checked" | "running";
             } | {
                 kind: "verdict";
+                measuredConfigurationId?: string | undefined;
                 verdict: "correct" | "doi-conflict" | "exists-with-deviations" | "mixed-citation" | "not-found" | "not-verifiable";
                 reference: {
                     originalText: string;
@@ -370,6 +372,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 status: "cancelled" | "failed" | "not-checked" | "running";
             } | {
                 kind: "verdict";
+                measuredConfigurationId?: string | undefined;
                 verdict: "correct" | "doi-conflict" | "exists-with-deviations" | "mixed-citation" | "not-found" | "not-verifiable";
                 reference: {
                     originalText: string;
@@ -516,6 +519,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 status: "cancelled" | "failed" | "not-checked" | "running";
             } | {
                 kind: "verdict";
+                measuredConfigurationId?: string | undefined;
                 verdict: "correct" | "doi-conflict" | "exists-with-deviations" | "mixed-citation" | "not-found" | "not-verifiable";
                 reference: {
                     originalText: string;

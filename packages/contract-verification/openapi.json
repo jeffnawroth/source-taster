@@ -176,6 +176,9 @@
                   "verdict"
                 ]
               },
+              "measuredConfigurationId": {
+                "type": "string"
+              },
               "verdict": {
                 "$ref": "#/components/schemas/Verdict"
               },

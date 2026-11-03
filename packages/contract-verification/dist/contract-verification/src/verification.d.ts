@@ -118,6 +118,7 @@ export declare const SourceEvidence: z.ZodObject<{
 }, z.core.$strip>;
 export declare const VerdictResult: z.ZodObject<{
     kind: z.ZodLiteral<"verdict">;
+    measuredConfigurationId: z.ZodOptional<z.ZodString>;
     verdict: z.ZodEnum<{
         correct: "correct";
         "doi-conflict": "doi-conflict";

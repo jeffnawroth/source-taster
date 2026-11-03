@@ -167,13 +167,15 @@ export function requestAssertion(
     JSON.stringify({
       iss: settings.assertionIssuer,
       aud: settings.serviceIssuer,
-      purpose: path.startsWith("/internal/abuse/")
-        ? "abuse-entrance"
-        : path.startsWith("/internal/quota/")
-          ? "quota"
-          : path === "/internal/account-authority"
-            ? "account-authority"
-            : "guest-authority",
+      purpose: path.startsWith("/internal/configuration/")
+        ? "configuration-authority"
+        : path.startsWith("/internal/abuse/")
+          ? "abuse-entrance"
+          : path.startsWith("/internal/quota/")
+            ? "quota"
+            : path === "/internal/account-authority"
+              ? "account-authority"
+              : "guest-authority",
       iat,
       nbf: iat,
       exp: iat + 30,
@@ -189,7 +191,7 @@ export function requestAssertion(
 /** What one service-facing mutation accepts: purpose, method and exact path are
  * all bound into the signed assertion, so one route's assertion cannot be replayed
  * against another. */
-function serviceAssertion(binding: {
+export function serviceAssertion(binding: {
   purpose: string;
   method: string;
   path: string;
@@ -232,6 +234,7 @@ function serviceAssertion(binding: {
         )
       )
         fail("unauthenticated");
+      return parsed;
     } catch {
       fail("unauthenticated");
     }

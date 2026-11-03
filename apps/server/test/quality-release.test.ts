@@ -421,3 +421,28 @@ it("names the missing replay when the release check runs without it", () => {
   expect(unreadable.status).toBe(78);
   expect(unreadable.stderr).toMatch(/^- load-report-unreadable$/m);
 });
+
+it("refuses source activation without #138/#140/#136 rights and approved recording replay despite claimed qualification", async () => {
+  await writeMeasured();
+  for (const source of [
+    "openlibrary",
+    "googlebooks",
+    "url",
+    "internetarchive",
+    "semanticscholar",
+  ] as const) {
+    const result = await checkRelease({
+      root,
+      ...calibratedCode,
+      expected: {
+        ...calibratedCode.expected,
+        configuration: {
+          ...calibratedCode.expected.configuration,
+          enabledSources: [source],
+        },
+      },
+    });
+    expect(result.releasable).toBe(false);
+    expect(result.reasons).toContain(`source-qualification-missing:${source}`);
+  }
+});

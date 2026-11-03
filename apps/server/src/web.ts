@@ -1,3 +1,7 @@
+import {
+  configurationSelection,
+  mountConfigurations,
+} from "./quality/protocol.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // The web process: serves the /v1 HTTP API and the Check event streams.
 
@@ -26,6 +30,10 @@ await runMain(async (config) => {
   const boss = await createQueue(config.databaseUrl);
   const events = await listenForEvents(config.databaseUrl);
   const checks = createCheckStore(db, boss, {
+    configuration:
+      config.mode === "hosted" && config.hosted
+        ? configurationSelection(config.hosted)
+        : undefined,
     settings: {
       contentRetentionMs: config.contentRetentionMs,
       clientLeaseMs: config.clientLeaseMs,
@@ -82,6 +90,8 @@ await runMain(async (config) => {
     documentInputBytes: config.documentLimits.inputBytes,
   });
   if (authority) mountInternalRoutes(app, authority);
+  if (config.mode === "hosted" && config.hosted)
+    mountConfigurations(app, db, config.hosted);
   if (website) {
     // The website only answers what the API does not own (ADR-0020).
     const serveWebsite = website;

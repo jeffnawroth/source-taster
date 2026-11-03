@@ -15,6 +15,7 @@ datasource db {
 }
 
 model Check {
+  measuredConfiguration Json? @map("measured_configuration")
   id             String          @id @db.Uuid
   apiVersion     Int             @default(1) @map("api_version")
   ownerId        String          @map("owner_id")

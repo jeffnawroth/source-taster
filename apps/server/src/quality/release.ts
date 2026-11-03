@@ -4,6 +4,7 @@
 // measurement log for exactly this code version and fixture state passes the
 // Quality gate. Targets are recomputed from the logged outcomes against the
 // private Reference test set; what a log says about itself is never trusted.
+import { sourceQualification } from "./source-qualification.ts";
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { z } from "zod";
@@ -75,6 +76,8 @@ const MeasurementLog = z.object({
 export interface ReleaseInput {
   /** Private measurement location; undefined when not configured. */
   root: string | undefined;
+  configurationDigest?: string;
+  now?: number;
   code: { sha: string; dirty: boolean };
   /** The calibration the code's Scoring rules report. */
   runtimeCalibration: string;
@@ -111,6 +114,13 @@ export async function checkRelease(
     },
   });
   const codeReasons = [
+    ...(await sourceQualification({
+      root: input.root,
+      sources: input.expected?.configuration.enabledSources ?? [],
+      codeVersion: input.code.sha,
+      configurationDigest: input.configurationDigest,
+      now: input.now,
+    })),
     ...replay.reasons,
     ...(input.runtimeCalibration === "uncalibrated" ? ["uncalibrated"] : []),
     ...(input.code.dirty ? ["code-version-dirty"] : []),
