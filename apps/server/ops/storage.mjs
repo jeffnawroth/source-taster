@@ -147,7 +147,7 @@ export function storage(config) {
       );
       if (h.digest("hex") !== expected) throw Error("storage-integrity");
     },
-    async download(key, version, target) {
+    async download(key, version, target, maximumBytes = 1024 ** 3 + 65536) {
       const { createWriteStream } = await import("node:fs");
       const { Transform } = await import("node:stream");
       let bytes = 0;
@@ -159,7 +159,7 @@ export function storage(config) {
         new Transform({
           transform(b, _, cb) {
             bytes += b.length;
-            cb(bytes > 1024 ** 3 + 65536 ? Error("backup-limit") : null, b);
+            cb(bytes > maximumBytes ? Error("backup-limit") : null, b);
           },
         }),
         createWriteStream(target, { mode: 0o600, flags: "wx" }),

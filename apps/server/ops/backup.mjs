@@ -231,7 +231,12 @@ async function main() {
       )
         throw Error("backup-receipt");
       const manifest = join(dir, "manifest");
-      await s3.download(`${r.key}.complete`, r.manifestVersion, manifest);
+      await s3.download(
+        `${r.key}.complete`,
+        r.manifestVersion,
+        manifest,
+        16384,
+      );
       const committed = JSON.parse(await readFile(manifest, "utf8"));
       for (const k of [
         "format",

@@ -65,7 +65,7 @@ jobs:
           APPROVAL_KEY: ${{ vars.DEPLOY_APPROVAL_PUBLIC_KEY }}
           MEASURED_REGISTRY: ${{ secrets.MEASURED_CONFIGURATIONS_JSON }}
           QUALITY_EXTRACTION: ${{ vars.QUALITY_EXTRACTION }}
-          QUALITY_CONFIGURATION: ${{ secrets.QUALITY_CONFIGURATION_JSON }}
+          QUALITY_CONFIGURATION_FILE: ${{ vars.QUALITY_CONFIGURATION_FILE }}
           QUALITY_ROOT: ${{ vars.QUALITY_ROOT }}
           LOAD_REPORT: ${{ vars.LOAD_REPORT }}
         shell: bash
@@ -73,12 +73,12 @@ jobs:
           set -euo pipefail
           umask 077
           test -n "$CONFIG" && test -n "$APPROVAL" && test -n "$APPROVAL_SIGNATURE" && test -n "$APPROVAL_KEY"
-          test -n "$MEASURED_REGISTRY" && test -n "$QUALITY_CONFIGURATION" && test -d "$QUALITY_ROOT" && test -f "$LOAD_REPORT" && test -f "$QUALITY_EXTRACTION"
+          [[ "$QUALITY_CONFIGURATION_FILE" == .qualification/* ]]
+          test -n "$MEASURED_REGISTRY" && test -f "$QUALITY_CONFIGURATION_FILE" && test -d "$QUALITY_ROOT" && test -f "$LOAD_REPORT" && test -f "$QUALITY_EXTRACTION"
           printf '%s' "$CONFIG" > "$RUNNER_TEMP/deploy.json"
           printf '%s' "$APPROVAL" > "$RUNNER_TEMP/approval.json"
           printf '%s' "$APPROVAL_SIGNATURE" > "$RUNNER_TEMP/approval.sig"
           printf '%s' "$APPROVAL_KEY" > "$RUNNER_TEMP/approval.pem"
-          printf '%s' "$QUALITY_CONFIGURATION" > "$RUNNER_TEMP/quality.json"
           printf '%s' "$MEASURED_REGISTRY" > "$RUNNER_TEMP/registry.json"
           echo "OPS_DEPLOY_CONFIG=$RUNNER_TEMP/deploy.json" >> "$GITHUB_ENV"
           echo "OPS_APPROVAL_PACKET=$RUNNER_TEMP/approval.json" >> "$GITHUB_ENV"
@@ -86,7 +86,7 @@ jobs:
           echo "OPS_APPROVAL_PUBLIC_KEY=$RUNNER_TEMP/approval.pem" >> "$GITHUB_ENV"
           echo "SOURCE_TASTER_MEASURED_CONFIGURATIONS=$RUNNER_TEMP/registry.json" >> "$GITHUB_ENV"
           echo "SOURCE_TASTER_QUALITY_EXTRACTION=$QUALITY_EXTRACTION" >> "$GITHUB_ENV"
-          echo "SOURCE_TASTER_QUALITY_CONFIGURATION=$RUNNER_TEMP/quality.json" >> "$GITHUB_ENV"
+          echo "SOURCE_TASTER_QUALITY_CONFIGURATION=$QUALITY_CONFIGURATION_FILE" >> "$GITHUB_ENV"
           echo "SOURCE_TASTER_QUALITY_ROOT=$QUALITY_ROOT" >> "$GITHUB_ENV"
           echo "SOURCE_TASTER_LOAD_REPORT=$LOAD_REPORT" >> "$GITHUB_ENV"
       - name: Recompute exact release and all approval fences
@@ -117,9 +117,16 @@ jobs:
           tar -xzf "$RUNNER_TEMP/scalingo-cli.tar.gz" -C "$RUNNER_TEMP/scalingo-cli"
           app_id=$(node --input-type=module -e 'import fs from "node:fs";console.log(JSON.parse(fs.readFileSync(process.env.OPS_DEPLOY_CONFIG)).appId)')
           "$RUNNER_TEMP/scalingo-cli/scalingo" --region osc-fr1 --app "$app_id" deploy "$RUNNER_TEMP/verification-source.tar.gz"
+      - name: Retain content-free recomputed public release publication for offline signing
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: verification-release-publication-${{ inputs.commit }}
+          path: ${{ runner.temp }}/deployment-receipt.json
+          if-no-files-found: error
+          retention-days: 1
       - name: Remove restricted ephemeral evidence
         if: always()
         shell: bash
         run: |
           rm -rf .qualification
-          rm -f "$RUNNER_TEMP/deploy.json" "$RUNNER_TEMP/approval.json" "$RUNNER_TEMP/approval.sig" "$RUNNER_TEMP/approval.pem" "$RUNNER_TEMP/quality.json" "$RUNNER_TEMP/registry.json"
+          rm -f "$RUNNER_TEMP/deploy.json" "$RUNNER_TEMP/approval.json" "$RUNNER_TEMP/approval.sig" "$RUNNER_TEMP/approval.pem" "$RUNNER_TEMP/registry.json"
