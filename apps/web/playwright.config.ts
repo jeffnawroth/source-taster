@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { defineConfig } from "@playwright/test";
+import { browserProjects } from "./browser-projects.ts";
 const baseURL = `http://127.0.0.1:${process.env.SOURCE_TASTER_E2E_WEB_PORT ?? "5174"}`;
 export default defineConfig({
   testDir: "./e2e",
@@ -12,5 +13,5 @@ export default defineConfig({
     reuseExistingServer: false,
     timeout: 60_000,
   },
-  projects: [{ name: "chromium", use: { browserName: "chromium" } }],
+  projects: browserProjects,
 });
