@@ -34,7 +34,6 @@ const ownerB = "22222222-2222-4222-8222-222222222222";
 let owner = ownerA;
 let features: string[] = [];
 let guest = false;
-let reservations = 0;
 let fixtures: Awaited<ReturnType<typeof startDoiFixtures>>;
 let worker: ReturnType<typeof startProcess>;
 let stop: () => Promise<void>;
@@ -57,7 +56,6 @@ beforeEach(() => {
   owner = ownerA;
   features = ["verification-report"];
   guest = false;
-  reservations = 0;
 });
 beforeAll(async () => {
   fixtures = await startDoiFixtures();
@@ -97,7 +95,6 @@ beforeAll(async () => {
       quota: {
         snapshot: () => Promise.resolve(quota(100)),
         reserve: (_owner, _checkId, _key, slots) => {
-          reservations++;
           return Promise.resolve({
             free: [],
             reserved: slots.length,
@@ -176,7 +173,6 @@ const file = (checkId: string, reportId: string) =>
 
 it("lets an Owner whose scope includes reports download a tagged PDF with the Check's content", async () => {
   const check = await checked();
-  const before = reservations;
   const created = await create(check.id);
   expect(created.status).toBe(202);
   const job = ReportResponse.parse(await created.json()).data;
@@ -207,8 +203,7 @@ it("lets an Owner whose scope includes reports download a tagged PDF with the Ch
   ]);
   expect(pdf.text).toContain("Thesis chapter 3.docx");
   expect(pdf.text).toContain(originalText);
-  // The report is a separate job: no Quota is reserved or consumed for it.
-  expect(reservations).toBe(before);
+  // Unchanged hosted Quota is asserted through its API in commerce.contract.ts.
 });
 
 it("refuses Owners without the reports feature, Guests and foreign Owners without creating anything", async () => {

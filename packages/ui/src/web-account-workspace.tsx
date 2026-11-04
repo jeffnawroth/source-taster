@@ -15,10 +15,8 @@ import { CheckWorkspace, type SelectionIntake } from "./check-workspace.tsx";
 import { useAccountPreferences } from "./account-preferences.ts";
 import type { Preferences, PreferenceStorage } from "./preferences.ts";
 import { guestCredentials, webGuestIdentityStorage } from "./guest-identity.ts";
-import type { OwnerQuota } from "./quota.ts";
 import {
-  SensitiveAccountActions,
-  type DeletionOutcome,
+  AccountManagementLink,
   type SensitiveActions,
 } from "./sensitive-account-actions.tsx";
 export type SessionClient = Omit<
@@ -47,9 +45,7 @@ export function AccountControls({
   language,
   preferences,
   sessionEnded,
-  quota = null,
-  updated,
-  deleted,
+  accountUrl,
 }: {
   client: SessionClient;
   account: AccountSession | null;
@@ -57,10 +53,7 @@ export function AccountControls({
   language: "de" | "en";
   preferences: Preferences;
   sessionEnded: () => void;
-  quota?: OwnerQuota | null;
-  /** Same Account and Owner, new email: Checks stay mounted. */
-  updated?: (account: AccountSession) => void;
-  deleted?: (outcome: DeletionOutcome) => void;
+  accountUrl?: string;
 }) {
   const [open, setOpen] = useState(false),
     [email, setEmail] = useState(""),
@@ -162,15 +155,8 @@ export function AccountControls({
               language={language}
             />
           )}
-          {client.sensitive && updated && deleted && (
-            <SensitiveAccountActions
-              actions={client.sensitive}
-              account={account}
-              language={language}
-              quota={quota}
-              emailChanged={updated}
-              deleted={deleted}
-            />
+          {accountUrl && (
+            <AccountManagementLink url={accountUrl} language={language} />
           )}
         </>
       ) : (
@@ -320,6 +306,11 @@ export function WebAccountWorkspace({
       client={client}
       guest={guest}
       siteUrl={siteUrl}
+      accountUrl={
+        sensitiveActions
+          ? `${serviceUrl.replace(/\/$/, "")}/account`
+          : undefined
+      }
       upgradeUrl={`${serviceUrl.replace(/\/$/, "")}/plan`}
     />
   );
@@ -334,6 +325,7 @@ export function AccountWorkspace({
   transport: transportOptions = { client: "web/0.0.0" },
   selectionIntake,
   upgradeUrl,
+  accountUrl,
 }: {
   initial: { preferences: Preferences; citationStyleReset: boolean };
   preferenceStorage: PreferenceStorage;
@@ -343,6 +335,7 @@ export function AccountWorkspace({
   transport?: Omit<VerificationClientOptions, "credentials">;
   selectionIntake?: SelectionIntake;
   upgradeUrl?: string;
+  accountUrl?: string;
 }) {
   const [session, setSession] = useState<AccountSession | null | undefined>(
       undefined,
@@ -363,9 +356,6 @@ export function AccountWorkspace({
   const localizedUpgradeUrl = upgradeUrl
     ? `${upgradeUrl}?language=${preferences.language}`
     : undefined;
-  // #102: set when the Account was removed here. `pending` keeps every request
-  // from falling back to Guest while the service is still finishing deletion.
-  const [removal, setRemoval] = useState<DeletionOutcome | null>(null);
   useEffect(
     () =>
       client.subscribe?.(() => {
@@ -401,8 +391,6 @@ export function AccountWorkspace({
     return {
       ...transportOptions,
       credentials: async () => {
-        if (removal === "in-progress")
-          throw new Error("account-deletion-in-progress");
         if (credentialFailure) throw new Error("session-revoked");
         if (session === undefined) throw new Error("session-unavailable");
         if (session === null) return guest.credentials();
@@ -428,7 +416,7 @@ export function AccountWorkspace({
         })());
       },
     };
-  }, [client, session, guest, credentialFailure, removal, transportOptions]);
+  }, [client, session, guest, credentialFailure, transportOptions]);
   useEffect(() => {
     if (!session) return;
     let last = 0;
@@ -449,16 +437,7 @@ export function AccountWorkspace({
     };
   }, [client, session]);
   function changed(account: AccountSession | null) {
-    setRemoval(null);
     setSession(account);
-    setCredentialFailure(false);
-    setGeneration((value) => value + 1);
-  }
-  /** Only the service's answer ends the Account here. No content or grant moves to Guest. */
-  function removed(outcome: DeletionOutcome) {
-    accountPreferences.forget();
-    setRemoval(outcome);
-    setSession(null);
     setCredentialFailure(false);
     setGeneration((value) => value + 1);
   }
@@ -488,9 +467,8 @@ export function AccountWorkspace({
       siteUrl={siteUrl}
       selectionIntake={selectionIntake}
       upgradeUrl={localizedUpgradeUrl}
-      deferQuotaRead={removal === "deleted"}
       onPreferencesChange={accountPreferences.change}
-      accountControls={(language, quota) => (
+      accountControls={(language) => (
         <>
           {upgradeUrl && (
             <a
@@ -517,31 +495,16 @@ export function AccountWorkspace({
             </p>
           )}
           {credentialFailure && <p role="alert">{m.auth_expired()}</p>}
-          {removal && (
-            <p role="status">
-              {removal === "deleted"
-                ? m.sensitive_deleted()
-                : m.sensitive_deletion_in_progress()}
-            </p>
-          )}
-          {removal === "in-progress" ? (
-            <button onClick={() => location.reload()}>
-              {m.sensitive_reload()}
-            </button>
-          ) : (
-            <AccountControls
-              key={session?.accountId ?? "guest"}
-              language={language}
-              preferences={preferences}
-              sessionEnded={() => setCredentialFailure(true)}
-              client={client}
-              account={credentialFailure ? null : session}
-              changed={changed}
-              quota={quota}
-              updated={setSession}
-              deleted={removed}
-            />
-          )}
+          <AccountControls
+            key={session?.accountId ?? "guest"}
+            language={language}
+            preferences={preferences}
+            sessionEnded={() => setCredentialFailure(true)}
+            client={client}
+            account={credentialFailure ? null : session}
+            changed={changed}
+            accountUrl={accountUrl}
+          />
         </>
       )}
     />

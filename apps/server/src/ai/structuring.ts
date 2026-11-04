@@ -53,7 +53,6 @@ export function ground(
       if (!validSpan(span, item.span.start, item.span.end))
         throw new InvalidAiOutput();
     const baseline = parser.structure(item.originalText);
-    if (!baseline.references.length) return [];
     const csl: Csl = {};
     const fieldSources: StructuredReference["fieldSources"] = {};
     const proposals: NonNullable<StructuredReference["ai"]>["proposals"] = [];

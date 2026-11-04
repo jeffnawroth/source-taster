@@ -253,6 +253,36 @@ it("extracts an embedded Reference using exact spans and isolates ungrounded add
   expect(calls).toBe(1);
 });
 
+it("retains a grounded embedded Reference without a parser-recognized year or identifier", async () => {
+  const text = "We discussed Doe: Exact maps yesterday.";
+  responseValue = {
+    references: [
+      {
+        originalText: "Doe: Exact maps",
+        span: { start: 13, end: 28 },
+        csl: { title: "Exact maps" },
+        spans: { title: { start: 18, end: 28 } },
+      },
+    ],
+  };
+  const response = await structure(text);
+  expect(response.status).toBe(200);
+  const { data } = TextStructuringResponse.parse(await response.json());
+  expect(data.structuring.references).toMatchObject([
+    {
+      originalText: "Doe: Exact maps",
+      span: { start: 13, end: 28 },
+      csl: { title: "Exact maps" },
+      fieldSources: {
+        title: { raw: "Exact maps", span: { start: 18, end: 28 } },
+      },
+      structuring: { path: "ai" },
+      ai: { notice: "ai-can-be-wrong" },
+    },
+  ]);
+  expect(data.structuring.ai?.fallbacks).toEqual([]);
+});
+
 it("preserves the reviewed extraction as immutable evidence and only adopts a proposal by a user revision", async () => {
   const preview = TextStructuringResponse.parse(
     await (

@@ -16,6 +16,7 @@ import {
   CheckResponse,
 } from "@source-taster/contract-verification/v2";
 import { bothPrograms, eventually } from "./support/both-programs.ts";
+import { ReportResponse } from "@source-taster/contract-verification/report";
 import { physicsReference } from "./support/doi-fixtures.ts";
 test.each(["check-pack", "pro"])(
   "a web-paid %s is visible and consumed through the verification API Quota seam",
@@ -159,6 +160,41 @@ test.each(["check-pack", "pro"])(
         consumed: 1,
         remaining: available - 1,
       });
+      const reportPath = `/v2/checks/${check.id}/reports`;
+      const reportCall = (path: string, init: RequestInit = {}) =>
+        fetch(both!.apiUrl + path, {
+          ...init,
+          headers: {
+            authorization: `Bearer ${a.token}`,
+            "content-type": "application/json",
+          },
+        });
+      const quotaBeforeReport = await quota();
+      const requested = await reportCall(reportPath, {
+        method: "POST",
+        body: JSON.stringify({
+          language: "en",
+          style: "apa",
+          documentName: "Acceptance",
+        }),
+      });
+      expect(requested.status).toBe(202);
+      const report = ReportResponse.parse(await requested.json()).data;
+      await eventually(async () => {
+        const response = await reportCall(`${reportPath}/${report.id}`);
+        return (
+          ReportResponse.parse(await response.json()).data.state === "ready"
+        );
+      });
+      const downloadPath = `${reportPath}/${report.id}/file`;
+      const download = await reportCall(downloadPath);
+      expect(download.status).toBe(200);
+      expect(
+        Buffer.from(await download.arrayBuffer())
+          .subarray(0, 5)
+          .toString(),
+      ).toBe("%PDF-");
+      expect(await quota()).toEqual(quotaBeforeReport);
       if (plan === "pro") {
         const down = once(fake, "message");
         fake.send({
@@ -196,6 +232,10 @@ test.each(["check-pack", "pro"])(
         expect(receipts[0]!.text).toContain(new Date(both.now()).toISOString());
         expect(await quota()).toMatchObject({ consumed: 1, remaining: 999 });
       }
+      expect((await a.call("/v1/sign-out", { everywhere: false })).status).toBe(
+        200,
+      );
+      expect((await reportCall(downloadPath)).status).toBe(403);
     } finally {
       await both?.stop();
       if (fake.exitCode === null) {

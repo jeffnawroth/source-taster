@@ -13,12 +13,8 @@ import { buildExtension } from "../e2e/support/build.ts";
 import { launchChromium, type Panel } from "../e2e/support/chromium.ts";
 import type { ServiceReply } from "../../server/test/support/account-api.ts";
 import { extensionFixtureToken } from "../../server/test/support/extension-api.ts";
+import { sensitiveService } from "../../server/test/support/sensitive-service.ts";
 import {
-  codes,
-  sensitiveService,
-} from "../../server/test/support/sensitive-service.ts";
-import {
-  guestFixtureToken,
   guestTokenReply,
   quotaReply,
   structuringReply,
@@ -189,130 +185,16 @@ async function withPanel(
   }
 }
 
-test("the controls do not exist unless the host enabled the gate", async () => {
-  await withPanel({ sensitive: false }, async ({ panel, requests }) => {
+test("Account management links to private web without sending the extension credential", async () => {
+  await withPanel({ sensitive: true }, async ({ panel, requests }) => {
+    await panel.find("link", "Account security");
     expect(await panel.query("button", "Delete Account")).toEqual([]);
     expect(await panel.query("button", "Change email address")).toEqual([]);
     expect(requests.some((r) => r.path.includes("/account/"))).toBe(false);
   });
 });
-
-test("deletion asks for proof, shows the eight-year retention notice, and then removes the stored credential", async () => {
-  await withPanel(
-    { sensitive: true },
-    async ({ panel, fake, requests, storage }) => {
-      await panel.click("button", "Delete Account");
-      expect(await panel.query("button", "Delete Account permanently")).toEqual(
-        [],
-      );
-      await panel.click("button", "Send confirmation code");
-      await panel.fill("textbox", "Six-digit code", codes.proof);
-      await panel.click("button", "Confirm");
-      await panel.waitForText("main", undefined, /kept for eight years/);
-      const deleteButton = await panel.find(
-        "button",
-        "Delete Account permanently",
-      );
-      expect(
-        await panel.call(deleteButton, "function() { return this.disabled; }"),
-      ).toBe(true);
-      await panel.click("checkbox", /billing records are kept for eight years/);
-      await panel.click("button", "Delete Account permanently");
-      await panel.waitForText("main", undefined, /Your Account was deleted/);
-      // Local Account state is gone; Guest identity is untouched and not replaced.
-      expect(await storage()).toEqual({ [guestKey]: guestId });
-      const deletion = requests.find(
-        (r) => r.method === "POST" && r.path.endsWith("/account/deletion"),
-      );
-      expect(deletion?.authorization).toBe(`Bearer ${secret}`);
-      expect(requests.every((r) => !r.cookie)).toBe(true);
-      expect(fake.state.live).toBe(false);
-      // No Guest fallback while the Account acted. Afterwards the Guest view
-      // reads nothing until its first Start (next test); nothing of the
-      // Account moves to the pre-existing, unchanged Guest identity above.
-      expect(
-        requests
-          .slice(0, requests.indexOf(deletion!))
-          .some((r) => r.path.includes("guest-tokens")),
-      ).toBe(false);
-    },
-  );
-});
-
-test("after a completed deletion the panel requests no Guest token and no Quota until the first Start, which keeps the existing Guest ID", async () => {
-  await withPanel(
-    { sensitive: true },
-    async ({ panel, requests, apiRequests, storage }) => {
-      await panel.click("button", "Delete Account");
-      await panel.click("button", "Send confirmation code");
-      await panel.fill("textbox", "Six-digit code", codes.proof);
-      await panel.click("button", "Confirm");
-      await panel.waitForText("main", undefined, /kept for eight years/);
-      await panel.click("checkbox", /billing records are kept for eight years/);
-      const deletion = requests.length;
-      const apiBefore = apiRequests.length;
-      await panel.click("button", "Delete Account permanently");
-      await panel.waitForText("main", undefined, /Your Account was deleted/);
-      // The panel restarted as Guest; give any mount-time read time to happen.
-      await panel.find("button", "Sign in");
-      await new Promise((r) => setTimeout(r, 1500));
-      const after = requests.slice(deletion);
-      expect(after.some((r) => r.path.includes("guest-tokens"))).toBe(false);
-      expect(apiRequests.slice(apiBefore)).toEqual([]);
-      // Neutral Quota slot: no balance, no loading or failure message.
-      expect(await panel.query("region", "Quota")).toEqual([]);
-      // The first Start reads the Quota with a Guest token for the same Guest ID.
-      await panel.fill("textbox", "Reference", "Planck 1901");
-      await panel.click("button", "Check Reference");
-      await panel.waitForText("main", undefined, /100 of 100 checks left/);
-      const issued = requests
-        .slice(deletion)
-        .filter((r) => r.method === "POST" && r.path === "/v1/guest-tokens");
-      expect(issued.length).toBeGreaterThan(0);
-      const quota = apiRequests
-        .slice(apiBefore)
-        .filter((r) => r.path === "/v2/quota");
-      expect(quota.length).toBeGreaterThan(0);
-      expect(
-        quota.every((r) => r.authorization === `Bearer ${guestFixtureToken}`),
-      ).toBe(true);
-      expect(await storage()).toEqual({ [guestKey]: guestId });
-    },
-  );
-});
-
-test("a failed deletion keeps the stored credential and the signed-in panel", async () => {
-  await withPanel({ sensitive: true }, async ({ panel, fake, storage }) => {
-    fake.state.behavior = "fail";
-    await panel.click("button", "Delete Account");
-    await panel.click("button", "Send confirmation code");
-    await panel.fill("textbox", "Six-digit code", codes.proof);
-    await panel.click("button", "Confirm");
-    await panel.click("checkbox", /billing records are kept for eight years/);
-    await panel.click("button", "Delete Account permanently");
-    await panel.waitForText("alert", undefined, /The Account was not deleted/);
-    expect(await storage()).toEqual({
-      [guestKey]: guestId,
-      [sessionKey]: secret,
-    });
-    await panel.waitForText("main", undefined, account.email);
+test("the private-web Account link retains its host gate", async () => {
+  await withPanel({ sensitive: false }, async ({ panel }) => {
+    expect(await panel.query("link", "Account security")).toEqual([]);
   });
-});
-
-test("a durable in-progress deletion removes the credential and does not turn the panel into Guest", async () => {
-  await withPanel(
-    { sensitive: true },
-    async ({ panel, fake, requests, storage }) => {
-      fake.state.behavior = "in-progress";
-      await panel.click("button", "Delete Account");
-      await panel.click("button", "Send confirmation code");
-      await panel.fill("textbox", "Six-digit code", codes.proof);
-      await panel.click("button", "Confirm");
-      await panel.click("checkbox", /billing records are kept for eight years/);
-      await panel.click("button", "Delete Account permanently");
-      await panel.waitForText("main", undefined, /deletion is in progress/);
-      expect(await storage()).toEqual({ [guestKey]: guestId });
-      expect(requests.some((r) => r.path.includes("guest-tokens"))).toBe(false);
-    },
-  );
 });

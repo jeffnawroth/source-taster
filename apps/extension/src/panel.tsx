@@ -62,6 +62,11 @@ createRoot(document.getElementById("root")!).render(
             ? `${config.serviceUrl!.replace(/\/$/, "")}/plan`
             : undefined
         }
+        accountUrl={
+          config.sensitiveAccountActions
+            ? `${config.serviceUrl!.replace(/\/$/, "")}/account`
+            : undefined
+        }
         selectionIntake={selectionIntake}
       />
     ) : (
