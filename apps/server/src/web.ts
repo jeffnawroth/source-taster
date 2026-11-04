@@ -1,3 +1,5 @@
+import { operationalHealth } from "../ops/health.mjs";
+import { assertRecoveryReleased } from "../ops/fence.mjs";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { mountDataSubjectDelivery } from "./exports/data-subject.ts";
 // The web process: serves the /v1 HTTP API and the Check event streams.
@@ -20,6 +22,7 @@ import { standaloneEntitlements } from "./entitlements.ts";
 import { createApp } from "./http/app.ts";
 
 await runMain(async (config) => {
+  await assertRecoveryReleased(config.databaseUrl);
   const website = config.website
     ? await openWebsite(config.website.directory, config.website.mode)
     : undefined;
@@ -82,6 +85,15 @@ await runMain(async (config) => {
     documentConcurrency: config.documentLimits.concurrency,
     documentInputBytes: config.documentLimits.inputBytes,
   });
+  const health = await operationalHealth(config.databaseUrl);
+  app.get("/health/live", (c) => c.json({ status: "alive" }));
+  app.get("/health/ready", async (c) => {
+    const ready = await health.ready();
+    return c.json(
+      { status: ready ? "ready" : "unavailable" },
+      ready ? 200 : 503,
+    );
+  });
   if (authority && config.hosted) {
     mountInternalRoutes(app, authority);
     mountDataSubjectDelivery(app, config.hosted, checks);
@@ -115,6 +127,7 @@ await runMain(async (config) => {
       boss.stop(),
       events.close(),
       db.$disconnect(),
+      health.close(),
       authority?.close(),
       entrance?.close(),
     ]).finally(() => process.exit(0));

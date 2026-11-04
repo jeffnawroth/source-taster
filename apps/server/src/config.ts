@@ -311,7 +311,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     website,
     referenceLimit: integer(env, "SOURCE_TASTER_REFERENCE_LIMIT", 1000, 1),
     databaseUrl,
-    port: integer(env, "SOURCE_TASTER_PORT", 3100),
+    port: integer(
+      env,
+      "SOURCE_TASTER_PORT",
+      env.NODE_ENV === "production" ? integer(env, "PORT", 3100) : 3100,
+    ),
     sseHeartbeatMs: integer(env, "SOURCE_TASTER_SSE_HEARTBEAT_MS", 25_000),
     placeholderDelayMs: integer(env, "SOURCE_TASTER_PLACEHOLDER_DELAY_MS", 500),
     contentRetentionMs: integer(
