@@ -73,6 +73,40 @@ and are not reported as such. The cause was not isolated; it was observed only
 under a sandboxed agent shell, not in a plain terminal. A human should run the
 Firefox projects locally before drawing any conclusion.
 
+### Running the Firefox project
+
+Firefox status: **not run (sandbox launch failure)**. To run it outside a sandbox
+(these are the steps used for the Chromium and WebKit runs above):
+
+```sh
+pnpm install --frozen-lockfile
+mkdir -p .tmp && pnpm pagefind:fetch && pnpm pagefind:build && pnpm pagefind:verify
+pnpm build
+node apps/server/scripts/extractor-image.ts > .tmp/document-image-id   # needs Docker
+pnpm --filter @source-taster/web exec playwright install firefox
+
+# Own PostgreSQL 18; pick any free port (5501 was used here) and remove it afterwards.
+docker run -d --name stxb-pg -p 127.0.0.1:5501:5432 \
+  -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres postgres:18
+
+export DATABASE_ADMIN_URL=postgres://postgres:postgres@127.0.0.1:5501/postgres
+export DATABASE_TEST_URL=postgres://verification_test:verification_test@127.0.0.1:5501/source_taster_test
+export SOURCE_TASTER_DOCUMENT_IMAGE=$(cat .tmp/document-image-id)
+export SOURCE_TASTER_E2E_CROSS_BROWSER=true
+
+cd apps/web
+pnpm exec playwright test --project=firefox
+pnpm exec playwright test --config bibliographic.playwright.config.ts --project=firefox
+cd ../website && pnpm exec playwright test --project=firefox
+
+docker rm -f stxb-pg
+```
+
+The tests create and drop their own databases and roles, so the container needs
+no schema. Expect about 91 + 22 web tests and 92 website tests on Firefox. If
+Firefox fails, look for launch errors in the first failure before reading any
+result as a product defect.
+
 ## Failures and fixes
 
 Three WebKit failures, one cause, **a test-harness limit, not a product bug**:
