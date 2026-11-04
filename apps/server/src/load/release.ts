@@ -24,6 +24,7 @@ export interface LoadReplayInput {
   code: { sha: string; dirty: boolean };
   /** The configuration being released, from the #94 Measured configuration file. */
   expected?: {
+    configurationDigest?: string;
     enabledSources: string[];
     searchSettings: Record<string, unknown> | null;
   };
@@ -141,6 +142,12 @@ export async function checkLoadReplay(
 
   // The exact production configuration measured by the Quality gate (#94).
   if (input.expected) {
+    if (
+      input.expected.configurationDigest &&
+      report.configuration.reviewed?.digest !==
+        input.expected.configurationDigest
+    )
+      reasons.push("load-configuration-digest-mismatch");
     let effective: unknown;
     try {
       effective = JSON.parse(

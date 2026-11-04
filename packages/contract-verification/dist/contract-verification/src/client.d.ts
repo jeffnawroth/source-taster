@@ -64,6 +64,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
             authorsTruncated?: boolean | undefined;
         }[];
     }) => Promise<{
+        measuredConfigurationId?: string | undefined;
         id: string;
         state: "ended" | "running";
         lastEventSeq: number;
@@ -78,6 +79,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 status: "cancelled" | "failed" | "not-checked" | "running";
             } | {
                 kind: "verdict";
+                measuredConfigurationId?: string | undefined;
                 verdict: "correct" | "doi-conflict" | "exists-with-deviations" | "mixed-citation" | "not-found" | "not-verifiable";
                 reference: {
                     originalText: string;
@@ -210,6 +212,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
         }[];
     }>;
     cancelCheck: (checkId: string) => Promise<{
+        measuredConfigurationId?: string | undefined;
         id: string;
         state: "ended" | "running";
         lastEventSeq: number;
@@ -224,6 +227,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 status: "cancelled" | "failed" | "not-checked" | "running";
             } | {
                 kind: "verdict";
+                measuredConfigurationId?: string | undefined;
                 verdict: "correct" | "doi-conflict" | "exists-with-deviations" | "mixed-citation" | "not-found" | "not-verifiable";
                 reference: {
                     originalText: string;
@@ -356,6 +360,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
         }[];
     }>;
     renewCheckLease: (checkId: string) => Promise<{
+        measuredConfigurationId?: string | undefined;
         id: string;
         state: "ended" | "running";
         lastEventSeq: number;
@@ -370,6 +375,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 status: "cancelled" | "failed" | "not-checked" | "running";
             } | {
                 kind: "verdict";
+                measuredConfigurationId?: string | undefined;
                 verdict: "correct" | "doi-conflict" | "exists-with-deviations" | "mixed-citation" | "not-found" | "not-verifiable";
                 reference: {
                     originalText: string;
@@ -502,6 +508,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
         }[];
     }>;
     getCheck: (checkId: string) => Promise<{
+        measuredConfigurationId?: string | undefined;
         id: string;
         state: "ended" | "running";
         lastEventSeq: number;
@@ -516,6 +523,7 @@ export declare function verificationClient(options?: VerificationClientOptions):
                 status: "cancelled" | "failed" | "not-checked" | "running";
             } | {
                 kind: "verdict";
+                measuredConfigurationId?: string | undefined;
                 verdict: "correct" | "doi-conflict" | "exists-with-deviations" | "mixed-citation" | "not-found" | "not-verifiable";
                 reference: {
                     originalText: string;

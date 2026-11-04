@@ -1,6 +1,7 @@
 import { verificationSnapshot } from "../exports/snapshot.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // The Check lock serializes lifecycle, immutable evidence and ordered events.
+import type { ActiveConfiguration } from "@source-taster/contract-internal";
 import { randomBytes, randomUUID } from "node:crypto";
 import {
   CheckEvent,
@@ -64,6 +65,7 @@ type CheckRow = {
   lastSeq: number;
   endReason: string | null;
   document?: unknown;
+  measuredConfiguration?: unknown;
   references: {
     position: number;
     originalText: string;
@@ -80,6 +82,8 @@ type CheckRow = {
     }[];
     results?: {
       id: string;
+      measuredConfigurationId?: string | null;
+      scoringRulesVersion?: string | null;
       revision: number;
       generation: number;
       createdAt: Date;
@@ -96,6 +100,9 @@ type CheckRow = {
 function toCheck(row: CheckRow, leaseRenewAfterMs: number): Check {
   return {
     id: row.id,
+    measuredConfigurationId: (
+      row.measuredConfiguration as ActiveConfiguration | null
+    )?.id,
     document: (row.document ?? null) as BibliographyDocument | null,
     state: row.state as Check["state"],
     lastEventSeq: row.lastSeq,
@@ -141,6 +148,8 @@ function toCheck(row: CheckRow, leaseRenewAfterMs: number): Check {
         })),
         results: (slot.results ?? []).map((r) => ({
           id: r.id,
+          measuredConfigurationId: r.measuredConfigurationId ?? undefined,
+          scoringRulesVersion: r.scoringRulesVersion ?? undefined,
           revision: r.revision,
           generation: r.generation,
           createdAt: r.createdAt.toISOString(),
@@ -238,6 +247,7 @@ export const defaultLifecycleSettings: LifecycleSettings = {
   activeReferencesPerCheck: 10,
 };
 export interface ReferenceAttempt {
+  measuredConfiguration?: ActiveConfiguration;
   guestContextId?: string;
   checkId: string;
   slot: number;
@@ -287,6 +297,7 @@ export function createCheckStore(
   options: {
     clock?: LifecycleClock;
     settings?: Partial<LifecycleSettings>;
+    configuration?: { current(): Promise<ActiveConfiguration> };
   } = {},
 ) {
   const clock = options.clock ?? { now: Date.now };
@@ -329,9 +340,27 @@ export function createCheckStore(
         claimUntil: null,
       },
     });
+    const selected = (
+      await tx.check.findUniqueOrThrow({
+        where: { id: checkId },
+        select: { measuredConfiguration: true },
+      })
+    ).measuredConfiguration as
+      (ActiveConfiguration & { rulesVersion?: string }) | null;
+    if (
+      outcome.kind === "verdict" &&
+      selected &&
+      outcome.measuredConfigurationId !== selected.id
+    )
+      throw new Error("configuration-result-mismatch");
     await tx.referenceResult.create({
       data: {
         id: randomUUID(),
+        measuredConfigurationId: selected?.id,
+        scoringRulesVersion:
+          outcome.kind === "verdict"
+            ? outcome.scoringRules.version
+            : selected?.rulesVersion,
         checkId,
         position: slot,
         generation,
@@ -1293,6 +1322,13 @@ export function createCheckStore(
         await db.report.deleteMany({ where: { id: reportId } });
       },
     },
+    async configurationFor(id: string) {
+      const row = await db.check.findUnique({
+        where: { id },
+        select: { measuredConfiguration: true },
+      });
+      return row?.measuredConfiguration as ActiveConfiguration | null;
+    },
     async create(
       principal: Principal,
       references: StructuredReference[],
@@ -1307,6 +1343,9 @@ export function createCheckStore(
         const row = await tx.check.create({
           data: {
             id: start.id ?? randomUUID(),
+            measuredConfiguration: options.configuration
+              ? await options.configuration.current()
+              : undefined,
             apiVersion,
             document: document
               ? (JSON.parse(JSON.stringify(document)) as Prisma.InputJsonValue)
@@ -1977,6 +2016,8 @@ export function createCheckStore(
           },
         });
         return {
+          measuredConfiguration: check.measuredConfiguration as
+            ActiveConfiguration | undefined,
           apiVersion: check.apiVersion,
           checkId: check.id,
           slot: slot.position,

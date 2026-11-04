@@ -14,7 +14,10 @@ function canonical(value: unknown): string {
       .join(",")}}`;
   return JSON.stringify(value);
 }
-export function previewReceipts(clock: { now(): number }) {
+export function previewReceipts(
+  clock: { now(): number },
+  configuration = () => "standalone",
+) {
   const key = randomBytes(32);
   function signature(
     principal: Principal,
@@ -27,6 +30,7 @@ export function previewReceipts(clock: { now(): number }) {
     return createHmac("sha256", key)
       .update(
         canonical({
+          measuredConfiguration: configuration(),
           ownerId: principal.ownerId,
           actorId: principal.actorId,
           text,

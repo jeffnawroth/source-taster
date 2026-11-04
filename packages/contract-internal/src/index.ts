@@ -260,6 +260,54 @@ export const AbuseDecision = z
   .meta({ id: "AbuseDecision" });
 export type AbuseDecision = z.infer<typeof AbuseDecision>;
 
+/** #114 minimal configuration authority protocol. No corpus, recordings,
+ * measurement outcomes, Check text or provider secrets cross this interface. */
+export const ConfigurationId = z.string().regex(/^sha256:[a-f0-9]{64}$/);
+export const MeasuredConfiguration = z.strictObject({
+  provider: z
+    .strictObject({
+      path: z.string(),
+      region: z.string(),
+      countries: z.array(z.string()),
+      zeroRetention: z.boolean(),
+    })
+    .nullable(),
+  comparisonParameters: z.record(z.string(), z.number()),
+  searchSettings: z.record(z.string(), z.unknown()),
+  id: ConfigurationId,
+  codeVersion: z.string().regex(/^[a-f0-9]{40}$/),
+  configurationDigest: ConfigurationId,
+  rulesVersion: z.string().min(1),
+  model: z.string().nullable(),
+  sources: z.array(z.string()),
+  eligible: z.boolean(),
+  reasons: z.array(z.string()),
+  evidenceDigest: ConfigurationId,
+  checkedAt: z.iso.datetime(),
+});
+export type MeasuredConfiguration = z.infer<typeof MeasuredConfiguration>;
+export const ConfigurationInspection = z.discriminatedUnion("action", [
+  z.strictObject({ action: z.literal("list") }),
+  z.strictObject({
+    action: z.literal("validate"),
+    id: ConfigurationId,
+    evidenceDigest: ConfigurationId,
+  }),
+]);
+export const ConfigurationInspectionResponse = z.strictObject({
+  configurations: z.array(MeasuredConfiguration).max(100),
+});
+export const ActiveConfiguration = z.strictObject({
+  id: ConfigurationId,
+  evidenceDigest: ConfigurationId,
+  operationId: z.uuid(),
+  version: z.number().int().positive().safe(),
+});
+export type ActiveConfiguration = z.infer<typeof ActiveConfiguration>;
+export const ActiveConfigurationResponse = z.strictObject({
+  active: ActiveConfiguration.nullable(),
+});
+
 /** Recipient-only rights delivery. Opaque credential travels only from recipient to
  * verification and in a signed authority request; no content travels to service. */
 export const RightsAuthorityRequest = z.strictObject({

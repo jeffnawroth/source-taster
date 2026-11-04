@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import { ActiveConfiguration } from "@source-taster/contract-internal";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Test composition only: a real process with an IPC-controlled domain clock.
 import { once } from "node:events";
@@ -16,6 +18,21 @@ if (process.env.NODE_ENV !== "test" || !process.send)
 const config = loadConfig();
 let now = Number(process.env.TEST_CLOCK);
 const options = {
+  // Controlled source-only pointer adapter; these values never qualify a build.
+  ...(process.env.TEST_CONFIGURATION_POINTER
+    ? {
+        configuration: {
+          current: async () => ({
+            ...ActiveConfiguration.parse(
+              JSON.parse(
+                await readFile(process.env.TEST_CONFIGURATION_POINTER!, "utf8"),
+              ),
+            ),
+            rulesVersion: "controlled-state-machine-only",
+          }),
+        },
+      }
+    : {}),
   clock: { now: () => now },
   settings: {
     clientLeaseMs: Number(process.env.TEST_CLIENT_LEASE_MS ?? 10_000),
@@ -29,7 +46,10 @@ const checks = createCheckStore(db, boss, options);
 await checks.maintain();
 let stop: () => void | Promise<void>;
 if (process.argv[2] === "worker") {
-  const runtime = await startWorkerRuntime(config, db, boss, options);
+  const runtime = await startWorkerRuntime(config, db, boss, {
+    clock: options.clock,
+    settings: options.settings,
+  });
   stop = () => runtime.stop();
 } else {
   const events = await listenForEvents(config.databaseUrl);

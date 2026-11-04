@@ -1,3 +1,5 @@
+import { configurationSelection } from "../quality/protocol.ts";
+import { measuredConfigurations } from "../quality/activation.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Injectable composition root, also used by real-PG HTTP/SSE lifecycle tests.
 import { setTimeout } from "node:timers/promises";
@@ -42,8 +44,18 @@ export async function startWorkerRuntime(
     authority?: WorkAuthority;
     /** Hosted only: settlement intents are delivered here. */
     quota?: QuotaPort;
+    configuration?: ReturnType<typeof configurationSelection>;
   } = {},
 ) {
+  const registry = measuredConfigurations(
+    process.env.SOURCE_TASTER_MEASURED_CONFIGURATIONS,
+    options.clock,
+  );
+  const selection =
+    options.configuration ??
+    (config.mode === "hosted" && config.hosted
+      ? configurationSelection(config.hosted, registry, options.clock, db)
+      : undefined);
   const settings = {
     contentRetentionMs: config.contentRetentionMs,
     clientLeaseMs: config.clientLeaseMs,
@@ -57,11 +69,17 @@ export async function startWorkerRuntime(
     ...systemSourceClock,
     now: () => (options.clock ? options.clock.now() : Date.now()),
   };
-  function guard<T>(
+  async function guard<T>(
     attempt: WorkSubject,
     boundary: "dispatch" | "source" | "commit",
     operation: () => Promise<T>,
   ) {
+    if (selection) {
+      const snapshot = await checks.configurationFor(attempt.checkId);
+      if (!snapshot) throw new Error("configuration-snapshot-missing");
+      await selection.available();
+      await selection.validate(snapshot);
+    }
     return options.authority
       ? options.authority.run(attempt, boundary, operation)
       : operation();
@@ -150,7 +168,16 @@ export async function startWorkerRuntime(
         await setTimeout(config.placeholderDelayMs, undefined, {
           signal: abort.signal,
         });
-        const verify = referenceExecution(config, db, {
+        const execution = attempt.measuredConfiguration
+          ? await registry.executable(
+              attempt.measuredConfiguration.id,
+              config,
+              attempt.measuredConfiguration.evidenceDigest,
+            )
+          : undefined;
+        if (selection && !execution)
+          throw new Error("configuration-snapshot-missing");
+        const verify = referenceExecution(execution?.config ?? config, db, {
           clock,
           apiVersion: attempt.apiVersion,
           signal: abort.signal,
@@ -213,6 +240,7 @@ export async function startWorkerRuntime(
             outcome.kind === "verdict"
               ? {
                   ...outcome,
+                  measuredConfigurationId: attempt.measuredConfiguration?.id,
                   searchStrategyVersion: `${outcome.searchStrategyVersion}/lifecycle-2${options.authority ? "/guest-authority-1" : ""}`,
                   searchConfiguration: {
                     ...outcome.searchConfiguration,

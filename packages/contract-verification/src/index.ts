@@ -65,6 +65,7 @@ export const CheckId = z.uuid();
 
 export const Check = z
   .object({
+    measuredConfigurationId: z.string().optional(),
     id: CheckId,
     state: CheckState,
     /** Sequence number of the newest event; attach to the stream from here. */

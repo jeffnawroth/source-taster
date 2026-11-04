@@ -1,3 +1,4 @@
+import type { ActiveConfiguration } from "@source-taster/contract-internal";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // HTTP surface of the web process: the published /v1 contract.
 
@@ -103,6 +104,15 @@ export interface AppDeps {
   entrance?: EntranceLimiter;
   structuring: Structuring;
   extraction?: ExtractionPort;
+  configuration?: {
+    identity(): string;
+    extraction(): ExtractionPort | undefined;
+    scope<T>(
+      request: Request,
+      operation: () => Promise<T>,
+      stored?: ActiveConfiguration | null,
+    ): Promise<T>;
+  };
   entitlements: Entitlements;
   checks: CheckStore;
   events: EventListener;
@@ -120,6 +130,7 @@ export function createApp(
     structuring,
     entrance,
     extraction,
+    configuration,
     entitlements,
     checks,
     events,
@@ -143,7 +154,10 @@ export function createApp(
       configuredDocumentBytes,
       initialContext.getStore()?.uploadBytes ?? configuredDocumentBytes,
     );
-  const receipts = previewReceipts(clock);
+  const receipts = previewReceipts(
+    clock,
+    configuration ? () => configuration.identity() : undefined,
+  );
   async function authorize(
     request: Request,
     permission: Permission,
@@ -182,7 +196,10 @@ export function createApp(
       ? entitlements.guard(principal, permission, operation)
       : operation();
   }
+  const activeExtraction = () =>
+    configuration ? configuration.extraction() : extraction;
   async function aiEligibility(principal: Principal) {
+    const extraction = activeExtraction();
     await guarded(principal, "structuring:create", async () => {});
     if (principal.guestContextId) return "guest" as const;
     if (entitlements.quota) {
@@ -227,7 +244,7 @@ export function createApp(
       regions,
       parser: structuring,
       limit: referenceLimit(),
-      port: extraction!,
+      port: activeExtraction()!,
       signal,
       authorize: async () => {
         if (await aiEligibility(principal)) fail("forbidden");
@@ -389,6 +406,17 @@ export function createApp(
     },
   });
 
+  if (configuration && apiVersion === 1)
+    app.use("*", async (c, next) => {
+      const match = c.req.path.match(
+        /^\/v[12]\/checks\/([a-f0-9-]{36})(?:\/|$)/,
+      );
+      const stored =
+        match && c.req.method === "POST"
+          ? await checks.configurationFor(match[1]!)
+          : undefined;
+      await configuration.scope(c.req.raw, next, stored);
+    });
   app.onError((error) => {
     if (error instanceof InvalidBibliographySelection)
       return problemResponse("invalid-request");
@@ -1417,6 +1445,7 @@ export function createApp(
         {
           structuring,
           extraction,
+          configuration,
           entitlements,
           checks,
           events,
