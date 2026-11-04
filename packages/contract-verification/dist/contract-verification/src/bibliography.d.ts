@@ -1,18 +1,6 @@
 import { z } from "zod";
-export declare const CitationStyle: z.ZodEnum<{
-    acs: "acs";
-    ama: "ama";
-    apa: "apa";
-    chicago: "chicago";
-    "din-iso-690": "din-iso-690";
-    harvard: "harvard";
-    ieee: "ieee";
-    mla: "mla";
-    oxford: "oxford";
-    springer: "springer";
-    vancouver: "vancouver";
-}>;
-export type CitationStyle = z.infer<typeof CitationStyle>;
+import { CitationStyle } from "../../contract-common/src/index.ts";
+export { CitationStyle };
 export declare const BibliographyRequest: z.ZodObject<{
     style: z.ZodEnum<{
         acs: "acs";
@@ -88,6 +76,7 @@ export declare const Bibliography: z.ZodObject<{
             }, z.core.$strip>;
         }, z.core.$strip>>;
         applied: z.ZodBoolean;
+        resultToken: z.ZodOptional<z.ZodString>;
     }, z.core.$strip>>;
     bibliography: z.ZodNullable<z.ZodObject<{
         text: z.ZodString;
@@ -148,6 +137,7 @@ export declare const BibliographyResponse: z.ZodObject<{
                 }, z.core.$strip>;
             }, z.core.$strip>>;
             applied: z.ZodBoolean;
+            resultToken: z.ZodOptional<z.ZodString>;
         }, z.core.$strip>>;
         bibliography: z.ZodNullable<z.ZodObject<{
             text: z.ZodString;
@@ -158,7 +148,37 @@ export declare const BibliographyResponse: z.ZodObject<{
     quota: z.ZodUnion<readonly [z.ZodObject<{
         consumed: z.ZodNumber;
         remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                "check-pack": "check-pack";
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+                pro: "pro";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
+        history: z.ZodOptional<z.ZodObject<{
+            extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+            authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
+        }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;

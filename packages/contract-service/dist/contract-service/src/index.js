@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 import { z } from "zod";
-import { envelope } from "../../contract-common/src/index.js";
+import { CitationStyle, envelope } from "../../contract-common/src/index.js";
 export * from "../../contract-common/src/index.js";
 /** Infrastructure readiness only. This grants no identity, permission or Quota. */
 export const ServiceStatusResponse = envelope(z.object({
@@ -18,3 +18,97 @@ export const GuestTokenResponse = envelope(z.strictObject({
     expiresAt: z.iso.datetime(),
     expiresIn: z.literal(300),
 })).meta({ id: "GuestTokenResponse" });
+/** Account data only: never Check content, Guest identity or theme/onboarding hooks. */
+export const AccountPreferences = z.strictObject({
+    language: z.enum(["de", "en"]),
+    citationStyle: CitationStyle,
+});
+export const AccountPreferencesPatch = AccountPreferences.partial().refine((patch) => Object.values(patch).some((value) => value !== undefined), { message: "At least one Preference is required" });
+// Reads tolerate a removed style so clients can display the required APA fallback notice.
+export const AccountPreferencesResponse = envelope(AccountPreferences.extend({ citationStyle: z.string().min(1).max(128) })).meta({ id: "AccountPreferencesResponse" });
+/** Browser session credentials are cookies, never fields in these responses. */
+export const SignInChallengeRequest = z.strictObject({
+    email: z.email().max(254),
+    language: z.enum(["de", "en"]),
+});
+export const SignInChallengeResponse = envelope(z.strictObject({
+    challengeId: z.uuid(),
+    expiresIn: z.number().int().positive().max(300),
+    resendAfter: z.number().int().min(60),
+})).meta({ id: "SignInChallengeResponse" });
+export const SignInConfirmRequest = z.strictObject({
+    challengeId: z.uuid(),
+    code: z.string().regex(/^[0-9]{6}$/),
+    /** Adopt only when creating an Account; existing Accounts ignore these values. */
+    preferences: AccountPreferences.optional(),
+});
+export const AccountSessionResponse = envelope(z.strictObject({ accountId: z.uuid(), ownerId: z.uuid(), email: z.email() })).meta({ id: "AccountSessionResponse" });
+export const AccountTokenResponse = GuestTokenResponse.meta({
+    id: "AccountTokenResponse",
+});
+export const SignOutRequest = z.strictObject({ everywhere: z.boolean() });
+export const SignOutResponse = envelope(z.strictObject({ signedOut: z.literal(true) })).meta({ id: "SignOutResponse" });
+/** Separate opaque bearer secrets, never verification-API access tokens.
+ * Transaction secrets live only until confirmation; session secrets may live
+ * only in trusted extension-local storage (ADR-0013/0015). */
+export const ExtensionCredential = z.string().regex(/^[A-Za-z0-9_-]{32,512}$/);
+export const ExtensionSignInChallengeResponse = envelope(SignInChallengeResponse.shape.data.extend({
+    transactionCredential: ExtensionCredential,
+})).meta({ id: "ExtensionSignInChallengeResponse" });
+export const ExtensionSignInConfirmRequest = SignInConfirmRequest.extend({
+    transactionCredential: ExtensionCredential,
+});
+export const ExtensionSignInConfirmResponse = envelope(z.strictObject({
+    session: AccountSessionResponse.shape.data,
+    sessionCredential: ExtensionCredential,
+})).meta({ id: "ExtensionSignInConfirmResponse" });
+/** #102 sensitive Account actions (ADR-0013). Proof is a server-side fact bound
+ * to the requesting session and one action; it is never a bearer value, never in
+ * a URL and never returned to the browser. `expiresAt` is display information. */
+export const SensitiveAction = z.enum(["email-change", "account-deletion"]);
+export const FreshProofChallengeRequest = z.strictObject({
+    action: SensitiveAction,
+    language: z.enum(["de", "en"]),
+});
+export const FreshProofChallengeResponse = envelope(z.strictObject({
+    challengeId: z.uuid(),
+    action: SensitiveAction,
+    expiresIn: z.number().int().positive().max(300),
+    resendAfter: z.number().int().min(60),
+})).meta({ id: "FreshProofChallengeResponse" });
+export const FreshProofConfirmRequest = SignInConfirmRequest.meta({
+    id: "FreshProofConfirmRequest",
+});
+export const FreshProofResponse = envelope(z.strictObject({
+    action: SensitiveAction,
+    expiresAt: z.iso.datetime(),
+    expiresIn: z.number().int().positive().max(300),
+})).meta({ id: "FreshProofResponse" });
+export const EmailChangeChallengeRequest = z.strictObject({
+    newEmail: z.email().max(254),
+    language: z.enum(["de", "en"]),
+});
+/** Identical for every new address: existing and unknown ones are not told apart. */
+export const EmailChangeChallengeResponse = envelope(SignInChallengeResponse.shape.data).meta({ id: "EmailChangeChallengeResponse" });
+export const EmailChangeConfirmRequest = SignInConfirmRequest.meta({
+    id: "EmailChangeConfirmRequest",
+});
+/** The eight-year blocked billing-retention notice must be acknowledged by value. */
+export const AccountDeletionRequest = z.strictObject({
+    billingRetentionAcknowledged: z.literal(true),
+    billingRetentionYears: z.literal(8),
+});
+export const AccountDeletionResponse = envelope(z.strictObject({
+    /** `in-progress`: durable retries continue and access stays blocked (ADR-0013). */
+    status: z.enum(["deleted", "in-progress"]),
+})).meta({ id: "AccountDeletionResponse" });
+/** Problem `code` values the sensitive-action endpoints may use. */
+export const sensitiveProblemCodes = [
+    "fresh-proof-required",
+    "fresh-proof-invalid",
+    "fresh-proof-exhausted",
+    "email-change-invalid",
+    "rate-limited",
+];
+export * from "./commerce.js";
+export * from "./dpa.js";

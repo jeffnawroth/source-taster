@@ -1,0 +1,28 @@
+{
+  "headRefOid": "6537c7c525c391a43d7b55be0a33f0c25ee04c83",
+  "isDraft": true,
+  "reviewDecision": "",
+  "statusCheckRollup": [
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-11-02T17:03:52Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/jeffnawroth/source-taster-service/actions/runs/41486364822/job/125417651961",
+      "name": "checks",
+      "startedAt": "2026-11-02T16:56:41Z",
+      "status": "COMPLETED",
+      "workflowName": "Private service skeleton"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-11-02T16:57:34Z",
+      "conclusion": "FAILURE",
+      "detailsUrl": "https://github.com/jeffnawroth/source-taster-service/actions/runs/41486364822/job/125417652387",
+      "name": "dependencies",
+      "startedAt": "2026-11-02T16:56:41Z",
+      "status": "COMPLETED",
+      "workflowName": "Private service skeleton"
+    }
+  ],
+  "url": "https://github.com/jeffnawroth/source-taster-service/pull/9"
+}

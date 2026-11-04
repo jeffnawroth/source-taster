@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
+import { entranceLimitResponse } from "../../contract-common/src/index.js";
 import { createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 import { CheckId, ProblemDetails, PROBLEM_CONTENT_TYPE } from "./index.js";
@@ -20,6 +21,7 @@ export const renderBibliography = createRoute({
         },
     },
     responses: {
+        429: entranceLimitResponse,
         200: {
             description: "Requested suggestions and, by default, a complete RTF document rendered locally on the server.",
             content: { "application/json": { schema: BibliographyResponse } },
@@ -28,6 +30,7 @@ export const renderBibliography = createRoute({
         401: problem("A valid verification access token is required."),
         403: problem("Current authority denies Check reading."),
         404: problem("No such Check for this Owner."),
+        410: problem("The Check expired."),
         503: problem("Current authority or bounded formatting capacity is unavailable."),
     },
 });

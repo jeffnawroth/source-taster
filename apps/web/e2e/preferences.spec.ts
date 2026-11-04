@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { expect, test } from "@playwright/test";
+import { checkStatus } from "./check-status.ts";
 import AxeBuilder from "@axe-core/playwright";
 
 test("Guest language and citation style persist independently without losing input", async ({
@@ -124,7 +125,7 @@ test("disabled browser storage still allows Preferences and a Check", async ({
   await page
     .getByRole("button", { name: "Check Reference", exact: true })
     .click();
-  await expect(page.getByRole("status")).toContainText("Finished");
+  await expect(checkStatus(page)).toContainText("Finished");
   await expect(
     page.getByRole("combobox", {
       name: "Preferred citation style",

@@ -1,0 +1,15 @@
+{
+  "host": "127.0.0.1",
+  "port": 5502,
+  "intervalMs": 30000,
+  "timeZone": "Europe/Berlin",
+  "probes": {
+    "verification": "https://VERIFICATION.invalid/health/ready",
+    "service": "https://SERVICE.invalid/health/ready",
+    "synthetic": "https://QUALIFIED-MONITOR.invalid/synthetic",
+    "signin": "https://QUALIFIED-MONITOR.invalid/signin"
+  },
+  "heartbeat": "https://uptime.betterstack.com/api/v1/heartbeat/PROVISION_REQUIRED",
+  "stateFile": "/run/status/last-delivery.json",
+  "maintenanceFile": "/run/status/maintenance.json"
+}

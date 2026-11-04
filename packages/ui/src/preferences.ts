@@ -2,20 +2,8 @@
 
 export type InterfaceLanguage = "de" | "en";
 
-/** Style identifiers and fixed locales follow ADR-0011; rendering is server-owned. */
-export const citationStyles = [
-  { id: "apa", locale: "en-US" },
-  { id: "mla", locale: "en-US" },
-  { id: "chicago", locale: "en-US" },
-  { id: "ieee", locale: "en-US" },
-  { id: "vancouver", locale: "en-US" },
-  { id: "harvard", locale: "en-GB" },
-  { id: "acs", locale: "en-US" },
-  { id: "ama", locale: "en-US" },
-  { id: "oxford", locale: "en-GB" },
-  { id: "springer", locale: "en-US" },
-  { id: "din-iso-690", locale: "de-DE" },
-] as const;
+import { citationStyles } from "@source-taster/contract-service";
+export { citationStyles };
 export type CitationStyle = (typeof citationStyles)[number]["id"];
 export interface Preferences {
   language: InterfaceLanguage;
@@ -94,7 +82,7 @@ export async function saveGuestPreferences(
   });
 }
 
-/** FA-KON-30 hook, local even when Account Preferences are added later. */
+/** FA-KON-30 hook, local even while signed in. */
 export async function hasSeenOnboarding(
   storage: PreferenceStorage,
 ): Promise<boolean> {

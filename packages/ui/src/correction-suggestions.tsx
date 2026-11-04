@@ -15,7 +15,17 @@ export function useBibliography(
   selectedSlot: number | undefined,
 ) {
   const request = useMemo(() => bibliographyClient(transport), [transport]);
-  const [applied, setApplied] = useState<number[]>([]);
+  const [choices, setChoices] = useState<
+    { slot: number; resultToken: string; outcome: string }[]
+  >([]);
+  const selected = choices.filter((choice) =>
+    check.references.some(
+      (reference) =>
+        reference.slot === choice.slot &&
+        JSON.stringify(reference.outcome) === choice.outcome,
+    ),
+  );
+  const applied = selected.map((choice) => choice.slot);
   const [response, setResponse] = useState<{
     key: string;
     contentKey: string;
@@ -31,14 +41,15 @@ export function useBibliography(
   const results = check.references
     .filter((reference) => slots.includes(reference.slot))
     .map(
-      (reference) =>
-        `${reference.slot}:${reference.outcome.kind === "verdict" ? "verdict" : reference.outcome.status}`,
+      (reference) => `${reference.slot}:${JSON.stringify(reference.outcome)}`,
     )
     .join(",");
   const contentKey = `${check.id}:${style}:${results}`;
   const key = `${contentKey}:${applied.join(",")}:${attempt}`;
+  const appliedKey = applied.join(",");
   useEffect(() => {
     let current = true;
+    const applied = appliedKey ? appliedKey.split(",").map(Number) : [];
     const suggestionSlots = [
       ...new Set([...applied, ...(selectedSlot ? [selectedSlot] : [])]),
     ];
@@ -60,8 +71,21 @@ export function useBibliography(
     return () => {
       current = false;
     };
-  }, [request, check.id, style, applied, selectedSlot, key, contentKey]);
+  }, [request, check.id, style, appliedKey, selectedSlot, key, contentKey]);
+  const corrections = selected.filter(
+    (choice) =>
+      response?.contentKey === contentKey &&
+      response.data.entries.some(
+        (entry) =>
+          entry.slot === choice.slot &&
+          entry.resultToken === choice.resultToken,
+      ),
+  );
   return {
+    corrections: corrections.map(({ slot, resultToken }) => ({
+      slot,
+      resultToken,
+    })),
     style,
     data:
       response?.contentKey === contentKey
@@ -70,7 +94,8 @@ export function useBibliography(
             entries: response.data.entries.map((entry) => ({
               ...entry,
               applied:
-                entry.suggestion !== null && applied.includes(entry.slot),
+                entry.suggestion !== null &&
+                corrections.some((choice) => choice.slot === entry.slot),
             })),
           }
         : null,
@@ -80,22 +105,34 @@ export function useBibliography(
     renderExport: async () => {
       const data = await request(check.id, {
         style,
-        applySlots: applied,
+        applySlots: corrections.map((choice) => choice.slot),
         suggestionSlots: [],
         includeBibliography: true,
       });
       if (!data.bibliography) throw new Error("missing-bibliography");
       return data.bibliography;
     },
-    apply: (slot: number, selected: boolean) =>
-      setApplied((current) =>
-        selected
-          ? [...new Set([...current, slot])]
-          : current.filter((value) => value !== slot),
-      ),
+    apply: (slot: number, selected: boolean) => {
+      const entry = response?.data.entries.find((entry) => entry.slot === slot);
+      const reference = check.references.find(
+        (reference) => reference.slot === slot,
+      );
+      setChoices((current) => [
+        ...current.filter((choice) => choice.slot !== slot),
+        ...(selected && entry?.resultToken && reference
+          ? [
+              {
+                slot,
+                resultToken: entry.resultToken,
+                outcome: JSON.stringify(reference.outcome),
+              },
+            ]
+          : []),
+      ]);
+    },
   };
 }
-type Rendered = ReturnType<typeof useBibliography>;
+export type Rendered = ReturnType<typeof useBibliography>;
 function downloadRtf(rtf: string) {
   const url = URL.createObjectURL(new Blob([rtf], { type: "application/rtf" }));
   const link = document.createElement("a");

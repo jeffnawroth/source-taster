@@ -233,8 +233,38 @@ export declare const StructuringResponse: z.ZodObject<{
     quota: z.ZodUnion<readonly [z.ZodObject<{
         consumed: z.ZodNumber;
         remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                "check-pack": "check-pack";
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+                pro: "pro";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
+        history: z.ZodOptional<z.ZodObject<{
+            extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+            authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
+        }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export type StructuringResult = z.infer<typeof StructuringResult>;

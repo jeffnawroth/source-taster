@@ -1,0 +1,2 @@
+CREATE TABLE verification.export_snapshots(id uuid PRIMARY KEY,request_id uuid NOT NULL,binding text NOT NULL,created_at timestamptz(3) NOT NULL,expires_at timestamptz(3) NOT NULL,UNIQUE(request_id,binding));
+CREATE TABLE verification.export_members(snapshot_id uuid NOT NULL REFERENCES verification.export_snapshots(id) ON DELETE CASCADE,collection text NOT NULL,parent text NOT NULL DEFAULT '',sort text NOT NULL,key jsonb NOT NULL,version text NOT NULL,PRIMARY KEY(snapshot_id,collection,parent,sort));

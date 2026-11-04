@@ -25,3 +25,17 @@ test-results-guest/
 test-results-firefox/
 
 test-results-bibliographic/
+
+test-results-account/
+test-results-selection/
+apps/web/test-results-*/
+
+test-results-ai/
+apps/extension/test-results-history/
+test-results-report/
+test-results-private/
+
+apps/extension/test-results-dpa/
+
+# Protected qualification checkout exists only in the manual deployment job.
+.qualification/

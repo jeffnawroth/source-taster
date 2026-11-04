@@ -80,7 +80,7 @@ test("Check and Structuring show a safe localized Problem for a non-JSON server 
       body: "upstream unavailable",
     }),
   );
-  await page.route("**/v1/structurings", (route) =>
+  await page.route("**/v2/structurings", (route) =>
     route.fulfill({
       status: 502,
       contentType: "text/html",

@@ -25,6 +25,7 @@ export declare const ReferenceOutcome: z.ZodDiscriminatedUnion<[z.ZodObject<{
     }>;
 }, z.core.$strict>, z.ZodObject<{
     kind: z.ZodLiteral<"verdict">;
+    measuredConfigurationId: z.ZodOptional<z.ZodString>;
     verdict: z.ZodEnum<{
         correct: "correct";
         "doi-conflict": "doi-conflict";
@@ -235,6 +236,7 @@ export declare const ReferenceSlot: z.ZodObject<{
         }>;
     }, z.core.$strict>, z.ZodObject<{
         kind: z.ZodLiteral<"verdict">;
+        measuredConfigurationId: z.ZodOptional<z.ZodString>;
         verdict: z.ZodEnum<{
             correct: "correct";
             "doi-conflict": "doi-conflict";
@@ -434,6 +436,7 @@ export declare const CheckState: z.ZodEnum<{
 export type CheckState = z.infer<typeof CheckState>;
 export declare const CheckId: z.ZodUUID;
 export declare const Check: z.ZodObject<{
+    measuredConfigurationId: z.ZodOptional<z.ZodString>;
     id: z.ZodUUID;
     state: z.ZodEnum<{
         ended: "ended";
@@ -460,6 +463,7 @@ export declare const Check: z.ZodObject<{
             }>;
         }, z.core.$strict>, z.ZodObject<{
             kind: z.ZodLiteral<"verdict">;
+            measuredConfigurationId: z.ZodOptional<z.ZodString>;
             verdict: z.ZodEnum<{
                 correct: "correct";
                 "doi-conflict": "doi-conflict";
@@ -654,6 +658,7 @@ export declare const Check: z.ZodObject<{
 export type Check = z.infer<typeof Check>;
 export declare const CheckResponse: z.ZodObject<{
     data: z.ZodObject<{
+        measuredConfigurationId: z.ZodOptional<z.ZodString>;
         id: z.ZodUUID;
         state: z.ZodEnum<{
             ended: "ended";
@@ -680,6 +685,7 @@ export declare const CheckResponse: z.ZodObject<{
                 }>;
             }, z.core.$strict>, z.ZodObject<{
                 kind: z.ZodLiteral<"verdict">;
+                measuredConfigurationId: z.ZodOptional<z.ZodString>;
                 verdict: z.ZodEnum<{
                     correct: "correct";
                     "doi-conflict": "doi-conflict";
@@ -874,8 +880,38 @@ export declare const CheckResponse: z.ZodObject<{
     quota: z.ZodUnion<readonly [z.ZodObject<{
         consumed: z.ZodNumber;
         remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                "check-pack": "check-pack";
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+                pro: "pro";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
+        history: z.ZodOptional<z.ZodObject<{
+            extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+            authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
+        }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export type CheckResponse = z.infer<typeof CheckResponse>;
@@ -946,6 +982,7 @@ export declare const ReferenceUpdatedEvent: z.ZodObject<{
             }>;
         }, z.core.$strict>, z.ZodObject<{
             kind: z.ZodLiteral<"verdict">;
+            measuredConfigurationId: z.ZodOptional<z.ZodString>;
             verdict: z.ZodEnum<{
                 correct: "correct";
                 "doi-conflict": "doi-conflict";
@@ -1167,6 +1204,7 @@ export declare const CheckEvent: z.ZodDiscriminatedUnion<[z.ZodObject<{
             }>;
         }, z.core.$strict>, z.ZodObject<{
             kind: z.ZodLiteral<"verdict">;
+            measuredConfigurationId: z.ZodOptional<z.ZodString>;
             verdict: z.ZodEnum<{
                 correct: "correct";
                 "doi-conflict": "doi-conflict";

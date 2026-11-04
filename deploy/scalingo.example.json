@@ -1,0 +1,17 @@
+{
+  "program": "verification",
+  "commit": "REQUIRES_REVIEWED_EXACT_COMMIT",
+  "region": "osc-fr1",
+  "appId": "REQUIRES_PROVISIONED_SCALINGO_UUID",
+  "runtime": "node24-pg18",
+  "mode": "hosted",
+  "measuredConfiguration": "REQUIRES_REAL_MEASURED_CONFIGURATION_ID",
+  "providerRegisterSha256": "REQUIRES_REVIEWED_PROVIDER_REGISTER_DIGEST",
+  "extraction": {
+    "enforcement": "os-enforced",
+    "image": "REQUIRES_QUALIFIED_IMMUTABLE_EXTRACTION_IMAGE"
+  },
+  "configurationDigest": "REQUIRES_REAL_REVIEWED_CONFIGURATION_DIGEST",
+  "measuredConfigurationEvidence": "REQUIRES_REVALIDATED_114_EVIDENCE_DIGEST",
+  "registrySha256": "REQUIRES_IMMUTABLE_REGISTRY_BYTES_SHA256"
+}

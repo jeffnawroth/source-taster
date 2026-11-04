@@ -1,0 +1,3 @@
+# Alternative to scaling backup=1 (never enable both). UTC; install only by human.
+# The environment contains only this program's DB role, S3 export credentials and public key.
+0 */6 * * * cd /app && node apps/server/ops/backup.mjs export

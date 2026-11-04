@@ -6,6 +6,926 @@
   },
   "components": {
     "schemas": {
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "available": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "required": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "retryAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "code": {
+            "type": "string"
+          },
+          "i18nKey": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "code",
+          "i18nKey"
+        ]
+      },
+      "AbusePolicy": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "cacheMs": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          },
+          "initial": {
+            "type": "object",
+            "properties": {
+              "referenceLimit": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000
+              },
+              "uploadBytes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 20971520
+              }
+            },
+            "required": [
+              "referenceLimit",
+              "uploadBytes"
+            ],
+            "additionalProperties": false
+          },
+          "public": {
+            "type": "object",
+            "properties": {
+              "principal": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "limit": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0,
+                      "maximum": 1000000000
+                    },
+                    "windowMs": {
+                      "type": "integer",
+                      "minimum": 1000,
+                      "maximum": 86400000
+                    }
+                  },
+                  "required": [
+                    "limit",
+                    "windowMs"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "guest": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1000000000
+                  },
+                  "windowMs": {
+                    "type": "integer",
+                    "minimum": 1000,
+                    "maximum": 86400000
+                  }
+                },
+                "required": [
+                  "limit",
+                  "windowMs"
+                ],
+                "additionalProperties": false
+              },
+              "allGuests": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1000000000
+                  },
+                  "windowMs": {
+                    "type": "integer",
+                    "minimum": 1000,
+                    "maximum": 86400000
+                  }
+                },
+                "required": [
+                  "limit",
+                  "windowMs"
+                ],
+                "additionalProperties": false
+              },
+              "origin": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1000000000
+                  },
+                  "windowMs": {
+                    "type": "integer",
+                    "minimum": 1000,
+                    "maximum": 86400000
+                  }
+                },
+                "required": [
+                  "limit",
+                  "windowMs"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "principal",
+              "guest",
+              "allGuests",
+              "origin"
+            ],
+            "additionalProperties": false
+          },
+          "shared": {
+            "type": "object",
+            "properties": {
+              "principal": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "limit": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0,
+                      "maximum": 1000000000
+                    },
+                    "windowMs": {
+                      "type": "integer",
+                      "minimum": 1000,
+                      "maximum": 86400000
+                    }
+                  },
+                  "required": [
+                    "limit",
+                    "windowMs"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "guest": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1000000000
+                  },
+                  "windowMs": {
+                    "type": "integer",
+                    "minimum": 1000,
+                    "maximum": 86400000
+                  }
+                },
+                "required": [
+                  "limit",
+                  "windowMs"
+                ],
+                "additionalProperties": false
+              },
+              "allGuests": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1000000000
+                  },
+                  "windowMs": {
+                    "type": "integer",
+                    "minimum": 1000,
+                    "maximum": 86400000
+                  }
+                },
+                "required": [
+                  "limit",
+                  "windowMs"
+                ],
+                "additionalProperties": false
+              },
+              "origin": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1000000000
+                  },
+                  "windowMs": {
+                    "type": "integer",
+                    "minimum": 1000,
+                    "maximum": 86400000
+                  }
+                },
+                "required": [
+                  "limit",
+                  "windowMs"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "principal",
+              "guest",
+              "allGuests",
+              "origin"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "version",
+          "cacheMs",
+          "public",
+          "shared"
+        ],
+        "additionalProperties": false
+      },
+      "AbuseDecision": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "allowed": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ]
+              },
+              "policyVersion": {
+                "type": "string"
+              },
+              "planId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              }
+            },
+            "required": [
+              "allowed",
+              "policyVersion",
+              "planId"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "allowed": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
+              },
+              "planId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              "policyVersion": {
+                "type": "string"
+              },
+              "retryAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "allowed",
+              "planId",
+              "policyVersion",
+              "retryAt"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "AbuseEntrance": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "program": {
+            "type": "string",
+            "enum": [
+              "verification"
+            ]
+          },
+          "policyVersion": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "principal": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "ownerId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "actorId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "guestId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "guestContextId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "sessionId": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "ownerId",
+              "actorId"
+            ],
+            "additionalProperties": false
+          },
+          "origins": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "windowMs": {
+                  "type": "integer",
+                  "minimum": 1000,
+                  "maximum": 86400000
+                },
+                "windowStart": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "keyId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "hash": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "required": [
+                "windowMs",
+                "windowStart",
+                "keyId",
+                "hash"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 2
+          }
+        },
+        "required": [
+          "requestId",
+          "program",
+          "policyVersion",
+          "principal",
+          "origins"
+        ],
+        "additionalProperties": false
+      },
+      "QuotaSnapshotResponse": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "outcome": {
+                "type": "string",
+                "enum": [
+                  "granted"
+                ]
+              },
+              "quota": {
+                "$ref": "#/components/schemas/Quota"
+              }
+            },
+            "required": [
+              "outcome",
+              "quota"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "outcome": {
+                "type": "string",
+                "enum": [
+                  "denied"
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "enum": [
+                  "revoked",
+                  "forbidden",
+                  "unknown"
+                ]
+              }
+            },
+            "required": [
+              "outcome",
+              "reason"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Quota": {
+        "type": "object",
+        "properties": {
+          "consumed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "remaining": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "granted": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reserved": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "warning": {
+            "$ref": "#/components/schemas/QuotaWarning"
+          },
+          "grants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuotaGrantView"
+            },
+            "maxItems": 50
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "maxItems": 20
+          },
+          "history": {
+            "type": "object",
+            "properties": {
+              "extendedUntil": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "authorityVersion": {
+                "type": "integer",
+                "exclusiveMinimum": 0
+              },
+              "settingsVersion": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "freeHistoryChecks": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000
+              },
+              "freeHistoryDays": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 365
+              },
+              "paidHistoryDays": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 365
+              }
+            },
+            "required": [
+              "extendedUntil",
+              "authorityVersion"
+            ]
+          }
+        },
+        "required": [
+          "consumed",
+          "remaining",
+          "granted",
+          "reserved",
+          "warning",
+          "grants",
+          "features"
+        ]
+      },
+      "QuotaWarning": {
+        "type": "string",
+        "enum": [
+          "none",
+          "eighty",
+          "exhausted"
+        ]
+      },
+      "QuotaGrantView": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "guest",
+              "free",
+              "credit",
+              "check-pack",
+              "pro"
+            ]
+          },
+          "granted": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "remaining": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "kind",
+          "granted",
+          "remaining",
+          "expiresAt"
+        ]
+      },
+      "QuotaSnapshotRequest": {
+        "type": "object",
+        "properties": {
+          "ownerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "actorId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "ownerId",
+          "actorId"
+        ],
+        "additionalProperties": false
+      },
+      "QuotaReserveResponse": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "outcome": {
+                "type": "string",
+                "enum": [
+                  "reserved"
+                ]
+              },
+              "free": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0
+                },
+                "maxItems": 2000
+              },
+              "reserved": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "quota": {
+                "$ref": "#/components/schemas/Quota"
+              }
+            },
+            "required": [
+              "outcome",
+              "free",
+              "reserved",
+              "quota"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "outcome": {
+                "type": "string",
+                "enum": [
+                  "insufficient"
+                ]
+              },
+              "available": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "required": {
+                "type": "integer",
+                "exclusiveMinimum": 0
+              },
+              "quota": {
+                "$ref": "#/components/schemas/Quota"
+              }
+            },
+            "required": [
+              "outcome",
+              "available",
+              "required",
+              "quota"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "outcome": {
+                "type": "string",
+                "enum": [
+                  "denied"
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "enum": [
+                  "revoked",
+                  "forbidden",
+                  "unknown"
+                ]
+              }
+            },
+            "required": [
+              "outcome",
+              "reason"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "QuotaReserveRequest": {
+        "type": "object",
+        "properties": {
+          "ownerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "actorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "checkId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "slots": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "position": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0
+                },
+                "generation": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "position",
+                "generation"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 2000
+          }
+        },
+        "required": [
+          "ownerId",
+          "actorId",
+          "checkId",
+          "key",
+          "slots"
+        ],
+        "additionalProperties": false
+      },
+      "QuotaSettleResponse": {
+        "type": "object",
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "debited",
+              "released",
+              "free",
+              "forgiven",
+              "ignored"
+            ]
+          }
+        },
+        "required": [
+          "outcome"
+        ],
+        "additionalProperties": false
+      },
+      "QuotaSettleRequest": {
+        "type": "object",
+        "properties": {
+          "ownerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "actorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "checkId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "position": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "generation": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "verdict",
+              "release"
+            ]
+          }
+        },
+        "required": [
+          "ownerId",
+          "actorId",
+          "checkId",
+          "position",
+          "generation",
+          "outcome"
+        ],
+        "additionalProperties": false
+      },
+      "QuotaReleaseResponse": {
+        "type": "object",
+        "properties": {
+          "released": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "released"
+        ],
+        "additionalProperties": false
+      },
+      "QuotaReleaseRequest": {
+        "type": "object",
+        "properties": {
+          "ownerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "actorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "checkId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "ownerId",
+          "actorId",
+          "checkId",
+          "key"
+        ],
+        "additionalProperties": false
+      },
+      "AuthorityResponse": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "allowed": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ]
+              },
+              "version": {
+                "type": "integer",
+                "exclusiveMinimum": 0
+              }
+            },
+            "required": [
+              "allowed",
+              "version"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "allowed": {
+                "type": "boolean",
+                "enum": [
+                  false
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "enum": [
+                  "revoked",
+                  "forbidden",
+                  "unknown"
+                ]
+              }
+            },
+            "required": [
+              "allowed",
+              "reason"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
       "MailRehearsalResponse": {
         "type": "object",
         "properties": {
@@ -58,6 +978,21 @@
                 "additionalProperties": false
               },
               {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
                 "type": "null"
               }
             ]
@@ -66,57 +1001,6 @@
         "required": [
           "data",
           "quota"
-        ]
-      },
-      "Quota": {
-        "type": "object",
-        "properties": {
-          "consumed": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "remaining": {
-            "type": "integer",
-            "minimum": 0
-          }
-        },
-        "required": [
-          "consumed",
-          "remaining"
-        ]
-      },
-      "ProblemDetails": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "status": {
-            "type": "integer"
-          },
-          "detail": {
-            "type": "string"
-          },
-          "limit": {
-            "type": "integer",
-            "exclusiveMinimum": 0
-          },
-          "code": {
-            "type": "string"
-          },
-          "i18nKey": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "type",
-          "title",
-          "status",
-          "code",
-          "i18nKey"
         ]
       },
       "MailRehearsalRequest": {
@@ -134,59 +1018,652 @@
           "language"
         ],
         "additionalProperties": false
-      },
-      "AuthorityResponse": {
-        "oneOf": [
-          {
-            "type": "object",
-            "properties": {
-              "allowed": {
-                "type": "boolean",
-                "enum": [
-                  true
-                ]
-              },
-              "version": {
-                "type": "integer",
-                "exclusiveMinimum": 0
-              }
-            },
-            "required": [
-              "allowed",
-              "version"
-            ],
-            "additionalProperties": false
-          },
-          {
-            "type": "object",
-            "properties": {
-              "allowed": {
-                "type": "boolean",
-                "enum": [
-                  false
-                ]
-              },
-              "reason": {
-                "type": "string",
-                "enum": [
-                  "revoked",
-                  "forbidden",
-                  "unknown"
-                ]
-              }
-            },
-            "required": [
-              "allowed",
-              "reason"
-            ],
-            "additionalProperties": false
-          }
-        ]
       }
     },
     "parameters": {}
   },
   "paths": {
+    "/internal/data-subject-authority": {
+      "post": {
+        "summary": "Current purpose-limited recipient authority and content-free delivery acknowledgement",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "accessToken": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{43}$"
+                  },
+                  "phase": {
+                    "type": "string",
+                    "enum": [
+                      "authorize",
+                      "served",
+                      "delivered"
+                    ]
+                  },
+                  "completionVerifier": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "completionToken": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{43}$"
+                  }
+                },
+                "required": [
+                  "requestId",
+                  "accessToken",
+                  "phase"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Current verified recipient scope, never export content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "requestId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "accountId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "ownerId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "expiresAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "purpose": {
+                      "type": "string",
+                      "enum": [
+                        "data-subject-delivery"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "requestId",
+                    "accountId",
+                    "ownerId",
+                    "expiresAt",
+                    "purpose"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/abuse/policy": {
+      "post": {
+        "summary": "Operator-maintained entrance budgets; signed abuse-entrance assertion, briefly cached settings only",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Current public and combined-service budgets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AbusePolicy"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/abuse/entrances": {
+      "post": {
+        "summary": "Atomically count combined budgets across both programs; current Plan, no cached allowance",
+        "description": "Service owns one PostgreSQL transaction for all shared dimensions and both entrances, deduplicated by requestId. It validates current binding and ingress hash/window/key context. Only IDs/counts and minimized hashes cross; no IPs/content/credentials. Stale policy, unknown binding or outage fails closed. Private bootstrap/cancellation remain Account-existence neutral. Every attempt counts, including a denial; maximum retryAt across exceeded budgets. Idempotency expires within 24h.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AbuseEntrance"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "One non-cacheable combined decision and current Plan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AbuseDecision"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/quota/snapshot": {
+      "post": {
+        "summary": "Current balance of an Owner (signed verification assertion)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuotaSnapshotRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Durable Quota decision",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuotaSnapshotResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/quota/reserve": {
+      "post": {
+        "summary": "Atomically reserve one unit per unbilled Reference slot, all or nothing",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuotaReserveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Durable Quota decision",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuotaReserveResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/quota/settle": {
+      "post": {
+        "summary": "Idempotently debit a slot on its first Verdict or release its reservation",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuotaSettleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Durable Quota decision",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuotaSettleResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/quota/release": {
+      "post": {
+        "summary": "Release what an unused reservation still holds",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuotaReleaseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Durable Quota decision",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuotaReleaseResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/account-authority": {
+      "post": {
+        "summary": "Check current Account/Owner authority and current session for requests",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "actorId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "ownerId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "sessionId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "permission": {
+                    "type": "string",
+                    "enum": [
+                      "structuring:create",
+                      "check:create",
+                      "check:read",
+                      "check:cancel",
+                      "check:renew"
+                    ]
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "request",
+                      "work"
+                    ]
+                  }
+                },
+                "required": [
+                  "actorId",
+                  "ownerId",
+                  "permission",
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Current authority",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthorityResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/internal/mail-rehearsals": {
       "post": {
         "summary": "Local SMTP rehearsal; fixed sink only, never an Account sign-in",
@@ -431,7 +1908,6 @@
                   }
                 },
                 "required": [
-                  "guestContextId",
                   "ownerId",
                   "actorId",
                   "version",
@@ -462,6 +1938,81 @@
                   "required": [
                     "ownerId",
                     "version"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Problem Details; the local diagnostic is unavailable by default",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/owners/{ownerId}": {
+      "delete": {
+        "summary": "Write the Owner tombstone and purge all of the Owner's content in one transaction (signed service assertion, idempotent)",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "ownerId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Durable tombstone and content purge acknowledgement",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ownerId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tombstoned": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "ownerId",
+                    "tombstoned"
                   ],
                   "additionalProperties": false
                 }

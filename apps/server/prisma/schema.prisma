@@ -15,9 +15,12 @@ datasource db {
 }
 
 model Check {
+  measuredConfiguration Json? @map("measured_configuration")
   id             String          @id @db.Uuid
   apiVersion     Int             @default(1) @map("api_version")
   ownerId        String          @map("owner_id")
+  /// Exact extracted/pasted document and current selection; expires with this Check.
+  document       Json?
   actorId        String          @map("actor_id")
   guestContextId String? @map("guest_context_id") @db.Uuid
   /// Wire value of CheckState.
@@ -27,12 +30,24 @@ model Check {
   createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
   leaseExpiresAt DateTime        @default(dbgenerated("(CURRENT_TIMESTAMP + interval '75 seconds')")) @map("lease_expires_at") @db.Timestamptz(3)
   endedAt        DateTime?       @map("ended_at") @db.Timestamptz(3)
+  startedAt      DateTime?       @map("started_at") @db.Timestamptz(3)
+  /// Fixed ADR-0005 content deadline; set at creation, finalized at first end.
+  contentExpiresAt DateTime      @map("content_expires_at") @db.Timestamptz(3)
+  /// Set when the content was deleted; the row itself is the tombstone.
+  deletedAt      DateTime?       @map("deleted_at") @db.Timestamptz(3)
+  historyStoredAt DateTime? @map("history_stored_at") @db.Timestamptz(3)
+  historyOrder BigInt @default(0) @map("history_order")
+  historyPaid Boolean @default(false) @map("history_paid")
+  historyDays Int? @map("history_days")
+  historyLocked Boolean @default(false) @map("history_locked")
   endReason      String?         @map("end_reason")
   dispatchOrder  BigInt          @default(0) @map("dispatch_order")
   references     ReferenceSlot[]
   events         CheckEvent[]
+  reports        Report[]
 
   @@index([ownerId])
+  @@index([contentExpiresAt], map: "checks_content_expiry")
   @@map("checks")
 }
 
@@ -44,6 +59,8 @@ model ReferenceSlot {
   /// Current execution Status; final immutable result takes precedence.
   status       String
   structured   Json?
+  removed      Boolean           @default(false)
+  revisions    FieldRevision[]
   generation   Int               @default(0)
   revision     Int               @default(1)
   attempts     Int               @default(0)
@@ -72,6 +89,8 @@ model CheckEvent {
 
 // Append-only run content. #81 will add field revisions and cancellation fencing.
 model ReferenceResult {
+  measuredConfigurationId String? @map("measured_configuration_id")
+  scoringRulesVersion String? @map("scoring_rules_version")
   id         String        @id @db.Uuid
   checkId    String        @map("check_id") @db.Uuid
   position   Int
@@ -79,6 +98,7 @@ model ReferenceResult {
   revision   Int           @default(1)
   content    Json
   createdAt  DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  manualOverride ManualOverride?
   reference  ReferenceSlot @relation(fields: [checkId, position], references: [checkId, position], onDelete: Cascade, map: "reference_results_slot_fkey")
 
   @@unique([checkId, position, generation])
@@ -102,14 +122,17 @@ model SourceRequest {
   @@map("source_requests")
 }
 
-// Durable, idempotent handoff for #99. No balances, grants or debits here.
+// Durable, idempotent handoff to the Quota journal. No balances, grants or debits here.
 model SettlementIntent {
   checkId    String   @map("check_id") @db.Uuid
   position   Int
   generation Int
   outcome    String
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  /// Set once the private service acknowledged this intent; delivery is idempotent at the service.
+  deliveredAt DateTime? @map("delivered_at") @db.Timestamptz(3)
 
+  @@index([deliveredAt, createdAt], map: "settlement_intents_pending")
   @@id([checkId, position, generation])
   @@map("settlement_intents")
 }
@@ -118,4 +141,94 @@ model AuthorityFence {
  ownerId String @id @map("owner_id") @db.Uuid
  version Int
  @@map("authority_fences")
+}
+
+// ADR-0003 Owner tombstone: identifiers only, never content.
+model OwnerTombstone {
+  ownerId   String   @id @map("owner_id") @db.Uuid
+  deletedAt DateTime @default(now()) @map("deleted_at") @db.Timestamptz(3)
+  @@map("owner_tombstones")
+}
+
+// Immutable snapshots: every user correction appends to the stable slot.
+model FieldRevision {
+  checkId String @map("check_id") @db.Uuid
+  position Int
+  revision Int
+  content Json
+  provenance String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  reference ReferenceSlot @relation(fields: [checkId, position], references: [checkId, position], onDelete: Cascade)
+  @@id([checkId, position, revision])
+  @@map("field_revisions")
+}
+
+// Separate user judgment, never part of immutable result content.
+model ManualOverride {
+  resultId String @id @map("result_id") @db.Uuid
+  id String @unique @db.Uuid
+  verdict String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  result ReferenceResult @relation(fields: [resultId], references: [id], onDelete: Cascade)
+  @@map("manual_overrides")
+}
+
+// Account consent and a cache of the service's bounded feature grant, never a Plan.
+model HistoryConsent {
+  ownerId String @id @map("owner_id")
+  accountId String @map("account_id")
+  enabled Boolean @default(false)
+  authorityVersion Int @default(0) @map("authority_version")
+  settingsVersion Int @default(0) @map("settings_version")
+  freeHistoryChecks Int @default(5) @map("free_history_checks")
+  freeHistoryDays Int @default(30) @map("free_history_days")
+  paidHistoryDays Int @default(90) @map("paid_history_days")
+  extendedUntil DateTime? @map("extended_until") @db.Timestamptz(3)
+  @@map("history_consents")
+}
+
+// ADR-0017 short-lived Verification report. The file and the options are
+// sealed with the same transient-content codec as every other Check content,
+// live at most 15 minutes and are deleted with the Check (the Check row stays
+// as the tombstone, so purge deletes reports explicitly).
+model Report {
+  id           String   @id @db.Uuid
+  checkId      String   @map("check_id") @db.Uuid
+  language     String
+  /// Sealed: citation style and the optional document name.
+  options      Json
+  /// queued | generating | ready | failed | cancelled
+  state        String
+  failure      String?
+  intermediate Boolean?
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  expiresAt    DateTime @map("expires_at") @db.Timestamptz(3)
+  /// Sealed base64 PDF; present only while state is ready.
+  file         Json?
+  check        Check    @relation(fields: [checkId], references: [id], onDelete: Cascade)
+
+  @@index([checkId])
+  @@index([expiresAt], map: "reports_expiry")
+  @@map("reports")
+}
+
+// Content-free, recipient-bound membership. Never stores manuscript or ciphertext copies.
+model ExportSnapshot {
+ id String @id @db.Uuid
+ requestId String @map("request_id") @db.Uuid
+ binding String
+ createdAt DateTime @map("created_at") @db.Timestamptz(3)
+ expiresAt DateTime @map("expires_at") @db.Timestamptz(3)
+ @@unique([requestId,binding])
+ @@map("export_snapshots")
+}
+model ExportMember {
+ snapshotId String @map("snapshot_id") @db.Uuid
+ collection String
+ parent String @default("")
+ sort String
+ key Json
+ version String
+ @@id([snapshotId,collection,parent,sort])
+ @@map("export_members")
 }

@@ -3,9 +3,9 @@
 // module supplies no cancellation, lease or hosted authorization policy itself.
 import {
   createDoiVerification,
+  createWebVerification,
+  isWebReference,
   createBibliographicVerification,
-  comparisonLimits,
-  journalAbbreviationRules,
   defaultSearchSettings,
   referenceDeadlineMs,
   type SearchSettings,
@@ -14,6 +14,7 @@ import {
   isBookReference,
 } from "@source-taster/core";
 import { createHash } from "node:crypto";
+import { scoringRules } from "./scoring-rules.ts";
 import type { Db } from "../db/prisma.ts";
 import type { Config } from "../config.ts";
 import {
@@ -29,6 +30,7 @@ import { semanticscholarAdapter } from "../sources/semanticscholar.ts";
 import { arxivAdapter } from "../sources/arxiv.ts";
 import { googlebooksAdapter } from "../sources/googlebooks.ts";
 import { openlibraryAdapter } from "../sources/openlibrary.ts";
+import { createWebSources } from "../sources/web.ts";
 import { sourceBudget } from "../sources/budget.ts";
 import { identifierBatches } from "../sources/batch.ts";
 // Identifier lookups of all Reference runs in this process share batches.
@@ -67,26 +69,8 @@ export function referenceExecution(
     .update(JSON.stringify(canonical(settings)))
     .digest("hex")
     .slice(0, 16);
-  const rules = {
-    version: `comparison-75-3-date-ranges-20261028-journal-76-1-entities-4.5.0-uncalibrated-${createHash(
-      "sha256",
-    )
-      .update(
-        JSON.stringify({
-          parameters: config.comparisonProfile,
-          limits: comparisonLimits,
-          journalAbbreviations: journalAbbreviationRules,
-        }),
-      )
-      .digest(
-        "hex",
-      )}-unicode-${process.versions.unicode}-icu-${process.versions.icu}`,
-    calibration: "uncalibrated",
-    unicode: process.versions.unicode!,
-    icu: process.versions.icu!,
-    profile: { ...config.comparisonProfile },
-  } as const;
-  return (
+  const rules = scoringRules(config.comparisonProfile);
+  return async (
     reference: StructuredReference,
     execution?: { startedAt: number },
   ) => {
@@ -161,7 +145,42 @@ export function referenceExecution(
           ],
         })
       : createDoiVerification(options);
-    return verify(reference, execution);
+    const outcome =
+      bibliographic && isWebReference(reference.csl.type) && !reference.csl.DOI
+        ? undefined
+        : await verify(reference, execution);
+    if (
+      bibliographic &&
+      isWebReference(reference.csl.type) &&
+      (!reference.csl.DOI ||
+        (outcome?.kind === "verdict" &&
+          outcome.reasons.includes("url-verification-incomplete") &&
+          outcome.identity.kind === "supplied-doi"))
+    ) {
+      return createWebVerification({
+        sources: createWebSources({
+          budget: sourceBudget(db, context.signal, clock, settings),
+          clock,
+          settings,
+          signal: context.signal,
+          fixtureBase: config.webFixtureBase,
+          urlEnabled: !!config.urlEnabled,
+          archiveEnabled: !!config.internetarchiveEnabled,
+          beforeRequest: context.beforeSource,
+          dispatch: context.dispatchSource,
+        }),
+        now: clock.now,
+        settings,
+        settingsVersion,
+        rules,
+        parameters: config.comparisonProfile,
+      })(
+        reference,
+        execution,
+        outcome?.kind === "verdict" ? outcome : undefined,
+      );
+    }
+    return outcome!;
   };
 }
 function canonical(value: unknown): unknown {

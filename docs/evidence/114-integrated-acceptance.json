@@ -1,0 +1,213 @@
+{
+  "scope": "#114 integration acceptance; controlled fixtures do not qualify a production configuration",
+  "sources": {
+    "public": "3031aa07f7f9eeffefa58ee58a7469f34ef0956a",
+    "private": "8f5e132bc2146e8aa64a65e20a36c442249bbc15"
+  },
+  "preservedHistory": {
+    "public113": "87e524f65c46978246e41a7e098969380ec67695",
+    "private113": "773fccf3c4e1417ed3806f407dd8e2c8f737c5f4",
+    "public112": "50c6e5fe23eccb110987b7c578f5b781ab34f417",
+    "private112": "29d7c008c95cc0a0ab5e4aad35236aa05008d2f2"
+  },
+  "publishedTransport": "d50b0ac24273515e5f291de58aa29d7856f99475",
+  "canonicalPins": [
+    {
+      "file": "apps/server/package.json",
+      "package": "@source-taster/contract-internal",
+      "sha": "d50b0ac24273515e5f291de58aa29d7856f99475"
+    },
+    {
+      "file": "apps/server/package.json",
+      "package": "@source-taster/contract-service",
+      "sha": "d50b0ac24273515e5f291de58aa29d7856f99475"
+    },
+    {
+      "file": "apps/server/package.json",
+      "package": "@source-taster/contract-verification",
+      "sha": "d50b0ac24273515e5f291de58aa29d7856f99475"
+    },
+    {
+      "file": "apps/web/package.json",
+      "package": "@source-taster/contract-service",
+      "sha": "d50b0ac24273515e5f291de58aa29d7856f99475"
+    },
+    {
+      "file": "scripts/evidence.ts",
+      "constant": "contractCommit",
+      "sha": "d50b0ac24273515e5f291de58aa29d7856f99475"
+    }
+  ],
+  "privateLockfileSha256": "d3ed5f5934dfa33b19d3ad20375786014acb3341ed8fa63693be48c464db9f4f",
+  "installedPackageFileInstances": [
+    {
+      "consumer": "server",
+      "package": "@source-taster/contract-internal",
+      "files": 12
+    },
+    {
+      "consumer": "server",
+      "package": "@source-taster/contract-service",
+      "files": 20
+    },
+    {
+      "consumer": "server",
+      "package": "@source-taster/contract-verification",
+      "files": 54
+    },
+    {
+      "consumer": "web",
+      "package": "@source-taster/contract-service",
+      "files": 20
+    }
+  ],
+  "installedBytesMatchPublishedCommit": true,
+  "workspacePolicyUnchanged": true,
+  "registryGraphUnchanged": true,
+  "overridesUsed": false,
+  "normalAndFrozenInstallPassed": true,
+  "reproduction": {
+    "generatedFiles": 1797,
+    "transportFiles": 78,
+    "internalAndVerificationTransportFiles": 59,
+    "privateBuildFiles": 102,
+    "allIdentical": true
+  },
+  "tests": {
+    "publicQualityLoadAiLifecycle": 79,
+    "publishedGateRuntimeSubsetRepeated": 37,
+    "privateFullSuite": 128,
+    "privateTestFiles": 19,
+    "finalConfigurationHttp": 2,
+    "finalDsrHttp": 7,
+    "operatorBrowser": 2,
+    "recipientDsrBrowser": 2
+  },
+  "diagnosis": {
+    "cause": "The expiry sweep updates the Check tombstone after export snapshot capture; version validation rejects the changed checks member.",
+    "productionRuntimeChanged": false,
+    "controlledRedRepetitions": 2,
+    "finalRegression": "Assert snapshot refusal across a pinned sweep interleaving and empty fresh post-sweep delivery",
+    "historicalLimit": "Earlier uninstrumented socket failures are not retrospectively proven to share this cause. Interrupted delivery can still reject correctly when authority or snapshot membership changes."
+  },
+  "cleanup": {
+    "recordedAt": "2026-11-04T05:04:18.709597+00:00",
+    "ownedContainer": "02a5fbc8fdf85a18ea0410b5b5448cef88b46a5c78b783561442263fc414b0c9",
+    "verifiedLabels": {
+      "source-taster.task": "114-integrated",
+      "source-taster.workspace": "source-taster-integration"
+    },
+    "removedContainer": true,
+    "removedAnonymousVolumes": [
+      "57361e522f39b6821463424fa54feeff5c8db0b3494994df054cc3398c7dd3cb"
+    ],
+    "remainingFixtureDatabasesBeforeRemoval": [],
+    "portsFree": [
+      5701,
+      5702,
+      5703,
+      5471,
+      55711
+    ],
+    "unknownResourcesTouched": false,
+    "sourceWorkspacesWritten": false,
+    "scheduledJobsChanged": false,
+    "temporaryDiagnosticInstrumentationRemoved": true
+  },
+  "qualification": {
+    "productionActivated": false,
+    "realPassedConfigurationClaimed": false,
+    "gatesWaived": false,
+    "requiredHumanEvidence": [
+      "exact-code/configuration calibration and frozen Reference test set Quality acceptance",
+      "exact scoped #117 load acceptance and live supplier/capacity acceptance",
+      "EU-only processing/storage, zero-retention provider contract approval",
+      "#138 applicable book rights and real ISBN/bibliographic recordings/replay",
+      "#140 applicable web/archive rights and real original/availability/capture recordings/replay",
+      "#136 applicable Semantic Scholar qualification",
+      "release, Selected, Better Auth 1.7.14, minimatch, security/legal/tax/browser and deployment gates"
+    ]
+  },
+  "logs": {
+    "114-integrated-public-install.log": "26055689188ae268e4a61e946826ab7c09d0c42b6e36dfa11dfebc28c53b4150",
+    "114-integrated-public-typecheck.log": "2ffffbb53530044b9af26fcc37cf5461e0ea1abcc74e398d0c63917a8219f4d4",
+    "114-integrated-public-lint.log": "ad91b7a7c760fbc35a1f6bb3399ff551e26a924732b66827a35a4fea38e1f8a3",
+    "114-integrated-public-build.log": "4fc6f1897188807541b7fae512aa148509510b27ea5a9ebef16460b2437de5c6",
+    "114-integrated-public-i18n.log": "b7b1706252d30a85b8dc5db814b5070aeeb9bff6b8fbe16649fc65678886504a",
+    "114-integrated-public-regressions.log": "4a8df2f326f9f0fbe28ee40ec66d2baf1d31705112f1aa58b92cf1773bd67e49",
+    "114-integrated-published-gate-runtime.log": "971caebeb8ff168a0ed30bb0b1c267c2cbc5e813a089996d873ebfce418cbdd5",
+    "114-integrated-private-lock.log": "3c9d3c34f4f28e1c23d5bffe934c779d129dbad8bcd6d350475cbb1eafa838fe",
+    "114-integrated-private-install.log": "57aacc82de5c5fac87eb4125e78efe7e9d18315ccb8e8186c378942fef0c32b8",
+    "114-integrated-private-frozen-install.log": "e00e2fa3f0efe93ffa3a8be86e4a82600ca4da92139a8dae20347e0a28b55fb2",
+    "114-integrated-private-typecheck.log": "b596d9aeafe6391bd3d25e184e20090cb0e41e99ee6ce52d4ba05bcf3809649b",
+    "114-integrated-private-lint.log": "26db9673ec89bc95699a8e66249537512722e2114018fc39c411bfb94c2d9eaa",
+    "114-integrated-private-build.log": "3de4de004bef732cd7895e48b8a8633e14e36cbff37ea935cc2bf365529ffa1e",
+    "114-integrated-private-i18n.log": "d4e76ca8a4350722c5a591b845ce4d18537d466e2af0de7c5cadefe261556cd9",
+    "114-integrated-private-full-suite.log": "8025fbbe1bb41018754fcb0adb6914205d731539c83edea3661f7450a95ebdcb",
+    "114-integrated-operator-browser.log": "bf8b4b1ac2c597d596db52f093553e5db1c4a8874dd0650e8cf737822a77e7cb",
+    "114-integrated-final-configurations.log": "7cf34b2521dacd15f102cc4ec8c906308dee5ace1b3309784b148ae119bca241",
+    "114-integrated-final-dsr.log": "97ebe69107ec697e2179fc6f7f53c8eb222bc5163b1b3fb9fdf7b379e3e07d54",
+    "114-integrated-final-dsr-browser.log": "daa64aa0a5e833771a0bc4aa13a321c15d47bf91e584a2bf9843a6cd6a73a7d6",
+    "114-integrated-dsr-deterministic-stopped-worker-red.log": "7b14ba5461389c85a00213dbfc1542825aa4d4e41308ac34f807c7039e727cfd",
+    "114-integrated-dsr-deterministic-confirmed-red.log": "770f65a7b07889c6cc1b006f9b3dd50ad3826308a361ce23f686a29804c27dec",
+    "114-integrated-dsr-deterministic-green.log": "dc57483454e02e364b9f879246994ec242c2952c2ae970187f0d60a469d2e7fc",
+    "114-integrated-final-public-typecheck.log": "ab727951cbed6739697aca74fbf37ac67e22e77718b731b020cc45b387a32fa9",
+    "114-integrated-final-public-lint.log": "37d8b24b7d099c75f0d297fe2d142a48cad1b88741bd9a37d6f2d17fc02a593a",
+    "114-integrated-final-public-build.log": "5b8f52de097701fb6aa741504b1b8968102953d0633cee9acd39f06acaab6b54",
+    "114-integrated-final-public-i18n.log": "a4244755596b4f24279d619cc78efa97c58435bcac1c063adfc6463c5f80ee1b",
+    "114-integrated-final-private-lint.log": "26db9673ec89bc95699a8e66249537512722e2114018fc39c411bfb94c2d9eaa",
+    "114-integrated-final-reproduction-summary.json": "c94f19c46996f41490282a21a2839903794a047f11bc21e9ed5ec518edbc548b",
+    "114-integrated-final-reproduction-commands.log": "6501a5003320945f1e17d7fdde28540f9e9e6dd9d2b3bfb89764b960957877f0",
+    "114-integrated-public-existing-ci-failure.log": "624dcf749db8320ef4782f6cdb7492fcd0ab9cf9a7b59d772bc54f26db1f16c2",
+    "114-integrated-private-existing-advisory-failure.log": "0648c7953e5ab3b8bcd2949b66ddce288c42119e1f876a2f46b5ff8346484133",
+    "114-integrated-public-pr-resume.json": "e2af37ad46a3c29411945049d7c8e3dbf8f3e1c8f4df51405df4017b3dbd5ebd",
+    "114-integrated-private-pr-resume.json": "9af7e09edf54369645b17d9479591e7f27c0b785254338f923b35ae2f7fc91c9"
+  },
+  "finalAggregatePublic": {
+    "typecheck": true,
+    "lint": true,
+    "build": true,
+    "i18n": true
+  },
+  "finalPrivateHandoffLint": true,
+  "hostedBeforeFinalPublication": {
+    "public": {
+      "head": "d50b0ac24273515e5f291de58aa29d7856f99475",
+      "job": "https://github.com/jeffnawroth/source-taster/actions/runs/41775234932/job/126394390148",
+      "result": "679 passed, 4 failed in 46 files",
+      "failures": [
+        "bibliographic.test.ts: frozen v1 OpenAPI comparison differs at data-subject download/receipt routes",
+        "lifecycle-recovery.test.ts: configured maximum Check cancellation returned 500 instead of 200",
+        "report-lifecycle.test.ts: two reports remained generating instead of ready before the polling deadline"
+      ],
+      "dependencies": "passed",
+      "qualification": "Unresolved hosted failures; local targeted passes do not supersede them."
+    },
+    "private": {
+      "head": "773fccf3c4e1417ed3806f407dd8e2c8f737c5f4",
+      "job": "https://github.com/jeffnawroth/source-taster-service/actions/runs/41772625184/job/126385598655",
+      "checks": "passed",
+      "dependencies": "failed with one advisory finding; dependency gate remains closed"
+    }
+  },
+  "resumedCleanupConfirmation": {
+    "ports": {
+      "5701": {
+        "free": true
+      },
+      "5702": {
+        "free": true
+      },
+      "5703": {
+        "free": true
+      },
+      "5471": {
+        "free": true
+      },
+      "55711": {
+        "free": true
+      }
+    },
+    "ownedContainerAbsent": true
+  }
+}

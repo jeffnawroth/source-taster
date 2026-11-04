@@ -2,6 +2,8 @@
 // The owned seam over the browser extension namespace. Panel code uses only
 // these capabilities; no other module touches `browser` or `chrome`.
 import type { PreferenceStorage } from "@source-taster/ui/preferences";
+import type { SelectionIntake } from "@source-taster/ui/check-workspace";
+import { selectionPort, type SelectionPort } from "./selection-protocol.ts";
 import {
   extensionGuestIdentityStorage,
   GuestIdentityError,
@@ -9,8 +11,90 @@ import {
 } from "@source-taster/ui/guest-identity";
 
 interface ExtensionNamespace {
-  runtime: { id: string; getURL(path: string): string };
-  storage: { local: ExtensionLocalCapability };
+  runtime: {
+    id: string;
+    getURL(path: string): string;
+    connect(options: { name: string }): SelectionPort;
+  };
+  windows: { getCurrent(): Promise<{ id: number }> };
+  storage: {
+    local: ExtensionLocalCapability & { remove(key: string): Promise<void> };
+    onChanged: {
+      addListener(
+        listener: (
+          changes: Record<string, { newValue?: unknown }>,
+          area: string,
+        ) => void,
+      ): void;
+      removeListener(
+        listener: (
+          changes: Record<string, { newValue?: unknown }>,
+          area: string,
+        ) => void,
+      ): void;
+    };
+  };
+}
+
+/** A live trusted-panel connection, with no storage or web-page bridge. */
+export function extensionSelectionIntake(
+  api: ExtensionNamespace,
+): SelectionIntake {
+  return {
+    subscribe(receive) {
+      let active = true;
+      let current: SelectionPort | undefined;
+      let retry: ReturnType<typeof setTimeout> | undefined;
+      const listener = (message: unknown) => {
+        const selection = message as {
+          text?: unknown;
+          possiblyShortened?: unknown;
+        } | null;
+        if (
+          typeof selection?.text === "string" &&
+          typeof selection.possiblyShortened === "boolean"
+        )
+          receive({
+            text: selection.text,
+            possiblyShortened: selection.possiblyShortened,
+          });
+      };
+      const reconnect = () => {
+        if (active) retry = setTimeout(connect, 250);
+      };
+      const connect = () => {
+        if (!active) return;
+        try {
+          const port = api.runtime.connect({ name: selectionPort });
+          current = port;
+          port.onMessage.addListener(listener);
+          port.onDisconnect.addListener(() => {
+            port.onMessage.removeListener(listener);
+            if (current === port) {
+              current = undefined;
+              reconnect();
+            }
+          });
+          void api.windows
+            .getCurrent()
+            .then(({ id }) => {
+              if (active && current === port)
+                port.postMessage({ windowId: id });
+            })
+            .catch(() => port.disconnect());
+        } catch {
+          reconnect();
+        }
+      };
+      connect();
+      return () => {
+        active = false;
+        clearTimeout(retry);
+        current?.onMessage.removeListener(listener);
+        current?.disconnect();
+      };
+    },
+  };
 }
 const identityLock = "source-taster-guest-id-v1";
 

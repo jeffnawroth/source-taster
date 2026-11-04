@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import { effectiveVerdict } from "./effective-verdict.ts";
 import { useRef, useState } from "react";
 import type {
   Check,
@@ -12,7 +13,14 @@ import {
   BibliographyActions,
   CorrectionSuggestion,
 } from "./correction-suggestions.tsx";
+import { ReferenceExports } from "./reference-exports.tsx";
+import type { OwnerQuota } from "./quota.ts";
+import { ReportDownload } from "./report-download.tsx";
 import { m } from "@source-taster/i18n";
+import {
+  ReferenceActions,
+  ReferenceListActions,
+} from "./reference-actions.tsx";
 import { CheckSummary } from "./check-summary.tsx";
 import {
   ReferenceOutcomeSummary,
@@ -46,13 +54,29 @@ export function CheckResults({
   citationStyle,
   citationStyleLabel,
   transport,
+  quota,
+  upgradeUrl,
+  onSnapshot,
 }: {
+  quota: OwnerQuota | null;
+  upgradeUrl?: string;
   check: Check;
   completed: number;
   citationStyle: CitationStyle;
   citationStyleLabel: string;
   transport: VerificationClientOptions;
+  onSnapshot: (check: Check) => void;
 }) {
+  const firstFormat =
+    check.references[0]?.revisions[0]?.reference.imported?.format;
+  const importedFormat =
+    firstFormat &&
+    check.references.every(
+      (reference) =>
+        reference.revisions[0]?.reference.imported?.format === firstFormat,
+    )
+      ? firstFormat
+      : undefined;
   const [helpOpen, setHelpOpen] = useState(false);
   const [filter, setFilter] = useState<Verdict | null>(null);
   const [selectedSlot, selectSlot] = useState(check.references[0]?.slot);
@@ -68,10 +92,7 @@ export function CheckResults({
   const buttons = useRef(new Map<number, HTMLButtonElement>());
   const position = useRef({ list: 0, page: 0 });
   const visible = check.references.filter(
-    (reference) =>
-      !filter ||
-      (reference.outcome.kind === "verdict" &&
-        reference.outcome.verdict === filter),
+    (reference) => !filter || effectiveVerdict(reference) === filter,
   );
   const selected = visible.find((reference) => reference.slot === selectedSlot);
   function open(slot: number) {
@@ -124,6 +145,25 @@ export function CheckResults({
           setDetailOpen(false);
         }}
       />
+      <ReferenceExports
+        checkId={check.id}
+        importedFormat={importedFormat}
+        transport={transport}
+        rendered={bibliography}
+        styleLabel={citationStyleLabel}
+      />
+      <ReportDownload
+        check={check}
+        citationStyle={citationStyle}
+        transport={transport}
+        quota={quota}
+        upgradeUrl={upgradeUrl}
+      />
+      <ReferenceListActions
+        check={check}
+        transport={transport}
+        onSnapshot={onSnapshot}
+      />
       <BibliographyActions
         key={citationStyle}
         rendered={bibliography}
@@ -149,14 +189,13 @@ export function CheckResults({
                 >
                   {m.workspace_open({
                     slot: reference.slot,
-                    title:
-                      reference.outcome.kind === "verdict"
-                        ? (reference.outcome.reference.csl.title ??
-                          reference.originalText)
-                        : reference.originalText,
+                    title: reference.fields.title ?? reference.originalText,
                   })}
                 </button>
-                <ReferenceOutcomeSummary outcome={reference.outcome} />
+                <ReferenceOutcomeSummary
+                  outcome={reference.outcome}
+                  manualOverride={reference.manualOverride}
+                />
                 <RunningStep reference={reference} />
               </li>
             ))}
@@ -186,6 +225,13 @@ export function CheckResults({
           {selected ? (
             <>
               <RunningStep reference={selected} />
+              <ReferenceActions
+                key={selected.slot}
+                check={check}
+                reference={selected}
+                transport={transport}
+                onSnapshot={onSnapshot}
+              />
               <CorrectionSuggestion
                 key={`${selected.slot}:${citationStyle}`}
                 slot={selected.slot}
@@ -193,6 +239,7 @@ export function CheckResults({
               />
               <ReferenceOutcomeView
                 outcome={selected.outcome}
+                manualOverride={selected.manualOverride}
                 originalText={selected.originalText}
               />
             </>

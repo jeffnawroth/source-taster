@@ -10,6 +10,21 @@ import { HTTPException } from "hono/http-exception";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 
 const problems = {
+  "abuse-limit": {
+    status: 429,
+    title: "Too many requests.",
+    i18nKey: "problem_abuse_limit",
+  },
+  "abuse-unavailable": {
+    status: 503,
+    title: "Request policy is unavailable.",
+    i18nKey: "problem_abuse_unavailable",
+  },
+  "library-size": {
+    status: 400,
+    title: "The library file exceeds 20 MB.",
+    i18nKey: "problem_library_size",
+  },
   "reference-limit": {
     status: 400,
     title: "The Reference limit was exceeded.",
@@ -50,6 +65,106 @@ const problems = {
     title: "Formatting is temporarily unavailable.",
     i18nKey: "correction_unavailable",
   },
+  "document-size-limit": {
+    status: 413,
+    title: "The document exceeds the 20 MB limit.",
+    i18nKey: "problem_document_size_limit",
+  },
+  "document-unsupported": {
+    status: 415,
+    title: "Upload a PDF or DOCX document.",
+    i18nKey: "problem_document_unsupported",
+  },
+  "document-no-text": {
+    status: 422,
+    title: "The document contains no extractable text.",
+    i18nKey: "problem_document_no_text",
+  },
+  "document-encrypted": {
+    status: 422,
+    title: "The document is encrypted.",
+    i18nKey: "problem_document_encrypted",
+  },
+  "document-unreadable": {
+    status: 422,
+    title: "The document could not be read.",
+    i18nKey: "problem_document_unreadable",
+  },
+  "document-page-limit": {
+    status: 422,
+    title: "The PDF page limit was exceeded.",
+    i18nKey: "problem_document_page_limit",
+  },
+  "document-expansion-limit": {
+    status: 422,
+    title: "The expanded DOCX size limit was exceeded.",
+    i18nKey: "problem_document_expansion_limit",
+  },
+  "document-time-limit": {
+    status: 422,
+    title: "Document extraction exceeded its time limit.",
+    i18nKey: "problem_document_time_limit",
+  },
+  "document-resource-limit": {
+    status: 422,
+    title: "Document extraction exceeded its resource limit.",
+    i18nKey: "problem_document_resource_limit",
+  },
+  "document-aborted": {
+    status: 422,
+    title: "Document extraction was stopped.",
+    i18nKey: "problem_document_aborted",
+  },
+  "document-unavailable": {
+    status: 503,
+    title: "The restricted extraction area is unavailable.",
+    i18nKey: "problem_document_unavailable",
+  },
+  "reference-conflict": {
+    status: 409,
+    title: "The Reference changed or is running.",
+    i18nKey: "problem_reference_conflict",
+  },
+  "quota-insufficient": {
+    status: 402,
+    title: "Not enough Quota for this work.",
+    i18nKey: "problem_quota_insufficient",
+  },
+  "history-locked": {
+    status: 403,
+    title: "This History entry requires a paid Plan.",
+    i18nKey: "problem_history_locked",
+  },
+  "check-expired": {
+    status: 410,
+    title: "The Check expired.",
+    i18nKey: "problem_check_expired",
+  },
+  "feature-unavailable": {
+    status: 403,
+    title: "Your Plan does not include this feature.",
+    i18nKey: "problem_feature_unavailable",
+  },
+  "report-not-found": {
+    status: 404,
+    title: "The report does not exist.",
+    i18nKey: "problem_report_not_found",
+  },
+  "report-not-ready": {
+    status: 409,
+    title: "The report is not finished.",
+    i18nKey: "problem_report_not_ready",
+  },
+  "report-busy": {
+    status: 409,
+    title: "A report is already being created.",
+    i18nKey: "problem_report_busy",
+  },
+  "report-expired": {
+    status: 410,
+    title: "The report download expired.",
+    i18nKey: "problem_report_expired",
+  },
   internal: {
     status: 500,
     title: "Something went wrong on our side.",
@@ -66,16 +181,21 @@ export function problemResponse(
   code: ProblemCode,
   detail?: string,
   limit?: number,
+  quota?: { available: number; required: number },
 ): Response {
   const { status, title, i18nKey } = problems[code];
   const body: ProblemDetails = {
     type: `urn:source-taster:problem:${code}`,
-    title,
+    title:
+      code === "document-size-limit" && limit !== undefined
+        ? `The document exceeds the ${Number((limit / 1_048_576).toPrecision(3))} MB limit.`
+        : title,
     status,
     code,
     i18nKey,
     ...(detail ? { detail } : {}),
     ...(limit === undefined ? {} : { limit }),
+    ...(quota ?? {}),
   };
   return new Response(JSON.stringify(body), {
     status,
@@ -88,7 +208,8 @@ export function fail(
   code: ProblemCode,
   detail?: string,
   limit?: number,
+  quota?: { available: number; required: number },
 ): never {
-  const res = problemResponse(code, detail, limit);
+  const res = problemResponse(code, detail, limit, quota);
   throw new HTTPException(res.status as ContentfulStatusCode, { res });
 }

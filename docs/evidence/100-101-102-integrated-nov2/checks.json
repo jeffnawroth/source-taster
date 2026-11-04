@@ -1,0 +1,497 @@
+{
+  "date": "2026-11-02",
+  "publicSource": "ce94cb958994a3f445168c9e12a25d790963ec7c",
+  "privateSource": "702d681d8bc8d33ab79b017b11aa7f258622065e",
+  "priorPublishedPublic": "1152dfaa929083896ac6741d36122c807e00b2a8",
+  "priorPublishedPrivate": "6537c7c525c391a43d7b55be0a33f0c25ee04c83",
+  "sourceAncestry": {
+    "public": true,
+    "private": true
+  },
+  "integration": "fast-forward in both owned trees; no source workspace edits",
+  "pin": "1152dfaa929083896ac6741d36122c807e00b2a8",
+  "transportChanged": false,
+  "privatePins": 5,
+  "installedFileComparisons": 102,
+  "localOverrides": false,
+  "dependencyGraphChanged": false,
+  "checks": [
+    {
+      "name": "public-install",
+      "command": ["pnpm", "install", "--frozen-lockfile"],
+      "cwd": "public",
+      "exit": 0,
+      "seconds": 0.16,
+      "log": "private-phases-integrated-nov2-public-install.log",
+      "bytes": 269,
+      "sha256": "40748ce15916b35552de097bd333141704f57a3d66938585e05f95bd317f0b4f"
+    },
+    {
+      "name": "private-install",
+      "command": ["pnpm", "install"],
+      "cwd": "private",
+      "exit": 0,
+      "seconds": 0.05,
+      "log": "private-phases-integrated-nov2-private-install.log",
+      "bytes": 83,
+      "sha256": "7ba03131f213cb209c54b9ffb4b3baa8eb1edbf54a576c01fac152ece62f1a23"
+    },
+    {
+      "name": "private-frozen-install",
+      "command": ["pnpm", "install", "--frozen-lockfile"],
+      "cwd": "private",
+      "exit": 0,
+      "seconds": 0.12,
+      "log": "private-phases-integrated-nov2-private-frozen-install.log",
+      "bytes": 268,
+      "sha256": "939b5bb04533d58803515386eec7a926ec6c3f44c95bbc13e59b9288486c5eac"
+    },
+    {
+      "name": "public-prisma-generate",
+      "command": ["pnpm", "generate"],
+      "cwd": "public/apps/server",
+      "exit": 0,
+      "seconds": 0.67,
+      "log": "private-phases-integrated-nov2-public-prisma-generate.log",
+      "bytes": 184,
+      "sha256": "ebdcb4f2628b2635592ac2d1995b37ae7e6e72f71f26380f3bb3d62f4e0da914"
+    },
+    {
+      "name": "private-prisma-generate",
+      "command": ["pnpm", "generate"],
+      "cwd": "private/apps/server",
+      "exit": 0,
+      "seconds": 0.83,
+      "log": "private-phases-integrated-nov2-private-prisma-generate.log",
+      "bytes": 185,
+      "sha256": "d30b079d61662104df9d0bc7d57eb87883a953217e07c00fadadce15c77b21d0"
+    },
+    {
+      "name": "public-prisma-validate",
+      "command": ["pnpm", "exec", "prisma", "validate"],
+      "cwd": "public/apps/server",
+      "exit": 0,
+      "seconds": 0.48,
+      "log": "private-phases-integrated-nov2-public-prisma-validate.log",
+      "bytes": 142,
+      "sha256": "e1344514cb0e93026a245afd134e0c874287a64f7c5798cbda02eff700d2aa22"
+    },
+    {
+      "name": "private-prisma-validate",
+      "command": ["pnpm", "exec", "prisma", "validate"],
+      "cwd": "private/apps/server",
+      "exit": 0,
+      "seconds": 0.51,
+      "log": "private-phases-integrated-nov2-private-prisma-validate.log",
+      "bytes": 142,
+      "sha256": "e1344514cb0e93026a245afd134e0c874287a64f7c5798cbda02eff700d2aa22"
+    },
+    {
+      "name": "pagefind-verify",
+      "command": ["pnpm", "pagefind:verify"],
+      "cwd": "public",
+      "exit": 0,
+      "seconds": 9.88,
+      "log": "private-phases-integrated-nov2-pagefind-verify.log",
+      "bytes": 98,
+      "sha256": "9f13fabac05bdeabf4b3c72b7670a332783263e0544b425afe88d162b3288d51"
+    },
+    {
+      "name": "public-build",
+      "command": ["pnpm", "build"],
+      "cwd": "public",
+      "exit": 0,
+      "seconds": 19.95,
+      "log": "private-phases-integrated-nov2-public-build.log",
+      "bytes": 14857,
+      "sha256": "bbfe2fb0d64e92d28971da46b3a765534fa239f99f6831c69e9291445184f14e"
+    },
+    {
+      "name": "private-build",
+      "command": ["pnpm", "build"],
+      "cwd": "private",
+      "exit": 0,
+      "seconds": 1.27,
+      "log": "private-phases-integrated-nov2-private-build.log",
+      "bytes": 2739,
+      "sha256": "5fbb40d3549865cb6f3cd731317c6fff5b26215c22296b50da4c3d39c9b17f38"
+    },
+    {
+      "name": "public-typecheck",
+      "command": ["pnpm", "typecheck"],
+      "cwd": "public",
+      "exit": 0,
+      "seconds": 16.91,
+      "log": "private-phases-integrated-nov2-public-typecheck.log",
+      "bytes": 11636,
+      "sha256": "d4f555a39d96ddfd524157f52f8a11baee14b5db9eeec2e81e2ca8618b885f0e"
+    },
+    {
+      "name": "private-typecheck",
+      "command": ["pnpm", "typecheck"],
+      "cwd": "private",
+      "exit": 0,
+      "seconds": 0.38,
+      "log": "private-phases-integrated-nov2-private-typecheck.log",
+      "bytes": 2437,
+      "sha256": "818a1d0ed236ee33fd5c8aea18206453276115b65798866d3d5bbe00220e10f4"
+    },
+    {
+      "name": "public-lint",
+      "command": ["pnpm", "lint"],
+      "cwd": "public",
+      "exit": 0,
+      "seconds": 20.22,
+      "log": "private-phases-integrated-nov2-public-lint.log",
+      "bytes": 11463,
+      "sha256": "f58dbb1478a57028c02617991abad7e2e58caaebbfa753ec425cc08c321a8ee3"
+    },
+    {
+      "name": "private-lint",
+      "command": ["pnpm", "lint"],
+      "cwd": "private",
+      "exit": 0,
+      "seconds": 7.58,
+      "log": "private-phases-integrated-nov2-private-lint.log",
+      "bytes": 99,
+      "sha256": "26db9673ec89bc95699a8e66249537512722e2114018fc39c411bfb94c2d9eaa"
+    },
+    {
+      "name": "public-i18n",
+      "command": ["pnpm", "i18n:check"],
+      "cwd": "public",
+      "exit": 0,
+      "seconds": 0.12,
+      "log": "private-phases-integrated-nov2-public-i18n.log",
+      "bytes": 1070,
+      "sha256": "26eeec94e2b84a1688016ffdf72e4a91c6275e7c8f80584e422f361111f66275"
+    },
+    {
+      "name": "private-i18n",
+      "command": ["pnpm", "i18n:check"],
+      "cwd": "private",
+      "exit": 0,
+      "seconds": 0.16,
+      "log": "private-phases-integrated-nov2-private-i18n.log",
+      "bytes": 607,
+      "sha256": "496c5e69f51571e1b4cd8b6324ff1b2821b2e5b6ba4def9d8449786f73ce1e55"
+    },
+    {
+      "name": "public-db-setup",
+      "command": ["pnpm", "db:setup"],
+      "cwd": "public",
+      "exit": 0,
+      "seconds": 1.1,
+      "log": "private-phases-integrated-nov2-public-db-setup.log",
+      "bytes": 2076,
+      "sha256": "903e8d9efef6059ee0e92a7bcff2d4bd3c78277c9ec2f4accaa53b8b1109c87c"
+    },
+    {
+      "name": "server-abuse",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        "abuse-both.vitest.config.ts"
+      ],
+      "cwd": "public/apps/server",
+      "exit": 0,
+      "seconds": 18.25,
+      "log": "private-phases-integrated-nov2-server-abuse.log",
+      "bytes": 191,
+      "sha256": "73900ea55bf2361aa7e56b7f1e9614788e06f651d1f3cb3c9413d98fd18ffe8f",
+      "passed": 4
+    },
+    {
+      "name": "server-sensitive",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        "sensitive.vitest.config.ts"
+      ],
+      "cwd": "public/apps/server",
+      "exit": 0,
+      "seconds": 11.44,
+      "log": "private-phases-integrated-nov2-server-sensitive.log",
+      "bytes": 191,
+      "sha256": "f4d2293fa22278229ce67e8fe71c322bde012ab50c4e3048ea4095e3fec06eee",
+      "passed": 2
+    },
+    {
+      "name": "server-quota",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        "quota.vitest.config.ts"
+      ],
+      "cwd": "public/apps/server",
+      "exit": 0,
+      "seconds": 57.91,
+      "log": "private-phases-integrated-nov2-server-quota.log",
+      "bytes": 192,
+      "sha256": "05cc6691476471aa08f335f10a617df34270c097fae34944c0c616dc870f344f",
+      "passed": 9
+    },
+    {
+      "name": "web-sensitive",
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "sensitive.playwright.config.ts"
+      ],
+      "cwd": "public/apps/web",
+      "exit": 0,
+      "seconds": 32.33,
+      "log": "private-phases-integrated-nov2-web-sensitive.log",
+      "bytes": 5007,
+      "sha256": "8011d302155739a17a0085379671d8b2347a42177537cef1a48398c599353b77",
+      "passed": 17
+    },
+    {
+      "name": "preferences",
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "preferences.playwright.config.ts"
+      ],
+      "cwd": "public/apps/extension",
+      "exit": 0,
+      "seconds": 14.21,
+      "log": "private-phases-integrated-nov2-preferences.log",
+      "bytes": 1980,
+      "sha256": "6bbdc252bd2d8e64e265d8f4d3144150f875907313f1a1a31e02370da94e7fec",
+      "passed": 9
+    },
+    {
+      "name": "native-account",
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "account.playwright.config.ts"
+      ],
+      "cwd": "public/apps/extension",
+      "exit": 0,
+      "seconds": 61.67,
+      "log": "private-phases-integrated-nov2-native-account.log",
+      "bytes": 6283,
+      "sha256": "c80bcec338923a71395a9e111b37efe0634fc9f381fcb77662ba7d232a62a132",
+      "passed": 27
+    },
+    {
+      "name": "native-private",
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "private.playwright.config.ts"
+      ],
+      "cwd": "public/apps/extension",
+      "exit": 0,
+      "seconds": 39.49,
+      "log": "private-phases-integrated-nov2-native-private.log",
+      "bytes": 877,
+      "sha256": "3d9fd4c21070a156da7f3054626cf7f682275dc841295fb68ad4e05c93c75347",
+      "passed": 5
+    },
+    {
+      "name": "private-full",
+      "command": ["pnpm", "exec", "vitest", "run"],
+      "cwd": "private/apps/server",
+      "exit": 0,
+      "seconds": 190.46,
+      "log": "private-phases-integrated-nov2-private-full.log",
+      "bytes": 217,
+      "sha256": "57f8f6181d7a879bcc85c463c758856df1e29f07590a34a13162419b1092a35f",
+      "passed": 85
+    }
+  ],
+  "failedIntegratedRuns": [],
+  "historicalFailures": {
+    "preCommercePrivateFull": "72/73; corrected mail-failure fixture expected 200 rather than fail-closed 503",
+    "postCommercePrivateFull": "83/85; corrected invoice trigger and captured-mail recipient selection",
+    "laterFocused": "capture schema omitted recipient field; fixed in supplied source; final focused 55/55"
+  },
+  "release": {
+    "command": "node scripts/release-check.ts",
+    "cwd": "public/apps/server",
+    "exit": 78,
+    "pnpmWrapperExit": 1,
+    "log": "private-phases-integrated-nov2-release-direct.log",
+    "sha256": "d7b66fd9425176834b18995419c5c034d1fe3af22e46f3b27d2bad07ee5cc690"
+  },
+  "boundaries": {
+    "database": "owned PostgreSQL 18 on 127.0.0.1:55711; isolated roles/schemas/databases",
+    "applicationPorts": [5701, 5702, 5703],
+    "browser": "native Chromium and Firefox automated fixtures; no browser qualification claim",
+    "externalAdapters": "synthetic Data source/payment fixtures and captured/failing test mail only",
+    "clientFixtures": "explicit late/error/revoked transport responses for client races; Account storage and cross-program authority remain real",
+    "staticChecks": "aggregate checks include valid Turbo cache reuse; server/browser tests ran directly without Turbo caching",
+    "pagefind": "normal existing controlled fetch/build cache verified; no substitute binary"
+  },
+  "gates": {
+    "dependencies": "private minimatch 10.2.6 / GHSA-g3hv-75wg-m249 remains blocking; first patch 11.0.1 is outside current parent 10.x ranges; no override or waiver",
+    "betterAuth": "exactly 1.7.14; Selected transitive qualification gate open",
+    "qualification": "all provider/source-rights, legal/tax/security, deployment/ingress/key/clock/log/backup/restore, calibration/Measured configuration, load and supported-browser/assistive-technology gates remain",
+    "migration": "independent migration checksum reconciliation remains a deployment gate; no unknown installed database mutated",
+    "support": "#113 owns DSR/export/support and contractual-return workflows; not implemented by this integration",
+    "legalRetention": "independent legal-record purpose does not extend verification-content retention"
+  },
+  "retryJob": "user-enabled five-hour job untouched; no scheduling changes",
+  "issueClosure": false,
+  "readyForReview": false,
+  "explicitRegeneration": [
+    {
+      "name": "contract-common-rebuild",
+      "cwd": "public",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/contract-common",
+        "build"
+      ],
+      "exit": 0,
+      "seconds": 0.17,
+      "log": "private-phases-integrated-nov2-contract-common-rebuild.log",
+      "bytes": 29,
+      "sha256": "24c42b76aecef2c39c8a5639a3536efb936b03bdac9a8f8be50c0e71ffbc7af8"
+    },
+    {
+      "name": "contract-internal-rebuild",
+      "cwd": "public",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/contract-internal",
+        "build"
+      ],
+      "exit": 0,
+      "seconds": 0.35,
+      "log": "private-phases-integrated-nov2-contract-internal-rebuild.log",
+      "bytes": 24,
+      "sha256": "99ffb5cfaaa7975ee406c1bc012dfd72afacd0fcd3515f58f619e91f0c534630"
+    },
+    {
+      "name": "contract-service-rebuild",
+      "cwd": "public",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/contract-service",
+        "build"
+      ],
+      "exit": 0,
+      "seconds": 0.41,
+      "log": "private-phases-integrated-nov2-contract-service-rebuild.log",
+      "bytes": 24,
+      "sha256": "99ffb5cfaaa7975ee406c1bc012dfd72afacd0fcd3515f58f619e91f0c534630"
+    },
+    {
+      "name": "contract-verification-rebuild",
+      "cwd": "public",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/contract-verification",
+        "build"
+      ],
+      "exit": 0,
+      "seconds": 0.47,
+      "log": "private-phases-integrated-nov2-contract-verification-rebuild.log",
+      "bytes": 24,
+      "sha256": "99ffb5cfaaa7975ee406c1bc012dfd72afacd0fcd3515f58f619e91f0c534630"
+    },
+    {
+      "name": "public-catalog-generate",
+      "cwd": "public",
+      "command": ["pnpm", "--filter", "@source-taster/i18n", "generate"],
+      "exit": 0,
+      "seconds": 1.72,
+      "log": "private-phases-integrated-nov2-public-catalog-generate.log",
+      "bytes": 240,
+      "sha256": "df18f23268ff1b29e9d3ce16037d61b1cec74db2cfa217d55fb5f17e43cebe85"
+    },
+    {
+      "name": "private-catalog-generate",
+      "cwd": "private",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/i18n",
+        "generate"
+      ],
+      "exit": 0,
+      "seconds": 1.26,
+      "log": "private-phases-integrated-nov2-private-catalog-generate.log",
+      "bytes": 240,
+      "sha256": "df18f23268ff1b29e9d3ce16037d61b1cec74db2cfa217d55fb5f17e43cebe85"
+    },
+    {
+      "name": "public-reproducibility",
+      "cwd": "public",
+      "command": ["git", "diff", "--exit-code"],
+      "exit": 0,
+      "seconds": 0.03,
+      "log": "private-phases-integrated-nov2-public-reproducibility.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "private-reproducibility",
+      "cwd": "private",
+      "command": ["git", "diff", "--exit-code"],
+      "exit": 0,
+      "seconds": 0.01,
+      "log": "private-phases-integrated-nov2-private-reproducibility.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "installed-bytes-final",
+      "cwd": "public",
+      "command": [
+        "python3",
+        "public/.tmp/spec-70-orchestration/private-phases-integrated-nov2-verify-pins.py"
+      ],
+      "exit": 0,
+      "seconds": 0.73,
+      "log": "private-phases-integrated-nov2-installed-bytes-final.log",
+      "bytes": 160,
+      "sha256": "fc0490e502b4f1e18a29e86b8d58c5c24029701ddcaa0de384c425c709f9af8f"
+    }
+  ],
+  "cleanup": "cleanup.json",
+  "savedAncestry": {
+    "public": {
+      "0d6c984e1d4c363bb21acbc17a34f46134f6e38a": true,
+      "56e54109d3519ee45883fdb89e05982879e63954": true,
+      "36aea2a7b04a20426b5081790827b4e63b88d3c5": true,
+      "1152dfaa929083896ac6741d36122c807e00b2a8": true
+    },
+    "private": {
+      "5d28e9103f000edaeafc39a58c906f2b8ebc0730": true,
+      "f73dd5670f8a78b1b0d161b8b2b8a220fe458039": true,
+      "7416c7944837af60aa9982a13062a035f0750757": true,
+      "f9429e38aa19088a7874ea59cf794b59697804a8": true,
+      "6537c7c525c391a43d7b55be0a33f0c25ee04c83": true
+    }
+  }
+}

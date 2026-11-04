@@ -1,3 +1,4 @@
+import { CancellationLink } from "./cancellation-link.tsx";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import React from "react";
 import { createRoot } from "react-dom/client";
@@ -6,10 +7,7 @@ import {
   loadGuestPreferences,
   webPreferenceStorage,
 } from "@source-taster/ui/preferences";
-import {
-  guestCredentials,
-  webGuestIdentityStorage,
-} from "@source-taster/ui/guest-identity";
+import { WebAccountWorkspace } from "@source-taster/ui/web-account-workspace";
 import { setLocale } from "@source-taster/i18n/runtime";
 import "./style.css";
 const preferenceStorage = webPreferenceStorage();
@@ -24,22 +22,32 @@ if (mode !== "standalone" && mode !== "hosted")
 const serviceUrl = import.meta.env.VITE_SOURCE_TASTER_SERVICE_URL;
 if (mode === "hosted" && !serviceUrl)
   throw new Error("Hosted client requires a service URL");
-const guest =
-  mode === "hosted"
-    ? guestCredentials({
-        storage: webGuestIdentityStorage(),
-        client: "web",
-        serviceUrl: serviceUrl!,
-      })
-    : undefined;
-const transport = { client: "web/0.0.0", credentials: guest?.credentials };
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <CheckWorkspace
-      initial={initial}
-      preferenceStorage={preferenceStorage}
-      transport={transport}
-      siteUrl={import.meta.env.VITE_SOURCE_TASTER_WEBSITE_URL}
-    />
+    {mode === "hosted" ? (
+      <WebAccountWorkspace
+        initial={initial}
+        preferenceStorage={preferenceStorage}
+        serviceUrl={serviceUrl!}
+        siteUrl={import.meta.env.VITE_SOURCE_TASTER_WEBSITE_URL}
+        sensitiveActions={
+          import.meta.env.VITE_SOURCE_TASTER_SENSITIVE_ACCOUNT_ACTIONS ===
+          "enabled"
+        }
+      />
+    ) : (
+      <CheckWorkspace
+        initial={initial}
+        preferenceStorage={preferenceStorage}
+        transport={{ client: "web/0.0.0" }}
+        siteUrl={import.meta.env.VITE_SOURCE_TASTER_WEBSITE_URL}
+      />
+    )}
+    {serviceUrl && (
+      <CancellationLink
+        serviceUrl={serviceUrl}
+        language={initial.preferences.language}
+      />
+    )}
   </React.StrictMode>,
 );

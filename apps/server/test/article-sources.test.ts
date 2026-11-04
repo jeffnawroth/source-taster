@@ -47,7 +47,11 @@ beforeAll(async () => {
     startDoiFixtures(),
     startDoiFixtures(),
   ]);
-  service = await startTestService(54878, 0, sourceEnv());
+  service = await startTestService(
+    Number(process.env.SOURCE_TASTER_TEST_ARTICLE_PORT ?? 54878),
+    0,
+    sourceEnv(),
+  );
 });
 afterAll(async () => {
   await service?.stop();
@@ -84,9 +88,13 @@ async function run(fields: Fields) {
   const events = [];
   for await (const frame of readSseFrames(stream.body!))
     events.push(CheckEvent.parse(JSON.parse(frame.data)));
-  const snapshot = CheckResponse.parse(
-    await (await fetch(`${service.apiUrl}/v2/checks/${created.id}`)).json(),
-  ).data;
+  const snapshotResponse = await fetch(
+    `${service.apiUrl}/v2/checks/${created.id}`,
+  );
+  expect(snapshotResponse.status, await snapshotResponse.clone().text()).toBe(
+    200,
+  );
+  const snapshot = CheckResponse.parse(await snapshotResponse.json()).data;
   const outcome = snapshot.references[0]!.outcome;
   if (outcome.kind !== "verdict") throw new Error("Expected Verdict");
   expect(events).toContainEqual(
@@ -234,6 +242,90 @@ const s2Paper = {
   journal: null,
 };
 
+// Entirely synthetic journal, absent from NLM; only this received record can
+// attest its abbreviation. Simulate the Graph API's requested-field projection.
+const venueReference = {
+  type: "article-journal",
+  title: "Synthetic venue attestation study 137",
+  author: [{ family: "Example", given: "Ada" }],
+  issued: { literal: "2026" },
+  "container-title-short": "SJAA137",
+} satisfies Fields;
+const venuePaper = {
+  paperId: "synthetic-venue-137",
+  title: venueReference.title,
+  authors: [{ name: "Ada Example" }],
+  year: 2026,
+  journal: { name: "Synthetic Journal of Adapter Attestation 137" },
+};
+const publicationVenue = {
+  id: "synthetic-venue-id-137",
+  name: "Synthetic Journal of Adapter Attestation 137",
+  alternate_names: ["Synt J Adapt Attest", "SJAA137"],
+};
+
+it("scores a journal abbreviation attested only by Semantic Scholar search publicationVenue", async () => {
+  openalex.respond("/works", 200, { results: [] });
+  crossref.respond("/works", 200, { message: { items: [] } });
+  europepmc.respond(epmcSearch, 200, { hitCount: 0 });
+  semanticscholar.route((url) =>
+    url.pathname === "/graph/v1/paper/search"
+      ? {
+          status: 200,
+          body: {
+            data: [
+              {
+                ...venuePaper,
+                ...(url.searchParams
+                  .get("fields")
+                  ?.split(",")
+                  .includes("publicationVenue")
+                  ? { publicationVenue }
+                  : {}),
+              },
+            ],
+          },
+        }
+      : undefined,
+  );
+  const { outcome } = await run(venueReference);
+  expect(outcome.verdict).toBe("correct");
+  expect(outcome.candidates).toHaveLength(1);
+  const candidate = outcome.candidates[0]!;
+  expect(candidate).toMatchObject({
+    source: "semanticscholar",
+    origin: "combined",
+  });
+  expect(
+    candidate.fields.find((f) => f.field === "container-title"),
+  ).toMatchObject({
+    score: { value: 100000000, fullAgreement: true },
+    journalAbbreviation: {
+      outcome: "match",
+      reason: "attested-match",
+      attestations: [
+        {
+          source: "semanticscholar",
+          role: "candidate",
+          journalTitle: "Synthetic Journal of Adapter Attestation 137",
+          abbreviation: "SJAA137",
+        },
+      ],
+    },
+  });
+  expect(semanticscholar.requests).toHaveLength(1);
+  const requested = new URL(
+    semanticscholar.requests[0]!.path,
+    "http://fixture",
+  );
+  expect(requested.searchParams.get("fields")?.split(",")).toContain(
+    "publicationVenue",
+  );
+  expect(arxiv.requests).toHaveLength(0);
+  expect(outcome.scoringRules.version).toContain("journal-76-2-");
+  expect(outcome.searchStrategyVersion).toContain("article-search-78-5-");
+});
+
 it("identifies an arXiv identifier through the Semantic Scholar index before arXiv itself", async () => {
   semanticscholar.route((url) =>
     url.pathname === "/graph/v1/paper/batch"
@@ -267,6 +359,107 @@ it("identifies an arXiv identifier through the Semantic Scholar index before arX
   for (const other of [openalex, crossref, europepmc, arxiv])
     expect(other.requests).toHaveLength(0);
 });
+
+it("scores a journal abbreviation attested only by Semantic Scholar batch publicationVenue", async () => {
+  semanticscholar.route((url) =>
+    url.pathname === "/graph/v1/paper/batch"
+      ? {
+          status: 200,
+          body: [
+            {
+              ...venuePaper,
+              externalIds: { ArXiv: "2610.00137" },
+              ...(url.searchParams
+                .get("fields")
+                ?.split(",")
+                .includes("publicationVenue")
+                ? { publicationVenue }
+                : {}),
+            },
+          ],
+        }
+      : undefined,
+  );
+  const { outcome } = await run({ ...venueReference, arXiv: "2610.00137" });
+  expect(outcome).toMatchObject({
+    verdict: "correct",
+    identity: { kind: "supplied-identifier" },
+    candidates: [{ source: "semanticscholar", origin: "arxiv" }],
+  });
+  expect(
+    outcome.candidates[0]!.fields.find((f) => f.field === "container-title"),
+  ).toMatchObject({
+    score: { value: 100000000, fullAgreement: true },
+    journalAbbreviation: {
+      outcome: "match",
+      attestations: [
+        {
+          source: "semanticscholar",
+          role: "candidate",
+          journalTitle: "Synthetic Journal of Adapter Attestation 137",
+          abbreviation: "SJAA137",
+        },
+      ],
+    },
+  });
+  expect(semanticscholar.requests).toMatchObject([
+    { method: "POST", body: { ids: ["ARXIV:2610.00137"] } },
+  ]);
+  const requested = new URL(
+    semanticscholar.requests[0]!.path,
+    "http://fixture",
+  );
+  expect(requested.searchParams.get("fields")?.split(",")).toContain(
+    "publicationVenue",
+  );
+  for (const other of [openalex, crossref, europepmc, arxiv])
+    expect(other.requests).toHaveLength(0);
+});
+
+it.each([
+  ["search", undefined],
+  ["search", null],
+  ["batch", undefined],
+  ["batch", null],
+] as const)(
+  "leaves the journal abbreviation unscored without penalty when Semantic Scholar %s publicationVenue is %s",
+  async (route, venue) => {
+    openalex.respond("/works", 200, { results: [] });
+    crossref.respond("/works", 200, { message: { items: [] } });
+    europepmc.respond(epmcSearch, 200, { hitCount: 0 });
+    const paper = {
+      ...venuePaper,
+      ...(route === "batch" ? { externalIds: { ArXiv: "2610.00137" } } : {}),
+      ...(venue === undefined ? {} : { publicationVenue: venue }),
+    };
+    semanticscholar.respond(
+      `/graph/v1/paper/${route}`,
+      200,
+      route === "batch" ? [paper] : { data: [paper] },
+    );
+    const { outcome } = await run({
+      ...venueReference,
+      ...(route === "batch" ? { arXiv: "2610.00137" } : {}),
+    });
+    expect(outcome.verdict).toBe("correct");
+    expect(outcome.candidates).toHaveLength(1);
+    const candidate = outcome.candidates[0]!;
+    expect(candidate.source).toBe("semanticscholar");
+    expect(
+      candidate.fields.find((f) => f.field === "container-title"),
+    ).toMatchObject({
+      score: null,
+      reason: "not-determinable",
+      journalAbbreviation: {
+        outcome: "not-determinable",
+        reason: "no-attestation",
+        attestations: [],
+      },
+    });
+    expect(candidate.score).toEqual({ value: 100000000, fullAgreement: true });
+    expect(semanticscholar.requests).toHaveLength(1);
+  },
+);
 
 it("falls back to the arXiv API, identifier only, when the index has no record", async () => {
   const atom = await fixture("arxiv-1706.03762.xml");

@@ -3,19 +3,8 @@
 import { z } from "zod";
 import { envelope } from "../../contract-common/src/index.js";
 import { StructuredCsl } from "./structuring.js";
-export const CitationStyle = z.enum([
-    "apa",
-    "mla",
-    "chicago",
-    "ieee",
-    "vancouver",
-    "harvard",
-    "acs",
-    "ama",
-    "oxford",
-    "springer",
-    "din-iso-690",
-]);
+import { CitationStyle } from "../../contract-common/src/index.js";
+export { CitationStyle };
 export const BibliographyRequest = z.strictObject({
     style: CitationStyle,
     /** Omit for all suggestions; clients can request just the visible/selected slots. */
@@ -36,6 +25,11 @@ export const Bibliography = z.object({
         slot: z.number().int().positive(),
         suggestion: FormattedReference.extend({ csl: StructuredCsl }).nullable(),
         applied: z.boolean(),
+        /** Opaque result binding for a transient correction selection. */
+        resultToken: z
+            .string()
+            .regex(/^[a-f0-9]{64}$/u)
+            .optional(),
     })),
     bibliography: FormattedReference.nullable(),
 });

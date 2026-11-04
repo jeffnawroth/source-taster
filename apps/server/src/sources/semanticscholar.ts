@@ -25,7 +25,8 @@ import {
   type SourceBatch,
   type SourceRequest,
 } from "./shared.ts";
-const fields = "title,authors,year,venue,externalIds,publicationDate,journal";
+const fields =
+  "title,authors,year,venue,externalIds,publicationDate,journal,publicationVenue";
 const record = z.object({
   paperId: z.string().min(1),
   title: z.string().nullable().optional(),
@@ -69,6 +70,8 @@ function project(
     source: "semanticscholar",
     origin,
     retrievedAt,
+    // Keep publicationVenue.alternate_names on the Candidate's received record
+    // for ADR-0018 attestation; selecting one CSL short title would lose aliases.
     raw: body,
     csl: {
       ...(m.title ? { title: m.title } : {}),

@@ -99,7 +99,7 @@ export function verificationClient(options: VerificationClientOptions = {}) {
   return createVerificationClient(options, "/v1", CheckResponse);
 }
 /** Shared transport across majors; policies and verification remain server-owned. */
-export function createVerificationClient<T>(
+export function createVerificationClient<T, Input = CreateCheckRequest>(
   options: VerificationClientOptions,
   prefix: string,
   responseSchema: { parse(input: unknown): { data: T } },
@@ -134,7 +134,7 @@ export function createVerificationClient<T>(
     return schema.parse(body);
   }
   return {
-    createCheck: async (input: string | CreateCheckRequest) =>
+    createCheck: async (input: string | Input) =>
       (
         await post(
           `${prefix}/checks`,
@@ -239,6 +239,16 @@ export async function watchContractEvents<
         throw new CheckStreamError(response.status, problem.data);
       }
       if (response.ok && response.body) {
+        // An ended Check can have later slot runs. Historical end events before
+        // this connection's snapshot cursor cannot finish a v2 replay.
+        const replayThrough =
+          prefix === "/v2"
+            ? Number(
+                response.headers.get("X-Source-Taster-Replay-Through") ?? "0",
+              )
+            : 0;
+        if (!Number.isSafeInteger(replayThrough) || replayThrough < 0)
+          throw new SyntaxError("Invalid replay boundary");
         for await (const frame of readSseFrames(response.body)) {
           const event = schema.parse(JSON.parse(frame.data));
           if (
@@ -251,7 +261,7 @@ export async function watchContractEvents<
             throw new SyntaxError("Check event sequence gap");
           lastSeq = event.seq;
           options.onEvent(event);
-          if (final(event)) return;
+          if (final(event) && event.seq >= replayThrough) return;
         }
       }
     } catch (error) {

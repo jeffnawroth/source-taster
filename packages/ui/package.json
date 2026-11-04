@@ -10,7 +10,8 @@
     "./information": "./src/information.tsx",
     "./guest-identity": "./src/guest-identity.ts",
     "./check-workspace": "./src/check-workspace.tsx",
-    "./workspace.css": "./src/workspace.css"
+    "./workspace.css": "./src/workspace.css",
+    "./web-account-workspace": "./src/web-account-workspace.tsx"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",

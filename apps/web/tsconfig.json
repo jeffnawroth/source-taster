@@ -9,10 +9,19 @@
   },
   "include": [
     "src",
+    "e2e-history",
     "e2e",
     "*.ts",
     "guest.playwright.config.ts",
     "e2e-guest",
-    "e2e-bibliographic"
+    "e2e-bibliographic",
+    "e2e-account",
+    "e2e-sensitive",
+    "e2e-quota",
+    "quota.playwright.config.ts",
+    "e2e-abuse",
+    "e2e-report",
+    "e2e-dpa",
+    "e2e-rights"
   ]
 }

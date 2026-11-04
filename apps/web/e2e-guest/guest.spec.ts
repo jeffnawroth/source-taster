@@ -15,7 +15,13 @@ let both: Awaited<ReturnType<typeof bothPrograms>>,
   vite: ChildProcess,
   url: string;
 test.beforeAll(async () => {
-  both = await bothPrograms({ startWorker: false, clientLeaseMs: 1500 });
+  // The hosted web asks the service for a session first; a launch service has
+  // Accounts enabled and answers "none" for a Guest (never a 404 to guess from).
+  both = await bothPrograms({
+    startWorker: false,
+    clientLeaseMs: 1500,
+    accounts: true,
+  });
   const port = await freePort();
   url = `http://127.0.0.1:${port}`;
   both.serviceConfig.allowedOrigins = [url];
@@ -203,7 +209,7 @@ test("concurrent origin tabs share one Guest while an independent browser contex
   browser,
 }) => {
   const other = await context.newPage();
-  await Promise.all([page.goto(url), other.goto(url)]);
+  // #99 reads Quota on load, so issuance starts with the page: listen first.
   const issueIds: string[] = [];
   context.on("request", (request) => {
     if (request.url().endsWith("/v1/guest-tokens")) {
@@ -211,6 +217,7 @@ test("concurrent origin tabs share one Guest while an independent browser contex
       issueIds.push(body.guestId);
     }
   });
+  await Promise.all([page.goto(url), other.goto(url)]);
   for (const tab of [page, other])
     await tab.getByRole("textbox").fill(physicsReference);
   await Promise.all([

@@ -8,7 +8,15 @@ let fixtures: Awaited<ReturnType<typeof startDoiFixtures>>;
 let service: Awaited<ReturnType<typeof startTestService>>;
 beforeAll(async () => {
   fixtures = await startDoiFixtures();
-  service = await startTestService(54181, 0, fixtures.env);
+  service = await startTestService(
+    Number(
+      process.env.SOURCE_TASTER_TEST_LIFECYCLE_PROCESS_PORT ??
+        process.env.SOURCE_TASTER_TEST_CONCURRENT_PORT ??
+        54181,
+    ),
+    0,
+    fixtures.env,
+  );
 });
 afterAll(async () => {
   await service?.stop();

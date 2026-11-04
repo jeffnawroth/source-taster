@@ -108,7 +108,7 @@ const timeClaims = {
   nbf: z.number().int().nonnegative(),
   exp: z.number().int().positive(),
 };
-const accessClaims = z.strictObject({
+const guestClaims = z.strictObject({
   ...timeClaims,
   iss: z.string(),
   aud: z.string(),
@@ -120,6 +120,20 @@ const accessClaims = z.strictObject({
   client: z.enum(["web", "extension"]),
   jti: z.uuid(),
 });
+const accountClaims = z.strictObject({
+  ...timeClaims,
+  iss: z.string(),
+  aud: z.string(),
+  purpose: z.literal("account-access"),
+  sub: z.uuid(),
+  ownerId: z.uuid(),
+  sessionId: z.uuid(),
+  jti: z.uuid(),
+});
+const accessClaims = z.discriminatedUnion("purpose", [
+  guestClaims,
+  accountClaims,
+]);
 export type AccessClaims = z.infer<typeof accessClaims>;
 function validTime(
   claims: { iat: number; nbf: number; exp: number },
@@ -139,6 +153,7 @@ export function requestAssertion(
   settings: HostedSettings,
   body: string,
   now: number,
+  path = "/internal/guest-authority",
 ) {
   const iat = Math.floor(now / 1000);
   const h = Buffer.from(
@@ -152,59 +167,99 @@ export function requestAssertion(
     JSON.stringify({
       iss: settings.assertionIssuer,
       aud: settings.serviceIssuer,
-      purpose: "guest-authority",
+      purpose:
+        path === "/internal/data-subject-authority"
+          ? "data-subject-authority"
+          : path.startsWith("/internal/configuration/")
+            ? "configuration-authority"
+            : path.startsWith("/internal/abuse/")
+              ? "abuse-entrance"
+              : path.startsWith("/internal/quota/")
+                ? "quota"
+                : path === "/internal/account-authority"
+                  ? "account-authority"
+                  : "guest-authority",
       iat,
       nbf: iat,
       exp: iat + 30,
       jti: randomUUID(),
       method: "POST",
-      path: "/internal/guest-authority",
+      path,
       bodyHash: createHash("sha256").update(body).digest("base64url"),
     }),
   ).toString("base64url");
   const message = `${h}.${p}`;
   return `${message}.${sign(null, Buffer.from(message), createPrivateKey(settings.internalKey.pem)).toString("base64url")}`;
 }
-const invalidationClaims = z.strictObject({
-  ...timeClaims,
-  iss: z.string(),
-  aud: z.string(),
-  purpose: z.literal("authority-invalidation"),
-  jti: z.uuid(),
-  method: z.literal("POST"),
-  path: z.literal("/internal/guest-authority/invalidate"),
-  bodyHash: z.string(),
+/** What one service-facing mutation accepts: purpose, method and exact path are
+ * all bound into the signed assertion, so one route's assertion cannot be replayed
+ * against another. */
+export function serviceAssertion(binding: {
+  purpose: string;
+  method: string;
+  path: string;
+}) {
+  const claims = z.strictObject({
+    ...timeClaims,
+    iss: z.string(),
+    aud: z.string(),
+    purpose: z.literal(binding.purpose),
+    jti: z.uuid(),
+    method: z.literal(binding.method),
+    path: z.literal(binding.path),
+    bodyHash: z.string(),
+  });
+  return (
+    settings: HostedSettings,
+    token: string,
+    body: string,
+    now: number,
+  ) => {
+    try {
+      const data = unpack(token);
+      const parsed = claims.parse(data.claims);
+      const key = settings
+        .peerKeys()
+        .keys.find((k) => k.kid === data.header.kid);
+      if (
+        !key ||
+        data.header.typ !== "service+jwt" ||
+        !validTime(parsed, now, 30) ||
+        parsed.iss !== settings.serviceIssuer ||
+        parsed.aud !== settings.verificationAudience ||
+        parsed.bodyHash !==
+          createHash("sha256").update(body).digest("base64url") ||
+        !verify(
+          null,
+          data.message,
+          createPublicKey({ key, format: "jwk" }),
+          data.signature,
+        )
+      )
+        fail("unauthenticated");
+      return parsed;
+    } catch {
+      fail("unauthenticated");
+    }
+  };
+}
+export const verifyInvalidation = serviceAssertion({
+  purpose: "authority-invalidation",
+  method: "POST",
+  path: "/internal/guest-authority/invalidate",
 });
-export function verifyInvalidation(
+/** The private service's Owner-deletion call (ADR-0003); the path carries the Owner. */
+export const verifyOwnerDeletion = (
   settings: HostedSettings,
   token: string,
-  body: string,
+  ownerId: string,
   now: number,
-) {
-  try {
-    const data = unpack(token);
-    const claims = invalidationClaims.parse(data.claims);
-    const key = settings.peerKeys().keys.find((k) => k.kid === data.header.kid);
-    if (
-      !key ||
-      data.header.typ !== "service+jwt" ||
-      !validTime(claims, now, 30) ||
-      claims.iss !== settings.serviceIssuer ||
-      claims.aud !== settings.verificationAudience ||
-      claims.bodyHash !==
-        createHash("sha256").update(body).digest("base64url") ||
-      !verify(
-        null,
-        data.message,
-        createPublicKey({ key, format: "jwk" }),
-        data.signature,
-      )
-    )
-      fail("unauthenticated");
-  } catch {
-    fail("unauthenticated");
-  }
-}
+) =>
+  serviceAssertion({
+    purpose: "owner-deletion",
+    method: "DELETE",
+    path: `/internal/owners/${ownerId}`,
+  })(settings, token, "", now);
 /** 30s key cache, 1s global refresh cooldown, one flight, 2s timeout, 16KiB
  * maximum document and five keys. Refresh failure never extends old key lifetime. */
 export function guestAccessTokens(

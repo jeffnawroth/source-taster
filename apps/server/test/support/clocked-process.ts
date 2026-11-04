@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import { ActiveConfiguration } from "@source-taster/contract-internal";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Test composition only: a real process with an IPC-controlled domain clock.
 import { once } from "node:events";
@@ -6,6 +8,8 @@ import { createParser } from "@source-taster/core";
 import { createQueue } from "../../src/checks/queue.ts";
 import { createCheckStore } from "../../src/checks/store.ts";
 import { startWorkerRuntime } from "../../src/checks/worker-runtime.ts";
+import { generateReport } from "../../src/reports/generate.ts";
+import { setTimeout } from "node:timers/promises";
 import { listenForEvents } from "../../src/checks/events.ts";
 import { createPrisma } from "../../src/db/prisma.ts";
 import { loadConfig } from "../../src/config.ts";
@@ -16,6 +20,21 @@ if (process.env.NODE_ENV !== "test" || !process.send)
 const config = loadConfig();
 let now = Number(process.env.TEST_CLOCK);
 const options = {
+  // Controlled source-only pointer adapter; these values never qualify a build.
+  ...(process.env.TEST_CONFIGURATION_POINTER
+    ? {
+        configuration: {
+          current: async () => ({
+            ...ActiveConfiguration.parse(
+              JSON.parse(
+                await readFile(process.env.TEST_CONFIGURATION_POINTER!, "utf8"),
+              ),
+            ),
+            rulesVersion: "controlled-state-machine-only",
+          }),
+        },
+      }
+    : {}),
   clock: { now: () => now },
   settings: {
     clientLeaseMs: Number(process.env.TEST_CLIENT_LEASE_MS ?? 10_000),
@@ -26,12 +45,34 @@ const options = {
 const db = createPrisma(config.databaseUrl);
 const boss = await createQueue(config.databaseUrl);
 const checks = createCheckStore(db, boss, options);
+await checks.maintain();
 let stop: () => void | Promise<void>;
 if (process.argv[2] === "worker") {
-  const runtime = await startWorkerRuntime(config, db, boss, options);
+  const runtime = await startWorkerRuntime(config, db, boss, {
+    clock: options.clock,
+    settings: options.settings,
+    ...(process.env.TEST_REPORT_RENDER_DELAY_MS
+      ? {
+          generateReport: async (input) => {
+            await setTimeout(Number(process.env.TEST_REPORT_RENDER_DELAY_MS));
+            return generateReport(input);
+          },
+        }
+      : {}),
+  });
   stop = () => runtime.stop();
 } else {
   const events = await listenForEvents(config.databaseUrl);
+  // Test composition: a Quota that grants the reports feature to every Owner.
+  const quota = (remaining: number) => ({
+    consumed: 0,
+    remaining,
+    granted: 1000,
+    reserved: 1000 - remaining,
+    warning: "none" as const,
+    grants: [],
+    features: ["verification-report"],
+  });
   const app = createApp({
     structuring: createParser({ referenceLimit: config.referenceLimit }),
     checks,
@@ -39,6 +80,21 @@ if (process.argv[2] === "worker") {
     heartbeatMs: 50,
     referenceLimit: config.referenceLimit,
     entitlements: {
+      ...(process.env.TEST_REPORT_FEATURE
+        ? {
+            quota: {
+              snapshot: () => Promise.resolve(quota(1000)),
+              reserve: (_owner, _checkId, _key, slots) =>
+                Promise.resolve({
+                  free: [],
+                  reserved: slots.length,
+                  quota: quota(1000 - slots.length),
+                }),
+              release: async () => {},
+              settle: async () => {},
+            },
+          }
+        : {}),
       resolve: (request) =>
         Promise.resolve({
           ...LOCAL_OWNER,
@@ -60,7 +116,10 @@ if (process.argv[2] === "worker") {
 }
 process.on("message", (message: { now: number; id: number }) => {
   now = message.now;
-  process.send!({ id: message.id });
+  void checks
+    .maintain()
+    .then(() => process.send!({ id: message.id }))
+    .catch(() => process.send!({ id: message.id, error: true }));
 });
 process.send({ ready: true });
 process.once("SIGTERM", () => {

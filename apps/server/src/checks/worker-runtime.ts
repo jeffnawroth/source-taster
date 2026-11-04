@@ -1,11 +1,21 @@
+import { configurationSelection } from "../quality/protocol.ts";
+import { measuredConfigurations } from "../quality/activation.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Injectable composition root, also used by real-PG HTTP/SSE lifecycle tests.
 import { setTimeout } from "node:timers/promises";
 import { referenceDeadlineMs } from "@source-taster/core";
 import type { PgBoss } from "pg-boss";
+import type { ReportFailure } from "@source-taster/contract-verification/report";
 import type { Config } from "../config.ts";
 import type { Db } from "../db/prisma.ts";
-import { REFERENCE_QUEUE, type ReferenceJob } from "./queue.ts";
+import {
+  REFERENCE_QUEUE,
+  REPORT_QUEUE,
+  type ReferenceJob,
+  type ReportJob,
+} from "./queue.ts";
+import { generateReport, ReportFailed } from "../reports/generate.ts";
+import { reportFeature } from "../entitlements.ts";
 import { referenceExecution } from "./verification-runtime.ts";
 import {
   createCheckStore,
@@ -15,6 +25,8 @@ import {
   type LifecycleSettings,
 } from "./store.ts";
 import { systemSourceClock } from "../sources/doi.ts";
+import type { QuotaPort } from "../quota/port.ts";
+import { settlementDrain } from "../quota/settlement.ts";
 export interface WorkAuthority {
   run<T>(
     attempt: WorkSubject,
@@ -30,9 +42,24 @@ export async function startWorkerRuntime(
     clock?: LifecycleClock;
     settings?: Partial<LifecycleSettings>;
     authority?: WorkAuthority;
+    /** Hosted only: settlement intents are delivered here. */
+    quota?: QuotaPort;
+    configuration?: ReturnType<typeof configurationSelection>;
+    /** Report adapter; the runtime retains dispatch/publication authority fences. */
+    generateReport?: typeof generateReport;
   } = {},
 ) {
+  const registry = measuredConfigurations(
+    process.env.SOURCE_TASTER_MEASURED_CONFIGURATIONS,
+    options.clock,
+  );
+  const selection =
+    options.configuration ??
+    (config.mode === "hosted" && config.hosted
+      ? configurationSelection(config.hosted, registry, options.clock, db)
+      : undefined);
   const settings = {
+    contentRetentionMs: config.contentRetentionMs,
     clientLeaseMs: config.clientLeaseMs,
     claimMs: config.workerClaimMs,
     maxAttempts: 3,
@@ -44,11 +71,17 @@ export async function startWorkerRuntime(
     ...systemSourceClock,
     now: () => (options.clock ? options.clock.now() : Date.now()),
   };
-  function guard<T>(
+  async function guard<T>(
     attempt: WorkSubject,
     boundary: "dispatch" | "source" | "commit",
     operation: () => Promise<T>,
   ) {
+    if (selection) {
+      const snapshot = await checks.configurationFor(attempt.checkId);
+      if (!snapshot) throw new Error("configuration-snapshot-missing");
+      await selection.available();
+      await selection.validate(snapshot);
+    }
     return options.authority
       ? options.authority.run(attempt, boundary, operation)
       : operation();
@@ -56,17 +89,33 @@ export async function startWorkerRuntime(
   const active = new Set<AbortController>();
   let stopped = false;
   let timer: ReturnType<typeof globalThis.setTimeout>;
+  const drain = options.quota
+    ? settlementDrain(checks, options.quota)
+    : undefined;
+  let draining = false;
   async function sweep() {
     try {
       await checks.maintain();
     } catch {
       console.error(JSON.stringify({ code: "lifecycle-maintenance-failed" }));
     }
+    if (drain && !draining) {
+      draining = true;
+      void drain()
+        .catch(() =>
+          console.error(JSON.stringify({ code: "settlement-drain-failed" })),
+        )
+        .finally(() => {
+          draining = false;
+        });
+    }
     if (!stopped)
       timer = globalThis.setTimeout(() => {
         void sweep();
       }, 250);
   }
+  // Startup recovery errors must prevent admission; periodic failures retry.
+  await checks.maintain();
   await sweep();
   await boss.work<ReferenceJob>(
     REFERENCE_QUEUE,
@@ -121,7 +170,16 @@ export async function startWorkerRuntime(
         await setTimeout(config.placeholderDelayMs, undefined, {
           signal: abort.signal,
         });
-        const verify = referenceExecution(config, db, {
+        const execution = attempt.measuredConfiguration
+          ? await registry.executable(
+              attempt.measuredConfiguration.id,
+              config,
+              attempt.measuredConfiguration.evidenceDigest,
+            )
+          : undefined;
+        if (selection && !execution)
+          throw new Error("configuration-snapshot-missing");
+        const verify = referenceExecution(execution?.config ?? config, db, {
           clock,
           apiVersion: attempt.apiVersion,
           signal: abort.signal,
@@ -165,12 +223,26 @@ export async function startWorkerRuntime(
           : config.doiPreview && attempt.input
             ? await verify(attempt.input, { startedAt: attempt.startedAt })
             : { kind: "status" as const, status: "not-checked" as const };
+        if (options.quota && !attempt.guestContextId) {
+          const quota = await options.quota.snapshot(attempt);
+          await guard(attempt, "commit", () =>
+            checks.syncHistory(
+              attempt,
+              quota.features.includes("extended-history")
+                ? (quota.history?.extendedUntil ?? null)
+                : null,
+              quota.history?.authorityVersion ?? 0,
+              quota.history,
+            ),
+          );
+        }
         await guard(attempt, "commit", () =>
           checks.finishReference(
             attempt,
             outcome.kind === "verdict"
               ? {
                   ...outcome,
+                  measuredConfigurationId: attempt.measuredConfiguration?.id,
                   searchStrategyVersion: `${outcome.searchStrategyVersion}/lifecycle-2${options.authority ? "/guest-authority-1" : ""}`,
                   searchConfiguration: {
                     ...outcome.searchConfiguration,
@@ -214,6 +286,58 @@ export async function startWorkerRuntime(
       } finally {
         clearInterval(probe);
         active.delete(abort);
+      }
+    },
+  );
+  // ADR-0017: reports are a separate job class, one at a time per worker
+  // process, each in its own resource-limited thread.
+  await boss.work<ReportJob>(
+    REPORT_QUEUE,
+    {
+      batchSize: 1,
+      localConcurrency: 1,
+      pollingIntervalSeconds: 0.5,
+      notifyPollingIntervalSeconds: 0.5,
+    },
+    async ([job]) => {
+      if (!job || stopped) return;
+      const { reportId } = job.data;
+      const work = await checks.reports.claim(reportId);
+      if (!work) return;
+      try {
+        // The Owner's authority and Quota scope are rechecked before any work
+        // and again, under the Owner fence, before the file is published.
+        await guard(work.subject, "dispatch", async () => {});
+        if (options.quota) {
+          const quota = await options.quota.snapshot({
+            ownerId: work.subject.ownerId,
+            actorId: work.subject.actorId,
+          });
+          if (!quota.features.includes(reportFeature))
+            return void (await checks.reports.discard(reportId));
+        }
+      } catch {
+        return void (await checks.reports.discard(reportId));
+      }
+      let result: { pdf: Uint8Array } | { failure: ReportFailure };
+      try {
+        result = {
+          pdf: await (options.generateReport ?? generateReport)(work.input),
+        };
+      } catch (error) {
+        result = {
+          failure:
+            error instanceof ReportFailed ? error.failure : "unavailable",
+        };
+        if (!(error instanceof ReportFailed))
+          console.error(JSON.stringify({ code: "report-failed", reportId }));
+      }
+      try {
+        await guard(work.subject, "commit", () =>
+          checks.reports.finish(reportId, result),
+        );
+      } catch {
+        await checks.reports.discard(reportId);
       }
     },
   );

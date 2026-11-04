@@ -6,4 +6,6 @@ declare const __SOURCE_TASTER_EXTENSION__: {
   mode: "standalone" | "hosted";
   serviceUrl?: string;
   websiteUrl: string;
+  accountSignIn: boolean;
+  sensitiveAccountActions: boolean;
 };

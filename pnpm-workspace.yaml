@@ -7,6 +7,14 @@ engineStrict: true
 allowBuilds:
   "@prisma/engines": true
   prisma: true
+  # core-js-pure only prints a funding message; no generated runtime assets.
+  core-js-pure: false
+# GHSA-g3hv-75wg-m249 (CVE-2026-118764): minimatch <11.0.1 amplifies globParts.
+# eslint's @eslint/config-array and typescript-estree still range ^10, so the
+# patched release is forced exact until they publish a fixed range; drop this
+# override then. The audit blocks on every actual advisory and has no waiver.
+overrides:
+  minimatch: 11.0.3
 minimumReleaseAgeExclude:
   - "@tanstack/query-core@5.105.0"
   - "@tanstack/react-query@5.105.0"
@@ -15,3 +23,5 @@ minimumReleaseAgeExclude:
 ignoredOptionalDependencies:
   - sharp
   - fsevents
+  # ADR-0011: PDF.js text extraction runs without the optional native canvas.
+  - "@napi-rs/canvas"

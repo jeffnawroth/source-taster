@@ -2,7 +2,6 @@ import { z } from "zod";
 export * from "../../contract-common/src/index.ts";
 /** No verification content, recipient, code or arbitrary message crosses this boundary.
  * Diagnostic only: explicitly enabled loopback rehearsal with a fixed .invalid SMTP sink.
- * Hosted entitlement/Quota routes remain unavailable until their signed-token implementation.
  */
 export declare const MailRehearsalRequest: z.ZodObject<{
     language: z.ZodEnum<{
@@ -25,8 +24,38 @@ export declare const MailRehearsalResponse: z.ZodObject<{
     quota: z.ZodUnion<readonly [z.ZodObject<{
         consumed: z.ZodNumber;
         remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                "check-pack": "check-pack";
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+                pro: "pro";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
+        history: z.ZodOptional<z.ZodObject<{
+            extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+            authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
+        }, z.core.$strip>>;
     }, z.core.$strip>, z.ZodObject<{
         status: z.ZodLiteral<"not-implemented">;
+    }, z.core.$strict>, z.ZodObject<{
+        status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export declare const MailRehearsalParams: z.ZodObject<{
@@ -64,7 +93,7 @@ export declare const AuthorityResponse: z.ZodDiscriminatedUnion<[z.ZodObject<{
 export type AuthorityResponse = z.infer<typeof AuthorityResponse>;
 /** Monotonic, durable, idempotent Owner fence. Completion drains guarded operations. */
 export declare const AuthorityInvalidation: z.ZodObject<{
-    guestContextId: z.ZodUUID;
+    guestContextId: z.ZodOptional<z.ZodUUID>;
     ownerId: z.ZodUUID;
     actorId: z.ZodUUID;
     version: z.ZodNumber;
@@ -74,4 +103,410 @@ export type AuthorityInvalidation = z.infer<typeof AuthorityInvalidation>;
 export declare const AuthorityInvalidationAck: z.ZodObject<{
     ownerId: z.ZodUUID;
     version: z.ZodNumber;
+}, z.core.$strict>;
+/** ADR-0003: the Owner tombstone is durable and all of the Owner's content is
+ * purged. The acknowledgement carries identifiers only and claims nothing about
+ * History, which this program does not implement. */
+export declare const OwnerDeletionParams: z.ZodObject<{
+    ownerId: z.ZodUUID;
+}, z.core.$strict>;
+export declare const OwnerDeletionAck: z.ZodObject<{
+    ownerId: z.ZodUUID;
+    tombstoned: z.ZodLiteral<true>;
+}, z.core.$strict>;
+export type OwnerDeletionAck = z.infer<typeof OwnerDeletionAck>;
+/** Stable Account binding; workers deliberately carry no client session secret. */
+export declare const AccountAuthorityRequest: z.ZodObject<{
+    actorId: z.ZodUUID;
+    ownerId: z.ZodUUID;
+    sessionId: z.ZodOptional<z.ZodUUID>;
+    permission: z.ZodEnum<{
+        "check:cancel": "check:cancel";
+        "check:create": "check:create";
+        "check:read": "check:read";
+        "check:renew": "check:renew";
+        "structuring:create": "structuring:create";
+    }>;
+    kind: z.ZodEnum<{
+        request: "request";
+        work: "work";
+    }>;
+}, z.core.$strict>;
+export type AccountAuthorityRequest = z.infer<typeof AccountAuthorityRequest>;
+export declare const QuotaSnapshotRequest: z.ZodObject<{
+    ownerId: z.ZodUUID;
+    actorId: z.ZodUUID;
+}, z.core.$strict>;
+export type QuotaSnapshotRequest = z.infer<typeof QuotaSnapshotRequest>;
+export declare const QuotaSlotRef: z.ZodObject<{
+    position: z.ZodNumber;
+    generation: z.ZodNumber;
+}, z.core.$strict>;
+export type QuotaSlotRef = z.infer<typeof QuotaSlotRef>;
+export declare const QuotaReserveRequest: z.ZodObject<{
+    ownerId: z.ZodUUID;
+    actorId: z.ZodUUID;
+    checkId: z.ZodUUID;
+    key: z.ZodString;
+    slots: z.ZodArray<z.ZodObject<{
+        position: z.ZodNumber;
+        generation: z.ZodNumber;
+    }, z.core.$strict>>;
+}, z.core.$strict>;
+export type QuotaReserveRequest = z.infer<typeof QuotaReserveRequest>;
+export declare const QuotaSettleRequest: z.ZodObject<{
+    ownerId: z.ZodUUID;
+    actorId: z.ZodUUID;
+    checkId: z.ZodUUID;
+    position: z.ZodNumber;
+    generation: z.ZodNumber;
+    outcome: z.ZodEnum<{
+        release: "release";
+        verdict: "verdict";
+    }>;
+}, z.core.$strict>;
+export type QuotaSettleRequest = z.infer<typeof QuotaSettleRequest>;
+export declare const QuotaReleaseRequest: z.ZodObject<{
+    ownerId: z.ZodUUID;
+    actorId: z.ZodUUID;
+    checkId: z.ZodUUID;
+    key: z.ZodString;
+}, z.core.$strict>;
+export type QuotaReleaseRequest = z.infer<typeof QuotaReleaseRequest>;
+export declare const QuotaSnapshotResponse: z.ZodDiscriminatedUnion<[z.ZodObject<{
+    outcome: z.ZodLiteral<"granted">;
+    quota: z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                "check-pack": "check-pack";
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+                pro: "pro";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
+        history: z.ZodOptional<z.ZodObject<{
+            extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+            authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
+        }, z.core.$strip>>;
+    }, z.core.$strip>;
+}, z.core.$strict>, z.ZodObject<{
+    outcome: z.ZodLiteral<"denied">;
+    reason: z.ZodEnum<{
+        forbidden: "forbidden";
+        revoked: "revoked";
+        unknown: "unknown";
+    }>;
+}, z.core.$strict>], "outcome">;
+export type QuotaSnapshotResponse = z.infer<typeof QuotaSnapshotResponse>;
+export declare const QuotaReserveResponse: z.ZodDiscriminatedUnion<[z.ZodObject<{
+    outcome: z.ZodLiteral<"reserved">;
+    free: z.ZodArray<z.ZodNumber>;
+    reserved: z.ZodNumber;
+    quota: z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                "check-pack": "check-pack";
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+                pro: "pro";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
+        history: z.ZodOptional<z.ZodObject<{
+            extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+            authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
+        }, z.core.$strip>>;
+    }, z.core.$strip>;
+}, z.core.$strict>, z.ZodObject<{
+    outcome: z.ZodLiteral<"insufficient">;
+    available: z.ZodNumber;
+    required: z.ZodNumber;
+    quota: z.ZodObject<{
+        consumed: z.ZodNumber;
+        remaining: z.ZodNumber;
+        granted: z.ZodNumber;
+        reserved: z.ZodNumber;
+        warning: z.ZodEnum<{
+            eighty: "eighty";
+            exhausted: "exhausted";
+            none: "none";
+        }>;
+        grants: z.ZodArray<z.ZodObject<{
+            kind: z.ZodEnum<{
+                "check-pack": "check-pack";
+                credit: "credit";
+                free: "free";
+                guest: "guest";
+                pro: "pro";
+            }>;
+            granted: z.ZodNumber;
+            remaining: z.ZodNumber;
+            expiresAt: z.ZodISODateTime;
+        }, z.core.$strip>>;
+        features: z.ZodArray<z.ZodString>;
+        history: z.ZodOptional<z.ZodObject<{
+            extendedUntil: z.ZodNullable<z.ZodISODateTime>;
+            authorityVersion: z.ZodNumber;
+            settingsVersion: z.ZodOptional<z.ZodNumber>;
+            freeHistoryChecks: z.ZodOptional<z.ZodNumber>;
+            freeHistoryDays: z.ZodOptional<z.ZodNumber>;
+            paidHistoryDays: z.ZodOptional<z.ZodNumber>;
+        }, z.core.$strip>>;
+    }, z.core.$strip>;
+}, z.core.$strict>, z.ZodObject<{
+    outcome: z.ZodLiteral<"denied">;
+    reason: z.ZodEnum<{
+        forbidden: "forbidden";
+        revoked: "revoked";
+        unknown: "unknown";
+    }>;
+}, z.core.$strict>], "outcome">;
+export type QuotaReserveResponse = z.infer<typeof QuotaReserveResponse>;
+export declare const QuotaSettleResponse: z.ZodObject<{
+    outcome: z.ZodEnum<{
+        debited: "debited";
+        forgiven: "forgiven";
+        free: "free";
+        ignored: "ignored";
+        released: "released";
+    }>;
+}, z.core.$strict>;
+export type QuotaSettleResponse = z.infer<typeof QuotaSettleResponse>;
+export declare const QuotaReleaseResponse: z.ZodObject<{
+    released: z.ZodNumber;
+}, z.core.$strict>;
+export type QuotaReleaseResponse = z.infer<typeof QuotaReleaseResponse>;
+/** Operator settings, not qualification evidence. Public and combined budgets are distinct.
+ * Every entrance attempt counts, including denied attempts; no Quota is consumed. */
+export declare const AbuseBudget: z.ZodObject<{
+    limit: z.ZodNumber;
+    windowMs: z.ZodNumber;
+}, z.core.$strict>;
+export declare const AbuseBudgets: z.ZodObject<{
+    principal: z.ZodRecord<z.ZodString, z.ZodObject<{
+        limit: z.ZodNumber;
+        windowMs: z.ZodNumber;
+    }, z.core.$strict>>;
+    guest: z.ZodObject<{
+        limit: z.ZodNumber;
+        windowMs: z.ZodNumber;
+    }, z.core.$strict>;
+    allGuests: z.ZodObject<{
+        limit: z.ZodNumber;
+        windowMs: z.ZodNumber;
+    }, z.core.$strict>;
+    origin: z.ZodObject<{
+        limit: z.ZodNumber;
+        windowMs: z.ZodNumber;
+    }, z.core.$strict>;
+}, z.core.$strict>;
+export declare const AbusePolicy: z.ZodObject<{
+    version: z.ZodString;
+    cacheMs: z.ZodNumber;
+    initial: z.ZodOptional<z.ZodObject<{
+        referenceLimit: z.ZodNumber;
+        uploadBytes: z.ZodNumber;
+    }, z.core.$strict>>;
+    public: z.ZodObject<{
+        principal: z.ZodRecord<z.ZodString, z.ZodObject<{
+            limit: z.ZodNumber;
+            windowMs: z.ZodNumber;
+        }, z.core.$strict>>;
+        guest: z.ZodObject<{
+            limit: z.ZodNumber;
+            windowMs: z.ZodNumber;
+        }, z.core.$strict>;
+        allGuests: z.ZodObject<{
+            limit: z.ZodNumber;
+            windowMs: z.ZodNumber;
+        }, z.core.$strict>;
+        origin: z.ZodObject<{
+            limit: z.ZodNumber;
+            windowMs: z.ZodNumber;
+        }, z.core.$strict>;
+    }, z.core.$strict>;
+    shared: z.ZodObject<{
+        principal: z.ZodRecord<z.ZodString, z.ZodObject<{
+            limit: z.ZodNumber;
+            windowMs: z.ZodNumber;
+        }, z.core.$strict>>;
+        guest: z.ZodObject<{
+            limit: z.ZodNumber;
+            windowMs: z.ZodNumber;
+        }, z.core.$strict>;
+        allGuests: z.ZodObject<{
+            limit: z.ZodNumber;
+            windowMs: z.ZodNumber;
+        }, z.core.$strict>;
+        origin: z.ZodObject<{
+            limit: z.ZodNumber;
+            windowMs: z.ZodNumber;
+        }, z.core.$strict>;
+    }, z.core.$strict>;
+}, z.core.$strict>;
+export type AbusePolicy = z.infer<typeof AbusePolicy>;
+/** Trusted ingress already truncated and keyed-hashed. Never HTTP Origin or a raw IP.
+ * One hash per distinct origin budget window; signer authenticates the ingress context. */
+export declare const AbuseOrigin: z.ZodObject<{
+    windowMs: z.ZodNumber;
+    windowStart: z.ZodNumber;
+    keyId: z.ZodString;
+    hash: z.ZodString;
+}, z.core.$strict>;
+export declare const AbuseEntrance: z.ZodObject<{
+    requestId: z.ZodUUID;
+    program: z.ZodLiteral<"verification">;
+    policyVersion: z.ZodString;
+    principal: z.ZodNullable<z.ZodObject<{
+        ownerId: z.ZodUUID;
+        actorId: z.ZodUUID;
+        guestId: z.ZodOptional<z.ZodUUID>;
+        guestContextId: z.ZodOptional<z.ZodUUID>;
+        sessionId: z.ZodOptional<z.ZodUUID>;
+    }, z.core.$strict>>;
+    origins: z.ZodArray<z.ZodObject<{
+        windowMs: z.ZodNumber;
+        windowStart: z.ZodNumber;
+        keyId: z.ZodString;
+        hash: z.ZodString;
+    }, z.core.$strict>>;
+}, z.core.$strict>;
+export type AbuseEntrance = z.infer<typeof AbuseEntrance>;
+/** Service resolves current Plan, never accepts a client Plan/allowance. It atomically
+ * counts ALL shared dimensions across BOTH entrances, durably deduplicating requestId
+ * for at most 24h. An inaccessible/unknown identity never reveals Account existence.
+ * Policy mismatch/outage is 503; it is never an allow. No cached decisions/retries. */
+export declare const AbuseDecision: z.ZodDiscriminatedUnion<[z.ZodObject<{
+    allowed: z.ZodLiteral<true>;
+    policyVersion: z.ZodString;
+    planId: z.ZodString;
+}, z.core.$strict>, z.ZodObject<{
+    allowed: z.ZodLiteral<false>;
+    planId: z.ZodString;
+    policyVersion: z.ZodString;
+    retryAt: z.ZodISODateTime;
+}, z.core.$strict>], "allowed">;
+export type AbuseDecision = z.infer<typeof AbuseDecision>;
+/** #114 minimal configuration authority protocol. No corpus, recordings,
+ * measurement outcomes, Check text or provider secrets cross this interface. */
+export declare const ConfigurationId: z.ZodString;
+export declare const MeasuredConfiguration: z.ZodObject<{
+    provider: z.ZodNullable<z.ZodObject<{
+        path: z.ZodString;
+        region: z.ZodString;
+        countries: z.ZodArray<z.ZodString>;
+        zeroRetention: z.ZodBoolean;
+    }, z.core.$strict>>;
+    comparisonParameters: z.ZodRecord<z.ZodString, z.ZodNumber>;
+    searchSettings: z.ZodRecord<z.ZodString, z.ZodUnknown>;
+    id: z.ZodString;
+    codeVersion: z.ZodString;
+    configurationDigest: z.ZodString;
+    rulesVersion: z.ZodString;
+    model: z.ZodNullable<z.ZodString>;
+    sources: z.ZodArray<z.ZodString>;
+    eligible: z.ZodBoolean;
+    reasons: z.ZodArray<z.ZodString>;
+    evidenceDigest: z.ZodString;
+    checkedAt: z.ZodISODateTime;
+}, z.core.$strict>;
+export type MeasuredConfiguration = z.infer<typeof MeasuredConfiguration>;
+export declare const ConfigurationInspection: z.ZodDiscriminatedUnion<[z.ZodObject<{
+    action: z.ZodLiteral<"list">;
+}, z.core.$strict>, z.ZodObject<{
+    action: z.ZodLiteral<"validate">;
+    id: z.ZodString;
+    evidenceDigest: z.ZodString;
+}, z.core.$strict>], "action">;
+export declare const ConfigurationInspectionResponse: z.ZodObject<{
+    configurations: z.ZodArray<z.ZodObject<{
+        provider: z.ZodNullable<z.ZodObject<{
+            path: z.ZodString;
+            region: z.ZodString;
+            countries: z.ZodArray<z.ZodString>;
+            zeroRetention: z.ZodBoolean;
+        }, z.core.$strict>>;
+        comparisonParameters: z.ZodRecord<z.ZodString, z.ZodNumber>;
+        searchSettings: z.ZodRecord<z.ZodString, z.ZodUnknown>;
+        id: z.ZodString;
+        codeVersion: z.ZodString;
+        configurationDigest: z.ZodString;
+        rulesVersion: z.ZodString;
+        model: z.ZodNullable<z.ZodString>;
+        sources: z.ZodArray<z.ZodString>;
+        eligible: z.ZodBoolean;
+        reasons: z.ZodArray<z.ZodString>;
+        evidenceDigest: z.ZodString;
+        checkedAt: z.ZodISODateTime;
+    }, z.core.$strict>>;
+}, z.core.$strict>;
+export declare const ActiveConfiguration: z.ZodObject<{
+    id: z.ZodString;
+    evidenceDigest: z.ZodString;
+    operationId: z.ZodUUID;
+    version: z.ZodNumber;
+}, z.core.$strict>;
+export type ActiveConfiguration = z.infer<typeof ActiveConfiguration>;
+export declare const ActiveConfigurationResponse: z.ZodObject<{
+    active: z.ZodNullable<z.ZodObject<{
+        id: z.ZodString;
+        evidenceDigest: z.ZodString;
+        operationId: z.ZodUUID;
+        version: z.ZodNumber;
+    }, z.core.$strict>>;
+}, z.core.$strict>;
+/** Recipient-only rights delivery. Opaque credential travels only from recipient to
+ * verification and in a signed authority request; no content travels to service. */
+export declare const RightsAuthorityRequest: z.ZodObject<{
+    requestId: z.ZodUUID;
+    accessToken: z.ZodString;
+    phase: z.ZodEnum<{
+        authorize: "authorize";
+        delivered: "delivered";
+        served: "served";
+    }>;
+    completionVerifier: z.ZodOptional<z.ZodString>;
+    completionToken: z.ZodOptional<z.ZodString>;
+}, z.core.$strict>;
+export declare const RightsAuthorityResponse: z.ZodObject<{
+    requestId: z.ZodUUID;
+    accountId: z.ZodUUID;
+    ownerId: z.ZodUUID;
+    expiresAt: z.ZodISODateTime;
+    purpose: z.ZodLiteral<"data-subject-delivery">;
 }, z.core.$strict>;

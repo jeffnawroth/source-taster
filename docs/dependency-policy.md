@@ -78,6 +78,17 @@ Human legal review of actual program/distribution boundaries, GPL/AGPL source
 delivery and market-launch publication remains required. A passing technical
 license/advisory gate cannot satisfy or bypass those separate approvals.
 
+## Accessible PDF report engine (#105, ADR-0017)
+
+The server exact-pins `pdfkit` **0.20.2** (which brings `fontkit` 2.0.4, `@swc/helpers` 0.5.23 and `base64-js` 0.0.8 as executed pre-1.0 packages; `fflate` 0.8.3 and `pako` 0.2.9 are installed but not reached). This is the narrow ADR-0017 exception and covers only `apps/server/src/reports/pdf.ts`, the single importer. The inventory, the three open notice items and the Noto Sans (OFL-1.1) font notice are in [`apps/server/src/reports/NOTICE.md`](../apps/server/src/reports/NOTICE.md).
+
+Gate status recorded for #105 (local macOS arm64 run, no release or qualification claim):
+
+- `pnpm audit:licenses` passes with no new exception (561 installed, 105 runtime).
+- The lockfile resolves exactly the ADR-0017 graph.
+- `pnpm audit --prod` for the server reports no known vulnerabilities. This is a supplementary registry query, **not** the ADR-0015 OSV scan: the checksum-pinned OSV-Scanner and its refreshed database exist only in CI, so `pnpm audit:dependencies` could not complete the advisory step locally (the website qualification step of that script passed). The full OSV scan therefore remains to be observed in CI before the exception takes effect.
+- The brotli Apache headers, missing standalone license files (fontkit, brotli, dfa), the unattributed base64 decoder in fontkit's published `dist` builds and the HarfBuzz-derived shapers are inventoried but still need the human license review.
+
 ## Further launch qualification
 
 Dependabot is configured daily, but its pnpm 12 update behavior still needs live evidence; lockfile recognition alone is not proof. ADR-0015's full ASVS assessment, deployed-version inventory/alert ownership, scanner failure controls, Semgrep, Gitleaks, ZAP and parser isolation are release work beyond #71. Stable selected libraries include pinned 0.x transitive dependencies (for example the Hono validator, React store, React Aria helpers and Paraglide SDK tooling); this gate inventories them and does not silently declare the unresolved maturity-rule interpretation approved. No excluded pre-1.0 library takes a new application core role here.

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import React from "react";
 import { createRoot } from "react-dom/client";
+import { AccountWorkspace } from "@source-taster/ui/web-account-workspace";
+import { extensionAccountSession } from "./account-session.ts";
 import { CheckWorkspace } from "@source-taster/ui/check-workspace";
 import { loadGuestPreferences } from "@source-taster/ui/preferences";
 import { guestCredentials } from "@source-taster/ui/guest-identity";
@@ -9,10 +11,13 @@ import {
   extensionGuestIdentity,
   extensionPreferenceStorage,
   trustedExtensionPage,
+  extensionSelectionIntake,
 } from "./platform.ts";
 import "./style.css";
 const config = __SOURCE_TASTER_EXTENSION__;
-const { storage } = trustedExtensionPage();
+const platform = trustedExtensionPage();
+const { storage } = platform;
+const selectionIntake = extensionSelectionIntake(platform);
 const preferenceStorage = extensionPreferenceStorage(storage.local);
 const initial = await loadGuestPreferences(
   preferenceStorage,
@@ -33,13 +38,50 @@ const transport = {
   client: "extension/0.0.0",
   credentials: guest?.credentials,
 };
+const accountClient = config.accountSignIn
+  ? extensionAccountSession(
+      config.serviceUrl!,
+      storage.local,
+      storage.onChanged,
+      undefined,
+      { sensitive: config.sensitiveAccountActions },
+    )
+  : undefined;
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <CheckWorkspace
-      initial={initial}
-      preferenceStorage={preferenceStorage}
-      transport={transport}
-      siteUrl={config.websiteUrl}
-    />
+    {accountClient ? (
+      <AccountWorkspace
+        initial={initial}
+        preferenceStorage={preferenceStorage}
+        client={accountClient}
+        guest={guest!}
+        transport={transport}
+        siteUrl={config.websiteUrl}
+        upgradeUrl={
+          config.mode === "hosted"
+            ? `${config.serviceUrl!.replace(/\/$/, "")}/plan`
+            : undefined
+        }
+        accountUrl={
+          config.sensitiveAccountActions
+            ? `${config.serviceUrl!.replace(/\/$/, "")}/account`
+            : undefined
+        }
+        selectionIntake={selectionIntake}
+      />
+    ) : (
+      <CheckWorkspace
+        initial={initial}
+        preferenceStorage={preferenceStorage}
+        transport={transport}
+        siteUrl={config.websiteUrl}
+        upgradeUrl={
+          config.mode === "hosted"
+            ? `${config.serviceUrl!.replace(/\/$/, "")}/plan`
+            : undefined
+        }
+        selectionIntake={selectionIntake}
+      />
+    )}
   </React.StrictMode>,
 );

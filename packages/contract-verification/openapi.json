@@ -6,6 +6,52 @@
   },
   "components": {
     "schemas": {
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "available": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "required": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "retryAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "code": {
+            "type": "string"
+          },
+          "i18nKey": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "code",
+          "i18nKey"
+        ]
+      },
       "CheckResponse": {
         "type": "object",
         "properties": {
@@ -33,6 +79,21 @@
                 "additionalProperties": false
               },
               {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
                 "type": "null"
               }
             ]
@@ -46,6 +107,9 @@
       "Check": {
         "type": "object",
         "properties": {
+          "measuredConfigurationId": {
+            "type": "string"
+          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -160,6 +224,9 @@
                 "enum": [
                   "verdict"
                 ]
+              },
+              "measuredConfigurationId": {
+                "type": "string"
               },
               "verdict": {
                 "$ref": "#/components/schemas/Verdict"
@@ -755,14 +822,126 @@
           "remaining": {
             "type": "integer",
             "minimum": 0
+          },
+          "granted": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reserved": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "warning": {
+            "$ref": "#/components/schemas/QuotaWarning"
+          },
+          "grants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuotaGrantView"
+            },
+            "maxItems": 50
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "maxItems": 20
+          },
+          "history": {
+            "type": "object",
+            "properties": {
+              "extendedUntil": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "authorityVersion": {
+                "type": "integer",
+                "exclusiveMinimum": 0
+              },
+              "settingsVersion": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "freeHistoryChecks": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000
+              },
+              "freeHistoryDays": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 365
+              },
+              "paidHistoryDays": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 365
+              }
+            },
+            "required": [
+              "extendedUntil",
+              "authorityVersion"
+            ]
           }
         },
         "required": [
           "consumed",
-          "remaining"
+          "remaining",
+          "granted",
+          "reserved",
+          "warning",
+          "grants",
+          "features"
         ]
       },
-      "ProblemDetails": {
+      "QuotaWarning": {
+        "type": "string",
+        "enum": [
+          "none",
+          "eighty",
+          "exhausted"
+        ]
+      },
+      "QuotaGrantView": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "guest",
+              "free",
+              "credit",
+              "check-pack",
+              "pro"
+            ]
+          },
+          "granted": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "remaining": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "kind",
+          "granted",
+          "remaining",
+          "expiresAt"
+        ]
+      },
+      "EntranceLimitProblem": {
         "type": "object",
         "properties": {
           "type": {
@@ -772,7 +951,10 @@
             "type": "string"
           },
           "status": {
-            "type": "integer"
+            "type": "number",
+            "enum": [
+              429
+            ]
           },
           "detail": {
             "type": "string"
@@ -781,17 +963,36 @@
             "type": "integer",
             "exclusiveMinimum": 0
           },
+          "available": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "required": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          "retryAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "code": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "abuse-limit"
+            ]
           },
           "i18nKey": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "problem_abuse_limit"
+            ]
           }
         },
         "required": [
           "type",
           "title",
           "status",
+          "retryAt",
           "code",
           "i18nKey"
         ]
@@ -1199,6 +1400,21 @@
                 "additionalProperties": false
               },
               {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "additionalProperties": false
+              },
+              {
                 "type": "null"
               }
             ]
@@ -1213,6 +1429,313 @@
     "parameters": {}
   },
   "paths": {
+    "/v1/data-subject/{id}/download": {
+      "get": {
+        "summary": "Download this program's retained Account data directly as the verified recipient",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            },
+            "required": false,
+            "name": "parts",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 2048
+            },
+            "required": false,
+            "name": "cursor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": false,
+            "name": "restart",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^Bearer [A-Za-z0-9_-]{43}$"
+            },
+            "required": true,
+            "name": "authorization",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Machine-readable verification part; no-store, fixed attachment name, bounded by original retention",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "Content-Disposition": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/x-ndjson": {
+                "schema": {
+                  "type": "string",
+                  "description": "Ordered bounded base64 part frames followed by a complete manifest with part/byte counts, per-part and whole SHA-256, chain, recipient completion token and signed resume cursor. Concatenate decoded part bytes in sequence to recover the complete JSON document. No final manifest means interrupted delivery."
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "format": {
+                      "type": "string",
+                      "enum": [
+                        "source-taster-verification-data-subject-v1"
+                      ]
+                    },
+                    "accountId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "ownerId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "generatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "checks": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": {}
+                      }
+                    },
+                    "reports": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": {}
+                      }
+                    }
+                  },
+                  "required": [
+                    "format",
+                    "accountId",
+                    "ownerId",
+                    "generatedAt",
+                    "checks",
+                    "reports"
+                  ],
+                  "additionalProperties": {}
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Current recipient authority, expiry or snapshot failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Current recipient authority, expiry or snapshot failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current recipient authority, expiry or snapshot failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Current recipient authority, expiry or snapshot failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Current recipient authority, expiry or snapshot failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current recipient authority, expiry or snapshot failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/data-subject/{id}/received": {
+      "post": {
+        "summary": "Verified recipient confirms receiving the verification part",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^Bearer [A-Za-z0-9_-]{43}$"
+            },
+            "required": true,
+            "name": "authorization",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "completionToken": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{43}$"
+                  }
+                },
+                "required": [
+                  "completionToken"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Idempotent recipient receipt, with current authority",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "requestId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "part": {
+                      "type": "string",
+                      "enum": [
+                        "verification"
+                      ]
+                    },
+                    "received": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "requestId",
+                    "part",
+                    "received"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Current recipient authority, expiry or snapshot failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Current recipient authority, expiry or snapshot failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current recipient authority, expiry or snapshot failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current recipient authority, expiry or snapshot failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/checks/{checkId}/cancel": {
       "post": {
         "summary": "Idempotently cancel a whole Check, retaining finished Verdicts",
@@ -1274,6 +1797,25 @@
               "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Entrance budget exhausted. Retry-After is whole seconds, rounded up; retryAt is the absolute continuation time. No Quota is consumed.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                },
+                "required": true
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntranceLimitProblem"
                 }
               }
             }
@@ -1356,6 +1898,25 @@
               }
             }
           },
+          "429": {
+            "description": "Entrance budget exhausted. Retry-After is whole seconds, rounded up; retryAt is the absolute continuation time. No Quota is consumed.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                },
+                "required": true
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntranceLimitProblem"
+                }
+              }
+            }
+          },
           "503": {
             "description": "Current authority or signing-key refresh is unavailable; no fallback.",
             "content": {
@@ -1419,6 +1980,25 @@
               "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Entrance budget exhausted. Retry-After is whole seconds, rounded up; retryAt is the absolute continuation time. No Quota is consumed.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                },
+                "required": true
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntranceLimitProblem"
                 }
               }
             }
@@ -1497,6 +2077,25 @@
               "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Entrance budget exhausted. Retry-After is whole seconds, rounded up; retryAt is the absolute continuation time. No Quota is consumed.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                },
+                "required": true
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntranceLimitProblem"
                 }
               }
             }
@@ -1588,6 +2187,25 @@
               }
             }
           },
+          "429": {
+            "description": "Entrance budget exhausted. Retry-After is whole seconds, rounded up; retryAt is the absolute continuation time. No Quota is consumed.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                },
+                "required": true
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntranceLimitProblem"
+                }
+              }
+            }
+          },
           "503": {
             "description": "Current authority or signing-key refresh is unavailable; no fallback.",
             "content": {
@@ -1660,6 +2278,25 @@
               "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Entrance budget exhausted. Retry-After is whole seconds, rounded up; retryAt is the absolute continuation time. No Quota is consumed.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                },
+                "required": true
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntranceLimitProblem"
                 }
               }
             }

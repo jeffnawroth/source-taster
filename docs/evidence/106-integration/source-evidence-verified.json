@@ -1,0 +1,62 @@
+[
+  {
+    "log": "106-nov2-combined-private-server.log",
+    "sha256": "40b3ed46f0d5df4be37527a70b8fdd5bf46d1334711f88d9c350bd0185c8a8f0",
+    "verified": true
+  },
+  {
+    "log": "106-nov2-combined-both-quota-commerce.log",
+    "sha256": "a211c62e24f27083131cd971c39111bf7f298c9a24dfd9ca27fdc2e2b8a26826",
+    "verified": true
+  },
+  {
+    "log": "106-nov2-combined-both-authority.log",
+    "sha256": "cf16c391a6ccc85e3a333f437ba0c6240900591115e482785dc09aea55006b00",
+    "verified": true
+  },
+  {
+    "log": "106-nov2-activation-green-commerce.log",
+    "sha256": "4b1098e9d73e2f9c92ea32214c405285ea3adc018dba53d4ebb9d98145289bf4",
+    "verified": true
+  },
+  {
+    "log": "106-nov2-final-both-commerce.log",
+    "sha256": "cc0e201d76415b6594ad07a9a542bd6ca97461eba69bde4dbd0991b9f718b1a9",
+    "verified": true
+  },
+  {
+    "log": "106-nov2-final-native-forwarding.log",
+    "sha256": "3da9020931744e0a136054976de3ed3013be94d463f7ac663f763281c89dc200",
+    "verified": true
+  },
+  {
+    "log": "106-nov2-final-order-browser.log",
+    "sha256": "214d6aa3b81272781980ae232407eb2489c3aea612672009912b797fd080210e",
+    "verified": true
+  },
+  {
+    "log": "106-nov2-final-operator-browser.log",
+    "sha256": "1649bb76395b44537c377ccded4423c02805a74192097d17151fedcba8ec4d82",
+    "verified": true
+  },
+  {
+    "log": "106-nov2-legal-red-focused.log",
+    "sha256": "5312e3478347750a780f7c90146b2e10a091def818d849ef403717781107b119",
+    "verified": true
+  },
+  {
+    "log": "106-nov2-operator-red.log",
+    "sha256": "356db060df0ea26e78f05016133c96096675199664a9834a7eb634b772a83119",
+    "verified": true
+  },
+  {
+    "log": "106-nov2-reconcile-red.log",
+    "sha256": "efbe1c9925efa45a7745563b856bf297272e7f4c7be48318403bd0e4fc9885f9",
+    "verified": true
+  },
+  {
+    "log": "106-nov2-activation-red.log",
+    "sha256": "63e2d5aaca4929359cff723eaff09dfb376b2f0cb2d2339411b5ac6b25e46027",
+    "verified": true
+  }
+]

@@ -9,6 +9,7 @@
     "generate": "prisma generate",
     "db:setup": "node scripts/db-setup.ts",
     "db:migrate": "prisma migrate deploy",
+    "db:export": "node scripts/export-database.ts",
     "web": "node src/web.ts",
     "worker": "node src/worker.ts",
     "typecheck": "tsc -p tsconfig.json",
@@ -19,8 +20,15 @@
     "start:web": "node dist/web.js",
     "start:worker": "node dist/worker.js",
     "release:check": "node scripts/release-check.ts",
+    "quality:gate": "node scripts/quality-gate.ts",
     "build:release": "pnpm release:check && pnpm build",
-    "test:authority": "vitest run --config guest.vitest.config.ts"
+    "load:test": "node scripts/load-test.ts",
+    "load:release": "node scripts/load-test.ts --release",
+    "test:load": "vitest run --config load.vitest.config.ts",
+    "test:authority": "vitest run --config guest.vitest.config.ts",
+    "test:quota": "vitest run --config quota.vitest.config.ts",
+    "extractor:image": "node scripts/extractor-image.ts",
+    "test:history": "vitest run --config history.vitest.config.ts"
   },
   "devDependencies": {
     "@types/pg": "8.23.1",
@@ -37,11 +45,17 @@
     "@source-taster/contract-service": "workspace:*",
     "@source-taster/contract-verification": "workspace:*",
     "@source-taster/core": "workspace:*",
+    "@source-taster/i18n": "workspace:*",
     "@source-taster/website": "workspace:*",
+    "bibliojson": "4.1.0",
     "citeproc": "2.4.63",
     "hono": "4.13.14",
+    "jszip": "3.10.2",
+    "pdfjs-dist": "6.4.299",
+    "pdfkit": "0.20.2",
     "pg": "8.23.1",
     "pg-boss": "12.38.0",
+    "saxes": "6.0.0",
     "zod": "4.6.7"
   }
 }

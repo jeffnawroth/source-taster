@@ -49,6 +49,54 @@
     "./bibliography-client": {
       "types": "./dist/contract-verification/src/bibliography-client.d.ts",
       "default": "./dist/contract-verification/src/bibliography-client.js"
+    },
+    "./export": {
+      "types": "./dist/contract-verification/src/export.d.ts",
+      "default": "./dist/contract-verification/src/export.js"
+    },
+    "./export-routes": {
+      "types": "./dist/contract-verification/src/export-routes.d.ts",
+      "default": "./dist/contract-verification/src/export-routes.js"
+    },
+    "./export-client": {
+      "types": "./dist/contract-verification/src/export-client.d.ts",
+      "default": "./dist/contract-verification/src/export-client.js"
+    },
+    "./report": {
+      "types": "./dist/contract-verification/src/report.d.ts",
+      "default": "./dist/contract-verification/src/report.js"
+    },
+    "./report-routes": {
+      "types": "./dist/contract-verification/src/report-routes.d.ts",
+      "default": "./dist/contract-verification/src/report-routes.js"
+    },
+    "./report-client": {
+      "types": "./dist/contract-verification/src/report-client.d.ts",
+      "default": "./dist/contract-verification/src/report-client.js"
+    },
+    "./document": {
+      "types": "./dist/contract-verification/src/document.d.ts",
+      "default": "./dist/contract-verification/src/document.js"
+    },
+    "./document-routes": {
+      "types": "./dist/contract-verification/src/document-routes.d.ts",
+      "default": "./dist/contract-verification/src/document-routes.js"
+    },
+    "./document-client": {
+      "types": "./dist/contract-verification/src/document-client.d.ts",
+      "default": "./dist/contract-verification/src/document-client.js"
+    },
+    "./import": {
+      "types": "./dist/contract-verification/src/import.d.ts",
+      "default": "./dist/contract-verification/src/import.js"
+    },
+    "./ai": {
+      "types": "./dist/contract-verification/src/ai.d.ts",
+      "default": "./dist/contract-verification/src/ai.js"
+    },
+    "./data-subject-routes": {
+      "types": "./dist/contract-verification/src/data-subject-routes.d.ts",
+      "default": "./dist/contract-verification/src/data-subject-routes.js"
     }
   },
   "scripts": {

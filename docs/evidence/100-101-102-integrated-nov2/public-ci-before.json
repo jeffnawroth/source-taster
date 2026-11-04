@@ -1,0 +1,28 @@
+{
+  "headRefOid": "1152dfaa929083896ac6741d36122c807e00b2a8",
+  "isDraft": true,
+  "reviewDecision": "",
+  "statusCheckRollup": [
+    {
+      "__typename": "CheckRun",
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "detailsUrl": "https://github.com/jeffnawroth/source-taster/actions/runs/41485211406/job/125413624424",
+      "name": "checks",
+      "startedAt": "2026-11-02T16:49:28Z",
+      "status": "IN_PROGRESS",
+      "workflowName": "Walking skeleton"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-11-02T17:11:17Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/jeffnawroth/source-taster/actions/runs/41485211406/job/125413624256",
+      "name": "dependencies",
+      "startedAt": "2026-11-02T16:49:28Z",
+      "status": "COMPLETED",
+      "workflowName": "Walking skeleton"
+    }
+  ],
+  "url": "https://github.com/jeffnawroth/source-taster/pull/139"
+}

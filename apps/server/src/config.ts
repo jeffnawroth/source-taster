@@ -3,6 +3,10 @@
 // mode is chosen explicitly: standalone mode grants every permission, so it
 // must never be the result of a missing setting.
 
+import {
+  defaultExtractionLimits,
+  type ExtractionLimits,
+} from "./documents/extraction.ts";
 import { loadHostedSettings, type HostedSettings } from "./authority/crypto.ts";
 import {
   createDevelopmentProfile,
@@ -19,6 +23,8 @@ import {
 } from "@source-taster/website/metadata";
 
 export interface Config {
+  documentImage?: string;
+  documentLimits: ExtractionLimits;
   website?: { mode: WebsiteMode; directory: string };
   mode: "standalone" | "hosted";
   hosted?: HostedSettings;
@@ -29,6 +35,9 @@ export interface Config {
   sseHeartbeatMs: number;
   doiPreview: boolean;
   bibliographicPreview?: boolean;
+  urlEnabled?: boolean;
+  internetarchiveEnabled?: boolean;
+  webFixtureBase?: string;
   openalexEnabled?: boolean;
   openalexBase?: string;
   europepmcEnabled?: boolean;
@@ -48,6 +57,7 @@ export interface Config {
   crossrefBase: string;
   /** Development/test scheduling delay; never a source timeout. */
   placeholderDelayMs: number;
+  contentRetentionMs: number;
   clientLeaseMs: number;
   workerClaimMs: number;
 }
@@ -120,6 +130,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
       "Bibliographic search requires the uncalibrated development profile.",
     );
   for (const [name, label] of [
+    ["URL", "URL reachability"],
+    ["INTERNETARCHIVE", "Internet Archive"],
     ["OPENALEX", "OpenAlex"],
     ["EUROPEPMC", "Europe PMC"],
     ["SEMANTICSCHOLAR", "Semantic Scholar"],
@@ -189,8 +201,64 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
       );
     return url.origin;
   }
+  let documentLimits: ExtractionLimits;
+  try {
+    documentLimits = z
+      .strictObject({
+        inputBytes: z.number().int().positive(),
+        pages: z.number().int().positive(),
+        expandedBytes: z.number().int().positive(),
+        timeoutMs: z.number().int().positive(),
+        cpuSeconds: z.number().int().positive(),
+        outputBytes: z.number().int().positive(),
+        memoryBytes: z
+          .number()
+          .int()
+          .min(32 * 1024 * 1024),
+        concurrency: z.number().int().positive(),
+      })
+      .parse({
+        ...defaultExtractionLimits,
+        ...JSON.parse(env.SOURCE_TASTER_DOCUMENT_LIMITS ?? "{}"),
+      });
+  } catch {
+    throw new ConfigError("Invalid document extraction resource limits.");
+  }
+  if (
+    env.SOURCE_TASTER_DOCUMENT_IMAGE &&
+    !/^sha256:[a-f0-9]{64}$/.test(env.SOURCE_TASTER_DOCUMENT_IMAGE)
+  )
+    throw new ConfigError(
+      "Document extraction requires an immutable local image ID.",
+    );
+
+  let webFixtureBase: string | undefined;
+  if (env.SOURCE_TASTER_WEB_FIXTURE_BASE_URL) {
+    webFixtureBase = endpoint(
+      "SOURCE_TASTER_WEB_FIXTURE_BASE_URL",
+      "https://fixture.invalid",
+    );
+    const fixture = new URL(webFixtureBase);
+    if (
+      !bibliographicPreview ||
+      env.NODE_ENV === "production" ||
+      !["http:", "https:"].includes(fixture.protocol) ||
+      !["127.0.0.1", "localhost", "[::1]"].includes(fixture.hostname)
+    )
+      throw new ConfigError(
+        "Web fixture replacement is loopback-only in the bibliographic development preview.",
+      );
+  }
   return {
+    documentImage: env.SOURCE_TASTER_DOCUMENT_IMAGE,
+    documentLimits,
     mode,
+    urlEnabled:
+      bibliographicPreview && env.SOURCE_TASTER_URL_ENABLED === "true",
+    internetarchiveEnabled:
+      bibliographicPreview &&
+      env.SOURCE_TASTER_INTERNETARCHIVE_ENABLED === "true",
+    webFixtureBase,
     doiPreview,
     bibliographicPreview,
     openalexEnabled:
@@ -243,9 +311,19 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     website,
     referenceLimit: integer(env, "SOURCE_TASTER_REFERENCE_LIMIT", 1000, 1),
     databaseUrl,
-    port: integer(env, "SOURCE_TASTER_PORT", 3100),
+    port: integer(
+      env,
+      "SOURCE_TASTER_PORT",
+      env.NODE_ENV === "production" ? integer(env, "PORT", 3100) : 3100,
+    ),
     sseHeartbeatMs: integer(env, "SOURCE_TASTER_SSE_HEARTBEAT_MS", 25_000),
     placeholderDelayMs: integer(env, "SOURCE_TASTER_PLACEHOLDER_DELAY_MS", 500),
+    contentRetentionMs: integer(
+      env,
+      "SOURCE_TASTER_CONTENT_RETENTION_MS",
+      86_400_000,
+      1000,
+    ),
     clientLeaseMs: integer(env, "SOURCE_TASTER_CLIENT_LEASE_MS", 75_000, 1000),
     workerClaimMs: integer(
       env,
@@ -300,7 +378,7 @@ const searchSettingsPatch = z.strictObject({
     .optional(),
 });
 /** Partial JSON overrides merged over the default search settings. */
-function parseSearchSettings(raw: string | undefined): SearchSettings {
+export function parseSearchSettings(raw: string | undefined): SearchSettings {
   const patch = searchSettingsPatch.parse(raw ? JSON.parse(raw) : {});
   const { sources = {}, ...rest } = patch;
   const merged = Object.fromEntries(

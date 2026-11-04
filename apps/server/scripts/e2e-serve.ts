@@ -70,14 +70,52 @@ fixtures.respond("/api/handles/10.5555/workspace-nonexistent", 404, {
   handle: "10.5555/workspace-nonexistent",
 });
 fixtures.respond("/works/10.5555/workspace-nonexistent", 404, {});
+// Independently authored web protocol witnesses; no provider recordings.
+const webFixtures = process.env.SOURCE_TASTER_E2E_WEB_FIXTURES === "true";
+if (webFixtures) {
+  fixtures.respond("/web80-dead", 410, {});
+  fixtures.respond("/wayback/available", 200, {
+    archived_snapshots: {
+      closest: {
+        available: true,
+        status: "200",
+        timestamp: "20260102030405",
+        url: "https://web.archive.org/web/20260102030405/https://example.com/web80-dead",
+      },
+    },
+  });
+  fixtures.route((url) =>
+    url.pathname === "/web/20260102030405id_/https://example.com/web80-dead"
+      ? {
+          status: 200,
+          contentType: "text/html",
+          body: "<title>Web route witness</title><p>Evidence</p>",
+        }
+      : undefined,
+  );
+}
+const reports = process.env.SOURCE_TASTER_E2E_REPORTS;
 const service = await startTestService(
   Number(process.env.SOURCE_TASTER_E2E_API_PORT ?? 3102),
   3000,
   {
     ...fixtures.env,
     ...bibliographic?.env,
+    ...(webFixtures
+      ? {
+          SOURCE_TASTER_BIBLIOGRAPHIC_PREVIEW: "uncalibrated",
+          SOURCE_TASTER_URL_ENABLED: "true",
+          SOURCE_TASTER_INTERNETARCHIVE_ENABLED: "true",
+          SOURCE_TASTER_WEB_FIXTURE_BASE_URL:
+            fixtures.env.SOURCE_TASTER_CROSSREF_BASE_URL,
+        }
+      : {}),
     SOURCE_TASTER_CLIENT_LEASE_MS: "1500",
+    // Test composition with a fake Quota, because the real report feature
+    // grant belongs to the private service (see test/support/report-web.ts).
+    ...(reports ? { TEST_REPORT_FEATURE: reports } : {}),
   },
+  reports ? { webScript: "test/support/report-web.ts" } : {},
 );
 const webPort = process.env.SOURCE_TASTER_E2E_WEB_PORT ?? "5174";
 const vite = spawn(

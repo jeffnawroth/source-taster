@@ -1,0 +1,5 @@
+{
+  "command": "node apps/server/scripts/release-check.ts",
+  "exit": 78,
+  "expected": 78
+}

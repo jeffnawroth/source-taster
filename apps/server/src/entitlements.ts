@@ -4,6 +4,14 @@
 // current Guest policy and signing authority belong to the private service.
 
 import type { QuotaSlot } from "@source-taster/contract-common";
+import type { QuotaPort } from "./quota/port.ts";
+
+/**
+ * The Quota feature id that entitles an Owner to Verification reports (ADR-0017).
+ * It is granted by the private service in `Quota.features`; this program never
+ * invents a local entitlement.
+ */
+export { reportFeature } from "@source-taster/contract-verification/report";
 
 export type Permission =
   | "structuring:create"
@@ -13,7 +21,9 @@ export type Permission =
   | "check:renew";
 
 export interface Principal {
+  guestId?: string;
   guestContextId?: string;
+  sessionId?: string;
   expiresAt?: number;
   ownerId: string;
   actorId: string;
@@ -29,6 +39,8 @@ export interface Entitlements {
     permission: Permission,
     operation: () => Promise<T>,
   ): Promise<T>;
+  /** Hosted only: reserve/commit/release against the Owner's Quota. Standalone has none and never reserves. */
+  quota?: QuotaPort;
   /** Resolves the acting Principal, or `null` when the request is not authenticated. */
   resolve(request: Request): Promise<Principal | null>;
 }

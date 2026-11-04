@@ -8,6 +8,7 @@ import { tmpdir } from "node:os";
 import { once } from "node:events";
 import { createServer } from "node:http";
 import pg from "pg";
+import type { AbusePolicy } from "@source-taster/contract-internal";
 import { GuestTokenResponse } from "@source-taster/contract-service";
 import { startDoiFixtures } from "./doi-fixtures.ts";
 export async function freePort() {
@@ -32,8 +33,22 @@ export async function eventually(
 export async function bothPrograms(
   options: {
     startWorker?: boolean;
+    abuse?: {
+      epoch: string;
+      neutralPlanId: string;
+      policy: AbusePolicy;
+      origin: unknown;
+    };
+    apiPort?: number;
+    servicePort?: number;
+    accounts?: boolean;
+    serviceAllowedOrigins?: string[];
+    verificationPublicOrigin?: string;
     clientLeaseMs?: number;
+    extensionOrigins?: string[];
+    accountPolicy?: Record<string, number>;
     verificationEnv?: Record<string, string>;
+    serviceEnv?: Record<string, string>;
   } = {},
 ) {
   const privatePath = process.env.SOURCE_TASTER_SERVICE_WORKTREE;
@@ -52,52 +67,69 @@ export async function bothPrograms(
   const admin = new pg.Client({ connectionString: adminUrl });
   await admin.connect();
   const passwords = [randomUUID(), randomUUID()];
-  await admin.query(`CREATE DATABASE ${admin.escapeIdentifier(database)}`);
-  await admin.query(
-    `REVOKE ALL ON DATABASE ${admin.escapeIdentifier(database)} FROM PUBLIC`,
-  );
   const target = new URL(adminUrl);
   target.pathname = `/${database}`;
-  const setup = new pg.Client({ connectionString: target.toString() });
-  await setup.connect();
-  await setup.query("REVOKE ALL ON SCHEMA public FROM PUBLIC");
   const urls: string[] = [];
-  for (let index = 0; index < 2; index++) {
-    const role = roles[index]!,
-      schema = index === 0 ? "verification" : "service";
+  let setup: pg.Client | undefined;
+  try {
+    await admin.query(`CREATE DATABASE ${admin.escapeIdentifier(database)}`);
     await admin.query(
-      `CREATE ROLE ${admin.escapeIdentifier(role)} LOGIN NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS PASSWORD ${admin.escapeLiteral(passwords[index]!)}`,
+      `REVOKE ALL ON DATABASE ${admin.escapeIdentifier(database)} FROM PUBLIC`,
     );
-    await admin.query(
-      `GRANT CONNECT ON DATABASE ${admin.escapeIdentifier(database)} TO ${admin.escapeIdentifier(role)}`,
-    );
-    for (const name of [schema, `${schema}_boss`]) {
-      await setup.query(
-        `CREATE SCHEMA ${setup.escapeIdentifier(name)} AUTHORIZATION ${setup.escapeIdentifier(role)}`,
+    setup = new pg.Client({ connectionString: target.toString() });
+    await setup.connect();
+    await setup.query("REVOKE ALL ON SCHEMA public FROM PUBLIC");
+    for (let index = 0; index < 2; index++) {
+      const role = roles[index]!,
+        schema = index === 0 ? "verification" : "service";
+      await admin.query(
+        `CREATE ROLE ${admin.escapeIdentifier(role)} LOGIN NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS PASSWORD ${admin.escapeLiteral(passwords[index]!)}`,
       );
-      await setup.query(
-        `REVOKE ALL ON SCHEMA ${setup.escapeIdentifier(name)} FROM PUBLIC`,
+      await admin.query(
+        `GRANT CONNECT ON DATABASE ${admin.escapeIdentifier(database)} TO ${admin.escapeIdentifier(role)}`,
       );
+      for (const name of [schema, `${schema}_boss`]) {
+        await setup.query(
+          `CREATE SCHEMA ${setup.escapeIdentifier(name)} AUTHORIZATION ${setup.escapeIdentifier(role)}`,
+        );
+        await setup.query(
+          `REVOKE ALL ON SCHEMA ${setup.escapeIdentifier(name)} FROM PUBLIC`,
+        );
+      }
+      await admin.query(
+        `ALTER ROLE ${admin.escapeIdentifier(role)} IN DATABASE ${admin.escapeIdentifier(database)} SET search_path=${schema}`,
+      );
+      const url = new URL(target);
+      url.username = role;
+      url.password = passwords[index]!;
+      urls.push(url.toString());
+      const migration = new URL(url);
+      migration.searchParams.set("schema", schema);
+      const result = spawnSync(
+        "pnpm",
+        ["exec", "prisma", "migrate", "deploy"],
+        {
+          cwd: index === 0 ? serverPath : join(privatePath, "apps/server"),
+          env: { PATH: process.env.PATH, DATABASE_URL: migration.toString() },
+          encoding: "utf8",
+        },
+      );
+      if (result.status !== 0)
+        throw new Error(`Fixture migration failed: ${result.stderr}`);
     }
+    await setup.end();
+  } catch (error) {
+    // A failed setup (for example exhausted shared connection slots) must not leak its own database or roles.
+    await setup?.end().catch(() => {});
     await admin.query(
-      `ALTER ROLE ${admin.escapeIdentifier(role)} IN DATABASE ${admin.escapeIdentifier(database)} SET search_path=${schema}`,
+      `DROP DATABASE IF EXISTS ${admin.escapeIdentifier(database)} WITH (FORCE)`,
     );
-    const url = new URL(target);
-    url.username = role;
-    url.password = passwords[index]!;
-    urls.push(url.toString());
-    const migration = new URL(url);
-    migration.searchParams.set("schema", schema);
-    const result = spawnSync("pnpm", ["exec", "prisma", "migrate", "deploy"], {
-      cwd: index === 0 ? serverPath : join(privatePath, "apps/server"),
-      env: { PATH: process.env.PATH, DATABASE_URL: migration.toString() },
-      encoding: "utf8",
-    });
-    if (result.status !== 0)
-      throw new Error(`Fixture migration failed: ${result.stderr}`);
+    for (const role of roles)
+      await admin.query(`DROP ROLE IF EXISTS ${admin.escapeIdentifier(role)}`);
+    throw error;
+  } finally {
+    await admin.end();
   }
-  await setup.end();
-  await admin.end();
   let now = Date.now(),
     seq = 0;
   const processes: {
@@ -173,8 +205,18 @@ export async function bothPrograms(
     return item;
   }
   const [apiPort, servicePort, proxyPort] = await Promise.all([
-    freePort(),
-    freePort(),
+    options.accounts
+      ? Promise.resolve(
+          options.apiPort ??
+            Number(process.env.SOURCE_TASTER_TEST_API_PORT ?? 3501),
+        )
+      : freePort(),
+    options.accounts
+      ? Promise.resolve(
+          options.servicePort ??
+            Number(process.env.SOURCE_TASTER_TEST_SERVICE_PORT ?? 3502),
+        )
+      : freePort(),
     freePort(),
   ]);
   const apiUrl = `http://127.0.0.1:${apiPort}`,
@@ -187,6 +229,7 @@ export async function bothPrograms(
     | undefined
     | {
         permission?: string;
+        path?: string;
         kind?: string;
         skip: number;
         hit: () => void;
@@ -222,7 +265,10 @@ export async function bothPrograms(
           await new Promise((resolve) => setTimeout(resolve, workDelayMs));
         if (
           trap &&
-          req.url === "/internal/guest-authority" &&
+          (trap.path
+            ? req.url === trap.path
+            : req.url === "/internal/guest-authority" ||
+              req.url === "/internal/account-authority") &&
           (!trap.permission || trap.permission === input.permission) &&
           (!trap.kind || trap.kind === input.kind)
         ) {
@@ -272,10 +318,15 @@ export async function bothPrograms(
     verificationAudience: "https://verification.test.invalid",
     verificationIssuer: "https://verification.test.invalid",
     verificationOrigin: apiUrl,
+    ...(options.verificationPublicOrigin
+      ? { verificationPublicOrigin: options.verificationPublicOrigin }
+      : {}),
     accessKey: access.key,
     internalKey: serviceInternal.key,
     verificationJwks: { keys: [verificationInternal.jwk] },
-    allowedOrigins: [] as string[],
+    allowedOrigins:
+      options.serviceAllowedOrigins ??
+      (options.accounts ? ["https://web.test.invalid"] : []),
   };
   const serviceConfigPath = join(directory, "service.json"),
     verificationConfigPath = join(directory, "verification.json");
@@ -305,164 +356,269 @@ export async function bothPrograms(
     ...fixtures.env,
     ...options.verificationEnv,
   };
+  const accountConfigPath = join(directory, "account.json");
+  if (options.accounts)
+    await writeFile(
+      accountConfigPath,
+      JSON.stringify({
+        ...(options.extensionOrigins
+          ? { extensionOrigins: options.extensionOrigins }
+          : {}),
+        ...(options.accountPolicy ? { policy: options.accountPolicy } : {}),
+        secret: randomUUID() + randomUUID(),
+        publicOrigin: "https://service.test.invalid",
+        dpaAccountUrl: "https://web.test.invalid/",
+        from: "signin@source-taster.invalid",
+        smtp: { host: "127.0.0.1", port: 1, secure: false },
+      }),
+      { mode: 0o600 },
+    );
+  const abuseConfigPath = join(directory, "abuse.json"),
+    originConfigPath = join(directory, "origin.json");
+  if (options.abuse) {
+    await writeFile(abuseConfigPath, JSON.stringify(options.abuse), {
+      mode: 0o600,
+    });
+    await writeFile(originConfigPath, JSON.stringify(options.abuse.origin), {
+      mode: 0o600,
+    });
+    Object.assign(venv, {
+      SOURCE_TASTER_ABUSE_ORIGIN_CONFIG: originConfigPath,
+    });
+  }
   const senv = {
+    ...(options.abuse ? { SERVICE_ABUSE_CONFIG: abuseConfigPath } : {}),
     DATABASE_URL: urls[1]!,
     SERVICE_PORT: String(servicePort),
+    ...options.serviceEnv,
     SERVICE_GUEST_AUTH_CONFIG: serviceConfigPath,
+    ...(options.accounts
+      ? { SERVICE_ACCOUNT_AUTH_CONFIG: accountConfigPath }
+      : {}),
   };
-  let service = launch(
-    join(privatePath, "apps/server"),
-    "test/authority-process.ts",
-    [],
-    senv,
-  );
-  await service.ready;
-  let serviceWorker = launch(
-    join(privatePath, "apps/server"),
-    "test/authority-worker.ts",
-    [],
-    senv,
-  );
-  await serviceWorker.ready;
-  let web = launch(serverPath, "test/support/guest-process.ts", [], venv);
-  await web.ready;
-  const worker = () =>
-    launch(serverPath, "test/support/guest-process.ts", ["worker"], venv);
-  if (options.startWorker !== false) await worker().ready;
-  return {
-    now: () => now,
-    apiUrl,
-    serviceUrl,
-    fixtures,
-    access,
-    serviceInternal,
-    verificationInternal,
-    serviceConfig,
-    serviceConfigPath,
-    venv,
-    senv,
-    urls,
-    privatePath,
-    directory,
-    web: () => web,
-    service: () => service,
-    worker,
-    restartWeb: async () => {
-      await web.stop();
-      web = launch(serverPath, "test/support/guest-process.ts", [], venv);
-      await web.ready;
-    },
-    restartService: async () => {
-      await service.stop();
-      await serviceWorker.stop();
-      service = launch(
-        join(privatePath, "apps/server"),
-        "test/authority-process.ts",
-        [],
-        senv,
+  async function cleanup() {
+    await Promise.all(processes.map((p) => p.stop()));
+    proxy.closeAllConnections();
+    await new Promise<void>((r) => proxy.close(() => r()));
+    await fixtures.stop();
+    const cleanup = new pg.Client({ connectionString: adminUrl });
+    await cleanup.connect();
+    try {
+      await cleanup.query(
+        `DROP DATABASE ${cleanup.escapeIdentifier(database)} WITH (FORCE)`,
       );
-      await service.ready;
-      serviceWorker = launch(
-        join(privatePath, "apps/server"),
-        "test/authority-worker.ts",
-        [],
-        senv,
-      );
-      await serviceWorker.ready;
-    },
-    advance: async (ms: number) => {
-      now += ms;
-      await Promise.all(
-        processes
-          .filter(
-            (p) => p.child.exitCode === null && p.child.signalCode === null,
-          )
-          .map((p) => p.command({ now })),
-      );
-    },
-    change: async (guestId: string, change: object, wait = true) => {
-      let result = (await service.command({ guestId, ...change })) as {
-        completed: boolean;
-        version: number;
-      };
-      if (wait && !result.completed)
-        await eventually(async () => {
-          result = (await service.command({
-            guestId,
-            status: true,
-            // Completion is per Guest and client, like the change itself.
-            client: (change as { client?: string }).client,
-          })) as typeof result;
-          return result.completed;
-        }, 5000);
-      return result;
-    },
-    holdWork: () => {
-      let arrived!: () => void, release!: () => void;
-      const gate = {
-        arrived: () => arrived(),
-        wait: new Promise<void>((r) => {
-          release = r;
-        }),
-      };
-      const waiting = new Promise<void>((r) => {
-        arrived = r;
-      });
-      workGate = gate;
-      return {
-        arrived: waiting,
-        release: () => {
-          workGate = undefined;
-          release();
-        },
-      };
-    },
-    delayWork: (ms: number) => {
-      workDelayMs = ms;
-    },
-    trap: (permission?: string, kind?: string, skip = 0) => {
-      let hit!: () => void, release!: () => void;
-      const arrived = new Promise<void>((r) => {
-        hit = r;
-      });
-      const wait = new Promise<void>((r) => {
-        release = r;
-      });
-      trap = { permission, kind, skip, hit, wait };
-      return { arrived, release };
-    },
-    issue: async (
-      guestId = randomUUID(),
-      client: "web" | "extension" = "web",
-    ) => {
-      const response = await fetch(`${serviceUrl}/v1/guest-tokens`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ guestId, client }),
-      });
-      if (!response.ok) throw new Error(`Guest issuance: ${response.status}`);
-      return {
-        guestId,
-        token: GuestTokenResponse.parse(await response.json()).data.accessToken,
-      };
-    },
-    stop: async () => {
-      await Promise.all(processes.map((p) => p.stop()));
-      proxy.closeAllConnections();
-      await new Promise<void>((r) => proxy.close(() => r()));
-      await fixtures.stop();
-      const cleanup = new pg.Client({ connectionString: adminUrl });
-      await cleanup.connect();
-      try {
-        await cleanup.query(
-          `DROP DATABASE ${cleanup.escapeIdentifier(database)} WITH (FORCE)`,
+      for (const role of roles)
+        await cleanup.query(`DROP ROLE ${cleanup.escapeIdentifier(role)}`);
+    } finally {
+      await cleanup.end();
+      await rm(directory, { recursive: true, force: true });
+    }
+  }
+  try {
+    let service = launch(
+      join(privatePath, "apps/server"),
+      "test/authority-process.ts",
+      [],
+      senv,
+    );
+    await service.ready;
+    let serviceWorker = launch(
+      join(privatePath, "apps/server"),
+      "test/authority-worker.ts",
+      [],
+      senv,
+    );
+    await serviceWorker.ready;
+    let web = launch(serverPath, "test/support/guest-process.ts", [], venv);
+    await web.ready;
+    const worker = () =>
+      launch(serverPath, "test/support/guest-process.ts", ["worker"], venv);
+    const verificationWorker =
+      options.startWorker !== false ? worker() : undefined;
+    if (verificationWorker) await verificationWorker.ready;
+    return {
+      mail: () =>
+        service.command({ mailbox: true }) as Promise<
+          { subject: string; text: string }[]
+        >,
+      signIn: async (email = "account@example.invalid") => {
+        const call = (path: string, body: unknown, cookie?: string) =>
+          fetch(serviceUrl + path, {
+            method: "POST",
+            headers: {
+              origin: "https://web.test.invalid",
+              "content-type": "application/json",
+              ...(cookie ? { cookie } : {}),
+            },
+            body: JSON.stringify(body),
+          });
+        const challenge = await call("/v1/sign-in/challenges", {
+          email,
+          language: "en",
+        });
+        if (!challenge.ok) throw new Error(`Challenge ${challenge.status}`);
+        const pending = (await challenge.json()) as {
+          data: { challengeId: string };
+        };
+        const mail = (await service.command({ mailbox: true })) as {
+          text: string;
+        }[];
+        const code = mail.at(-1)!.text.match(/\b[0-9]{6}\b/)![0];
+        const confirmed = await call(
+          "/v1/sign-in/confirm",
+          { challengeId: pending.data.challengeId, code },
+          challenge.headers.get("set-cookie")!.split(";")[0],
         );
-        for (const role of roles)
-          await cleanup.query(`DROP ROLE ${cleanup.escapeIdentifier(role)}`);
-      } finally {
-        await cleanup.end();
-        await rm(directory, { recursive: true, force: true });
-      }
-    },
-  };
+        if (!confirmed.ok) throw new Error(`Confirm ${confirmed.status}`);
+        const cookie = confirmed.headers.get("set-cookie")!.split(";")[0]!;
+        const token = await call("/v1/account-tokens", {}, cookie);
+        if (!token.ok) throw new Error(`Token ${token.status}`);
+        return {
+          cookie,
+          token: GuestTokenResponse.parse(await token.json()).data.accessToken,
+          data: (
+            (await confirmed.json()) as {
+              data: { accountId: string; ownerId: string };
+            }
+          ).data,
+          call: (path: string, body: unknown) => call(path, body, cookie),
+        };
+      },
+      accountConfigPath,
+      now: () => now,
+      maintain: () => web.command({ now, maintain: true }),
+      stopVerificationWorker: () => verificationWorker?.stop(),
+      apiUrl,
+      serviceUrl,
+      fixtures,
+      access,
+      serviceInternal,
+      verificationInternal,
+      serviceConfig,
+      serviceConfigPath,
+      venv,
+      senv,
+      urls,
+      privatePath,
+      directory,
+      web: () => web,
+      service: () => service,
+      worker,
+      additionalWeb: async (port: number) => {
+        const instance = launch(
+          serverPath,
+          "test/support/guest-process.ts",
+          [],
+          { ...venv, SOURCE_TASTER_PORT: String(port) },
+        );
+        await instance.ready;
+        return { url: `http://127.0.0.1:${port}`, stop: instance.stop };
+      },
+      restartWeb: async () => {
+        await web.stop();
+        web = launch(serverPath, "test/support/guest-process.ts", [], venv);
+        await web.ready;
+      },
+      restartService: async (beforeStart?: () => Promise<void>) => {
+        await service.stop();
+        await serviceWorker.stop();
+        await beforeStart?.();
+        service = launch(
+          join(privatePath, "apps/server"),
+          "test/authority-process.ts",
+          [],
+          senv,
+        );
+        await service.ready;
+        serviceWorker = launch(
+          join(privatePath, "apps/server"),
+          "test/authority-worker.ts",
+          [],
+          senv,
+        );
+        await serviceWorker.ready;
+      },
+      advance: async (ms: number) => {
+        now += ms;
+        await Promise.all(
+          processes
+            .filter(
+              (p) => p.child.exitCode === null && p.child.signalCode === null,
+            )
+            .map((p) => p.command({ now })),
+        );
+      },
+      change: async (guestId: string, change: object, wait = true) => {
+        let result = (await service.command({ guestId, ...change })) as {
+          completed: boolean;
+          version: number;
+        };
+        if (wait && !result.completed)
+          await eventually(async () => {
+            result = (await service.command({
+              guestId,
+              status: true,
+              // Completion is per Guest and client, like the change itself.
+              client: (change as { client?: string }).client,
+            })) as typeof result;
+            return result.completed;
+          }, 5000);
+        return result;
+      },
+      holdWork: () => {
+        let arrived!: () => void, release!: () => void;
+        const gate = {
+          arrived: () => arrived(),
+          wait: new Promise<void>((r) => {
+            release = r;
+          }),
+        };
+        const waiting = new Promise<void>((r) => {
+          arrived = r;
+        });
+        workGate = gate;
+        return {
+          arrived: waiting,
+          release: () => {
+            workGate = undefined;
+            release();
+          },
+        };
+      },
+      delayWork: (ms: number) => {
+        workDelayMs = ms;
+      },
+      trap: (permission?: string, kind?: string, skip = 0, path?: string) => {
+        let hit!: () => void, release!: () => void;
+        const arrived = new Promise<void>((r) => {
+          hit = r;
+        });
+        const wait = new Promise<void>((r) => {
+          release = r;
+        });
+        trap = { permission, kind, skip, path, hit, wait };
+        return { arrived, release };
+      },
+      issue: async (
+        guestId = randomUUID(),
+        client: "web" | "extension" = "web",
+      ) => {
+        const response = await fetch(`${serviceUrl}/v1/guest-tokens`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ guestId, client }),
+        });
+        if (!response.ok) throw new Error(`Guest issuance: ${response.status}`);
+        return {
+          guestId,
+          token: GuestTokenResponse.parse(await response.json()).data
+            .accessToken,
+        };
+      },
+      stop: cleanup,
+    };
+  } catch (error) {
+    await cleanup();
+    throw error;
+  }
 }

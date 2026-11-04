@@ -7,6 +7,8 @@ export interface ExtensionConfig {
   mode: "standalone" | "hosted";
   serviceUrl?: string;
   websiteUrl: string;
+  accountSignIn: boolean;
+  sensitiveAccountActions: boolean;
 }
 
 const loopback = new Set(["127.0.0.1", "localhost", "[::1]"]);
@@ -42,7 +44,29 @@ export function extensionConfig(
     );
   if (mode === "hosted" && !env.SOURCE_TASTER_EXTENSION_SERVICE_URL)
     throw new Error("Hosted mode needs SOURCE_TASTER_EXTENSION_SERVICE_URL");
+  const signIn = env.SOURCE_TASTER_EXTENSION_ACCOUNT_SIGN_IN;
+  if (signIn !== undefined && signIn !== "enabled" && signIn !== "disabled")
+    throw new Error(
+      "SOURCE_TASTER_EXTENSION_ACCOUNT_SIGN_IN must be enabled or disabled",
+    );
+  const sensitive = env.SOURCE_TASTER_EXTENSION_SENSITIVE_ACCOUNT_ACTIONS;
+  if (
+    sensitive !== undefined &&
+    sensitive !== "enabled" &&
+    sensitive !== "disabled"
+  )
+    throw new Error(
+      "SOURCE_TASTER_EXTENSION_SENSITIVE_ACCOUNT_ACTIONS must be enabled or disabled",
+    );
+  if (sensitive === "enabled" && !(mode === "hosted" && signIn === "enabled"))
+    throw new Error(
+      "Sensitive Account actions need hosted mode with Account sign-in enabled",
+    );
   return {
+    // Private #102 implementation and both-program acceptance must precede activation.
+    sensitiveAccountActions: sensitive === "enabled",
+    // Private #98 implementation and both-program acceptance must precede activation.
+    accountSignIn: mode === "hosted" && signIn === "enabled",
     // Defaults match the local web development API and Vite origin.
     apiUrl: origin(
       "SOURCE_TASTER_EXTENSION_API_URL",
@@ -78,6 +102,7 @@ export function hostPermissions(target: Target, config: ExtensionConfig) {
 export function manifest(target: Target, config: ExtensionConfig) {
   const common = {
     manifest_version: 3,
+    default_locale: "en",
     name: "Source Taster (development)",
     version: "0.0.0",
     description: "Development build of the Source Taster Check workspace.",
@@ -93,7 +118,7 @@ export function manifest(target: Target, config: ExtensionConfig) {
         action: { default_title: "Source Taster" },
         side_panel: { default_path: "panel.html" },
         background: { service_worker: "background.js" },
-        permissions: ["sidePanel", "storage"],
+        permissions: ["sidePanel", "storage", "contextMenus"],
       }
     : {
         ...common,
@@ -112,6 +137,6 @@ export function manifest(target: Target, config: ExtensionConfig) {
           open_at_install: false,
         },
         background: { scripts: ["background.js"] },
-        permissions: ["storage"],
+        permissions: ["storage", "menus"],
       };
 }

@@ -1,0 +1,31 @@
+{
+  "container": "st-private-phases-integrated-nov2-pg",
+  "id": "d9bf90d0854cfafe3de4603b3f022eed91e4a2e5642383724ad1e844ad86a478",
+  "ownerLabel": "private-phases-integrated-nov2",
+  "removed": true,
+  "anonymousOwnedVolumesRemoved": true,
+  "remainingDatabasesBeforeRemoval": ["postgres", "source_taster_test"],
+  "leakedFixtureDatabases": [],
+  "portListenersAfterRemoval": {
+    "55711": false,
+    "5701": false,
+    "5702": false,
+    "5703": false,
+    "5471": false
+  },
+  "sourceWorkspaces": {
+    "/Users/jeffnawroth/.t3/worktrees/source-taster/t3-f22ae732": {
+      "head": "ce94cb958994a3f445168c9e12a25d790963ec7c",
+      "clean": true,
+      "edited": false
+    },
+    "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-100-102": {
+      "head": "702d681d8bc8d33ab79b017b11aa7f258622065e",
+      "clean": true,
+      "edited": false
+    }
+  },
+  "otherResourcesRemoved": false,
+  "retryJobChanged": false,
+  "ownershipRelease": "exclusive root/private INTEGRATION ownership released with final published clean handoff"
+}

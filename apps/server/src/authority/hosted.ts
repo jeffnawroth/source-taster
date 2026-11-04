@@ -1,20 +1,47 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import type { Context } from "hono";
 import pg from "pg";
 import {
   AuthorityResponse,
   AuthorityInvalidation,
   AuthorityInvalidationAck,
+  OwnerDeletionAck,
   type GuestBinding,
+  type AccountAuthorityRequest,
 } from "@source-taster/contract-internal";
 import type { CheckStore, WorkSubject } from "../checks/store.ts";
 import type { Entitlements, Permission } from "../entitlements.ts";
 import { fail } from "../http/problems.ts";
+import { quotaClient } from "../quota/client.ts";
+import type { QuotaPort } from "../quota/port.ts";
 import {
   guestAccessTokens,
   requestAssertion,
   verifyInvalidation,
+  verifyOwnerDeletion,
   type HostedSettings,
 } from "./crypto.ts";
+/** The one place the hosted-only internal mutations are mounted, so the deployed
+ * web process and the source test process cannot drift apart. */
+export function mountInternalRoutes(
+  app: {
+    post(path: string, handler: (c: Context) => Promise<Response>): unknown;
+    delete(path: string, handler: (c: Context) => Promise<Response>): unknown;
+  },
+  authority: Pick<
+    ReturnType<typeof hostedAuthority>,
+    "invalidate" | "deleteOwner"
+  >,
+) {
+  app.post("/internal/guest-authority/invalidate", async (c) =>
+    c.json(await authority.invalidate(c.req.raw)),
+  );
+  app.delete("/internal/owners/:ownerId", async (c) =>
+    c.json(
+      await authority.deleteOwner(c.req.raw, c.req.param("ownerId") ?? ""),
+    ),
+  );
+}
 export function hostedAuthority(
   settings: HostedSettings,
   databaseUrl: string,
@@ -52,7 +79,9 @@ export function hostedAuthority(
     }
   }
   async function run<T>(
-    binding: GuestBinding,
+    binding:
+      | GuestBinding
+      | Pick<AccountAuthorityRequest, "ownerId" | "actorId" | "sessionId">,
     permission: Permission,
     kind: "request" | "work",
     expiresAt: number | undefined,
@@ -60,23 +89,24 @@ export function hostedAuthority(
   ) {
     if (expiresAt !== undefined && expiresAt <= clock.now())
       fail("unauthenticated");
+    const path =
+      "guestContextId" in binding
+        ? "/internal/guest-authority"
+        : "/internal/account-authority";
     const body = JSON.stringify({ ...binding, permission, kind });
     let decision: AuthorityResponse;
     try {
-      const response = await fetch(
-        `${settings.serviceOrigin}/internal/guest-authority`,
-        {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-            authorization: `Bearer ${requestAssertion(settings, body, clock.now())}`,
-          },
-          body,
-          redirect: "error",
-          signal: AbortSignal.timeout(2000),
-          cache: "no-store",
+      const response = await fetch(`${settings.serviceOrigin}${path}`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${requestAssertion(settings, body, clock.now(), path)}`,
         },
-      );
+        body,
+        redirect: "error",
+        signal: AbortSignal.timeout(2000),
+        cache: "no-store",
+      });
       if (!response.ok) throw new Error();
       // Response is bounded and contains no verification content.
       const text = await response.text();
@@ -95,10 +125,20 @@ export function hostedAuthority(
         [binding.ownerId],
       );
       if ((result.rows[0]?.version ?? 1) > version) fail("forbidden");
+      // ADR-0003: a tombstoned Owner is refused even while the service, which may
+      // not yet know, still answers allowed. Same lock as the deletion itself.
+      const tombstone = await connection.query(
+        "SELECT 1 FROM verification.owner_tombstones WHERE owner_id=$1::uuid",
+        [binding.ownerId],
+      );
+      if (tombstone.rowCount) fail("forbidden");
       return operation();
     });
   }
-  const entitlements: Entitlements = {
+  const quota = quotaClient(settings, clock);
+  /** Hosted composition always carries the Quota port; standalone has none. */
+  const entitlements: Entitlements & { quota: QuotaPort } = {
+    quota,
     async resolve(request) {
       const token = request.headers
         .get("authorization")
@@ -108,19 +148,24 @@ export function hostedAuthority(
       return {
         ownerId: claims.ownerId,
         actorId: claims.sub,
-        guestContextId: claims.guestContextId,
+        ...(claims.purpose === "guest-access"
+          ? { guestContextId: claims.guestContextId, guestId: claims.guestId }
+          : { sessionId: claims.sessionId }),
         expiresAt: claims.exp * 1000,
         can: () => true,
         quota: { status: "not-implemented" },
       };
     },
     guard(principal, permission, operation) {
-      if (!principal.guestContextId) fail("unauthenticated");
+      if (!principal.guestContextId && !principal.sessionId)
+        fail("unauthenticated");
       return run(
         {
           ownerId: principal.ownerId,
           actorId: principal.actorId,
-          guestContextId: principal.guestContextId,
+          ...(principal.guestContextId
+            ? { guestContextId: principal.guestContextId }
+            : { sessionId: principal.sessionId }),
         },
         permission,
         "request",
@@ -131,18 +176,20 @@ export function hostedAuthority(
   };
   return {
     entitlements,
+    quota,
     work: {
       async run<T>(
         attempt: WorkSubject,
         _boundary: string,
         operation: () => Promise<T>,
       ) {
-        if (!attempt.guestContextId) fail("forbidden");
         return run(
           {
             ownerId: attempt.ownerId,
             actorId: attempt.actorId,
-            guestContextId: attempt.guestContextId,
+            ...(attempt.guestContextId
+              ? { guestContextId: attempt.guestContextId }
+              : {}),
           },
           "check:create",
           "work",
@@ -181,6 +228,21 @@ export function hostedAuthority(
           version: result.rows[0]!.version,
         });
       });
+    },
+    async deleteOwner(request: Request, ownerId: string) {
+      const token = request.headers
+        .get("authorization")
+        ?.match(/^Bearer ([A-Za-z0-9_.-]+)$/)?.[1];
+      if (!token) fail("unauthenticated");
+      verifyOwnerDeletion(settings, token, ownerId, clock.now());
+      if (!OwnerDeletionAck.shape.ownerId.safeParse(ownerId).success)
+        fail("invalid-request");
+      const id = ownerId.toLowerCase();
+      // Tombstone and purge share one transaction (store); the Owner guard keeps
+      // concurrent protected operations from interleaving with it. The ack is
+      // returned only after both are durable.
+      await locked(id, () => checks.deleteOwner(id));
+      return OwnerDeletionAck.parse({ ownerId: id, tombstoned: true });
     },
     close: () => pool.end(),
   };

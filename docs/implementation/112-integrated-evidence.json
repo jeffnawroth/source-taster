@@ -1,0 +1,337 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-03T12:07:43.126744+00:00",
+  "sources": {
+    "public": {
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "before": "2bf6c1892cd9a716aaf4d88d96fd25cdeb3541b3",
+      "source": "6f0758f3943800c7e8f3dad427f662c0e9ec0e41",
+      "branch": "spec/70-launch-integration",
+      "sourceContainsCurrent": true
+    },
+    "private": {
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "before": "4037025b833fdfbcd00d45a72bb03244325eea30",
+      "source": "29d7c008c95cc0a0ab5e4aad35236aa05008d2f2",
+      "branch": "spec/70-launch-integration",
+      "sourceContainsCurrent": true
+    }
+  },
+  "testedPair": {
+    "recordedAt": "2026-11-03T11:55:42.904010+00:00",
+    "publicCodeHead": "13f8681cca0080a8117df9c43e36148db01cdb86",
+    "privateCodeHead": "d617245d48b7b3e5ae0f79cde6db8d1cece74733",
+    "privateWorkingTreeClean": true,
+    "publicSource": "6f0758f3943800c7e8f3dad427f662c0e9ec0e41",
+    "privateSource": "29d7c008c95cc0a0ab5e4aad35236aa05008d2f2",
+    "ownedPostgreSQL": "127.0.0.1:55711",
+    "apiPort": 5701,
+    "secondApiPort": 5702,
+    "servicePort": 5703,
+    "operatorBrowserPort": 5471,
+    "externalAdapters": "loopback payment/VIES/Billit/DOI and captured mail only",
+    "realSeams": [
+      "PostgreSQL",
+      "HTTP",
+      "SSE",
+      "download",
+      "payment adapter",
+      "Operator browser",
+      "actual Saxon and hash-pinned official EN16931 UBL Schematron"
+    ],
+    "hostedAdapters": "real signed transport with source-only development verification",
+    "hostedQualification": false,
+    "gatesBypassed": false,
+    "overrides": false,
+    "sourceWorkspaceWrites": false,
+    "nestedAgents": false,
+    "retryJobChanged": false,
+    "testRunnerSha256": "e284e26c7349c3a33a1564ae171fcfdda9e5ceafa9b25c6d591e511bb500887e"
+  },
+  "sourcePreservation": {
+    "public": {
+      "source": "6f0758f3943800c7e8f3dad427f662c0e9ec0e41",
+      "integrationHead": "13f8681cca0080a8117df9c43e36148db01cdb86",
+      "changedPaths": [
+        "apps/server/test/catalog.contract.ts",
+        "docs/implementation/112-integrated-publication.md"
+      ],
+      "allProductImplementationAndSchemaBytesUnchanged": true,
+      "generatedTransportBytesUnchanged": true
+    },
+    "private": {
+      "source": "29d7c008c95cc0a0ab5e4aad35236aa05008d2f2",
+      "integrationHead": "d617245d48b7b3e5ae0f79cde6db8d1cece74733",
+      "changedPaths": [
+        "apps/server/package.json",
+        "apps/web/package.json",
+        "pnpm-lock.yaml",
+        "scripts/evidence.ts"
+      ],
+      "allProductImplementationAndSchemaBytesUnchanged": true,
+      "generatedTransportBytesUnchanged": true
+    }
+  },
+  "publicTransportPin": "13f8681cca0080a8117df9c43e36148db01cdb86",
+  "fivePins": [
+    {
+      "file": "apps/server/package.json",
+      "package": "@source-taster/contract-internal",
+      "sha": "13f8681cca0080a8117df9c43e36148db01cdb86"
+    },
+    {
+      "file": "apps/server/package.json",
+      "package": "@source-taster/contract-service",
+      "sha": "13f8681cca0080a8117df9c43e36148db01cdb86"
+    },
+    {
+      "file": "apps/server/package.json",
+      "package": "@source-taster/contract-verification",
+      "sha": "13f8681cca0080a8117df9c43e36148db01cdb86"
+    },
+    {
+      "file": "apps/web/package.json",
+      "package": "@source-taster/contract-service",
+      "sha": "13f8681cca0080a8117df9c43e36148db01cdb86"
+    },
+    {
+      "file": "scripts/evidence.ts",
+      "constant": "contractCommit",
+      "sha": "13f8681cca0080a8117df9c43e36148db01cdb86"
+    }
+  ],
+  "installedPublicFiles": [
+    {
+      "consumer": "server",
+      "package": "@source-taster/contract-internal",
+      "fileCount": 10,
+      "filesSha256": "7bacbc97e9562bd923339c002d6b2bd3acd61fad705d2c3968fc50298369b184"
+    },
+    {
+      "consumer": "server",
+      "package": "@source-taster/contract-service",
+      "fileCount": 20,
+      "filesSha256": "d7f5f793f48b5940efa429a2b137c4b6e1b6d0e7d76062661ce6882becf90d01"
+    },
+    {
+      "consumer": "server",
+      "package": "@source-taster/contract-verification",
+      "fileCount": 52,
+      "filesSha256": "8a44bd493e44bfdedb46d05a21e893349557b5e98897e5d2a5f6902089fb09e0"
+    },
+    {
+      "consumer": "web",
+      "package": "@source-taster/contract-service",
+      "fileCount": 20,
+      "filesSha256": "d7f5f793f48b5940efa429a2b137c4b6e1b6d0e7d76062661ce6882becf90d01"
+    }
+  ],
+  "installedFileInstances": 102,
+  "workspacePolicyUnchanged": true,
+  "registryGraphUnchanged": true,
+  "lockfileSha256": "e638345faf5928072f3d7d7fb3b630c1db8a32f4f8a508d033d3d13b1f24056e",
+  "mitContractSelectionRetained": true,
+  "checks": [
+    {
+      "name": "private-full",
+      "passed": 117,
+      "exitCode": 0,
+      "log": "112-integrated-private-full.log",
+      "sha256": "0796ad1abcfe3d12c67a842541572d7fd8281e352d618ee88c3940397f42321f"
+    },
+    {
+      "name": "private-catalog-cancellation",
+      "passed": 10,
+      "exitCode": 0,
+      "log": "112-integrated-private-catalog-cancellation.log",
+      "sha256": "719b47dfef3151e32a83f6f2a44f134f4e96145e27d530294cc51912521a5aea"
+    },
+    {
+      "name": "public-quota",
+      "passed": 11,
+      "exitCode": 0,
+      "log": "112-integrated-public-quota.log",
+      "sha256": "aebdde259249519e64c438712334c3840c7919edddfb90e3a8c108cb14aaa7ff"
+    },
+    {
+      "name": "public-history",
+      "passed": 21,
+      "exitCode": 0,
+      "log": "112-integrated-public-history.log",
+      "sha256": "e2e7b05daa5c63e865da9d3aa68b058fd7d99b565841571d571cedaddd306e97"
+    },
+    {
+      "name": "public-abuse",
+      "passed": 15,
+      "exitCode": 0,
+      "log": "112-integrated-public-abuse.log",
+      "sha256": "9f5a469c6d56b7a0a85d6fdd64d07446717e8d3681ab43a1b4affdebfbe76a18"
+    },
+    {
+      "name": "public-guest",
+      "passed": 33,
+      "exitCode": 0,
+      "log": "112-integrated-public-guest.log",
+      "sha256": "45c6febf2dada21171f32878d8e776ad6d21823c1517dd829a7ba536541bb1fc"
+    },
+    {
+      "name": "operator-browser",
+      "passed": 4,
+      "exitCode": 0,
+      "log": "112-integrated-operator-browser.log",
+      "sha256": "80c8195acc2ced737f4665fa4dfbc1bbc62b29f4df9544bc00a99ae6f9d23ac5"
+    },
+    {
+      "name": "public-install",
+      "exitCode": 0,
+      "log": "112-integrated-public-install.log",
+      "sha256": "adb306ef04bdb34b66dbbe4a529dfea6b446eabd4b0fef428ba702c814dfc6c9"
+    },
+    {
+      "name": "public-typecheck",
+      "exitCode": 0,
+      "log": "112-integrated-public-typecheck.log",
+      "sha256": "561d84d3f18f5bf6177c8a7ab507fc08070e0a4a43654496541058e10dd14851"
+    },
+    {
+      "name": "public-lint",
+      "exitCode": 0,
+      "log": "112-integrated-public-lint.log",
+      "sha256": "5e52c34da456ce3ac31b1f2599649fe470f658671ddb6f671bcc167acab15584"
+    },
+    {
+      "name": "public-i18n-check",
+      "exitCode": 0,
+      "log": "112-integrated-public-i18n-check.log",
+      "sha256": "34963b281e0f8042defbc3295e63ab8c90c8cd92813e69137753ddc3385fee24"
+    },
+    {
+      "name": "public-build",
+      "exitCode": 0,
+      "log": "112-integrated-public-build.log",
+      "sha256": "75a8e54917b1e6e6e3290253a3d8cf08506555ea9dbab13224054b45c478fa1e"
+    },
+    {
+      "name": "private-normal-install",
+      "exitCode": 0,
+      "log": "112-integrated-private-normal-install.log",
+      "sha256": "040ed9a76bb3f7df2e4479e937f80bd8522413f22c5f68f40d6703c6034dd052"
+    },
+    {
+      "name": "private-frozen",
+      "exitCode": 0,
+      "log": "112-integrated-private-frozen.log",
+      "sha256": "49e041e895e181330c0e36622fb2d08004fd5d4bc7a7067a89da886a2052ba52"
+    },
+    {
+      "name": "installed-bytes",
+      "exitCode": 0,
+      "log": "112-integrated-installed-bytes.log",
+      "sha256": "10def3095ad1acf88344fed414cd38ee06daf9882b1b0005d734f1e632d4135d"
+    },
+    {
+      "name": "private-types",
+      "exitCode": 0,
+      "log": "112-integrated-private-types.log",
+      "sha256": "3d603c2a62c723d05d7bc9496fba4bebd9b0a47b516dc48462f9ba17724e9906"
+    },
+    {
+      "name": "private-lint",
+      "exitCode": 0,
+      "log": "112-integrated-private-lint.log",
+      "sha256": "26db9673ec89bc95699a8e66249537512722e2114018fc39c411bfb94c2d9eaa"
+    },
+    {
+      "name": "private-i18n",
+      "exitCode": 0,
+      "log": "112-integrated-private-i18n.log",
+      "sha256": "ca3d59870f6737e7e80532fbff85a8e6631cd5296d6248e992bb22b780e8aa2f"
+    },
+    {
+      "name": "private-build",
+      "exitCode": 0,
+      "log": "112-integrated-private-build.log",
+      "sha256": "7f0c4945ba275344cd0c6e60341b817bd512c2ba06bee49b01d53c622f84be8e"
+    },
+    {
+      "name": "reproduction-confirmed",
+      "exitCode": 0,
+      "log": "112-integrated-reproduction-confirmed.log",
+      "sha256": "fe9bd9c4951cf795a11169119d5fa73e71133faa6ada15e0739db9a8523878f5"
+    },
+    {
+      "name": "private-license-boundary",
+      "exitCode": 0,
+      "log": "112-integrated-private-license-boundary.log",
+      "sha256": "32868ec50d7c8ed98fa642748ef0bd7002fd389f0b1af9570b01b9371ccce13c"
+    }
+  ],
+  "privateFullTests": 117,
+  "privateFocusedTests": 10,
+  "publicAffectedTests": 80,
+  "operatorBrowserTests": 4,
+  "sourceEvidenceFilesVerified": 48,
+  "sourceEvidenceManifestSha256": "3006324a38f30f1b7e61fc77f21295e9731d0424f2bf81bb9d8c49f1eb0b62ed",
+  "integrationClosedEvidenceFiles": 81,
+  "integrationClosedEvidenceManifestSha256": "f5f746ffd9880ef1612046c333a8435e05a2242b22de80de1bbbf58534713765",
+  "initialReproductionMismatch": {
+    "initialMismatchFiles": ["packages/i18n/src/paraglide/README.md"],
+    "cause": "Turbo shared cache restored documentation containing source checkout absolute path",
+    "exactSourcePathSubstitutionReproducesInitialHash": true,
+    "initialSha256": "d812463dd3699afd1095aaa77879e545358098fb0dd299d75b584c2ebd19076f",
+    "localGeneratedSha256": "e6c0233c7ca182c9b7a971f2f396b94dea0fe8b9db3a7c162be0dd1c2b420666",
+    "subsequentDirectGenerationIdentical": true,
+    "codeArtifactDifferences": false,
+    "fix": "generate in owned checkout before complete before/after comparison; no artifact excluded or hand-edited"
+  },
+  "cleanup": {
+    "recordedAt": "2026-11-03T12:07:33.311894+00:00",
+    "container": "/st112-integrated-pg",
+    "containerId": "73f24486ca2122402465297171c6961207f998df58313fe0de551a24c362836d",
+    "label": {
+      "source-taster.task": "112-integrated-nov3"
+    },
+    "binding": "127.0.0.1:55711",
+    "ownershipVerified": true,
+    "activeOtherClientBackends": 0,
+    "remainingFixtureDatabases": [],
+    "remainingFixtureRoles": [],
+    "removedOwnedContainer": "73f24486ca2122402465297171c6961207f998df58313fe0de551a24c362836d",
+    "portsWithoutListeners": [5701, 5702, 5703, 5471, 55711],
+    "unrelatedResourcesTouched": false,
+    "fixturesCompletedOwnProcessDatabaseRoleProfileCleanup": true,
+    "removedOwnedAnonymousVolumes": [
+      "3c59b20203d0be8ac295b409b9f5ebb16ee22fdd5de03575e64d9758749b1079"
+    ],
+    "retainedIgnoredCaches": [
+      "public controlled Pagefind cache",
+      "private hash-pinned external validator cache"
+    ]
+  },
+  "hostedQualification": false,
+  "knownCI": {
+    "publicPriorHead": "2bf6c1892cd9a716aaf4d88d96fd25cdeb3541b3",
+    "publicPriorRun": "https://github.com/jeffnawroth/source-taster/actions/runs/41588497275",
+    "publicPriorResult": "673/677 server tests passed; superseded-worker timeout, maximum-Check cancellation HTTP 500, two report-lifecycle cases generating rather than ready",
+    "privatePriorHead": "4037025b833fdfbcd00d45a72bb03244325eea30",
+    "privatePriorRun": "https://github.com/jeffnawroth/source-taster-service/actions/runs/41588510736",
+    "privatePriorResult": "checks passed; dependency gate failed with one advisory",
+    "sourceHostedStartQualificationBlockers": "retained; source-only adapter composition does not satisfy hosted startup/qualification gates",
+    "freshPushState": "observed separately at handback; no CI-pass claim"
+  },
+  "remainingGates": [
+    "Selected dependencies and Better Auth 1.7.14",
+    "minimatch 10.2.6 GHSA-g3hv-75wg-m249 / CVE-2026-118764; no forced 11.0.1 override or waiver",
+    "source/rights and mandatory Data source activation",
+    "complete compatible Measured configuration and #114 outcome-changing activation",
+    "calibration, Quality gate and load",
+    "security, native browser/accessibility and Q01 qualification",
+    "legal/tax, actual merchant and price-change notice procedure",
+    "provider, hosting/restore/deployment and release #78"
+  ],
+  "noIssueMutationOrClosure": true,
+  "noNestedAgentsOrClaude": true,
+  "sourceWorkspacesUnchanged": true,
+  "fiveHourJobUnchanged": true,
+  "ownershipRelease": "public root and private INTEGRATION released at final clean published handback; #113 remains separate"
+}

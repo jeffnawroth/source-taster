@@ -18,7 +18,31 @@ concurrency:
   group: skeleton-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  # Stable aggregate gate. Branch protection, PR checks and the deploy workflow
+  # (which reads this workflow's exact-commit conclusion) keep one verdict name,
+  # `checks`, over the split jobs below. `always()` makes a failed, cancelled or
+  # skipped need fail the gate instead of skipping it.
   checks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    needs: [verify, server-tests, e2e, side-panel, dependencies]
+    if: always()
+    steps:
+      - name: Require every verification job to succeed
+        env:
+          VERIFY: ${{ needs.verify.result }}
+          SERVER_TESTS: ${{ needs.server-tests.result }}
+          E2E: ${{ needs.e2e.result }}
+          SIDE_PANEL: ${{ needs.side-panel.result }}
+          DEPENDENCIES: ${{ needs.dependencies.result }}
+        run: |
+          test "$VERIFY" = "success" || { echo "verify: $VERIFY"; exit 1; }
+          test "$SERVER_TESTS" = "success" || { echo "server-tests: $SERVER_TESTS"; exit 1; }
+          test "$E2E" = "success" || { echo "e2e: $E2E"; exit 1; }
+          test "$SIDE_PANEL" = "success" || { echo "side-panel: $SIDE_PANEL"; exit 1; }
+          test "$DEPENDENCIES" = "success" || { echo "dependencies: $DEPENDENCIES"; exit 1; }
+  # Static gates, committed-artifact check, operations CLI and load harness.
+  verify:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     services:
@@ -54,19 +78,162 @@ jobs:
       - run: pnpm build
       - name: Check committed transport artifacts
         run: git diff --exit-code -- packages/contract-common/dist packages/contract-verification/dist packages/contract-verification/openapi.json packages/contract-verification/openapi-v2.json packages/contract-service/dist packages/contract-service/openapi.json packages/contract-internal/dist packages/contract-internal/openapi.json
-      - run: pnpm test
+      - name: Build the isolated document extractor (exact local image)
+        shell: bash
+        run: |
+          node apps/server/scripts/extractor-image.ts > .tmp/document-image-id
+          echo "SOURCE_TASTER_DOCUMENT_IMAGE=$(cat .tmp/document-image-id)" >> "$GITHUB_ENV"
+      - name: Operations CLI, encryption, restore and content-free HTTP regression
+        env:
+          DATABASE_ADMIN_URL: postgres://postgres:postgres@localhost:5433/postgres
+          DATABASE_TEST_URL: postgres://verification_test:fixture@localhost:5433/owned
+          OPS_TEST_PG_CONTAINER: ${{ job.services.postgres.id }}
+        run: node --test --test-concurrency=1 apps/server/test/operations/*.test.mjs
+      # #117: the bounded load-harness regression against real web/worker
+      # processes and an owned database (synthetic latency witnesses only). The
+      # fifty-Check release replay needs private recordings and runs in the
+      # guarded release flow (pnpm load:release, then pnpm build:release).
+      - name: Load harness regression (bounded, real processes)
+        env:
+          DATABASE_ADMIN_URL: postgres://postgres:postgres@localhost:5433/postgres
+        run: pnpm --filter @source-taster/server exec vitest run --config load.vitest.config.ts test/load-run.load.ts
+  # The server suite (686 tests, ~20 min on the hosted runner) runs as
+  # independent shards, each on its own PostgreSQL 18 service.
+  server-tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ["1/4", "2/4", "3/4", "4/4"]
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 2s --health-timeout 5s --health-retries 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Fetch checksum-pinned controlled website inputs (Linux amd64 GNU)
+        shell: bash
+        run: |
+          mkdir -p .tmp
+          pnpm pagefind:fetch 2>&1 | tee .tmp/pagefind-fetch.log
+      - name: Build controlled native tools and DE/EN WASM offline
+        shell: bash
+        run: pnpm pagefind:build 2>&1 | tee .tmp/pagefind-build.log
+      - run: pnpm pagefind:verify
+      - run: pnpm build
+      - name: Build the isolated document extractor (exact local image)
+        shell: bash
+        run: |
+          node apps/server/scripts/extractor-image.ts > .tmp/document-image-id
+          echo "SOURCE_TASTER_DOCUMENT_IMAGE=$(cat .tmp/document-image-id)" >> "$GITHUB_ENV"
+      - name: Server suite shard ${{ matrix.shard }} (streamed per-test progress)
+        run: pnpm exec turbo run test --filter=@source-taster/server --log-order=stream -- --shard=${{ matrix.shard }} --reporter=verbose
+  # Web and website browser suites (Chromium + axe).
+  e2e:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 2s --health-timeout 5s --health-retries 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Fetch checksum-pinned controlled website inputs (Linux amd64 GNU)
+        shell: bash
+        run: |
+          mkdir -p .tmp
+          pnpm pagefind:fetch 2>&1 | tee .tmp/pagefind-fetch.log
+      - name: Build controlled native tools and DE/EN WASM offline
+        shell: bash
+        run: pnpm pagefind:build 2>&1 | tee .tmp/pagefind-build.log
+      - run: pnpm pagefind:verify
+      - run: pnpm build
+      - name: Build the isolated document extractor (exact local image)
+        shell: bash
+        run: |
+          node apps/server/scripts/extractor-image.ts > .tmp/document-image-id
+          echo "SOURCE_TASTER_DOCUMENT_IMAGE=$(cat .tmp/document-image-id)" >> "$GITHUB_ENV"
       - run: pnpm --filter @source-taster/web exec playwright install --with-deps chromium
       - run: pnpm test:e2e
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        if: failure()
+        with:
+          name: browser-evidence-e2e
+          path: |
+            apps/web/test-results
+            apps/web/test-results-bibliographic
+            apps/website/test-results
+          retention-days: 7
+  # Native Chromium side panel (the built extension in a real browser).
+  side-panel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 2s --health-timeout 5s --health-retries 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Fetch checksum-pinned controlled website inputs (Linux amd64 GNU)
+        shell: bash
+        run: |
+          mkdir -p .tmp
+          pnpm pagefind:fetch 2>&1 | tee .tmp/pagefind-fetch.log
+      - name: Build controlled native tools and DE/EN WASM offline
+        shell: bash
+        run: pnpm pagefind:build 2>&1 | tee .tmp/pagefind-build.log
+      - run: pnpm pagefind:verify
+      - run: pnpm build
+      - name: Build the isolated document extractor (exact local image)
+        shell: bash
+        run: |
+          node apps/server/scripts/extractor-image.ts > .tmp/document-image-id
+          echo "SOURCE_TASTER_DOCUMENT_IMAGE=$(cat .tmp/document-image-id)" >> "$GITHUB_ENV"
+      - run: pnpm --filter @source-taster/web exec playwright install --with-deps chromium
       - name: Native Chromium side panel
         run: pnpm --filter @source-taster/extension test:native
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         if: failure()
         with:
-          name: browser-evidence
+          name: browser-evidence-side-panel
           path: |
-            apps/web/test-results
-            apps/web/test-results-bibliographic
-            apps/website/test-results
             apps/extension/test-results
           retention-days: 7
   dependencies:
