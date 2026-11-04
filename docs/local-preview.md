@@ -50,7 +50,7 @@ Options, e.g. `pnpm dev:local --basic --no-reports`:
 
 | Option         | Effect                                                                                                                                                                |
 | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--basic`      | DOI route only: no bibliographic catalogs (books, ISBN, …) and no web-page checks.                                                                                    |
+| `--basic`      | DOI route only: no OpenAlex/Europe PMC fixtures and no web-page checks (both stay off by default).                                                                                    |
 | `--no-reports` | Standalone as it really is: no Quota panel and no PDF report (the fake Quota below is not installed).                                                                 |
 | `--no-smoke`   | Skip the startup smoke Check.                                                                                                                                         |
 
@@ -58,7 +58,7 @@ The container is left running when you press Ctrl-C (starting again is faster); 
 
 ## What is fake, and the "offline" guarantee
 
-- **Data sources**: the DOI resolver, Crossref, the comparison catalogs and the bibliographic catalogs are loopback fixtures started by the script. No real DOI, ISBN or catalog is queried.
+- **Data sources**: the DOI resolver, Crossref, OpenAlex and Europe PMC are loopback fixtures started by the script, so no real DOI or article search is queried. Semantic Scholar, arXiv, Open Library and Google Books are never switched on, so ISBN and book lookups answer "not checked" rather than reaching a real catalog.
 - **AI**: off. Standalone has no AI extraction; the page says "Your current feature scope does not include AI extraction. The parser was used."
 - **Mail, payments, accounts**: not present in this mode (see "Hosted-only").
 - **Quota and PDF report**: the server's test composition installs a **fake Quota** (1000 granted checks, report feature granted). The counter is static and does not count down; it exists so the Quota panel and the report are visible.
@@ -138,7 +138,7 @@ Known obstacles for an interactive hosted run:
 | Real payments, real mail                          | Only fakes exist, and only inside the hosted test composition.                                                              |
 | AI extraction                                     | Always off in standalone; no provider key is read.                                                                          |
 | PDF/DOCX upload                                   | Fails closed without the isolated extractor image `SOURCE_TASTER_DOCUMENT_IMAGE` (not configured on purpose).              |
-| Real catalogs (Crossref, OpenAlex, DOI resolver, ISBN catalogs) | Replaced by loopback fixtures; results describe the fixtures, not the real world. Verdicts are uncalibrated.   |
+| Real catalogs (Crossref, OpenAlex, DOI resolver) and ISBN/book catalogs | Replaced by loopback fixtures, or not enabled at all (books). Results describe the fixtures, not the real world. Verdicts are uncalibrated. |
 | Saved Checks across restarts, seeded demo data    | The browser keeps Check content in memory only; a Check lives only while a client renews its lease; each run starts with an empty database. There is therefore nothing to seed in standalone. |
 | Quota that counts down                            | The fake Quota is static.                                                                                                   |
 | Firefox                                           | Built, but not covered by this guide.                                                                                       |
@@ -149,5 +149,6 @@ Known obstacles for an interactive hosted run:
 - **"A container named stpreview-pg exists but is not ours"**: you created that name yourself; rename or remove it.
 - **Docker errors**: start Docker Desktop.
 - **Vite crashes on a missing website**: run the one-time build above (`pagefind:fetch` → `pagefind:build` → `pagefind:verify` → `build`).
+- **Closing the terminal window** stops the stack like Ctrl-C does.
 - **Leftovers after a crash**: `pnpm dev:local:down` removes the database container; stray `node` processes can be found with `lsof -iTCP:5492 -iTCP:5493 -sTCP:LISTEN`.
 - **Run the script's own tests**: `pnpm test:scripts`.

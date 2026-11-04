@@ -283,6 +283,9 @@ async function up(options: Options) {
   };
   process.once("SIGINT", stop);
   process.once("SIGTERM", stop);
+  // Closing the terminal window: the stack has its own session, so it would
+  // otherwise survive and keep the ports.
+  process.once("SIGHUP", stop);
   const exited = new Promise<number>((resolve) =>
     stack.once("exit", (code) => resolve(code ?? 1)),
   );
