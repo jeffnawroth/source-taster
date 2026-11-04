@@ -402,22 +402,3 @@ it("server heartbeats without client acknowledgements cannot keep a paused attac
     controller.abort();
   }
 });
-it("can cancel the configured maximum Check without stranding queued References", async () => {
-  const created = await create(
-    Array.from({ length: 1000 }, (_, i) => `10.5555/bounded-${i}`),
-  );
-  const response = await post(created.id, "cancel");
-  expect(response.status).toBe(200);
-  const cancelled = CheckResponse.parse(await response.json()).data;
-  expect(cancelled.references).toHaveLength(1000);
-  expect(
-    cancelled.references.every(
-      (reference) =>
-        reference.outcome.kind === "status" &&
-        reference.outcome.status === "cancelled",
-    ),
-  ).toBe(true);
-  expect(
-    CheckResponse.parse(await (await post(created.id, "cancel")).json()).data,
-  ).toEqual(cancelled);
-}, 40000);

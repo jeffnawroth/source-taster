@@ -455,13 +455,73 @@ export function createCheckStore(
       where: { checkId, status: "running" },
       orderBy: { position: "asc" },
     });
-    for (const slot of unfinished) {
-      await record(tx, checkId, slot.position, slot.generation, slot.revision, {
-        kind: "status",
-        status: "cancelled",
+    if (unfinished.length) {
+      // The Check lock fences workers. Batch persistence rather than doing a
+      // result/settlement/event round trip for each of up to 1,000 slots.
+      const outcome = { kind: "status", status: "cancelled" } as const;
+      const check = await tx.check.update({
+        where: { id: checkId },
+        data: { lastSeq: { increment: unfinished.length } },
       });
-      await tx.referenceSlot.update({
-        where: { checkId_position: { checkId, position: slot.position } },
+      const selected = check.measuredConfiguration as
+        (ActiveConfiguration & { rulesVersion?: string }) | null;
+      await tx.referenceSlot.updateMany({
+        where: { checkId, status: "running" },
+        data: { status: "cancelled", progress: "ended", claimUntil: null },
+      });
+      await tx.referenceResult.createMany({
+        data: unfinished.map((slot) => ({
+          id: randomUUID(),
+          checkId,
+          position: slot.position,
+          generation: slot.generation,
+          revision: slot.revision,
+          measuredConfigurationId: selected?.id,
+          scoringRulesVersion: selected?.rulesVersion,
+          content: outcome,
+        })),
+      });
+      await tx.settlementIntent.createMany({
+        data: unfinished.map((slot) => ({
+          checkId,
+          position: slot.position,
+          generation: slot.generation,
+          outcome: "release",
+        })),
+      });
+      const references =
+        check.apiVersion === 2
+          ? new Map(
+              toCheck(
+                await tx.check.findUniqueOrThrow({
+                  where: { id: checkId },
+                  include: withSlots,
+                }),
+                1,
+              ).references.map((reference) => [reference.slot, reference]),
+            )
+          : undefined;
+      await tx.checkEvent.createMany({
+        data: unfinished.map((slot, index) => ({
+          checkId,
+          seq: check.lastSeq - unfinished.length + index + 1,
+          type: "reference.updated",
+          payload: JSON.parse(
+            JSON.stringify({
+              reference: references?.get(slot.position) ?? {
+                slot: slot.position,
+                outcome,
+                progress: "ended",
+              },
+            }),
+          ) as Prisma.InputJsonValue,
+        })),
+      });
+      await tx.referenceSlot.updateMany({
+        where: {
+          checkId,
+          position: { in: unfinished.map((slot) => slot.position) },
+        },
         data: { generation: { increment: 1 } },
       });
     }

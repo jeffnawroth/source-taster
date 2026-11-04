@@ -185,6 +185,35 @@ export function contentTransaction(
           if (typeof method !== "function") return method;
           return async (args: Row = {}) => {
             const next = { ...args };
+            if (operation === "createMany") {
+              // Resolve retention keys once per Check for this batch only. Never
+              // cache a History decision across operations that can change it.
+              const histories = new Map<string, string | undefined>();
+              const day = writeDay ?? keyDay(now() + 60_000);
+              const rows = Array.isArray(args.data) ? args.data : [args.data];
+              const encrypted = [];
+              for (const value of rows) {
+                const row = value as Row;
+                const id = String(property === "check" ? row.id : row.checkId);
+                if (!histories.has(id)) {
+                  const stored = await tx.check.findUnique({
+                    where: { id },
+                    select: { historyStoredAt: true },
+                  });
+                  histories.set(
+                    id,
+                    historyCheck ?? (stored?.historyStoredAt ? id : undefined),
+                  );
+                }
+                const history = histories.get(id);
+                if (!history && !writeKeysReady.has(day)) {
+                  await dailyKey(tx, day);
+                  writeKeysReady.add(day);
+                }
+                encrypted.push(await write(property, row, day, history));
+              }
+              next.data = encrypted;
+            }
             if (["create", "update", "upsert"].includes(String(operation))) {
               // Resolve the entry at the persistence boundary, including slot-only
               // Re-checks and override/event writes after the first end.

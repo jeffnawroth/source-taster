@@ -45,6 +45,8 @@ export async function startWorkerRuntime(
     /** Hosted only: settlement intents are delivered here. */
     quota?: QuotaPort;
     configuration?: ReturnType<typeof configurationSelection>;
+    /** Report adapter; the runtime retains dispatch/publication authority fences. */
+    generateReport?: typeof generateReport;
   } = {},
 ) {
   const registry = measuredConfigurations(
@@ -319,7 +321,9 @@ export async function startWorkerRuntime(
       }
       let result: { pdf: Uint8Array } | { failure: ReportFailure };
       try {
-        result = { pdf: await generateReport(work.input) };
+        result = {
+          pdf: await (options.generateReport ?? generateReport)(work.input),
+        };
       } catch (error) {
         result = {
           failure:

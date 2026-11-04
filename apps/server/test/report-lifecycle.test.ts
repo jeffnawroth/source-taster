@@ -15,7 +15,12 @@ let service: Awaited<ReturnType<typeof lifecycleService>>;
 beforeEach(async () => {
   fixtures = await startDoiFixtures();
   service = await lifecycleService(
-    { ...fixtures.env, TEST_REPORT_FEATURE: "1" },
+    // Exercise real generation beyond expect.poll's one-second default.
+    {
+      ...fixtures.env,
+      TEST_REPORT_FEATURE: "1",
+      TEST_REPORT_RENDER_DELAY_MS: "1500",
+    },
     { now: Date.UTC(2026, 9, 31, 12) },
   );
   await service.worker().ready;
@@ -59,6 +64,7 @@ async function report(checkId: string) {
         ReportResponse.parse(
           await (await request(`/${checkId}/reports/${job.id}`)).json(),
         ).data.state,
+      { timeout: 10_000 },
     )
     .toBe("ready");
   return job;
@@ -95,6 +101,7 @@ it("never lets a report outlive its Check's deletion deadline", async () => {
         ReportResponse.parse(
           await (await request(`/${check.id}/reports/${job.id}`)).json(),
         ).data.state,
+      { timeout: 10_000 },
     )
     .toBe("ready");
   const ready = ReportResponse.parse(
