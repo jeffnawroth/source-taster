@@ -234,7 +234,30 @@ test("both actual programs deliver separate retained data only with independentl
         })
       ).status,
     ).not.toBe(200);
+    // Pin the deletion interleaving at the real authority HTTP boundary. The
+    // sweep changes the tombstone metadata after snapshot capture, so the
+    // existing version fence must abort this stream rather than mix versions.
+    await both.stopVerificationWorker();
     await both.advance(86370000);
+    const boundary = both.trap(
+      undefined,
+      undefined,
+      2,
+      "/internal/data-subject-authority",
+    );
+    const pendingExpiry = download(both.apiUrl);
+    await boundary.arrived;
+    try {
+      await both.maintain();
+    } finally {
+      boundary.release();
+    }
+    const interruptedExpiry = await pendingExpiry;
+    expect(interruptedExpiry.status).toBe(200);
+    await expect(interruptedExpiry.json()).rejects.toThrow();
+
+    // A separately requested fresh snapshot after the completed sweep contains
+    // no expired content. This is explicit recovery, never a blind retry.
     const afterContentExpiry = await download(both.apiUrl);
     expect(afterContentExpiry.status).toBe(200);
     expect(await afterContentExpiry.json()).toMatchObject({

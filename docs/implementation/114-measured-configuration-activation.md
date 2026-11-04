@@ -112,3 +112,47 @@ Before transport publication, normal frozen public installation, Prisma generati
 Audit confirmed verification-owned registry and exact code/configuration/adapter/calibration/settings/worker-pool evidence, mandatory applicable #138/#140/#136 qualification artifacts, per-configuration evidence isolation and use-time withdrawal checks. Existing Check/result metadata is immutable, preview adoption shares the configuration context, signed authority is replay protected and durably fenced, and workers revalidate configuration and Owner authority at dispatch/source/publication. Private activation retains current permission, fresh proof, explicit reason, atomic versioning, single audit effect and durable operation recovery. These are implementation boundaries, not qualification receipts.
 
 The next acceptance stage uses a reachable published transport SHA in all five private canonical references, a normal lock without overrides, normal/frozen installs, installed-byte comparison, and actual paired-program/browser tests. Its final receipt is appended after those checks. The previously observed DSR `UND_ERR_SOCKET` interruption remains undiagnosed; successful later tests do not identify or fix its cause. No unchanged long 50×100 load run, provider call, production activation, issue closure or job change is authorized by this publication.
+
+
+## Published-pin root acceptance, diagnosis and ownership handoff — 4 November 2026
+
+This final integration receipt supersedes the pending repin and source-only acceptance checkpoints above. Public transport **`d50b0ac24273515e5f291de58aa29d7856f99475`** was pushed to `spec/70-launch-integration`, verified reachable on GitHub, and immediately linked to PR #139. All five private canonical locations now use that SHA: the server's internal/service/verification dependencies, the web service dependency, and `scripts/evidence.ts::contractCommit`. Ordinary lock generation, normal installation and frozen installation passed without overrides. The registry graph and workspace policy are unchanged; Better Auth remains 1.7.14. All **106 installed file instances** match the published Git objects exactly: internal 12, server service 20, verification 54 and web service 20. The final integration changes after that pin touch only tests and handoff/evidence documents; deployed source and transport bytes remain identical to the published pin.
+
+The initial repin script accidentally selected the private checkout's HEAD. GitHub refused that public fetch before any successful lock resolution/install; the script was corrected to the explicitly verified public SHA. The rejected command remains in `114-integrated-private-lock-initial-refusal.log`. No unavailable/private SHA, source path or override remains in the canonical manifest/lock/evidence set. The source checkout's intentional workspace/lock overrides were neither copied nor edited.
+
+Final integrated acceptance uses owned PostgreSQL 55711, public API 5701, auxiliary 5702, private API 5703 and Operator browser 5471. No linked contract generation occurred during tests:
+
+| Check | Result |
+| --- | --- |
+| Public aggregate typecheck/lint/i18n/build, normal controlled Pagefind | Passed again after the test-only diagnosis change |
+| Public quality CLI/release/gate, scoped load guards, AI activation/extraction, revision/lifecycle | 79 passed |
+| Published-code quality CLI/release/load guard subset | 37 passed; repeated subset, not 37 additional distinct tests |
+| Private aggregate typecheck/lint/i18n/build | Passed |
+| Private full real-PostgreSQL/HTTP suite | 128 passed in 19 files |
+| Final actual-program signed configuration/immutable Check state | 2 passed |
+| Final actual-program recipient DSR/download suite | 7 passed |
+| Private Operator browser: DE/EN gates, fresh proof, lost receipt/reload | 2 passed |
+| Public recipient-only browser: DE/EN, interrupted buffered resume | 2 passed |
+| Both Prisma clients, message catalogs and transport/OpenAPI generation | 1,797 files reproduce identically, including 78 contract outputs / 59 internal+verification outputs |
+| Private forced server/web builds | All 102 output files reproduce identically |
+
+The initial complete generated-tree comparison differed only in two Paraglide README files restored from shared Turbo cache. Replacing the local checkout path with the cached source checkout path exactly reproduces each original hash. Direct generation in each owned integration checkout, then a complete second comparison, passes without omitting or hand-editing any artifact. This is a diagnosed generated-document path difference, not a runtime output exception.
+
+### Recurring DSR interruption: actual diagnosis and retained limit
+
+The first integrated complete DSR run had six passes and `UND_ERR_SOCKET` in its first test. An unchanged focused run and four failure-stage-traced focused runs passed. A second complete run reproduced the failure specifically while reading the download after the 24-hour content-expiry clock jump. A controlled HTTP response barrier and real fixture expiry sweep then reproduced the same failure twice in 5–6 seconds: the sweep updates the Check tombstone after snapshot capture, and `verificationSnapshot.validate` rejects that changed `checks` member's version. The reproduced sockets have the same 4,888 bytes written / 122,592 bytes read as the original integrated failure.
+
+The regression now pins this ordering at the real signed data-subject authority HTTP boundary, asserts the interrupted response cannot be consumed, then explicitly requests a fresh snapshot after the completed sweep and verifies no expired Checks/reports are returned. The only worker stopped is this fixture's owned verification worker, after its original Check work has completed; the real sweep runs under the fixture's existing controlled-clock IPC seam. The focused green regression and final complete seven-test suite pass. No production source, snapshot/authority fence, retention rule, timeout, qualification gate or retry wrapper was changed. Temporary failure instrumentation is removed. This diagnoses the reproduced expiry/snapshot race; the earlier uninstrumented source receipt is not retrospectively proven to have the same cause, and correctly interrupted delivery remains possible when authority or snapshot members change.
+
+The ordinary unqualified release command remains exit **78**; final clean-head confirmation is recorded with publication. No calibrated release, rights approval, provider approval or real passed measurement exists here. Controlled positive activation fixtures establish only the state machine. Applicable #138/#140/#136, exact-code/configuration/frozen-dataset Quality, calibration, scoped load, provider/EU/zero-retention, Selected, Better Auth, minimatch, legal/tax/security/browser/release and deployment gates remain mandatory. No unchanged long 50×100 run was repeated. Existing hosted/advisory failures retain their separate receipts; local passes are not hosted qualification.
+
+The owned task-labelled PostgreSQL container `02a5fbc8fdf85a18ea0410b5b5448cef88b46a5c78b783561442263fc414b0c9` and its owned anonymous volume were removed after testing. No fixture database remained before removal. Ports 5701/5702/5703/5471/55711 are free. Unknown resources, other implementers' ports/worktrees, source overrides/backups and the controlled Pagefind cache were left untouched. No predecessor inspection, production activation, live provider/contact, issue closure, ready-for-review transition, scheduler or five-hour job change occurred.
+
+[The committed acceptance receipt](../evidence/114-integrated-acceptance.json) records exact source/history identities, the five pins, installed bytes, test counts, cleanup and log hashes. Full local logs and diagnosis evidence remain under `.tmp/spec-70-orchestration/114-integrated-*`. Both exact #114 source commits and #113/#112 histories are preserved by ancestry. This handoff releases exclusive public-root/private-INTEGRATION ownership after clean publication; #116 continues separately, with whole-spec review and its remaining cleanup/qualification still outstanding.
+
+
+### Hosted status retained at resumed publication
+
+The resumed audit verified all recorded local acceptance-log hashes and the final 1,797-file reproduction receipt without rerunning the completed suites. Public `d50b0ac` hosted [checks job](https://github.com/jeffnawroth/source-taster/actions/runs/41775234932/job/126394390148) reports **679 passed / 4 failed**: the frozen v1 OpenAPI comparison differs at the data-subject routes; maximum-Check cancellation returned 500; two report lifecycle tests remained `generating` at their polling deadline. Its dependencies job passed. These hosted failures are unresolved and remain separate from the focused local results above; no cause or fix is inferred from those local passes.
+
+The prior published private `773fccf` checks job passed, while its [dependency job](https://github.com/jeffnawroth/source-taster-service/actions/runs/41772625184/job/126385598655) refused with **one advisory finding**. The dependency gate remains closed. Exact job logs and their hashes are retained in the acceptance receipt. Final pushed-head check/review states are recorded in the final local publication handoff, without waiting for or claiming hosted qualification. The resumed audit also confirms the owned PostgreSQL remains absent and all five assigned ports remain free.
