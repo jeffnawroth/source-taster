@@ -8,6 +8,8 @@ import { createParser } from "@source-taster/core";
 import { createQueue } from "../../src/checks/queue.ts";
 import { createCheckStore } from "../../src/checks/store.ts";
 import { startWorkerRuntime } from "../../src/checks/worker-runtime.ts";
+import { generateReport } from "../../src/reports/generate.ts";
+import { setTimeout } from "node:timers/promises";
 import { listenForEvents } from "../../src/checks/events.ts";
 import { createPrisma } from "../../src/db/prisma.ts";
 import { loadConfig } from "../../src/config.ts";
@@ -49,6 +51,14 @@ if (process.argv[2] === "worker") {
   const runtime = await startWorkerRuntime(config, db, boss, {
     clock: options.clock,
     settings: options.settings,
+    ...(process.env.TEST_REPORT_RENDER_DELAY_MS
+      ? {
+          generateReport: async (input) => {
+            await setTimeout(Number(process.env.TEST_REPORT_RENDER_DELAY_MS));
+            return generateReport(input);
+          },
+        }
+      : {}),
   });
   stop = () => runtime.stop();
 } else {

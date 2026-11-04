@@ -29,6 +29,10 @@ import type { Context, TypedResponse } from "hono";
 import type { JSONParsed } from "hono/utils/types";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import {
+  downloadDataSubject,
+  acknowledgeDataSubject,
+} from "@source-taster/contract-verification/data-subject-routes";
+import {
   structureReferences,
   createCheck,
   cancelCheck,
@@ -1429,6 +1433,10 @@ export function createApp(
     },
   );
 
+  // Delivery is mounted by the hosted composition after this app is created.
+  // Publish its contract in both majors without enabling delivery in standalone.
+  for (const route of [downloadDataSubject, acknowledgeDataSubject])
+    app.openAPIRegistry.registerPath(route);
   const document = app.getOpenAPI31Document({
     openapi: "3.1.0",
     info: {
