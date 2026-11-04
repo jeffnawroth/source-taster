@@ -4,7 +4,7 @@ Local source investigation on `test/cross-browser-local`, based on `main` at
 `0ff6751`. It is **not** hosted CI, **not** browser qualification and **not** a
 release claim. No qualification, release-eligibility or maturity status in
 docs or code is changed; Firefox, Safari and assistive technology stay "not
-qualified". Nothing is pushed. The predecessor is outside this work.
+qualified". Nothing is pushed.
 
 "WebKit" below is **Playwright's WebKit build, which is not Safari**. A pass
 there is evidence about the engine's behaviour on this suite, not about Safari
@@ -55,15 +55,15 @@ is added to CI.
 
 | Suite | Chromium | WebKit (Playwright) | Firefox |
 | --- | --- | --- | --- |
-| web `e2e/` | 91/91 | 91/91 after the fix below (88 in the first run, the 3 failures re-run after the fix) | not run |
-| web `e2e-bibliographic/` | 22/22 | 22/22 | not run |
-| website `e2e/` | 92/92 | 92/92 | not run |
+| web `e2e/` | 91/91 | 91/91 (88 in the first run; a clean full re-run on the final code passed 182/182 for Chromium + WebKit in 11.8 min) | 0 results (launch failure) |
+| web `e2e-bibliographic/` | 22/22 | 22/22 | not attempted |
+| website `e2e/` | 92/92 | 92/92 | not attempted |
 
 Not run on any engine: the other web configs (guest, quota, account, history,
 report, rights, sensitive, abuse, dpa) are outside `test:e2e`; the extension
 native suites.
 
-**Firefox: not run, blocked in this environment.** Playwright's Firefox 157
+**Firefox: attempted, no results.** Playwright's Firefox 157
 (revision 1555) exits immediately with "Could not find profile folder" even with
 a profile directory that exists; the previous revision (1497) starts but never
 completes the automation handshake (`RenderCompositorSWGL` graphics error). The
@@ -79,7 +79,7 @@ after a Playwright update, before drawing any conclusion.
 
 ### Running the Firefox project
 
-Firefox status: **not run (Playwright Firefox does not launch on macOS 27.2)**. To run it on a host where it launches
+Firefox status: **no results (Playwright Firefox does not launch on macOS 27.2)**. To run it on a host where it launches
 (these are the steps used for the Chromium and WebKit runs above):
 
 ```sh
@@ -125,9 +125,12 @@ Three WebKit failures, one cause, **a test-harness limit, not a product bug**:
   copy-failed message. The first test previously never asserted the status; it now
   does on every engine. The Chromium path is otherwise unchanged and still reads
   the clipboard content and the `text/html` flavour.
-- The product's Promise-valued `ClipboardItem` copy path (written for Safari's
-  gesture rules) works on WebKit: the status assertions pass. This does not show
-  that real Safari copies the same way.
+- On WebKit the status assertion shows only that the copy promise resolved. It
+  does **not** verify what landed on the clipboard: the plain-text content and the
+  rich `text/html` flavour (italic journal title) are checked on Chromium only.
+  Wrong or empty clipboard content on WebKit would pass. This is an open gap; a
+  stub of `navigator.clipboard.write` that inspects the blobs on every engine
+  would close it. Nothing here shows that real Safari copies correctly.
 
 **No product bug was found**, so there is no product fix. Test-first did not
 apply: the harness failure was the failing test, and the spec change is the fix.
@@ -139,7 +142,7 @@ The repo already uses `@axe-core/playwright` (WCAG 2.0/2.1/2.2 A and AA tags):
 - 15 of 21 web `e2e/` specs and 3 of 3 `e2e-bibliographic/` specs run axe on the
   loaded workspace; all pass on Chromium and on WebKit (included in the counts above).
 - `apps/website/e2e/accessibility.spec.ts` runs axe on every built page at 320 px
-  and 1280 px plus the not-found and search states: all pass on both engines.
+  and 1280 px plus the not-found and search states: all pass on Chromium and WebKit.
 - The extension's axe checks live in native Chromium specs only; they were not run
   here and no Firefox equivalent exists.
 - axe finds a subset of WCAG failures. It is not keyboard, zoom or screen reader
