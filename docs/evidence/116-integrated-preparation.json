@@ -1,0 +1,1417 @@
+{
+  "scope": "code-localtests-human-handoff-only",
+  "recordedAt": "2026-11-04T09:07:35.026595+00:00",
+  "cloudQualified": false,
+  "sourceAncestry": {
+    "recordedAt": "2026-11-04T08:57:30.308113+00:00",
+    "publicImplementationHead": "4db04c2a368f4ddb29100e88ac00a215bc774c2d",
+    "privateImplementationHead": "ea944c642c392be9124d6b9539426a4e8669f3f1",
+    "publicSources": [
+      "0571e2cc412b2a063c3824debada26f0a4886ad8",
+      "577ea841c29cffbafcc8f854c876436a6447aa2e"
+    ],
+    "privateSources": [
+      "8b19c7e626f49eb682f082b0901e1f783c74ac0f"
+    ],
+    "preservedPublicBase": "28056f575cb165f7d511c268a5d16036c98b3efd",
+    "preservedPrivateBase": "13021cdd52342a24f0b3ff414a1991f266e99889",
+    "generatedFiles": {
+      "public/apps/server/src/generated/prisma": 23,
+      "public/packages/i18n/src/paraglide": 1086,
+      "public/packages/contract-common/dist": 2,
+      "public/packages/contract-internal/dist": 8,
+      "public/packages/contract-service/dist": 16,
+      "public/packages/contract-verification/dist": 48,
+      "private/apps/server/src/generated/prisma": 70,
+      "private/packages/i18n/src/paraglide": 544,
+      "private/apps/server/dist": 99,
+      "private/apps/web/dist": 3,
+      "public/packages/contract-internal/openapi.json": 1,
+      "public/packages/contract-service/openapi.json": 1,
+      "public/packages/contract-verification/openapi.json": 1,
+      "public/packages/contract-verification/openapi-v2.json": 1
+    },
+    "ancestryPreserved": true
+  },
+  "canonicalTransportPin": "d50b0ac24273515e5f291de58aa29d7856f99475",
+  "canonicalPrivatePins": 5,
+  "installedPackageFilesByteIdentical": 106,
+  "trackedTransportOutputsUnchanged": 78,
+  "privateWorkspaceAndLockOverrides": false,
+  "privateMetadataAndRegistryGraphUnchanged": true,
+  "reproduction": {
+    "identical": true,
+    "trees": 14,
+    "files": 1903,
+    "changed": []
+  },
+  "testCounts": {
+    "public-operations": 5,
+    "private-operations": 5,
+    "public-ci-regressions-final": 45,
+    "private-suite-final": 128,
+    "public-quality-ai-lifecycle": 79,
+    "public-openapi": 1,
+    "paired-configurations": 2,
+    "paired-dsr": 7,
+    "public-history": 21,
+    "maintenance-browser": 2
+  },
+  "testGroupsOverlap": true,
+  "results": [
+    {
+      "name": "public-install",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "install"
+      ],
+      "exitCode": 0,
+      "seconds": 0.06,
+      "log": "116-integrated-public-install.log",
+      "sha256": "98a53b1f846db40979f9cc1940c8f94c7a918e2942118a14ea3233e85d537649",
+      "bytes": 85
+    },
+    {
+      "name": "private-install",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "install"
+      ],
+      "exitCode": 0,
+      "seconds": 0.06,
+      "log": "116-integrated-private-install.log",
+      "sha256": "e76f122b559cfb93515b0a15f67688b8c4c609a6d172a48b9c4752a06d496687",
+      "bytes": 84
+    },
+    {
+      "name": "public-frozen-install",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "install",
+        "--frozen-lockfile"
+      ],
+      "exitCode": 0,
+      "seconds": 0.13,
+      "log": "116-integrated-public-frozen-install.log",
+      "sha256": "8223d1cae4709ca8fc646abba20bad3f5abacc80b382dff094eff702cdc621df",
+      "bytes": 268
+    },
+    {
+      "name": "private-frozen-install",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "install",
+        "--frozen-lockfile"
+      ],
+      "exitCode": 0,
+      "seconds": 0.15,
+      "log": "116-integrated-private-frozen-install.log",
+      "sha256": "0161fd5823d898ea1b9a1c34e035f386618d08b0d9fd1143527d06dbf5fcc199",
+      "bytes": 267
+    },
+    {
+      "name": "public-prisma",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/server",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 0.81,
+      "log": "116-integrated-public-prisma.log",
+      "sha256": "db8db0a2adc6a0aade7c2b156ece684f0d6d16e4579182490c29a9afc7b3caa4",
+      "bytes": 184
+    },
+    {
+      "name": "private-prisma",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/server",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 0.88,
+      "log": "116-integrated-private-prisma.log",
+      "sha256": "2fe9e5489c95b0da49583fd344269709ef4573d72e49b26f9ed4e0c1550d572a",
+      "bytes": 185
+    },
+    {
+      "name": "private-catalog",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/i18n",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 1.69,
+      "log": "116-integrated-private-catalog.log",
+      "sha256": "df18f23268ff1b29e9d3ce16037d61b1cec74db2cfa217d55fb5f17e43cebe85",
+      "bytes": 240
+    },
+    {
+      "name": "public-catalog",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/i18n",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 2.03,
+      "log": "116-integrated-public-catalog.log",
+      "sha256": "df18f23268ff1b29e9d3ce16037d61b1cec74db2cfa217d55fb5f17e43cebe85",
+      "bytes": 240
+    },
+    {
+      "name": "private-en16931",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "prepare:en16931"
+      ],
+      "exitCode": 0,
+      "seconds": 0.38,
+      "log": "116-integrated-private-en16931.log",
+      "sha256": "93df4fb7d3d9f3e0a23342250a022b2f6945528c9ad4de2a79218c008161d8df",
+      "bytes": 290
+    },
+    {
+      "name": "public-core",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/core",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 0.33,
+      "log": "116-integrated-public-core.log",
+      "sha256": "24c42b76aecef2c39c8a5639a3536efb936b03bdac9a8f8be50c0e71ffbc7af8",
+      "bytes": 29
+    },
+    {
+      "name": "private-typecheck",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "seconds": 2.42,
+      "log": "116-integrated-private-typecheck.log",
+      "sha256": "0f7acec5e4a73b4ebf5bf13b75069dc119648c4a8d95739084fd927ba13281b5",
+      "bytes": 2416
+    },
+    {
+      "name": "pagefind-fetch",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "pagefind:fetch"
+      ],
+      "exitCode": 0,
+      "seconds": 40.58,
+      "log": "116-integrated-pagefind-fetch.log",
+      "sha256": "075378add82507f94ef23aa96a221d63b05680fa2769875c5befdad3512f16ed",
+      "bytes": 967
+    },
+    {
+      "name": "public-operations",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "apps/server/test/operations/backup-pg.test.mjs",
+        "apps/server/test/operations/backup.test.mjs",
+        "apps/server/test/operations/deploy.test.mjs",
+        "apps/server/test/operations/readiness.test.mjs",
+        "apps/server/test/operations/status.test.mjs"
+      ],
+      "exitCode": 0,
+      "seconds": 13.06,
+      "log": "116-integrated-public-operations.log",
+      "sha256": "3cddc9ba38c602008059b5d3a819447ffed94317fb971892c85030406d6e0530",
+      "bytes": 5747,
+      "passed": 5
+    },
+    {
+      "name": "private-lint",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "lint"
+      ],
+      "exitCode": 0,
+      "seconds": 11.08,
+      "log": "116-integrated-private-lint.log",
+      "sha256": "26db9673ec89bc95699a8e66249537512722e2114018fc39c411bfb94c2d9eaa",
+      "bytes": 99
+    },
+    {
+      "name": "private-i18n-check",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "i18n:check"
+      ],
+      "exitCode": 0,
+      "seconds": 0.16,
+      "log": "116-integrated-private-i18n-check.log",
+      "sha256": "29d3cd659376f39337a1f3a3c08666474d3820655357bf8fd625e95da46365a6",
+      "bytes": 607
+    },
+    {
+      "name": "private-build",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 1.56,
+      "log": "116-integrated-private-build.log",
+      "sha256": "e56d70a6f3b4168a784f7ce4a1da6799e40370d68bbf0512fae6f4c186318711",
+      "bytes": 3269
+    },
+    {
+      "name": "private-operations",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "apps/server/test/operations/deployment.test.mjs",
+        "apps/server/test/operations/readiness.test.mjs",
+        "apps/server/test/operations/refusal.test.mjs",
+        "apps/server/test/operations/service-pg.test.mjs"
+      ],
+      "exitCode": 0,
+      "seconds": 4.62,
+      "log": "116-integrated-private-operations.log",
+      "sha256": "5bca5429dc6c492fc86eca74c2bfcec44fc477c19cd7187c5c3f091ae5aaa0cb",
+      "bytes": 648,
+      "passed": 5
+    },
+    {
+      "name": "pagefind-build",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "pagefind:build"
+      ],
+      "exitCode": 0,
+      "seconds": 40.54,
+      "log": "116-integrated-pagefind-build.log",
+      "sha256": "89d486c8f737ce90173a73cb593edac038f601d6590aef5c18a0ffb95b0063e7",
+      "bytes": 6618
+    },
+    {
+      "name": "pagefind-verify",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "pagefind:verify"
+      ],
+      "exitCode": 0,
+      "seconds": 9.12,
+      "log": "116-integrated-pagefind-verify.log",
+      "sha256": "9f13fabac05bdeabf4b3c72b7670a332783263e0544b425afe88d162b3288d51",
+      "bytes": 98
+    },
+    {
+      "name": "public-typecheck",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "seconds": 26.93,
+      "log": "116-integrated-public-typecheck.log",
+      "sha256": "412eff66c624eb6d59239863de0a6fe9dead830d4ba3f66b6a523cbacb2751f0",
+      "bytes": 11624
+    },
+    {
+      "name": "public-lint",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "lint"
+      ],
+      "exitCode": 0,
+      "seconds": 45.63,
+      "log": "116-integrated-public-lint.log",
+      "sha256": "439ad2ac73fd349bd785665a0eb555016aa6c897d8c1d4c4a3c5a6dc7365b9a7",
+      "bytes": 11455
+    },
+    {
+      "name": "public-i18n-check",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "i18n:check"
+      ],
+      "exitCode": 0,
+      "seconds": 0.14,
+      "log": "116-integrated-public-i18n-check.log",
+      "sha256": "8166e019c5ed0ad1c440b88bc7fcc6678dbe050d95a8ea9d9e0dd36c1c3ddbab",
+      "bytes": 1070
+    },
+    {
+      "name": "private-package",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "node",
+        "apps/server/ops/package.mjs",
+        "/Users/jeffnawroth/Developer/Repositories/source-taster/.tmp/spec-70-orchestration/116-integrated-service-source.tar.gz"
+      ],
+      "exitCode": 0,
+      "seconds": 2.05,
+      "log": "116-integrated-private-package.log",
+      "sha256": "12e3fec64964e3f3de90cda5219afe258360450f67116e61a6723ff2c875836b",
+      "bytes": 90
+    },
+    {
+      "name": "private-packaged-platform",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster/.tmp/spec-70-orchestration/116-integrated-service-artifact",
+      "command": [
+        "node",
+        "apps/server/ops/platform-check.mjs"
+      ],
+      "exitCode": 0,
+      "seconds": 0.04,
+      "log": "116-integrated-private-packaged-platform.log",
+      "sha256": "b0dc68e150906006adbeb213724672c6c055a449e8adf0e7919ca964eb27e5ba",
+      "bytes": 43
+    },
+    {
+      "name": "public-build",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 30.26,
+      "log": "116-integrated-public-build.log",
+      "sha256": "f92d85cb2b4d60ddb00129705e6d07239c560eb124f434ef09ce4abcb568dc67",
+      "bytes": 14852
+    },
+    {
+      "name": "private-licenses",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "audit:licenses"
+      ],
+      "exitCode": 0,
+      "seconds": 0.39,
+      "log": "116-integrated-private-licenses.log",
+      "sha256": "32868ec50d7c8ed98fa642748ef0bd7002fd389f0b1af9570b01b9371ccce13c",
+      "bytes": 81
+    },
+    {
+      "name": "private-dependencies",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "env",
+        "OSV_SCANNER_BIN=.tmp/tools/osv-scanner",
+        "pnpm",
+        "audit:dependencies"
+      ],
+      "exitCode": 1,
+      "seconds": 0.15,
+      "log": "116-integrated-private-dependencies.log",
+      "sha256": "593aacf6ee0e64c44e5d4bc45709fa4ac4b4c53b620a91e0a876b8d2e0b25351",
+      "bytes": 585
+    },
+    {
+      "name": "public-prisma-reproduction-confirmed",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/server",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 0.63,
+      "log": "116-integrated-public-prisma-reproduction-confirmed.log",
+      "sha256": "541c209bf02e71463dea169acff47fc773b8edfc38af2b91a1d04b4f4b7ccab6",
+      "bytes": 184
+    },
+    {
+      "name": "public-catalog-reproduction-confirmed",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/i18n",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 2.34,
+      "log": "116-integrated-public-catalog-reproduction-confirmed.log",
+      "sha256": "df18f23268ff1b29e9d3ce16037d61b1cec74db2cfa217d55fb5f17e43cebe85",
+      "bytes": 240
+    },
+    {
+      "name": "private-prisma-reproduction-confirmed",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/server",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 0.81,
+      "log": "116-integrated-private-prisma-reproduction-confirmed.log",
+      "sha256": "a4e884a6a40f289f304a0e36c78647c2ce515fea085c80c0be725446b3d434a5",
+      "bytes": 185
+    },
+    {
+      "name": "private-catalog-reproduction-confirmed",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/i18n",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 1.69,
+      "log": "116-integrated-private-catalog-reproduction-confirmed.log",
+      "sha256": "df18f23268ff1b29e9d3ce16037d61b1cec74db2cfa217d55fb5f17e43cebe85",
+      "bytes": 240
+    },
+    {
+      "name": "transport-common-reproduction-confirmed",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/contract-common",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 0.16,
+      "log": "116-integrated-transport-common-reproduction-confirmed.log",
+      "sha256": "24c42b76aecef2c39c8a5639a3536efb936b03bdac9a8f8be50c0e71ffbc7af8",
+      "bytes": 29
+    },
+    {
+      "name": "transport-internal-reproduction-confirmed",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/contract-internal",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 0.42,
+      "log": "116-integrated-transport-internal-reproduction-confirmed.log",
+      "sha256": "99ffb5cfaaa7975ee406c1bc012dfd72afacd0fcd3515f58f619e91f0c534630",
+      "bytes": 24
+    },
+    {
+      "name": "transport-service-reproduction-confirmed",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/contract-service",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 0.54,
+      "log": "116-integrated-transport-service-reproduction-confirmed.log",
+      "sha256": "99ffb5cfaaa7975ee406c1bc012dfd72afacd0fcd3515f58f619e91f0c534630",
+      "bytes": 24
+    },
+    {
+      "name": "transport-verification-reproduction-confirmed",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/contract-verification",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 0.62,
+      "log": "116-integrated-transport-verification-reproduction-confirmed.log",
+      "sha256": "99ffb5cfaaa7975ee406c1bc012dfd72afacd0fcd3515f58f619e91f0c534630",
+      "bytes": 24
+    },
+    {
+      "name": "private-server-build-reproduction",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/server",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 1.29,
+      "log": "116-integrated-private-server-build-reproduction.log",
+      "sha256": "24c42b76aecef2c39c8a5639a3536efb936b03bdac9a8f8be50c0e71ffbc7af8",
+      "bytes": 29
+    },
+    {
+      "name": "private-web-build-reproduction",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/web",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 2.27,
+      "log": "116-integrated-private-web-build-reproduction.log",
+      "sha256": "55150f16d2fee2ed0df34089239db7ea90c1e4af87b9e189d216394d1e9010be",
+      "bytes": 726
+    },
+    {
+      "name": "public-ci-regressions",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/server",
+        "exec",
+        "vitest",
+        "run",
+        "test/cancel-maximum.test.ts",
+        "test/report-lifecycle.test.ts",
+        "test/lifecycle-recovery.test.ts",
+        "test/lifecycle.test.ts",
+        "test/revision-lifecycle.test.ts",
+        "test/retention.test.ts",
+        "test/bibliographic-lifecycle.test.ts",
+        "test/check-events.test.ts",
+        "test/reports.test.ts",
+        "test/article-fairness.test.ts"
+      ],
+      "exitCode": 1,
+      "seconds": 169.27,
+      "log": "116-integrated-public-ci-regressions.log",
+      "sha256": "9963150091fa5b76c60c0a158a5d604954bf36669aacc79f5e51116a6c24cbc5",
+      "bytes": 98643
+    },
+    {
+      "name": "lifecycle-diagnostic",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/server",
+        "exec",
+        "vitest",
+        "run",
+        "test/lifecycle.test.ts",
+        "--reporter",
+        "verbose"
+      ],
+      "exitCode": 0,
+      "seconds": 6.3,
+      "log": "116-integrated-lifecycle-diagnostic.log",
+      "sha256": "2af758c810580899964e847194383a92231d51d778e732637f18d70b2bc39c4e",
+      "bytes": 5554
+    },
+    {
+      "name": "private-advisories-refresh",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "bash",
+        "scripts/refresh-advisories.sh"
+      ],
+      "exitCode": 0,
+      "seconds": 18.59,
+      "log": "116-integrated-private-advisories-refresh.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "name": "private-contract-advisories-refresh",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "node",
+        "scripts/refresh-contract-advisories.ts"
+      ],
+      "exitCode": 0,
+      "seconds": 1.49,
+      "log": "116-integrated-private-contract-advisories-refresh.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "name": "private-dependencies-fresh",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "env",
+        "OSV_SCANNER_BIN=/Users/jeffnawroth/Developer/Repositories/source-taster/.tmp/spec-70-orchestration/tools/osv-scanner",
+        "pnpm",
+        "audit:dependencies"
+      ],
+      "exitCode": 1,
+      "seconds": 7.47,
+      "log": "116-integrated-private-dependencies-fresh.log",
+      "sha256": "a1f4abaa11044a407786f901b63be2c07f0c20abbfd6905aca8200b12ef26df2",
+      "bytes": 1234
+    },
+    {
+      "name": "public-prisma-reproduction-final",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/server",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 0.53,
+      "log": "116-integrated-public-prisma-reproduction-final.log",
+      "sha256": "e1af2e6acd244123cbb321c78ccc6df3feb1cf40ba57992afa12dcebfba115ed",
+      "bytes": 184
+    },
+    {
+      "name": "public-catalog-reproduction-final",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/i18n",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 1.77,
+      "log": "116-integrated-public-catalog-reproduction-final.log",
+      "sha256": "df18f23268ff1b29e9d3ce16037d61b1cec74db2cfa217d55fb5f17e43cebe85",
+      "bytes": 240
+    },
+    {
+      "name": "private-prisma-reproduction-final",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/server",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 0.64,
+      "log": "116-integrated-private-prisma-reproduction-final.log",
+      "sha256": "1d00bce679a5644514f4c368b525ff1022ecb57bab17b35db2f043a0e26f30bc",
+      "bytes": 185
+    },
+    {
+      "name": "private-catalog-reproduction-final",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/i18n",
+        "generate"
+      ],
+      "exitCode": 0,
+      "seconds": 1.49,
+      "log": "116-integrated-private-catalog-reproduction-final.log",
+      "sha256": "df18f23268ff1b29e9d3ce16037d61b1cec74db2cfa217d55fb5f17e43cebe85",
+      "bytes": 240
+    },
+    {
+      "name": "transport-common-reproduction-final",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/contract-common",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 0.14,
+      "log": "116-integrated-transport-common-reproduction-final.log",
+      "sha256": "24c42b76aecef2c39c8a5639a3536efb936b03bdac9a8f8be50c0e71ffbc7af8",
+      "bytes": 29
+    },
+    {
+      "name": "transport-internal-reproduction-final",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/contract-internal",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 0.38,
+      "log": "116-integrated-transport-internal-reproduction-final.log",
+      "sha256": "99ffb5cfaaa7975ee406c1bc012dfd72afacd0fcd3515f58f619e91f0c534630",
+      "bytes": 24
+    },
+    {
+      "name": "transport-service-reproduction-final",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/contract-service",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 0.47,
+      "log": "116-integrated-transport-service-reproduction-final.log",
+      "sha256": "99ffb5cfaaa7975ee406c1bc012dfd72afacd0fcd3515f58f619e91f0c534630",
+      "bytes": 24
+    },
+    {
+      "name": "transport-verification-reproduction-final",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/contract-verification",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 0.52,
+      "log": "116-integrated-transport-verification-reproduction-final.log",
+      "sha256": "99ffb5cfaaa7975ee406c1bc012dfd72afacd0fcd3515f58f619e91f0c534630",
+      "bytes": 24
+    },
+    {
+      "name": "public-licenses",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "audit:licenses"
+      ],
+      "exitCode": 0,
+      "seconds": 0.45,
+      "log": "116-integrated-public-licenses.log",
+      "sha256": "c7cd9c2b51b6b75d360fe578198c1573a5b14108802e21e708c461af50fe49b1",
+      "bytes": 89
+    },
+    {
+      "name": "private-server-build-reproduction-final",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/server",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 1.13,
+      "log": "116-integrated-private-server-build-reproduction-final.log",
+      "sha256": "24c42b76aecef2c39c8a5639a3536efb936b03bdac9a8f8be50c0e71ffbc7af8",
+      "bytes": 29
+    },
+    {
+      "name": "private-web-build-reproduction-final",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/web",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 0.41,
+      "log": "116-integrated-private-web-build-reproduction-final.log",
+      "sha256": "f2fdc04c39480b9f6c77aaf700c2341a04bccaa0b7860ffb1ca8e0f27e9aaf07",
+      "bytes": 726
+    },
+    {
+      "name": "private-suite",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/server",
+        "exec",
+        "vitest",
+        "run"
+      ],
+      "exitCode": 1,
+      "seconds": 351.25,
+      "log": "116-integrated-private-suite.log",
+      "sha256": "b40eb4a9b64e6ac126339f79dd4bba75c87799f66ecfb9d9f77c342fbb4fe861",
+      "bytes": 1628
+    },
+    {
+      "name": "release-refusal",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "node",
+        "apps/server/scripts/release-check.ts"
+      ],
+      "exitCode": 78,
+      "seconds": 0.47,
+      "log": "116-integrated-release-refusal.log",
+      "sha256": "d7b66fd9425176834b18995419c5c034d1fe3af22e46f3b27d2bad07ee5cc690",
+      "bytes": 160
+    },
+    {
+      "name": "public-deploy-refusal",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "node",
+        "apps/server/ops/deployment.mjs"
+      ],
+      "exitCode": 78,
+      "seconds": 0.03,
+      "log": "116-integrated-public-deploy-refusal.log",
+      "sha256": "75c3037fde43f69d2aee695ce7edd7aa247357030cba079b36abd1ce74e7f837",
+      "bytes": 30
+    },
+    {
+      "name": "private-deploy-refusal",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "node",
+        "apps/server/ops/deployment.mjs"
+      ],
+      "exitCode": 78,
+      "seconds": 0.03,
+      "log": "116-integrated-private-deploy-refusal.log",
+      "sha256": "02a87c4839a50bb23b6daab3a291888ccd51d0d588d9a2360eb3055af98a4240",
+      "bytes": 38
+    },
+    {
+      "name": "private-quota-diagnostic",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/server",
+        "exec",
+        "vitest",
+        "run",
+        "test/quota.test.ts",
+        "-t",
+        "journal is append-only",
+        "--reporter",
+        "verbose"
+      ],
+      "exitCode": 0,
+      "seconds": 2.12,
+      "log": "116-integrated-private-quota-diagnostic.log",
+      "sha256": "228401d0a31874604c3037356badbf4126c795f85443073ea2287aff62e5c0c3",
+      "bytes": 1378
+    },
+    {
+      "name": "public-package-refusal",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "node",
+        "apps/server/ops/package.mjs",
+        "/Users/jeffnawroth/Developer/Repositories/source-taster/.tmp/spec-70-orchestration/116-integrated-refused-public-source.tar.gz"
+      ],
+      "exitCode": 78,
+      "seconds": 0.05,
+      "log": "116-integrated-public-package-refusal.log",
+      "sha256": "5978c878969d25d3bbb5e2fc2e923ed55ed3b41d253dddc6fe1f67fe2fb283dc",
+      "bytes": 27
+    },
+    {
+      "name": "public-ci-regressions-final",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/server",
+        "exec",
+        "vitest",
+        "run",
+        "test/cancel-maximum.test.ts",
+        "test/report-lifecycle.test.ts",
+        "test/lifecycle-recovery.test.ts",
+        "test/lifecycle.test.ts",
+        "test/revision-lifecycle.test.ts",
+        "test/retention.test.ts",
+        "test/bibliographic-lifecycle.test.ts",
+        "test/check-events.test.ts",
+        "test/reports.test.ts",
+        "test/article-fairness.test.ts"
+      ],
+      "exitCode": 0,
+      "seconds": 156.69,
+      "log": "116-integrated-public-ci-regressions-final.log",
+      "sha256": "b34ce8d257f701b8c3523b82ae528f60c24af255e875a53c98301b81a6b6c99f",
+      "bytes": 96993,
+      "passed": 45
+    },
+    {
+      "name": "private-suite-final",
+      "cwd": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster-service/server",
+        "exec",
+        "vitest",
+        "run"
+      ],
+      "exitCode": 0,
+      "seconds": 332.57,
+      "log": "116-integrated-private-suite-final.log",
+      "sha256": "6337956ca2c8d218e494e8f42bc3bafca32ab6a2f4cbf7a806612fdcb9a2a41b",
+      "bytes": 219,
+      "passed": 128
+    },
+    {
+      "name": "public-quality-ai-lifecycle",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "env",
+        "SOURCE_TASTER_TEST_SERVICE_PORT=5708",
+        "pnpm",
+        "--filter",
+        "@source-taster/server",
+        "exec",
+        "vitest",
+        "run",
+        "test/quality-cli.test.ts",
+        "test/quality-release.test.ts",
+        "test/load-release.test.ts",
+        "test/quality-gate.test.ts",
+        "test/revision-lifecycle.test.ts",
+        "test/lifecycle.test.ts",
+        "test/ai-activation.test.ts",
+        "test/ai-extraction.test.ts"
+      ],
+      "exitCode": 0,
+      "seconds": 71.3,
+      "log": "116-integrated-public-quality-ai-lifecycle.log",
+      "sha256": "f20852f155f90a24de4cdf083c19dd3328232175ee3e34f3faff2ed2365a5993",
+      "bytes": 38409,
+      "passed": 79
+    },
+    {
+      "name": "public-openapi",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/server",
+        "exec",
+        "vitest",
+        "run",
+        "test/bibliographic.test.ts",
+        "-t",
+        "publishes separate OpenAPI"
+      ],
+      "exitCode": 0,
+      "seconds": 4.48,
+      "log": "116-integrated-public-openapi.log",
+      "sha256": "48249f81b9d19bdde87f5a82530d32e442302021c04b1be37c0d704378b78988",
+      "bytes": 5309,
+      "passed": 1
+    },
+    {
+      "name": "maintenance-browser",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/web",
+        "exec",
+        "playwright",
+        "test",
+        "e2e/maintenance.spec.ts"
+      ],
+      "exitCode": 0,
+      "seconds": 6.25,
+      "log": "116-integrated-maintenance-browser.log",
+      "sha256": "31725690de1e5d9ddee9dc42d56f1c8fce4e517b59b95243598558e5c6cddbca",
+      "bytes": 1332,
+      "passed": 2
+    },
+    {
+      "name": "paired-configurations",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/server",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        "configuration.vitest.config.ts"
+      ],
+      "exitCode": 0,
+      "seconds": 9.35,
+      "log": "116-integrated-paired-configurations.log",
+      "sha256": "34855c86a7b6917a2f32db2bff19568492235c698ea6743726e6668f2257c810",
+      "bytes": 2748,
+      "passed": 2
+    },
+    {
+      "name": "paired-dsr",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/server",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        "rights.vitest.config.ts"
+      ],
+      "exitCode": 0,
+      "seconds": 43.37,
+      "log": "116-integrated-paired-dsr.log",
+      "sha256": "173826eeb9061e1cf85d61aa1eb4a128b027db85c038fe1f3eb5a49f595191b5",
+      "bytes": 192,
+      "passed": 7
+    },
+    {
+      "name": "public-history",
+      "cwd": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@source-taster/server",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        "history.vitest.config.ts"
+      ],
+      "exitCode": 0,
+      "seconds": 101.09,
+      "log": "116-integrated-public-history.log",
+      "sha256": "c5938719700a0b13e4002b9cc82707ebd4ac0d9ef8cce4c8583aa78622470626",
+      "bytes": 53682,
+      "passed": 21
+    }
+  ],
+  "workflowAudit": {
+    "recordedAt": "2026-11-04T08:51:18.803006+00:00",
+    "cloudActionsPerformed": false,
+    "workflows": [
+      {
+        "repository": "source-taster",
+        "head": "4db04c2a368f4ddb29100e88ac00a215bc774c2d",
+        "file": ".github/workflows/deploy-scalingo.yml",
+        "sha256": "14e04a637ea67681d0e8de5797048b4d31c1c6e9ee5be0cfbd46beb3b5c90a7b",
+        "events": [
+          "workflow_dispatch"
+        ],
+        "environment": "scalingo-paris-verification",
+        "namedEnvironmentProvisioned": false,
+        "environmentProtectionRules": [],
+        "manualOnly": true,
+        "exactFreshCiAndSignedConfigGates": true,
+        "missingConfigurationRefusesBeforeProvider": true,
+        "ordinaryCiEvents": [
+          "pull_request",
+          "push",
+          "schedule",
+          "workflow_dispatch"
+        ],
+        "ordinaryCiHasCloudCommands": false
+      },
+      {
+        "repository": "source-taster-service",
+        "head": "ea944c642c392be9124d6b9539426a4e8669f3f1",
+        "file": ".github/workflows/deploy-scalingo.yml",
+        "sha256": "9a59ecb1c12a0de5c3e06811aa4fe00f583e61f11bd449411c333195b0004049",
+        "events": [
+          "workflow_dispatch"
+        ],
+        "environment": "scalingo-paris-service",
+        "namedEnvironmentProvisioned": false,
+        "environmentProtectionRules": [],
+        "manualOnly": true,
+        "exactFreshCiAndSignedConfigGates": true,
+        "missingConfigurationRefusesBeforeProvider": true,
+        "ordinaryCiEvents": [
+          "pull_request",
+          "push",
+          "schedule",
+          "workflow_dispatch"
+        ],
+        "ordinaryCiHasCloudCommands": false
+      }
+    ],
+    "ordinarySchedulesUnchanged": true,
+    "cloudDispatchPerformed": false
+  },
+  "localPrivateArtifact": {
+    "archiveSha256": "28aaae99a85fb0e34df6da149eda0ce135aa1b372240738f997a3c8cd264f837",
+    "head": "ea944c642c392be9124d6b9539426a4e8669f3f1",
+    "gitIdentityPreserved": true,
+    "packagedIndexClean": true,
+    "platformCheckExit": 0,
+    "canonicalMetadata": true,
+    "localRegressionOnly": true,
+    "cloudQualified": false,
+    "ownedArchiveAndExtractionRemoved": true
+  },
+  "privateDependencyGate": {
+    "exit": 1,
+    "totalLocked": 522,
+    "finding": "GHSA-g3hv-75wg-m249",
+    "findings": 1
+  },
+  "releaseExit": 78,
+  "publicAndPrivateMissingDeployConfigurationExit": 78,
+  "publicPublicationPackagingExit": 78,
+  "cleanup": {
+    "recordedAt": "2026-11-04T09:07:34.987255+00:00",
+    "ownedContainer": "2c4206a845e98f486f5729f16fc6022b9729c92679e6314689e66a3d940a3327",
+    "containerName": "st116-integrated-owned-pg",
+    "verifiedLabels": {
+      "source-taster.task": "116-integrated",
+      "source-taster.workspace": "source-taster-integration"
+    },
+    "postgresVersion": "PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+    "image": "sha256:91e2759ab4ea7238bc7bed3893439d7abb8edd5c8ac24bab0571e4179f405235",
+    "removedContainer": true,
+    "removedAnonymousVolumes": [
+      "c404423812f5483a3f6ecc928a622c5b642ebaca502a9cb44e2819040464cb92"
+    ],
+    "remainingFixtureDatabasesBeforeRemoval": [
+      "source_taster_test_bd3a46204f7b",
+      "st_service_1f00a3d0039944179a12ef12d4b9604d"
+    ],
+    "remainingFixtureRolesBeforeRemoval": [
+      "service_1f00a3d0039944179a12ef12d4b9604d",
+      "verification_test_bd3a46204f7b"
+    ],
+    "ownedDsrFixturesRemoved": true,
+    "ownedArchiveAndExtractionRemoved": true,
+    "portsFree": [
+      5471,
+      5501,
+      5502,
+      5503,
+      55711,
+      5701,
+      5702,
+      5703,
+      5704,
+      5705,
+      5706,
+      5707,
+      5708
+    ],
+    "unknownResourcesTouched": false,
+    "sourceWorkspacesWritten": false,
+    "scheduledJobsChanged": false,
+    "temporaryDiagnosticInstrumentationAdded": false
+  },
+  "qualificationGatesWaived": false,
+  "sourceWorkspacesWritten": false,
+  "scheduledJobsChanged": false,
+  "issuesChanged": false,
+  "productionActivated": false,
+  "remainingHuman": [
+    "Scalingo/Clever Cloud accounts/apps/PG18/runtime/CLI pins/isolation/cost and protected environment provisioning",
+    "Current CI/security/Selected/Better Auth/minimatch/source and rights/provider/quality/calibration/live load/browser/legal/tax acceptance, exact #114 registry/approval revalidation",
+    "Real encrypted exports, Object Lock/lifecycle <=14-day physical tail, daily-key absence across managed WAL/PITR, offline key custody and six-hour missing-success monitoring",
+    "Both real cloud restore paths, newer tombstones/blocks, auth/abuse/Operator/DSR/configuration epochs and traffic fences, accounting/mail reconciliation; <=24h RPO and <=8h RTO from disruption without waiving 24h counter drain",
+    "TEM/DNS/deliverability, Cockpit and independent status/probe/alert recipients; actual 48h DE/EN maintenance distribution and announcement",
+    "Parent whole-spec final two-axis review, fixes and final launch acceptance"
+  ],
+  "ownershipRelease": "Exclusive public-root/private-INTEGRATION ownership released after clean publication; no source workspace ownership taken.",
+  "transportProof": {
+    "fivePins": [
+      {
+        "file": "apps/server/package.json",
+        "package": "@source-taster/contract-internal",
+        "sha": "d50b0ac24273515e5f291de58aa29d7856f99475"
+      },
+      {
+        "file": "apps/server/package.json",
+        "package": "@source-taster/contract-service",
+        "sha": "d50b0ac24273515e5f291de58aa29d7856f99475"
+      },
+      {
+        "file": "apps/server/package.json",
+        "package": "@source-taster/contract-verification",
+        "sha": "d50b0ac24273515e5f291de58aa29d7856f99475"
+      },
+      {
+        "file": "apps/web/package.json",
+        "package": "@source-taster/contract-service",
+        "sha": "d50b0ac24273515e5f291de58aa29d7856f99475"
+      },
+      {
+        "file": "scripts/evidence.ts",
+        "constant": "contractCommit",
+        "sha": "d50b0ac24273515e5f291de58aa29d7856f99475"
+      }
+    ],
+    "workspacePolicyUnchanged": true,
+    "canonicalMetadataUnchanged": true,
+    "betterAuth": "1.7.14",
+    "registryGraphUnchanged": true,
+    "lockfileSha256": "d3ed5f5934dfa33b19d3ad20375786014acb3341ed8fa63693be48c464db9f4f",
+    "installed": [
+      {
+        "consumer": "server",
+        "package": "@source-taster/contract-internal",
+        "pin": "d50b0ac24273515e5f291de58aa29d7856f99475",
+        "fileCount": 12,
+        "files": {
+          "LICENSE-AGPL": "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee",
+          "LICENSE-MIT": "b9554a8a6132ad023b367aeb8fbc10b24d97fb6da115bbfdac3f79717828a85a",
+          "dist/contract-common/src/index.d.ts": "646c988473a7ca99c00a7faa2718b7240077bd0942acdda484d58fa09e4549ed",
+          "dist/contract-common/src/index.js": "7b1bb6c929a476b2e306c469f705cb3706007e225a16a24f4641d476832c875f",
+          "dist/contract-internal/src/delivery.d.ts": "fad9daf1613f751cb9090b884a1481afdd401ad50f92a2049101d59e424e109d",
+          "dist/contract-internal/src/delivery.js": "ba2287ecaba3c9f8d732ae7fabfd9a96d0d5633ce84602fdf9b96684c99b6bc5",
+          "dist/contract-internal/src/index.d.ts": "a78981a265ee879505323890969da60286a6887d44834d07126ec1a7faf70c31",
+          "dist/contract-internal/src/index.js": "12e50ce66c7d17d141c8db8515beea47a02c46f5861bfb5d07ebcebda7b66f7b",
+          "dist/contract-internal/src/routes.d.ts": "afa2c51a5ecc250e6a78cd963c7843fcfad082ff537eaaa4b48b1577ad3df01b",
+          "dist/contract-internal/src/routes.js": "ff858eaf4480a01246b088811f04461d4901f9dea46362831fc080610658d11a",
+          "openapi.json": "b57b13b995d2b7b6fda46190898620bc30665791a07e6c6af9b122426c4b809d",
+          "package.json": "75fb96e2c163106b222a237c1eaeb58cc6d634176306f7bba28a1319ea005b70"
+        }
+      },
+      {
+        "consumer": "server",
+        "package": "@source-taster/contract-service",
+        "pin": "d50b0ac24273515e5f291de58aa29d7856f99475",
+        "fileCount": 20,
+        "files": {
+          "LICENSE-AGPL": "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee",
+          "LICENSE-MIT": "b9554a8a6132ad023b367aeb8fbc10b24d97fb6da115bbfdac3f79717828a85a",
+          "dist/contract-common/src/index.d.ts": "646c988473a7ca99c00a7faa2718b7240077bd0942acdda484d58fa09e4549ed",
+          "dist/contract-common/src/index.js": "7b1bb6c929a476b2e306c469f705cb3706007e225a16a24f4641d476832c875f",
+          "dist/contract-service/src/client.d.ts": "8dbd4da6704da797e7ae276f86b430601b9ac22f4bcb0f9d93843811180b8d8e",
+          "dist/contract-service/src/client.js": "151103b4340fefda59f9ae31bc71196dbbcd612b8d73fdaef20e3e58f500c5d4",
+          "dist/contract-service/src/commerce.d.ts": "5f7966a01c498234827e82038971e59fd62d612f0d4fc946e12b7c0a8230d0a5",
+          "dist/contract-service/src/commerce.js": "6ddf2c0fa21da0398722ee2f358624d16db6f4a5c5b85670168a2430e4670d22",
+          "dist/contract-service/src/dpa-client.d.ts": "17e79d8a0d3e01d127dc243ef1c7b048fc607676006780c6a32bf33a9551e1e6",
+          "dist/contract-service/src/dpa-client.js": "270758316222793c9dfa65da1bdeced5d1b272dbd2e589cdbacbf71b5233b098",
+          "dist/contract-service/src/dpa-routes.d.ts": "90cc489037083c3b97c8daeac830e67646316bbe12fa98459401aab4cc272c0f",
+          "dist/contract-service/src/dpa-routes.js": "bdeaee599f9d16c56fdb3b79e1acb0eb3f9fc3efcfcdb562d3c1072dbe4fa51c",
+          "dist/contract-service/src/dpa.d.ts": "2f781e8205cb8098ee088a4540d3743ecfe8274b4f49e36b1b59eb849354f1d7",
+          "dist/contract-service/src/dpa.js": "a522ab621d83048ec1e30540f0823fc090f9d06c8931c9ecb2e482dff8e7278b",
+          "dist/contract-service/src/index.d.ts": "68a3f1dadfdf346b2d46e90844562bbae47042e6c6282dac0bd1b8d01b7f30f9",
+          "dist/contract-service/src/index.js": "3d10f2449771ac9632c4b7c118784e5767c7629a63f80bb76b6d7e19d473a40d",
+          "dist/contract-service/src/routes.d.ts": "2678f0fa445dfabc4f35808d76c6374c54abdee6a190da13c08a0aba64851bc9",
+          "dist/contract-service/src/routes.js": "84fa9cfa62daeb3f796ef94d9911f989782f9295a9fcfd81596dcdd7078473dd",
+          "openapi.json": "b92466bcfaa498106c5f45848a431d2c397a17c9ea2fcc53ae030eab92cf16ad",
+          "package.json": "93b4e910fa3ed9ca1adcaa2e11b432dddb29ac419c6509531d2736fc6e83e067"
+        }
+      },
+      {
+        "consumer": "server",
+        "package": "@source-taster/contract-verification",
+        "pin": "d50b0ac24273515e5f291de58aa29d7856f99475",
+        "fileCount": 54,
+        "files": {
+          "LICENSE-AGPL": "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee",
+          "LICENSE-MIT": "b9554a8a6132ad023b367aeb8fbc10b24d97fb6da115bbfdac3f79717828a85a",
+          "README.md": "d99bd544dddd92b90efd95c329d264904d67d031dc68008f36818ed2f91bf4f9",
+          "dist/contract-common/src/index.d.ts": "646c988473a7ca99c00a7faa2718b7240077bd0942acdda484d58fa09e4549ed",
+          "dist/contract-common/src/index.js": "7b1bb6c929a476b2e306c469f705cb3706007e225a16a24f4641d476832c875f",
+          "dist/contract-verification/src/ai.d.ts": "1f05b34b7572f464554ec3827ee1337221f19a3f440d97db57de29149f1b07b3",
+          "dist/contract-verification/src/ai.js": "a84bc69e6af0b6d3c6eab4779b0a4a1100810a738ea129f585efa2698c0c3b33",
+          "dist/contract-verification/src/bibliography-client.d.ts": "22697c6a4fa1b711cd9f2653950c1e6036acc27f82e4f8977327a96d135b9895",
+          "dist/contract-verification/src/bibliography-client.js": "48b0832ad0b454a5906427c2728a2e4303630e72a1551a83740a824bed370015",
+          "dist/contract-verification/src/bibliography-routes.d.ts": "98810516a924fa8ac485bd0fe44102e8eb742bc5d52ba132597c507cb3c849e7",
+          "dist/contract-verification/src/bibliography-routes.js": "8b89c493bc528c58ae6a34418c17cb2de043a8409598d97a89b51e55e092c6fb",
+          "dist/contract-verification/src/bibliography.d.ts": "f8021ebb185a207219bcf00b6e5fd4eb4a5d44f9d6eb0f4a9ae275c01bccb3bd",
+          "dist/contract-verification/src/bibliography.js": "6cdb92700d623a25e0dbf4fb674f7f8acb0904d787631be3d5ca1e8001a9fc04",
+          "dist/contract-verification/src/client-v2.d.ts": "05c6b021c16c6c34a895de0749c0b70fb8e62b3dabbc1f9db867725488fb011e",
+          "dist/contract-verification/src/client-v2.js": "fd859bf033a5463a87f0fdb2da595a91c45afa140a6877b7a4b79b901fa0df5c",
+          "dist/contract-verification/src/client.d.ts": "ae2c9b42654c9f1be12e7c4fe5790f0c9e5e2bc3bcaa60546f2258feee692455",
+          "dist/contract-verification/src/client.js": "f32ab557b21d70bcb8ae7cd626763be8a44d1a8eb84a7179af658ff6d48b468a",
+          "dist/contract-verification/src/data-subject-routes.d.ts": "f54b118d4ce51d0d265cd1926a3d3b53ebf3fe9d1137389ee16c9bf4db5ab4c6",
+          "dist/contract-verification/src/data-subject-routes.js": "f1c6de09eae4fe4ab57326e91ddac813ec61d7f3bcf92dd3dc7248aa44c5dbe1",
+          "dist/contract-verification/src/document-client.d.ts": "1c6297c81f2457559eb2ec52ee25cbbc5f0795484473867e09e37f81647cc546",
+          "dist/contract-verification/src/document-client.js": "81a16ccce1dcaeef6893aaba1a3568fbdd34db58f6d6d8585024a2ab07713c57",
+          "dist/contract-verification/src/document-routes.d.ts": "766d385f087c447fde6f5297e085f2005e5fe4c3a9c6090609a615aef331c7ec",
+          "dist/contract-verification/src/document-routes.js": "45ae16af5a55739c5d10aa62ccf9cb7c4735da345be30b2a8f582c5034216c00",
+          "dist/contract-verification/src/document.d.ts": "4e793fa1cca56bd259a53ed8db00492ed18a56f99f8ecf166873fbb55a16cd72",
+          "dist/contract-verification/src/document.js": "f34d0a10fae3299483c35664818efa519a1187ca24044fe2d600221a0f226a78",
+          "dist/contract-verification/src/export-client.d.ts": "1f57f4a24f9fae4c0d56324461ee712931b1c255bcfad3ada05a2497075cde52",
+          "dist/contract-verification/src/export-client.js": "8df5154d4f35506368ce334e99a1b9748fb999a0cab79b406cdb855e02c0cd99",
+          "dist/contract-verification/src/export-routes.d.ts": "b2ff60f8bc410cd0b1cb1cae832db6017bb722c42fc0c417f3c763d0c95dc4cf",
+          "dist/contract-verification/src/export-routes.js": "0512fa604a17cb7f017159ca6fe1b377ccf96b78058f63080bc3759a191d93b7",
+          "dist/contract-verification/src/export.d.ts": "75d89d326553a33544270038eeecf5954a44f277e397695815f75550cae6ad99",
+          "dist/contract-verification/src/export.js": "546bfe4e112b0d05d4181caf432a4b4732bdbefa725d05cdeb99d086b1d90eb4",
+          "dist/contract-verification/src/import.d.ts": "eed43ffbda0dcdb5844826a3d34c85d05c64b33a1c0902e60689b6f3200367a4",
+          "dist/contract-verification/src/import.js": "1cd3c53b215eff4056cccb2437616561fba51cdbb868388d08105e5dd1a7830e",
+          "dist/contract-verification/src/index.d.ts": "dd9243d09b5e855f91fc586ae683b1e1ac1677feef19b333c278f4d0c537294b",
+          "dist/contract-verification/src/index.js": "db6f2c47124a6fcfe818bd3076e125c54521e9294169c5f07d356b8bfd58d90e",
+          "dist/contract-verification/src/report-client.d.ts": "2eb1b8a3b7f56d4f1b2c70a8192f0d84a079c97e4d2b5d2abf48e81026033326",
+          "dist/contract-verification/src/report-client.js": "bd9c71a6d147c8569f1e9305321fc8b7479486f12251014760e8c36e76930eb0",
+          "dist/contract-verification/src/report-routes.d.ts": "a5976eba27d1a18ef185ec2d80fa53f3119be9cba238141cc6083a71a77c5f05",
+          "dist/contract-verification/src/report-routes.js": "bfb48112d1ad4e03439414cf605709834ea0e34420990b917851dd6135fc0347",
+          "dist/contract-verification/src/report.d.ts": "84b49081384785691bedd6d993e02898c847453960dbae969ca5a24e1563ea4a",
+          "dist/contract-verification/src/report.js": "8b39e0880440bf54b2b13be8eb621d80f38d541e59f14bd4a9d67096396fd7b5",
+          "dist/contract-verification/src/routes-v2.d.ts": "2fc9971dfe2a3a1ed4f8f5f9c144bcb809822e966d98a8b3add2b5027f4e6b6d",
+          "dist/contract-verification/src/routes-v2.js": "b2302c884dd53324f83985f43fa0360842d5fc83f43a8507c42314d5dad9a012",
+          "dist/contract-verification/src/routes.d.ts": "6218260b9572ab90e0c0937a3c35b2ca31299aad6ab305b1f0ab0ea32356e9ff",
+          "dist/contract-verification/src/routes.js": "ff0246efc7d42da87ecae907b0d3c4dca0208cc1e41c3184902ed81aa8faa64f",
+          "dist/contract-verification/src/structuring.d.ts": "a35c725f3d5e6173fff558d66ddc772555d7ee67b5d89478c8e1cedb6aa97178",
+          "dist/contract-verification/src/structuring.js": "ed5f96f9a1d5378e174019c1296b07f214e7646355e3e7e86a9265bdb929d367",
+          "dist/contract-verification/src/v2.d.ts": "2ee44d7193717067eaeeb78bd1ed5709ca20052df17cd3324eb19ee63264de7d",
+          "dist/contract-verification/src/v2.js": "4d82a94bce5b135d257e9cb8dd30723d02920510c54818003b33a94f79b94f65",
+          "dist/contract-verification/src/verification.d.ts": "bf79fb6e8eaabe452b49de6f1e579a73a857233d209887db4ebabb75335106e6",
+          "dist/contract-verification/src/verification.js": "fbf964f11d70ce983317325efe346afbf56abffd9c84cd79397e67e9fea7d187",
+          "openapi-v2.json": "c409b87067784755f4ef5aa42b3656dc1625d3520e1c2087779873854cfbc9ff",
+          "openapi.json": "30cde87cc119f8ea66946ce55a4643e0816ade2af8a343063d447e26f47fb40f",
+          "package.json": "a92067c56c01532785332dbd3e6c3ba174a8b8d75c15d98e923d87548d2bab38"
+        }
+      },
+      {
+        "consumer": "web",
+        "package": "@source-taster/contract-service",
+        "pin": "d50b0ac24273515e5f291de58aa29d7856f99475",
+        "fileCount": 20,
+        "files": {
+          "LICENSE-AGPL": "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee",
+          "LICENSE-MIT": "b9554a8a6132ad023b367aeb8fbc10b24d97fb6da115bbfdac3f79717828a85a",
+          "dist/contract-common/src/index.d.ts": "646c988473a7ca99c00a7faa2718b7240077bd0942acdda484d58fa09e4549ed",
+          "dist/contract-common/src/index.js": "7b1bb6c929a476b2e306c469f705cb3706007e225a16a24f4641d476832c875f",
+          "dist/contract-service/src/client.d.ts": "8dbd4da6704da797e7ae276f86b430601b9ac22f4bcb0f9d93843811180b8d8e",
+          "dist/contract-service/src/client.js": "151103b4340fefda59f9ae31bc71196dbbcd612b8d73fdaef20e3e58f500c5d4",
+          "dist/contract-service/src/commerce.d.ts": "5f7966a01c498234827e82038971e59fd62d612f0d4fc946e12b7c0a8230d0a5",
+          "dist/contract-service/src/commerce.js": "6ddf2c0fa21da0398722ee2f358624d16db6f4a5c5b85670168a2430e4670d22",
+          "dist/contract-service/src/dpa-client.d.ts": "17e79d8a0d3e01d127dc243ef1c7b048fc607676006780c6a32bf33a9551e1e6",
+          "dist/contract-service/src/dpa-client.js": "270758316222793c9dfa65da1bdeced5d1b272dbd2e589cdbacbf71b5233b098",
+          "dist/contract-service/src/dpa-routes.d.ts": "90cc489037083c3b97c8daeac830e67646316bbe12fa98459401aab4cc272c0f",
+          "dist/contract-service/src/dpa-routes.js": "bdeaee599f9d16c56fdb3b79e1acb0eb3f9fc3efcfcdb562d3c1072dbe4fa51c",
+          "dist/contract-service/src/dpa.d.ts": "2f781e8205cb8098ee088a4540d3743ecfe8274b4f49e36b1b59eb849354f1d7",
+          "dist/contract-service/src/dpa.js": "a522ab621d83048ec1e30540f0823fc090f9d06c8931c9ecb2e482dff8e7278b",
+          "dist/contract-service/src/index.d.ts": "68a3f1dadfdf346b2d46e90844562bbae47042e6c6282dac0bd1b8d01b7f30f9",
+          "dist/contract-service/src/index.js": "3d10f2449771ac9632c4b7c118784e5767c7629a63f80bb76b6d7e19d473a40d",
+          "dist/contract-service/src/routes.d.ts": "2678f0fa445dfabc4f35808d76c6374c54abdee6a190da13c08a0aba64851bc9",
+          "dist/contract-service/src/routes.js": "84fa9cfa62daeb3f796ef94d9911f989782f9295a9fcfd81596dcdd7078473dd",
+          "openapi.json": "b92466bcfaa498106c5f45848a431d2c397a17c9ea2fcc53ae030eab92cf16ad",
+          "package.json": "93b4e910fa3ed9ca1adcaa2e11b432dddb29ac419c6509531d2736fc6e83e067"
+        }
+      }
+    ]
+  },
+  "reproductionManifestSha256": {
+    "116-integrated-reproduction-final-before.json": "591950f578100957e18689706e02c44c8344e0463bf99f4845684d801b19836a",
+    "116-integrated-reproduction-final-after.json": "591950f578100957e18689706e02c44c8344e0463bf99f4845684d801b19836a"
+  }
+}
