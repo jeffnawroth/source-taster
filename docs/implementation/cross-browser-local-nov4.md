@@ -69,13 +69,17 @@ a profile directory that exists; the previous revision (1497) starts but never
 completes the automation handshake (`RenderCompositorSWGL` graphics error). The
 first full run therefore failed all 91 Firefox tests in under a millisecond each,
 at browser launch, before any product code ran. Those are not product failures
-and are not reported as such. The cause was not isolated; it was observed only
-under a sandboxed agent shell, not in a plain terminal. A human should run the
-Firefox projects locally before drawing any conclusion.
+and are not reported as such. A second attempt outside any sandbox, on the same
+Mac (macOS 27.2), failed the same way: launching the Playwright Firefox binary
+directly with `-profile <existing dir>` prints "Could not find profile folder"
+for profile directories under `/var/folders`, `/private/var/folders` and the
+home directory. The cause is the Playwright Firefox build on this host, not the
+sandbox and not the product. Run the Firefox projects on another machine, or
+after a Playwright update, before drawing any conclusion.
 
 ### Running the Firefox project
 
-Firefox status: **not run (sandbox launch failure)**. To run it outside a sandbox
+Firefox status: **not run (Playwright Firefox does not launch on macOS 27.2)**. To run it on a host where it launches
 (these are the steps used for the Chromium and WebKit runs above):
 
 ```sh
