@@ -37,8 +37,14 @@ const needsPagefind = new Set([
   "server-tests",
   "e2e",
   "side-panel",
+  "web-suites",
+  "extension-suites",
+  "public-contracts",
   "dependencies",
 ]);
+// #142: the public end-to-end suites that need only this repository and local
+// fakes, each in its own job so every job keeps its 60-minute budget.
+const publicSuiteJobs = ["web-suites", "extension-suites", "public-contracts"];
 
 test("every job keeps a bounded timeout, never raised above the original 60 minutes", () => {
   for (const [name, job] of Object.entries(workflow.jobs)) {
@@ -50,7 +56,13 @@ test("every job keeps a bounded timeout, never raised above the original 60 minu
 });
 
 test("every job that starts the service builds the exact isolated extractor image first", () => {
-  for (const name of ["verify", "server-tests", "e2e", "side-panel"]) {
+  for (const name of [
+    "verify",
+    "server-tests",
+    "e2e",
+    "side-panel",
+    ...publicSuiteJobs,
+  ]) {
     const job = workflow.jobs[name];
     const image = indexOfRun(job, /extractor-image\.ts/);
     assert.ok(image >= 0, `${name} builds the extractor image`);
@@ -61,7 +73,9 @@ test("every job that starts the service builds the exact isolated extractor imag
     const suite = job.steps.findIndex(
       (s) =>
         typeof s.run === "string" &&
-        /vitest|turbo run test|test:e2e|test:native|--test /.test(s.run),
+        /vitest|turbo run test|test:e2e|test:native|playwright test|--test /.test(
+          s.run,
+        ),
     );
     assert.ok(suite > job.steps.findIndex((s) => s.run?.includes("extractor")));
   }
@@ -147,6 +161,117 @@ test("the end-to-end and native side-panel suites run in their own jobs", () => 
       );
 });
 
+const playwrightCommands = (job) =>
+  runs(job).filter((r) =>
+    /^pnpm --filter @source-taster\/(web|extension) exec playwright test /.test(
+      r,
+    ),
+  );
+const configsOf = (job) =>
+  playwrightCommands(job).map((r) => r.match(/--config (\S+)/)?.[1]);
+
+test("the public Playwright and contract suites run in CI on local fakes, each in a bounded job with its own PostgreSQL 18 and the pinned build prelude (#142)", () => {
+  for (const name of publicSuiteJobs) {
+    const job = workflow.jobs[name];
+    assert.ok(job, `${name} job`);
+    assert.equal(job["timeout-minutes"], 60, `${name} timeout`);
+    assert.equal(job.services.postgres.image, "postgres:18");
+    assert.deepEqual(job.services.postgres.ports, ["5433:5432"]);
+    assert.ok(indexOfRun(job, "pnpm build") >= 0, `${name} builds`);
+    // Public repository and fakes only: no private checkout, token or key.
+    const text = JSON.stringify(job);
+    assert.ok(
+      !/source-taster-service|SERVICE_WORKTREE|secrets\.|deploy[-_ ]key|ssh-key/i.test(
+        text,
+      ),
+      `${name} touches no private service or secret`,
+    );
+    // Every action stays pinned to a full commit SHA.
+    for (const step of job.steps)
+      if (step.uses)
+        assert.match(step.uses, /@[0-9a-f]{40}$/, `${name} pins ${step.uses}`);
+  }
+  const web = workflow.jobs["web-suites"];
+  assert.deepEqual(configsOf(web), [
+    "abuse.playwright.config.ts",
+    "report.playwright.config.ts",
+  ]);
+  assert.ok(
+    runs(web).includes(
+      "pnpm --filter @source-taster/web exec playwright install --with-deps chromium",
+    ),
+  );
+  const extension = workflow.jobs["extension-suites"];
+  assert.deepEqual(configsOf(extension), [
+    "account.playwright.config.ts",
+    "ai.playwright.config.ts",
+    "report.playwright.config.ts",
+    "selection.playwright.config.ts",
+    "firefox.playwright.config.ts",
+  ]);
+  // Only the browsers these suites launch (Chromium panel, Firefox sidebar).
+  assert.ok(
+    runs(extension).includes(
+      "pnpm --filter @source-taster/extension exec playwright install --with-deps chromium firefox",
+    ),
+  );
+  for (const job of [web, extension])
+    assert.ok(
+      job.steps.some(
+        (s) =>
+          typeof s.uses === "string" &&
+          s.uses.includes("upload-artifact") &&
+          s.if === "failure()",
+      ),
+      "failure evidence",
+    );
+  // The Account suite is mixed: its sensitive-panel spec composes the private
+  // service, so the public specs are named and that one is excluded on purpose.
+  // Playwright reads each argument as a path regex: a bare `panel.spec.ts`
+  // would also select `sensitive-panel.spec.ts`, so every name carries its
+  // directory.
+  const account = playwrightCommands(extension)[0];
+  for (const spec of [
+    "panel.spec.ts",
+    "preferences-transport.spec.ts",
+    "sensitive-transport.spec.ts",
+    "transport.spec.ts",
+  ])
+    assert.ok(account.includes(` e2e-account/${spec}`), spec);
+  assert.ok(!account.includes("sensitive-panel"), "private spec stays out");
+  const contracts = workflow.jobs["public-contracts"];
+  assert.deepEqual(
+    runs(contracts)
+      .filter((r) => r.includes("vitest run"))
+      .map((r) => r.match(/--config (\S+)/)?.[1]),
+    [
+      "abuse.vitest.config.ts",
+      "history.vitest.config.ts",
+      "owner-deletion.vitest.config.ts",
+    ],
+  );
+});
+
+test("no CI job wires a suite that composes the private service (those run in a separate guarded workflow, #142)", () => {
+  // Extension configs whose specs all call bothPrograms (or the fake built on it).
+  const privateExtensionConfigs = [
+    "private",
+    "quota",
+    "dpa",
+    "guest",
+    "history",
+    "preferences",
+  ];
+  const steps = Object.values(workflow.jobs).flatMap((j) => j.steps ?? []);
+  for (const r of steps
+    .map((s) => s.run)
+    .filter((r) => typeof r === "string")) {
+    assert.ok(!/bothPrograms|SOURCE_TASTER_SERVICE/.test(r), r);
+    for (const name of privateExtensionConfigs)
+      assert.ok(!r.includes(`--config ${name}.playwright.config.ts`), r);
+  }
+});
+
 test("the verification job keeps every static gate, the operations CLI and the load harness", () => {
   const job = workflow.jobs.verify;
   assert.ok(job, "verify job");
@@ -214,6 +339,7 @@ test("the stable checks job is the aggregate gate over every other job", () => {
     "server-tests",
     "e2e",
     "side-panel",
+    ...publicSuiteJobs,
     "dependencies",
   ])
     assert.ok(gate.needs.includes(required), required);
