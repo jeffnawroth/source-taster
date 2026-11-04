@@ -4,6 +4,19 @@
 import { readFile, stat } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 try {
+  if (
+    process.env.SOURCE_TASTER_MODE !== "hosted" ||
+    process.env.SOURCE_TASTER_WEBSITE_MODE !== "publication" ||
+    !process.env.SOURCE_TASTER_WEB_DIRECTORY ||
+    !process.env.SOURCE_TASTER_AUTH_CONFIG ||
+    !process.env.SOURCE_TASTER_ABUSE_ORIGIN_CONFIG ||
+    !process.env.SOURCE_TASTER_MEASURED_CONFIGURATIONS ||
+    !/^sha256:[a-f0-9]{64}$/.test(
+      process.env.SOURCE_TASTER_DOCUMENT_IMAGE ?? "",
+    ) ||
+    process.env.OPS_LOOPBACK_FIXTURES
+  )
+    throw Error("platform-configuration");
   const git = spawnSync("git", ["status", "--porcelain"], { encoding: "utf8" });
   if (git.status !== 0 || git.stdout.trim() !== "")
     throw Error("platform-source");

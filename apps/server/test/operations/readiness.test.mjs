@@ -11,6 +11,10 @@ test(
   async () => {
     const dir = await mkdtemp(join(tmpdir(), "st116-maintenance-"));
     const file = join(dir, "notice.json");
+    await writeFile(
+      join(dir, "index.html"),
+      '<!doctype html><html lang="en"><title>Owned product artifact</title></html>',
+    );
     const now = Date.now();
     await writeFile(
       file,
@@ -26,6 +30,7 @@ test(
     );
     const service = await startTestService(5501, 50, {
       SOURCE_TASTER_MAINTENANCE_FILE: file,
+      SOURCE_TASTER_WEB_DIRECTORY: dir,
     });
     try {
       let response;
@@ -34,6 +39,11 @@ test(
         if (response.ok) break;
         await new Promise((r) => setTimeout(r, 100));
       }
+      assert.ok(
+        (await (await fetch(service.apiUrl + "/")).text()).includes(
+          "Owned product artifact",
+        ),
+      );
       const maintenance = await (
         await fetch(service.apiUrl + "/health/maintenance")
       ).text();

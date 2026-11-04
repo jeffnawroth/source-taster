@@ -1,3 +1,5 @@
+import { serveStatic } from "@hono/node-server/serve-static";
+import { resolve } from "node:path";
 import { maintenanceNotice } from "../ops/maintenance.mjs";
 import { operationalHealth } from "../ops/health.mjs";
 import { assertRecoveryReleased } from "../ops/fence.mjs";
@@ -108,6 +110,12 @@ await runMain(async (config) => {
   if (authority && config.hosted) {
     mountInternalRoutes(app, authority);
     mountDataSubjectDelivery(app, config.hosted, checks);
+  }
+  const webDirectory = process.env.SOURCE_TASTER_WEB_DIRECTORY;
+  if (webDirectory) {
+    const directory = resolve(webDirectory);
+    app.get("/assets/*", serveStatic({ root: directory }));
+    app.get("/", serveStatic({ path: resolve(directory, "index.html") }));
   }
   if (website) {
     // The website only answers what the API does not own (ADR-0020).
