@@ -35,8 +35,8 @@ test("two programs expose truthful missing gates and refuse forged, stale, repla
   const both = await bothPrograms({
     accounts: true,
     startWorker: false,
-    apiPort: 5801,
-    servicePort: 5803,
+    apiPort: Number(process.env.SOURCE_TASTER_TEST_API_PORT ?? 5801),
+    servicePort: Number(process.env.SOURCE_TASTER_TEST_SERVICE_PORT ?? 5803),
     verificationEnv: { SOURCE_TASTER_MEASURED_CONFIGURATIONS: registry },
     serviceEnv: {
       SERVICE_OPERATOR_SETUP: setup,
@@ -288,7 +288,7 @@ test("controlled source-only Check state machine snapshots the pointer once acro
   await writeFile(pointer, JSON.stringify(a));
   const service = await lifecycleService(
     { TEST_CONFIGURATION_POINTER: pointer },
-    { port: "5802" },
+    { port: process.env.SOURCE_TASTER_TEST_AUX_PORT ?? "5802" },
   );
   const create = async () => {
     const response = await fetch(service.apiUrl + "/v2/checks", {
