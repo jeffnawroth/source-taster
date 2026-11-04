@@ -229,6 +229,7 @@ export async function bothPrograms(
     | undefined
     | {
         permission?: string;
+        path?: string;
         kind?: string;
         skip: number;
         hit: () => void;
@@ -264,8 +265,10 @@ export async function bothPrograms(
           await new Promise((resolve) => setTimeout(resolve, workDelayMs));
         if (
           trap &&
-          (req.url === "/internal/guest-authority" ||
-            req.url === "/internal/account-authority") &&
+          (trap.path
+            ? req.url === trap.path
+            : req.url === "/internal/guest-authority" ||
+              req.url === "/internal/account-authority") &&
           (!trap.permission || trap.permission === input.permission) &&
           (!trap.kind || trap.kind === input.kind)
         ) {
@@ -430,7 +433,9 @@ export async function bothPrograms(
     await web.ready;
     const worker = () =>
       launch(serverPath, "test/support/guest-process.ts", ["worker"], venv);
-    if (options.startWorker !== false) await worker().ready;
+    const verificationWorker =
+      options.startWorker !== false ? worker() : undefined;
+    if (verificationWorker) await verificationWorker.ready;
     return {
       mail: () =>
         service.command({ mailbox: true }) as Promise<
@@ -481,6 +486,8 @@ export async function bothPrograms(
       },
       accountConfigPath,
       now: () => now,
+      maintain: () => web.command({ now, maintain: true }),
+      stopVerificationWorker: () => verificationWorker?.stop(),
       apiUrl,
       serviceUrl,
       fixtures,
@@ -581,7 +588,7 @@ export async function bothPrograms(
       delayWork: (ms: number) => {
         workDelayMs = ms;
       },
-      trap: (permission?: string, kind?: string, skip = 0) => {
+      trap: (permission?: string, kind?: string, skip = 0, path?: string) => {
         let hit!: () => void, release!: () => void;
         const arrived = new Promise<void>((r) => {
           hit = r;
@@ -589,7 +596,7 @@ export async function bothPrograms(
         const wait = new Promise<void>((r) => {
           release = r;
         });
-        trap = { permission, kind, skip, hit, wait };
+        trap = { permission, kind, skip, path, hit, wait };
         return { arrived, release };
       },
       issue: async (
