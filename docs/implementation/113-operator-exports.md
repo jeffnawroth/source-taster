@@ -1,5 +1,7 @@
 # #113 accounting and recipient-only data-subject exports
 
+> Historical source-only handoff. Its oversized-export refusal is superseded by [the integrated handoff](113-integrated-exports.md).
+
 ## Scope and source ownership
 
 Implementation for #113 under #70, ADR-0014/0015/0021 and the 3 November brief.
