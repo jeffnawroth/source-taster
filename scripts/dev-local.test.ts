@@ -61,7 +61,11 @@ await test("inherited database and product settings never reach the composition"
 await test("options select the fixture families", () => {
   const full = compositionEnvironment(parseArguments([]), {});
   assert.equal(full.SOURCE_TASTER_E2E_BIBLIOGRAPHIC, "true");
-  assert.equal(full.SOURCE_TASTER_E2E_WEB_FIXTURES, "true");
+  // Web-page checks fetch non-fixture hosts from the real internet: opt-in only.
+  assert.equal(full.SOURCE_TASTER_E2E_WEB_FIXTURES, undefined);
+  const web = compositionEnvironment(parseArguments(["--web"]), {});
+  assert.equal(web.SOURCE_TASTER_E2E_WEB_FIXTURES, "true");
+  assert.throws(() => parseArguments(["--basic", "--web"]));
   assert.ok(full.SOURCE_TASTER_E2E_REPORTS);
   const reduced = compositionEnvironment(
     parseArguments(["--basic", "--no-reports"]),

@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// One command to explore the public product on a developer machine, fully
-// offline: a disposable PostgreSQL container, the verification API with its
-// worker, and the web app. It is a thin wrapper around the server's existing
-// browser-test composition (`apps/server/scripts/e2e-serve.ts`): every external
-// Data source answers from loopback fixtures, there is no AI, no mail and no
-// payment provider. See docs/local-preview.md.
+// One command to explore the public product on a developer machine: a
+// disposable PostgreSQL container, the verification API with its worker, and
+// the web app. It is a thin wrapper around the server's existing browser-test
+// composition (`apps/server/scripts/e2e-serve.ts`): the enabled Data sources
+// answer from loopback fixtures, there is no AI, no mail and no payment
+// provider. Web-page checks are opt-in (`--web`) because URLs outside the
+// fixture hosts are fetched from the real internet. See docs/local-preview.md.
 //
-//   pnpm dev:local [--basic] [--no-reports] [--no-smoke]
+//   pnpm dev:local [--basic] [--web] [--no-reports] [--no-smoke]
 //   pnpm dev:local:down
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
@@ -42,19 +43,23 @@ export function assertOwnedDatabase(...urls: string[]) {
 
 export interface Options {
   basic: boolean;
+  web: boolean;
   reports: boolean;
   smoke: boolean;
 }
 
 export function parseArguments(args: string[]): Options {
-  const known = new Set(["--basic", "--no-reports", "--no-smoke"]);
+  const known = new Set(["--basic", "--web", "--no-reports", "--no-smoke"]);
   const unknown = args.filter((argument) => !known.has(argument));
   if (unknown.length)
     throw new Error(
       `Unknown option ${unknown.join(", ")}. Known: ${[...known].join(" ")}`,
     );
+  if (args.includes("--basic") && args.includes("--web"))
+    throw new Error("--basic and --web exclude each other.");
   return {
     basic: args.includes("--basic"),
+    web: args.includes("--web"),
     reports: !args.includes("--no-reports"),
     smoke: !args.includes("--no-smoke"),
   };
@@ -80,12 +85,8 @@ export function compositionEnvironment(
     DATABASE_TEST_URL: app,
     SOURCE_TASTER_E2E_API_PORT: String(ports.api),
     SOURCE_TASTER_E2E_WEB_PORT: String(ports.web),
-    ...(options.basic
-      ? {}
-      : {
-          SOURCE_TASTER_E2E_BIBLIOGRAPHIC: "true",
-          SOURCE_TASTER_E2E_WEB_FIXTURES: "true",
-        }),
+    ...(options.basic ? {} : { SOURCE_TASTER_E2E_BIBLIOGRAPHIC: "true" }),
+    ...(options.web ? { SOURCE_TASTER_E2E_WEB_FIXTURES: "true" } : {}),
     ...(options.reports ? { SOURCE_TASTER_E2E_REPORTS: "granted" } : {}),
   };
 }
@@ -206,6 +207,7 @@ async function smokeCheck() {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: body === undefined ? undefined : JSON.stringify(body),
+      signal: AbortSignal.timeout(10_000),
     });
     if (!response.ok)
       throw new Error(
@@ -238,7 +240,7 @@ async function waitFor(
         "The preview stack exited during startup (see output above).",
       );
     try {
-      if ((await fetch(url)).ok) return;
+      if ((await fetch(url, { signal: AbortSignal.timeout(5_000) })).ok) return;
     } catch {
       // not listening yet
     }
@@ -274,27 +276,42 @@ async function up(options: Options) {
       detached: true,
     },
   );
-  const stop = () => {
+  let stopping = false;
+  const exited = new Promise<number>((resolve, reject) => {
+    stack.once("error", (error) =>
+      reject(new Error(`Could not start pnpm: ${error.message}`)),
+    );
+    // A stack stopped by our own signal is a normal end, not a failure.
+    stack.once("exit", (code) => resolve(code ?? (stopping ? 0 : 1)));
+  });
+  const signalGroup = (signal: NodeJS.Signals) => {
+    if (stack.pid === undefined) return;
     try {
-      process.kill(-stack.pid!, "SIGTERM");
+      process.kill(-stack.pid, signal);
     } catch {
       // already gone
     }
   };
-  process.once("SIGINT", stop);
-  process.once("SIGTERM", stop);
-  // Closing the terminal window: the stack has its own session, so it would
-  // otherwise survive and keep the ports.
-  process.once("SIGHUP", stop);
-  const exited = new Promise<number>((resolve) =>
-    stack.once("exit", (code) => resolve(code ?? 1)),
-  );
+  const stop = () => {
+    if (stopping) {
+      // A second Ctrl-C: do not leave the ports and the database behind.
+      signalGroup("SIGKILL");
+      return;
+    }
+    stopping = true;
+    signalGroup("SIGTERM");
+    setTimeout(() => signalGroup("SIGKILL"), 15_000).unref();
+  };
+  // Closing the terminal window (SIGHUP): the stack has its own session, so it
+  // would otherwise survive and keep the ports.
+  for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"] as const)
+    process.on(signal, stop);
   try {
     await waitFor(`http://127.0.0.1:${ports.api}/health`, stack);
     await waitFor(`http://127.0.0.1:${ports.web}/`, stack);
     const smoke = options.smoke ? await smokeCheck() : undefined;
     console.log(`
-Source Taster local preview is running (fake, offline integrations only).
+Source Taster local preview is running (fake, local integrations only${options.web ? "; web-page checks reach the real internet for non-fixture hosts" : ""}).
 
   Web app      http://127.0.0.1:${ports.web}/
   Website      http://127.0.0.1:${ports.web}/en/   (and /de/, /docs/en/)
@@ -307,7 +324,7 @@ Run \`pnpm dev:local:down\` to remove the ${container} container.
 `);
   } catch (error) {
     stop();
-    await exited;
+    await exited.catch(() => undefined);
     throw error;
   }
   process.exit(await exited);
@@ -337,7 +354,7 @@ if (import.meta.main) {
     else if (command === "up") await up(parseArguments(rest));
     else
       throw new Error(
-        "Usage: dev-local.ts up [--basic] [--no-reports] [--no-smoke] | down",
+        "Usage: dev-local.ts up [--basic] [--web] [--no-reports] [--no-smoke] | down",
       );
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));

@@ -1,6 +1,6 @@
 # Local preview
 
-Run and explore the public product on your Mac with **one command**. Everything an external service would provide is replaced by a local fake: no AI provider, no mail, no payment provider, and Data sources that answer from fixtures on loopback.
+Run and explore the public product on your Mac with **one command**. Everything an external service would provide is replaced by a local fake: no AI provider, no mail, no payment provider, and Data sources that answer from fixtures on loopback. Nothing reaches the internet unless you opt in to web-page checks with `--web`.
 
 ```sh
 pnpm dev:local
@@ -14,7 +14,7 @@ What it starts (all on `127.0.0.1`, ports from 5491 so it never collides with th
 | Website (marketing, docs, legal) | <http://127.0.0.1:5493/en/>         | also `/de/`, `/docs/en/`, `/en/terms/`, `/en/privacy/`, … (`/docs/` alone is a 404)                                      |
 | Verification API + worker        | <http://127.0.0.1:5492/>            | `/health`, `/v1/openapi.json`                                                                                            |
 | PostgreSQL 18                    | `stpreview-pg` on `127.0.0.1:5491`  | Docker container created on demand; every run gets a fresh, empty database that is dropped on exit                       |
-| Fixture servers                  | loopback ports                      | DOI resolver, Crossref, comparison catalogs, bibliographic catalogs, web pages                                           |
+| Fixture servers                  | loopback ports                      | DOI resolver, Crossref, comparison catalogs, bibliographic catalogs, and web pages with `--web`                          |
 
 It is a thin wrapper (`scripts/dev-local.ts`) around the server's existing browser-test composition (`apps/server/scripts/e2e-serve.ts`). After the stack is up it runs one real **smoke Check** through API, worker and fixtures and prints the Verdicts, so a broken stack fails in the terminal instead of in the browser.
 
@@ -50,7 +50,8 @@ Options, e.g. `pnpm dev:local --basic --no-reports`:
 
 | Option         | Effect                                                                                                                                                                |
 | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--basic`      | DOI route only: no OpenAlex/Europe PMC fixtures and no web-page checks (both stay off by default).                                                                                    |
+| `--basic`      | DOI route only: no OpenAlex/Europe PMC fixtures.                                                                                                                      |
+| `--web`        | Turns on web-page checks. `example.com` and the Internet Archive hosts answer from a fixture; **any other URL is fetched from the real internet**. Not combinable with `--basic`. |
 | `--no-reports` | Standalone as it really is: no Quota panel and no PDF report (the fake Quota below is not installed).                                                                 |
 | `--no-smoke`   | Skip the startup smoke Check.                                                                                                                                         |
 
@@ -61,8 +62,8 @@ The container is left running when you press Ctrl-C (starting again is faster); 
 - **Data sources**: the DOI resolver, Crossref, OpenAlex and Europe PMC are loopback fixtures started by the script, so no real DOI or article search is queried. Semantic Scholar, arXiv, Open Library and Google Books are never switched on, so ISBN and book lookups answer "not checked" rather than reaching a real catalog.
 - **AI**: off. Standalone has no AI extraction; the page says "Your current feature scope does not include AI extraction. The parser was used."
 - **Mail, payments, accounts**: not present in this mode (see "Hosted-only").
-- **Quota and PDF report**: the server's test composition installs a **fake Quota** (1000 granted checks, report feature granted). The counter is static and does not count down; it exists so the Quota panel and the report are visible.
-- **Web-page checks** (default mode only): `example.com`, `archive.org` and `web.archive.org` are redirected to a local fixture. **A Reference containing a URL on any other host is fetched from the real internet** (plain GET, with the server's private-address protection). Paste only `example.com` URLs, or start with `--basic`, which disables web-page checks.
+- **Quota and PDF report**: the server's test composition installs a **fake Quota** (1000 granted checks, report feature granted). The panel always shows the full 1000 and never counts down; it exists so the Quota panel and the report are visible.
+- **Web-page checks**: off unless you start with `--web`. Then `example.com`, `archive.org` and `web.archive.org` are redirected to a local fixture, and **a Reference containing a URL on any other host is fetched from the real internet** (plain GET, with the server's private-address protection). Paste only `example.com` URLs if you want to stay offline.
 
 ## Fixture data to paste
 
@@ -149,6 +150,6 @@ Known obstacles for an interactive hosted run:
 - **"A container named stpreview-pg exists but is not ours"**: you created that name yourself; rename or remove it.
 - **Docker errors**: start Docker Desktop.
 - **Vite crashes on a missing website**: run the one-time build above (`pagefind:fetch` → `pagefind:build` → `pagefind:verify` → `build`).
-- **Closing the terminal window** stops the stack like Ctrl-C does.
+- **Closing the terminal window** stops the stack like Ctrl-C does. If the stack does not stop within 15 s, or you press Ctrl-C a second time, it is killed.
 - **Leftovers after a crash**: `pnpm dev:local:down` removes the database container; stray `node` processes can be found with `lsof -iTCP:5492 -iTCP:5493 -sTCP:LISTEN`.
 - **Run the script's own tests**: `pnpm test:scripts`.
