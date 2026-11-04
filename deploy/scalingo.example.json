@@ -10,5 +10,8 @@
   "extraction": {
     "enforcement": "os-enforced",
     "image": "REQUIRES_QUALIFIED_IMMUTABLE_EXTRACTION_IMAGE"
-  }
+  },
+  "configurationDigest": "REQUIRES_REAL_REVIEWED_CONFIGURATION_DIGEST",
+  "measuredConfigurationEvidence": "REQUIRES_REVALIDATED_114_EVIDENCE_DIGEST",
+  "registrySha256": "REQUIRES_IMMUTABLE_REGISTRY_BYTES_SHA256"
 }

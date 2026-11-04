@@ -1,3 +1,4 @@
+import { startAccountApi, newAccount } from "../support/account-api.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Actual CLI + PG18 bytes. S3 alone is replaced at its HTTP adapter edge.
 import { test } from "node:test";
@@ -43,6 +44,7 @@ test(
       url.password = "fixture";
       return url.toString();
     };
+    let api;
     let broken = false,
       tampered = false,
       unlocked = false;
@@ -123,11 +125,64 @@ test(
       const wrapper = `#!/usr/bin/env node\nimport {spawn} from 'node:child_process'; import {createReadStream} from 'node:fs'; import {basename} from 'node:path'; const command=basename(process.argv[1]); const args=process.argv.slice(2); const file=command==='pg_restore'?args.pop():null;  const p=spawn('docker',['exec','-i','${process.env.OPS_TEST_PG_CONTAINER ?? "st116-owned-pg"}','sh','-c','IFS= read -r PGDATABASE; IFS= read -r PGUSER; IFS= read -r PGPASSWORD; export PGDATABASE PGUSER PGPASSWORD; export PGHOST=127.0.0.1 PGPORT=5432; exec "$@"','--',command,...args],{stdio:['pipe','inherit','inherit']});p.stdin.write([process.env.PGDATABASE,process.env.PGUSER,process.env.PGPASSWORD,''].join(String.fromCharCode(10)));if(file)createReadStream(file).pipe(p.stdin);else p.stdin.end();p.on('exit',c=>process.exit(c??1));\n`;
       for (const name of ["pg_dump", "pg_restore"])
         await writeFile(join(dir, name), wrapper, { mode: 0o700 });
-      const source = await fresh("st_source_");
+      api = await startAccountApi({ worker: true });
+      const source = api.appUrl;
+      const retainedAccount = newAccount(),
+        transientAccount = newAccount();
+      const request = (account, path, method = "GET", body) =>
+        fetch(`${api.apiUrl}/v2/${path}`, {
+          method,
+          headers: {
+            authorization: `Bearer ${api.token(account)}`,
+            "content-type": "application/json",
+          },
+          ...(body ? { body: JSON.stringify(body) } : {}),
+        });
+      assert.equal(
+        (await request(retainedAccount, "history", "PUT", { enabled: true }))
+          .status,
+        200,
+      );
+      const retained = await request(retainedAccount, "checks", "POST", {
+        references: [
+          {
+            originalText: "CONSENTED-HISTORY-REAL-PIPELINE",
+            fields: { DOI: "10.1038/nphys1170" },
+          },
+        ],
+      });
+      const retainedId = (await retained.json()).data.id;
+      const transient = await request(transientAccount, "checks", "POST", {
+        references: [
+          {
+            originalText: "TRANSIENT-CONTENT-REAL-PIPELINE",
+            fields: { DOI: "10.1038/nphys1170" },
+          },
+        ],
+      });
+      const transientId = (await transient.json()).data.id;
+      const historyDeadline = Date.now() + 15000;
+      while (true) {
+        const history = await (
+          await request(retainedAccount, "history")
+        ).json();
+        if (history.data.entries.length === 1) break;
+        if (Date.now() > historyDeadline)
+          throw Error("consented History did not finish");
+        await new Promise((r) => setTimeout(r, 100));
+      }
+
       const db = new pg.Client({ connectionString: source });
       await db.connect();
       await db.query(
-        `CREATE SCHEMA verification; CREATE SCHEMA verification_boss; CREATE TABLE verification._prisma_migrations(migration_name text,checksum text,finished_at timestamptz,rolled_back_at timestamptz); INSERT INTO verification._prisma_migrations VALUES('owned-fixture','fixture-checksum',now(),null); CREATE TABLE verification.retained(kind text, payload text, expires_at timestamptz); INSERT INTO verification.retained VALUES ('consented-history','HISTORY-FIXTURE','2026-11-20'),('legal','LEGAL-FIXTURE','2034-11-04'),('transient-ciphertext','opaque-ciphertext','2026-11-05'); CREATE UNLOGGED TABLE verification.daily_keys(secret text); INSERT INTO verification.daily_keys VALUES ('NEVER-EXPORT-DAILY-KEY'); CREATE TABLE verification.abuse_counters(secret text); INSERT INTO verification.abuse_counters VALUES ('NEVER-EXPORT-COUNTER');`,
+        `CREATE TABLE verification.retained(kind text,payload text,expires_at timestamptz); INSERT INTO verification.retained VALUES ('consented-history','HISTORY-FIXTURE','2026-11-20'),('legal','LEGAL-FIXTURE','2034-11-04'),('transient-ciphertext','opaque-ciphertext','2026-11-05'); INSERT INTO verification.abuse_counters VALUES ('NEVER-EXPORT-COUNTER',1,now()+interval '1 hour');`,
+      );
+      assert.ok(
+        (
+          await db.query(
+            "SELECT count(*)::int AS count FROM verification.transient_keys",
+          )
+        ).rows[0].count > 0,
       );
       await db.end();
       const env = {
@@ -146,7 +201,6 @@ test(
       for (const secret of [
         "HISTORY-FIXTURE",
         "LEGAL-FIXTURE",
-        "NEVER-EXPORT-DAILY-KEY",
         "NEVER-EXPORT-COUNTER",
       ])
         assert.equal(bytes.includes(Buffer.from(secret)), false);
@@ -177,7 +231,7 @@ test(
         ],
       );
       assert.equal(
-        (await recovered.query("SELECT * FROM verification.daily_keys"))
+        (await recovered.query("SELECT * FROM verification.transient_keys"))
           .rowCount,
         0,
       );
@@ -240,6 +294,34 @@ test(
       unlocked = false;
       broken = true;
       assert.equal((await run([cli, "export"], env)).code, 78);
+      // SOURCE-ONLY HTTP observation never removes the production recovery fence.
+      await api.stop();
+      api = undefined;
+      api = await startAccountApi({
+        database: { adminUrl: process.env.DATABASE_ADMIN_URL, appUrl: target },
+        maintainOnStart: true,
+      });
+      const retainedResponse = await request(
+        retainedAccount,
+        `checks/${retainedId}`,
+      );
+      assert.equal(retainedResponse.status, 200);
+      assert.ok(
+        (await retainedResponse.text()).includes(
+          "CONSENTED-HISTORY-REAL-PIPELINE",
+        ),
+      );
+      const lost = await request(transientAccount, `checks/${transientId}`);
+      assert.ok([404, 410].includes(lost.status));
+      assert.ok(
+        !(await lost.text()).includes("TRANSIENT-CONTENT-REAL-PIPELINE"),
+      );
+      await api.advance(30 * 86400000);
+      await api.restartWeb();
+      assert.equal(
+        (await request(retainedAccount, `checks/${retainedId}`)).status,
+        410,
+      );
       assert.equal(
         (await readFile(join(dir, "receipt"), "utf8")).includes(
           "fixture-bucket",
@@ -247,6 +329,7 @@ test(
         false,
       );
     } finally {
+      if (api) await api.stop();
       await new Promise((resolve) => server.close(resolve));
       for (const name of names.reverse()) {
         await admin.query(`DROP DATABASE IF EXISTS ${name} WITH (FORCE)`);

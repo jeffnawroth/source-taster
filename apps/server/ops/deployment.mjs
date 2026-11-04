@@ -40,7 +40,10 @@ try {
     c.mode !== "hosted" ||
     c.extraction?.enforcement !== "os-enforced" ||
     !/^sha256:[a-f0-9]{64}$/.test(c.extraction?.image) ||
-    !c.measuredConfiguration ||
+    !/^sha256:[a-f0-9]{64}$/.test(c.measuredConfiguration) ||
+    !/^sha256:[a-f0-9]{64}$/.test(c.configurationDigest) ||
+    !/^sha256:[a-f0-9]{64}$/.test(c.measuredConfigurationEvidence) ||
+    !/^[a-f0-9]{64}$/.test(c.registrySha256) ||
     !/^[a-f0-9]{64}$/.test(c.providerRegisterSha256)
   )
     throw Error("deployment-configuration");
@@ -73,6 +76,7 @@ try {
   )
     throw Error("deployment-evidence");
   if (
+    !process.env.SOURCE_TASTER_MEASURED_CONFIGURATIONS ||
     !process.env.SOURCE_TASTER_QUALITY_CONFIGURATION ||
     !process.env.SOURCE_TASTER_QUALITY_ROOT ||
     !process.env.SOURCE_TASTER_LOAD_REPORT
@@ -85,6 +89,36 @@ try {
     { stdio: "ignore", env: process.env },
   );
   if (release.status !== 0) throw Error("release-not-qualified");
+  const registryBytes = await readFile(
+    process.env.SOURCE_TASTER_MEASURED_CONFIGURATIONS,
+  );
+  if (
+    createHash("sha256").update(registryBytes).digest("hex") !==
+    c.registrySha256
+  )
+    throw Error("registry-binding");
+  const { readConfigurationFile } =
+    await import("../src/quality/configuration.ts");
+  if (
+    (
+      await readConfigurationFile(
+        process.env.SOURCE_TASTER_QUALITY_CONFIGURATION,
+      )
+    ).digest !== c.configurationDigest
+  )
+    throw Error("configuration-binding");
+  const { measuredConfigurations } =
+    await import("../src/quality/activation.ts");
+  const selected = await measuredConfigurations().resolve(
+    c.measuredConfiguration,
+    c.measuredConfigurationEvidence,
+  );
+  if (
+    !selected.summary.eligible ||
+    selected.summary.codeVersion !== c.commit ||
+    selected.summary.configurationDigest !== c.configurationDigest
+  )
+    throw Error("selected-configuration-not-qualified");
   console.log(
     JSON.stringify({
       version: 1,
@@ -93,6 +127,9 @@ try {
       configSha256: sha,
       region: c.region,
       appId: c.appId,
+      measuredConfiguration: c.measuredConfiguration,
+      configurationDigest: c.configurationDigest,
+      evidenceDigest: c.measuredConfigurationEvidence,
       complete: true,
     }),
   );

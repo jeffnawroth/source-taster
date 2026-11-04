@@ -63,6 +63,8 @@ jobs:
           APPROVAL: ${{ secrets.DEPLOY_APPROVAL_JSON }}
           APPROVAL_SIGNATURE: ${{ secrets.DEPLOY_APPROVAL_SIGNATURE }}
           APPROVAL_KEY: ${{ vars.DEPLOY_APPROVAL_PUBLIC_KEY }}
+          MEASURED_REGISTRY: ${{ secrets.MEASURED_CONFIGURATIONS_JSON }}
+          QUALITY_EXTRACTION: ${{ vars.QUALITY_EXTRACTION }}
           QUALITY_CONFIGURATION: ${{ secrets.QUALITY_CONFIGURATION_JSON }}
           QUALITY_ROOT: ${{ vars.QUALITY_ROOT }}
           LOAD_REPORT: ${{ vars.LOAD_REPORT }}
@@ -71,16 +73,19 @@ jobs:
           set -euo pipefail
           umask 077
           test -n "$CONFIG" && test -n "$APPROVAL" && test -n "$APPROVAL_SIGNATURE" && test -n "$APPROVAL_KEY"
-          test -n "$QUALITY_CONFIGURATION" && test -d "$QUALITY_ROOT" && test -f "$LOAD_REPORT"
+          test -n "$MEASURED_REGISTRY" && test -n "$QUALITY_CONFIGURATION" && test -d "$QUALITY_ROOT" && test -f "$LOAD_REPORT" && test -f "$QUALITY_EXTRACTION"
           printf '%s' "$CONFIG" > "$RUNNER_TEMP/deploy.json"
           printf '%s' "$APPROVAL" > "$RUNNER_TEMP/approval.json"
           printf '%s' "$APPROVAL_SIGNATURE" > "$RUNNER_TEMP/approval.sig"
           printf '%s' "$APPROVAL_KEY" > "$RUNNER_TEMP/approval.pem"
           printf '%s' "$QUALITY_CONFIGURATION" > "$RUNNER_TEMP/quality.json"
+          printf '%s' "$MEASURED_REGISTRY" > "$RUNNER_TEMP/registry.json"
           echo "OPS_DEPLOY_CONFIG=$RUNNER_TEMP/deploy.json" >> "$GITHUB_ENV"
           echo "OPS_APPROVAL_PACKET=$RUNNER_TEMP/approval.json" >> "$GITHUB_ENV"
           echo "OPS_APPROVAL_SIGNATURE=$RUNNER_TEMP/approval.sig" >> "$GITHUB_ENV"
           echo "OPS_APPROVAL_PUBLIC_KEY=$RUNNER_TEMP/approval.pem" >> "$GITHUB_ENV"
+          echo "SOURCE_TASTER_MEASURED_CONFIGURATIONS=$RUNNER_TEMP/registry.json" >> "$GITHUB_ENV"
+          echo "SOURCE_TASTER_QUALITY_EXTRACTION=$QUALITY_EXTRACTION" >> "$GITHUB_ENV"
           echo "SOURCE_TASTER_QUALITY_CONFIGURATION=$RUNNER_TEMP/quality.json" >> "$GITHUB_ENV"
           echo "SOURCE_TASTER_QUALITY_ROOT=$QUALITY_ROOT" >> "$GITHUB_ENV"
           echo "SOURCE_TASTER_LOAD_REPORT=$LOAD_REPORT" >> "$GITHUB_ENV"
@@ -117,4 +122,4 @@ jobs:
         shell: bash
         run: |
           rm -rf .qualification
-          rm -f "$RUNNER_TEMP/deploy.json" "$RUNNER_TEMP/approval.json" "$RUNNER_TEMP/approval.sig" "$RUNNER_TEMP/approval.pem" "$RUNNER_TEMP/quality.json"
+          rm -f "$RUNNER_TEMP/deploy.json" "$RUNNER_TEMP/approval.json" "$RUNNER_TEMP/approval.sig" "$RUNNER_TEMP/approval.pem" "$RUNNER_TEMP/quality.json" "$RUNNER_TEMP/registry.json"
