@@ -16,7 +16,7 @@ This is local implementation evidence. Both-program report tests and private Acc
 
 The independent limiter-authority option refines ADR-0012's original one-instance placement. Human deployment/architecture acceptance, EU/legal/cost evidence and a fresh durable authority surviving primary account/region loss remain prerequisites; no production second database is claimed approved or provisioned. Missing/corrupt authority refuses service. The code enables recovery with preserved consumption; it does not qualify the eight-hour RTO. The invoice bucket must be provisioned separately from 13-day database backups and its actual Object Lock/lifecycle and recovery qualified.
 
-All release #78, quality/load/calibration, source #138/#140/#136, EU/provider/legal, Selected dependency and private minimatch gates remain mandatory. Nothing changes scheduled jobs or marks human qualification complete.
+All release refusal (exit 78), quality/load/calibration, source #138/#140/#136, EU/provider/legal, Selected dependency and private minimatch gates remain mandatory. Nothing changes scheduled jobs or marks human qualification complete.
 
 No public transport source changed. All five private dependency pins stay at `d50b0ac24273515e5f291de58aa29d7856f99475`; no repin or temporary workspace override is required. Application publication must be coordinated so the private `/account` page exists before links are enabled.
 
