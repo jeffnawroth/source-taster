@@ -177,15 +177,31 @@ for (const language of ["en", "de"] as const)
           }),
         });
       });
+      let cutVerification = false;
       await userPage.route(
         "https://verification.test.invalid/**",
         async (route) => {
           const u = new URL(route.request().url());
-          await route.fulfill({
-            response: await route.fetch({
-              url: both.apiUrl + u.pathname + u.search,
-            }),
+          const response = await route.fetch({
+            url: both.apiUrl + u.pathname + u.search,
           });
+          if (
+            process.env.SOURCE_TASTER_TEST_INTERRUPT_ARTIFACT === "1" &&
+            !cutVerification &&
+            u.pathname.endsWith("/download")
+          ) {
+            cutVerification = true;
+            const lines = (await response.text()).trim().split("\n");
+            // Transport cut: genuine authorized part frames, without the final
+            // manifest. The next button press must recover every unsaved byte.
+            const parts = lines
+              .filter(
+                (line) =>
+                  (JSON.parse(line) as { type: string }).type === "part",
+              )
+              .slice(0, 2);
+            await route.fulfill({ response, body: parts.join("\n") + "\n" });
+          } else await route.fulfill({ response });
         },
       );
       await userPage.goto(

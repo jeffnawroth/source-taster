@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "scope": "Closed final acceptance and incremental client interruption red/green logs; other historical failed/source runs, append-only runner ledger and publication observations remain separate. No export payload, mail, code, token or private implementation is included.",
+  "files": {
+    "113-integrated-rights-published.log": {
+      "bytes": 192,
+      "sha256": "2a8dd5a0bde32eba523b729e6f36f84c828c14587179f45f58c1cb5bf8341d13"
+    },
+    "113-integrated-private-full-published.log": {
+      "bytes": 219,
+      "sha256": "50f3db326a41b8734d512aca96909d1ff7e0beaa484dcfcdd10c6bb1c3b059f6"
+    },
+    "113-integrated-browser-published-normal.log": {
+      "bytes": 448,
+      "sha256": "669fc3799bb77d86eb3f7fbd74ca08d85eb0ddbee7e84d0e20d583e0da2cf3f1"
+    },
+    "113-integrated-operator-browser-published.log": {
+      "bytes": 819,
+      "sha256": "6dc1a3056b4b3b2e7337ba8adea764af5b526ed9847889a5f94b44e8f922c673"
+    },
+    "113-integrated-catalog-published.log": {
+      "bytes": 201,
+      "sha256": "4b7cbb0df63be2efbc0b3a6282358f5038754b7d1ab7ca10538feb28b8fcce0d"
+    },
+    "113-integrated-private-normal-published-install.log": {
+      "bytes": 405,
+      "sha256": "0d6e24d34b75f050aaa915712c7be3762819eddf33dac63d24dc6bf0ae3bbdf0"
+    },
+    "113-integrated-private-frozen-published-install.log": {
+      "bytes": 270,
+      "sha256": "eaffd71d9185a34e21fad82b7d3e3fb26500769d3374352a040b2c8a0cebd615"
+    },
+    "113-integrated-pin-bytes-verification.log": {
+      "bytes": 160,
+      "sha256": "b3143c60f447d6e0026d6e770a7c82560ba33255b4004691efec4d21a09851a1"
+    },
+    "113-integrated-public-aggregate-build.log": {
+      "bytes": 14835,
+      "sha256": "511dd260f781d5e34704560cdcc9fbca2d1cd9a5171f70f5e724e26a273f6844"
+    },
+    "113-integrated-public-aggregate-typecheck.log": {
+      "bytes": 11631,
+      "sha256": "1d7f6b56628a3b57b322ed13584a67dddf8c1c00be97bfc1e09627663b39bc0b"
+    },
+    "113-integrated-public-aggregate-lint.log": {
+      "bytes": 11435,
+      "sha256": "047c430d1fccd4cad3c25c962e108cbfdd59cf7073f00f3cb5611f657f6d558d"
+    },
+    "113-integrated-public-aggregate-i18n-check.log": {
+      "bytes": 1070,
+      "sha256": "5360bb3caf67eb6248e438bb70bbdd2b27c7670273ccf8a1a740b510a42d56e4"
+    },
+    "113-integrated-private-pinned-build.log": {
+      "bytes": 3261,
+      "sha256": "21fdbdba0e0c52e7fafd95458a2d3eec23617e4876f258c1ead65ba5a580eaea"
+    },
+    "113-integrated-private-pinned-typecheck.log": {
+      "bytes": 2416,
+      "sha256": "d066249bacf91046225762aca79788758dbd74475123c7844c70e4187987b18d"
+    },
+    "113-integrated-private-pinned-lint.log": {
+      "bytes": 99,
+      "sha256": "26db9673ec89bc95699a8e66249537512722e2114018fc39c411bfb94c2d9eaa"
+    },
+    "113-integrated-private-pinned-i18n-check.log": {
+      "bytes": 606,
+      "sha256": "57b8af17e729fa32ee8bde944eedbd6a09b2e03dcaaa93a1fc542fa62abc8073"
+    },
+    "113-integrated-pagefind-verify.log": {
+      "bytes": 98,
+      "sha256": "9f13fabac05bdeabf4b3c72b7670a332783263e0544b425afe88d162b3288d51"
+    },
+    "113-integrated-reproduction-confirmed-run2.log": {
+      "bytes": 4187,
+      "sha256": "81511119bcb79ac49a46a8e712434876879f121d6b289da886981a8db44155e4"
+    },
+    "113-integrated-release-refusal.log": {
+      "bytes": 181,
+      "sha256": "c7818802e2be3d239a0d5293bb9fba3c865df043be4baa8e7d6892f4e7c02b33"
+    },
+    "113-integrated-red-unsaved-cursor-browser.log": {
+      "bytes": 2280,
+      "sha256": "ef7daac97378c1826d79df9ea636449912216d4aa8776f652c71f0d6de6bcfbd"
+    },
+    "113-integrated-green-unsaved-cursor-browser.log": {
+      "bytes": 447,
+      "sha256": "e632ccccb0a6a97d60821885043ba1eb3925b8f4044b342027b40c01a05e2c52"
+    },
+    "113-integrated-client-resume-build.log": {
+      "bytes": 726,
+      "sha256": "f6957d03e38669bbf1296dfbe4930e5cfa1ca2f40c8810f75265764912cb528e"
+    },
+    "113-integrated-client-resume-typecheck.log": {
+      "bytes": 23,
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    "113-integrated-client-resume-lint.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "113-integrated-resume-test-typecheck.log": {
+      "bytes": 23,
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    "113-integrated-resume-test-lint.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

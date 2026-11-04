@@ -1,0 +1,428 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-04T04:19:43.446203+00:00",
+  "publicCodeHead": "7b2c0644cf37ba00a83d7db11f3bfdb68249a146",
+  "privateCodeHead": "3ff7b4fae9a7771cccad851a41b3d80874b35298",
+  "publicSource": "133f4f6799952bab0c736fe8a3fea791bef31abe",
+  "privateSource": "e61dfee8e1afa816fb995af0d696615bf8b34d12",
+  "sourceAncestry": {
+    "public": {
+      "path": "/Users/jeffnawroth/Developer/Repositories/source-taster",
+      "head": "d2c4b407c650cfa8f2b25b6ca2bdfa45115d49a8",
+      "branch": "spec/70-launch-integration",
+      "sourceAncestors": {
+        "c74b1a1208d06a155352e3ec5e56be685da59a5a": true,
+        "133f4f6799952bab0c736fe8a3fea791bef31abe": true
+      }
+    },
+    "private": {
+      "path": "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration",
+      "head": "82b0d952cf5cb755e3b09e47430ca15382405e8f",
+      "branch": "spec/70-launch-integration",
+      "sourceAncestors": {
+        "f3f9a5bb8d28ff889df7c500e27ba5e027fa3794": true,
+        "e61dfee8e1afa816fb995af0d696615bf8b34d12": true,
+        "f95d936daa7209179076ff5ca2a20962b5148449": true
+      }
+    },
+    "canonicalOverrideBackup": {
+      "pnpm-workspace.yaml": "fbeeed630242d1a9cf5cbcd5515320c14ddb4ef383c147ab84a7de13d8ee8c32",
+      "pnpm-lock.yaml": "e638345faf5928072f3d7d7fb3b630c1db8a32f4f8a508d033d3d13b1f24056e"
+    },
+    "sourceWorkspacesWritten": false,
+    "nestedAgents": false,
+    "schedulerChanged": false
+  },
+  "checks": [
+    {
+      "scope": "Both actual programs, complete bounded DSR, restart/resume, substitutions, revocation/deletion/expiry",
+      "log": "113-integrated-rights-published.log",
+      "passed": 7
+    },
+    {
+      "scope": "Full private server suite, including large accounting and real pinned EN16931 validation",
+      "log": "113-integrated-private-full-published.log",
+      "passed": 126
+    },
+    {
+      "scope": "Normal built DE/EN recipient and accounting UI, exact files, receipts, keyboard and axe",
+      "log": "113-integrated-browser-published-normal.log",
+      "passed": 2
+    },
+    {
+      "scope": "Operator/catalog/Initial values and lost-response recovery browser regression",
+      "log": "113-integrated-operator-browser-published.log",
+      "passed": 4
+    },
+    {
+      "scope": "Both-program catalog and Initial-value transport",
+      "log": "113-integrated-catalog-published.log",
+      "passed": 1
+    },
+    {
+      "scope": "Incremental DE/EN interruption regression: real part frames cut before manifest, exact complete reconstructed hash after retry",
+      "log": "113-integrated-green-unsaved-cursor-browser.log",
+      "passed": 2
+    }
+  ],
+  "publishedPinsAndInstalledBytes": {
+    "publicPin": "7b2c0644cf37ba00a83d7db11f3bfdb68249a146",
+    "fivePins": [
+      {
+        "file": "apps/server/package.json",
+        "package": "@source-taster/contract-internal",
+        "sha": "7b2c0644cf37ba00a83d7db11f3bfdb68249a146"
+      },
+      {
+        "file": "apps/server/package.json",
+        "package": "@source-taster/contract-service",
+        "sha": "7b2c0644cf37ba00a83d7db11f3bfdb68249a146"
+      },
+      {
+        "file": "apps/server/package.json",
+        "package": "@source-taster/contract-verification",
+        "sha": "7b2c0644cf37ba00a83d7db11f3bfdb68249a146"
+      },
+      {
+        "file": "apps/web/package.json",
+        "package": "@source-taster/contract-service",
+        "sha": "7b2c0644cf37ba00a83d7db11f3bfdb68249a146"
+      },
+      {
+        "file": "scripts/evidence.ts",
+        "constant": "contractCommit",
+        "sha": "7b2c0644cf37ba00a83d7db11f3bfdb68249a146"
+      }
+    ],
+    "workspacePolicyUnchanged": true,
+    "onlyPinSubstitutions": true,
+    "betterAuth": "1.7.14",
+    "registryGraphUnchanged": true,
+    "lockfileSha256": "cf5126d09043ce86ef4a8ecad116fbdf510732b831abbe98317814c246c0c4e1",
+    "installed": [
+      {
+        "consumer": "server",
+        "package": "@source-taster/contract-internal",
+        "installedRelativePath": "node_modules/.pnpm/@source-taster+contract-internal@git+https+++github.com+jeffnawroth+source-taster.git+7_0066569886959f64d0927cea3ba4a330/node_modules/@source-taster/contract-internal",
+        "pin": "7b2c0644cf37ba00a83d7db11f3bfdb68249a146",
+        "fileCount": 12,
+        "files": {
+          "LICENSE-AGPL": "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee",
+          "LICENSE-MIT": "b9554a8a6132ad023b367aeb8fbc10b24d97fb6da115bbfdac3f79717828a85a",
+          "dist/contract-common/src/index.d.ts": "646c988473a7ca99c00a7faa2718b7240077bd0942acdda484d58fa09e4549ed",
+          "dist/contract-common/src/index.js": "7b1bb6c929a476b2e306c469f705cb3706007e225a16a24f4641d476832c875f",
+          "dist/contract-internal/src/delivery.d.ts": "fad9daf1613f751cb9090b884a1481afdd401ad50f92a2049101d59e424e109d",
+          "dist/contract-internal/src/delivery.js": "ba2287ecaba3c9f8d732ae7fabfd9a96d0d5633ce84602fdf9b96684c99b6bc5",
+          "dist/contract-internal/src/index.d.ts": "01568287b6170fecbbbcc36e90379dcd14ea537f1d3dd4e4db67841692ed4f0e",
+          "dist/contract-internal/src/index.js": "54fdf78e372bea922041ae03fd35796755576b2897922d86ca461e49c645084f",
+          "dist/contract-internal/src/routes.d.ts": "afa2c51a5ecc250e6a78cd963c7843fcfad082ff537eaaa4b48b1577ad3df01b",
+          "dist/contract-internal/src/routes.js": "ff858eaf4480a01246b088811f04461d4901f9dea46362831fc080610658d11a",
+          "openapi.json": "b57b13b995d2b7b6fda46190898620bc30665791a07e6c6af9b122426c4b809d",
+          "package.json": "75fb96e2c163106b222a237c1eaeb58cc6d634176306f7bba28a1319ea005b70"
+        }
+      },
+      {
+        "consumer": "server",
+        "package": "@source-taster/contract-service",
+        "installedRelativePath": "node_modules/.pnpm/@source-taster+contract-service@git+https+++github.com+jeffnawroth+source-taster.git+7b_c439225b7e68d00c01c1f21cc20434ba/node_modules/@source-taster/contract-service",
+        "pin": "7b2c0644cf37ba00a83d7db11f3bfdb68249a146",
+        "fileCount": 20,
+        "files": {
+          "LICENSE-AGPL": "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee",
+          "LICENSE-MIT": "b9554a8a6132ad023b367aeb8fbc10b24d97fb6da115bbfdac3f79717828a85a",
+          "dist/contract-common/src/index.d.ts": "646c988473a7ca99c00a7faa2718b7240077bd0942acdda484d58fa09e4549ed",
+          "dist/contract-common/src/index.js": "7b1bb6c929a476b2e306c469f705cb3706007e225a16a24f4641d476832c875f",
+          "dist/contract-service/src/client.d.ts": "8dbd4da6704da797e7ae276f86b430601b9ac22f4bcb0f9d93843811180b8d8e",
+          "dist/contract-service/src/client.js": "151103b4340fefda59f9ae31bc71196dbbcd612b8d73fdaef20e3e58f500c5d4",
+          "dist/contract-service/src/commerce.d.ts": "5f7966a01c498234827e82038971e59fd62d612f0d4fc946e12b7c0a8230d0a5",
+          "dist/contract-service/src/commerce.js": "6ddf2c0fa21da0398722ee2f358624d16db6f4a5c5b85670168a2430e4670d22",
+          "dist/contract-service/src/dpa-client.d.ts": "17e79d8a0d3e01d127dc243ef1c7b048fc607676006780c6a32bf33a9551e1e6",
+          "dist/contract-service/src/dpa-client.js": "270758316222793c9dfa65da1bdeced5d1b272dbd2e589cdbacbf71b5233b098",
+          "dist/contract-service/src/dpa-routes.d.ts": "90cc489037083c3b97c8daeac830e67646316bbe12fa98459401aab4cc272c0f",
+          "dist/contract-service/src/dpa-routes.js": "bdeaee599f9d16c56fdb3b79e1acb0eb3f9fc3efcfcdb562d3c1072dbe4fa51c",
+          "dist/contract-service/src/dpa.d.ts": "2f781e8205cb8098ee088a4540d3743ecfe8274b4f49e36b1b59eb849354f1d7",
+          "dist/contract-service/src/dpa.js": "a522ab621d83048ec1e30540f0823fc090f9d06c8931c9ecb2e482dff8e7278b",
+          "dist/contract-service/src/index.d.ts": "68a3f1dadfdf346b2d46e90844562bbae47042e6c6282dac0bd1b8d01b7f30f9",
+          "dist/contract-service/src/index.js": "3d10f2449771ac9632c4b7c118784e5767c7629a63f80bb76b6d7e19d473a40d",
+          "dist/contract-service/src/routes.d.ts": "2678f0fa445dfabc4f35808d76c6374c54abdee6a190da13c08a0aba64851bc9",
+          "dist/contract-service/src/routes.js": "84fa9cfa62daeb3f796ef94d9911f989782f9295a9fcfd81596dcdd7078473dd",
+          "openapi.json": "b92466bcfaa498106c5f45848a431d2c397a17c9ea2fcc53ae030eab92cf16ad",
+          "package.json": "93b4e910fa3ed9ca1adcaa2e11b432dddb29ac419c6509531d2736fc6e83e067"
+        }
+      },
+      {
+        "consumer": "server",
+        "package": "@source-taster/contract-verification",
+        "installedRelativePath": "node_modules/.pnpm/@source-taster+contract-verification@git+https+++github.com+jeffnawroth+source-taster.g_273cec94a498c97da69e809fb20c3b0f/node_modules/@source-taster/contract-verification",
+        "pin": "7b2c0644cf37ba00a83d7db11f3bfdb68249a146",
+        "fileCount": 54,
+        "files": {
+          "LICENSE-AGPL": "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee",
+          "LICENSE-MIT": "b9554a8a6132ad023b367aeb8fbc10b24d97fb6da115bbfdac3f79717828a85a",
+          "README.md": "d99bd544dddd92b90efd95c329d264904d67d031dc68008f36818ed2f91bf4f9",
+          "dist/contract-common/src/index.d.ts": "646c988473a7ca99c00a7faa2718b7240077bd0942acdda484d58fa09e4549ed",
+          "dist/contract-common/src/index.js": "7b1bb6c929a476b2e306c469f705cb3706007e225a16a24f4641d476832c875f",
+          "dist/contract-verification/src/ai.d.ts": "1f05b34b7572f464554ec3827ee1337221f19a3f440d97db57de29149f1b07b3",
+          "dist/contract-verification/src/ai.js": "a84bc69e6af0b6d3c6eab4779b0a4a1100810a738ea129f585efa2698c0c3b33",
+          "dist/contract-verification/src/bibliography-client.d.ts": "22697c6a4fa1b711cd9f2653950c1e6036acc27f82e4f8977327a96d135b9895",
+          "dist/contract-verification/src/bibliography-client.js": "48b0832ad0b454a5906427c2728a2e4303630e72a1551a83740a824bed370015",
+          "dist/contract-verification/src/bibliography-routes.d.ts": "98810516a924fa8ac485bd0fe44102e8eb742bc5d52ba132597c507cb3c849e7",
+          "dist/contract-verification/src/bibliography-routes.js": "8b89c493bc528c58ae6a34418c17cb2de043a8409598d97a89b51e55e092c6fb",
+          "dist/contract-verification/src/bibliography.d.ts": "f8021ebb185a207219bcf00b6e5fd4eb4a5d44f9d6eb0f4a9ae275c01bccb3bd",
+          "dist/contract-verification/src/bibliography.js": "6cdb92700d623a25e0dbf4fb674f7f8acb0904d787631be3d5ca1e8001a9fc04",
+          "dist/contract-verification/src/client-v2.d.ts": "fa629a0e586240f3e9fdea1a906e12e56dde3715b0c329ce2778201361edc924",
+          "dist/contract-verification/src/client-v2.js": "fd859bf033a5463a87f0fdb2da595a91c45afa140a6877b7a4b79b901fa0df5c",
+          "dist/contract-verification/src/client.d.ts": "e7f5646d4df61799cac140116049021f6f60c7bf83b658d72296544976b4dff3",
+          "dist/contract-verification/src/client.js": "f32ab557b21d70bcb8ae7cd626763be8a44d1a8eb84a7179af658ff6d48b468a",
+          "dist/contract-verification/src/data-subject-routes.d.ts": "f54b118d4ce51d0d265cd1926a3d3b53ebf3fe9d1137389ee16c9bf4db5ab4c6",
+          "dist/contract-verification/src/data-subject-routes.js": "f1c6de09eae4fe4ab57326e91ddac813ec61d7f3bcf92dd3dc7248aa44c5dbe1",
+          "dist/contract-verification/src/document-client.d.ts": "1c6297c81f2457559eb2ec52ee25cbbc5f0795484473867e09e37f81647cc546",
+          "dist/contract-verification/src/document-client.js": "81a16ccce1dcaeef6893aaba1a3568fbdd34db58f6d6d8585024a2ab07713c57",
+          "dist/contract-verification/src/document-routes.d.ts": "766d385f087c447fde6f5297e085f2005e5fe4c3a9c6090609a615aef331c7ec",
+          "dist/contract-verification/src/document-routes.js": "45ae16af5a55739c5d10aa62ccf9cb7c4735da345be30b2a8f582c5034216c00",
+          "dist/contract-verification/src/document.d.ts": "4e793fa1cca56bd259a53ed8db00492ed18a56f99f8ecf166873fbb55a16cd72",
+          "dist/contract-verification/src/document.js": "f34d0a10fae3299483c35664818efa519a1187ca24044fe2d600221a0f226a78",
+          "dist/contract-verification/src/export-client.d.ts": "1f57f4a24f9fae4c0d56324461ee712931b1c255bcfad3ada05a2497075cde52",
+          "dist/contract-verification/src/export-client.js": "8df5154d4f35506368ce334e99a1b9748fb999a0cab79b406cdb855e02c0cd99",
+          "dist/contract-verification/src/export-routes.d.ts": "b2ff60f8bc410cd0b1cb1cae832db6017bb722c42fc0c417f3c763d0c95dc4cf",
+          "dist/contract-verification/src/export-routes.js": "0512fa604a17cb7f017159ca6fe1b377ccf96b78058f63080bc3759a191d93b7",
+          "dist/contract-verification/src/export.d.ts": "75d89d326553a33544270038eeecf5954a44f277e397695815f75550cae6ad99",
+          "dist/contract-verification/src/export.js": "546bfe4e112b0d05d4181caf432a4b4732bdbefa725d05cdeb99d086b1d90eb4",
+          "dist/contract-verification/src/import.d.ts": "eed43ffbda0dcdb5844826a3d34c85d05c64b33a1c0902e60689b6f3200367a4",
+          "dist/contract-verification/src/import.js": "1cd3c53b215eff4056cccb2437616561fba51cdbb868388d08105e5dd1a7830e",
+          "dist/contract-verification/src/index.d.ts": "e0017a9a6e55407a0be3f9bc0a5d64f2d3ef5fe78d69657ce9adc9472ac3f83a",
+          "dist/contract-verification/src/index.js": "7a97a7e142f18341fbbe79d80e7b55bfab0296c79f690cd97aae35ac345b4178",
+          "dist/contract-verification/src/report-client.d.ts": "2eb1b8a3b7f56d4f1b2c70a8192f0d84a079c97e4d2b5d2abf48e81026033326",
+          "dist/contract-verification/src/report-client.js": "bd9c71a6d147c8569f1e9305321fc8b7479486f12251014760e8c36e76930eb0",
+          "dist/contract-verification/src/report-routes.d.ts": "a5976eba27d1a18ef185ec2d80fa53f3119be9cba238141cc6083a71a77c5f05",
+          "dist/contract-verification/src/report-routes.js": "bfb48112d1ad4e03439414cf605709834ea0e34420990b917851dd6135fc0347",
+          "dist/contract-verification/src/report.d.ts": "84b49081384785691bedd6d993e02898c847453960dbae969ca5a24e1563ea4a",
+          "dist/contract-verification/src/report.js": "8b39e0880440bf54b2b13be8eb621d80f38d541e59f14bd4a9d67096396fd7b5",
+          "dist/contract-verification/src/routes-v2.d.ts": "87cbe7aa032c02b1955e8665f6bcf4e8854ea4b11cbd816efc42a8f5e7a1de10",
+          "dist/contract-verification/src/routes-v2.js": "b2302c884dd53324f83985f43fa0360842d5fc83f43a8507c42314d5dad9a012",
+          "dist/contract-verification/src/routes.d.ts": "7946c5f1d558fa23a0ec2bfbf6b859e04fbb1512fc9a9d4c120f9c82b0890946",
+          "dist/contract-verification/src/routes.js": "ff0246efc7d42da87ecae907b0d3c4dca0208cc1e41c3184902ed81aa8faa64f",
+          "dist/contract-verification/src/structuring.d.ts": "a35c725f3d5e6173fff558d66ddc772555d7ee67b5d89478c8e1cedb6aa97178",
+          "dist/contract-verification/src/structuring.js": "ed5f96f9a1d5378e174019c1296b07f214e7646355e3e7e86a9265bdb929d367",
+          "dist/contract-verification/src/v2.d.ts": "6699a08d6968b7c06d4e992b2d0b2d784ce538e0f927f2428655a8b139a6bfec",
+          "dist/contract-verification/src/v2.js": "2bac1e2909c28eda53cc2e4e45a14de0f84d8d55df951d27ee103c612a4e56ae",
+          "dist/contract-verification/src/verification.d.ts": "5905b5837c6559c05fa377aba004a710a4c2351c5ac2880d627061e643c8fb92",
+          "dist/contract-verification/src/verification.js": "1f0434ef7bf6241977a52223b2d91a8187fa514e6647ccba84f0153501f93434",
+          "openapi-v2.json": "ce07190463fde0b30b4e7542c2b64d55579f8ea540ab2f7676590f1d6262f3af",
+          "openapi.json": "f4c8872a2d7b2696a04445859ad4f8fcc8199b8d53521942c025a526f0990210",
+          "package.json": "a92067c56c01532785332dbd3e6c3ba174a8b8d75c15d98e923d87548d2bab38"
+        }
+      },
+      {
+        "consumer": "web",
+        "package": "@source-taster/contract-service",
+        "installedRelativePath": "node_modules/.pnpm/@source-taster+contract-service@git+https+++github.com+jeffnawroth+source-taster.git+7b_c439225b7e68d00c01c1f21cc20434ba/node_modules/@source-taster/contract-service",
+        "pin": "7b2c0644cf37ba00a83d7db11f3bfdb68249a146",
+        "fileCount": 20,
+        "files": {
+          "LICENSE-AGPL": "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee",
+          "LICENSE-MIT": "b9554a8a6132ad023b367aeb8fbc10b24d97fb6da115bbfdac3f79717828a85a",
+          "dist/contract-common/src/index.d.ts": "646c988473a7ca99c00a7faa2718b7240077bd0942acdda484d58fa09e4549ed",
+          "dist/contract-common/src/index.js": "7b1bb6c929a476b2e306c469f705cb3706007e225a16a24f4641d476832c875f",
+          "dist/contract-service/src/client.d.ts": "8dbd4da6704da797e7ae276f86b430601b9ac22f4bcb0f9d93843811180b8d8e",
+          "dist/contract-service/src/client.js": "151103b4340fefda59f9ae31bc71196dbbcd612b8d73fdaef20e3e58f500c5d4",
+          "dist/contract-service/src/commerce.d.ts": "5f7966a01c498234827e82038971e59fd62d612f0d4fc946e12b7c0a8230d0a5",
+          "dist/contract-service/src/commerce.js": "6ddf2c0fa21da0398722ee2f358624d16db6f4a5c5b85670168a2430e4670d22",
+          "dist/contract-service/src/dpa-client.d.ts": "17e79d8a0d3e01d127dc243ef1c7b048fc607676006780c6a32bf33a9551e1e6",
+          "dist/contract-service/src/dpa-client.js": "270758316222793c9dfa65da1bdeced5d1b272dbd2e589cdbacbf71b5233b098",
+          "dist/contract-service/src/dpa-routes.d.ts": "90cc489037083c3b97c8daeac830e67646316bbe12fa98459401aab4cc272c0f",
+          "dist/contract-service/src/dpa-routes.js": "bdeaee599f9d16c56fdb3b79e1acb0eb3f9fc3efcfcdb562d3c1072dbe4fa51c",
+          "dist/contract-service/src/dpa.d.ts": "2f781e8205cb8098ee088a4540d3743ecfe8274b4f49e36b1b59eb849354f1d7",
+          "dist/contract-service/src/dpa.js": "a522ab621d83048ec1e30540f0823fc090f9d06c8931c9ecb2e482dff8e7278b",
+          "dist/contract-service/src/index.d.ts": "68a3f1dadfdf346b2d46e90844562bbae47042e6c6282dac0bd1b8d01b7f30f9",
+          "dist/contract-service/src/index.js": "3d10f2449771ac9632c4b7c118784e5767c7629a63f80bb76b6d7e19d473a40d",
+          "dist/contract-service/src/routes.d.ts": "2678f0fa445dfabc4f35808d76c6374c54abdee6a190da13c08a0aba64851bc9",
+          "dist/contract-service/src/routes.js": "84fa9cfa62daeb3f796ef94d9911f989782f9295a9fcfd81596dcdd7078473dd",
+          "openapi.json": "b92466bcfaa498106c5f45848a431d2c397a17c9ea2fcc53ae030eab92cf16ad",
+          "package.json": "93b4e910fa3ed9ca1adcaa2e11b432dddb29ac419c6509531d2736fc6e83e067"
+        }
+      }
+    ]
+  },
+  "artifactReproduction": {
+    "identical": true,
+    "trees": 12,
+    "files": 1725,
+    "changed": []
+  },
+  "publishedReproduction": {
+    "publicPin": "7b2c0644cf37ba00a83d7db11f3bfdb68249a146",
+    "canonicalPrivatePolicy": true,
+    "identicalToReproducedFiles": true,
+    "files": 1725,
+    "changed": [],
+    "noContractRebuildDuringAcceptance": true
+  },
+  "initialCacheDifference": [
+    {
+      "tree": "public/packages/i18n/src/paraglide",
+      "file": "packages/i18n/src/paraglide/README.md",
+      "before": "d812463dd3699afd1095aaa77879e545358098fb0dd299d75b584c2ebd19076f",
+      "after": "e6c0233c7ca182c9b7a971f2f396b94dea0fe8b9db3a7c162be0dd1c2b420666",
+      "cachedSourcePathMatch": true,
+      "cachedSourcePath": "/Users/jeffnawroth/.t3/worktrees/source-taster/t3-314dc72d",
+      "runtimeOutputsChanged": false
+    }
+  ],
+  "cleanup": {
+    "primaryAcceptanceCleanup": {
+      "recordedAt": "2026-11-03T17:38:32.142283+00:00",
+      "container": "/st113-integrated-pg",
+      "containerId": "bd4d19a471b0fa3b714dce862013a426b3f4e9cf3c599cbb898b1543eceb2891",
+      "label": {
+        "source-taster.task": "113-integrated-nov3"
+      },
+      "binding": "127.0.0.1:55711",
+      "ownershipVerified": true,
+      "activeOtherClientBackends": 0,
+      "remainingFixtureDatabases": [],
+      "remainingFixtureRoles": [],
+      "removedOwnedContainer": "bd4d19a471b0fa3b714dce862013a426b3f4e9cf3c599cbb898b1543eceb2891",
+      "portsWithoutListeners": [
+        5701,
+        5702,
+        5703,
+        5471,
+        55711
+      ],
+      "unrelatedResourcesTouched": false,
+      "fixturesCompletedOwnProcessDatabaseRoleProfileCleanup": false,
+      "removedOwnedAnonymousVolumes": [
+        "2c1580ac1cdffeeadd0ffd159898f7f6a38fa9be8a8f73354b96924c18b11c28"
+      ],
+      "retainedIgnoredCaches": [
+        "public controlled Pagefind cache",
+        "private hash-pinned external validator cache"
+      ],
+      "removedOwnedFixtureOutputs": [
+        ".tmp/spec-70-orchestration/browser-7310f226-f038-4703-bdcb-da0abf8a17e2.json.done",
+        ".tmp/spec-70-orchestration/browser-7310f226-f038-4703-bdcb-da0abf8a17e2.json",
+        "/Users/jeffnawroth/Developer/Repositories/source-taster/apps/web/test-results",
+        "/Users/jeffnawroth/Developer/st-worktrees/source-taster-service-integration/apps/web/test-results"
+      ],
+      "retainedIgnoredBackups": [
+        "113-integrated-canonical",
+        "113-integrated-development-overrides-final"
+      ],
+      "retryJobChanged": false,
+      "sourceWorkspacesWritten": false,
+      "failedStartupFixturesRequiredVerifiedOwnedRecovery": true,
+      "failedFixtureRecovery": {
+        "containerId": "bd4d19a471b0fa3b714dce862013a426b3f4e9cf3c599cbb898b1543eceb2891",
+        "ownershipVerifiedByNameLabelBindingAndSchemaOwners": true,
+        "activeClientBackendsBeforeRecovery": 0,
+        "ownedFailedFixtureDatabasesRemoved": [
+          "st_service_d56c438ca51b4b67961b9c47bee38e8b",
+          "guest96_eb8870e5cd4b4603"
+        ],
+        "ownedRestrictedRolesRemoved": [
+          "service_d56c438ca51b4b67961b9c47bee38e8b",
+          "v96_eb8870e5cd4b4603",
+          "s96_eb8870e5cd4b4603"
+        ],
+        "unrelatedResourcesTouched": false
+      }
+    },
+    "finalResumeRegressionCleanup": {
+      "recordedAt": "2026-11-04T04:18:48.382850+00:00",
+      "container": "/st113-integrated-resume-pg",
+      "containerId": "b1cfa398ef0377070f438204a343d401c66f1220df85a216552ce8aa33d7f628",
+      "label": {
+        "source-taster.task": "113-integrated-nov3-resume"
+      },
+      "binding": "127.0.0.1:55711",
+      "ownershipVerified": true,
+      "activeOtherClientBackends": 0,
+      "remainingFixtureDatabases": [],
+      "remainingFixtureRoles": [],
+      "removedOwnedContainer": "b1cfa398ef0377070f438204a343d401c66f1220df85a216552ce8aa33d7f628",
+      "portsWithoutListeners": [
+        5701,
+        5702,
+        5703,
+        5471,
+        55711
+      ],
+      "unrelatedResourcesTouched": false,
+      "fixturesCompletedOwnProcessDatabaseRoleProfileCleanup": true,
+      "removedOwnedAnonymousVolumes": [
+        "570984663c84b904fa24f1d2cbeacc35bca9c630a373ee5eb6e92da5f365e3d3"
+      ],
+      "retainedIgnoredCaches": [
+        "public controlled Pagefind cache",
+        "private hash-pinned external validator cache"
+      ],
+      "removedOwnedBrowserOutputs": [
+        "/Users/jeffnawroth/Developer/Repositories/source-taster/apps/web/test-results"
+      ]
+    },
+    "portsWithoutListeners": [
+      5701,
+      5702,
+      5703,
+      5471,
+      55711
+    ],
+    "unrelatedResourcesTouched": false,
+    "retryJobChanged": false,
+    "sourceWorkspacesWritten": false
+  },
+  "release": {
+    "exitCode": 78,
+    "expected": 78,
+    "releaseAuthorized": false,
+    "logSha256": "c7818802e2be3d239a0d5293bb9fba3c865df043be4baa8e7d6892f4e7c02b33"
+  },
+  "largeExport": {
+    "hardExportCountOrAggregateByteCap": false,
+    "hardAccountingPeriodCap": false,
+    "defaultFramePayloadBytes": 65536,
+    "supportedFramePayloadRange": [
+      512,
+      262144
+    ],
+    "invoiceReadBytes": 12288,
+    "ordinaryClientFileBytes": 8388608,
+    "databaseRowsPerMaterializationRead": 1,
+    "temporaryExportPayloadStored": false,
+    "snapshotMetadataMaximumHours": 24,
+    "resume": "Signed recipient/request/program/snapshot-bound cursor; bounded replay of the authenticated prefix; no plaintext checkpoint. Current authority, source versions and original deadlines are rechecked.",
+    "memory": "Current retained traversal path/decrypted storage values plus fixed encoder/transport/client buffers and country/currency accumulators; no all-Account content or invoice-binary materialization."
+  },
+  "qualification": {
+    "hostedStartupAccepted": false,
+    "productionActivated": false,
+    "legalTaxSecurityProviderIdentityBrowserDeploymentApproved": false,
+    "SelectedBetterAuthMinimatchRightsCalibrationLoadGatesWaived": false,
+    "retryJobChanged": false,
+    "issuesChangedOrClosed": false,
+    "nestedAgentsOrClaude": false,
+    "sourceWorkspacesWritten": false,
+    "active114Changed": false
+  },
+  "ownership": "Only public root and private INTEGRATION were owned. Both are released at final clean published handback; no SOURCE ownership is taken.",
+  "privateServerAcceptanceHead": "b8865ea82fbed4ca9e0a19a922058491368bfec3",
+  "incrementalClientResumeFix": {
+    "privateCommit": "3ff7b4fae9a7771cccad851a41b3d80874b35298",
+    "serverAcceptanceHead": "b8865ea82fbed4ca9e0a19a922058491368bfec3",
+    "serverCodeUnchanged": true,
+    "changedPaths": [
+      "apps/web/src/delivery.ts"
+    ],
+    "redLog": "113-integrated-red-unsaved-cursor-browser.log",
+    "greenLog": "113-integrated-green-unsaved-cursor-browser.log",
+    "passedBrowserLanguages": 2,
+    "behavior": "Tentative in-memory frame/cursor state is committed only after its bounded file is saved; interruption retries from the previous saved file boundary.",
+    "validation": "Affected normal web build, web typecheck and file lint plus DE/EN real-response-cut browser regression. Completed broad acceptance was not repeated."
+  },
+  "privatePublishedHead": "773fccf3c4e1417ed3806f407dd8e2c8f737c5f4",
+  "pullRequests": {
+    "public": "https://github.com/jeffnawroth/source-taster/pull/139",
+    "private": "https://github.com/jeffnawroth/source-taster-service/pull/9"
+  }
+}
