@@ -41,7 +41,7 @@ try {
     c.extraction?.enforcement !== "os-enforced" ||
     !/^sha256:[a-f0-9]{64}$/.test(c.extraction?.image) ||
     !c.measuredConfiguration ||
-    !c.providerRegisterSha256
+    !/^[a-f0-9]{64}$/.test(c.providerRegisterSha256)
   )
     throw Error("deployment-configuration");
   // Approval packet is signed outside the repository by the Operator/deputy.

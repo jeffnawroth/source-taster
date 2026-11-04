@@ -41,6 +41,22 @@ jobs:
         with:
           node-version-file: .nvmrc
       - run: pnpm install --frozen-lockfile
+      - name: Validate immutable private qualification input pin
+        env:
+          QUALIFICATION_COMMIT: ${{ vars.QUALIFICATION_COMMIT }}
+          QUALIFICATION_REPOSITORY: ${{ vars.QUALIFICATION_REPOSITORY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$QUALIFICATION_COMMIT" =~ ^[a-f0-9]{40}$ ]]
+          test -n "$QUALIFICATION_REPOSITORY"
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          repository: ${{ vars.QUALIFICATION_REPOSITORY }}
+          ref: ${{ vars.QUALIFICATION_COMMIT }}
+          token: ${{ secrets.QUALIFICATION_READ_TOKEN }}
+          path: .qualification
+          persist-credentials: false
       - name: Load protected, signed exact-configuration evidence
         env:
           CONFIG: ${{ secrets.DEPLOY_CONFIGURATION_JSON }}
@@ -72,11 +88,13 @@ jobs:
         run: node apps/server/ops/deployment.mjs > "$RUNNER_TEMP/deployment-receipt.json"
       - run: pnpm pagefind:fetch && pnpm pagefind:build && pnpm pagefind:verify
       - run: pnpm typecheck && pnpm i18n:check && pnpm build
+      - name: Enforce website publication gates independently
+        run: pnpm --filter @source-taster/website build:publication
       - name: Prepare independent source artifact
         shell: bash
         run: |
           set -euo pipefail
-          git archive --format=tar.gz --output="$RUNNER_TEMP/verification-source.tar.gz" HEAD
+          node apps/server/ops/package.mjs "$RUNNER_TEMP/verification-source.tar.gz"
       - name: Deploy only to the provisioned app with checksum-pinned CLI
         env:
           SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
@@ -97,4 +115,6 @@ jobs:
       - name: Remove restricted ephemeral evidence
         if: always()
         shell: bash
-        run: rm -f "$RUNNER_TEMP/deploy.json" "$RUNNER_TEMP/approval.json" "$RUNNER_TEMP/approval.sig" "$RUNNER_TEMP/approval.pem" "$RUNNER_TEMP/quality.json"
+        run: |
+          rm -rf .qualification
+          rm -f "$RUNNER_TEMP/deploy.json" "$RUNNER_TEMP/approval.json" "$RUNNER_TEMP/approval.sig" "$RUNNER_TEMP/approval.pem" "$RUNNER_TEMP/quality.json"

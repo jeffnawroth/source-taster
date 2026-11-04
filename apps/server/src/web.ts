@@ -1,3 +1,4 @@
+import { maintenanceNotice } from "../ops/maintenance.mjs";
 import { operationalHealth } from "../ops/health.mjs";
 import { assertRecoveryReleased } from "../ops/fence.mjs";
 // SPDX-License-Identifier: AGPL-3.0-or-later
@@ -86,6 +87,16 @@ await runMain(async (config) => {
     documentInputBytes: config.documentLimits.inputBytes,
   });
   const health = await operationalHealth(config.databaseUrl);
+  app.get("/health/maintenance", async (c) => {
+    c.header("Cache-Control", "no-store");
+    try {
+      return c.json(
+        await maintenanceNotice(process.env.SOURCE_TASTER_MAINTENANCE_FILE),
+      );
+    } catch {
+      return c.json({ state: "unknown" }, 503);
+    }
+  });
   app.get("/health/live", (c) => c.json({ status: "alive" }));
   app.get("/health/ready", async (c) => {
     const ready = await health.ready();

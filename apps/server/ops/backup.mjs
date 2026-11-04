@@ -1,3 +1,4 @@
+import { schemaIdentity } from "./schema.mjs";
 import { postgresEnvironment } from "./postgres.mjs";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Public-key encrypted export; offline private key is never needed by exporter.
@@ -63,6 +64,7 @@ async function encrypt(c, file) {
   const header = Buffer.from(
     JSON.stringify({
       version: 1,
+      schemaVersion: await schemaIdentity(process.env.DATABASE_URL),
       program,
       schema,
       createdAt: new Date().toISOString(),

@@ -4,7 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { createServer } from "node:http";
-import { generateKeyPairSync, randomBytes } from "node:crypto";
+import { generateKeyPairSync, randomBytes, createHash } from "node:crypto";
 import { mkdtemp, writeFile, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -66,6 +66,15 @@ test(
         }
         const chunks = [];
         for await (const b of req) chunks.push(b);
+        const payload = Buffer.concat(chunks);
+        if (
+          req.headers["content-length"] !== String(payload.length) ||
+          req.headers["content-md5"] !==
+            createHash("md5").update(payload).digest("base64")
+        ) {
+          res.writeHead(400);
+          return res.end();
+        }
         const version = randomBytes(8).toString("hex");
         objects.set(key, {
           data: Buffer.concat(chunks),
@@ -118,7 +127,7 @@ test(
       const db = new pg.Client({ connectionString: source });
       await db.connect();
       await db.query(
-        `CREATE SCHEMA verification; CREATE SCHEMA verification_boss; CREATE TABLE verification.retained(kind text, payload text, expires_at timestamptz); INSERT INTO verification.retained VALUES ('consented-history','HISTORY-FIXTURE','2026-11-20'),('legal','LEGAL-FIXTURE','2034-11-04'),('transient-ciphertext','opaque-ciphertext','2026-11-05'); CREATE UNLOGGED TABLE verification.daily_keys(secret text); INSERT INTO verification.daily_keys VALUES ('NEVER-EXPORT-DAILY-KEY'); CREATE TABLE verification.abuse_counters(secret text); INSERT INTO verification.abuse_counters VALUES ('NEVER-EXPORT-COUNTER');`,
+        `CREATE SCHEMA verification; CREATE SCHEMA verification_boss; CREATE TABLE verification._prisma_migrations(migration_name text,checksum text,finished_at timestamptz,rolled_back_at timestamptz); INSERT INTO verification._prisma_migrations VALUES('owned-fixture','fixture-checksum',now(),null); CREATE TABLE verification.retained(kind text, payload text, expires_at timestamptz); INSERT INTO verification.retained VALUES ('consented-history','HISTORY-FIXTURE','2026-11-20'),('legal','LEGAL-FIXTURE','2034-11-04'),('transient-ciphertext','opaque-ciphertext','2026-11-05'); CREATE UNLOGGED TABLE verification.daily_keys(secret text); INSERT INTO verification.daily_keys VALUES ('NEVER-EXPORT-DAILY-KEY'); CREATE TABLE verification.abuse_counters(secret text); INSERT INTO verification.abuse_counters VALUES ('NEVER-EXPORT-COUNTER');`,
       );
       await db.end();
       const env = {
@@ -183,6 +192,12 @@ test(
         true,
       );
       await recovered.end();
+      const blocked = await run(
+        [new URL("../../src/web.ts", import.meta.url).pathname],
+        { ...env, DATABASE_URL: target, SOURCE_TASTER_MODE: "standalone" },
+      );
+      assert.notEqual(blocked.code, 0);
+      assert.ok(blocked.output.includes("restore-traffic-fenced"));
       assert.equal(
         (await run([cli, "restore-isolated"], restoreEnv)).code,
         78,
@@ -191,6 +206,29 @@ test(
       tampered = true;
       assert.equal((await run([cli, "restore-isolated"], restoreEnv)).code, 78);
       tampered = false;
+      // Even an edited storage receipt cannot authenticate modified encrypted bytes.
+      const object = objects.get("/fixture-bucket/" + receipt.key),
+        complete = objects.get("/fixture-bucket/" + receipt.key + ".complete");
+      const saved = Buffer.from(object.data),
+        savedManifest = Buffer.from(complete.data);
+      object.data = Buffer.from(saved);
+      object.data[object.data.length - 1] ^= 1;
+      const edited = {
+        ...receipt,
+        sha256: createHash("sha256").update(object.data).digest("hex"),
+      };
+      const committed = { ...edited };
+      delete committed.manifestVersion;
+      complete.data = Buffer.from(JSON.stringify(committed));
+      await writeFile(join(dir, "receipt"), JSON.stringify(edited));
+      assert.equal(
+        (await run([cli, "restore-isolated"], restoreEnv)).code,
+        78,
+        "GCM tag rejects modified ciphertext even after receipt edit",
+      );
+      object.data = saved;
+      complete.data = savedManifest;
+      await writeFile(join(dir, "receipt"), exported.output);
       objects.delete("/fixture-bucket/" + receipt.key + ".complete");
       assert.equal(
         (await run([cli, "restore-isolated"], restoreEnv)).code,

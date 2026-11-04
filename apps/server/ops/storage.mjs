@@ -1,3 +1,4 @@
+import { stat } from "node:fs/promises";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Owned Scaleway S3 adapter. Native SigV4; no SDK/dependency exception.
 import { createHash, createHmac } from "node:crypto";
@@ -13,6 +14,7 @@ export async function fileHash(file) {
 export function storage(config) {
   const endpoint = new URL(config.endpoint);
   const local =
+    process.env.NODE_ENV !== "production" &&
     process.env.OPS_LOOPBACK_FIXTURES === "1" &&
     endpoint.hostname === "127.0.0.1" &&
     endpoint.protocol === "http:";
@@ -40,6 +42,15 @@ export function storage(config) {
     const day = timestamp.slice(0, 8),
       scope = `${day}/fr-par/s3/aws4_request`;
     const payload = file ? await fileHash(file) : digest(body ?? "");
+    if (file) {
+      const md5 = createHash("md5");
+      for await (const chunk of createReadStream(file)) md5.update(chunk);
+      headers = {
+        ...headers,
+        "content-length": String((await stat(file)).size),
+        "content-md5": md5.digest("base64"),
+      };
+    }
     const all = {
       ...headers,
       host: url.host,

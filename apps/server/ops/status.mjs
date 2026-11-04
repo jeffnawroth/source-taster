@@ -1,3 +1,4 @@
+import { maintenanceNotice } from "./maintenance.mjs";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // External monitor process. No business credentials, customer payload or mail.
 import { createServer } from "node:http";
@@ -17,6 +18,7 @@ async function atomic(file, value) {
 function endpoint(value, heartbeat = false) {
   const u = new URL(value);
   const local =
+    process.env.NODE_ENV !== "production" &&
     process.env.OPS_LOOPBACK_FIXTURES === "1" &&
     u.hostname === "127.0.0.1" &&
     u.protocol === "http:";
@@ -39,6 +41,8 @@ function endpoint(value, heartbeat = false) {
 }
 async function main() {
   const c = await json(process.env.OPS_STATUS_CONFIG);
+  if (typeof c.timeZone !== "string" || !c.timeZone)
+    throw Error("status-timezone");
   new Intl.DateTimeFormat("en", { timeZone: c.timeZone }).format();
   if (
     !Number.isInteger(c.port) ||
@@ -48,13 +52,18 @@ async function main() {
     !c.stateFile ||
     !c.maintenanceFile ||
     !Number.isInteger(c.intervalMs) ||
-    c.intervalMs < (process.env.OPS_LOOPBACK_FIXTURES === "1" ? 100 : 30000)
+    c.intervalMs <
+      (process.env.NODE_ENV !== "production" &&
+      process.env.OPS_LOOPBACK_FIXTURES === "1"
+        ? 100
+        : 30000)
   )
     throw Error("status-config");
   const command = process.argv[2];
   if (command === "announce" || command === "withdraw") {
     const m = await json(c.maintenanceFile),
       now = Date.now();
+    if (command === "withdraw") await maintenanceNotice(c.maintenanceFile);
     if (
       command === "announce" &&
       (!Number.isFinite(Date.parse(m.startsAt)) ||
@@ -165,16 +174,7 @@ async function main() {
     }
     let maintenance = null;
     try {
-      const m = await json(c.maintenanceFile);
-      if (["announced", "withdrawn"].includes(m.state))
-        maintenance = {
-          state: m.state,
-          startsAt: m.startsAt,
-          endsAt: m.endsAt,
-          timeZone: c.timeZone,
-          de: m.de,
-          en: m.en,
-        };
+      maintenance = await maintenanceNotice(c.maintenanceFile);
     } catch {
       /* Unavailable optional state. */
     }

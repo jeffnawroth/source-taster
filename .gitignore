@@ -36,3 +36,6 @@ test-results-report/
 test-results-private/
 
 apps/extension/test-results-dpa/
+
+# Protected qualification checkout exists only in the manual deployment job.
+.qualification/

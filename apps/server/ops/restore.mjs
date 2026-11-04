@@ -1,3 +1,4 @@
+import { schemaIdentity } from "./schema.mjs";
 import { postgresEnvironment } from "./postgres.mjs";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Restore only to an explicitly named, empty isolated database, under its owner.
@@ -61,6 +62,11 @@ export async function isolatedRestore(dump, header) {
         c === 0 ? resolve() : reject(Error("restore-command")),
       );
     });
+    if (
+      !/^[a-f0-9]{64}$/.test(header.schemaVersion) ||
+      (await schemaIdentity(url.toString())) !== header.schemaVersion
+    )
+      throw Error("restore-schema-version");
     // No traffic-release command: external deletion/block replay is independently reviewed.
     await db.query(
       "CREATE TABLE public.ops_recovery_fence (blocked boolean NOT NULL CHECK(blocked), restored_at timestamptz NOT NULL DEFAULT now()); INSERT INTO public.ops_recovery_fence(blocked) VALUES(true)",
@@ -99,6 +105,12 @@ export async function isolatedRestore(dump, header) {
         rpoTargetMs: 86400000,
         rtoTargetMs: 28800000,
         cloudQualified: false,
+        timingWithinTargets:
+          Date.now() - disruption <= 28800000 &&
+          disruption - Date.parse(header.createdAt) >= 0 &&
+          disruption - Date.parse(header.createdAt) <= 86400000,
+        qualificationResult: "not-qualified-local-regression",
+        releaseReconciliation: "required-before-traffic",
       }),
     );
   } finally {

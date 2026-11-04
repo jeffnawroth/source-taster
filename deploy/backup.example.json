@@ -1,0 +1,7 @@
+{
+  "program": "verification",
+  "endpoint": "https://s3.fr-par.scw.cloud",
+  "bucket": "REQUIRES-PROVISIONED-DEDICATED-BUCKET",
+  "publicKey": "/run/config/offline-backup-public.pem",
+  "retentionHours": 312
+}

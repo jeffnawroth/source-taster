@@ -532,5 +532,7 @@
   "invoices_empty": "No invoices yet.",
   "invoices_pdf": "Download PDF",
   "invoices_ubl": "Download e-invoice (XML)",
-  "cancellation_button": "Cancel contracts here"
+  "cancellation_button": "Cancel contracts here",
+  "maintenance_announcement": "Planned maintenance: {start}–{end} ({zone}). The service may be unavailable during this time.",
+  "maintenance_withdrawn": "The planned maintenance has been withdrawn."
 }

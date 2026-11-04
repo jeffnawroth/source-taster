@@ -532,5 +532,7 @@
   "invoices_empty": "Noch keine Rechnungen.",
   "invoices_pdf": "PDF herunterladen",
   "invoices_ubl": "E-Rechnung herunterladen (XML)",
-  "cancellation_button": "Verträge hier kündigen"
+  "cancellation_button": "Verträge hier kündigen",
+  "maintenance_announcement": "Geplante Wartung: {start}–{end} ({zone}). Der Dienst kann in dieser Zeit nicht verfügbar sein.",
+  "maintenance_withdrawn": "Die geplante Wartung wurde zurückgezogen."
 }
