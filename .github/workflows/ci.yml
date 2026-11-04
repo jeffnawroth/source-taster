@@ -75,6 +75,8 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm i18n:check
+      - name: Root script tests (local preview wrapper)
+        run: pnpm test:scripts
       - run: pnpm build
       - name: Check committed transport artifacts
         run: git diff --exit-code -- packages/contract-common/dist packages/contract-verification/dist packages/contract-verification/openapi.json packages/contract-verification/openapi-v2.json packages/contract-service/dist packages/contract-service/openapi.json packages/contract-internal/dist packages/contract-internal/openapi.json
