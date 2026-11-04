@@ -25,10 +25,14 @@ same transaction is one way to guarantee that: it closes the window in which the
 upload and the References could both exist, or in which only a crashed half of
 the pair survives. Never creating the copy closes the same window completely.
 There is no staging row to delete transactionally, no failed-deletion state, no
-orphan after a crash between the two steps, and nothing for a backup to capture.
+orphan after a crash between the two steps, and nothing in the owned database
+for a backup to capture.
 A request that fails at any stage has the same property. The strongest reading of
 the criterion, "after the References are stored, no raw upload exists", holds
-trivially and cannot regress through a forgotten cleanup path.
+trivially for the upload route, and the test below guards it against a future
+staging copy. Scope of the proof: the owned database and the service's private
+`TMPDIR`; writers that bypass `TMPDIR` (a hard-coded `/tmp`, a reverse proxy
+buffering request bodies) and the AI structuring path (#103) are not covered.
 
 The ticket text should be amended to say so (see the verdict below). This note
 does not change the ticket.
@@ -42,7 +46,7 @@ worker processes, the real extractor container). For every upload it asserts:
   least 3 MB of random bytes, stored byte-for-byte inside the DOCX or appended
   to the file for the rejected cases. (The encrypted PDF case relies on the
   scans below.) Random bytes cannot shrink under TOAST compression, and an encrypted
-  copy would be at least as large, so a stored copy in any shape grows the sum of
+  copy would be at least as large, so a stored copy of a large upload in any shape grows the sum of
   `pg_column_size` over every table of every non-system schema, and the sum of
   `pg_total_relation_size`, by about the payload. Both must grow by less than a
   quarter of it. This witness is independent of how a copy might be encoded or

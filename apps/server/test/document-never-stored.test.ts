@@ -25,13 +25,17 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import pg from "pg";
-import { afterAll, beforeAll, expect, it } from "vitest";
+import { afterAll, beforeAll, expect, it, vi } from "vitest";
 import { ProblemDetails } from "@source-taster/contract-verification";
 import { DocumentStructuringResponse } from "@source-taster/contract-verification/document";
 import { CheckResponse } from "@source-taster/contract-verification/v2";
 import { docx, pdf, upload } from "./support/documents.ts";
 import { startDoiFixtures, physicsReference } from "./support/doi-fixtures.ts";
 import { startTestService } from "./support/service.ts";
+
+// Full-database scans, a 22 MB upload and a Check run to the end exceed the
+// suite's 20 s default on slower CI runners.
+vi.setConfig({ testTimeout: 90_000 });
 
 const MB = 1024 * 1024;
 let service: Awaited<ReturnType<typeof startTestService>>;
