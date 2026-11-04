@@ -29,10 +29,12 @@ import { standaloneEntitlements } from "./entitlements.ts";
 import { createApp } from "./http/app.ts";
 
 await runMain(async (config) => {
-  await assertRecoveryReleased(config.databaseUrl);
+  // The publication gate is a pure artifact-and-input check and runs first, so
+  // its refusal never depends on database reachability or credentials.
   const website = config.website
     ? await openWebsite(config.website.directory, config.website.mode)
     : undefined;
+  await assertRecoveryReleased(config.databaseUrl);
   const db = createPrisma(config.databaseUrl);
   const boss = await createQueue(config.databaseUrl);
   const events = await listenForEvents(config.databaseUrl);

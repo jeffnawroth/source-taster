@@ -84,6 +84,20 @@ describe("website publication gate in the web process", () => {
       expect(web.output()).toContain(missing);
   });
 
+  it("refuses on the gate itself, not on database reachability", async () => {
+    // The gate is a pure artifact-and-input check. Nothing about the database
+    // (unreachable, wrong credentials, restore fence) may stand in front of it.
+    const web = startProcess("web", {
+      SOURCE_TASTER_MODE: "standalone",
+      DATABASE_URL: "postgres://nobody:nothing@127.0.0.1:1/none",
+      SOURCE_TASTER_PORT: "3106",
+      SOURCE_TASTER_WEBSITE_MODE: "publication",
+    });
+    expect(await web.exited).not.toBe(0);
+    expect(web.output()).toContain("real HTTPS domain");
+    expect(web.output()).not.toContain("ECONNREFUSED");
+  });
+
   it("refuses the draft preview in production", async () => {
     const web = startProcess("web", {
       SOURCE_TASTER_MODE: "standalone",
