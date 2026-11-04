@@ -155,3 +155,19 @@ it("refuses a live extraction adapter without its EU-only, zero-retention config
     /AI configuration is invalid/,
   );
 });
+
+it("binds a loaded extraction adapter to its exact module bytes, including after a replacement", async () => {
+  const file = join(root, "versioned-port.mjs");
+  await writeFile(
+    file,
+    "export default {model:'controlled-model',extract:async()=>[]};\n",
+  );
+  const first = await loadExtraction(file);
+  await writeFile(
+    file,
+    "export default {model:'controlled-model-2',extract:async()=>[]};\n",
+  );
+  const second = await loadExtraction(file);
+  expect(second.model).toBe("controlled-model-2");
+  expect(second.codeDigest).not.toBe(first.codeDigest);
+});

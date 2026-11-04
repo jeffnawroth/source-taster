@@ -404,6 +404,7 @@ export async function measureConfiguration(options: MeasureOptions) {
     datasetState: dataset.datasetState,
     fixtureState: dataset.fixtureState,
     codeVersion: codeVersion(),
+    extractionCodeDigest: options.extraction?.codeDigest ?? null,
     aiModel: options.extraction?.model ?? null,
     aiConfiguration: options.extraction?.configuration ?? null,
     enabledSources: [...options.configuration.enabledSources].sort(),

@@ -341,6 +341,7 @@ export declare const createCheck: {
                             status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                         data: z.ZodObject<{
+                            measuredConfigurationId: z.ZodOptional<z.ZodString>;
                             id: z.ZodUUID;
                             state: z.ZodEnum<{
                                 ended: "ended";
@@ -515,6 +516,8 @@ export declare const createCheck: {
                                     createdAt: z.ZodString;
                                 }, z.core.$strip>>;
                                 results: z.ZodArray<z.ZodObject<{
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
+                                    scoringRulesVersion: z.ZodOptional<z.ZodString>;
                                     id: z.ZodUUID;
                                     revision: z.ZodNumber;
                                     generation: z.ZodNumber;
@@ -529,6 +532,7 @@ export declare const createCheck: {
                                         }>;
                                     }, z.core.$strict>, z.ZodObject<{
                                         kind: z.ZodLiteral<"verdict">;
+                                        measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                         verdict: z.ZodEnum<{
                                             correct: "correct";
                                             "doi-conflict": "doi-conflict";
@@ -926,6 +930,7 @@ export declare const createCheck: {
                                     }>;
                                 }, z.core.$strict>, z.ZodObject<{
                                     kind: z.ZodLiteral<"verdict">;
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                     verdict: z.ZodEnum<{
                                         correct: "correct";
                                         "doi-conflict": "doi-conflict";
@@ -1664,6 +1669,7 @@ export declare const getCheck: {
                             status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                         data: z.ZodObject<{
+                            measuredConfigurationId: z.ZodOptional<z.ZodString>;
                             id: z.ZodUUID;
                             state: z.ZodEnum<{
                                 ended: "ended";
@@ -1838,6 +1844,8 @@ export declare const getCheck: {
                                     createdAt: z.ZodString;
                                 }, z.core.$strip>>;
                                 results: z.ZodArray<z.ZodObject<{
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
+                                    scoringRulesVersion: z.ZodOptional<z.ZodString>;
                                     id: z.ZodUUID;
                                     revision: z.ZodNumber;
                                     generation: z.ZodNumber;
@@ -1852,6 +1860,7 @@ export declare const getCheck: {
                                         }>;
                                     }, z.core.$strict>, z.ZodObject<{
                                         kind: z.ZodLiteral<"verdict">;
+                                        measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                         verdict: z.ZodEnum<{
                                             correct: "correct";
                                             "doi-conflict": "doi-conflict";
@@ -2249,6 +2258,7 @@ export declare const getCheck: {
                                     }>;
                                 }, z.core.$strict>, z.ZodObject<{
                                     kind: z.ZodLiteral<"verdict">;
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                     verdict: z.ZodEnum<{
                                         correct: "correct";
                                         "doi-conflict": "doi-conflict";
@@ -2818,6 +2828,7 @@ export declare const cancelCheck: {
                             status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                         data: z.ZodObject<{
+                            measuredConfigurationId: z.ZodOptional<z.ZodString>;
                             id: z.ZodUUID;
                             state: z.ZodEnum<{
                                 ended: "ended";
@@ -2992,6 +3003,8 @@ export declare const cancelCheck: {
                                     createdAt: z.ZodString;
                                 }, z.core.$strip>>;
                                 results: z.ZodArray<z.ZodObject<{
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
+                                    scoringRulesVersion: z.ZodOptional<z.ZodString>;
                                     id: z.ZodUUID;
                                     revision: z.ZodNumber;
                                     generation: z.ZodNumber;
@@ -3006,6 +3019,7 @@ export declare const cancelCheck: {
                                         }>;
                                     }, z.core.$strict>, z.ZodObject<{
                                         kind: z.ZodLiteral<"verdict">;
+                                        measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                         verdict: z.ZodEnum<{
                                             correct: "correct";
                                             "doi-conflict": "doi-conflict";
@@ -3403,6 +3417,7 @@ export declare const cancelCheck: {
                                     }>;
                                 }, z.core.$strict>, z.ZodObject<{
                                     kind: z.ZodLiteral<"verdict">;
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                     verdict: z.ZodEnum<{
                                         correct: "correct";
                                         "doi-conflict": "doi-conflict";
@@ -3972,6 +3987,7 @@ export declare const renewCheckLease: {
                             status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                         data: z.ZodObject<{
+                            measuredConfigurationId: z.ZodOptional<z.ZodString>;
                             id: z.ZodUUID;
                             state: z.ZodEnum<{
                                 ended: "ended";
@@ -4146,6 +4162,8 @@ export declare const renewCheckLease: {
                                     createdAt: z.ZodString;
                                 }, z.core.$strip>>;
                                 results: z.ZodArray<z.ZodObject<{
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
+                                    scoringRulesVersion: z.ZodOptional<z.ZodString>;
                                     id: z.ZodUUID;
                                     revision: z.ZodNumber;
                                     generation: z.ZodNumber;
@@ -4160,6 +4178,7 @@ export declare const renewCheckLease: {
                                         }>;
                                     }, z.core.$strict>, z.ZodObject<{
                                         kind: z.ZodLiteral<"verdict">;
+                                        measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                         verdict: z.ZodEnum<{
                                             correct: "correct";
                                             "doi-conflict": "doi-conflict";
@@ -4557,6 +4576,7 @@ export declare const renewCheckLease: {
                                     }>;
                                 }, z.core.$strict>, z.ZodObject<{
                                     kind: z.ZodLiteral<"verdict">;
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                     verdict: z.ZodEnum<{
                                         correct: "correct";
                                         "doi-conflict": "doi-conflict";
@@ -5311,6 +5331,7 @@ export declare const saveFields: {
                             status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                         data: z.ZodObject<{
+                            measuredConfigurationId: z.ZodOptional<z.ZodString>;
                             id: z.ZodUUID;
                             state: z.ZodEnum<{
                                 ended: "ended";
@@ -5485,6 +5506,8 @@ export declare const saveFields: {
                                     createdAt: z.ZodString;
                                 }, z.core.$strip>>;
                                 results: z.ZodArray<z.ZodObject<{
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
+                                    scoringRulesVersion: z.ZodOptional<z.ZodString>;
                                     id: z.ZodUUID;
                                     revision: z.ZodNumber;
                                     generation: z.ZodNumber;
@@ -5499,6 +5522,7 @@ export declare const saveFields: {
                                         }>;
                                     }, z.core.$strict>, z.ZodObject<{
                                         kind: z.ZodLiteral<"verdict">;
+                                        measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                         verdict: z.ZodEnum<{
                                             correct: "correct";
                                             "doi-conflict": "doi-conflict";
@@ -5896,6 +5920,7 @@ export declare const saveFields: {
                                     }>;
                                 }, z.core.$strict>, z.ZodObject<{
                                     kind: z.ZodLiteral<"verdict">;
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                     verdict: z.ZodEnum<{
                                         correct: "correct";
                                         "doi-conflict": "doi-conflict";
@@ -6513,6 +6538,7 @@ export declare const recheckReference: {
                             status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                         data: z.ZodObject<{
+                            measuredConfigurationId: z.ZodOptional<z.ZodString>;
                             id: z.ZodUUID;
                             state: z.ZodEnum<{
                                 ended: "ended";
@@ -6687,6 +6713,8 @@ export declare const recheckReference: {
                                     createdAt: z.ZodString;
                                 }, z.core.$strip>>;
                                 results: z.ZodArray<z.ZodObject<{
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
+                                    scoringRulesVersion: z.ZodOptional<z.ZodString>;
                                     id: z.ZodUUID;
                                     revision: z.ZodNumber;
                                     generation: z.ZodNumber;
@@ -6701,6 +6729,7 @@ export declare const recheckReference: {
                                         }>;
                                     }, z.core.$strict>, z.ZodObject<{
                                         kind: z.ZodLiteral<"verdict">;
+                                        measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                         verdict: z.ZodEnum<{
                                             correct: "correct";
                                             "doi-conflict": "doi-conflict";
@@ -7098,6 +7127,7 @@ export declare const recheckReference: {
                                     }>;
                                 }, z.core.$strict>, z.ZodObject<{
                                     kind: z.ZodLiteral<"verdict">;
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                     verdict: z.ZodEnum<{
                                         correct: "correct";
                                         "doi-conflict": "doi-conflict";
@@ -7748,6 +7778,7 @@ export declare const editReferenceList: {
                             status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                         data: z.ZodObject<{
+                            measuredConfigurationId: z.ZodOptional<z.ZodString>;
                             id: z.ZodUUID;
                             state: z.ZodEnum<{
                                 ended: "ended";
@@ -7922,6 +7953,8 @@ export declare const editReferenceList: {
                                     createdAt: z.ZodString;
                                 }, z.core.$strip>>;
                                 results: z.ZodArray<z.ZodObject<{
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
+                                    scoringRulesVersion: z.ZodOptional<z.ZodString>;
                                     id: z.ZodUUID;
                                     revision: z.ZodNumber;
                                     generation: z.ZodNumber;
@@ -7936,6 +7969,7 @@ export declare const editReferenceList: {
                                         }>;
                                     }, z.core.$strict>, z.ZodObject<{
                                         kind: z.ZodLiteral<"verdict">;
+                                        measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                         verdict: z.ZodEnum<{
                                             correct: "correct";
                                             "doi-conflict": "doi-conflict";
@@ -8333,6 +8367,7 @@ export declare const editReferenceList: {
                                     }>;
                                 }, z.core.$strict>, z.ZodObject<{
                                     kind: z.ZodLiteral<"verdict">;
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                     verdict: z.ZodEnum<{
                                         correct: "correct";
                                         "doi-conflict": "doi-conflict";
@@ -8961,6 +8996,7 @@ export declare const setManualOverride: {
                             status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                         data: z.ZodObject<{
+                            measuredConfigurationId: z.ZodOptional<z.ZodString>;
                             id: z.ZodUUID;
                             state: z.ZodEnum<{
                                 ended: "ended";
@@ -9135,6 +9171,8 @@ export declare const setManualOverride: {
                                     createdAt: z.ZodString;
                                 }, z.core.$strip>>;
                                 results: z.ZodArray<z.ZodObject<{
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
+                                    scoringRulesVersion: z.ZodOptional<z.ZodString>;
                                     id: z.ZodUUID;
                                     revision: z.ZodNumber;
                                     generation: z.ZodNumber;
@@ -9149,6 +9187,7 @@ export declare const setManualOverride: {
                                         }>;
                                     }, z.core.$strict>, z.ZodObject<{
                                         kind: z.ZodLiteral<"verdict">;
+                                        measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                         verdict: z.ZodEnum<{
                                             correct: "correct";
                                             "doi-conflict": "doi-conflict";
@@ -9546,6 +9585,7 @@ export declare const setManualOverride: {
                                     }>;
                                 }, z.core.$strict>, z.ZodObject<{
                                     kind: z.ZodLiteral<"verdict">;
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                     verdict: z.ZodEnum<{
                                         correct: "correct";
                                         "doi-conflict": "doi-conflict";
@@ -10541,6 +10581,7 @@ export declare const editSelection: {
                             status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                         data: z.ZodObject<{
+                            measuredConfigurationId: z.ZodOptional<z.ZodString>;
                             id: z.ZodUUID;
                             state: z.ZodEnum<{
                                 ended: "ended";
@@ -10715,6 +10756,8 @@ export declare const editSelection: {
                                     createdAt: z.ZodString;
                                 }, z.core.$strip>>;
                                 results: z.ZodArray<z.ZodObject<{
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
+                                    scoringRulesVersion: z.ZodOptional<z.ZodString>;
                                     id: z.ZodUUID;
                                     revision: z.ZodNumber;
                                     generation: z.ZodNumber;
@@ -10729,6 +10772,7 @@ export declare const editSelection: {
                                         }>;
                                     }, z.core.$strict>, z.ZodObject<{
                                         kind: z.ZodLiteral<"verdict">;
+                                        measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                         verdict: z.ZodEnum<{
                                             correct: "correct";
                                             "doi-conflict": "doi-conflict";
@@ -11126,6 +11170,7 @@ export declare const editSelection: {
                                     }>;
                                 }, z.core.$strict>, z.ZodObject<{
                                     kind: z.ZodLiteral<"verdict">;
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                     verdict: z.ZodEnum<{
                                         correct: "correct";
                                         "doi-conflict": "doi-conflict";
@@ -12940,6 +12985,7 @@ export declare const restartHistory: {
                             status: z.ZodLiteral<"unavailable">;
                         }, z.core.$strict>, z.ZodNull]>;
                         data: z.ZodObject<{
+                            measuredConfigurationId: z.ZodOptional<z.ZodString>;
                             id: z.ZodUUID;
                             state: z.ZodEnum<{
                                 ended: "ended";
@@ -13114,6 +13160,8 @@ export declare const restartHistory: {
                                     createdAt: z.ZodString;
                                 }, z.core.$strip>>;
                                 results: z.ZodArray<z.ZodObject<{
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
+                                    scoringRulesVersion: z.ZodOptional<z.ZodString>;
                                     id: z.ZodUUID;
                                     revision: z.ZodNumber;
                                     generation: z.ZodNumber;
@@ -13128,6 +13176,7 @@ export declare const restartHistory: {
                                         }>;
                                     }, z.core.$strict>, z.ZodObject<{
                                         kind: z.ZodLiteral<"verdict">;
+                                        measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                         verdict: z.ZodEnum<{
                                             correct: "correct";
                                             "doi-conflict": "doi-conflict";
@@ -13525,6 +13574,7 @@ export declare const restartHistory: {
                                     }>;
                                 }, z.core.$strict>, z.ZodObject<{
                                     kind: z.ZodLiteral<"verdict">;
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                     verdict: z.ZodEnum<{
                                         correct: "correct";
                                         "doi-conflict": "doi-conflict";

@@ -134,6 +134,7 @@ export declare const createCheck: {
                 "application/json": {
                     schema: z.ZodObject<{
                         data: z.ZodObject<{
+                            measuredConfigurationId: z.ZodOptional<z.ZodString>;
                             id: z.ZodUUID;
                             state: z.ZodEnum<{
                                 ended: "ended";
@@ -160,6 +161,7 @@ export declare const createCheck: {
                                     }>;
                                 }, z.core.$strict>, z.ZodObject<{
                                     kind: z.ZodLiteral<"verdict">;
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                     verdict: z.ZodEnum<{
                                         correct: "correct";
                                         "doi-conflict": "doi-conflict";
@@ -509,6 +511,7 @@ export declare const getCheck: {
                 "application/json": {
                     schema: z.ZodObject<{
                         data: z.ZodObject<{
+                            measuredConfigurationId: z.ZodOptional<z.ZodString>;
                             id: z.ZodUUID;
                             state: z.ZodEnum<{
                                 ended: "ended";
@@ -535,6 +538,7 @@ export declare const getCheck: {
                                     }>;
                                 }, z.core.$strict>, z.ZodObject<{
                                     kind: z.ZodLiteral<"verdict">;
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                     verdict: z.ZodEnum<{
                                         correct: "correct";
                                         "doi-conflict": "doi-conflict";
@@ -1237,6 +1241,7 @@ export declare const cancelCheck: {
                 "application/json": {
                     schema: z.ZodObject<{
                         data: z.ZodObject<{
+                            measuredConfigurationId: z.ZodOptional<z.ZodString>;
                             id: z.ZodUUID;
                             state: z.ZodEnum<{
                                 ended: "ended";
@@ -1263,6 +1268,7 @@ export declare const cancelCheck: {
                                     }>;
                                 }, z.core.$strict>, z.ZodObject<{
                                     kind: z.ZodLiteral<"verdict">;
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                     verdict: z.ZodEnum<{
                                         correct: "correct";
                                         "doi-conflict": "doi-conflict";
@@ -1631,6 +1637,7 @@ export declare const renewCheckLease: {
                 "application/json": {
                     schema: z.ZodObject<{
                         data: z.ZodObject<{
+                            measuredConfigurationId: z.ZodOptional<z.ZodString>;
                             id: z.ZodUUID;
                             state: z.ZodEnum<{
                                 ended: "ended";
@@ -1657,6 +1664,7 @@ export declare const renewCheckLease: {
                                     }>;
                                 }, z.core.$strict>, z.ZodObject<{
                                     kind: z.ZodLiteral<"verdict">;
+                                    measuredConfigurationId: z.ZodOptional<z.ZodString>;
                                     verdict: z.ZodEnum<{
                                         correct: "correct";
                                         "doi-conflict": "doi-conflict";

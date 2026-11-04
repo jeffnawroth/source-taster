@@ -1,3 +1,8 @@
+import {
+  configurationSelection,
+  mountConfigurations,
+} from "../../src/quality/protocol.ts";
+import { measuredConfigurations } from "../../src/quality/activation.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { mountDataSubjectDelivery } from "../../src/exports/data-subject.ts";
 // SOURCE-ONLY loopback integration. Never imported by src, scripts or build.
@@ -28,7 +33,20 @@ let now = Number(process.env.TEST_CLOCK);
 const clock = { now: () => now };
 const db = createPrisma(config.databaseUrl);
 const boss = await createQueue(config.databaseUrl);
+const registry = measuredConfigurations(
+  process.env.SOURCE_TASTER_MEASURED_CONFIGURATIONS,
+  clock,
+);
+const selection = process.env.SOURCE_TASTER_MEASURED_CONFIGURATIONS
+  ? configurationSelection(
+      loadHostedSettings(process.env.SOURCE_TASTER_AUTH_CONFIG),
+      registry,
+      clock,
+      db,
+    )
+  : undefined;
 const checks = createCheckStore(db, boss, {
+  configuration: selection,
   clock,
   settings: {
     clientLeaseMs: config.clientLeaseMs,
@@ -50,6 +68,7 @@ if (process.argv[2] === "worker") {
     clock,
     authority: authority.work,
     quota: authority.quota,
+    configuration: selection,
   });
   stop = () => {
     runtime.stop();
@@ -67,6 +86,7 @@ if (process.argv[2] === "worker") {
     : undefined;
   const app = createApp({
     entrance,
+    configuration: selection,
     structuring: createParser({ referenceLimit: config.referenceLimit }),
     checks,
     events,
@@ -76,6 +96,13 @@ if (process.argv[2] === "worker") {
     entitlements: authority.entitlements,
   });
   mountInternalRoutes(app, authority);
+  mountConfigurations(
+    app,
+    db,
+    loadHostedSettings(process.env.SOURCE_TASTER_AUTH_CONFIG),
+    registry,
+    clock,
+  );
   mountDataSubjectDelivery(
     app,
     loadHostedSettings(process.env.SOURCE_TASTER_AUTH_CONFIG),

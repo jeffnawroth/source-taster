@@ -15,6 +15,7 @@ datasource db {
 }
 
 model Check {
+  measuredConfiguration Json? @map("measured_configuration")
   id             String          @id @db.Uuid
   apiVersion     Int             @default(1) @map("api_version")
   ownerId        String          @map("owner_id")
@@ -88,6 +89,8 @@ model CheckEvent {
 
 // Append-only run content. #81 will add field revisions and cancellation fencing.
 model ReferenceResult {
+  measuredConfigurationId String? @map("measured_configuration_id")
+  scoringRulesVersion String? @map("scoring_rules_version")
   id         String        @id @db.Uuid
   checkId    String        @map("check_id") @db.Uuid
   position   Int

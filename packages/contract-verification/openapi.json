@@ -107,6 +107,9 @@
       "Check": {
         "type": "object",
         "properties": {
+          "measuredConfigurationId": {
+            "type": "string"
+          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -221,6 +224,9 @@
                 "enum": [
                   "verdict"
                 ]
+              },
+              "measuredConfigurationId": {
+                "type": "string"
               },
               "verdict": {
                 "$ref": "#/components/schemas/Verdict"

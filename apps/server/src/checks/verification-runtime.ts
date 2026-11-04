@@ -6,8 +6,6 @@ import {
   createWebVerification,
   isWebReference,
   createBibliographicVerification,
-  comparisonLimits,
-  journalAbbreviationRules,
   defaultSearchSettings,
   referenceDeadlineMs,
   type SearchSettings,
@@ -16,7 +14,7 @@ import {
   isBookReference,
 } from "@source-taster/core";
 import { createHash } from "node:crypto";
-import { scoringRulesCalibration } from "./scoring-calibration.ts";
+import { scoringRules } from "./scoring-rules.ts";
 import type { Db } from "../db/prisma.ts";
 import type { Config } from "../config.ts";
 import {
@@ -71,25 +69,7 @@ export function referenceExecution(
     .update(JSON.stringify(canonical(settings)))
     .digest("hex")
     .slice(0, 16);
-  const rules = {
-    version: `comparison-75-3-date-ranges-20261028-${journalAbbreviationRules.version}-entities-4.5.0-uncalibrated-${createHash(
-      "sha256",
-    )
-      .update(
-        JSON.stringify({
-          parameters: config.comparisonProfile,
-          limits: comparisonLimits,
-          journalAbbreviations: journalAbbreviationRules,
-        }),
-      )
-      .digest(
-        "hex",
-      )}-unicode-${process.versions.unicode}-icu-${process.versions.icu}`,
-    calibration: scoringRulesCalibration,
-    unicode: process.versions.unicode!,
-    icu: process.versions.icu!,
-    profile: { ...config.comparisonProfile },
-  } as const;
+  const rules = scoringRules(config.comparisonProfile);
   return async (
     reference: StructuredReference,
     execution?: { startedAt: number },

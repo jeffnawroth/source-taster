@@ -422,6 +422,74 @@ export declare const AbuseDecision: z.ZodDiscriminatedUnion<[z.ZodObject<{
     retryAt: z.ZodISODateTime;
 }, z.core.$strict>], "allowed">;
 export type AbuseDecision = z.infer<typeof AbuseDecision>;
+/** #114 minimal configuration authority protocol. No corpus, recordings,
+ * measurement outcomes, Check text or provider secrets cross this interface. */
+export declare const ConfigurationId: z.ZodString;
+export declare const MeasuredConfiguration: z.ZodObject<{
+    provider: z.ZodNullable<z.ZodObject<{
+        path: z.ZodString;
+        region: z.ZodString;
+        countries: z.ZodArray<z.ZodString>;
+        zeroRetention: z.ZodBoolean;
+    }, z.core.$strict>>;
+    comparisonParameters: z.ZodRecord<z.ZodString, z.ZodNumber>;
+    searchSettings: z.ZodRecord<z.ZodString, z.ZodUnknown>;
+    id: z.ZodString;
+    codeVersion: z.ZodString;
+    configurationDigest: z.ZodString;
+    rulesVersion: z.ZodString;
+    model: z.ZodNullable<z.ZodString>;
+    sources: z.ZodArray<z.ZodString>;
+    eligible: z.ZodBoolean;
+    reasons: z.ZodArray<z.ZodString>;
+    evidenceDigest: z.ZodString;
+    checkedAt: z.ZodISODateTime;
+}, z.core.$strict>;
+export type MeasuredConfiguration = z.infer<typeof MeasuredConfiguration>;
+export declare const ConfigurationInspection: z.ZodDiscriminatedUnion<[z.ZodObject<{
+    action: z.ZodLiteral<"list">;
+}, z.core.$strict>, z.ZodObject<{
+    action: z.ZodLiteral<"validate">;
+    id: z.ZodString;
+    evidenceDigest: z.ZodString;
+}, z.core.$strict>], "action">;
+export declare const ConfigurationInspectionResponse: z.ZodObject<{
+    configurations: z.ZodArray<z.ZodObject<{
+        provider: z.ZodNullable<z.ZodObject<{
+            path: z.ZodString;
+            region: z.ZodString;
+            countries: z.ZodArray<z.ZodString>;
+            zeroRetention: z.ZodBoolean;
+        }, z.core.$strict>>;
+        comparisonParameters: z.ZodRecord<z.ZodString, z.ZodNumber>;
+        searchSettings: z.ZodRecord<z.ZodString, z.ZodUnknown>;
+        id: z.ZodString;
+        codeVersion: z.ZodString;
+        configurationDigest: z.ZodString;
+        rulesVersion: z.ZodString;
+        model: z.ZodNullable<z.ZodString>;
+        sources: z.ZodArray<z.ZodString>;
+        eligible: z.ZodBoolean;
+        reasons: z.ZodArray<z.ZodString>;
+        evidenceDigest: z.ZodString;
+        checkedAt: z.ZodISODateTime;
+    }, z.core.$strict>>;
+}, z.core.$strict>;
+export declare const ActiveConfiguration: z.ZodObject<{
+    id: z.ZodString;
+    evidenceDigest: z.ZodString;
+    operationId: z.ZodUUID;
+    version: z.ZodNumber;
+}, z.core.$strict>;
+export type ActiveConfiguration = z.infer<typeof ActiveConfiguration>;
+export declare const ActiveConfigurationResponse: z.ZodObject<{
+    active: z.ZodNullable<z.ZodObject<{
+        id: z.ZodString;
+        evidenceDigest: z.ZodString;
+        operationId: z.ZodUUID;
+        version: z.ZodNumber;
+    }, z.core.$strict>>;
+}, z.core.$strict>;
 /** Recipient-only rights delivery. Opaque credential travels only from recipient to
  * verification and in a signed authority request; no content travels to service. */
 export declare const RightsAuthorityRequest: z.ZodObject<{

@@ -69,6 +69,7 @@ export const SourceEvidence = z
 export const VerdictResult = z
     .object({
     kind: z.literal("verdict"),
+    measuredConfigurationId: z.string().optional(),
     verdict: Verdict,
     reference: StructuredReference,
     scoringRules: z.object({

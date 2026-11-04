@@ -29,6 +29,7 @@ let reservations = 0;
 let guest = false;
 let authorityDown = false;
 let configured = true;
+let configurationIdentity = "controlled-source-a";
 let hold: ((signal: AbortSignal) => Promise<unknown>) | undefined;
 let responseForInput: ((input: string) => unknown) | undefined;
 let responseValue: unknown = { references: [] };
@@ -71,6 +72,7 @@ beforeEach(() => {
   guest = false;
   authorityDown = false;
   configured = true;
+  configurationIdentity = "controlled-source-a";
   responseForInput = undefined;
   hold = undefined;
   unavailable = false;
@@ -109,6 +111,12 @@ beforeAll(async () => {
     heartbeatMs: 100,
     referenceLimit: 1000,
     extraction: synthetic,
+    // Controlled state-machine identity at the HTTP composition seam; never qualification.
+    configuration: {
+      identity: () => configurationIdentity,
+      extraction: () => synthetic,
+      scope: (_request, operation) => operation(),
+    },
     entitlements: {
       resolve: () =>
         Promise.resolve({
@@ -763,4 +771,24 @@ it("keeps an ungrounded DOI proposal out of search and scoring until a user revi
     await worker.stop();
     await fixtures.stop();
   }
+});
+
+it("binds an AI preview to its selected configuration and rejects it after a controlled configuration switch", async () => {
+  const text = "We discussed Doe (2020). Exact maps. yesterday.";
+  const preview = TextStructuringResponse.parse(
+    await (await structure(text)).json(),
+  ).data.structuring;
+  configurationIdentity = "controlled-source-b";
+  const create = (result: unknown) =>
+    fetch(`${api}/v2/checks`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ extraction: { text, result } }),
+    });
+  expect((await create(preview)).status).toBe(400);
+  expect(reservations).toBe(0);
+  const current = TextStructuringResponse.parse(
+    await (await structure(text)).json(),
+  ).data.structuring;
+  expect((await create(current)).status).toBe(201);
 });

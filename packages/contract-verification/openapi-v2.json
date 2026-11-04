@@ -973,6 +973,9 @@
       "CheckV2": {
         "type": "object",
         "properties": {
+          "measuredConfigurationId": {
+            "type": "string"
+          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -1153,6 +1156,12 @@
             "items": {
               "type": "object",
               "properties": {
+                "measuredConfigurationId": {
+                  "type": "string"
+                },
+                "scoringRulesVersion": {
+                  "type": "string"
+                },
                 "id": {
                   "type": "string",
                   "format": "uuid"
@@ -1292,6 +1301,9 @@
                 "enum": [
                   "verdict"
                 ]
+              },
+              "measuredConfigurationId": {
+                "type": "string"
               },
               "verdict": {
                 "$ref": "#/components/schemas/Verdict"

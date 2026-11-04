@@ -1,3 +1,7 @@
+import {
+  configurationSelection,
+  mountConfigurations,
+} from "./quality/protocol.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { mountDataSubjectDelivery } from "./exports/data-subject.ts";
 // The web process: serves the /v1 HTTP API and the Check event streams.
@@ -26,7 +30,12 @@ await runMain(async (config) => {
   const db = createPrisma(config.databaseUrl);
   const boss = await createQueue(config.databaseUrl);
   const events = await listenForEvents(config.databaseUrl);
+  const selection =
+    config.mode === "hosted" && config.hosted
+      ? configurationSelection(config.hosted, undefined, undefined, db)
+      : undefined;
   const checks = createCheckStore(db, boss, {
+    configuration: selection,
     settings: {
       contentRetentionMs: config.contentRetentionMs,
       clientLeaseMs: config.clientLeaseMs,
@@ -72,7 +81,8 @@ await runMain(async (config) => {
   const app = createApp({
     entrance,
     structuring: createParser({ referenceLimit: config.referenceLimit }),
-    extraction: await activeExtraction(),
+    extraction: selection ? undefined : await activeExtraction(),
+    configuration: selection,
     events,
     heartbeatMs: config.sseHeartbeatMs,
     referenceLimit: config.referenceLimit,
@@ -85,6 +95,7 @@ await runMain(async (config) => {
   if (authority && config.hosted) {
     mountInternalRoutes(app, authority);
     mountDataSubjectDelivery(app, config.hosted, checks);
+    mountConfigurations(app, db, config.hosted);
   }
   if (website) {
     // The website only answers what the API does not own (ADR-0020).

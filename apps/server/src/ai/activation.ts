@@ -5,6 +5,7 @@ import { isDeepStrictEqual } from "node:util";
 import {
   loadExtraction,
   resolveConfiguration,
+  readConfigurationFile,
 } from "../quality/configuration.ts";
 import { codeVersion } from "../quality/code-version.ts";
 import { checkRelease } from "../quality/release.ts";
@@ -23,16 +24,19 @@ export async function activeExtraction(): Promise<ExtractionPort | undefined> {
     if (!file || !measuredModule) return undefined;
     const measured = await loadExtraction(measuredModule);
     if (
+      measured.codeDigest !== port.codeDigest ||
       measured.model !== port.model ||
       !isDeepStrictEqual(measured.configuration, port.configuration)
     )
       return undefined;
     const release = await checkRelease({
       root: process.env.SOURCE_TASTER_QUALITY_ROOT,
+      configurationDigest: (await readConfigurationFile(file)).digest,
       code: codeVersion(),
       runtimeCalibration: scoringRulesCalibration,
       loadReport: process.env.SOURCE_TASTER_LOAD_REPORT || undefined,
       expected: {
+        extractionCodeDigest: port.codeDigest,
         configuration: await resolveConfiguration(
           file,
           port.model,

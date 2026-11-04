@@ -221,6 +221,8 @@ export const SetManualOverrideRequest = z.strictObject({
     verdict: v1.Verdict,
 });
 export const HistoricalResult = z.object({
+    measuredConfigurationId: z.string().optional(),
+    scoringRulesVersion: z.string().optional(),
     id: z.uuid(),
     revision: z.number().int().positive(),
     generation: z.number().int().nonnegative(),
