@@ -208,8 +208,9 @@ Rules for the workflow:
 - **Not in the deploy gate:** `deploy-scalingo.yml` and the `checks` job stay
   untouched. A red scheduled run is a signal for a human, not a deploy blocker, until the
   team decides otherwise.
-- **Budget:** split the matrix so every job fits 60 minutes. The prelude is about 20
-  minutes on the hosted runner, plus the private service's install and build. Measure
+- **Budget:** split the matrix so every job fits 60 minutes. The Pagefind build alone
+  is about 13 minutes on the hosted runner; add `pnpm build` and the private service's
+  install and build. Measure
   the first run and re-split if needed. Running the class B browser suites on the
   hosted runner has not been tried; expect to adjust ports and timeouts.
 

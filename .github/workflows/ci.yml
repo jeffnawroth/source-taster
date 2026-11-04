@@ -369,8 +369,9 @@ jobs:
             apps/extension/test-results-selection
             apps/extension/test-results-firefox
           retention-days: 7
-  # The `*.contract.ts` suites that need only the public repository (the other
-  # eleven compose the private service and are not run here).
+  # The `*.contract.ts` suites that need only the public repository (the rest
+  # compose the private service and are not run here; see
+  # docs/implementation/142-e2e-in-ci.md).
   public-contracts:
     runs-on: ubuntu-24.04
     timeout-minutes: 60

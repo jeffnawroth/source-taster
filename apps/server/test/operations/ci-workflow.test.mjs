@@ -230,7 +230,9 @@ test("the public Playwright and contract suites run in CI on local fakes, each i
   // Playwright reads each argument as a path regex: a bare `panel.spec.ts`
   // would also select `sensitive-panel.spec.ts`, so every name carries its
   // directory.
-  const account = playwrightCommands(extension)[0];
+  const account = playwrightCommands(extension).find((r) =>
+    r.includes("--config account.playwright.config.ts"),
+  );
   for (const spec of [
     "panel.spec.ts",
     "preferences-transport.spec.ts",
@@ -253,22 +255,50 @@ test("the public Playwright and contract suites run in CI on local fakes, each i
 });
 
 test("no CI job wires a suite that composes the private service (those run in a separate guarded workflow, #142)", () => {
-  // Extension configs whose specs all call bothPrograms (or the fake built on it).
-  const privateExtensionConfigs = [
-    "private",
-    "quota",
-    "dpa",
-    "guest",
-    "history",
-    "preferences",
-  ];
+  // Configs whose specs or contracts call bothPrograms (or a fake built on it),
+  // per package: the same config name can be public in one package and private
+  // in another (e.g. account is public in the extension, private in the web app).
+  const privateConfigs = {
+    web: [
+      "account.playwright.config.ts",
+      "dpa.playwright.config.ts",
+      "guest.playwright.config.ts",
+      "history.playwright.config.ts",
+      "quota.playwright.config.ts",
+      "rights.playwright.config.ts",
+      "sensitive.playwright.config.ts",
+    ],
+    extension: [
+      "private.playwright.config.ts",
+      "quota.playwright.config.ts",
+      "dpa.playwright.config.ts",
+      "guest.playwright.config.ts",
+      "history.playwright.config.ts",
+      "preferences.playwright.config.ts",
+    ],
+    server: [
+      "abuse-both.vitest.config.ts",
+      "account.vitest.config.ts",
+      "configuration.vitest.config.ts",
+      "dpa.vitest.config.ts",
+      "extension.vitest.config.ts",
+      "guest.vitest.config.ts",
+      "quota.vitest.config.ts",
+      "rights.vitest.config.ts",
+      "sensitive.vitest.config.ts",
+    ],
+  };
   const steps = Object.values(workflow.jobs).flatMap((j) => j.steps ?? []);
   for (const r of steps
     .map((s) => s.run)
     .filter((r) => typeof r === "string")) {
     assert.ok(!/bothPrograms|SOURCE_TASTER_SERVICE/.test(r), r);
-    for (const name of privateExtensionConfigs)
-      assert.ok(!r.includes(`--config ${name}.playwright.config.ts`), r);
+    const pkg = r.match(
+      /--filter @source-taster\/(web|extension|server) /,
+    )?.[1];
+    const config = r.match(/--config (\S+)/)?.[1];
+    if (pkg && config)
+      assert.ok(!privateConfigs[pkg].includes(config), `${pkg}: ${r}`);
   }
 });
 
