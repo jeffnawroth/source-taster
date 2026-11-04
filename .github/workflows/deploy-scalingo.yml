@@ -37,7 +37,7 @@ jobs:
           gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$OPS_COMMIT&per_page=1" > "$RUNNER_TEMP/ci.json"
           node --input-type=module -e 'import fs from "node:fs"; const r=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+"/ci.json")).workflow_runs[0]; if(!r||r.head_sha!==process.env.OPS_COMMIT||r.conclusion!=="success"||Date.now()-Date.parse(r.updated_at)>86400000)process.exit(78)'
       - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
       - run: pnpm install --frozen-lockfile
