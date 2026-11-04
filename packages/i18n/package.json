@@ -16,7 +16,7 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "devDependencies": {
-    "@inlang/paraglide-js": "2.29.1",
+    "@inlang/paraglide-js": "2.29.3",
     "@inlang/plugin-message-format": "4.5.5"
   }
 }
