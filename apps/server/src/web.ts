@@ -1,3 +1,8 @@
+import { serveStatic } from "@hono/node-server/serve-static";
+import { resolve } from "node:path";
+import { maintenanceNotice } from "../ops/maintenance.mjs";
+import { operationalHealth } from "../ops/health.mjs";
+import { assertRecoveryReleased } from "../ops/fence.mjs";
 import {
   configurationSelection,
   mountConfigurations,
@@ -24,6 +29,7 @@ import { standaloneEntitlements } from "./entitlements.ts";
 import { createApp } from "./http/app.ts";
 
 await runMain(async (config) => {
+  await assertRecoveryReleased(config.databaseUrl);
   const website = config.website
     ? await openWebsite(config.website.directory, config.website.mode)
     : undefined;
@@ -92,10 +98,35 @@ await runMain(async (config) => {
     documentConcurrency: config.documentLimits.concurrency,
     documentInputBytes: config.documentLimits.inputBytes,
   });
+  const health = await operationalHealth(config.databaseUrl);
+  app.get("/health/maintenance", async (c) => {
+    c.header("Cache-Control", "no-store");
+    try {
+      return c.json(
+        await maintenanceNotice(process.env.SOURCE_TASTER_MAINTENANCE_FILE),
+      );
+    } catch {
+      return c.json({ state: "unknown" }, 503);
+    }
+  });
+  app.get("/health/live", (c) => c.json({ status: "alive" }));
+  app.get("/health/ready", async (c) => {
+    const ready = await health.ready();
+    return c.json(
+      { status: ready ? "ready" : "unavailable" },
+      ready ? 200 : 503,
+    );
+  });
   if (authority && config.hosted) {
     mountInternalRoutes(app, authority);
     mountDataSubjectDelivery(app, config.hosted, checks);
     mountConfigurations(app, db, config.hosted);
+  }
+  const webDirectory = process.env.SOURCE_TASTER_WEB_DIRECTORY;
+  if (webDirectory) {
+    const directory = resolve(webDirectory);
+    app.get("/assets/*", serveStatic({ root: directory }));
+    app.get("/", serveStatic({ path: resolve(directory, "index.html") }));
   }
   if (website) {
     // The website only answers what the API does not own (ADR-0020).
@@ -126,6 +157,7 @@ await runMain(async (config) => {
       boss.stop(),
       events.close(),
       db.$disconnect(),
+      health.close(),
       authority?.close(),
       entrance?.close(),
     ]).finally(() => process.exit(0));

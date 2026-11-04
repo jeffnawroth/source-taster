@@ -1,0 +1,132 @@
+name: Prepare and deploy qualified verification to provisioned Scalingo Paris
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: Exact reviewed 40-character source commit
+        required: true
+      config_sha256:
+        description: SHA256 of protected deployment configuration
+        required: true
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: scalingo-verification-paris
+  cancel-in-progress: false
+jobs:
+  deploy:
+    environment: scalingo-paris-verification
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      OPS_COMMIT: ${{ inputs.commit }}
+      OPS_CONFIG_SHA256: ${{ inputs.config_sha256 }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ inputs.commit }}
+          persist-credentials: false
+      - name: Exact current CI, including dependency gates, must pass
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$OPS_COMMIT" =~ ^[a-f0-9]{40}$ ]]
+          test "$(git rev-parse HEAD)" = "$OPS_COMMIT"
+          gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$OPS_COMMIT&per_page=1" > "$RUNNER_TEMP/ci.json"
+          node --input-type=module -e 'import fs from "node:fs"; const r=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+"/ci.json")).workflow_runs[0]; if(!r||r.head_sha!==process.env.OPS_COMMIT||r.conclusion!=="success"||Date.now()-Date.parse(r.updated_at)>86400000)process.exit(78)'
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version-file: .nvmrc
+      - run: pnpm install --frozen-lockfile
+      - name: Validate immutable private qualification input pin
+        env:
+          QUALIFICATION_COMMIT: ${{ vars.QUALIFICATION_COMMIT }}
+          QUALIFICATION_REPOSITORY: ${{ vars.QUALIFICATION_REPOSITORY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$QUALIFICATION_COMMIT" =~ ^[a-f0-9]{40}$ ]]
+          test -n "$QUALIFICATION_REPOSITORY"
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          repository: ${{ vars.QUALIFICATION_REPOSITORY }}
+          ref: ${{ vars.QUALIFICATION_COMMIT }}
+          token: ${{ secrets.QUALIFICATION_READ_TOKEN }}
+          path: .qualification
+          persist-credentials: false
+      - name: Load protected, signed exact-configuration evidence
+        env:
+          CONFIG: ${{ secrets.DEPLOY_CONFIGURATION_JSON }}
+          APPROVAL: ${{ secrets.DEPLOY_APPROVAL_JSON }}
+          APPROVAL_SIGNATURE: ${{ secrets.DEPLOY_APPROVAL_SIGNATURE }}
+          APPROVAL_KEY: ${{ vars.DEPLOY_APPROVAL_PUBLIC_KEY }}
+          MEASURED_REGISTRY: ${{ secrets.MEASURED_CONFIGURATIONS_JSON }}
+          QUALITY_EXTRACTION: ${{ vars.QUALITY_EXTRACTION }}
+          QUALITY_CONFIGURATION_FILE: ${{ vars.QUALITY_CONFIGURATION_FILE }}
+          QUALITY_ROOT: ${{ vars.QUALITY_ROOT }}
+          LOAD_REPORT: ${{ vars.LOAD_REPORT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          test -n "$CONFIG" && test -n "$APPROVAL" && test -n "$APPROVAL_SIGNATURE" && test -n "$APPROVAL_KEY"
+          [[ "$QUALITY_CONFIGURATION_FILE" == .qualification/* ]]
+          test -n "$MEASURED_REGISTRY" && test -f "$QUALITY_CONFIGURATION_FILE" && test -d "$QUALITY_ROOT" && test -f "$LOAD_REPORT" && test -f "$QUALITY_EXTRACTION"
+          printf '%s' "$CONFIG" > "$RUNNER_TEMP/deploy.json"
+          printf '%s' "$APPROVAL" > "$RUNNER_TEMP/approval.json"
+          printf '%s' "$APPROVAL_SIGNATURE" > "$RUNNER_TEMP/approval.sig"
+          printf '%s' "$APPROVAL_KEY" > "$RUNNER_TEMP/approval.pem"
+          printf '%s' "$MEASURED_REGISTRY" > "$RUNNER_TEMP/registry.json"
+          echo "OPS_DEPLOY_CONFIG=$RUNNER_TEMP/deploy.json" >> "$GITHUB_ENV"
+          echo "OPS_APPROVAL_PACKET=$RUNNER_TEMP/approval.json" >> "$GITHUB_ENV"
+          echo "OPS_APPROVAL_SIGNATURE=$RUNNER_TEMP/approval.sig" >> "$GITHUB_ENV"
+          echo "OPS_APPROVAL_PUBLIC_KEY=$RUNNER_TEMP/approval.pem" >> "$GITHUB_ENV"
+          echo "SOURCE_TASTER_MEASURED_CONFIGURATIONS=$RUNNER_TEMP/registry.json" >> "$GITHUB_ENV"
+          echo "SOURCE_TASTER_QUALITY_EXTRACTION=$QUALITY_EXTRACTION" >> "$GITHUB_ENV"
+          echo "SOURCE_TASTER_QUALITY_CONFIGURATION=$QUALITY_CONFIGURATION_FILE" >> "$GITHUB_ENV"
+          echo "SOURCE_TASTER_QUALITY_ROOT=$QUALITY_ROOT" >> "$GITHUB_ENV"
+          echo "SOURCE_TASTER_LOAD_REPORT=$LOAD_REPORT" >> "$GITHUB_ENV"
+      - name: Recompute exact release and all approval fences
+        run: node apps/server/ops/deployment.mjs > "$RUNNER_TEMP/deployment-receipt.json"
+      - run: pnpm pagefind:fetch && pnpm pagefind:build && pnpm pagefind:verify
+      - run: pnpm typecheck && pnpm i18n:check && pnpm build
+      - name: Enforce website publication gates independently
+        run: pnpm --filter @source-taster/website build:publication
+      - name: Prepare independent source artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          node apps/server/ops/package.mjs "$RUNNER_TEMP/verification-source.tar.gz"
+      - name: Deploy only to the provisioned app with checksum-pinned CLI
+        env:
+          SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
+          CLI_URL: ${{ vars.SCALINGO_CLI_URL }}
+          CLI_SHA256: ${{ vars.SCALINGO_CLI_SHA256 }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SCALINGO_API_TOKEN"
+          [[ "$CLI_URL" == https://github.com/Scalingo/cli/releases/download/* ]]
+          [[ "$CLI_SHA256" =~ ^[a-f0-9]{64}$ ]]
+          curl --fail --silent --show-error --location "$CLI_URL" -o "$RUNNER_TEMP/scalingo-cli.tar.gz"
+          echo "$CLI_SHA256  $RUNNER_TEMP/scalingo-cli.tar.gz" | sha256sum --check
+          mkdir "$RUNNER_TEMP/scalingo-cli"
+          tar -xzf "$RUNNER_TEMP/scalingo-cli.tar.gz" -C "$RUNNER_TEMP/scalingo-cli"
+          app_id=$(node --input-type=module -e 'import fs from "node:fs";console.log(JSON.parse(fs.readFileSync(process.env.OPS_DEPLOY_CONFIG)).appId)')
+          "$RUNNER_TEMP/scalingo-cli/scalingo" --region osc-fr1 --app "$app_id" deploy "$RUNNER_TEMP/verification-source.tar.gz"
+      - name: Retain content-free recomputed public release publication for offline signing
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: verification-release-publication-${{ inputs.commit }}
+          path: ${{ runner.temp }}/deployment-receipt.json
+          if-no-files-found: error
+          retention-days: 1
+      - name: Remove restricted ephemeral evidence
+        if: always()
+        shell: bash
+        run: |
+          rm -rf .qualification
+          rm -f "$RUNNER_TEMP/deploy.json" "$RUNNER_TEMP/approval.json" "$RUNNER_TEMP/approval.sig" "$RUNNER_TEMP/approval.pem" "$RUNNER_TEMP/registry.json"

@@ -9,6 +9,9 @@ export const databaseExportFlags = [
   // Restore reactivation requires the service admission fence (see #100 handoff).
   "--exclude-table-data=verification.abuse_counters",
   "--exclude-table-data=verification.abuse_origin_windows",
+  "--exclude-table-data=verification.ops_worker_health",
+  "--exclude-table-data=verification.export_snapshots",
+  "--exclude-table-data=verification.export_members",
   "--no-owner",
   "--no-privileges",
 ] as const;

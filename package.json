@@ -20,7 +20,8 @@
     "audit:licenses": "node scripts/licenses.ts",
     "pagefind:fetch": "node scripts/pagefind-source.ts fetch",
     "pagefind:build": "node scripts/pagefind-source.ts build",
-    "pagefind:verify": "node scripts/pagefind-source.ts verify"
+    "pagefind:verify": "node scripts/pagefind-source.ts verify",
+    "scalingo-postbuild": "node apps/server/ops/platform-check.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

@@ -1,0 +1,112 @@
+{
+  "scope": "code-workflows-localtests-human-handoff",
+  "cloudQualified": false,
+  "publicImplementationHead": "3389023179499606aa421f14f3e2a2a5c16fccb7",
+  "privateImplementationHead": "32976d660869c0aa76deb9fb4d769801603f91ac",
+  "publicIntegrationBase": "28056f575cb165f7d511c268a5d16036c98b3efd",
+  "privateIntegrationBase": "13021cdd52342a24f0b3ff414a1991f266e99889",
+  "fiveCanonicalPrivatePins": "d50b0ac24273515e5f291de58aa29d7856f99475",
+  "new116TransportPinRequired": false,
+  "tests": [
+    {
+      "log": "116-final-public-operations.log",
+      "passed": 5,
+      "sha256": "8218953002b6d89a8d073f8b6d19a177594f9d0d3d1dbbaeff87301ffbfdf727"
+    },
+    {
+      "log": "116-final-private-operations.log",
+      "passed": 5,
+      "sha256": "7b914bcc83f9f749190fc47bc451becdb8ffd490cc91c332be845cfbc491b0b4"
+    },
+    {
+      "log": "116-final-private-tests.log",
+      "passed": 128,
+      "sha256": "e2c5e5fde24f4bccd8d900cebb9bf7140ccec9987aedf58e3b0e11a581fc37bc"
+    },
+    {
+      "log": "116-final-public-regressions.log",
+      "passed": 79,
+      "sha256": "c1f53430a01c3343e083a5acfc3d0dd40c27a5d53c410d5d278712bc242cfe0a"
+    },
+    {
+      "log": "116-final-history.log",
+      "passed": 21,
+      "sha256": "db924687f048b12e29d77f84fb0697ee841e020b7208d946b7377a872baf604f"
+    },
+    {
+      "log": "116-final-configurations.log",
+      "passed": 2,
+      "sha256": "254281c0b6b0c3698b046d17ef10d112b4d0ec5541e6fe5b3c39ad2ef0ffe83d"
+    },
+    {
+      "log": "116-final-rights-configured.log",
+      "passed": 7,
+      "sha256": "3bb309e9b42534ac90c30b7e0cc86124ba47808eac858386c643352504193536"
+    },
+    {
+      "log": "116-maintenance-browser.log",
+      "passed": 2,
+      "sha256": "fe0f4604de53134f0cb1d82fc259384838fe8f581c9bcf123ef21d9a0167d185"
+    }
+  ],
+  "reproduction": {
+    "generatedPublicTransportFiles": 78,
+    "privateCompiledFiles": 102,
+    "byteIdentical": true
+  },
+  "releaseExit": 78,
+  "deploymentWithoutConfigurationExit": 78,
+  "publicPublicationPackagingExit": 78,
+  "privateCanonicalDependencyGate": {
+    "exit": 1,
+    "finding": "GHSA-g3hv-75wg-m249",
+    "findingCount": 1
+  },
+  "publicAdvisoryMatch": {
+    "packages": 2783,
+    "rawFindings": 84,
+    "policyBlockingFindings": 0,
+    "legalPublication": "blocked"
+  },
+  "originalOverrideHashes": {
+    "pnpm-lock.yaml": "dc8fde32425323ee75cbe295388eff9b1e419df2ce631fad4d72e3880e8e05b0",
+    "original.patch": "3c4f2b40b6c73400953ce0c0a66b8c21439fb58101b5be893100324c41472527",
+    "pnpm-workspace.yaml": "43bad5f776a2b7f01a828fa3a73d9b68652f628090775ade2b1796cb828922f1"
+  },
+  "effectiveOverrideHashes": {
+    "pnpm-workspace.yaml": "f98567e52c67f9f4fa18a84fdd4a2368bde12f1c5dd19766602af43526308191",
+    "pnpm-lock.yaml": "965e6a17093cbe0002cccbc7f5771dbf73fe1fd8f8e553d5d23c6c7fd0102843"
+  },
+  "privateArtifact": {
+    "packageExit": 0,
+    "archiveSha256": "b10ddd67b35f8bb6fcef141a2da65225dd831a7ffef2bc4411ffa14c819b3be3",
+    "gitIdentityPreserved": true,
+    "packagedPlatformCheckExit": 0,
+    "artifactScope": "local-regression-only",
+    "canonicalAdvisoryRefreshExit": 0,
+    "canonicalDependencyGateExit": 1,
+    "effectiveOverridesRestored": true
+  },
+  "cleanup": {
+    "ownedContainerRemoved": true,
+    "ownedAnonymousVolumeRemovalRequested": true,
+    "assignedPortsWithoutListeners": [
+      5501,
+      5502,
+      5503,
+      5442
+    ],
+    "unknownResourcesTouched": false,
+    "cloudActions": false,
+    "fiveHourJobChanged": false
+  },
+  "remainingHuman": [
+    "provider accounts/apps/PostgreSQL18/isolation/buildpack/CLI pins and protected environments",
+    "real calibration/frozen Quality/live-load/source rights/provider/Selected/security/legal/browser acceptance",
+    "Object Lock/lifecycle physical tail, offline key custody and managed backup/PITR behavior",
+    "both real cloud restore paths and complete RPO24h/RTO8h with privacy/auth/config/accounting reconciliation",
+    "Better Stack status/recipients/live synthetic outage, TEM deliverability/Cockpit and actual 48h announcement"
+  ],
+  "sourcePreparationComplete": true,
+  "real116CloudAcceptanceComplete": false
+}

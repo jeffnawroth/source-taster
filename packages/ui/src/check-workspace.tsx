@@ -1,3 +1,4 @@
+import { MaintenanceNotice } from "./maintenance.tsx";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { HistoryPanel } from "./history.tsx";
 import { ContinuationTime } from "./abuse-message.tsx";
@@ -797,6 +798,7 @@ export function CheckWorkspace({
   }
   return (
     <main className="check-workspace mx-auto max-w-7xl px-6 py-10 sm:py-16">
+      <MaintenanceNotice baseUrl={transport.baseUrl} language={locale} />
       <header className="mb-10 flex flex-wrap items-start justify-between gap-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{m.app_title()}</h1>
