@@ -370,7 +370,7 @@ jobs:
           tar -xJf .tmp/firefox.tar.xz -C .tmp
           echo "SOURCE_TASTER_FIREFOX_BINARY=$PWD/.tmp/firefox/firefox" >> "$GITHUB_ENV"
       - name: Extension Account suite (public specs, private service replaced at its HTTP edge)
-        run: pnpm --filter @source-taster/extension exec playwright test --config account.playwright.config.ts e2e-account/panel.spec.ts e2e-account/preferences-transport.spec.ts e2e-account/sensitive-transport.spec.ts e2e-account/transport.spec.ts
+        run: pnpm --filter @source-taster/extension exec playwright test --config account.playwright.config.ts e2e-account/panel.spec.ts e2e-account/preferences-transport.spec.ts e2e-account/sensitive-transport.spec.ts e2e-account/transport.spec.ts e2e-account/consent.spec.ts e2e-account/consent-native.spec.ts
       - name: Extension AI extraction suite
         run: pnpm --filter @source-taster/extension exec playwright test --config ai.playwright.config.ts
       - name: Extension Verification report suite
