@@ -104,6 +104,9 @@ export function hostPermissions(target: Target, config: ExtensionConfig) {
  * - websiteContent: the text the user selects or submits for checking;
  * - authenticationInfo and personallyIdentifyingInfo: the e-mail address and
  *   one-time code for Account sign-in.
+ * Optional, requested from a user action before Account Preferences sync:
+ * - technicalAndInteraction: Mozilla lists "extension usage and settings data"
+ *   here, and this type may only be declared as optional.
  * Declared statically for every Firefox build, including standalone builds
  * without sign-in, so the declaration never under-reports. Sources:
  * https://extensionworkshop.com/documentation/develop/firefox-builtin-data-consent/
@@ -114,6 +117,7 @@ const dataCollectionPermissions = {
     "personallyIdentifyingInfo",
     "websiteContent",
   ],
+  optional: ["technicalAndInteraction"],
 };
 
 export function manifest(target: Target, config: ExtensionConfig) {
@@ -142,9 +146,9 @@ export function manifest(target: Target, config: ExtensionConfig) {
         browser_specific_settings: {
           gecko: {
             id: "development@source-taster.invalid",
-            // Firefox 127 grants and shows MV3 host permissions at install
-            // (bug 1889402); 128 is the first ESR after that.
-            strict_min_version: "128.0",
+            // 140 is the first desktop release with the built-in data
+            // collection consent prompt; see docs/research/extension-platform.md 5.5.
+            strict_min_version: "140.0",
             data_collection_permissions: dataCollectionPermissions,
           },
         },
