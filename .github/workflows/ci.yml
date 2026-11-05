@@ -314,6 +314,11 @@ jobs:
   extension-suites:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
+    # The Account and History helpers refuse to guess a database: name the
+    # job's own PostgreSQL service explicitly.
+    env:
+      DATABASE_ADMIN_URL: postgres://postgres:postgres@localhost:5433/postgres
+      DATABASE_TEST_URL: postgres://verification_test:fixture@localhost:5433/owned
     services:
       postgres:
         image: postgres:18
@@ -375,6 +380,11 @@ jobs:
   public-contracts:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
+    # The Account and History helpers refuse to guess a database: name the
+    # job's own PostgreSQL service explicitly.
+    env:
+      DATABASE_ADMIN_URL: postgres://postgres:postgres@localhost:5433/postgres
+      DATABASE_TEST_URL: postgres://verification_test:fixture@localhost:5433/owned
     services:
       postgres:
         image: postgres:18
