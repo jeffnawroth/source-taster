@@ -16,6 +16,7 @@
 //    worker-spawning test asserts `expectNoRunnableWork` first.
 import pg from "pg";
 import { afterEach, beforeEach, expect } from "vitest";
+import { BOSS_SCHEMA, PRISMA_SCHEMA } from "../../src/db/schemas.ts";
 
 const LIVE_JOB_STATES = "('created','retry','active')";
 
@@ -57,12 +58,12 @@ export async function leftoverWork(appUrl: string): Promise<Leftover> {
   }>(
     appUrl,
     `SELECT check_id AS "checkId", position AS slot, claim_until IS NOT NULL AS claimed
-       FROM verification.reference_slots WHERE status = 'running' ORDER BY 1, 2`,
+       FROM ${PRISMA_SCHEMA}.reference_slots WHERE status = 'running' ORDER BY 1, 2`,
   );
   const liveJobs = await query<Leftover["liveJobs"][number]>(
     appUrl,
     `SELECT id::text, name AS queue, state::text, data->>'checkId' AS "checkId"
-       FROM verification_boss.job WHERE state IN ${LIVE_JOB_STATES} ORDER BY created_on`,
+       FROM ${BOSS_SCHEMA}.job WHERE state IN ${LIVE_JOB_STATES} ORDER BY created_on`,
   );
   return { runningSlots, liveJobs };
 }
@@ -90,8 +91,8 @@ export async function foreignClaims(appUrl: string, since: string) {
   return query<{ checkId: string; slot: number }>(
     appUrl,
     `SELECT DISTINCT e.check_id AS "checkId", (e.payload->'reference'->>'slot')::int AS slot
-       FROM verification.check_events e
-       JOIN verification.checks c ON c.id = e.check_id
+       FROM ${PRISMA_SCHEMA}.check_events e
+       JOIN ${PRISMA_SCHEMA}.checks c ON c.id = e.check_id
       WHERE c.created_at < $1::timestamptz
         AND e.created_at >= $1::timestamptz
         AND e.payload->'reference'->>'progress' = 'checking'
@@ -107,11 +108,11 @@ export async function discardWork(appUrl: string) {
   try {
     await client.query("BEGIN");
     await client.query(
-      `UPDATE verification.reference_slots
+      `UPDATE ${PRISMA_SCHEMA}.reference_slots
           SET status = 'cancelled', claim_until = NULL WHERE status = 'running'`,
     );
     await client.query(
-      `DELETE FROM verification_boss.job WHERE state IN ${LIVE_JOB_STATES}`,
+      `DELETE FROM ${BOSS_SCHEMA}.job WHERE state IN ${LIVE_JOB_STATES}`,
     );
     await client.query("COMMIT");
   } catch (error) {
