@@ -234,6 +234,11 @@ async function withIntake(
         )) === selectionText,
       "Selection did not fill the shared input",
     );
+    // Once the intake has settled, the click still made exactly one open, and
+    // no later open slipped in outside the gesture.
+    expect(await background.evaluate<boolean[]>("selectionEdge.opens")).toEqual(
+      [true],
+    );
     if (language === "de")
       await panel.select("combobox", /^(Language|Sprache)$/, "de");
     await run({
