@@ -19,9 +19,11 @@ built, what the tests show and what was not run.
   answers; if that never happens, sync simply stays off. Grants, withdrawals and
   lookups take a ticket so a stale lookup cannot overwrite a newer event.
 - **Withdrawal keeps what the user sees.** When the grant is withdrawn while
-  signed in, the displayed (Account-sourced) Preferences are written to local
+  signed in and a panel is open, the displayed (Account-sourced) Preferences are written to local
   storage, following ADR-0023's rule for sign-out and session end. A later grant
-  applies the Account's values under the existing sign-in rule.
+  applies the Account's values under the existing sign-in rule. A withdrawal made
+  while no panel is open is not observed, so the reopened panel shows its older
+  local values (open product question below).
 - **Live consent at sign-in.** Confirming a sign-in reads the grant at that moment,
   not from the last render.
 - **Consent is an object, not a special case.** `PreferenceSyncConsent` has a
@@ -80,7 +82,8 @@ the source before the fix and all failed. They are the lookup that never answers
 (the panel did not render), the late lookup answer, the withdrawal with no later
 edit (nothing was stored locally) and the sign-in confirmed in the same turn as a
 withdrawal (the request carried Preferences). The new unit cases failed because
-the seam returned a promise. The earlier suites were green before and after.
+the seam returned a promise. The pre-existing cases pass after the change; they were not run before it in this
+round.
 
 ## Not run
 
@@ -89,6 +92,17 @@ the seam returned a promise. The earlier suites were green before and after.
   `permissions.onRemoved` payload for a data collection withdrawal (the seam does
   not depend on it).
 - Firefox ESR, Firefox 140 itself, and Firefox for Android.
+- A grant withdrawn while no panel is open: the panel reopens on the older local
+  values. Mirroring synced values locally would close this; it is beyond this
+  ticket and is a product question.
+- Root `pnpm typecheck` and `pnpm lint`: both stopped at `@source-taster/website#build`
+  because `.tmp/pagefind/fetched.json` is missing (`pnpm pagefind:fetch` needs the
+  network), unrelated to this change. Typecheck and lint were run per package and
+  pass for extension, ui, i18n and web; `eslint scripts` and `prettier --check .`
+  pass.
+- A web UI end-to-end suite. The only web runtime evidence for "web behaviour is
+  unchanged" is the passing `panel.spec.ts` case "the actual web UI keeps #97
+  cookie transport…" plus the web typecheck.
 - The new consent specs are not in `.github/workflows/ci.yml`; this change did not
   edit CI.
 

@@ -87,7 +87,7 @@ Mozilla files "extension usage and settings data" under the data collection type
 
 - **Without the grant:** Preferences stay local, also while signed in. The extension neither reads them from nor writes them to the service, and registration or sign-in sends no Preferences. A change is stored in the local Guest Preferences.
 - **Obtaining the grant:** a visible control in the signed-in Account section requests it from a user action. A refusal leaves everything local.
-- **Withdrawal:** if the user withdraws the grant, including from the browser's add-on settings, syncing stops at once. The client keeps the values it was displaying and stores them as its local Preferences, as for sign-out and session end above, so the interface does not change.
+- **Withdrawal:** if the user withdraws the grant while a panel is open, including from the browser's add-on settings, syncing stops at once. The client keeps the values it was displaying and stores them as its local Preferences, as for sign-out and session end above, so the interface does not change. A withdrawal made while no panel is open is not observed; the panel then opens on its older local values.
 - **Later grant:** the existing sign-in rule applies. The Account's stored values are applied; local values are not merged into the Account.
 
 Chromium and the web app are unchanged: they always sync while signed in. An existing Account that signs in without the grant keeps its stored values, and a new registration without the grant sends none; whether to offer "send my current Preferences" at grant time remains undecided.
