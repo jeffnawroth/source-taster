@@ -52,9 +52,15 @@ describe("report PDF structure", () => {
     for (const sample of samples) {
       const inspected = await inspectPdf(sample.pdf);
       const all = inspected.pages.flatMap((page) => roles(page.tree));
-      expect(all, sample.name).toContain("H1");
-      expect(all, sample.name).toContain("H2");
-      expect(all, sample.name).toContain("P");
+      for (const role of ["H1", "H2", "P", "L", "LI", "Lbl", "LBody", "Link"])
+        expect(all, `${sample.name} ${role}`).toContain(role);
+      // Every page of a multi-page report carries structure, so content that
+      // continues onto the next page is reachable from the tree there.
+      for (const [index, page] of inspected.pages.entries())
+        expect(
+          roles(page.tree).length,
+          `${sample.name} page ${index + 1}`,
+        ).toBeGreaterThan(0);
     }
   });
 });

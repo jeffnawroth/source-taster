@@ -101,7 +101,7 @@ Result of the local run (veraPDF 1.30.3, OpenJDK 27.0.1, macOS arm64):
   (`pdfuaid:part`); writing it makes every report declare itself PDF/UA-1. That
   declaration needs the PDF/UA checks a validator cannot make (manual review),
   so on 5 November 2026 the product owner's decision was: **the reports do not
-  declare PDF/UA.** The validator's other 105 rules pass.
+  declare PDF/UA.** In the local run (veraPDF 1.30.3 on OpenJDK 27) every other rule passed; CI runs it on Temurin 21.
 - The harness (`apps/server/scripts/report-pdfua.ts`) therefore accepts exactly
   one failed rule, 5-1, and fails on any other failed rule. It also fails if 5-1
   stops failing, so a conformance declaration cannot be added without a new
@@ -115,7 +115,10 @@ Result of the local run (veraPDF 1.30.3, OpenJDK 27.0.1, macOS arm64):
 No other rule was disabled or filtered. The statement that can be made today is:
 veraPDF 1.30.3 PDF/UA-1 validation of the DE and EN samples passes every rule
 except the deliberately unset identification (5-1). This is not a PDF/UA
-conformance claim; the manual screen reader review stays open.
+conformance claim; the manual screen reader review stays open. #105's criterion
+"An automated PDF accessibility check passes for DE and EN samples" is read,
+under that decision, as this check passing; the identification rule is the one
+documented exception.
 
 The independent tests (`pnpm --filter @source-taster/server test:report-structure`,
 no database) also check that every visible character is tagged or an Artifact
