@@ -54,6 +54,8 @@ function installBrowser(options: {
   granted: string[];
   session?: string;
   promptAnswer: boolean;
+  /** How permissions.getAll() behaves: at once, never, or when released. */
+  lookup: "now" | "never" | "late";
 }) {
   const local: Record<string, unknown> = {};
   if (options.session)
@@ -65,6 +67,7 @@ function installBrowser(options: {
   const consent = {
     requests: [] as { request: unknown; activation: boolean }[],
     answer: options.promptAnswer,
+    release() {},
     revoke() {
       granted = [];
       for (const l of removed)
@@ -113,7 +116,15 @@ function installBrowser(options: {
       },
     },
     permissions: {
-      getAll: () => Promise.resolve({ data_collection: [...granted] }),
+      getAll: () =>
+        options.lookup === "never"
+          ? new Promise(() => {})
+          : options.lookup === "late"
+            ? new Promise((resolve) => {
+                consent.release = () =>
+                  resolve({ data_collection: [...granted] });
+              })
+            : Promise.resolve({ data_collection: [...granted] }),
       request(request: { data_collection: string[] }) {
         consent.requests.push({
           request,
@@ -138,12 +149,18 @@ function installBrowser(options: {
 }
 
 async function withFirefoxPanel(
-  options: { granted?: string[]; signedIn?: boolean; promptAnswer?: boolean },
+  options: {
+    granted?: string[];
+    signedIn?: boolean;
+    promptAnswer?: boolean;
+    lookup?: "now" | "never" | "late";
+  },
   run: (tools: {
     page: Page;
     service: Awaited<ReturnType<typeof startService>>;
     consentRequests: () => Promise<{ request: unknown; activation: boolean }[]>;
     revoke: () => Promise<void>;
+    releaseLookup: () => Promise<void>;
     stored: () => Promise<Record<string, unknown>>;
   }) => Promise<void>,
   page: Page,
@@ -160,6 +177,7 @@ async function withFirefoxPanel(
       granted: options.granted ?? [],
       session: (options.signedIn ?? true) ? credential : undefined,
       promptAnswer: options.promptAnswer ?? true,
+      lookup: options.lookup ?? "now",
     });
     await page.goto(`${files.url}/panel.html`);
     await run({
@@ -176,6 +194,12 @@ async function withFirefoxPanel(
           (
             window as unknown as { __consent: { revoke(): void } }
           ).__consent.revoke(),
+        ),
+      releaseLookup: () =>
+        page.evaluate(() =>
+          (
+            window as unknown as { __consent: { release(): void } }
+          ).__consent.release(),
         ),
       stored: () =>
         page.evaluate(() =>
@@ -365,6 +389,87 @@ test.describe("Firefox Account Preferences sync consent", () => {
         await expect
           .poll(async () => (await stored())[guestKey])
           .toMatchObject({ citationStyle: "ieee" });
+      },
+      page,
+    );
+  });
+
+  test("a permission lookup that never answers does not keep the panel from rendering, and nothing syncs", async ({
+    page,
+  }) => {
+    await withFirefoxPanel(
+      { granted: ["technicalAndInteraction"], lookup: "never" },
+      async ({ service }) => {
+        await expect(style(page)).toBeVisible();
+        await expect(allow(page)).toBeVisible();
+        await style(page).selectOption("ieee");
+        await page.waitForTimeout(500);
+        expect(service.preferenceRequests()).toEqual([]);
+      },
+      page,
+    );
+  });
+
+  test("a late answer from the permission lookup then applies the grant", async ({
+    page,
+  }) => {
+    await withFirefoxPanel(
+      { granted: ["technicalAndInteraction"], lookup: "late" },
+      async ({ service, releaseLookup }) => {
+        await expect(allow(page)).toBeVisible();
+        expect(service.preferenceRequests()).toEqual([]);
+        await releaseLookup();
+        await expect(allow(page)).toHaveCount(0);
+        await expect(style(page)).toHaveValue("chicago");
+        expect(service.preferenceRequests().map((r) => r.method)).toEqual([
+          "GET",
+        ]);
+      },
+      page,
+    );
+  });
+
+  test("withdrawing the grant keeps the displayed Account values on the device without any further edit", async ({
+    page,
+  }) => {
+    await withFirefoxPanel(
+      { granted: ["technicalAndInteraction"] },
+      async ({ revoke, stored }) => {
+        await expect(style(page)).toHaveValue("chicago");
+        await revoke();
+        await expect(allow(page)).toBeVisible();
+        await expect
+          .poll(async () => (await stored())[guestKey])
+          .toMatchObject({ language: "en", citationStyle: "chicago" });
+      },
+      page,
+    );
+  });
+
+  test("a sign-in confirmed in the same turn as a withdrawal registers without Preferences", async ({
+    page,
+  }) => {
+    await withFirefoxPanel(
+      { signedIn: false, granted: ["technicalAndInteraction"] },
+      async ({ service }) => {
+        await page.getByRole("button", { name: "Sign in" }).click();
+        await page.getByLabel("Email address").fill(account.email);
+        await page.getByRole("button", { name: "Send code" }).click();
+        await page.getByLabel("Six-digit code").fill("123456");
+        // The click lands before React has rendered the withdrawal.
+        await page.evaluate(() => {
+          (
+            window as unknown as { __consent: { revoke(): void } }
+          ).__consent.revoke();
+          [...document.querySelectorAll("button")]
+            .find((b) => b.textContent === "Confirm code")!
+            .click();
+        });
+        await expect(page.getByText(account.email)).toBeVisible();
+        const confirm = service.requests.find(
+          (r) => r.path === "/v1/extension/sign-in/confirm",
+        );
+        expect(confirm?.body).not.toHaveProperty("preferences");
       },
       page,
     );

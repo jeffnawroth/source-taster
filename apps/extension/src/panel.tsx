@@ -39,10 +39,11 @@ const transport = {
   client: "extension/0.0.0",
   credentials: guest?.credentials,
 };
-// Firefox only: Preferences sync waits for the data collection permission.
+// Firefox only: Preferences sync waits for the data collection permission. The
+// panel renders at once; the grant is learned afterwards.
 const preferenceSync =
   __SOURCE_TASTER_TARGET__ === "firefox"
-    ? await firefoxPreferenceSyncConsent(platform)
+    ? firefoxPreferenceSyncConsent(platform)
     : undefined;
 const accountClient = config.accountSignIn
   ? extensionAccountSession(

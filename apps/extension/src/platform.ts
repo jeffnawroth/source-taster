@@ -2,7 +2,7 @@
 // The owned seam over the browser extension namespace. Panel code uses only
 // these capabilities; no other module touches `browser` or `chrome`.
 import type { PreferenceStorage } from "@source-taster/ui/preferences";
-import type { PreferenceSyncConsent } from "@source-taster/ui/web-account-workspace";
+import type { PreferenceSyncConsent } from "@source-taster/ui/account-preferences";
 import type { SelectionIntake } from "@source-taster/ui/check-workspace";
 import { selectionPort, type SelectionPort } from "./selection-protocol.ts";
 import {
@@ -11,25 +11,33 @@ import {
   type ExtensionLocalCapability,
 } from "@source-taster/ui/guest-identity";
 
+/** Mozilla's data collection types (Firefox built-in data consent). The
+ * granted set can hold any of them, not only the one this extension requests. */
+export type DataCollectionType =
+  | "personallyIdentifyingInfo"
+  | "healthInfo"
+  | "financialAndPaymentInfo"
+  | "authenticationInfo"
+  | "personalCommunications"
+  | "locationInfo"
+  | "browsingActivity"
+  | "websiteContent"
+  | "websiteActivity"
+  | "searchTerms"
+  | "bookmarksInfo"
+  | "technicalAndInteraction";
 /** The Firefox data collection permission set. Chromium has no such key. */
 interface DataCollectionPermissions {
-  data_collection?: string[];
+  data_collection?: DataCollectionType[];
+}
+interface PermissionChange {
+  addListener(listener: (change: DataCollectionPermissions) => void): void;
 }
 interface PermissionsNamespace {
   getAll(): Promise<DataCollectionPermissions>;
-  request(request: { data_collection: string[] }): Promise<boolean>;
-  onAdded: {
-    addListener(listener: (granted: DataCollectionPermissions) => void): void;
-    removeListener(
-      listener: (granted: DataCollectionPermissions) => void,
-    ): void;
-  };
-  onRemoved: {
-    addListener(listener: (removed: DataCollectionPermissions) => void): void;
-    removeListener(
-      listener: (removed: DataCollectionPermissions) => void,
-    ): void;
-  };
+  request(request: { data_collection: DataCollectionType[] }): Promise<boolean>;
+  onAdded: PermissionChange;
+  onRemoved: PermissionChange;
 }
 
 interface ExtensionNamespace {
@@ -59,52 +67,52 @@ interface ExtensionNamespace {
   };
 }
 
-const syncDataType = "technicalAndInteraction";
+const syncDataType = "technicalAndInteraction" satisfies DataCollectionType;
 
 /** Firefox only: Account Preferences are "extension usage and settings data",
  * which Mozilla files under `technicalAndInteraction`, an optional-only data
  * collection type. Sync to the service runs only while it is granted. The
- * grant is requested by `request()`, which must run inside a user-activated
- * handler, so it calls the browser before any await. Revocation, also from the
- * add-on settings, is observed through `permissions.onRemoved`. */
-export async function firefoxPreferenceSyncConsent(
+ * seam is usable at once and starts without a grant; the browser's answer to
+ * `permissions.getAll()` arrives later and may never arrive, and the panel
+ * does not wait for it. `request()` must run inside a user-activated handler,
+ * so it calls the browser before any await. Revocation, also from the add-on
+ * settings, is observed through `permissions.onRemoved`. */
+export function firefoxPreferenceSyncConsent(
   api: Pick<ExtensionNamespace, "permissions">,
-): Promise<PreferenceSyncConsent> {
+): PreferenceSyncConsent {
   const permissions = api.permissions;
   const listeners = new Set<() => void>();
   let granted = false;
-  let reads = 0;
+  // Every event, grant and lookup takes a ticket; only the newest lookup counts.
+  let ticket = 0;
   const set = (value: boolean) => {
     if (granted === value) return;
     granted = value;
     for (const listener of [...listeners]) listener();
   };
-  const read = async () => {
-    const read = ++reads;
+  const lookup = async () => {
+    const mine = ++ticket;
     try {
       const all = await permissions?.getAll();
-      // A newer event or read supersedes this answer.
-      if (read === reads) set(!!all?.data_collection?.includes(syncDataType));
+      if (mine === ticket) set(!!all?.data_collection?.includes(syncDataType));
     } catch {
-      if (read === reads) set(false);
+      if (mine === ticket) set(false);
     }
   };
-  await read();
   const named = (change: DataCollectionPermissions) =>
     !!change.data_collection?.includes(syncDataType);
   // An event that does not name the type is reconciled with the browser's own
   // answer rather than trusted or ignored.
-  permissions?.onAdded.addListener((change) => {
-    if (!named(change)) return void read();
-    reads++;
-    set(true);
-  });
-  permissions?.onRemoved.addListener((change) => {
-    if (!named(change)) return void read();
-    reads++;
-    set(false);
-  });
+  const observe = (value: boolean) => (change: DataCollectionPermissions) => {
+    if (!named(change)) return void lookup();
+    ticket++;
+    set(value);
+  };
+  permissions?.onAdded.addListener(observe(true));
+  permissions?.onRemoved.addListener(observe(false));
+  void lookup();
   return {
+    requiresGrant: true,
     granted: () => granted,
     request() {
       // No await before the browser call: the user-input window is transient.
@@ -119,7 +127,7 @@ export async function firefoxPreferenceSyncConsent(
       return asked.then(
         (answer) => {
           if (answer) {
-            reads++;
+            ticket++;
             set(true);
           }
           return answer;

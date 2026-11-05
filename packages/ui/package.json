@@ -7,6 +7,7 @@
   "exports": {
     ".": "./src/index.tsx",
     "./preferences": "./src/preferences.ts",
+    "./account-preferences": "./src/account-preferences.ts",
     "./information": "./src/information.tsx",
     "./guest-identity": "./src/guest-identity.ts",
     "./check-workspace": "./src/check-workspace.tsx",
