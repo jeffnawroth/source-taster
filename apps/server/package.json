@@ -29,7 +29,8 @@
     "test:authority": "vitest run --config guest.vitest.config.ts",
     "test:quota": "vitest run --config quota.vitest.config.ts",
     "extractor:image": "node scripts/extractor-image.ts",
-    "test:history": "vitest run --config history.vitest.config.ts"
+    "test:history": "vitest run --config history.vitest.config.ts",
+    "test:report-structure": "vitest run --config report-structure.vitest.config.ts"
   },
   "devDependencies": {
     "@types/pg": "8.23.1",
