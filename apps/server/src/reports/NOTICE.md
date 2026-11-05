@@ -34,3 +34,7 @@ This is a technical inventory read from the installed packages; the unattributed
 ## Embedded fonts
 
 `fonts/NotoSans-{Regular,Bold,Italic}.ttf` are Noto Sans, licensed under the SIL Open Font License 1.1 (`fonts/OFL.txt`). The fonts are embedded as subsets in generated PDFs and copied unchanged by `scripts/citation-assets.ts`. The OFL permits embedding in documents; the fonts are not sold on their own.
+
+## CI-only check tool
+
+veraPDF 1.30.3 (GPL-3.0-or-later OR MPL-2.0) validates the generated sample PDFs in CI as a separate process. It is not a dependency, is not bundled and does not appear in this inventory's production graph. See `docs/dependency-policy.md`.

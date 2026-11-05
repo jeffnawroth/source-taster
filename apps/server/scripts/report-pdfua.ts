@@ -73,11 +73,11 @@ export function problems(
       continue;
     }
     const results = job.validationResult ?? [];
-    if (results.length !== 1 || job.taskException !== undefined) {
+    const result = results[0];
+    if (results.length !== 1 || !result || job.taskException !== undefined) {
       out.push(`${file}: no single validation result`);
       continue;
     }
-    const [result] = results;
     if (result.jobEndStatus !== "normal")
       out.push(`${file}: job ended ${result.jobEndStatus}`);
     if (!result.profileName.includes("PDF/UA-1"))
