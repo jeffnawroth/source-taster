@@ -95,7 +95,7 @@ export interface NativeFirefox {
   answerPermissionPrompt(allow: boolean): Promise<void>;
   /** Optional data collection types the browser currently holds as granted. */
   grantedDataCollection(): Promise<string[]>;
-  /** Withdraws a granted data collection type the way the add-on settings do. */
+  /** Withdraws a granted data collection type through the permission store. */
   revokeDataCollection(type: string): Promise<void>;
   close(): Promise<void>;
 }
@@ -378,8 +378,10 @@ export async function launchFirefox(extension: string): Promise<NativeFirefox> {
       async revokeDataCollection(type) {
         await evaluate(`(async () => {
           const { ExtensionPermissions } = ChromeUtils.importESModule("resource://gre/modules/ExtensionPermissions.sys.mjs");
-          // The extension is the emitter, as for the add-on settings page: it
-          // updates its live permissions and fires permissions.onRemoved.
+          // Chrome-privileged withdrawal through the permission store, with the
+          // extension as the event emitter so its live permissions update and
+          // permissions.onRemoved fires. The add-on settings page is not driven
+          // and was not confirmed to use this path.
           const extension = WebExtensionPolicy.getByID(${JSON.stringify(extensionId)}).extension;
           await ExtensionPermissions.remove(${JSON.stringify(extensionId)}, { permissions: [], origins: [], data_collection: [${JSON.stringify(type)}] }, extension);
           return JSON.stringify(true);

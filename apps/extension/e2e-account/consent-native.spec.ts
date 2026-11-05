@@ -87,7 +87,7 @@ test("a fresh profile keeps Preferences local, and the visible control opens the
   }
 });
 
-test("allowing the prompt starts sync, and withdrawing the grant in the add-on settings stops it", async () => {
+test("allowing the prompt starts sync, and withdrawing the grant in Firefox's permission store stops it", async () => {
   const { firefox, service, close } = await signedInFirefox();
   try {
     await firefox.click(await allow(firefox));
