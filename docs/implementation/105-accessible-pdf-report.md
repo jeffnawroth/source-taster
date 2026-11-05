@@ -76,21 +76,64 @@ ADR-0017 asks every build for automated structure checks of tags, reading
 order, headings, language, links, table headers and Unicode mapping. The
 tests above cover tags, reading order, headings, language, links and
 extractable text (pdf.js' text extraction is the proxy for the Unicode
-mapping). The report contains no tables, so table headers do not apply. veraPDF
-(the PDF/UA machine profile named in the research) was **not run**: it needs
-its own ADR-0013 tooling decision and a Java runtime, and neither exists in this
-program. Whether the owned structure checks satisfy the acceptance criterion
-"automated PDF accessibility check passes for DE and EN samples" without a
-PDF/UA validator is **open for the client**; this ticket makes no such call.
+mapping). The report contains no tables, so table headers do not apply.
+
+### veraPDF PDF/UA-1 validation (CI tool, 5 Nov 2026)
+
+The product owner approved veraPDF as a **CI-only check tool** on 5 Nov 2026
+(scope decision in `docs/dependency-policy.md`). `pnpm reports:pdfua`
+(`apps/server/scripts/report-pdfua.ts`) generates six samples through the
+production worker path (final and intermediate Checks and a 28-Reference,
+multi-page Check; DE and EN each, `apps/server/test/support/report-samples.ts`)
+and runs `verapdf --flavour ua1`. The CI job `pdfua` installs the checksum-pinned
+veraPDF 1.30.3 CLI and is part of the `checks` gate; it keeps the PDFs and
+veraPDF's JSON report as the `pdfua-evidence` artifact.
+
+Result of the local run (veraPDF 1.30.3, OpenJDK 27.0.1, macOS arm64):
+
+- Before the fixes in this change, every sample failed PDF/UA-1 rules **7.1-3**
+  (page content that is neither tagged nor an Artifact: the continuation of a
+  paragraph, heading or list item that wrapped onto the next page was not
+  reachable from the structure tree), **7.18.5-2** (link annotations without a
+  non-empty `Contents`) and **5-1**.
+- After the fixes, 7.1-3 and 7.18.5-2 pass. Rule 5-1 still fails on all six
+  samples. 5-1 requires the XMP metadata to contain the PDF/UA identification
+  (`pdfuaid:part`); writing it makes every report declare itself PDF/UA-1. That
+  declaration needs the PDF/UA checks a validator cannot make (manual review),
+  so on 5 November 2026 the product owner's decision was: **the reports do not
+  declare PDF/UA.** In the local run (veraPDF 1.30.3 on OpenJDK 27) every other rule passed; CI runs it on Temurin 21.
+- The harness (`apps/server/scripts/report-pdfua.ts`) therefore accepts exactly
+  one failed rule, 5-1, and fails on any other failed rule. It also fails if 5-1
+  stops failing, so a conformance declaration cannot be added without a new
+  decision and an update of the harness and this note. Its verdict logic is held
+  by `test/report-pdfua.test.ts`.
+- Evidence for a future declaration: with PDFKit's `subset: "PDF/UA"` set locally
+  (not committed), 5-1 passes and a different rule, **7.21.4.2-2** (CIDSet of an
+  embedded subset font does not list every CID in the font program), fails on all
+  six samples. Declaring PDF/UA later therefore also needs that CIDSet fixed.
+
+No other rule was disabled or filtered. The statement that can be made today is:
+veraPDF 1.30.3 PDF/UA-1 validation of the DE and EN samples passes every rule
+except the deliberately unset identification (5-1). This is not a PDF/UA
+conformance claim; the manual screen reader review stays open. #105's criterion
+"An automated PDF accessibility check passes for DE and EN samples" is read,
+under that decision, as this check passing; the identification rule is the one
+documented exception.
+
+The independent tests (`pnpm --filter @source-taster/server test:report-structure`,
+no database) also check that every visible character is tagged or an Artifact
+(via marked-content ids read with pdf.js) and that each link annotation has a
+non-empty `Contents`, on the same samples.
 
 ### Not machine-verified (honest limits)
 
 - Screen reader behavior (NVDA/JAWS on Windows 11, VoiceOver on macOS), keyboard
   review of the viewer and the DE/EN reading experience are **not** machine
   verified; ADR-0017 reserves them for the human reviews. **No PDF/UA
-  conformance or certification is claimed**, and no PDF/UA validator was run.
+  conformance or certification is claimed.** veraPDF checks only the rules it
+  can test mechanically; the manual review remains open for a human.
 - Bibliographic spans are not language-tagged individually. Link annotations
-  carry an alternate description on the `Link` element, not in `Contents`.
+  carry the alternate description both on the `Link` element and in `Contents`.
 - Fonts cover Latin, Greek and Cyrillic. Other scripts (e.g. CJK) fail the
   report with `unsupported-character` by design (tested).
 - No 1,000-Reference load or memory evidence was produced; only the limits above
