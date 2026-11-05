@@ -133,13 +133,13 @@ export function serviceWorktreeProblems(
     );
   if (!fileSystem.isFile(`${value}/apps/server/test/authority-process.ts`))
     problems.push(
-      `${value} lacks apps/server/test/authority-process.ts; use a worktree of the launch branch.`,
+      `${value} is not a worktree of the private service's launch branch (the hosted test composition is missing).`,
     );
   if (!fileSystem.isDirectory(`${value}/node_modules`))
     problems.push(`${value}/node_modules is missing: run pnpm install there.`);
   if (!fileSystem.isFile(`${value}/apps/web/dist/index.html`))
     problems.push(
-      `The service's own web (Plans, Order, Operator) is not built in ${value}/apps/web/dist: see "Hosted preview" in docs/local-preview.md for the preparation steps.`,
+      `The service's own web is not built in ${value}/apps/web/dist: see "Hosted preview" in docs/local-preview.md for the preparation steps.`,
     );
   if (!fileSystem.isDirectory(`${value}/packages/i18n/src/paraglide`))
     problems.push(
@@ -154,7 +154,7 @@ export function serviceWorktreeProblems(
 
 export interface HostedSetup {
   worktree: string;
-  /** The private service's EN 16931 validator config; without it no payment fake. */
+  /** Tooling the payment fake needs; without it no payment fake is offered. */
   validator?: string;
 }
 

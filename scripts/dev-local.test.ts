@@ -152,9 +152,9 @@ await test("only a prepared linked worktree of the private service is accepted",
   noProcess.delete(`${worktree}/apps/server/test/authority-process.ts`);
   assert.match(
     serviceWorktreeProblems(worktree, probe(noProcess)).join(),
-    /authority-process/,
+    /launch branch/,
   );
-  // The Plans, Order, DPA-adjacent and Operator pages are the service's own built web.
+  // The service's own pages are its built web.
   const unbuilt = new Set(validWorktree);
   unbuilt.delete(`${worktree}/apps/web/dist/index.html`);
   assert.match(

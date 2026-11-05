@@ -113,17 +113,7 @@ Starts the whole hosted product on loopback: the public API and worker, the priv
 
 ### One-time preparation of the private service
 
-The private service is only ever used from a **linked worktree** of its launch branch, never from your main checkout (the launcher refuses a directory whose `.git` is not a file). In that worktree:
-
-```sh
-pnpm install --frozen-lockfile
-pnpm --filter @source-taster-service/server generate          # Prisma client
-pnpm --filter @source-taster-service/i18n build               # message catalogue
-pnpm --filter @source-taster-service/web build                # Plans, Order, Cancel and Operator pages
-pnpm prepare:en16931                                          # optional, needs Java; see "Payments" below
-```
-
-The launcher checks the first four and names what is missing. Package names are the ones in the service's `package.json` files; adjust them if they were renamed.
+The private service is only ever used from a **linked worktree** of its launch branch, never from your main checkout (the launcher refuses a directory whose `.git` is not a file). In that worktree: install the dependencies, generate the database client, build the message catalogue and build the service's own web, following the service's README. If you also want orders to be payable, prepare the optional payment tooling described there (it needs Java). The launcher checks everything it needs and names each missing piece, so you can run it and follow the messages.
 
 ### Run it
 
@@ -138,50 +128,52 @@ pnpm dev:local:down              # remove the stpreview-pg container afterwards
 | Web app (hosted mode)      | <http://127.0.0.1:5493/>                 |
 | Public API + worker        | <http://127.0.0.1:5492/>                 |
 | Private service            | <http://127.0.0.1:5494/> (direct)        |
-| Service pages as the web app uses them | <http://127.0.0.1:5495/> (`/plan`, `/order`, `/cancel`, `/operator`) |
+| Service pages as the web app uses them | <http://127.0.0.1:5495/> (`/plan`, `/order`, `/cancel`, `/operator`); the web app links here |
 | Captured mail              | <http://127.0.0.1:5496/> (also `/mail.json`, newest first) |
 
-Open the web app in **Chromium or Chrome**. The session cookie is `Secure`; Chromium accepts it on loopback, other browsers were not tried. `--basic` and `--no-smoke` work as in standalone mode.
+Open the web app in **Chromium or Chrome**. The session cookie is `Secure`; Chromium accepts it on loopback, other browsers were not tried. `--no-smoke` skips the start-up Check. `--basic` is accepted; it was not exercised in the hosted run.
 
 ### Accounts and mail
 
-- Sign in with any e-mail address; every other address becomes a new Free Account. Read the six-digit code in the terminal (`✉ … CODE 123456`) or on the mail page. The same applies to the DPA confirmation code and to the Operator sign-in.
-- `demo@example.invalid` is seeded with the features of a Check pack (History, report) and a large Quota.
-- `operator@example.invalid` is the Operator. The first Operator is established through the service's own bootstrap route during start-up; sign in at <http://127.0.0.1:5495/operator> (the Operator page is the service's own web; the origin check is relaxed to loopback only under `NODE_ENV=test`).
+- Sign in with any e-mail address; an address nobody has used becomes a new Free Account (100 checks in the run). Read the six-digit code in the terminal (`✉ … CODE 123456`) or on the mail page. The same applies to the DPA confirmation code and to the Operator sign-in.
+- `demo@example.invalid` is seeded with a large Quota and the features of a paid plan (History, report).
+- `operator@example.invalid` is the Operator; sign in at <http://127.0.0.1:5495/operator>. The launcher establishes this Operator through the service's own set-up flow during start-up.
 - The service allows one code per address every 60 seconds. Requesting another one sooner shows an error; wait a minute.
-- Mail goes to the capture only. No SMTP server of any provider is contacted.
+- Mail goes to the capture only. No SMTP server of any provider is contacted. Every data-source address of the API and worker was checked to be a loopback fixture.
 
 ### Payments
 
-Orders (Check pack, Pro) are created by the real service and paid automatically by a fake provider: a small proxy on port 5495 notices each accepted order and confirms its payment (`💳 fake payment confirmed …`). After **Refresh Orders** the order is *Active*, an invoice (PDF and e-invoice XML) exists and the Quota has grown. The fake provider needs the service's e-invoice validator tooling (`pnpm prepare:en16931`, requires Java). Without it the banner says "NOT available" and orders cannot be placed; everything else still works.
+Orders (Check pack, Pro) are created by the real service and paid automatically by a fake provider: a small proxy on port 5495 notices each accepted order and confirms its payment (`💳 fake payment confirmed …`). After **Refresh Orders** the order is *Active*, an invoice (PDF and XML) exists and the Quota has grown. The fake provider needs the optional payment tooling mentioned above. Without it the banner says "NOT available" and orders cannot be placed; everything else still works.
 
 ### Clock
 
-The service and API run on a harness clock that the launcher keeps in step with real time (advanced once a second). Time-based behaviour such as renewals or the end of the withdrawal period is therefore real time, not accelerated.
+The launcher advances the harness clock with real time (once a second), so the service's background work runs on real time. Only orders with immediate start were exercised; time-driven commerce behaviour (renewals, the end of the withdrawal period, expiry) was not observed.
 
 ### Verified
 
-Run on 2026-11-05 with Chromium, headless, driven by Playwright against the stack above.
+Run on 2026-11-05 with Chromium (headless), driven by Playwright against the stack above.
 
 | Feature | Result |
 | --- | --- |
-| Sign-in with a captured code (Free and `demo@`) | Works. The Account shows its e-mail address and its Quota. |
-| Quota | Works and counts down: a Check debits one slot. `demo@` showed 1100 of 1100 before the first Check and 1099 afterwards. |
+| Sign-in with a captured code | Works for `demo@`, `operator@` and a never-seen address. The Account shows its e-mail address and Quota. |
+| Quota | Works and counts down: `demo@` showed 1100 of 1100 before the first Check and 1099 afterwards; a new Free Account showed 100 of 100. |
 | History | Works: *Enable History*, run a Check, the entry appears with its deletion date, *Refresh History* keeps it. |
-| Check, exports, PDF report | Work as standalone. *Create report* → *Download report* delivered a valid PDF 1.7. |
+| Check | Works. Importing `docs/local-preview/demo.bib` gives the documented three Verdicts (Correct, DOI conflict, Not verifiable), also for a signed-in Account. |
+| Reference export | *Download References* delivered a CSL-JSON file. |
+| PDF report | *Create report* → *Download report* delivered a valid PDF 1.7 (23 KB). |
 | Check pack | Works: order, automatic fake payment, order *Active*, Quota +300, invoice (PDF and XML) listed under *Load invoices*. |
-| Pro | Works: subscription ordered and paid, Quota grows by 1000, the Operator view shows "Pro is active". |
-| DPA | Works: the review packet is shown (placeholder text), a fresh code is mailed, *Conclude agreement* succeeds, the accepted packet is listed with *Download accepted packet*, a receipt mail arrives. |
-| Operator | Works for what was tried: sign-in with a mailed code, catalog and configuration views, audit list, Account search (shows plan, Quota, grants, actions). |
+| Pro | Works: subscription ordered and paid, Quota +1000, the Operator's Account view shows "Pro is active". |
+| DPA | Works: the review packet is shown (placeholder text), a fresh code is mailed, *Conclude agreement* succeeds, the accepted packet is listed with *Download accepted packet*, and a receipt mail arrives. |
+| Operator | The screens tried work: sign-in with a mailed code, the catalog, configuration and audit views, and Account search. |
 
 ### What does not work, or was not tried
 
 - **AI extraction** is unavailable even for Accounts that have the feature: the page says "AI extraction is currently unavailable. The parser was used." There is no provider.
-- **Order confirmation mail**: the order says "Confirmation email queued", but no such mail reached the capture during the run (sign-in codes, DPA codes and the DPA receipt do). Not investigated.
-- **DPA receipt link** points to `https://web.test.invalid/#dpa/…`, which does not exist. Sign in at the web app and open *Data processing agreement* instead.
-- **Continue to payment** on an unpaid order points at the fake provider and was not followed; payment happens automatically.
-- **Operator actions that change things** (catalog activation, Quota credit, block, Operator grants, exports) were not exercised. The catalog view reports version 0 and no measured configurations.
-- **Cancellation**, renewals, refunds and the end of the withdrawal period were not exercised.
+- **Order and purchase confirmation mails** are not captured. The order page says "Confirmation email queued" (and shows a durable copy of the confirmation), but the test composition does not run the service's mail delivery for these mails; only sign-in codes, DPA codes and the DPA receipt reach the capture.
+- **The DPA receipt link** points at a non-existent host. Sign in at the web app and open *Data processing agreement* instead.
+- **Pasting several References as plain text** counted only one Reference in the hosted run; import a `.bib` or `.ris` file for several (not compared with standalone).
+- **Operator write actions** were not tried. The catalog view reports no measured configurations.
+- **Cancellation, renewals and refunds** were not tried.
 - **PDF/DOCX upload** stays fail-closed as in standalone mode.
 - **Browsers other than Chromium** were not tried.
 

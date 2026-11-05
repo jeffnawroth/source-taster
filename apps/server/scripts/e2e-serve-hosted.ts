@@ -136,8 +136,8 @@ async function main() {
   const privatePath = setting("SOURCE_TASTER_SERVICE_WORKTREE");
 
   // Payment fake: the harness's own provider process (a Stripe look-alike on
-  // loopback). Only available when the private worktree has its e-invoice
-  // validator tooling prepared; otherwise Check pack and Pro cannot be ordered.
+  // loopback). Only available when the private worktree has the tooling
+  // for it prepared; otherwise Check pack and Pro cannot be ordered.
   let commerce: { child: ChildProcess; config: string } | undefined;
   if (process.env.SERVICE_TEST_EN16931_CONFIG) {
     const child = spawn(
@@ -456,7 +456,7 @@ ${smoke ? `  Smoke Check         as a Guest, through API, worker and fixtures: $
   Accounts            ${demoEmail}       Account with Check pack-level features (History, report)
                       ${operatorEmail}   Operator (sign in at ${tapUrl}/operator)
                       any other address  a new Free Account
-  Payments            ${commerce ? "Check pack and Pro orders are paid automatically by a fake provider" : "NOT available (no e-invoice validator tooling in the private worktree): Check pack and Pro cannot be ordered"}
+  Payments            ${commerce ? "Check pack and Pro orders are paid automatically by a fake provider" : "NOT available (tooling not prepared in the private worktree, see docs/local-preview.md): Check pack and Pro cannot be ordered"}
   Clock               real time (the harness clock is advanced once a second)
 
 Press Ctrl-C to stop. The databases of this run are dropped on exit.
