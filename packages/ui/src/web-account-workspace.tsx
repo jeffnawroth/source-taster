@@ -3,7 +3,7 @@ import type { InvoiceClient } from "@source-taster/contract-service/client";
 import { DpaControls } from "./dpa.tsx";
 import type { DpaClient } from "@source-taster/contract-service/client";
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import {
   accountSessionClient,
   GuestTokenError,
@@ -12,13 +12,17 @@ import type { AccountSession } from "@source-taster/contract-service";
 import { m } from "@source-taster/i18n";
 import type { VerificationClientOptions } from "@source-taster/contract-verification/client";
 import { CheckWorkspace, type SelectionIntake } from "./check-workspace.tsx";
-import { useAccountPreferences } from "./account-preferences.ts";
+import {
+  useAccountPreferences,
+  type PreferenceSyncConsent,
+} from "./account-preferences.ts";
 import type { Preferences, PreferenceStorage } from "./preferences.ts";
 import { guestCredentials, webGuestIdentityStorage } from "./guest-identity.ts";
 import {
   AccountManagementLink,
   type SensitiveActions,
 } from "./sensitive-account-actions.tsx";
+export type { PreferenceSyncConsent } from "./account-preferences.ts";
 export type SessionClient = Omit<
   ReturnType<typeof accountSessionClient>,
   "session" | "sensitive" | "dpa" | "invoices"
@@ -46,6 +50,7 @@ export function AccountControls({
   preferences,
   sessionEnded,
   accountUrl,
+  sendPreferences = true,
 }: {
   client: SessionClient;
   account: AccountSession | null;
@@ -54,6 +59,8 @@ export function AccountControls({
   preferences: Preferences;
   sessionEnded: () => void;
   accountUrl?: string;
+  /** False while the host lacks consent to send Preferences to the service. */
+  sendPreferences?: boolean;
 }) {
   const [open, setOpen] = useState(false),
     [email, setEmail] = useState(""),
@@ -94,10 +101,14 @@ export function AccountControls({
       const session = await client.confirm({
         challengeId: challenge.challengeId,
         code,
-        preferences: {
-          language: preferences.language,
-          citationStyle: preferences.citationStyle,
-        },
+        ...(sendPreferences
+          ? {
+              preferences: {
+                language: preferences.language,
+                citationStyle: preferences.citationStyle,
+              },
+            }
+          : {}),
       });
       changed(session);
     } catch (e) {
@@ -257,6 +268,42 @@ export function AccountControls({
     </section>
   );
 }
+const noSubscription = () => () => {};
+const always = () => true;
+/** The visible, user-initiated control for the host's consent. The request is
+ * the first thing the click handler does: no await, lock or state update
+ * before it, so the browser still sees the user action. */
+function PreferenceSyncControl({
+  consent,
+}: {
+  consent: PreferenceSyncConsent;
+}) {
+  const granted = useSyncExternalStore(consent.subscribe, consent.granted);
+  const [declined, setDeclined] = useState(false);
+  return (
+    <section
+      aria-label={m.preferences_sync_title()}
+      className="mb-8 rounded-xl border border-slate-400 bg-white p-4"
+    >
+      {granted ? (
+        <p role="status">{m.preferences_sync_on()}</p>
+      ) : (
+        <>
+          <p>{m.preferences_sync_off()}</p>
+          <button
+            className="mt-3 rounded border border-slate-500 px-3 py-2"
+            onClick={() => {
+              void consent.request().then((answer) => setDeclined(!answer));
+            }}
+          >
+            {m.preferences_sync_allow()}
+          </button>
+          {declined && <p role="status">{m.preferences_sync_declined()}</p>}
+        </>
+      )}
+    </section>
+  );
+}
 /** Web-only cookie composition. Access tokens stay in memory, and failed Account renewal never switches an operation to Guest. */
 export function WebAccountWorkspace({
   initial,
@@ -326,6 +373,7 @@ export function AccountWorkspace({
   selectionIntake,
   upgradeUrl,
   accountUrl,
+  preferenceSync,
 }: {
   initial: { preferences: Preferences; citationStyleReset: boolean };
   preferenceStorage: PreferenceStorage;
@@ -336,7 +384,13 @@ export function AccountWorkspace({
   selectionIntake?: SelectionIntake;
   upgradeUrl?: string;
   accountUrl?: string;
+  /** Present only where the host needs consent before Preferences are synced. */
+  preferenceSync?: PreferenceSyncConsent;
 }) {
+  const syncGranted = useSyncExternalStore(
+    preferenceSync?.subscribe ?? noSubscription,
+    preferenceSync?.granted ?? always,
+  );
   const [session, setSession] = useState<AccountSession | null | undefined>(
       undefined,
     ),
@@ -351,6 +405,7 @@ export function AccountWorkspace({
     session,
     credentialFailure,
     () => setCredentialFailure(true),
+    () => !preferenceSync || preferenceSync.granted(),
   );
   const preferences = accountPreferences.preferences;
   const localizedUpgradeUrl = upgradeUrl
@@ -495,6 +550,9 @@ export function AccountWorkspace({
             </p>
           )}
           {credentialFailure && <p role="alert">{m.auth_expired()}</p>}
+          {preferenceSync && session && !credentialFailure && (
+            <PreferenceSyncControl consent={preferenceSync} />
+          )}
           <AccountControls
             key={session?.accountId ?? "guest"}
             language={language}
@@ -502,6 +560,7 @@ export function AccountWorkspace({
             sessionEnded={() => setCredentialFailure(true)}
             client={client}
             account={credentialFailure ? null : session}
+            sendPreferences={!preferenceSync || syncGranted}
             changed={changed}
             accountUrl={accountUrl}
           />

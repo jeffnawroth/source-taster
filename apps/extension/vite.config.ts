@@ -66,7 +66,11 @@ export default defineConfig(({ mode }) => {
   return {
     base: "./",
     plugins: [react(), tailwindcss(), extensionPackage(target, config)],
-    define: { __SOURCE_TASTER_EXTENSION__: JSON.stringify(config) },
+    define: {
+      __SOURCE_TASTER_EXTENSION__: JSON.stringify(config),
+      // A bare constant, so the other target's code is removed from the bundle.
+      __SOURCE_TASTER_TARGET__: JSON.stringify(target),
+    },
     build: {
       outDir: process.env.SOURCE_TASTER_EXTENSION_OUT_DIR ?? `dist/${target}`,
       emptyOutDir: true,

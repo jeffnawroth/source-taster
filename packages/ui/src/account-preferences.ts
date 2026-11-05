@@ -14,6 +14,15 @@ import {
 } from "./preferences.ts";
 import { setLocale } from "@source-taster/i18n/runtime";
 
+/** A host that needs the user's consent before Account Preferences leave the
+ * device (Firefox data collection permissions). Hosts without one pass none. */
+export interface PreferenceSyncConsent {
+  granted: () => boolean;
+  /** Must be called from a user-activated handler, before any await. */
+  request: () => Promise<boolean>;
+  subscribe: (listener: () => void) => () => void;
+}
+
 /** One lifecycle for both hosts. Session secrets stay in the host transport.
  * Requests are fenced by session, read order and per-field local edit versions.
  * Writes serialize so transport latency cannot reverse this client's last write. */
@@ -24,7 +33,11 @@ export function useAccountPreferences(
   session: AccountSession | null | undefined,
   expired: boolean,
   expire: () => void,
+  /** Live answer, read again before every request. Without consent, signed-in
+   * Preferences stay local: nothing is read from or written to the service. */
+  syncAllowed: () => boolean = () => true,
 ) {
+  const open = syncAllowed();
   const [state, setState] = useState(initial);
   const [failure, setFailure] = useState(false);
   const [loadedAccount, setLoadedAccount] = useState<string | null>(null);
@@ -55,7 +68,8 @@ export function useAccountPreferences(
     }
   }
   async function refresh() {
-    if (!current.current.session || current.current.expired) return;
+    if (!current.current.session || current.current.expired || !syncAllowed())
+      return;
     const fence = epoch.current;
     const accountId = current.current.session.accountId;
     const order = ++readOrder.current;
@@ -63,9 +77,14 @@ export function useAccountPreferences(
     try {
       // A refocus never replaces an immediate local edit with a pre-write snapshot.
       await writes.current;
-      if (fence !== epoch.current) return;
+      if (fence !== epoch.current || !syncAllowed()) return;
       const saved = await client.preferences();
-      if (fence !== epoch.current || order !== readOrder.current) return;
+      if (
+        fence !== epoch.current ||
+        order !== readOrder.current ||
+        !syncAllowed()
+      )
+        return;
       const next = { ...displayed.current.preferences };
       let reset = displayed.current.citationStyleReset;
       if (edits.language === versions.current.language)
@@ -89,7 +108,17 @@ export function useAccountPreferences(
     const fence = ++epoch.current;
     writes.current = Promise.resolve();
     const accountId = !expired && session ? session.accountId : null;
-    if (accountId) {
+    if (accountId && !open) {
+      // No consent yet: the displayed local values stand and the service is
+      // not contacted. A later grant re-runs this effect and reads the Account.
+      previousAccount.current = accountId;
+      void Promise.resolve().then(() => {
+        if (epoch.current === fence) {
+          setLoadedAccount(accountId);
+          setFailure(false);
+        }
+      });
+    } else if (accountId) {
       previousAccount.current = accountId;
       void refresh();
     } else if ((session === null || expired) && previousAccount.current) {
@@ -108,7 +137,14 @@ export function useAccountPreferences(
     };
     // Session identity/expiry is the authority boundary; ordinary renders are not.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.accountId, session === undefined, expired, client, storage]);
+  }, [
+    session?.accountId,
+    session === undefined,
+    expired,
+    client,
+    storage,
+    open,
+  ]);
   useEffect(() => {
     const focus = () => {
       void refresh();
@@ -142,7 +178,7 @@ export function useAccountPreferences(
         : displayed.current.citationStyleReset,
     });
     const authority = current.current;
-    if (authority.session === null || authority.expired) {
+    if (authority.session === null || authority.expired || !syncAllowed()) {
       void saveGuestPreferences(storage, next);
       return;
     }
@@ -154,6 +190,11 @@ export function useAccountPreferences(
     }
     writes.current = writes.current.then(async () => {
       if (fence !== epoch.current) return;
+      if (!syncAllowed()) {
+        // Consent was withdrawn while this write waited: keep it on the device.
+        void saveGuestPreferences(storage, displayed.current.preferences);
+        return;
+      }
       try {
         const saved = await client.updatePreferences(patch);
         if (fence !== epoch.current) return;
@@ -186,6 +227,7 @@ export function useAccountPreferences(
     refresh,
     forget,
     failure,
-    loading: !!session && !expired && loadedAccount !== session.accountId,
+    loading:
+      !!session && !expired && open && loadedAccount !== session.accountId,
   };
 }
