@@ -4,7 +4,7 @@ import { defineConfig } from "vitest/config";
 // processes, so no global fixture is started.
 export default defineConfig({
   test: {
-    include: ["test/report-structure.test.ts"],
+    include: ["test/report-structure.test.ts", "test/report-pdfua.test.ts"],
     fileParallelism: false,
     testTimeout: 60_000,
     hookTimeout: 60_000,
