@@ -127,6 +127,7 @@ export async function startTestService(
     apiUrl,
     /** The fixture's owned database, for tests that inspect durable state. */
     adminUrl,
+    /** The fixture's owned application database, for work-isolation checks. */
     appUrl,
     stop,
     // Actual process restart, retaining only this fixture's owned database.

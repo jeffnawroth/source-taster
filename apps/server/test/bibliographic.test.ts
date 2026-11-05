@@ -8,10 +8,14 @@ import {
 } from "@source-taster/contract-verification/v2";
 import { readSseFrames } from "@source-taster/contract-verification/client";
 import { startTestService } from "./support/service.ts";
+import { guardWorkIsolation } from "./support/work-isolation.ts";
 import { startDoiFixtures } from "./support/doi-fixtures.ts";
 let openalex: Awaited<ReturnType<typeof startDoiFixtures>>;
 let crossref: Awaited<ReturnType<typeof startDoiFixtures>>;
 let service: Awaited<ReturnType<typeof startTestService>>;
+// One worker serves every test of this file: each must finish its own work and
+// no worker may serve a Check an earlier test created (#150).
+guardWorkIsolation({ appUrl: () => service.appUrl, mode: "serve" });
 const matching = (value: unknown): unknown =>
   expect.objectContaining(value) as unknown;
 beforeAll(async () => {
