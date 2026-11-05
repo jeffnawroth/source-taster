@@ -734,7 +734,12 @@ it("keeps an ungrounded DOI proposal out of search and scoring until a user revi
   // Synthetic adapter-edge output; the DOI is only a probe for which values the
   // real worker sends to the (fixture) Crossref and handle sources.
   const probe = "10.5555/ai103-probe";
-  const text = "We discussed Doe (2020). Exact maps. yesterday.";
+  // The probe Reference has no grounded identifier, so the worker rightly
+  // makes no source request for it. A second, grounded DOI in the same Check
+  // gives the worker a request that is provably this Check's own.
+  const sibling = "10.1038/nphys1170";
+  const text = `We discussed Doe (2020). Exact maps. yesterday. Also ${sibling}.`;
+  const siblingStart = text.indexOf(sibling);
   responseValue = {
     references: [
       {
@@ -742,6 +747,14 @@ it("keeps an ungrounded DOI proposal out of search and scoring until a user revi
         span: { start: 13, end: 36 },
         csl: { title: "Exact maps", DOI: probe },
         spans: { title: { start: 25, end: 35 } },
+      },
+      {
+        originalText: sibling,
+        span: { start: siblingStart, end: siblingStart + sibling.length },
+        csl: { DOI: sibling },
+        spans: {
+          DOI: { start: siblingStart, end: siblingStart + sibling.length },
+        },
       },
     ],
   };
@@ -775,11 +788,16 @@ it("keeps an ungrounded DOI proposal out of search and scoring until a user revi
     await expect
       .poll(async () => (await snapshot(check.id)).state, { timeout: 15_000 })
       .toBe("ended");
-    // The worker really ran the Check against the fixture sources...
-    expect(fixtures.requests.length).toBeGreaterThan(0);
+    // This Check's worker really ran against the fixture sources: its grounded
+    // sibling DOI was searched. A bare request count would be no witness, as
+    // another Check's queued job may be served by this worker.
+    expect(
+      fixtures.requests.some((r) => r.path.toLowerCase().includes(sibling)),
+    ).toBe(true);
     // ...but never searched or scored with the quarantined value.
     expect(queried()).toBe(0);
     const ended = await snapshot(check.id);
+    expect(ended.references[1]?.outcome.kind).toBe("verdict");
     expect(ended.references[0]?.fields.DOI).toBeUndefined();
     expect(JSON.stringify(ended.references[0]?.results)).not.toContain(probe);
     // Explicit adoption is a legitimate field revision; only then is it used.

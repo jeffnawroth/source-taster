@@ -16,6 +16,6 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "entities": "4.5.0"
+    "entities": "9.0.0"
   }
 }

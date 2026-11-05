@@ -7,15 +7,31 @@
 // provider. Web-page checks are opt-in (`--web`) because URLs outside the
 // fixture hosts are fetched from the real internet. See docs/local-preview.md.
 //
-//   pnpm dev:local [--basic] [--web] [--no-reports] [--no-smoke]
+// With `--hosted` it additionally starts the private service (accounts,
+// History, Check pack, Pro, DPA, Operator) from a prepared worktree
+// (SOURCE_TASTER_SERVICE_WORKTREE) and the web app in hosted mode. That
+// composition is the test harness's (`apps/server/scripts/e2e-serve-hosted.ts`
+// on top of `bothPrograms`); mail and payments stay local fakes.
+//
+//   pnpm dev:local [--hosted] [--basic] [--web] [--no-reports] [--no-smoke]
 //   pnpm dev:local:down
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, statSync } from "node:fs";
 import { createServer } from "node:net";
+import { isAbsolute } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const container = "stpreview-pg";
-export const ports = { postgres: 5491, api: 5492, web: 5493 } as const;
+// service: the private service itself; servicePublic: the loopback tap in front
+// of it that the browser talks to (it pays fake orders); mail: sign-in code page.
+export const ports = {
+  postgres: 5491,
+  api: 5492,
+  web: 5493,
+  service: 5494,
+  servicePublic: 5495,
+  mail: 5496,
+} as const;
 const postgresImage = "postgres:18";
 const root = fileURLToPath(new URL("..", import.meta.url));
 
@@ -42,6 +58,7 @@ export function assertOwnedDatabase(...urls: string[]) {
 }
 
 export interface Options {
+  hosted: boolean;
   basic: boolean;
   web: boolean;
   reports: boolean;
@@ -49,7 +66,13 @@ export interface Options {
 }
 
 export function parseArguments(args: string[]): Options {
-  const known = new Set(["--basic", "--web", "--no-reports", "--no-smoke"]);
+  const known = new Set([
+    "--hosted",
+    "--basic",
+    "--web",
+    "--no-reports",
+    "--no-smoke",
+  ]);
   const unknown = args.filter((argument) => !known.has(argument));
   if (unknown.length)
     throw new Error(
@@ -57,7 +80,16 @@ export function parseArguments(args: string[]): Options {
     );
   if (args.includes("--basic") && args.includes("--web"))
     throw new Error("--basic and --web exclude each other.");
+  if (args.includes("--hosted") && args.includes("--web"))
+    throw new Error(
+      "--web does not apply to --hosted: web-page fixtures are not wired into the hosted composition.",
+    );
+  if (args.includes("--hosted") && args.includes("--no-reports"))
+    throw new Error(
+      "--no-reports does not apply to --hosted: its Quota is the real one, not the fake.",
+    );
   return {
+    hosted: args.includes("--hosted"),
     basic: args.includes("--basic"),
     web: args.includes("--web"),
     reports: !args.includes("--no-reports"),
@@ -65,18 +97,91 @@ export function parseArguments(args: string[]): Options {
   };
 }
 
+export interface ProbeFileSystem {
+  isFile(path: string): boolean;
+  isDirectory(path: string): boolean;
+}
+
+const realFileSystem: ProbeFileSystem = {
+  isFile: (path) =>
+    statSync(path, { throwIfNoEntry: false })?.isFile() ?? false,
+  isDirectory: (path) =>
+    statSync(path, { throwIfNoEntry: false })?.isDirectory() ?? false,
+};
+
+/**
+ * The hosted run executes code from a private worktree and installs its own
+ * database objects. It must be a prepared *linked* worktree (its `.git` is a
+ * file), never the private main checkout, which stays untouched.
+ */
+export function serviceWorktreeProblems(
+  value: string | undefined,
+  fileSystem: ProbeFileSystem = realFileSystem,
+): string[] {
+  if (!value)
+    return [
+      "SOURCE_TASTER_SERVICE_WORKTREE is not set. Point it at a prepared linked worktree of the private service.",
+    ];
+  if (!isAbsolute(value))
+    return [
+      `SOURCE_TASTER_SERVICE_WORKTREE must be an absolute path (${value}).`,
+    ];
+  const problems: string[] = [];
+  if (!fileSystem.isFile(`${value}/.git`))
+    problems.push(
+      `${value} is not a linked worktree (its .git must be a file); the private main checkout is never used.`,
+    );
+  if (!fileSystem.isFile(`${value}/apps/server/test/authority-process.ts`))
+    problems.push(
+      `${value} is not a worktree of the private service's launch branch (the hosted test composition is missing).`,
+    );
+  if (!fileSystem.isDirectory(`${value}/node_modules`))
+    problems.push(`${value}/node_modules is missing: run pnpm install there.`);
+  if (!fileSystem.isFile(`${value}/apps/web/dist/index.html`))
+    problems.push(
+      `The service's own web is not built in ${value}/apps/web/dist: see "Hosted preview" in docs/local-preview.md for the preparation steps.`,
+    );
+  if (!fileSystem.isDirectory(`${value}/packages/i18n/src/paraglide`))
+    problems.push(
+      `The generated message catalogue is missing in ${value} (see "Hosted preview" in docs/local-preview.md for the preparation steps).`,
+    );
+  if (!fileSystem.isDirectory(`${value}/apps/server/src/generated/prisma`))
+    problems.push(
+      `The generated Prisma client is missing in ${value}: see "Hosted preview" in docs/local-preview.md for the preparation steps.`,
+    );
+  return problems;
+}
+
+export interface HostedSetup {
+  worktree: string;
+  /** Tooling the payment fake needs; without it no payment fake is offered. */
+  validator?: string;
+}
+
 /** Environment of the composition process; nothing from the caller's shell leaks in. */
+const hostedPassThrough =
+  /^(PATH|HOME|USER|LOGNAME|SHELL|TMPDIR|TMP|TEMP|LANG|LC_[A-Z_]+|TERM|COLORTERM|TZ|NO_COLOR|FORCE_COLOR|PLAYWRIGHT_BROWSERS_PATH|npm_[A-Za-z0-9_]+|PNPM_[A-Z0-9_]+|COREPACK_[A-Z0-9_]+)$/;
+
 export function compositionEnvironment(
   options: Options,
   inherited: NodeJS.ProcessEnv,
+  hosted?: HostedSetup,
 ): Record<string, string> {
+  if (options.hosted && !hosted)
+    throw new Error("The hosted composition needs a service worktree.");
   const { admin, app } = previewDatabase();
   assertOwnedDatabase(admin, app);
   const kept = Object.fromEntries(
     Object.entries(inherited).filter(
       ([name, value]) =>
         value !== undefined &&
-        !/^(DATABASE_|SOURCE_TASTER_|VITE_|NODE_ENV$|TEST_)/.test(name),
+        (options.hosted
+          ? // The hosted composition runs private service code: only the
+            // process basics pass, so no provider key under any name reaches it.
+            hostedPassThrough.test(name)
+          : !/^(DATABASE_|SOURCE_TASTER_|VITE_|SERVICE_|SMTP_|STRIPE_|OPS_|NODE_ENV$|TEST_)/.test(
+              name,
+            )),
     ),
   ) as Record<string, string>;
   return {
@@ -87,7 +192,22 @@ export function compositionEnvironment(
     SOURCE_TASTER_E2E_WEB_PORT: String(ports.web),
     ...(options.basic ? {} : { SOURCE_TASTER_E2E_BIBLIOGRAPHIC: "true" }),
     ...(options.web ? { SOURCE_TASTER_E2E_WEB_FIXTURES: "true" } : {}),
-    ...(options.reports ? { SOURCE_TASTER_E2E_REPORTS: "granted" } : {}),
+    ...(options.reports && !options.hosted
+      ? { SOURCE_TASTER_E2E_REPORTS: "granted" }
+      : {}),
+    ...(options.hosted && hosted
+      ? {
+          SOURCE_TASTER_SERVICE_WORKTREE: hosted.worktree,
+          SOURCE_TASTER_E2E_SERVICE_PORT: String(ports.service),
+          SOURCE_TASTER_E2E_SERVICE_PUBLIC_PORT: String(ports.servicePublic),
+          SOURCE_TASTER_E2E_MAIL_PORT: String(ports.mail),
+          SOURCE_TASTER_E2E_POSTGRES_PORT: String(ports.postgres),
+          ...(options.smoke ? {} : { SOURCE_TASTER_E2E_NO_SMOKE: "true" }),
+          ...(hosted.validator
+            ? { SERVICE_TEST_EN16931_CONFIG: hosted.validator }
+            : {}),
+        }
+      : {}),
   };
 }
 
@@ -249,6 +369,28 @@ async function waitFor(
   throw new Error(`${url} did not answer within ${ms / 1000} s.`);
 }
 
+/** Wait for the standalone stack, smoke-check it and print where everything is. */
+async function announceStandalone(
+  options: Options,
+  stack: { exitCode: number | null },
+) {
+  await waitFor(`http://127.0.0.1:${ports.api}/health`, stack);
+  await waitFor(`http://127.0.0.1:${ports.web}/`, stack);
+  const smoke = options.smoke ? await smokeCheck() : undefined;
+  console.log(`
+Source Taster local preview is running (fake, local integrations only${options.web ? "; web-page checks reach the real internet for non-fixture hosts" : ""}).
+
+  Web app      http://127.0.0.1:${ports.web}/
+  Website      http://127.0.0.1:${ports.web}/en/   (and /de/, /docs/en/)
+  API health   http://127.0.0.1:${ports.api}/health
+  API docs     http://127.0.0.1:${ports.api}/v1/openapi.json
+  PostgreSQL   ${container} on 127.0.0.1:${ports.postgres}
+${smoke ? `  Smoke Check  passed through API, worker and fixtures: ${smoke.join(", ")}\n` : ""}
+Press Ctrl-C to stop. The database of this run is dropped on exit.
+Run \`pnpm dev:local:down\` to remove the ${container} container.
+`);
+}
+
 async function up(options: Options) {
   const missing = missingPrerequisites();
   if (missing.length) {
@@ -257,7 +399,25 @@ async function up(options: Options) {
       console.error(`  ${path}\n    run: ${command}`);
     process.exit(1);
   }
-  for (const port of [ports.api, ports.web])
+  let hosted: HostedSetup | undefined;
+  if (options.hosted) {
+    const worktree = process.env.SOURCE_TASTER_SERVICE_WORKTREE;
+    const problems = serviceWorktreeProblems(worktree);
+    if (problems.length) {
+      console.error("The hosted preview cannot start:");
+      for (const problem of problems) console.error(`  ${problem}`);
+      process.exit(1);
+    }
+    const validator = `${worktree}/.tmp/en16931/validator.json`;
+    hosted = {
+      worktree: worktree!,
+      ...(realFileSystem.isFile(validator) ? { validator } : {}),
+    };
+  }
+  const needed = options.hosted
+    ? [ports.api, ports.web, ports.service, ports.servicePublic, ports.mail]
+    : [ports.api, ports.web];
+  for (const port of needed)
     if (!(await portFree(port)))
       throw new Error(
         `Port ${port} is busy; free it, the preview does not pick another.`,
@@ -265,10 +425,14 @@ async function up(options: Options) {
   await ensurePostgres();
   const stack = spawn(
     "pnpm",
-    ["--filter", "@source-taster/server", "e2e:serve"],
+    [
+      "--filter",
+      "@source-taster/server",
+      options.hosted ? "e2e:serve:hosted" : "e2e:serve",
+    ],
     {
       cwd: root,
-      env: compositionEnvironment(options, process.env),
+      env: compositionEnvironment(options, process.env, hosted),
       stdio: "inherit",
       // Its own process group: pnpm, the shell and the servers below it all
       // have to receive the signal, or they outlive this wrapper and hold the
@@ -307,21 +471,10 @@ async function up(options: Options) {
   for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"] as const)
     process.on(signal, stop);
   try {
-    await waitFor(`http://127.0.0.1:${ports.api}/health`, stack);
-    await waitFor(`http://127.0.0.1:${ports.web}/`, stack);
-    const smoke = options.smoke ? await smokeCheck() : undefined;
-    console.log(`
-Source Taster local preview is running (fake, local integrations only${options.web ? "; web-page checks reach the real internet for non-fixture hosts" : ""}).
-
-  Web app      http://127.0.0.1:${ports.web}/
-  Website      http://127.0.0.1:${ports.web}/en/   (and /de/, /docs/en/)
-  API health   http://127.0.0.1:${ports.api}/health
-  API docs     http://127.0.0.1:${ports.api}/v1/openapi.json
-  PostgreSQL   ${container} on 127.0.0.1:${ports.postgres}
-${smoke ? `  Smoke Check  passed through API, worker and fixtures: ${smoke.join(", ")}\n` : ""}
-Press Ctrl-C to stop. The database of this run is dropped on exit.
-Run \`pnpm dev:local:down\` to remove the ${container} container.
-`);
+    // The hosted stack seeds, smoke-checks and prints its own banner (it holds
+    // the sign-in codes and the Account tokens); only the standalone one is
+    // verified from out here.
+    if (!options.hosted) await announceStandalone(options, stack);
   } catch (error) {
     stop();
     await exited.catch(() => undefined);
@@ -354,7 +507,7 @@ if (import.meta.main) {
     else if (command === "up") await up(parseArguments(rest));
     else
       throw new Error(
-        "Usage: dev-local.ts up [--basic] [--web] [--no-reports] [--no-smoke] | down",
+        "Usage: dev-local.ts up [--hosted] [--basic] [--web] [--no-reports] [--no-smoke] | down",
       );
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
