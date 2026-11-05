@@ -98,8 +98,14 @@ checksum-pinned Pagefind prelude, `pnpm build` and the exact extractor image
 | Job                | Runs                                                                 | Browsers installed   |
 | ------------------ | -------------------------------------------------------------------- | -------------------- |
 | `web-suites`       | web `abuse`, `report`                                                | `chromium`           |
-| `extension-suites` | extension `account` (4 public specs), `ai`, `report`, `selection`, `firefox` | `chromium firefox` |
+| `extension-suites` | extension `account` (4 public specs), `ai`, `report`, `selection`, `firefox` | `chromium firefox`, plus Firefox Developer Edition 160.0b4 |
 | `public-contracts` | server `abuse`, `history`, `owner-deletion` contracts                | none                 |
+
+The native Firefox sidebar specs (`e2e-firefox/sidebar.spec.ts` and the Firefox test in
+`e2e-account/panel.spec.ts`) drive Firefox over WebDriver BiDi. Playwright's patched
+Firefox does not start BiDi (checked locally with its build 1555), so the job downloads
+Mozilla's Linux amd64 Developer Edition tarball from `archive.mozilla.org`, checks it
+against a pinned SHA-256 and passes it as `SOURCE_TASTER_FIREFOX_BINARY`.
 
 All three are in the `checks` aggregate gate's `needs`, with a matching result
 check, so the commit's `checks` conclusion (which the deploy workflow reads)

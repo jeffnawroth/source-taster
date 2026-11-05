@@ -353,6 +353,17 @@ jobs:
           node apps/server/scripts/extractor-image.ts > .tmp/document-image-id
           echo "SOURCE_TASTER_DOCUMENT_IMAGE=$(cat .tmp/document-image-id)" >> "$GITHUB_ENV"
       - run: pnpm --filter @source-taster/extension exec playwright install --with-deps chromium firefox
+      # The native sidebar specs drive Firefox over WebDriver BiDi, which Playwright's
+      # patched Firefox build does not offer, so they get Mozilla's own Developer Edition.
+      - name: Install checksum-pinned Firefox Developer Edition (Linux amd64)
+        shell: bash
+        run: |
+          version=160.0b4
+          mkdir -p .tmp
+          curl --fail --silent --show-error --location "https://archive.mozilla.org/pub/devedition/releases/$version/linux-x86_64/en-US/firefox-$version.tar.xz" -o .tmp/firefox.tar.xz
+          echo 'b948f76e72924002f3cff6d6e4d53c7b0d2a60f5bb3591ad36fde4b48edb820f  .tmp/firefox.tar.xz' | sha256sum --check
+          tar -xJf .tmp/firefox.tar.xz -C .tmp
+          echo "SOURCE_TASTER_FIREFOX_BINARY=$PWD/.tmp/firefox/firefox" >> "$GITHUB_ENV"
       - name: Extension Account suite (public specs, private service replaced at its HTTP edge)
         run: pnpm --filter @source-taster/extension exec playwright test --config account.playwright.config.ts e2e-account/panel.spec.ts e2e-account/preferences-transport.spec.ts e2e-account/sensitive-transport.spec.ts e2e-account/transport.spec.ts
       - name: Extension AI extraction suite
