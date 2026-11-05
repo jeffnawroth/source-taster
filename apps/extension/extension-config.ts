@@ -108,7 +108,7 @@ export function hostPermissions(target: Target, config: ExtensionConfig) {
  * without sign-in, so the declaration never under-reports. Sources:
  * https://extensionworkshop.com/documentation/develop/firefox-builtin-data-consent/
  * https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/browser_specific_settings */
-export const dataCollectionPermissions = {
+const dataCollectionPermissions = {
   required: [
     "authenticationInfo",
     "personallyIdentifyingInfo",
