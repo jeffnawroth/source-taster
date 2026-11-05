@@ -96,20 +96,26 @@ Result of the local run (veraPDF 1.30.3, OpenJDK 27.0.1, macOS arm64):
   paragraph, heading or list item that wrapped onto the next page was not
   reachable from the structure tree), **7.18.5-2** (link annotations without a
   non-empty `Contents`) and **5-1**.
-- After the fixes, 7.1-3 and 7.18.5-2 pass. **Rule 5-1 still fails on all six
-  samples, so `pnpm reports:pdfua` and the `pdfua` job are red.** 5-1 requires the
-  XMP metadata to contain the PDF/UA identification (`pdfuaid:part`). Writing it
-  makes the file declare itself PDF/UA-1; that conformance declaration is a
-  product decision and was not made here. The validator's other 105 rules pass.
-- Evidence for that decision: with PDFKit's `subset: "PDF/UA"` set locally (not
-  committed), 5-1 passes and a different rule, **7.21.4.2-2** (CIDSet of an
+- After the fixes, 7.1-3 and 7.18.5-2 pass. Rule 5-1 still fails on all six
+  samples. 5-1 requires the XMP metadata to contain the PDF/UA identification
+  (`pdfuaid:part`); writing it makes every report declare itself PDF/UA-1. That
+  declaration needs the PDF/UA checks a validator cannot make (manual review),
+  so on 5 November 2026 the product owner's decision was: **the reports do not
+  declare PDF/UA.** The validator's other 105 rules pass.
+- The harness (`apps/server/scripts/report-pdfua.ts`) therefore accepts exactly
+  one failed rule, 5-1, and fails on any other failed rule. It also fails if 5-1
+  stops failing, so a conformance declaration cannot be added without a new
+  decision and an update of the harness and this note. Its verdict logic is held
+  by `test/report-pdfua.test.ts`.
+- Evidence for a future declaration: with PDFKit's `subset: "PDF/UA"` set locally
+  (not committed), 5-1 passes and a different rule, **7.21.4.2-2** (CIDSet of an
   embedded subset font does not list every CID in the font program), fails on all
-  six samples. So the declaration alone does not turn the job green; the CIDSet
-  written by PDFKit for the embedded Noto Sans subsets needs its own decision.
+  six samples. Declaring PDF/UA later therefore also needs that CIDSet fixed.
 
-No rule was disabled or filtered to change this outcome. The statement that can be
-made today is: veraPDF 1.30.3 PDF/UA-1 validation of the DE and EN samples fails
-on rule 5-1 only.
+No other rule was disabled or filtered. The statement that can be made today is:
+veraPDF 1.30.3 PDF/UA-1 validation of the DE and EN samples passes every rule
+except the deliberately unset identification (5-1). This is not a PDF/UA
+conformance claim; the manual screen reader review stays open.
 
 The independent tests (`pnpm --filter @source-taster/server test:report-structure`,
 no database) also check that every visible character is tagged or an Artifact

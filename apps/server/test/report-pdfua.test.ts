@@ -5,14 +5,24 @@ import { describe, expect, it } from "vitest";
 import { problems } from "../scripts/report-pdfua.ts";
 
 type Report = Parameters<typeof problems>[0];
+const identification = {
+  clause: "5",
+  testNumber: 1,
+  description: "PDF/UA identification schema",
+  failedChecks: 1,
+};
 const job = (name: string, over: Record<string, unknown> = {}) => ({
   itemDetails: { name: `/x/${name}` },
   validationResult: [
     {
-      compliant: true,
+      compliant: false,
       jobEndStatus: "normal",
       profileName: "PDF/UA-1 validation profile",
-      details: { passedRules: 106, failedRules: 0, ruleSummaries: [] },
+      details: {
+        passedRules: 105,
+        failedRules: 1,
+        ruleSummaries: [identification],
+      },
       ...over,
     },
   ],
@@ -27,7 +37,18 @@ const report = (jobs: unknown[], version = "1.30.3"): Report =>
 const files = ["a.pdf", "b.pdf"];
 
 describe("PDF/UA harness verdict", () => {
-  it("passes only when every expected file is compliant", () => {
+  it("fails when a sample declares PDF/UA identification without a decision", () => {
+    const declared = job("a.pdf", {
+      compliant: true,
+      details: { passedRules: 106, failedRules: 0, ruleSummaries: [] },
+    });
+    expect(problems(report([declared, job("b.pdf")]), files)).toEqual([
+      expect.stringContaining(
+        "a.pdf: rule 5-1 (PDF/UA identification) did not fail",
+      ),
+    ]);
+  });
+  it("passes only when every file fails nothing but the undeclared identification", () => {
     expect(problems(report(files.map((f) => job(f))), files)).toEqual([]);
   });
   it("fails on a wrong veraPDF version", () => {
@@ -63,9 +84,10 @@ describe("PDF/UA harness verdict", () => {
         job("a.pdf", {
           compliant: false,
           details: {
-            passedRules: 105,
-            failedRules: 1,
+            passedRules: 104,
+            failedRules: 2,
             ruleSummaries: [
+              identification,
               {
                 clause: "7.1",
                 testNumber: 3,

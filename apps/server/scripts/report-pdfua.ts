@@ -3,7 +3,12 @@
 // reference validator. veraPDF is an external CI/dev tool: it is run as a
 // separate process on files, never linked, bundled or shipped (see
 // docs/dependency-policy.md). The samples are made by the production report
-// code; nothing is relaxed or disabled to make them pass.
+// code; nothing is relaxed or disabled to make them pass, with one deliberate
+// exception: rule 5-1 (the `pdfuaid:part` identification in XMP). Setting it
+// would declare PDF/UA conformance inside every report, which needs the manual
+// PDF/UA checks a validator cannot do, so the reports do not declare it. The
+// harness therefore requires that 5-1 is the only failed rule (and that it does
+// fail, so a declaration cannot slip in without this file and the docs changing).
 //
 //   VERAPDF_BIN   path to the `verapdf` launcher (required)
 //
@@ -49,6 +54,12 @@ interface VeraReport {
   };
 }
 
+/** The PDF/UA identification rule the reports deliberately do not satisfy. */
+export const undeclaredIdentification = { clause: "5", testNumber: 1 } as const;
+const isIdentification = (rule: RuleSummary) =>
+  rule.clause === undeclaredIdentification.clause &&
+  rule.testNumber === undeclaredIdentification.testNumber;
+
 /** The failures of one veraPDF run, empty when every sample validated. */
 export function problems(
   report: VeraReport,
@@ -82,8 +93,16 @@ export function problems(
       out.push(`${file}: job ended ${result.jobEndStatus}`);
     if (!result.profileName.includes("PDF/UA-1"))
       out.push(`${file}: validated against "${result.profileName}"`);
+    if (
+      result.compliant ||
+      !result.details.ruleSummaries.some((rule) => isIdentification(rule))
+    )
+      out.push(
+        `${file}: rule 5-1 (PDF/UA identification) did not fail; a conformance declaration needs a decision and an update of this harness and docs/implementation/105-accessible-pdf-report.md`,
+      );
     if (!result.compliant) {
       for (const rule of result.details.ruleSummaries) {
+        if (isIdentification(rule)) continue;
         const where = (rule.checks ?? [])
           .slice(0, 2)
           .map((check) => check.context)
@@ -140,7 +159,7 @@ async function main() {
     process.exit(1);
   }
   console.log(
-    `veraPDF ${expectedVeraPdfVersion} PDF/UA-1 validation passes for ${files.length} samples: ${files.join(", ")}`,
+    `veraPDF ${expectedVeraPdfVersion} PDF/UA-1: every rule except the deliberately undeclared identification (5-1) passes for ${files.length} samples: ${files.join(", ")}`,
   );
 }
 
