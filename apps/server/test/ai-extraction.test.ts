@@ -19,6 +19,10 @@ import { listenForEvents } from "../src/checks/events.ts";
 import { LOCAL_OWNER } from "../src/entitlements.ts";
 import { setupDatabase } from "../scripts/db-setup.ts";
 import { startProcess, testDatabase } from "./support/processes.ts";
+import {
+  expectNoRunnableWork,
+  guardWorkIsolation,
+} from "./support/work-isolation.ts";
 import { startDoiFixtures } from "./support/doi-fixtures.ts";
 
 const database = testDatabase();
@@ -181,6 +185,11 @@ beforeAll(async () => {
 afterAll(async () => {
   await stop?.();
 });
+// No worker runs here except inside one test, and a queued job is only a
+// wake-up: the next worker serves any runnable slot. Applying a selection to a
+// cancelled Check legitimately leaves one, so each test's leftovers are
+// neutralised before the next test can start a worker (#150).
+guardWorkIsolation({ appUrl: () => database.appUrl, mode: "discard" });
 
 it("uses the parser with an explicit feature-scope reason and no structuring bill", async () => {
   features = [];
@@ -764,6 +773,8 @@ it("keeps an ungrounded DOI proposal out of search and scoring until a user revi
   expect(preview.references[0]?.ai?.proposals).toMatchObject([
     { field: "DOI", value: probe },
   ]);
+  // A worker claims any runnable slot, so no earlier test may have left one.
+  await expectNoRunnableWork(database.appUrl);
   const fixtures = await startDoiFixtures();
   const worker = startProcess("worker", {
     NODE_ENV: "test",
