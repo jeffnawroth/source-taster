@@ -15,6 +15,7 @@
     "i18n:check": "turbo run i18n:check",
     "db:setup": "pnpm --filter @source-taster/server db:setup",
     "dev:local": "node scripts/dev-local.ts up",
+    "dev:local:hosted": "node scripts/dev-local.ts up --hosted",
     "dev:local:down": "node scripts/dev-local.ts down",
     "test:scripts": "node --test scripts/dev-local.test.ts",
     "test": "turbo run test",

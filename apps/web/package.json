@@ -10,6 +10,7 @@
     "typecheck": "tsc -p tsconfig.json",
     "lint": "eslint .",
     "test:e2e": "playwright test && playwright test --config bibliographic.playwright.config.ts",
+    "test:e2e:cross-browser": "SOURCE_TASTER_E2E_CROSS_BROWSER=true pnpm test:e2e",
     "test:guest": "playwright test --config guest.playwright.config.ts",
     "test:quota": "playwright test --config quota.playwright.config.ts",
     "test:history": "playwright test --config history.playwright.config.ts"
@@ -28,8 +29,8 @@
     "@axe-core/playwright": "4.14.0",
     "@playwright/test": "1.64.1",
     "@tailwindcss/vite": "4.3.3",
-    "@types/react": "19.2.14",
-    "@types/react-dom": "19.2.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.1.2",
     "tailwindcss": "4.3.3",
     "vite": "8.3.5",
