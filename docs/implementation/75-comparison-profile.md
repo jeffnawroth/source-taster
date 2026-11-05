@@ -1,8 +1,8 @@
 # #75 comparison profile implementation
 
 Follow-up review corrections and the current Scoring rules version are recorded
-in [75-review-corrections.md](75-review-corrections.md). The evidence below
-describes the original implementation commit.
+in [Review corrections](#review-corrections) at the end of this note. The evidence
+below describes the original implementation commit.
 
 This work is confined to #75 under the explicitly invoked implement-spec
 workflow and TDD skill. The bound worktree is
@@ -203,3 +203,70 @@ parent's archive. The final private worktree cleanliness check is read-only.
 No unresolved #75 implementation requirement was identified at these approved
 seams. Resource limits, calibration/measurement and all adjacent-slice/human gates
 above remain explicit limits, not approval or completion of those later tasks.
+
+## Review corrections
+
+The independent round-one Standards review of `29bfec1...0fa903c` found one P2
+date-range regression; the Spec review of that frozen range was separate. The
+correction was made on a separate branch while the original implementation
+worktree stayed unchanged for the ongoing review. The evidence above describes the
+original implementation commit.
+
+### Standards: compare date ranges only by year
+
+ADR-0025 requires seasons and date ranges to compare only their year. The new
+preceding-day parser incorrectly interpreted `15 June – 16 July 2021` as June 15,
+causing a 90% date Field score against June 17 of the same year.
+
+The parser now recognizes day ranges, named-month ranges and explicit range
+separators before selecting a single named month/day. Exact ISO single dates still
+take their existing path. Eight public HTTP/SSE witnesses cover English and German
+forms, shared-month day ranges, month ranges and ISO date ranges; the original raw
+date value is retained. The profile's single-date and other comparison witnesses
+remain in the same suite.
+
+This changes outcomes, so the runtime records a new
+`comparison-75-3-date-ranges-20261028` Scoring rules version. The parameter/limit
+fingerprint and Unicode/ICU record remain intact. Both approved author tie
+clarifications remain unchanged. No new domain decision or calibration is claimed,
+and earlier immutable results retain their recorded versions.
+
+### Validation
+
+Tests use the previously approved real-PostgreSQL HTTP/SSE and browser seams; no
+application-table/internal-call assertions were added.
+
+- RED: eight date-range cases ran; five produced false deviations, three already
+  passed.
+- GREEN: all **76** comparison HTTP/SSE cases pass, including the eight new
+  witnesses.
+- Core/server builds and typechecks pass; changed-file ESLint and Prettier checks
+  pass; `git diff --check` passes.
+- Release refusal remains effective: `node apps/server/scripts/release-check.ts`
+  exits **78** because the profile is uncalibrated.
+- Full server regression: **160 passed / 10 files**, including the eight new
+  date-range cases.
+- Browser comparison/display and DE/EN author-evidence/axe regression: **12 passed**.
+
+An initial test attempt ran before PostgreSQL finished initializing and failed
+during setup; PostgreSQL readiness was confirmed before the isolated RED/GREEN runs,
+and that setup failure is not behavioral evidence.
+
+Dependencies, lockfile, transport contracts, private-service code, controlled
+website recipe and legal/publication approvals are unchanged. The original
+implementation's broader evidence retains its original scope. No fresh advisory,
+live, load, source-rights, calibration or release qualification is claimed here.
+
+The first broad regression attempt passed 158 server cases but could not start the
+website fixture, and the browser runner could not start Vite: the checkout had no
+ignored `apps/website/dist-preview` prerequisite. The original #75 controlled preview
+was reused without rebuilding or changing its recipe. All website/scripts/package/
+lockfile inputs are byte-identical to `0fa903c`, the original
+`pagefind-source.ts verify` passes, and all 73 copied artifact hashes match its
+manifest. No source build, review or publication guard was bypassed. The copied
+checkout also had stale generated Paraglide outputs, which made the first browser
+rerun show `m.check_reset is not a function`; that run was stopped after three
+identical failures and its traces were retained. Rebuilding the unchanged i18n
+package with `pnpm --filter @source-taster/i18n build` restores the required
+generated artifacts, and the final isolated browser run passes all 12 cases. No
+product source/catalog change was necessary.

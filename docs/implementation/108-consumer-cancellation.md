@@ -170,3 +170,114 @@ only after identity verification and zero other client backends. Ports
 5501/5502/5503/5442/55421 are free. Test processes and their own databases/profiles
 were cleaned up. Source histories, two original override backups/stashes, logs
 and verified tool caches remain. No unrelated resource was cleaned up.
+
+## Integrated publication — 3 November 2026
+
+Exact public source `8fa5a9956053e7579488b3705ed2d94c3a4607a2` and private source
+`f95d936daa7209179076ff5ca2a20962b5148449` were merged with ordinary,
+history-preserving merges into the exclusively owned public root and private
+INTEGRATION. Both published #109 integration heads and the #107 history remain
+ancestors. The public application tree equals the exact public source. Private
+application changes after the exact source are only the five canonical pins; two
+inherited handoff files were formatted normally.
+
+### Reachable transport and installation
+
+Public transport `367f62447d4cd0dff11a367f41af788c7f474cb0` was pushed to the
+existing draft PR #139 and linked. Git remote and the GitHub commit API confirmed
+reachability before all five private pins were changed: server internal, service
+and verification; web service; and `scripts/evidence.ts`. Normal lock generation,
+install and frozen install pass without overrides or development links. All **102**
+installed package files match the published commit byte for byte (10/20/52/20). The
+workspace policy and registry graph are unchanged; Better Auth remains **1.7.14**.
+Public and private changes use their existing draft PRs; no issue was closed or
+marked ready for review.
+
+Tested code heads: public `367f62447d4cd0dff11a367f41af788c7f474cb0`, private
+`7977e027d209bdcafe49bba4871949d302d52ef8`. The final publication commits contain
+only English handoffs and evidence.
+
+### Preserved behavior
+
+The statutory DE/EN entrance works signed in, signed out and during failed Account
+requests. It remains independent of login, paid permission, Quota, shared business
+budgets/limiter recovery and the payment provider. Only the exact public POST intake
+bypasses business accounting. Trusted-origin CSRF, the 8 KiB body limit and strict
+schema, durable per-contract receipt deduplication and 24-hour transient
+intake-digest expiry remain. Unmatched notices reveal no contract, recipient,
+provider or delivery details and do not mail an unverified recipient. The form
+contains minimal contract identification, the exact German buttons and no retention
+offer, survey or payment-provider detour.
+
+Cancellation and its outbox receipt commit atomically; durable first receipt and
+contract end survive SMTP/provider outage, restart and retries. Captured mail
+attempts follow commit. Reconciliation cannot extend an accepted statutory end
+through a delayed invoice, and reconciliation provider I/O does not hold the intake
+lock. Already in-flight initial activation retains its bounded 30-second
+serialization fence and intake preserves the original receipt clock. The correction
+action and saved notice remain available. Existing authenticated #107
+cancellation, paid grants, period catalogs, #109 VAT proof and immutable invoice
+evidence remain intact. Current Account/Owner/session, DPA, Quota, deletion, SSE and
+protected-download fences remain enforced.
+
+### Actual integrated acceptance
+
+- Public/private aggregate typecheck, lint/format, DE/EN checks and build pass.
+  Controlled Pagefind fetch/build/verify and the loopback site fixture build pass.
+- Four public transport packages regenerate with no tracked difference. Both Prisma
+  and both catalog trees reproduce byte for byte and stay unchanged throughout
+  acceptance. No generated file was hand-merged or edited.
+- Focused real-PostgreSQL cancellation/subscription/commerce/abuse/tax HTTP:
+  **46/46**. This includes provider/SMTP outage and retry, first-receipt/end
+  preservation, limiter recovery/budget exhaustion, unmatched privacy,
+  trusted-origin rejection and 413 Problem Details body bounding.
+- Complete final private suite: **113/113**.
+- Both actual programs, Quota/commerce: **10/10**; current
+  authority/SSE/deletion/fences: **33/33**.
+- Actual-program public DE/EN cancellation browser, every information-page layout,
+  signed-in/out and failed-Account/provider-outage forwarding: **2/2**. Private
+  DE/EN cancellation/Order/VAT/Plan browser: **8/8**. Actual purchase → Account
+  invoice → exact PDF/XML download browser: **4/4**.
+- Actual hash-pinned EN16931 UBL Schematron **1.3.17** executes under actual
+  **Saxon-HE 10.9**. The JVM, JAR, rules ZIP and stylesheet are receipted. This is
+  narrow Schematron validation, not supplier, legal or tax qualification.
+- Private npm-license inventory passes: **389 installed / 109 runtime packages**.
+- Direct release guard still refuses with **78**: no load report, calibration,
+  eligible Measured configuration or measurement location.
+
+External payment, VIES, Billit, mail and time use the approved synthetic/captured
+adapter seams; no live provider or external delivery occurred. The site browser
+fixture uses only a loopback preview origin. No actual production origin was
+supplied: static-site publication still requires its real HTTPS service origin.
+Hosted web retains the existing service-origin setting and verification proxy.
+
+### Failures, limits and retained gates
+
+The first integrated private lint failed only on formatting of the inherited #108
+JSON and Markdown handoffs; both were formatted normally and aggregate lint then
+passed. An additional explicit public handoff check outside the project's
+documentation ignore found JSON wrapping only; normal formatting corrected it. These
+formatting failures are retained. There was no application fix and no new test-first
+implementation cycle. Source red/green/setup and override-conflict receipts remain
+historical evidence. The source's earlier pre-#109 Quota count and absence of a full
+#108 private-suite run are not promoted to publication evidence; the counts above
+are the checks actually run at integration.
+
+Hosted CI is reported separately from local acceptance. At public transport
+`367f624`, dependencies passed and checks failed with **674/677** server tests
+passing: maximum-Check cancellation returned 500 and two report-lifecycle cases
+stayed generating instead of ready. The failure log is retained; no unrelated broad
+rerun or application fix is included. At the previous private publication
+`7c76642`, checks passed and dependencies failed on one advisory. A pending or
+failed hosted check is not a local pass and no dependency gate is waived.
+
+- No live VIES, Billit, payment or external mail call, merchant approval, delivery proof, final legal wording or legal/tax qualification.
+- EN16931 UBL Schematron 1.3.17 under actual Saxon-HE 10.9 only; no UBL XSD, XRechnung/national CIUS, full Peppol or real correct-seller PO sample qualification.
+- Supplier contract/DPA/fees, Stripe mapping, non-Peppol availability/delivery, OAuth lifecycle, external JVM/Saxon/rules distribution licensing and tax-advisor evidence/conflict/reverse-charge/retention review remain gates.
+- All Selected/Better Auth 1.7.14, minimatch/dependency/advisory, mandatory source activation/rights, load, calibration/Quality gate/Measured configuration, security, legal/tax/provider, browser/accessibility, deployment and release gates remain; no forced-major override or waiver.
+- Chromium, axe and CSS zoom fixtures are not native browser, screen-reader, PDF/UA or Q01 qualification.
+- No production cancellation service origin was supplied. Static-site publication requires the actual HTTPS origin; tests use loopback preview only.
+- No issue closure, ready-for-review transition, deployment or activation. #112/#113 and the whole-spec final review remain separate.
+
+Commands, environments, pin bytes, ancestry, log hashes, failures, toolchain and
+cleanup are in [the integrated evidence](../evidence/108-integrated-publication.json).

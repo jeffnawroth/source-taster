@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // FA-ERW-02 / FA-ERW-03 / FA-ERW-05: documented simulations of the public
-// program's extension seams (docs/implementation/audit-gaps-p5-erw-nov5.md).
+// program's extension seams (docs/implementation/70-launch-integration-log.md).
 //
 // The public program only knows an opaque Owner key, named permissions and an
 // `Entitlements.resolve` port. Memberships, the role -> permission policy and
