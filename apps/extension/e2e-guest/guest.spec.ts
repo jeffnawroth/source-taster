@@ -68,6 +68,27 @@ const bearer = (panel: Panel, suffix: string) =>
   panel.requests
     .filter((r) => r.url.startsWith(both.apiUrl) && r.url.endsWith(suffix))
     .map((r) => r.headers.Authorization ?? r.headers.authorization);
+// The panel's maintenance notice (packages/ui/src/maintenance.tsx) polls the
+// public, content-free `GET {api}/health/maintenance` without credentials, on
+// load and then every minute, whatever the Guest state. It is the one request
+// that may reach the API without a Guest identity; everything else
+// (structuring, Quota, Checks, events, leases) must not.
+const isMaintenanceProbe = (r: Panel["requests"][number]) =>
+  r.method === "GET" && r.url === `${both.apiUrl}/health/maintenance`;
+/** API requests from `from` on, other than exactly the maintenance probe. */
+const apiRequests = (panel: Panel, from = 0) =>
+  panel.requests
+    .slice(from)
+    .filter((r) => r.url.startsWith(both.apiUrl) && !isMaintenanceProbe(r));
+/** The probe never carries a Guest token or any other credential. */
+const probesAreAnonymous = (panel: Panel) =>
+  panel.requests
+    .filter(isMaintenanceProbe)
+    .every(
+      (r) =>
+        (r.headers.Authorization ?? r.headers.authorization) === undefined &&
+        (r.headers.Cookie ?? r.headers.cookie) === undefined,
+    );
 async function check(panel: Panel, name = "Check Reference") {
   await panel.fill("textbox", /^(Reference|Referenz)$/, physicsReference);
   await panel.click("button", name);
@@ -418,9 +439,8 @@ for (const language of ["en", "de"] as const) {
         { guestId: id, client: "extension" },
         { guestId: id, client: "extension" },
       ]);
-      expect(
-        panel.requests.slice(mark).filter((r) => r.url.startsWith(both.apiUrl)),
-      ).toEqual([]);
+      expect(apiRequests(panel, mark)).toEqual([]);
+      expect(probesAreAnonymous(panel)).toBe(true);
       expect((await browser.storage())[identityKey]).toBe(id);
       expect(await panel.query("region", "Your Check")).toEqual([]);
       expect(await panel.axe()).toEqual([]);
@@ -552,9 +572,8 @@ for (const failure of ["corrupt", "full"] as const)
       );
       await new Promise((r) => setTimeout(r, 500));
       expect(issued(panel)).toEqual([]);
-      expect(
-        panel.requests.filter((r) => r.url.startsWith(both.apiUrl)),
-      ).toEqual([]);
+      expect(apiRequests(panel)).toEqual([]);
+      expect(probesAreAnonymous(panel)).toBe(true);
       expect(
         await panel.evaluate(
           `document.getElementById("results-title") === null`,
@@ -711,9 +730,8 @@ test("a Guest token refused for the extension origin is reported without any fal
       expect(await alerts(panel)).toEqual([
         "The connection failed. Please try again.",
       ]);
-      expect(
-        panel.requests.filter((r) => r.url.startsWith(both.apiUrl)),
-      ).toEqual([]);
+      expect(apiRequests(panel)).toEqual([]);
+      expect(probesAreAnonymous(panel)).toBe(true);
       const id = (await browser.storage())[identityKey];
       expect(id).toMatch(uuid);
       // The panel also asks on load for the Quota (#99); every attempt keeps
