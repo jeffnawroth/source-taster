@@ -223,17 +223,41 @@ export class Panel {
   }
   /** A trusted pointer click at the element's rendered centre. */
   async click(role: string, name?: string | RegExp) {
-    await this.clickNode(await this.find(role, name));
+    await this.press(() => this.find(role, name));
   }
   async clickNode(node: number) {
-    await this.send("DOM.scrollIntoViewIfNeeded", { backendNodeId: node });
-    const { quads } = await this.send<{ quads: number[][] }>(
-      "DOM.getContentQuads",
-      { backendNodeId: node },
-    );
-    const quad = quads[0]!;
-    const x = (quad[0]! + quad[2]! + quad[4]! + quad[6]!) / 4;
-    const y = (quad[1]! + quad[3]! + quad[5]! + quad[7]!) / 4;
+    await this.press(() => Promise.resolve(node));
+  }
+  /**
+   * Playwright-style actionability before a trusted press. The panel lays out
+   * asynchronously (fetches and renders move controls for a while after they
+   * first appear), so a centre measured once and pressed a few CDP round trips
+   * later can land on whatever moved underneath it. Wait, bounded, until the
+   * node's centre has held still across two animation frames and the point
+   * hits the node itself; the press is then sent exactly once.
+   */
+  private async press(resolve: () => Promise<number>) {
+    const { x, y } = await until(async () => {
+      const node = await resolve();
+      await this.send("DOM.scrollIntoViewIfNeeded", { backendNodeId: node });
+      const before = await this.centre(node);
+      // A hidden panel never paints; the timeout keeps this bounded.
+      await this.evaluate(
+        `new Promise((done) => { const t = setTimeout(done, 300); requestAnimationFrame(() => requestAnimationFrame(() => { clearTimeout(t); done(0); })); })`,
+      );
+      const after = await this.centre(node);
+      if (!before || !after || before.x !== after.x || before.y !== after.y)
+        return false;
+      const hit = await this.call<boolean>(
+        node,
+        `function (x, y) {
+            const top = document.elementFromPoint(x, y);
+            return !!top && (top === this || this.contains(top));
+          }`,
+        [after.x, after.y],
+      );
+      return hit && after;
+    }, "The pointer target never held still where it can be clicked");
     await this.send("Input.dispatchMouseEvent", { type: "mouseMoved", x, y });
     for (const type of ["mousePressed", "mouseReleased"])
       await this.send("Input.dispatchMouseEvent", {
@@ -243,6 +267,19 @@ export class Panel {
         button: "left",
         clickCount: 1,
       });
+  }
+  /** Rendered centre of the node's first box, or undefined while it has none. */
+  private async centre(node: number) {
+    const { quads } = await this.send<{ quads: number[][] }>(
+      "DOM.getContentQuads",
+      { backendNodeId: node },
+    );
+    const quad = quads[0];
+    if (!quad) return undefined;
+    return {
+      x: (quad[0]! + quad[2]! + quad[4]! + quad[6]!) / 4,
+      y: (quad[1]! + quad[3]! + quad[5]! + quad[7]!) / 4,
+    };
   }
   /** Focus by click, replace the value, then insert text as trusted input. */
   async fill(role: string, name: string | RegExp | undefined, text: string) {
