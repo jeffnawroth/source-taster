@@ -359,6 +359,66 @@ test("the dependency gates keep the checksum-pinned scanner", () => {
   assert.match(script, /scripts\/refresh-advisories\.sh/);
 });
 
+test("the PDF/UA job installs a checksum-pinned veraPDF as a CI-only tool and uploads its evidence even when it fails (#105)", async () => {
+  const job = workflow.jobs.pdfua;
+  assert.ok(job, "pdfua job");
+  assert.ok(job["timeout-minutes"] <= 60);
+  assert.ok(!job.services, "veraPDF needs no database or service");
+  for (const step of job.steps)
+    if (step.uses)
+      assert.match(step.uses, /@[0-9a-f]{40}$/, `pdfua pins ${step.uses}`);
+  assert.ok(
+    job.steps.some(
+      (s) =>
+        s.uses?.startsWith("actions/setup-java@") && s.with?.["java-version"],
+    ),
+    "a pinned JDK",
+  );
+  const script = runs(job).join("\n");
+  // The exact release, downloaded by its versioned URL and verified before use.
+  assert.match(
+    script,
+    /curl --fail .*software\.verapdf\.org\/releases\/1\.30\/verapdf-greenfield-1\.30\.3-installer\.zip/,
+  );
+  assert.match(
+    script,
+    /b512bf24945503a33fc10738ecffc1f2dccaaf8593a448e94ee9ac86a9559a59 {2}\.tmp\/verapdf-download\/installer\.zip/,
+  );
+  assert.match(script, /sha256sum --check/);
+  assert.ok(
+    script.indexOf("sha256sum --check") < script.indexOf("unzip"),
+    "verify before unpacking",
+  );
+  assert.match(script, /fixed-strings 'veraPDF 1\.30\.3'/);
+  // Only the CLI pack; no GUI, documentation or sample plugins.
+  assert.match(script, /name="veraPDF CLI" selected="true"/);
+  assert.equal(script.match(/selected="true"/g).length, 1);
+  // The validation itself runs the owned script, which fixes the profile.
+  const validate = job.steps.find((s) => s.run === "pnpm reports:pdfua");
+  assert.ok(validate, "validation step");
+  assert.match(validate.env.VERAPDF_BIN, /\.tmp\/verapdf\/verapdf$/);
+  const harness = await readFile(
+    join(root, "apps", "server", "scripts", "report-pdfua.ts"),
+    "utf8",
+  );
+  assert.match(harness, /"--flavour",\s*"ua1"/);
+  assert.match(harness, /expectedVeraPdfVersion = "1\.30\.3"/);
+  assert.ok(!/continue-on-error|\|\| true/.test(JSON.stringify(job) + harness));
+  // Red or green, the PDFs and veraPDF's report stay available for review.
+  const upload = job.steps.find((s) => s.uses?.includes("upload-artifact"));
+  assert.equal(upload.if, "always()");
+  assert.match(upload.with.path, /\.tmp\/pdfua\/verapdf-report\.json/);
+  // The tool never becomes an application dependency.
+  const server = JSON.parse(
+    await readFile(join(root, "apps", "server", "package.json"), "utf8"),
+  );
+  assert.ok(
+    !JSON.stringify([server.dependencies, server.devDependencies]).includes(
+      "verapdf",
+    ),
+  );
+});
+
 test("the stable checks job is the aggregate gate over every other job", () => {
   const gate = workflow.jobs.checks;
   assert.ok(gate, "checks job");
@@ -371,6 +431,7 @@ test("the stable checks job is the aggregate gate over every other job", () => {
     "side-panel",
     ...publicSuiteJobs,
     "dependencies",
+    "pdfua",
   ])
     assert.ok(gate.needs.includes(required), required);
   // `always()` so a failed or cancelled need fails the gate instead of
