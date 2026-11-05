@@ -14,5 +14,14 @@ export default defineConfig({
     reuseExistingServer: false,
     timeout: 120_000,
   },
-  projects: [{ name: "chromium", use: { browserName: "chromium" } }],
+  // Firefox and WebKit are an opt-in local run, not part of CI.
+  projects: [
+    { name: "chromium", use: { browserName: "chromium" } },
+    ...(process.env.SOURCE_TASTER_E2E_CROSS_BROWSER === "true"
+      ? ([
+          { name: "firefox", use: { browserName: "firefox" } },
+          { name: "webkit", use: { browserName: "webkit" } },
+        ] as const)
+      : []),
+  ],
 });

@@ -95,7 +95,12 @@ export function rawCatalog(bytes: Uint8Array) {
  */
 export function rawLinks(bytes: Uint8Array) {
   const text = Buffer.from(bytes).toString("latin1");
-  const annotations = [...text.matchAll(/\/Subtype \/Link[\s\S]*?endobj/gu)];
+  // PDFKit writes /Contents before /Subtype, so match the whole object.
+  const annotations = [
+    ...text.matchAll(
+      /\d+ 0 obj\n<<(?:(?!endobj)[\s\S])*?\/Subtype \/Link[\s\S]*?endobj/gu,
+    ),
+  ];
   return {
     annotations: annotations.length,
     withStructParent: annotations.filter((a) =>
@@ -110,9 +115,48 @@ export function rawLinks(bytes: Uint8Array) {
         : undefined;
       return /\/URI \(([^)]*)\)/u.exec(body ?? "")?.[1] ?? [];
     }),
+    /** Link annotations whose /Contents alternate description is empty or absent. */
+    withoutContents: annotations.filter(
+      (a) => !/\/Contents \((?!\))[^)]+\)/u.test(a[0]),
+    ).length,
     objectReferences: (text.match(/\/Type \/OBJR/gu) ?? []).length,
     linkElements: (text.match(/\/S \/Link/gu) ?? []).length,
   };
+}
+function structIds(node: StructNode | null | undefined): string[] {
+  if (!node) return [];
+  return [
+    ...(node.type === "content" && node.id ? [node.id] : []),
+    ...(node.children ?? []).flatMap(structIds),
+  ];
+}
+/**
+ * Page text that is neither Artifact nor reachable from the structure tree
+ * through its marked-content id. Such text is invisible to assistive
+ * technology (e.g. a paragraph continued onto the next page).
+ */
+export function untaggedText(
+  page: Awaited<ReturnType<typeof inspectPdf>>["pages"][number],
+) {
+  const reachable = new Set(structIds(page.tree));
+  const open: { tag: string; id?: string }[] = [];
+  const out: string[] = [];
+  for (const item of page.items) {
+    if ("type" in item && item.type === "beginMarkedContentProps") {
+      const marked = item as { tag?: string; id?: string };
+      open.push({ tag: marked.tag ?? "", id: marked.id });
+    } else if ("type" in item && item.type === "beginMarkedContent")
+      open.push({ tag: "" });
+    else if ("type" in item && item.type === "endMarkedContent") open.pop();
+    else if ("str" in item && item.str.trim()) {
+      const covered = open.some(
+        (m) =>
+          m.tag === "Artifact" || (m.id !== undefined && reachable.has(m.id)),
+      );
+      if (!covered) out.push(item.str);
+    }
+  }
+  return out;
 }
 /**
  * Text inside `Artifact` marked content on one page, i.e. page furniture that

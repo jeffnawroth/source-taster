@@ -2,7 +2,7 @@
 // PDFKit ships no usable types (ADR-0017 keeps it behind one owned adapter,
 // `pdf.ts`). This declares only the surface that adapter uses.
 declare module "pdfkit" {
-  interface StructElement {
+  export interface StructElement {
     add(child: unknown): StructElement;
     end(): StructElement;
   }
@@ -60,7 +60,17 @@ declare module "pdfkit" {
     fillColor(color: string): this;
     text(text: string, options?: TextOptions): this;
     text(text: string, x: number, y: number, options?: TextOptions): this;
-    list(items: string[], options?: ListOptions): this;
+    circle(x: number, y: number, radius: number): this;
+    fill(color?: string): this;
+    /** PDFKit's annotation entry point; `Contents` is the alternate description. */
+    link(
+      x: number,
+      y: number,
+      width: number,
+      height: number,
+      url: string,
+      options?: { structParent?: StructElement; Contents?: object },
+    ): this;
     moveDown(lines?: number): this;
     addPage(): this;
     struct(type: string, options?: object, children?: unknown): StructElement;
