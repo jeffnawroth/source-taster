@@ -99,6 +99,23 @@ export function hostPermissions(target: Target, config: ExtensionConfig) {
   ];
 }
 
+/** Firefox built-in data collection consent (desktop 140+, Android 142+).
+ * Required, because the Check and sign-in flows cannot run without sending:
+ * - websiteContent: the text the user selects or submits for checking;
+ * - authenticationInfo and personallyIdentifyingInfo: the e-mail address and
+ *   one-time code for Account sign-in.
+ * Declared statically for every Firefox build, including standalone builds
+ * without sign-in, so the declaration never under-reports. Sources:
+ * https://extensionworkshop.com/documentation/develop/firefox-builtin-data-consent/
+ * https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/browser_specific_settings */
+const dataCollectionPermissions = {
+  required: [
+    "authenticationInfo",
+    "personallyIdentifyingInfo",
+    "websiteContent",
+  ],
+};
+
 export function manifest(target: Target, config: ExtensionConfig) {
   const common = {
     manifest_version: 3,
@@ -128,6 +145,7 @@ export function manifest(target: Target, config: ExtensionConfig) {
             // Firefox 127 grants and shows MV3 host permissions at install
             // (bug 1889402); 128 is the first ESR after that.
             strict_min_version: "128.0",
+            data_collection_permissions: dataCollectionPermissions,
           },
         },
         action: { default_title: "Source Taster", default_area: "navbar" },
