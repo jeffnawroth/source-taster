@@ -25,7 +25,17 @@ jobs:
   checks:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
-    needs: [verify, server-tests, e2e, side-panel, dependencies]
+    needs:
+      [
+        verify,
+        server-tests,
+        e2e,
+        side-panel,
+        web-suites,
+        extension-suites,
+        public-contracts,
+        dependencies,
+      ]
     if: always()
     steps:
       - name: Require every verification job to succeed
@@ -34,12 +44,18 @@ jobs:
           SERVER_TESTS: ${{ needs.server-tests.result }}
           E2E: ${{ needs.e2e.result }}
           SIDE_PANEL: ${{ needs.side-panel.result }}
+          WEB_SUITES: ${{ needs.web-suites.result }}
+          EXTENSION_SUITES: ${{ needs.extension-suites.result }}
+          PUBLIC_CONTRACTS: ${{ needs.public-contracts.result }}
           DEPENDENCIES: ${{ needs.dependencies.result }}
         run: |
           test "$VERIFY" = "success" || { echo "verify: $VERIFY"; exit 1; }
           test "$SERVER_TESTS" = "success" || { echo "server-tests: $SERVER_TESTS"; exit 1; }
           test "$E2E" = "success" || { echo "e2e: $E2E"; exit 1; }
           test "$SIDE_PANEL" = "success" || { echo "side-panel: $SIDE_PANEL"; exit 1; }
+          test "$WEB_SUITES" = "success" || { echo "web-suites: $WEB_SUITES"; exit 1; }
+          test "$EXTENSION_SUITES" = "success" || { echo "extension-suites: $EXTENSION_SUITES"; exit 1; }
+          test "$PUBLIC_CONTRACTS" = "success" || { echo "public-contracts: $PUBLIC_CONTRACTS"; exit 1; }
           test "$DEPENDENCIES" = "success" || { echo "dependencies: $DEPENDENCIES"; exit 1; }
   # Static gates, committed-artifact check, operations CLI and load harness.
   verify:
@@ -238,6 +254,187 @@ jobs:
           path: |
             apps/extension/test-results
           retention-days: 7
+  # Public Playwright suites that run on local fakes only (no private service):
+  # web Abuse entrance limits and the Verification report browser flow.
+  web-suites:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 2s --health-timeout 5s --health-retries 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Fetch checksum-pinned controlled website inputs (Linux amd64 GNU)
+        shell: bash
+        run: |
+          mkdir -p .tmp
+          pnpm pagefind:fetch 2>&1 | tee .tmp/pagefind-fetch.log
+      - name: Build controlled native tools and DE/EN WASM offline
+        shell: bash
+        run: pnpm pagefind:build 2>&1 | tee .tmp/pagefind-build.log
+      - run: pnpm pagefind:verify
+      - run: pnpm build
+      - name: Build the isolated document extractor (exact local image)
+        shell: bash
+        run: |
+          node apps/server/scripts/extractor-image.ts > .tmp/document-image-id
+          echo "SOURCE_TASTER_DOCUMENT_IMAGE=$(cat .tmp/document-image-id)" >> "$GITHUB_ENV"
+      - run: pnpm --filter @source-taster/web exec playwright install --with-deps chromium
+      - name: Web Abuse entrance suite (public API, native extension panel)
+        run: pnpm --filter @source-taster/web exec playwright test --config abuse.playwright.config.ts
+      - name: Web Verification report suite (fake Quota grant)
+        run: pnpm --filter @source-taster/web exec playwright test --config report.playwright.config.ts
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        if: failure()
+        with:
+          name: browser-evidence-web-suites
+          path: |
+            apps/web/test-results-report
+            .tmp/100/browser-artifacts
+          include-hidden-files: true
+          retention-days: 7
+  # Public native-extension suites on local fakes. The Account suite runs its
+  # four public specs by path (Playwright reads each argument as a path regex,
+  # so a bare `panel.spec.ts` would also select sensitive-panel.spec.ts, which
+  # composes the private service and belongs to the private-service workflow;
+  # see docs/implementation/142-e2e-in-ci.md).
+  extension-suites:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    # The Account and History helpers refuse to guess a database: name the
+    # job's own PostgreSQL service explicitly.
+    env:
+      DATABASE_ADMIN_URL: postgres://postgres:postgres@localhost:5433/postgres
+      DATABASE_TEST_URL: postgres://verification_test:fixture@localhost:5433/owned
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 2s --health-timeout 5s --health-retries 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Fetch checksum-pinned controlled website inputs (Linux amd64 GNU)
+        shell: bash
+        run: |
+          mkdir -p .tmp
+          pnpm pagefind:fetch 2>&1 | tee .tmp/pagefind-fetch.log
+      - name: Build controlled native tools and DE/EN WASM offline
+        shell: bash
+        run: pnpm pagefind:build 2>&1 | tee .tmp/pagefind-build.log
+      - run: pnpm pagefind:verify
+      - run: pnpm build
+      - name: Build the isolated document extractor (exact local image)
+        shell: bash
+        run: |
+          node apps/server/scripts/extractor-image.ts > .tmp/document-image-id
+          echo "SOURCE_TASTER_DOCUMENT_IMAGE=$(cat .tmp/document-image-id)" >> "$GITHUB_ENV"
+      - run: pnpm --filter @source-taster/extension exec playwright install --with-deps chromium firefox
+      # The native sidebar specs drive Firefox over WebDriver BiDi, which Playwright's
+      # patched Firefox build does not offer, so they get Mozilla's own Developer Edition.
+      - name: Install checksum-pinned Firefox Developer Edition (Linux amd64)
+        shell: bash
+        run: |
+          version=160.0b4
+          mkdir -p .tmp
+          curl --fail --silent --show-error --location "https://archive.mozilla.org/pub/devedition/releases/$version/linux-x86_64/en-US/firefox-$version.tar.xz" -o .tmp/firefox.tar.xz
+          echo 'b948f76e72924002f3cff6d6e4d53c7b0d2a60f5bb3591ad36fde4b48edb820f  .tmp/firefox.tar.xz' | sha256sum --check
+          tar -xJf .tmp/firefox.tar.xz -C .tmp
+          echo "SOURCE_TASTER_FIREFOX_BINARY=$PWD/.tmp/firefox/firefox" >> "$GITHUB_ENV"
+      - name: Extension Account suite (public specs, private service replaced at its HTTP edge)
+        run: pnpm --filter @source-taster/extension exec playwright test --config account.playwright.config.ts e2e-account/panel.spec.ts e2e-account/preferences-transport.spec.ts e2e-account/sensitive-transport.spec.ts e2e-account/transport.spec.ts
+      - name: Extension AI extraction suite
+        run: pnpm --filter @source-taster/extension exec playwright test --config ai.playwright.config.ts
+      - name: Extension Verification report suite
+        run: pnpm --filter @source-taster/extension exec playwright test --config report.playwright.config.ts
+      - name: Extension selection intake suite
+        run: pnpm --filter @source-taster/extension exec playwright test --config selection.playwright.config.ts
+      - name: Native Firefox sidebar smoke
+        run: pnpm --filter @source-taster/extension exec playwright test --config firefox.playwright.config.ts
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        if: failure()
+        with:
+          name: browser-evidence-extension-suites
+          path: |
+            apps/extension/test-results-account
+            apps/extension/test-results-ai
+            apps/extension/test-results-report
+            apps/extension/test-results-selection
+            apps/extension/test-results-firefox
+          retention-days: 7
+  # The `*.contract.ts` suites that need only the public repository (the rest
+  # compose the private service and are not run here; see
+  # docs/implementation/142-e2e-in-ci.md).
+  public-contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    # The Account and History helpers refuse to guess a database: name the
+    # job's own PostgreSQL service explicitly.
+    env:
+      DATABASE_ADMIN_URL: postgres://postgres:postgres@localhost:5433/postgres
+      DATABASE_TEST_URL: postgres://verification_test:fixture@localhost:5433/owned
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 2s --health-timeout 5s --health-retries 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Fetch checksum-pinned controlled website inputs (Linux amd64 GNU)
+        shell: bash
+        run: |
+          mkdir -p .tmp
+          pnpm pagefind:fetch 2>&1 | tee .tmp/pagefind-fetch.log
+      - name: Build controlled native tools and DE/EN WASM offline
+        shell: bash
+        run: pnpm pagefind:build 2>&1 | tee .tmp/pagefind-build.log
+      - run: pnpm pagefind:verify
+      - run: pnpm build
+      - name: Build the isolated document extractor (exact local image)
+        shell: bash
+        run: |
+          node apps/server/scripts/extractor-image.ts > .tmp/document-image-id
+          echo "SOURCE_TASTER_DOCUMENT_IMAGE=$(cat .tmp/document-image-id)" >> "$GITHUB_ENV"
+      - name: Abuse entrance contract
+        run: pnpm --filter @source-taster/server exec vitest run --config abuse.vitest.config.ts --reporter=verbose
+      - name: History contract
+        run: pnpm --filter @source-taster/server exec vitest run --config history.vitest.config.ts --reporter=verbose
+      - name: Owner deletion contract
+        run: pnpm --filter @source-taster/server exec vitest run --config owner-deletion.vitest.config.ts --reporter=verbose
   dependencies:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
