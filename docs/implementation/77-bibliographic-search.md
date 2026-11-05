@@ -1,7 +1,7 @@
 # #77 bibliographic article search
 
 Follow-up review corrections and current received-evidence behavior are recorded
-in [77-review-corrections.md](77-review-corrections.md). The receipt below
+in [Review corrections](#review-corrections) at the end of this note. The receipt below
 describes the original implementation commit.
 
 This implementation is scoped to #77 under the explicitly invoked implement-spec
@@ -298,3 +298,185 @@ receipts. Provisioning environment files, credentials, keys, raw unselected
 provider probes and tool binaries are excluded. Only the owned disposable
 PostgreSQL fixture and test-owned processes are cleaned up; unrelated resources,
 ports 8000/4567 and the original #75 evidence checkout remain untouched.
+
+## Review corrections
+
+The independent Standards and Spec reviews of `7a89b9c...d1b7aac` found five unique
+defects: two P1 identity/evidence defects, received PMCID loss, affirmative
+retraction loss, and missing Source links. The correction was made on a separate
+branch based on `d1b7aac`; the original implementation checkout stayed frozen for
+independent comparison. Several review rounds followed; this section records the
+final decisions, not each intermediate checkpoint.
+
+### Received PMCID remains comparable
+
+ADR-0024 requires comparing remaining supplied identifiers with an identified
+Candidate, even when no further lookup is permitted. OpenAlex accepted `ids.pmcid`
+but dropped it from CSL. The projection now preserves a canonical PMCID, retaining
+the provider's original value in raw evidence. Bare IDs, `pmcid:` forms and both NCBI
+article-URL forms compare consistently. A confirmed mismatch yields Exists, with
+deviations, while equivalent forms retain Correct. PMCID stays unweighted; exact
+Field scores and Scores are unchanged. Unsupported standalone PMCID lookup remains
+unsupported and no lookup is added. Received PMIDs share one normalization in the
+OpenAlex projection and identity comparison.
+
+### Affirmative retraction remains independent of the Verdict
+
+ADR-0005's result flag and ADR-0007's retraction evidence rule require retaining an
+affirmative report already received about the Best match. The Version 2 contract now
+carries `retraction: "unknown" | "retracted"` and optional affirmative provenance:
+source, provider record ID and observation time. Legacy unknown results stay
+readable and Version 1 is unchanged.
+
+OpenAlex `is_retracted: true` and Crossref `updated-by` entries with
+`type: "retraction"` supply affirmative evidence. Crossref `update-to` points from a
+notice to the work it updates; it does not retract the notice itself. This follows
+[Crossref's Retraction Watch documentation](https://www.crossref.org/documentation/retrieve-metadata/retraction-watch/)
+and its [worked API example](https://community.crossref.org/t/retraction-watch-retractions-now-in-the-crossref-api-crossref/13119),
+also recorded in the project's earlier data-source research. Fixtures are explicitly
+synthetic protocol witnesses, not new claims about real Sources.
+
+The coordinator associates already-received evidence with the Best match's identity
+group (the evaluated Candidates plus the received retraction records), including
+equivalent source records and received duplicates. A report about a transitively
+equivalent record reaches the Best match; a conflicting group keeps only the Best
+match record's own report. It never scores a duplicate again or requests enrichment.
+Evidence is deduplicated by provider and record ID. A different Source's retraction
+is not attached to the Best match. Missing, false and non-retraction data remain
+unknown, never a verified negative. Retraction leaves the citation Verdict and Score
+independent; a correctly cited retracted Source can therefore remain Correct, and,
+per ADR-0007, a Not found or otherwise unidentified result can carry the marker. The
+DE/EN copy names the Best match explicitly, avoiding the implication that the cited
+Source had been identified; the UI shows a visible notice and provenance in the
+existing evidence view.
+
+### Identity groups and sufficient evidence
+
+Two tied OpenAlex records sharing a DOI but carrying conflicting PMIDs were
+previously bridged by a DOI-only Crossref record that appeared pairwise equivalent to
+each. Shared provider record IDs or normalized DOI/PMID/PMCID keys now connect an
+identity group; every pair in the group is checked for conflicting known
+identifiers. Neither an identifier route nor stable display ordering can make a
+conflicting group an unambiguous Source. Its result remains Not verifiable with
+ambiguous identity, and retraction evidence from another record is not transferred
+through that conflict.
+
+Missing comparisons remain distinct from numerical zero. An ID-only, title-only,
+author-only or year-only record cannot establish a completed negative search, and an
+otherwise strong later match cannot manufacture a sufficient lead over an unknown
+different Source. Records with no scored fields have no Best match. The first form of
+this rule over-corrected (a single author-less unrelated record made Correct, Mixed
+citation, Not found and foreign-DOI cases insufficient), so the final rule is:
+
+- A different Source is settled by counterevidence in an available comparison — a
+  title or author Field score below the configured counterevidence threshold.
+  Unavailable comparisons alone are never negative evidence.
+- A record is unsettled only when it has neither counterevidence nor complete title
+  and author comparisons; a complete record is not an unknown comparison, whether it
+  stands alone or sits in a conflicting group.
+- A consistent identity group is unresolved when every member is unsettled; a
+  conflicting group, whose members may be different Sources, is unresolved when any
+  member is unsettled. A conflicting group led by the top Candidate keeps its
+  separate ambiguous-identity result.
+- Mixed citation requires each component to belong to a distinct, consistent
+  identity group; unresolved comparison groups cannot be used as negative evidence.
+  A sparse record of an already-known Source preserves a valid Mixed citation.
+- Where no unresolved comparison and no Mixed or ambiguous evidence remain, a
+  completed sufficient search with only complete, non-matching conflicting records
+  reaches Not found rather than insufficient search, per ADR-0008.
+- Equal sufficiently matching top Scores across different identity groups keep the
+  reason ambiguous identity, even when a tied record is sparse. A low equal-Score
+  tie between sparse different Sources remains insufficient search.
+- The guard checks every top-scoring Candidate's identity group, so display ordering
+  (for example an unrelated record ID) cannot move the same evidence from ambiguous
+  identity to Not found. Scores and stable display ordering are unchanged.
+- Among tied highest-Score records of one consistent identity group, the coordinator
+  chooses a sufficiently evidenced representative, which becomes the recorded Best
+  match and identity Candidate. It never borrows evidence from a different Source or
+  promotes a lower Score. (A sparse first record and a complete record of the same
+  Source could both score 100%, and swapping only their IDs previously changed
+  Correct and early termination to Not verifiable and unnecessary Crossref work;
+  this defect was also present in the original implementation.)
+
+These changes retain the exact fixed #75 comparison rules and configured thresholds
+rather than tuning around the witnesses; conflict, competitor, mandatory DOI,
+resource and deadline guards are retained.
+
+### Usable Source links
+
+Candidates without DOI link to their validated OpenAlex record ID. The fallback
+accepts only an HTTPS `openalex.org/W` record with a numeric ID; arbitrary metadata
+URLs do not become clickable Source destinations. Existing DOI links, new-tab
+behavior and `noopener noreferrer` remain.
+
+### Versions
+
+Because Verdict derivation changed, article Verdict rules are versioned as
+`article-verdict-77-9` and appended to the #75 Scoring rules version recorded in each
+result; the #75 comparison algorithms, parameters and thresholds are unchanged. The
+earlier statement that Scoring rules were unchanged by the identity correction is
+superseded. The Search strategy prefix is `article-search-77-9-identity-evidence`
+with `identityEvidence: consistent-connected-groups-counterevidence-4` and the prior
+`receivedEvidence: normalized-pmcid-affirmative-retraction-1` configuration recorded
+in each immutable result. Old immutable results retain their versions. Version 2
+artifacts are regenerated; Version 1 schemas, OpenAPI and frozen clients retain their
+established contract. Source budgets, deadlines, Candidate slots, transport schemas,
+dependencies and the private contract pin are unchanged.
+The English retraction note says "retraction report" and the German note says
+"Urteil", matching the rest of the catalog.
+
+### Validation and limits
+
+Tests use the previously approved real-PostgreSQL HTTP/SSE and browser seams, with
+only external HTTP/time fixtures and no application-table, queue-state or
+internal-call assertions. Each behavioral correction was demonstrated RED before its
+fix. Two fixture failures are retained as not product REDs: a duplicate fixture that
+omitted given names (which correctly allowed early termination under ADR-0025) and a
+Mixed/group run that used a stale compiled core package.
+
+Independent rechecks: the full-range Standards review found no new material breach
+and the subsequent recheck found none; the Spec review's same-Source representative
+defect was corrected and its narrow recheck at `8545986` accepted the correction. The
+rechecks were independent read-only review plus actual core TypeScript probes with
+synthetic in-memory ports (eight limits: lower Score, different-Source tie,
+conflicting identifiers, absent authors, unknown competitor, resource refusal,
+mandatory DOI failure and expired deadline) — not PostgreSQL, browser, live-provider,
+calibration or release acceptance, and not independent execution of the broad suites.
+Both review axes have zero outstanding actionable findings in their reviewed scope.
+
+Final executed results on unchanged code `8545986`:
+
+| Check                                                           | Result                              |
+| --------------------------------------------------------------- | ----------------------------------- |
+| Same-Source/order/conflict/transitive focused HTTP/SSE          | 12 passed                           |
+| Full server HTTP/SSE                                            | 224 passed / 12 files               |
+| Full Authority against actual private peer                      | 31 passed                           |
+| Normal then bibliographic DE/EN web/axe                         | 38 + 12 passed                      |
+| Hosted Guest browser                                            | 5 passed                            |
+| Contract rebuild and generated artifact freshness               | Passed                              |
+| Core/server/web builds, typechecks, scoped lint                 | Passed                              |
+| DE/EN catalogs                                                  | Passed, 162 paired app messages     |
+| Legacy transport inventory vs original `d1b7aac`                | 70 files identical                  |
+| Direct release guard                                            | Expected refusal 78                 |
+
+The direct Node release guard returns 78; pnpm wraps that refusal in its own failure
+exit. The existing Vite chunk advisory remains. An earlier parallel run of the full HTTP,
+Authority and browser suites passed HTTP but hit timeouts in three pre-existing
+Authority cases and two pre-existing normal browser cases (28/31 Authority and 36/38
+browser passed); no failure count is reported as passing. Isolated serial reruns of
+the same code passed, with no timeout, rate, lease or production setting relaxed.
+This narrows the failing observation to the combined run; it establishes no general
+load root cause, throughput or performance acceptance, and the workflow uses serial
+browser stages. The earlier intermediate checkpoints (201, 219 and 221 HTTP/SSE
+cases) are superseded by the final results above and are not final-head evidence.
+
+The unchanged controlled website preview prerequisite was reused from the previous
+parent checkout; this is not a new website/source-build qualification. Dependencies,
+lockfile, native website recipe/content and private peer/pin are unchanged. Their
+earlier website, license, advisory, source-reproduction and security-control
+evidence retains its recorded dates and scope; this correction does not claim fresh
+execution of those unchanged qualifications. No new calibration, advisory, live,
+load, supplier, human accessibility/security, release or publication qualification
+is claimed. #82/#92 native acceptance, calibration, live/load, human and legal
+publication gates remain separate and closed; existing release/activation and legal
+publication gates remain closed.

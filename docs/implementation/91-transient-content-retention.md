@@ -204,7 +204,7 @@ is claimed.
 
 ## Shared-root integration continuation
 
-See [the combined integration handoff](70-integration-90-93-137.md) for the
+See [the combined integration handoff](70-launch-integration-log.md#launch-integration-90-93-and-137-with-91) for the
 #90/#91 retention composition, selected-text draft compatibility, scoped #80
 browser-fixture default, current validation and unchanged qualification gates.
 Earlier temporary logs named above disappeared during the interruption; new

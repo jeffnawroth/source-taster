@@ -10,7 +10,7 @@ T3 checkout is `/Users/jeffnawroth/.t3/worktrees/source-taster/t3-61e5e397`, bra
 `git merge-base --is-ancestor 7d1487caf6df45d53aa87d6cbcef0561f850e57c HEAD`
 passed before implementation. This includes reviewed #75/#77 and the final
 `article-verdict-77-9` corrections documented in
-[77-review-corrections.md](77-review-corrections.md).
+[#77 Review corrections](77-bibliographic-search.md#review-corrections).
 
 Work is confined to this checkout. No children, predecessor access, root
 integration edits, private-service changes, PR/issue operations, deployment or

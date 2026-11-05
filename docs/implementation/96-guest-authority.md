@@ -241,6 +241,6 @@ approval persist. No waiver or launch approval is inferred.
 
 
 Native denial/CORS and discriminating trusted-storage follow-up evidence is
-recorded in [92-review-corrections.md](92-review-corrections.md). The original
+recorded in [#92 Review corrections](92-extension-skeleton.md#review-corrections). The original
 #92 checkpoint discovery is preserved separately; it is not the current denial
 acceptance result. Broader qualification gates remain unchanged.
