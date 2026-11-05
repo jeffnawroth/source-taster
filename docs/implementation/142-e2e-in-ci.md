@@ -52,7 +52,7 @@ not run locally: it needs the private worktree, or it already runs in CI.
 | Suite (config)                                                  | Class | In CI now                   | Local result             |
 | --------------------------------------------------------------- | ----- | --------------------------- | ------------------------ |
 | `playwright` (default, `e2e/`, native side panel)               | A     | yes (`side-panel`)          | — (already in CI)        |
-| `account`: `panel`, `preferences-transport`, `sensitive-transport`, `transport` | A | **yes (`extension-suites`)** | 23 passed, 33 s |
+| `account`: `panel`, `preferences-transport`, `sensitive-transport`, `transport`, `consent`, `consent-native` (#162) | A | **yes (`extension-suites`)** | 23 passed, 33 s (before #162) |
 | `account`: `sensitive-panel.spec.ts`                            | B     | no                          | fails without the worktree: `Set SOURCE_TASTER_SERVICE_WORKTREE …` (expected) |
 | `ai`                                                            | A     | **yes (`extension-suites`)** | 4 passed, 5 s            |
 | `report`                                                        | A     | **yes (`extension-suites`)** | 2 passed, 16 s           |
@@ -65,7 +65,7 @@ not run locally: it needs the private worktree, or it already runs in CI.
 | `private` (`commerce`, `quota`, `sensitive`, `session`)         | B     | no                          | —                        |
 | `quota` (`e2e-private/quota.spec.ts`)                           | B     | no                          | —                        |
 
-The extension `account` config is mixed. CI runs its four class A specs by path
+The extension `account` config is mixed. CI runs its six class A specs by path
 and leaves `sensitive-panel.spec.ts` out on purpose; the guard test asserts that.
 
 ### Server contracts (`apps/server`, the 14 `test/*.contract.ts` files)
@@ -101,7 +101,7 @@ checksum-pinned Pagefind prelude, `pnpm build` and the exact extractor image
 | Job                | Runs                                                                 | Browsers installed   |
 | ------------------ | -------------------------------------------------------------------- | -------------------- |
 | `web-suites`       | web `abuse`, `report`                                                | `chromium`           |
-| `extension-suites` | extension `account` (4 public specs), `ai`, `report`, `selection`, `firefox` | `chromium firefox`, plus Firefox Developer Edition 160.0b4 |
+| `extension-suites` | extension `account` (6 public specs), `ai`, `report`, `selection`, `firefox` | `chromium firefox`, plus Firefox Developer Edition 160.0b4 |
 | `public-contracts` | server `abuse`, `history`, `owner-deletion` contracts                | none                 |
 
 The native Firefox sidebar specs (`e2e-firefox/sidebar.spec.ts` and the Firefox test in

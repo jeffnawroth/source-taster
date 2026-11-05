@@ -238,6 +238,8 @@ test("the public Playwright and contract suites run in CI on local fakes, each i
     "preferences-transport.spec.ts",
     "sensitive-transport.spec.ts",
     "transport.spec.ts",
+    "consent.spec.ts",
+    "consent-native.spec.ts",
   ])
     assert.ok(account.includes(` e2e-account/${spec}`), spec);
   assert.ok(!account.includes("sensitive-panel"), "private spec stays out");

@@ -78,3 +78,16 @@ Handed-off interfaces:
 - **Implementation:** Preference read/write API on the private service, client Preference store adapter (web origin storage, extension-local storage), browser-language negotiation, server re-rendering of suggestions, and the RTF Formatted bibliography export.
 - **[Final technical-concept synthesis and requirements traceability](https://github.com/jeffnawroth/source-taster/issues/60):** close G01 and update the FA-KON-01, FA-KON-03, FA-ERG-30 and section 10 rows.
 - **Legal review:** confirm the consent-free local storage of Preferences and its privacy-notice wording.
+
+## Amendment (5 November 2026, #162)
+
+Decided by the product owner (delegated authority), as a refinement for the Firefox extension. It does not change the Preference set, the web app, the Chromium extension or the Guest rules.
+
+Mozilla files "extension usage and settings data" under the data collection type `technicalAndInteraction`, which an extension may declare only as optional ([#162](https://github.com/jeffnawroth/source-taster/issues/162); platform note `docs/research/extension-platform.md` §5.5). In the Firefox extension, Account Preferences therefore sync only while the user holds that optional data collection grant. This qualifies the "Writes" and "Reads" bullets above for Firefox only:
+
+- **Without the grant:** Preferences stay local, also while signed in. The extension neither reads them from nor writes them to the service, and registration or sign-in sends no Preferences. A change is stored in the local Guest Preferences.
+- **Obtaining the grant:** a visible control in the signed-in Account section requests it from a user action. A refusal leaves everything local.
+- **Withdrawal:** if the user withdraws the grant while a panel is open, including from the browser's add-on settings, syncing stops at once. The client keeps the values it was displaying and stores them as its local Preferences, as for sign-out and session end above, so the interface does not change. A withdrawal made while no panel is open is not observed; the panel then opens on its older local values.
+- **Later grant:** the existing sign-in rule applies. The Account's stored values are applied; local values are not merged into the Account.
+
+Chromium and the web app are unchanged: they always sync while signed in. An existing Account that signs in without the grant keeps its stored values, and a new registration without the grant sends none; whether to offer "send my current Preferences" at grant time remains undecided.

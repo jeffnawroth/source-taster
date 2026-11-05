@@ -10,6 +10,7 @@ import { setLocale } from "@source-taster/i18n/runtime";
 import {
   extensionGuestIdentity,
   extensionPreferenceStorage,
+  firefoxPreferenceSyncConsent,
   trustedExtensionPage,
   extensionSelectionIntake,
 } from "./platform.ts";
@@ -38,6 +39,12 @@ const transport = {
   client: "extension/0.0.0",
   credentials: guest?.credentials,
 };
+// Firefox only: Preferences sync waits for the data collection permission. The
+// panel renders at once; the grant is learned afterwards.
+const preferenceSync =
+  __SOURCE_TASTER_TARGET__ === "firefox"
+    ? firefoxPreferenceSyncConsent(platform)
+    : undefined;
 const accountClient = config.accountSignIn
   ? extensionAccountSession(
       config.serviceUrl!,
@@ -68,6 +75,7 @@ createRoot(document.getElementById("root")!).render(
             : undefined
         }
         selectionIntake={selectionIntake}
+        preferenceSync={preferenceSync}
       />
     ) : (
       <CheckWorkspace

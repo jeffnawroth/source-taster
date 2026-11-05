@@ -54,6 +54,7 @@ async function withPanel(
       denied: boolean;
       expiredToken: boolean;
       authority: boolean;
+      confirmCarriesPreferences: boolean;
     };
     allowOrigin: (value: string) => void;
     restart: () => Promise<{
@@ -69,11 +70,15 @@ async function withPanel(
     denied: boolean;
     expiredToken: boolean;
     authority: boolean;
+    /** Chromium sends the Account's Preferences with sign-in. Firefox sends
+     * them only while the technicalAndInteraction grant is held (#162). */
+    confirmCarriesPreferences: boolean;
   } = {
     unavailable: false,
     denied: false,
     expiredToken: false,
     authority: false,
+    confirmCarriesPreferences: true,
   };
   let preferences = { language: "en", citationStyle: "apa" };
   const origins = new Set<string>();
@@ -231,13 +236,18 @@ async function withPanel(
         challengeId: "33333333-3333-4333-8333-333333333333",
         code: "123456",
         transactionCredential: transaction,
-        preferences: {
-          language: expect.stringMatching(/^(de|en)$/),
-          citationStyle: "apa",
-        },
+        ...(state.confirmCarriesPreferences
+          ? {
+              preferences: {
+                language: expect.stringMatching(/^(de|en)$/),
+                citationStyle: "apa",
+              },
+            }
+          : {}),
       });
-      preferences = (JSON.parse(body) as { preferences: typeof preferences })
-        .preferences;
+      if (state.confirmCarriesPreferences)
+        preferences = (JSON.parse(body) as { preferences: typeof preferences })
+          .preferences;
       data = { session: account, sessionCredential: credential };
     } else if (req.url === "/v1/extension/sign-out") data = { signedOut: true };
     else if (req.url === "/v1/extension/account-tokens") {
@@ -586,7 +596,10 @@ test("German native email-code controls support keyboard confirmation and scoped
 });
 
 test("Firefox's native sidebar uses the same cookie-free session transport without a service host permission", async () => {
-  await withPanel(async ({ requests, allowOrigin }) => {
+  await withPanel(async ({ requests, allowOrigin, state }) => {
+    // No technicalAndInteraction grant in a fresh profile: sign-in carries no
+    // Preferences and the Account's Preferences are not read (#162).
+    state.confirmCarriesPreferences = false;
     const build = await buildExtension("firefox", {
       SOURCE_TASTER_EXTENSION_MODE: "hosted",
       SOURCE_TASTER_EXTENSION_API_URL: `http://127.0.0.1:${apiPort}`,
@@ -620,6 +633,9 @@ test("Firefox's native sidebar uses the same cookie-free session transport witho
       expect(
         requests.find((r) => r.path === "/v1/extension/session")?.auth,
       ).toBe(`Bearer ${credential}`);
+      expect(
+        requests.filter((r) => r.path === "/v1/extension/preferences"),
+      ).toEqual([]);
       await firefox.click(await firefox.find("pushbutton", "Sign out here"));
       await firefox.find("pushbutton", "Sign in");
     } finally {

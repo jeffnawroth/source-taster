@@ -2,6 +2,7 @@
 // The owned seam over the browser extension namespace. Panel code uses only
 // these capabilities; no other module touches `browser` or `chrome`.
 import type { PreferenceStorage } from "@source-taster/ui/preferences";
+import type { PreferenceSyncConsent } from "@source-taster/ui/account-preferences";
 import type { SelectionIntake } from "@source-taster/ui/check-workspace";
 import { selectionPort, type SelectionPort } from "./selection-protocol.ts";
 import {
@@ -10,7 +11,37 @@ import {
   type ExtensionLocalCapability,
 } from "@source-taster/ui/guest-identity";
 
+/** Mozilla's data collection types (Firefox built-in data consent). The
+ * granted set can hold any of them, not only the one this extension requests. */
+export type DataCollectionType =
+  | "personallyIdentifyingInfo"
+  | "healthInfo"
+  | "financialAndPaymentInfo"
+  | "authenticationInfo"
+  | "personalCommunications"
+  | "locationInfo"
+  | "browsingActivity"
+  | "websiteContent"
+  | "websiteActivity"
+  | "searchTerms"
+  | "bookmarksInfo"
+  | "technicalAndInteraction";
+/** The Firefox data collection permission set. Chromium has no such key. */
+interface DataCollectionPermissions {
+  data_collection?: DataCollectionType[];
+}
+interface PermissionChange {
+  addListener(listener: (change: DataCollectionPermissions) => void): void;
+}
+interface PermissionsNamespace {
+  getAll(): Promise<DataCollectionPermissions>;
+  request(request: { data_collection: DataCollectionType[] }): Promise<boolean>;
+  onAdded: PermissionChange;
+  onRemoved: PermissionChange;
+}
+
 interface ExtensionNamespace {
+  permissions?: PermissionsNamespace;
   runtime: {
     id: string;
     getURL(path: string): string;
@@ -33,6 +64,81 @@ interface ExtensionNamespace {
         ) => void,
       ): void;
     };
+  };
+}
+
+const syncDataType = "technicalAndInteraction" satisfies DataCollectionType;
+
+/** Firefox only: Account Preferences are "extension usage and settings data",
+ * which Mozilla files under `technicalAndInteraction`, an optional-only data
+ * collection type. Sync to the service runs only while it is granted. The
+ * seam is usable at once and starts without a grant; the browser's answer to
+ * `permissions.getAll()` arrives later and may never arrive, and the panel
+ * does not wait for it. `request()` must run inside a user-activated handler,
+ * so it calls the browser before any await. Revocation, also from the add-on
+ * settings, is observed through `permissions.onRemoved`. */
+export function firefoxPreferenceSyncConsent(
+  api: Pick<ExtensionNamespace, "permissions">,
+): PreferenceSyncConsent {
+  const permissions = api.permissions;
+  const listeners = new Set<() => void>();
+  let granted = false;
+  // Every event, grant and lookup takes a ticket; only the newest lookup counts.
+  let ticket = 0;
+  const set = (value: boolean) => {
+    if (granted === value) return;
+    granted = value;
+    for (const listener of [...listeners]) listener();
+  };
+  const lookup = async () => {
+    const mine = ++ticket;
+    try {
+      const all = await permissions?.getAll();
+      if (mine === ticket) set(!!all?.data_collection?.includes(syncDataType));
+    } catch {
+      if (mine === ticket) set(false);
+    }
+  };
+  const named = (change: DataCollectionPermissions) =>
+    !!change.data_collection?.includes(syncDataType);
+  // An event that does not name the type is reconciled with the browser's own
+  // answer rather than trusted or ignored.
+  const observe = (value: boolean) => (change: DataCollectionPermissions) => {
+    if (!named(change)) return void lookup();
+    ticket++;
+    set(value);
+  };
+  permissions?.onAdded.addListener(observe(true));
+  permissions?.onRemoved.addListener(observe(false));
+  void lookup();
+  return {
+    requiresGrant: true,
+    granted: () => granted,
+    request() {
+      // No await before the browser call: the user-input window is transient.
+      let asked: Promise<boolean>;
+      try {
+        asked = permissions
+          ? permissions.request({ data_collection: [syncDataType] })
+          : Promise.resolve(false);
+      } catch {
+        asked = Promise.resolve(false);
+      }
+      return asked.then(
+        (answer) => {
+          if (answer) {
+            ticket++;
+            set(true);
+          }
+          return answer;
+        },
+        () => false,
+      );
+    },
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    },
   };
 }
 
