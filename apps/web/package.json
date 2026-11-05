@@ -10,6 +10,7 @@
     "typecheck": "tsc -p tsconfig.json",
     "lint": "eslint .",
     "test:e2e": "playwright test && playwright test --config bibliographic.playwright.config.ts",
+    "test:e2e:cross-browser": "SOURCE_TASTER_E2E_CROSS_BROWSER=true pnpm test:e2e",
     "test:guest": "playwright test --config guest.playwright.config.ts",
     "test:quota": "playwright test --config quota.playwright.config.ts",
     "test:history": "playwright test --config history.playwright.config.ts"

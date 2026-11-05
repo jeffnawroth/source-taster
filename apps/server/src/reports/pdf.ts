@@ -3,7 +3,7 @@
 // PDF with embedded local fonts. No engine switch exists: when an accessibility
 // gate fails, the report fails.
 import { readFileSync } from "node:fs";
-import PDFDocument from "pdfkit";
+import PDFDocument, { type StructElement } from "pdfkit";
 import type { Block, ReportModel, Section } from "./model.ts";
 
 export type ReportFailureCode = "unsupported-character" | "limit-exceeded";
@@ -94,71 +94,109 @@ export async function renderPdf(model: ReportModel): Promise<Uint8Array> {
     if (doc.y + height > doc.page.height - PAGE.bottom) doc.addPage();
   };
 
+  // Every tagged block is a structure element whose content is drawn inside a
+  // closure. PDFKit keeps such an element open while the closure runs, so text
+  // that wraps onto the next page stays reachable from the structure tree. An
+  // element built from a finished content reference would be flushed at once
+  // and lose every later page of the same paragraph.
+  function tagged(parent: StructElement, type: string, draw: () => void) {
+    parent.add(doc.struct(type, draw));
+  }
+  // PDFKit leaves a tagged link annotation's /Contents empty; the description
+  // a link announces must be non-empty.
+  let linkDescription = "";
+  const pdfkitLink = doc.link.bind(doc);
+  doc.link = (x, y, w, h, url, options) =>
+    pdfkitLink(x, y, w, h, url, {
+      ...options,
+      ...(options?.structParent
+        ? { Contents: new String(linkDescription) }
+        : {}),
+    });
+
   function heading(level: 1 | 2, value: string) {
     // A heading is never the last line of a page.
     ensureRoom(level === 1 ? 120 : 110);
-    doc
-      .font("Bold")
-      .fontSize(level === 1 ? 20 : 14)
-      .fillColor("#000000")
-      .text(text(value), {
-        structParent: root,
-        structType: `H${level}`,
-        width,
-      });
+    tagged(root, `H${level}`, () => {
+      doc
+        .font("Bold")
+        .fontSize(level === 1 ? 20 : 14)
+        .fillColor("#000000")
+        .text(text(value), { width });
+    });
     doc.moveDown(0.4);
+  }
+  const bullet = { radius: 1.6, indent: 14, midLine: 5.5, minHeight: 16 };
+  function bulletList(items: string[]) {
+    const list = doc.struct("L");
+    root.add(list);
+    for (const item of items) {
+      // The bullet and its first line share a page.
+      ensureRoom(bullet.minHeight);
+      const left = doc.x;
+      const top = doc.y;
+      const entry = doc.struct("LI");
+      list.add(entry);
+      tagged(entry, "Lbl", () => {
+        doc
+          .circle(left + bullet.radius, top + bullet.midLine, bullet.radius)
+          .fill("#000000");
+      });
+      tagged(entry, "LBody", () => {
+        doc.font("Regular").text(item, left + bullet.indent, top, {
+          width: width - bullet.indent,
+        });
+      });
+      doc.x = left;
+      entry.end();
+    }
+    list.end();
   }
   function body(block: Block) {
     doc.fontSize(10.5).fillColor("#000000");
     switch (block.kind) {
       case "paragraph":
-        doc
-          .font("Regular")
-          .text(text(block.text), { structParent: root, width });
+        tagged(root, "P", () => {
+          doc.font("Regular").text(text(block.text), { width });
+        });
         break;
       case "labelled":
-        doc.font("Bold").text(`${text(block.label)}: `, {
-          structParent: root,
-          structType: "P",
-          continued: true,
-          width,
+        tagged(root, "P", () => {
+          doc.font("Bold").text(`${text(block.label)}: `, {
+            continued: true,
+            width,
+          });
+          doc
+            .font("Regular")
+            .text(text(block.text), { continued: false, width });
         });
-        doc.font("Regular").text(text(block.text), { continued: false, width });
         break;
       case "list": {
         if (!block.items.length) return;
-        const list = doc.struct("L");
-        root.add(list);
-        doc.font("Regular").list(block.items.map(text), {
-          structParent: list,
-          bulletRadius: 1.6,
-          bulletIndent: 6,
-          textIndent: 14,
-          width,
-        });
-        list.end();
+        doc.font("Regular");
+        bulletList(block.items.map(text));
         break;
       }
       case "link": {
+        const label = text(block.label);
         const paragraph = doc.struct("P");
         root.add(paragraph);
-        doc.font("Bold").text(`${text(block.label)}: `, {
-          structParent: paragraph,
-          structType: "Span",
-          continued: true,
-          width,
+        tagged(paragraph, "Span", () => {
+          doc.font("Bold").text(`${label}: `, { continued: true, width });
         });
         // The Link element owns the annotation (an OBJR child), so assistive
         // technology reaches the link and its destination.
-        const link = doc.struct("Link", { alt: text(block.label) }, () => {
-          doc.font("Regular").fillColor("#0b3d91").text(block.url, {
-            link: block.url,
-            underline: true,
-            continued: false,
-            width,
-          });
-        });
-        paragraph.add(link);
+        linkDescription = label;
+        paragraph.add(
+          doc.struct("Link", { alt: label }, () => {
+            doc.font("Regular").fillColor("#0b3d91").text(block.url, {
+              link: block.url,
+              underline: true,
+              continued: false,
+              width,
+            });
+          }),
+        );
         paragraph.end();
         break;
       }

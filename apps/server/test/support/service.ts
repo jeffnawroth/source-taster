@@ -125,6 +125,9 @@ export async function startTestService(
   }
   return {
     apiUrl,
+    /** The fixture's owned database, for tests that inspect durable state. */
+    adminUrl,
+    appUrl,
     stop,
     // Actual process restart, retaining only this fixture's owned database.
     restart: async (changes: Record<string, string> = {}) => {

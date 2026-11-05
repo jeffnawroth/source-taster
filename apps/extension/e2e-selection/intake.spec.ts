@@ -31,7 +31,7 @@ let build: Awaited<ReturnType<typeof buildExtension>>;
 // forwarding every API to Chrome. The test delivers a selectionText event with
 // a debugger user gesture; real native sidePanel.open and runtime ports run.
 const boundaryProbe = `
-globalThis.selectionEdge = { registrations: [], clicked: null, inClick: false, openedInClick: false, ports: [] };
+globalThis.selectionEdge = { registrations: [], clicked: null, inClick: false, opens: [], ports: [] };
 const connect = chrome.runtime.onConnect.addListener.bind(chrome.runtime.onConnect);
 chrome.runtime.onConnect.addListener = (listener) => connect((port) => {
   selectionEdge.ports.push(port);
@@ -57,7 +57,7 @@ chrome.action.onClicked.addListener(() => {
 });
 const open = chrome.sidePanel.open.bind(chrome.sidePanel);
 chrome.sidePanel.open = (...args) => {
-  selectionEdge.openedInClick = selectionEdge.inClick;
+  selectionEdge.opens.push(selectionEdge.inClick);
   return open(...args).catch((error) => { selectionEdge.openError = String(error); throw error; });
 };
 `;
@@ -204,7 +204,20 @@ async function withIntake(
       `selectionEdge.event = [{menuItemId: "check-selected-text", selectionText: ${JSON.stringify(selectionText)}, pageUrl: "https://unrelated.invalid/not-input"}, {windowId: ${windowId}, id: 1}]`,
     );
     await browser.triggerAction();
-    expect(await background.evaluate("selectionEdge.openedInClick")).toBe(true);
+    // Extensions.triggerAction returns once the browser has queued the action
+    // event, not once the worker's listener has run (a busy or cold worker
+    // runs it later). Wait for the open call itself, then assert that it was
+    // made synchronously inside the click, i.e. with the user gesture intact.
+    // A regression that opens after an await records `false` and fails here
+    // instead of timing out.
+    expect(
+      await until(async () => {
+        const opens = await background!.evaluate<boolean[]>(
+          "selectionEdge.opens",
+        );
+        return opens.length > 0 && opens;
+      }, "The toolbar action never reached the selection handler to open the side panel"),
+    ).toEqual([true]);
     const target = await until(async () => {
       const error = await background!.evaluate<string | undefined>(
         "selectionEdge.openError",
@@ -220,6 +233,11 @@ async function withIntake(
           "function() { return this.value; }",
         )) === selectionText,
       "Selection did not fill the shared input",
+    );
+    // Once the intake has settled, the click still made exactly one open, and
+    // no later open slipped in outside the gesture.
+    expect(await background.evaluate<boolean[]>("selectionEdge.opens")).toEqual(
+      [true],
     );
     if (language === "de")
       await panel.select("combobox", /^(Language|Sprache)$/, "de");

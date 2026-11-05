@@ -12,6 +12,12 @@ export interface DocxOptions {
   /** Extra stored (uncompressed-size-honest) part to inflate the archive. */
   padding?: number;
   storedPadding?: number;
+  /**
+   * Extra parts stored byte-for-byte (no compression), so a copy of the upload
+   * keeps these exact bytes. Random padding cannot shrink under compression or
+   * encryption, which makes storage growth a sound witness.
+   */
+  stored?: { name: string; bytes: Uint8Array }[];
 }
 
 /** A minimal WordprocessingML package with one paragraph per entry. */
@@ -66,6 +72,8 @@ export async function docx(
     zip.file("word/media/stored.bin", new Uint8Array(options.storedPadding), {
       compression: "STORE",
     });
+  for (const part of options.stored ?? [])
+    zip.file(part.name, part.bytes, { compression: "STORE" });
   return zip.generateAsync({
     type: "uint8array",
     compression: "DEFLATE",

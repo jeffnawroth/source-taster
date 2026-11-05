@@ -35,6 +35,7 @@ jobs:
         extension-suites,
         public-contracts,
         dependencies,
+        pdfua,
       ]
     if: always()
     steps:
@@ -48,6 +49,7 @@ jobs:
           EXTENSION_SUITES: ${{ needs.extension-suites.result }}
           PUBLIC_CONTRACTS: ${{ needs.public-contracts.result }}
           DEPENDENCIES: ${{ needs.dependencies.result }}
+          PDFUA: ${{ needs.pdfua.result }}
         run: |
           test "$VERIFY" = "success" || { echo "verify: $VERIFY"; exit 1; }
           test "$SERVER_TESTS" = "success" || { echo "server-tests: $SERVER_TESTS"; exit 1; }
@@ -57,6 +59,7 @@ jobs:
           test "$EXTENSION_SUITES" = "success" || { echo "extension-suites: $EXTENSION_SUITES"; exit 1; }
           test "$PUBLIC_CONTRACTS" = "success" || { echo "public-contracts: $PUBLIC_CONTRACTS"; exit 1; }
           test "$DEPENDENCIES" = "success" || { echo "dependencies: $DEPENDENCIES"; exit 1; }
+          test "$PDFUA" = "success" || { echo "pdfua: $PDFUA"; exit 1; }
   # Static gates, committed-artifact check, operations CLI and load harness.
   verify:
     runs-on: ubuntu-24.04
@@ -493,4 +496,67 @@ jobs:
             apps/website/dist-preview/third-party/pagefind/manifest.json
           include-hidden-files: true
           if-no-files-found: error
+          retention-days: 14
+  # #105: the DE and EN report samples, made by the production report code, are
+  # validated against PDF/UA-1 with veraPDF. veraPDF is an external CI tool run
+  # as a separate process on generated files; it is never linked, bundled or
+  # shipped (docs/dependency-policy.md). No service, database or Pagefind input
+  # is needed, only the two generated workspace packages the report code imports.
+  pdfua:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      # veraPDF 1.30 supports Java 11, 17, 21 and 25 (veraPDF-apps README).
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "21"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @source-taster/i18n --filter @source-taster/core build
+      - name: Install checksum-pinned veraPDF 1.30.3 (CLI only)
+        shell: bash
+        run: |
+          mkdir -p .tmp/verapdf-download
+          curl --fail --silent --show-error --location https://software.verapdf.org/releases/1.30/verapdf-greenfield-1.30.3-installer.zip --output .tmp/verapdf-download/installer.zip
+          echo 'b512bf24945503a33fc10738ecffc1f2dccaaf8593a448e94ee9ac86a9559a59  .tmp/verapdf-download/installer.zip' | sha256sum --check
+          unzip -q .tmp/verapdf-download/installer.zip -d .tmp/verapdf-download/unpacked
+          cat > .tmp/verapdf-download/auto-install.xml <<EOF
+          <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+          <AutomatedInstallation langpack="eng">
+            <com.izforge.izpack.panels.htmlhello.HTMLHelloPanel id="welcome"/>
+            <com.izforge.izpack.panels.target.TargetPanel id="install_dir">
+              <installpath>$GITHUB_WORKSPACE/.tmp/verapdf</installpath>
+            </com.izforge.izpack.panels.target.TargetPanel>
+            <com.izforge.izpack.panels.packs.PacksPanel id="sdk_pack_select">
+              <pack index="0" name="veraPDF GUI" selected="false"/>
+              <pack index="1" name="veraPDF CLI" selected="true"/>
+              <pack index="2" name="veraPDF Documentation" selected="false"/>
+              <pack index="3" name="veraPDF Sample Plugins" selected="false"/>
+            </com.izforge.izpack.panels.packs.PacksPanel>
+            <com.izforge.izpack.panels.install.InstallPanel id="install"/>
+            <com.izforge.izpack.panels.finish.FinishPanel id="finish"/>
+          </AutomatedInstallation>
+          EOF
+          java -jar .tmp/verapdf-download/unpacked/verapdf-greenfield-1.30.3/verapdf-izpack-installer-1.30.3.jar .tmp/verapdf-download/auto-install.xml
+          .tmp/verapdf/verapdf --version | tee .tmp/verapdf-version.txt
+          grep --fixed-strings 'veraPDF 1.30.3' .tmp/verapdf-version.txt
+      - name: Validate the DE and EN report samples against PDF/UA-1
+        env:
+          VERAPDF_BIN: ${{ github.workspace }}/.tmp/verapdf/verapdf
+        run: pnpm reports:pdfua
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: pdfua-evidence
+          path: |
+            .tmp/pdfua/*.pdf
+            .tmp/pdfua/verapdf-report.json
+            .tmp/verapdf-version.txt
+          if-no-files-found: warn
           retention-days: 14
