@@ -104,6 +104,7 @@ export function useAccountPreferences(
         setLoadedAccount(accountId);
     }
   }
+  const sessionPending = session === undefined;
   useEffect(() => {
     const fence = ++epoch.current;
     writes.current = Promise.resolve();
@@ -137,14 +138,7 @@ export function useAccountPreferences(
     };
     // Session identity/expiry is the authority boundary; ordinary renders are not.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    session?.accountId,
-    session === undefined,
-    expired,
-    client,
-    storage,
-    open,
-  ]);
+  }, [session?.accountId, sessionPending, expired, client, storage, open]);
   useEffect(() => {
     const focus = () => {
       void refresh();

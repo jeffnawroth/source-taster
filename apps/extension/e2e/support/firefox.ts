@@ -90,6 +90,13 @@ export interface NativeFirefox {
   click(node: Accessible): Promise<void>;
   type(text: string): Promise<void>;
   screenshot(path: string): Promise<void>;
+  /** Answers the browser's own optional-permission prompt the way a user
+   * would, by pressing its Allow or Deny button. */
+  answerPermissionPrompt(allow: boolean): Promise<void>;
+  /** Optional data collection types the browser currently holds as granted. */
+  grantedDataCollection(): Promise<string[]>;
+  /** Withdraws a granted data collection type the way the add-on settings do. */
+  revokeDataCollection(type: string): Promise<void>;
   close(): Promise<void>;
 }
 
@@ -349,6 +356,34 @@ export async function launchFirefox(extension: string): Promise<NativeFirefox> {
             },
           ],
         });
+      },
+      async answerPermissionPrompt(allow) {
+        await until(
+          () =>
+            evaluate<boolean>(`(() => {
+              const prompt = document.getElementById("addon-webext-permissions-notification");
+              const button = prompt?.querySelector(${JSON.stringify(allow ? ".popup-notification-primary-button" : ".popup-notification-secondary-button")});
+              if (!button) return "false";
+              button.click();
+              return "true";
+            })()`),
+          "The browser's permission prompt was not shown",
+        );
+      },
+      grantedDataCollection: () =>
+        evaluate<string[]>(`(async () => {
+          const { ExtensionPermissions } = ChromeUtils.importESModule("resource://gre/modules/ExtensionPermissions.sys.mjs");
+          return JSON.stringify((await ExtensionPermissions.get(${JSON.stringify(extensionId)})).data_collection);
+        })()`),
+      async revokeDataCollection(type) {
+        await evaluate(`(async () => {
+          const { ExtensionPermissions } = ChromeUtils.importESModule("resource://gre/modules/ExtensionPermissions.sys.mjs");
+          // The extension is the emitter, as for the add-on settings page: it
+          // updates its live permissions and fires permissions.onRemoved.
+          const extension = WebExtensionPolicy.getByID(${JSON.stringify(extensionId)}).extension;
+          await ExtensionPermissions.remove(${JSON.stringify(extensionId)}, { permissions: [], origins: [], data_collection: [${JSON.stringify(type)}] }, extension);
+          return JSON.stringify(true);
+        })()`);
       },
       async screenshot(path) {
         const { data } = await send<{ data: string }>(
