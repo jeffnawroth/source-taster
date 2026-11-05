@@ -3,7 +3,8 @@
 The launch audit found that most end-to-end evidence ran only on a developer
 machine. This document records the public half of the fix: which suites can run
 from this repository alone, which of them now run in `.github/workflows/ci.yml`,
-and the plan and human steps for the suites that need the private service.
+and where the suites that need the private service run (the private service's own
+CI) and which of them are not covered yet.
 
 ## Classification
 
@@ -27,6 +28,8 @@ without `SOURCE_TASTER_SERVICE_WORKTREE` set.
 "Local result" is from one run on an Apple-silicon laptop against a PostgreSQL 18
 container, with `SOURCE_TASTER_SERVICE_WORKTREE` unset. "—" means the suite was
 not run locally: it needs the private worktree, or it already runs in CI.
+"In CI now" means this repository's `ci.yml`; for class B suites see
+"Class B: run in the private service's CI" below.
 
 ### Web (`apps/web`)
 
@@ -137,101 +140,52 @@ actions, the absence of any private-service reference or secret, the exclusion o
   `pnpm build` including the website, which needs the Pagefind prelude.
 - No class A suite needed a code fix; none was skipped or flaky in the runs above.
 
-## Plan for class B (not wired, needs a human decision)
+## Class B: run in the private service's CI
 
-Checking out the private repository needs a credential, so it is not added to
-`ci.yml`. Add a separate workflow `.github/workflows/private-e2e.yml`:
+Decision (product owner, 5 November 2026): class B suites run in the private
+service repository's own CI, not here. This repository is public, so that workflow
+checks it out anonymously. There is no deploy key, no secret in this repository and no
+class B step in `ci.yml`. The plan with a deploy key in a public `private-e2e.yml`
+from the earlier version of this document is dropped.
 
-```yaml
-name: Private-service end-to-end
-run-name: Private-service end-to-end @ ${{ github.sha }}
-on:
-  schedule:
-    - cron: "41 3 * * *"
-  workflow_dispatch:
-    inputs:
-      service_ref:
-        description: Private service commit SHA to test against
-        required: true
-permissions:
-  contents: read
-concurrency:
-  group: private-e2e-${{ github.ref }}
-  cancel-in-progress: false
-jobs:
-  private-e2e:
-    # Never on a fork, never on a pull request. Both triggers above run only
-    # in the base repository with its own secrets.
-    if: github.repository == 'jeffnawroth/source-taster' && github.event_name != 'pull_request'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 60
-    environment: private-service # holds the deploy key; required reviewers optional
-    strategy:
-      fail-fast: false
-      matrix:
-        group: [server-contracts, web-browser, extension-browser] # split to stay under 60 min
-    services:
-      postgres: # postgres:18 on 5433, as in ci.yml
-    steps:
-      - uses: actions/checkout@<same pinned SHA as ci.yml>
-        with:
-          persist-credentials: false
-      - uses: actions/checkout@<same pinned SHA as ci.yml>
-        with:
-          repository: <owner>/<private service repository>
-          ref: ${{ inputs.service_ref || vars.PRIVATE_SERVICE_REF }} # a full SHA
-          ssh-key: ${{ secrets.PRIVATE_SERVICE_DEPLOY_KEY }} # read-only deploy key
-          path: .private-service
-          persist-credentials: false
-      # then, as in ci.yml: pnpm setup, install, Pagefind prelude, pnpm build,
-      # extractor image; install and build the private worktree (frozen lockfile)
-      - run: echo "SOURCE_TASTER_SERVICE_WORKTREE=$PWD/.private-service" >> "$GITHUB_ENV"
-      # one group per matrix entry: the class B contracts, web configs or
-      # extension configs from the tables above, with explicit --config flags
-      - name: Record both commits
-        run: |
-          echo "public ${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "private ${{ inputs.service_ref || vars.PRIVATE_SERVICE_REF }}" >> "$GITHUB_STEP_SUMMARY"
+What that workflow does, in outline:
+
+```text
+cross-program job (matrix of three groups, 60-minute timeout each, PostgreSQL 18)
+  check out the private service, and this repository at a ref (default main)
+  record both commit SHAs in the step summary
+  install and build the private service
+  install and build this repository's server and extension packages, without the website
+  SOURCE_TASTER_SERVICE_WORKTREE = the private checkout
+  group 1: server contracts abuse-both, account, configuration, dpa, extension
+  group 2: server contracts guest, quota (incl. commerce, catalog), rights, sensitive
+  group 3: extension account (sensitive-panel.spec.ts), dpa, history, preferences,
+           private, quota (plus native Firefox Developer Edition, checksum-pinned)
 ```
 
-Rules for the workflow:
-
-- **Triggers:** only `schedule` and `workflow_dispatch`. Never `pull_request`,
-  `pull_request_target` or `workflow_run` from a fork, so a fork can neither run it
-  nor read the key. The repository condition is a second guard.
-- **Key handling:** a read-only deploy key, stored as an environment secret and
-  passed only to the one checkout step through `ssh-key`. `persist-credentials: false`
-  everywhere, so the key is not left in the working tree. No other step receives
-  the secret; no step runs `set -x`, `env`, `printenv` or `docker inspect`.
+- **Triggers:** a nightly schedule, manual dispatch with a ref of this repository,
+  and pull requests in the private repository that change the workflow itself.
+- **Not in the deploy gate:** a red run is a signal for a human, not a deploy blocker.
 - **Logs and artifacts:** the suites use fakes only (fixed fake keys, loopback mail
-  capture, no real provider or payment). Do not upload `test-results` or traces from
-  these runs until someone has checked that they carry no private source paths or
-  content; upload only the JUnit or JSON summary.
-- **Evidence tied to commits:** the run name and step summary carry the public SHA
-  and the exact private SHA. Test against a pinned private SHA, not a moving branch,
-  so a pass or fail is reproducible. The private service pins the public contract
-  packages by SHA, so the two SHAs together describe the combination.
-- **Not in the deploy gate:** `deploy-scalingo.yml` and the `checks` job stay
-  untouched. A red scheduled run is a signal for a human, not a deploy blocker, until the
-  team decides otherwise.
-- **Budget:** split the matrix so every job fits 60 minutes. The Pagefind build alone
-  is about 13 minutes on the hosted runner; add `pnpm build` and the private service's
-  install and build. Measure
-  the first run and re-split if needed. Running the class B browser suites on the
-  hosted runner has not been tried; expect to adjust ports and timeouts.
+  capture, no real provider or payment). No test results or traces are uploaded.
+- **First green run (5 November 2026):** the three groups took about 2, 6 and 4
+  minutes on the private repository's self-hosted Linux arm64 runners. Group 1 ran 13
+  tests in 5 configs, group 2 ran 53 and group 3 ran 24, all passed. That run is
+  evidence of these suites at those two commits only. It says nothing about deployment.
+
+### Not covered yet
+
+| Suite                                                            | Why                                                                                                                                                                                                                                                 |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| web `account`, `dpa`, `guest`, `history`, `quota`, `rights`, `sensitive` | The web Vite server serves the website preview (`apps/website/dist-preview`). Its Pagefind build is in qualification scope only on macOS arm64 and Linux amd64 GNU (`scripts/pagefind-source.ts`), and the private CI runners are Linux arm64. |
+| extension `guest`                                                | It starts the hosted web (`startHostedWeb`), so it needs the same website preview.                                                                                                                                                                  |
+
+Options, each a human decision: a Linux amd64 runner for these eight suites, hosted
+runner minutes for the private repository, or a qualification decision about Pagefind
+on Linux arm64 (see #115). Until one is taken, #142 AC2 is met only for the server
+contracts and the extension suites listed above.
 
 ## Human steps
 
-1. Confirm the private service repository name and the commit or branch to test.
-2. Generate a dedicated key pair (`ssh-keygen -t ed25519 -N "" -C "source-taster-ci-read"`).
-   Add the public key to the private repository as a **read-only deploy key**.
-3. In this repository create the environment `private-service` and store the private
-   key there as the secret `PRIVATE_SERVICE_DEPLOY_KEY`. Optionally require a
-   reviewer for the environment and restrict it to the default branch.
-4. Add the repository variable `PRIVATE_SERVICE_REF` (a full SHA) or accept the
-   `workflow_dispatch` input.
-5. Delete the local copy of the private key once it is stored.
-6. Review and merge `private-e2e.yml`, then run it once with `workflow_dispatch`
-   and read the first logs for anything that should not be public.
-7. Decide whether a failing scheduled run should block deploys, and how often to
-   rotate the deploy key.
+1. Choose one of the options above for the web suites and the extension Guest suite.
+2. Decide whether a failing nightly run should block deploys.
