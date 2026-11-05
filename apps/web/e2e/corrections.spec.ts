@@ -3,11 +3,17 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 
+// Only Chromium can grant clipboard permissions and read the clipboard back;
+// Firefox and WebKit assert the visible outcome of the same copy gesture.
+const readableClipboard = (browserName: string) => browserName === "chromium";
+
 test("copies a Correction suggestion and applies it only to the formatted export", async ({
   page,
   context,
+  browserName,
 }) => {
-  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  if (readableClipboard(browserName))
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.goto("/");
   await page
     .getByRole("combobox", { name: /^(Language|Sprache)$/u })
@@ -30,9 +36,11 @@ test("copies a Correction suggestion and applies it only to the formatted export
   await suggestion
     .getByRole("button", { name: "Copy suggestion", exact: true })
     .click();
-  expect(await page.evaluate(() => navigator.clipboard.readText())).toContain(
-    "Aspelmeyer, M. (2009).",
-  );
+  await expect(suggestion.getByRole("status")).toHaveText("Copied.");
+  if (readableClipboard(browserName))
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toContain(
+      "Aspelmeyer, M. (2009).",
+    );
   await suggestion
     .getByRole("checkbox", { name: "Apply for export only" })
     .check();
@@ -81,8 +89,10 @@ for (const language of ["en", "de"] as const)
   test(`re-renders the chosen style without changing its locale or Verdict in ${language}`, async ({
     page,
     context,
+    browserName,
   }) => {
-    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    if (readableClipboard(browserName))
+      await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     await page.goto("/");
     await page
       .getByRole("combobox", { name: /^(Language|Sprache)$/u })
@@ -150,13 +160,15 @@ for (const language of ["en", "de"] as const)
         })
         .getByRole("status"),
     ).toHaveText(language === "en" ? "Kopiert." : "Copied.");
-    const html = await page.evaluate(async () => {
-      const items = await navigator.clipboard.read();
-      const value = items.find((item) => item.types.includes("text/html"));
-      return value ? (await value.getType("text/html")).text() : "";
-    });
-    expect(html).toContain("Nature Physics");
-    expect(html).toMatch(/<(?:i|em)\b/u);
+    if (readableClipboard(browserName)) {
+      const html = await page.evaluate(async () => {
+        const items = await navigator.clipboard.read();
+        const value = items.find((item) => item.types.includes("text/html"));
+        return value ? (await value.getType("text/html")).text() : "";
+      });
+      expect(html).toContain("Nature Physics");
+      expect(html).toMatch(/<(?:i|em)\b/u);
+    }
     expect(
       (
         await new AxeBuilder({ page })
