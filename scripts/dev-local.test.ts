@@ -176,6 +176,12 @@ await test("the hosted composition gets the worktree and ports, and nothing from
     parseArguments(["--hosted"]),
     {
       PATH: "/bin",
+      HOME: "/home/dev",
+      RESEND_API_KEY: "re_live_x",
+      AWS_SECRET_ACCESS_KEY: "aws",
+      GITHUB_TOKEN: "ghp_x",
+      SENTRY_DSN: "https://sentry.example",
+      HTTPS_PROXY: "http://proxy.example",
       SERVICE_COMMERCE_CONFIG: "/real/stripe.json",
       SERVICE_GUEST_AUTH_CONFIG: "/real/auth.json",
       SMTP_HOST: "smtp.real.example",
@@ -188,7 +194,14 @@ await test("the hosted composition gets the worktree and ports, and nothing from
     { worktree, validator: `${worktree}/.tmp/en16931/validator.json` },
   );
   assert.equal(environment.PATH, "/bin");
+  assert.equal(environment.HOME, "/home/dev");
+  // An allowlist, not a denylist: provider keys under any name stay out.
   for (const name of [
+    "RESEND_API_KEY",
+    "AWS_SECRET_ACCESS_KEY",
+    "GITHUB_TOKEN",
+    "SENTRY_DSN",
+    "HTTPS_PROXY",
     "SERVICE_COMMERCE_CONFIG",
     "SERVICE_GUEST_AUTH_CONFIG",
     "SMTP_HOST",

@@ -109,11 +109,11 @@ Then in Chrome (116 or newer): `chrome://extensions` → enable **Developer mode
 
 ## Hosted preview (`pnpm dev:local:hosted`)
 
-Starts the whole hosted product on loopback: the public API and worker, the private service (web and worker), the web app in hosted mode, a fake commerce provider and a mail capture. Everything runs against the preview's own PostgreSQL (`stpreview-pg`, fresh databases and roles that are dropped on exit). The launcher composes the same building blocks as the server's `bothPrograms` test harness (`apps/server/test/support/both-programs.ts`) and does not weaken any hosted-mode guard: the stack runs under `NODE_ENV=test`, exactly like the browser suites, because that is the only sanctioned way to start the hosted composition from this repository.
+Starts the whole hosted product on loopback: the public API and worker, the private service (web and worker), the web app in hosted mode, a fake commerce provider and a mail capture. Everything runs against the preview's own PostgreSQL (`stpreview-pg`, fresh databases and roles that are dropped on exit). The launcher composes the same building blocks as the server's `bothPrograms` test harness (`apps/server/test/support/both-programs.ts`): the stack runs under `NODE_ENV=test`, exactly like the browser suites. Of your shell environment only process basics (`PATH`, `HOME`, locale, temp and package-manager variables) are passed on; everything else, including any provider key, is left out. If a run is killed hard, its leftover preview databases and roles (`guest96_*`, `v96_*`, `s96_*`, only inside `stpreview-pg`) are removed at the next start.
 
 ### One-time preparation of the private service
 
-The private service is only ever used from a **linked worktree** of its launch branch, never from your main checkout (the launcher refuses a directory whose `.git` is not a file). In that worktree: install the dependencies, generate the database client, build the message catalogue and build the service's own web, following the service's README. If you also want orders to be payable, prepare the optional payment tooling described there (it needs Java). The launcher checks everything it needs and names each missing piece, so you can run it and follow the messages.
+The private service is only ever used from a **linked worktree** of the service repository, never from your main checkout (the launcher refuses a directory whose `.git` is not a file). In that worktree: install the dependencies, generate the database client, build the message catalogue and build the service's own web, following the service's README. If you also want orders to be payable, prepare the optional payment tooling described there (it needs Java). The launcher checks everything it needs and names each missing piece, so you can run it and follow the messages.
 
 ### Run it
 
@@ -136,14 +136,14 @@ Open the web app in **Chromium or Chrome**. The session cookie is `Secure`; Chro
 ### Accounts and mail
 
 - Sign in with any e-mail address; an address nobody has used becomes a new Free Account (100 checks in the run). Read the six-digit code in the terminal (`✉ … CODE 123456`) or on the mail page. The same applies to the DPA confirmation code and to the Operator sign-in.
-- `demo@example.invalid` is seeded with a large Quota and the features of a paid plan (History, report).
+- `demo@example.invalid` is seeded with a large operator credit (History, report; it also carries the AI extraction feature, which has no provider here).
 - `operator@example.invalid` is the Operator; sign in at <http://127.0.0.1:5495/operator>. The launcher establishes this Operator through the service's own set-up flow during start-up.
 - The service allows one code per address every 60 seconds. Requesting another one sooner shows an error; wait a minute.
-- Mail goes to the capture only. No SMTP server of any provider is contacted. Every data-source address of the API and worker was checked to be a loopback fixture.
+- Mail goes to the capture; the service's SMTP setting points at `127.0.0.1:1`, so no provider is configured. In the verified run the data-source addresses configured for the API and worker were all loopback fixtures (inspected by hand, not by an automated check).
 
 ### Payments
 
-Orders (Check pack, Pro) are created by the real service and paid automatically by a fake provider: a small proxy on port 5495 notices each accepted order and confirms its payment (`💳 fake payment confirmed …`). After **Refresh Orders** the order is *Active*, an invoice (PDF and XML) exists and the Quota has grown. The fake provider needs the optional payment tooling mentioned above. Without it the banner says "NOT available" and orders cannot be placed; everything else still works.
+Orders (Check pack, Pro) are created by the real service and paid automatically by a fake provider: a small proxy on port 5495 notices each accepted order and confirms its payment (`💳 fake payment confirmed …`; if the fake does not answer within 10 seconds the line says "not confirmed"). After **Refresh Orders** the order is *Active*, an invoice (PDF and XML) exists and the Quota has grown. The fake provider needs the optional payment tooling mentioned above. Without it the banner says "NOT available" and orders cannot be placed; everything else still works.
 
 ### Clock
 
@@ -151,7 +151,7 @@ The launcher advances the harness clock with real time (once a second), so the s
 
 ### Verified
 
-Run on 2026-11-05 with Chromium (headless), driven by Playwright against the stack above.
+A manual run on 2026-11-05 with Chromium (headless), driven by an ad-hoc Playwright script against the stack above; that script is not part of the repository and none of this is a test suite.
 
 | Feature | Result |
 | --- | --- |

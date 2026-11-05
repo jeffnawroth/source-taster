@@ -18,6 +18,7 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { createServer, request as httpRequest, type Server } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import pg from "pg";
 import { startBibliographicFixtures } from "../test/support/bibliographic-fixtures.ts";
 import { bothPrograms } from "../test/support/both-programs.ts";
@@ -101,10 +102,18 @@ const escapeHtml = (value: string) =>
   );
 
 const stoppers: (() => Promise<void> | void)[] = [];
+// Set while the composition is still starting, so a signal in that window
+// still waits for it and drops its database and roles.
+let starting: ReturnType<typeof bothPrograms> | undefined;
 let stopping = false;
 async function shutdown(code: number) {
   if (stopping) return;
   stopping = true;
+  if (starting)
+    await starting.then(
+      (both) => both.stop(),
+      () => undefined,
+    );
   // Reverse order of start; every step must survive the others being gone,
   // because the launcher signals the whole process group at once.
   for (const stop of stoppers.reverse())
@@ -122,7 +131,7 @@ for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"] as const)
 
 async function terminate(child: ChildProcess) {
   if (child.exitCode !== null || child.signalCode !== null) return;
-  const exited = once(child, "exit");
+  const exited = once(child, "exit").catch(() => undefined);
   child.kill("SIGTERM");
   await Promise.race([exited, sleep(5000)]);
   if (child.exitCode === null && child.signalCode === null) {
@@ -184,7 +193,7 @@ async function main() {
   const scratch = await mkdtemp(join(tmpdir(), "st-preview-"));
   stoppers.push(() => rm(scratch, { recursive: true, force: true }));
   const operatorSetup = join(scratch, "operator-setup.json");
-  const both = await bothPrograms({
+  const pending = bothPrograms({
     accounts: true,
     apiPort: ports.api,
     servicePort: ports.service,
@@ -207,6 +216,11 @@ async function main() {
       ]),
     },
   });
+  starting = pending;
+  const both = await pending;
+  starting = undefined;
+  // A signal during start-up: shutdown() already stops this composition.
+  if (stopping) return;
   stoppers.push(() => both.stop());
   const preview = await registerPreviewFixtures(both.fixtures, {
     bibliographic,
@@ -251,7 +265,9 @@ async function main() {
   if (!bootstrapped.ok)
     throw new Error(`Operator bootstrap answered ${bootstrapped.status}`);
 
-  // Demo Account with paid-plan features, so History etc. are there at once.
+  // Demo Account with a seeded operator credit (History, report and the
+  // AI-extraction feature flag; no AI provider is configured), so History etc.
+  // are there at once.
   const demoEmail = "demo@example.invalid";
   const demo = await both.signIn(demoEmail);
   await both.service().command({
@@ -349,8 +365,15 @@ ${code ? `<div class="code">${code}</div>` : ""}<pre>${escapeHtml(mail.text)}</p
       now: both.now(),
       url: both.serviceUrl,
     });
-    await Promise.race([answered, sleep(10_000)]);
-    console.log(`  💳  fake payment confirmed for order ${orderId}`);
+    const confirmed = await Promise.race([
+      answered.then(() => true),
+      sleep(10_000).then(() => false),
+    ]);
+    console.log(
+      confirmed
+        ? `  💳  fake payment confirmed for order ${orderId}`
+        : `  💳  fake payment for order ${orderId} not confirmed within 10 s`,
+    );
   };
   const tap = createServer((request, response) => {
     const path = new URL(request.url ?? "/", "http://tap.invalid").pathname;
@@ -400,8 +423,9 @@ ${code ? `<div class="code">${code}</div>` : ""}<pre>${escapeHtml(mail.text)}</p
   const vite = spawn(
     process.execPath,
     [
-      new URL("../../web/node_modules/vite/bin/vite.js", import.meta.url)
-        .pathname,
+      fileURLToPath(
+        new URL("../../web/node_modules/vite/bin/vite.js", import.meta.url),
+      ),
       "--host",
       loopback,
       "--port",
@@ -453,7 +477,7 @@ Source Taster HOSTED local preview is running (fake mail, fake payments, local f
   Private service     ${tapUrl}/            Operator: ${tapUrl}/operator
   Public API health   ${origin(ports.api)}/health
 ${smoke ? `  Smoke Check         as a Guest, through API, worker and fixtures: ${smoke.join(", ")}\n` : ""}
-  Accounts            ${demoEmail}       Account with Check pack-level features (History, report)
+  Accounts            ${demoEmail}       seeded credit: History, report; AI extraction has no provider here
                       ${operatorEmail}   Operator (sign in at ${tapUrl}/operator)
                       any other address  a new Free Account
   Payments            ${commerce ? "Check pack and Pro orders are paid automatically by a fake provider" : "NOT available (tooling not prepared in the private worktree, see docs/local-preview.md): Check pack and Pro cannot be ordered"}

@@ -159,6 +159,9 @@ export interface HostedSetup {
 }
 
 /** Environment of the composition process; nothing from the caller's shell leaks in. */
+const hostedPassThrough =
+  /^(PATH|HOME|USER|LOGNAME|SHELL|TMPDIR|TMP|TEMP|LANG|LC_[A-Z_]+|TERM|COLORTERM|TZ|NO_COLOR|FORCE_COLOR|PLAYWRIGHT_BROWSERS_PATH|npm_[A-Za-z0-9_]+|PNPM_[A-Z0-9_]+|COREPACK_[A-Z0-9_]+)$/;
+
 export function compositionEnvironment(
   options: Options,
   inherited: NodeJS.ProcessEnv,
@@ -172,11 +175,13 @@ export function compositionEnvironment(
     Object.entries(inherited).filter(
       ([name, value]) =>
         value !== undefined &&
-        // SERVICE_, SMTP_, STRIPE_ and OPS_ configure the private service and
-        // its providers: a real key in the shell must never reach it.
-        !/^(DATABASE_|SOURCE_TASTER_|VITE_|SERVICE_|SMTP_|STRIPE_|OPS_|NODE_ENV$|TEST_)/.test(
-          name,
-        ),
+        (options.hosted
+          ? // The hosted composition runs private service code: only the
+            // process basics pass, so no provider key under any name reaches it.
+            hostedPassThrough.test(name)
+          : !/^(DATABASE_|SOURCE_TASTER_|VITE_|SERVICE_|SMTP_|STRIPE_|OPS_|NODE_ENV$|TEST_)/.test(
+              name,
+            )),
     ),
   ) as Record<string, string>;
   return {
