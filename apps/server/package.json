@@ -16,6 +16,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "e2e:serve": "node scripts/e2e-serve.ts",
+    "e2e:serve:hosted": "node scripts/e2e-serve-hosted.ts",
     "build": "tsc -p tsconfig.build.json && node scripts/citation-assets.ts",
     "start:web": "node dist/web.js",
     "start:worker": "node dist/worker.js",

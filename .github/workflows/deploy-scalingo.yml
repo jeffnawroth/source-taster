@@ -24,7 +24,7 @@ jobs:
       OPS_CONFIG_SHA256: ${{ inputs.config_sha256 }}
       GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.commit }}
           persist-credentials: false
@@ -37,7 +37,7 @@ jobs:
           gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$OPS_COMMIT&per_page=1" > "$RUNNER_TEMP/ci.json"
           node --input-type=module -e 'import fs from "node:fs"; const r=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+"/ci.json")).workflow_runs[0]; if(!r||r.head_sha!==process.env.OPS_COMMIT||r.conclusion!=="success"||Date.now()-Date.parse(r.updated_at)>86400000)process.exit(78)'
       - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
       - run: pnpm install --frozen-lockfile
@@ -50,7 +50,7 @@ jobs:
           set -euo pipefail
           [[ "$QUALIFICATION_COMMIT" =~ ^[a-f0-9]{40}$ ]]
           test -n "$QUALIFICATION_REPOSITORY"
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: ${{ vars.QUALIFICATION_REPOSITORY }}
           ref: ${{ vars.QUALIFICATION_COMMIT }}
@@ -118,7 +118,7 @@ jobs:
           app_id=$(node --input-type=module -e 'import fs from "node:fs";console.log(JSON.parse(fs.readFileSync(process.env.OPS_DEPLOY_CONFIG)).appId)')
           "$RUNNER_TEMP/scalingo-cli/scalingo" --region osc-fr1 --app "$app_id" deploy "$RUNNER_TEMP/verification-source.tar.gz"
       - name: Retain content-free recomputed public release publication for offline signing
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: verification-release-publication-${{ inputs.commit }}
           path: ${{ runner.temp }}/deployment-receipt.json
