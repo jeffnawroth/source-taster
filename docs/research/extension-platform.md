@@ -156,30 +156,58 @@ Minimal permission set implied by the requirements (opinion): `sidePanel` (Chrom
 
 ### 5.5 Firefox data collection consent
 
-Verified ([Firefox built-in data consent](https://extensionworkshop.com/documentation/develop/firefox-builtin-data-consent/), BCD [browser_specific_settings.json](https://github.com/mdn/browser-compat-data/blob/main/webextensions/manifest/browser_specific_settings.json)):
+Verified ([Firefox built-in data consent](https://extensionworkshop.com/documentation/develop/firefox-builtin-data-consent/), BCD [browser_specific_settings.json](https://github.com/mdn/browser-compat-data/blob/main/webextensions/manifest/browser_specific_settings.json), MDN [`permissions.request()`](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/permissions/request), [`permissions.getAll()`](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/permissions/getAll), [`permissions.onRemoved`](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/permissions/onRemoved)):
 
-- "From November 3, 2025, all new extensions must adopt the Firefox built-in data collection consent system", declared in `browser_specific_settings.gecko.data_collection_permissions` (Firefox desktop 140+).
-- Personal data types such as `personallyIdentifyingInfo` and `authenticationInfo` need explicit opt-in; `websiteContent` is eligible for implicit consent; `technicalAndInteraction` must be optional.
-- Older Firefox needs a custom consent flow, or `strict_min_version` 140. ESR 153 is above 140, so `strict_min_version: "140"` covers the newest ESR interpretation of 14.6 (but not ESR 115; the client must clarify the supported line).
+- "From November 3, 2025, all new extensions must adopt the Firefox built-in data collection consent system", declared in `browser_specific_settings.gecko.data_collection_permissions` (Firefox desktop 140+, Firefox for Android 142+).
+- Personal data types such as `personallyIdentifyingInfo` and `authenticationInfo` need explicit opt-in; `websiteContent` is eligible for implicit consent; `technicalAndInteraction` (which includes extension usage and settings data) can only be declared as `optional`.
+- Optional data collection is not granted by default. The extension requests it at runtime with `permissions.request({ data_collection: [...] })`, which must run inside a user-action handler. `permissions.getAll()` reports the granted types under `data_collection`, and `permissions.onAdded` / `permissions.onRemoved` report changes, including a withdrawal in the add-on settings. MDN shows the `data_collection` payload of those events only in examples; see "Locally observed" below for what was and was not seen.
+- Older Firefox needs a custom consent flow, or `strict_min_version` 140.
 
-**Current declaration** (`apps/extension/extension-config.ts`, Firefox manifest only; Chromium has no equivalent key). Product-owner decision: `required` = `authenticationInfo`, `personallyIdentifyingInfo`, `websiteContent`, and no `optional` list.
+**Release calendar** (re-read 2026-11-05 from [Mozilla product details](https://product-details.mozilla.org/1.0/firefox_versions.json) and the [whattrainisitnow release schedule](https://whattrainisitnow.com/api/release/schedule/?version=release)): the current release is Firefox 159 (159.0 on 2026-10-27, 159.0.1 current), the newest ESR line is 153 (153.6.0esr), and Firefox 160 is in beta (160.0b5). ADR-0002 defines "current ESR" as the newest ESR line and excludes ESR 115, so 140 is below both the current release and the newest ESR.
 
-- `websiteContent`: the text the user selects or submits for checking.
+**Current declaration** (`apps/extension/extension-config.ts`, Firefox manifest only; Chromium has no equivalent key, and its manifest is unchanged):
+
+```json
+"gecko": {
+  "strict_min_version": "140.0",
+  "data_collection_permissions": {
+    "required": ["authenticationInfo", "personallyIdentifyingInfo", "websiteContent"],
+    "optional": ["technicalAndInteraction"]
+  }
+}
+```
+
+`apps/extension/manifest.test.ts` asserts this object exactly, so any extra, missing or moved entry fails.
+
+Decisions (product owner, issue #162):
+
+1. **Minimum version 140.** `strict_min_version` is `140.0`, the first desktop version with the key, so every supported Firefox shows the built-in prompt and no custom consent flow is needed. Firefox 128–139 is no longer supported. There is no `gecko_android` entry.
+2. **Preference sync is gated on the optional `technicalAndInteraction` grant.** Mozilla counts extension settings under that type. On the Firefox build, Account Preferences are sent to or read from the service only while the permission is granted. The Account section shows a visible "Allow Preferences sync" control; its click handler calls `permissions.request()` in the same turn as the click. Without the grant, language and citation style stay in the browser, and sign-in sends no `preferences`. Revoking the permission stops syncing at once; later edits stay local. The Chromium build is unchanged and always syncs. The gate sits behind one seam (`firefoxPreferenceSyncConsent` in `apps/extension/src/platform.ts`) that tests fake, and the build-time target constant removes it from the Chromium bundle (asserted in `manifest.test.ts`).
+3. **Document uploads declare no further type.** A file the user picks in the Check workspace is not content visible on a website, and the taxonomy has no type for a user-chosen file. Uploads happen only on an explicit user action (choosing a file and pressing the upload button). No new type is declared. This reasoning is recorded so it can be revisited at store review.
+4. **The static `required` list also covers standalone and Guest use.** The declaration is the same for every Firefox build and session, including builds without sign-in and Guest sessions. A declaration broader than what one session transmits is permitted; one narrower than what the extension can transmit is not.
+
+What each declared type covers:
+
+- `websiteContent`: the text the user selects or submits for checking, and uploaded documents (decision 3).
 - `authenticationInfo` and `personallyIdentifyingInfo`: the e-mail address and one-time code for Account sign-in. Mozilla's table lists usernames and account registration under `authenticationInfo` and contact details under `personallyIdentifyingInfo`; the sign-in e-mail address is classified as contact details. (Mozilla lists e-mails as message content under `personalCommunications`, which does not describe a sign-in address.)
-- Required, not optional: Mozilla describes required data as data users "must accept … to use the extension; they cannot opt out", while optional data is not granted by default and is requested at runtime with `permissions.request()` from a user action. The panel has no such runtime gate. Guest Checks work without sign-in, so a later optional design for the sign-in types is possible but is a separate product decision.
-- The declaration is static for all Firefox builds, including standalone builds without sign-in, so it over-declares rather than under-reports.
-- Not declared: `browsingActivity` (the background forwards only `selectionText`, not the page URL or title), and `technicalAndInteraction` (which can only be optional).
-- Minimum versions: BCD lists `data_collection_permissions` from Firefox desktop 140 and Firefox for Android 142. The manifest still has `strict_min_version: "128.0"` and no `gecko_android` entry, so 128–139 would get no built-in prompt. Mozilla's documented options are raising `strict_min_version` to 140, turning data collection off there, or showing a custom consent experience. Which one to use is an open decision. The Extension Workshop page does not state how a version that predates the key treats it.
-- Open product questions (not decided by this declaration):
-  - **Document uploads.** The panel's Check workspace (`packages/ui/src/check-workspace.tsx`) uploads PDF/DOCX files the user picks. A user-supplied file is not obviously "website content"; whether it needs its own classification is unresolved.
-  - **Preference sync.** Signed-in panels sync account preferences to the service (`account-session.ts`). Mozilla counts extension settings under `technicalAndInteraction`, which may only be `optional` and needs a runtime `permissions.request()` gate.
-  - **Firefox 128–139.** No built-in consent prompt there (see Minimum versions).
-  - **Standalone and guest use.** The static `required` sign-in types also apply to builds and sessions that never sign in.
-- This is a manifest declaration only. It makes no claim that the extension is accepted by, listed on or eligible for addons.mozilla.org.
+- Required, not optional: Mozilla describes required data as data users "must accept … to use the extension; they cannot opt out". Guest Checks work without sign-in, so a later optional design for the sign-in types is possible but is a separate product decision.
+- `technicalAndInteraction` (optional): Account Preferences, the only extension settings sent to the service.
+- Not declared: `browsingActivity` (the background forwards only `selectionText`, not the page URL or title).
 
-Sources: [Firefox built-in data consent](https://extensionworkshop.com/documentation/develop/firefox-builtin-data-consent/), [MDN browser_specific_settings](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/browser_specific_settings), BCD [browser_specific_settings.json](https://github.com/mdn/browser-compat-data/blob/main/webextensions/manifest/browser_specific_settings.json).
+**Locally observed** (Firefox Developer Edition 160.0b4, macOS, 2026-11-05; driven by `apps/extension/e2e-account/consent-native.spec.ts`, not taken from documentation):
 
-Consequence: Source Taster sends selected page text and the e-mail address for sign-in. AMO policy 6.2.2.1 requires explicit opt-in for personal data ([Add-on policies](https://extensionworkshop.com/documentation/publish/add-on-policies/)). This touches the privacy policy work under FA-UEB-21. **Policy qualification:** section 6.2.2.1 is the custom/older-Firefox path; for Firefox 140+ the applicable built-in path is policy 6.2.1 and the manifest taxonomy. A type eligible for implicit consent is not blanket approval for every transmission. Selected website content and authentication are declared above; uploads and preference sync are open (see Open product questions); optional analytics must remain separately consented (FA-UEB-15).
+- A trusted click on the sidebar control opens the browser's own prompt ("… requests additional data collection … technical and interaction data") with Allow and Deny. The click satisfied the user-action requirement.
+- Allow stores the grant and the panel then reads the Account's Preferences; Deny leaves the grant unset, sends no Preferences request and keeps the control available. A fresh profile starts without the grant.
+- Withdrawing the grant through Firefox's permission store, with the extension as the event emitter (as the add-on settings page does it, not by clicking that page), switched the open panel back to local-only, and a reopened panel read it as not granted and sent no Preferences request.
+- Not observed: the exact payload of `permissions.onRemoved` for a data collection withdrawal. The seam does not depend on it: when the payload does not name `technicalAndInteraction` it re-reads `permissions.getAll()`.
+
+**Known consequence (product-owner follow-up).** On a later grant the Account's values apply (ADR-0023). Someone who signed in or registered while the grant was missing was registered without Preferences, so the service holds its defaults, and a later grant replaces their local choice with those. Whether to offer "send my current Preferences" at grant time is not decided here.
+
+This is a manifest declaration and a runtime gate only. It makes no claim that the extension is accepted by, listed on or eligible for addons.mozilla.org.
+
+Sources: [Firefox built-in data consent](https://extensionworkshop.com/documentation/develop/firefox-builtin-data-consent/), [MDN browser_specific_settings](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/browser_specific_settings), [MDN permissions.request()](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/permissions/request), [MDN permissions.getAll()](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/permissions/getAll), [MDN permissions.onRemoved](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/permissions/onRemoved), BCD [browser_specific_settings.json](https://github.com/mdn/browser-compat-data/blob/main/webextensions/manifest/browser_specific_settings.json), [Mozilla product details](https://product-details.mozilla.org/1.0/firefox_versions.json), [whattrainisitnow](https://whattrainisitnow.com/).
+
+Consequence: Source Taster sends selected page text and the e-mail address for sign-in. AMO policy 6.2.2.1 requires explicit opt-in for personal data ([Add-on policies](https://extensionworkshop.com/documentation/publish/add-on-policies/)). This touches the privacy policy work under FA-UEB-21. **Policy qualification:** section 6.2.2.1 is the custom/older-Firefox path; for Firefox 140+ the applicable built-in path is policy 6.2.1 and the manifest taxonomy. A type eligible for implicit consent is not blanket approval for every transmission. Selected website content, authentication and Preferences are declared above; uploads are covered by decision 3 and are to be revisited at store review; optional analytics must remain separately consented (FA-UEB-15).
 
 ## 6 Authentication and progress from the extension (FA-KTO-02, FA-KTO-03, FA-ERW-04)
 
