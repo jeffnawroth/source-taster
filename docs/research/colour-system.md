@@ -1,7 +1,7 @@
 # WCAG 2.2 AA colour system with verdict colours that survive light, dark and greyscale — wayfinder #185
 
 Research retrieved **6 November 2026** for [#185](https://github.com/jeffnawroth/source-taster/issues/185), part of map [#181](https://github.com/jeffnawroth/source-taster/issues/181).
-Planning evidence only: nothing was installed or added to the repository. The numbers in section 5 come from a throwaway script (sRGB/OKLab maths, WCAG 2 contrast formula, Machado 2009 CVD matrices) and are an **illustration of method, not a chosen palette**. The brand direction (#182–#184) is still open.
+Planning evidence only: nothing was installed or added to the repository. The numbers in section 5 come from a throwaway script (sRGB/OKLab maths, WCAG 2 contrast formula, Machado 2009 CVD matrices) and are an **illustration of method, not a chosen palette**. The visual identity direction ([#191](https://github.com/jeffnawroth/source-taster/issues/191), which is blocked by this ticket) is still open.
 The predecessor repository was not read.
 
 ## Answer in brief
@@ -11,11 +11,11 @@ The predecessor repository was not read.
 3. **Build the scales in OKLCH, ship semantic tokens.** Author primitive scales as literal `oklch()` values, generated and checked by a build-time script (Culori or Color.js, both open, both implement WCAG 2 contrast and gamut mapping). Components only ever see semantic tokens (`--verdict-correct-bg/-fg/-icon/-border`, `--surface`, `--text`, ...), never scale steps.
 4. **Light/dark via `color-scheme` plus token overrides**, exposed to Tailwind 4 with `@theme inline`. Switching the theme then changes variables only; there are no `dark:` utilities in components.
 5. **Greyscale is a design property you must create, not inherit.** Our experiment shows that if every verdict is tuned to the same contrast against the same surface, all four collapse to the *same grey* (OKLab L differences 0.0–0.5 of 100). A deliberate lightness ladder between the four verdict icons gives 4–22 points of lightness difference while every pair still passes 3:1. Even so, the red/green pair stays weak under protanopia (ΔE_OK 2.8–5.5), which confirms that **shape and text are the real discriminators**, with lightness as a secondary aid.
-6. **Six verdicts, four colours.** Three verdicts share red and currently share one glyph (`✕`). Colour and glyph cannot separate them; only the label can. That is compatible with FA-ERG-03 (the criterion is about the four colours) but the design system should give each red verdict its own glyph or pattern if scanning speed matters (decision for the identity work, not for this ticket).
+6. **Six verdicts, four colours.** Three verdicts share red and currently share one glyph (`✕`). Colour and glyph cannot separate them; only the label can. FA-ERG-03's acceptance is per verdict ("all verdicts remain distinguishable"). The three red verdicts are distinguishable in greyscale only by label text. That satisfies the literal criterion, because text is one of the three required channels, but the glyph and colour channels carry nothing for that trio. Whether to add distinct glyphs or patterns is an identity decision, not settled here.
 
 ## 1. Governing requirements
 
-- Verdict table, [requirements v3.3 section 8.4][req]: Correct = green, Exists with deviations = yellow, Mixed citation / DOI conflict / Not found = red, Not verifiable = grey.
+- Verdict table, [requirements v3.4 section 8.4][req]: Correct = green, Exists with deviations = yellow, Mixed citation / DOI conflict / Not found = red, Not verifiable = grey.
 - FA-ERG-03: "title, verdict (color, icon and text, never color alone) and a short explanation. ... In greyscale, all verdicts remain distinguishable." Acceptance is stated per verdict (six), not per colour.
 - FA-UEB-04: WCAG 2.2 AA for all interfaces; evidence is a documented self-assessment with an automated check and keyboard/screen-reader tests.
 - Map #181 standing constraints: light and dark following the system with a switch in Preferences (ADR-0023); everything bundled locally in the extension; ADR-0002 maturity rule (no pre-1.0 dependency) applies to design tooling that ships.
@@ -107,7 +107,7 @@ Recommended wiring (sketch):
 
 Components then use `bg-verdict-correct-bg text-verdict-correct-fg`, with no `dark:` variants. The two dark blocks are generated from one source by the build script so they cannot drift. This lives once in `packages/ui` (shared by `apps/web` and `apps/extension`) and the website imports the same token file; today three stylesheets each hard-code their own hex values.
 
-**`light-dark()` as an alternative.** `light-dark(<light>, <dark>)` is in [CSS Color 5][css5] (Working Draft 29 Oct 2026, so not yet a CR), is [Baseline 2024][mdn-ld], and follows the used `color-scheme`, which makes a manual switch just a `color-scheme` change and removes the duplicated dark block. MDN's page read did not list versions; from memory it arrived in Chrome 123, Firefox 120 and Safari 17.5 (**unverified here, check caniuse**). Chrome 114–122 would lack it while still supporting the side panel, so use it only if the extension's minimum Chrome is raised (decision for the extension build, not this ticket) or gate with a fallback. Relative colour syntax (`oklch(from var(--x) calc(l - .1) c h)`) is also CR-track; keep it out of the *verified* tokens and use it only for non-critical states, because every computed value would otherwise escape the contrast check.
+**`light-dark()` as an alternative.** `light-dark(<light>, <dark>)` is in [CSS Color 5][css5] (Working Draft 29 Oct 2026, so not yet a CR), is [Baseline 2024][mdn-ld], and follows the used `color-scheme`, which makes a manual switch just a `color-scheme` change and removes the duplicated dark block. Per [MDN browser-compat-data](https://github.com/mdn/browser-compat-data/blob/main/css/types/color.json) it arrived in Chrome 123, Firefox 120 and Safari 17.5. Chrome 114–122 would lack it while still supporting the side panel, so use it only if the extension's minimum Chrome is raised (decision for the extension build, not this ticket) or gate with a fallback. Relative colour syntax (`oklch(from var(--x) calc(l - .1) c h)`) is also CR-track; keep it out of the *verified* tokens and use it only for non-critical states, because every computed value would otherwise escape the contrast check.
 
 Do not use Tailwind opacity modifiers (`bg-red-500/20`) on verdict tokens: the resulting colour depends on what is underneath and escapes the pre-computed contrast contract.
 
@@ -143,7 +143,7 @@ Findings:
 
 FA-ERG-03's acceptance wording ("in greyscale, all verdicts remain distinguishable") needs a definition before it can be a test. Proposal for the design-system ADR:
 
-1. **Primary discriminator, non-colour**: every verdict has a unique text label (already required by FA-ABG-11) and a glyph; red verdicts additionally get distinct glyph/shape if the identity work wants colour-level scanning speed.
+1. **Primary discriminator, non-colour**: every verdict has a unique text label (required by FA-ERG-03 itself: "color, icon and text") and a glyph; red verdicts additionally get distinct glyph/shape if the identity work wants colour-level scanning speed.
 2. **Secondary discriminator, luminance**: the four verdict icon colours keep a minimum pairwise lightness gap in each mode (illustrative threshold 4 OKLab-L points x100 from this run; to be set by the palette and checked in CI).
 3. **Pairwise CVD floor**: no two verdict *families* below an agreed ΔE_OK under protan/deutan/tritan simulation *unless* the pair also differs by glyph (satisfied for all pairs; this makes the check a regression guard, not a blocker).
 4. Manual check: the screenshots of the result list rendered with a greyscale filter and the browser vision-deficiency emulation, attached to the self-assessment.
@@ -163,11 +163,11 @@ Practical pipeline (proposal): a `tokens` source file (OKLCH primitives + semant
 
 ## 8. Open points and risks
 
-- Brand hue, neutral temperature and chroma are still undecided (#182–#184); the families here must be re-derived, not copied.
+- Brand hue, neutral temperature and chroma are still undecided (identity direction, #191); the families here must be re-derived, not copied.
 - Whether the three red verdicts get distinct glyphs is an IA/identity decision; this research only shows that colour cannot separate them.
 - Minimum Chrome version for the extension decides whether `light-dark()` is usable without a fallback.
 - Tool choice (Color.js vs Culori) needs the ADR-0002 maturity check (version, release cadence, licence) at adoption time; both are build-time only.
-- PDF report (#105) and emails (#191 depends on this): neither supports CSS variables or `light-dark()` reliably. Emit the resolved sRGB hex of the light tokens from the same source; this research did not verify email-client or PDF handling.
+- PDF report (#105) and transactional emails: expectation to check, not a finding, that neither handles CSS variables or `light-dark()` reliably. Emit the resolved sRGB hex of the light tokens from the same source; this research did not verify email-client or PDF handling.
 - WCAG 3 contrast may change the measurement later; the token-contract script isolates that change to one function.
 
 [req]: ../requirements-specification.md
