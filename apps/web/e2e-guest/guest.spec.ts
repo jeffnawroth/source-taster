@@ -165,7 +165,19 @@ for (const language of ["en", "de"] as const)
       if (r.url().endsWith("/lease")) renewals++;
     });
     await both.change(id!, { revoke: true });
-    await expect(page.getByRole("alert")).toBeVisible();
+    // Revocation is surfaced by the permission alert, which the workspace sets
+    // together with stopping renewal. Other alerts are independent: a request
+    // still in flight at revocation (Formatting) fails with its own alert, which
+    // may come earlier, later or at the same time, so `alert` alone is not a
+    // signal that renewal has stopped.
+    await expect(
+      page.getByRole("alert").filter({
+        hasText:
+          language === "en"
+            ? "You do not have permission for this action."
+            : "Sie haben keine Berechtigung für diese Aktion.",
+      }),
+    ).toBeVisible();
     await page.waitForTimeout(300);
     const stopped = renewals;
     await page.waitForTimeout(1500);
