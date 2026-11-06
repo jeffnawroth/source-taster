@@ -2,9 +2,17 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  extensionPreferenceStorage,
   firefoxPreferenceSyncConsent,
   type DataCollectionType,
 } from "./platform.ts";
+import {
+  forgetMirroredPreferences,
+  loadGuestPreferences,
+  mirrorSyncedPreferences,
+  releaseMirroredPreferences,
+  saveGuestPreferences,
+} from "@source-taster/ui/preferences";
 
 type DataType = DataCollectionType;
 type DataCollection = { data_collection?: DataType[] };
@@ -183,4 +191,132 @@ await test("a late lookup does not overwrite a newer grant or revocation", async
   release();
   await settle();
   assert.equal(consent.granted(), false);
+});
+
+/** Extension-local storage as the browser edge: it survives a closed panel. */
+function fakeLocal() {
+  const data: Record<string, unknown> = {};
+  return {
+    data,
+    local: {
+      get: (key: string) =>
+        Promise.resolve(key in data ? { [key]: data[key] } : {}),
+      set: (values: Record<string, unknown>) => {
+        Object.assign(data, values);
+        return Promise.resolve();
+      },
+    },
+  };
+}
+const synced = {
+  language: "de",
+  citationStyle: "mla",
+  theme: "system",
+} as const;
+
+await test("a grant withdrawn while no panel is open leaves the next panel on the Preferences the user last saw, still local", async () => {
+  const edge = fakeLocal();
+  const storage = extensionPreferenceStorage(edge.local);
+  // First panel: synced Account values are displayed while the grant holds.
+  const first = fakePermissions([dataType]);
+  const open = await seam(first.api);
+  await mirrorSyncedPreferences(storage, open, synced);
+  // The panel closes. about:addons withdraws the grant: no seam exists to hear it.
+  // Next panel: a fresh seam that learns the grant is gone from getAll() alone.
+  const closedRevocation = fakePermissions();
+  const reopened = await seam(closedRevocation.api);
+  assert.equal(reopened.granted(), false);
+  const shown = await loadGuestPreferences(storage, ["en"]);
+  assert.deepEqual(shown.preferences, synced);
+  // Later displays stay off the mirror: nothing is copied without the grant.
+  await mirrorSyncedPreferences(storage, reopened, {
+    ...synced,
+    citationStyle: "ieee",
+  });
+  assert.equal(
+    (await loadGuestPreferences(storage, ["en"])).preferences.citationStyle,
+    "mla",
+  );
+  assert.deepEqual(closedRevocation.requests, []);
+});
+
+await test("a host that needs no grant keeps its local copy to the guest rules", async () => {
+  const edge = fakeLocal();
+  const storage = extensionPreferenceStorage(edge.local);
+  await mirrorSyncedPreferences(
+    storage,
+    { requiresGrant: false, granted: () => true },
+    synced,
+  );
+  assert.deepEqual(edge.data, {});
+});
+
+await test("an unanswered permission lookup mirrors nothing", async () => {
+  const edge = fakeLocal();
+  const storage = extensionPreferenceStorage(edge.local);
+  const fake = fakePermissions([dataType]);
+  fake.holdLookup();
+  const consent = firefoxPreferenceSyncConsent(fake.api);
+  await mirrorSyncedPreferences(storage, consent, synced);
+  assert.deepEqual(edge.data, {});
+});
+
+await test("Account deletion forgets a mirrored copy: the next panel starts from the defaults", async () => {
+  const edge = fakeLocal();
+  const storage = extensionPreferenceStorage(edge.local);
+  const fake = fakePermissions([dataType]);
+  const consent = await seam(fake.api);
+  assert.equal(await mirrorSyncedPreferences(storage, consent, synced), true);
+  await forgetMirroredPreferences(storage);
+  const shown = await loadGuestPreferences(storage, ["en"]);
+  assert.deepEqual(shown.preferences, {
+    language: "en",
+    citationStyle: "apa",
+    theme: "system",
+  });
+  assert.equal(shown.citationStyleReset, false);
+});
+
+await test("Account deletion in a later panel still forgets the copy an earlier panel mirrored", async () => {
+  const edge = fakeLocal();
+  const storage = extensionPreferenceStorage(edge.local);
+  // Panel 1 mirrors while granted, then closes; the grant goes while closed.
+  await mirrorSyncedPreferences(
+    storage,
+    await seam(fakePermissions([dataType]).api),
+    synced,
+  );
+  // Panel 2 has no grant and mirrors nothing, then the Account is deleted.
+  await mirrorSyncedPreferences(storage, await seam(fakePermissions().api), {
+    ...synced,
+    citationStyle: "ieee",
+  });
+  await forgetMirroredPreferences(storage);
+  assert.equal(
+    (await loadGuestPreferences(storage, ["en"])).preferences.citationStyle,
+    "apa",
+  );
+});
+
+await test("Account deletion keeps local values the mirror never wrote, and values released at sign-out", async () => {
+  const edge = fakeLocal();
+  const storage = extensionPreferenceStorage(edge.local);
+  await saveGuestPreferences(storage, synced);
+  await forgetMirroredPreferences(storage);
+  assert.deepEqual(
+    (await loadGuestPreferences(storage, ["en"])).preferences,
+    synced,
+  );
+  // Mirrored, then signed out: the values became the Guest's own.
+  await mirrorSyncedPreferences(
+    storage,
+    await seam(fakePermissions([dataType]).api),
+    { ...synced, citationStyle: "ieee" },
+  );
+  await releaseMirroredPreferences(storage);
+  await forgetMirroredPreferences(storage);
+  assert.equal(
+    (await loadGuestPreferences(storage, ["en"])).preferences.citationStyle,
+    "ieee",
+  );
 });

@@ -19,6 +19,7 @@ export interface PreferenceStorage {
 }
 const preferencesKey = "source-taster-guest-preferences-v1";
 const onboardingKey = "source-taster-onboarding-seen-v1";
+const mirroredKey = "source-taster-preferences-mirrored-v1";
 
 export function isInterfaceLanguage(
   value: unknown,
@@ -61,6 +62,45 @@ export async function loadGuestPreferences(
     citationStyleReset:
       data.citationStyle !== undefined && !isCitationStyle(data.citationStyle),
   };
+}
+
+/** Keeps the local copy equal to the synced Preferences the user is shown, but
+ * only on a host that gates sync on a grant and only while that grant holds
+ * (nothing is stored beyond what is already displayed on this device). A
+ * withdrawal made while no panel is open then needs no event: the next panel
+ * opens on what the user last saw. The stored marker survives the panel, so a
+ * later Account deletion knows the local values are the Account's. */
+export async function mirrorSyncedPreferences(
+  storage: PreferenceStorage,
+  consent: { requiresGrant: boolean; granted: () => boolean },
+  preferences: Preferences,
+): Promise<boolean> {
+  if (!consent.requiresGrant || !consent.granted()) return false;
+  await saveGuestPreferences(storage, preferences);
+  await storage.write(mirroredKey, true);
+  return true;
+}
+
+/** #102 Account deletion forgets the Account's Preferences. Where the local
+ * values are a mirrored copy of them, that copy goes too and the next panel
+ * starts from the defaults, as a fresh Guest. Local values the mirror never
+ * wrote stay as they were. */
+export async function forgetMirroredPreferences(
+  storage: PreferenceStorage,
+): Promise<void> {
+  if ((await storage.read(mirroredKey)) !== true) return;
+  await storage.write(preferencesKey, null);
+  await storage.write(mirroredKey, null);
+}
+
+/** Sign-out or session end: ADR-0023 makes the displayed values the local
+ * Guest Preferences, so they are no longer an Account copy. */
+export async function releaseMirroredPreferences(
+  storage: PreferenceStorage,
+): Promise<void> {
+  // Hosts that never mirror keep their storage exactly as before.
+  if ((await storage.read(mirroredKey)) !== true) return;
+  await storage.write(mirroredKey, null);
 }
 
 export async function saveGuestPreferences(

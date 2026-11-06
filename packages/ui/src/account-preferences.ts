@@ -7,7 +7,10 @@ import type {
 } from "@source-taster/contract-service";
 import type { SessionClient } from "./web-account-workspace.tsx";
 import {
+  forgetMirroredPreferences,
   isCitationStyle,
+  mirrorSyncedPreferences,
+  releaseMirroredPreferences,
   saveGuestPreferences,
   type Preferences,
   type PreferenceStorage,
@@ -63,11 +66,29 @@ export function useAccountPreferences(
   const writes = useRef(Promise.resolve());
   const previousAccount = useRef<string | null>(null);
   const current = useRef({ session, expired });
+  // Mirror writes run in order, so a deletion's forget always lands last.
+  const mirrorWrites = useRef(Promise.resolve());
+  // The Account deleted in this panel: nothing more of it is mirrored onto the
+  // device, even while its session is still being torn down.
+  const forgotten = useRef<string | null>(null);
   useEffect(() => {
     current.current = { session, expired };
   }, [session, expired]);
   function display(next: typeof initial) {
     displayed.current = next;
+    // Where sync needs a grant, the device always holds what the user last saw
+    // from the Account, so a grant withdrawn while no panel is open needs no event.
+    const authority = current.current;
+    if (
+      authority.session &&
+      !authority.expired &&
+      authority.session.accountId !== forgotten.current
+    )
+      mirrorWrites.current = mirrorWrites.current
+        .then(async () => {
+          await mirrorSyncedPreferences(storage, consent, next.preferences);
+        })
+        .catch(() => {});
     void setLocale(next.preferences.language, { reload: false });
     document.documentElement.lang = next.preferences.language;
     setState(next);
@@ -147,7 +168,14 @@ export function useAccountPreferences(
     } else if ((session === null || expired) && previousAccount.current) {
       // ADR-0023: keep the last displayed values, never restore pre-sign-in Guest values.
       previousAccount.current = null;
-      void saveGuestPreferences(storage, displayed.current.preferences);
+      const values = displayed.current.preferences;
+      // The values are now this device's own Guest Preferences, not an Account copy.
+      mirrorWrites.current = mirrorWrites.current
+        .then(async () => {
+          await saveGuestPreferences(storage, values);
+          await releaseMirroredPreferences(storage);
+        })
+        .catch(() => {});
       void Promise.resolve().then(() => {
         if (epoch.current === fence) {
           setLoadedAccount(null);
@@ -178,11 +206,17 @@ export function useAccountPreferences(
   }, [client]);
   /** #102 Account deletion: ADR-0023 deletes Preferences with the Account, so
    * unlike sign-out or expiry nothing is copied into the local Guest store and
-   * pending reads/writes are fenced off. Displayed values stay in memory only. */
+   * pending reads/writes are fenced off. Displayed values stay in memory only.
+   * A copy mirrored onto this device while sync was granted (#174) is
+   * forgotten too; Guest values the mirror never touched stay as they were. */
   function forget() {
     previousAccount.current = null;
     epoch.current++;
     writes.current = Promise.resolve();
+    forgotten.current = current.current.session?.accountId ?? null;
+    mirrorWrites.current = mirrorWrites.current
+      .then(() => forgetMirroredPreferences(storage))
+      .catch(() => {});
     setFailure(false);
   }
   function change(patch: AccountPreferencesPatch) {
