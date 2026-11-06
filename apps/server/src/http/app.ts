@@ -375,25 +375,39 @@ export function createApp(
     };
     guarded(principal, permission, () =>
       checkId ? checks.publish(principal, checkId, apiVersion, hold) : hold(),
-    ).catch((error: unknown) => {
-      // After the hand-off the response is already on its way; a late guard
-      // failure (for example the COMMIT that releases the lock) has no client to
-      // tell. Before it, the failure is the response.
-      if (!handedOff) refuse(error);
-      else console.error(JSON.stringify({ code: "output-guard" }));
-    });
+    ).then(
+      () => {
+        // A guard that settles without running `hold` must not leave the
+        // request waiting forever. After a hand-off this is a no-op.
+        if (!handedOff) refuse(new Error("output guard did not run"));
+      },
+      (error: unknown) => {
+        // After the hand-off the response is already on its way; a late guard
+        // failure (for example the COMMIT that releases the lock) has no client
+        // to tell. Before it, the failure is the response.
+        if (!handedOff) refuse(error);
+        else console.error(JSON.stringify({ code: "output-guard" }));
+      },
+    );
     const body = await prepared;
-    c.status(status);
-    c.header("Content-Type", "application/json");
-    c.header("Cache-Control", "no-store");
-    const response = stream(c, async (writer) => {
-      writer.onAbort(release);
-      try {
-        await writer.write(body);
-      } finally {
-        release();
-      }
-    });
+    let response: Response;
+    try {
+      c.status(status);
+      c.header("Content-Type", "application/json");
+      c.header("Cache-Control", "no-store");
+      response = stream(c, async (writer) => {
+        writer.onAbort(release);
+        try {
+          await writer.write(body);
+        } finally {
+          release();
+        }
+      });
+    } catch (error) {
+      // Never keep the Owner lock for a response that was not started.
+      release();
+      throw error;
+    }
     return response as Response &
       TypedResponse<
         JSONParsed<{
