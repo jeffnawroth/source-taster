@@ -167,25 +167,32 @@ cross-program job (matrix of three groups, 60-minute timeout each, PostgreSQL 18
   and pull requests in the private repository that change the workflow itself.
 - **Not in the deploy gate:** a red run is a signal for a human, not a deploy blocker.
 - **Logs and artifacts:** the suites use fakes only (fixed fake keys, loopback mail
-  capture, no real provider or payment). No test results or traces are uploaded.
+  capture, no real provider or payment). Only the website-preview job uploads
+  Playwright failure context and traces, on failure, for seven days.
 - **First green run (5 November 2026):** the three groups took about 2, 6 and 4
   minutes on the private repository's self-hosted Linux arm64 runners. Group 1 ran 13
   tests in 5 configs, group 2 ran 53 and group 3 ran 24, all passed. That run is
   evidence of these suites at those two commits only. It says nothing about deployment.
 
-### Not covered yet
+### Website-preview suites on Linux amd64
 
-| Suite                                                            | Why                                                                                                                                                                                                                                                 |
-| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| web `account`, `dpa`, `guest`, `history`, `quota`, `rights`, `sensitive` | The web Vite server serves the website preview (`apps/website/dist-preview`). Its Pagefind build is in qualification scope only on macOS arm64 and Linux amd64 GNU (`scripts/pagefind-source.ts`), and the private CI runners are Linux arm64. |
-| extension `guest`                                                | It starts the hosted web (`startHostedWeb`), so it needs the same website preview.                                                                                                                                                                  |
+The web suites `account`, `dpa`, `guest`, `history`, `quota`, `rights`, `sensitive`
+and the extension `guest` suite need the website preview (`apps/website/dist-preview`,
+and the extension suite starts the hosted web through `startHostedWeb`). Its Pagefind
+build is in qualification scope only on macOS arm64 and Linux amd64 GNU
+(`scripts/pagefind-source.ts`). These eight suites therefore run in a separate job on
+a Linux amd64 runner. The job runs the same checksum-pinned Pagefind prelude as
+`ci.yml`, with no stub, no prebuilt substitute and no cache of its output.
 
-Options, each a human decision: a Linux amd64 runner for these eight suites, hosted
-runner minutes for the private repository, or a qualification decision about Pagefind
-on Linux arm64 (see #115). Until one is taken, #142 AC2 is met only for the server
-contracts and the extension suites listed above.
+- **Runner:** an opt-in self-hosted Linux amd64 runner, emulated on an arm64 host.
+  Emulation is slow: the prelude takes about 20 minutes and the eight suites about 20.
+- **First green run (6 November 2026):** web 38 tests and extension Guest 14 tests,
+  all passed. Earlier runs on that runner found three spec defects, fixed in #164 and
+  #170, and one product defect, #171: under load a Check create can return an empty
+  201. Until #171 is fixed, `quota.spec.ts` can fail intermittently on that runner.
+
+With this job, #142 AC2 covers every class B suite listed in this note.
 
 ## Human steps
 
-1. Choose one of the options above for the web suites and the extension Guest suite.
-2. Decide whether a failing nightly run should block deploys.
+1. Decide whether a failing nightly run should block deploys.
