@@ -86,6 +86,18 @@ bash scripts/refresh-advisories.sh
 OSV_SCANNER_BIN=/path/to/osv-scanner-2.7.0 pnpm audit:dependencies
 ```
 
+`pnpm test` needs two things from the CI prelude that a plain checkout lacks (CI runs both before the server suite):
+
+- **Built workspace packages and generated code.** `pnpm build` (and, for a bare server run, `pnpm --filter @source-taster/server generate`). Without them the test service dies at start-up with `Cannot find module …/dist/index.js` or `…/generated/prisma/client.ts`.
+- **The isolated document extractor image** (needs Docker). Without `SOURCE_TASTER_DOCUMENT_IMAGE`, PDF/DOCX upload fails closed with HTTP 503 and the tests in `documents`, `documents-limits`, `document-never-stored` and `bibliography-selection` fail with `expected 503`. Build it once and export the printed ID (the same two commands CI runs):
+
+  ```sh
+  node apps/server/scripts/extractor-image.ts > .tmp/document-image-id
+  export SOURCE_TASTER_DOCUMENT_IMAGE=$(cat .tmp/document-image-id)
+  ```
+
+  The test setup prints a warning when the variable is unset or the image is missing from Docker.
+
 Tests create a random **database and role per run**, migrate them, run separate web and worker processes, and remove only those owned resources on teardown. They use the admin URL from `.env.example` by default. Override `DATABASE_ADMIN_URL` and `DATABASE_TEST_URL` for another PostgreSQL instance; the latter supplies host/password while the harness generates isolated names. Contract tests use port 3101; browser tests use 3102 and 5174. Do not run two copies on the same ports. Assertions use only HTTP/SSE schemas and browser behavior, with axe on the input and finished page in DE and EN.
 
 CI runs those checks on PostgreSQL 18 and Chromium, plus an offline OSV dependency scan on change and daily. See [dependency policy](docs/dependency-policy.md) for scope, license exceptions and remaining launch qualification. Check cancellation/leases and Guest current authority are implemented. The full release/native-browser matrix, Quota/abuse controls, content-retention sweeps and full source checking remain later work. The DOI tracer is uncalibrated; production activation and `pnpm --filter @source-taster/server build:release` refuse it until #94 qualification.
@@ -107,3 +119,14 @@ Run `pnpm --filter @source-taster/server test:authority` and
 `SOURCE_TASTER_SERVICE_WORKTREE` pointing at an explicitly prepared private
 worktree. These additional real-process tests do not replace the normal pipeline
 or provide calibration/native-extension/launch qualification.
+
+These suites are class B (see [#142](docs/implementation/142-e2e-in-ci.md)): they
+never run in this repository's CI, only in the private service's CI. Locally:
+
+- `test:authority` also starts the **built** entrypoints (`dist/web.js`,
+  `dist/worker.js`) and expects exit code 78. Run `pnpm build` first and again
+  after pulling; a missing `dist/` makes node exit 1 with `Cannot find module`.
+- `test:quota` includes `commerce.contract.ts`, which needs the EN 16931 validator
+  configuration of the private worktree. Prepare it there as that worktree's own
+  documentation describes; without it the suite fails with
+  `ENOENT … .tmp/en16931/validator.json`.

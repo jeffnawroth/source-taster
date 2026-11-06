@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { once } from "node:events";
+import { existsSync } from "node:fs";
 import { afterEach, expect, test } from "vitest";
 import {
   CheckResponse,
@@ -803,6 +804,12 @@ test("reachable authority and valid Guests cannot activate the deployable unmeas
     "dist/web.js",
     "dist/worker.js",
   ]) {
+    // dist/ is build output: a missing or stale one is a setup problem, not a
+    // product failure (node would exit 1 with "Cannot find module").
+    if (!existsSync(new URL(entry, new URL("..", import.meta.url))))
+      throw new Error(
+        `${entry} does not exist: run "pnpm build" from the repository root first (and again after pulling changes)`,
+      );
     const child = spawn(process.execPath, [entry], {
       cwd: new URL("..", import.meta.url),
       env: {
