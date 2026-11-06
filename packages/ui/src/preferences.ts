@@ -98,6 +98,8 @@ export async function forgetMirroredPreferences(
 export async function releaseMirroredPreferences(
   storage: PreferenceStorage,
 ): Promise<void> {
+  // Hosts that never mirror keep their storage exactly as before.
+  if ((await storage.read(mirroredKey)) !== true) return;
   await storage.write(mirroredKey, null);
 }
 
