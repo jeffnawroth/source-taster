@@ -7,6 +7,7 @@ import {
   type DataCollectionType,
 } from "./platform.ts";
 import {
+  forgetMirroredPreferences,
   loadGuestPreferences,
   mirrorSyncedPreferences,
 } from "@source-taster/ui/preferences";
@@ -256,4 +257,20 @@ await test("an unanswered permission lookup mirrors nothing", async () => {
   const consent = firefoxPreferenceSyncConsent(fake.api);
   await mirrorSyncedPreferences(storage, consent, synced);
   assert.deepEqual(edge.data, {});
+});
+
+await test("Account deletion forgets a mirrored copy: the next panel starts from the defaults", async () => {
+  const edge = fakeLocal();
+  const storage = extensionPreferenceStorage(edge.local);
+  const fake = fakePermissions([dataType]);
+  const consent = await seam(fake.api);
+  assert.equal(await mirrorSyncedPreferences(storage, consent, synced), true);
+  await forgetMirroredPreferences(storage);
+  const shown = await loadGuestPreferences(storage, ["en"]);
+  assert.deepEqual(shown.preferences, {
+    language: "en",
+    citationStyle: "apa",
+    theme: "system",
+  });
+  assert.equal(shown.citationStyleReset, false);
 });

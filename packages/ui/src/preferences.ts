@@ -72,9 +72,19 @@ export async function mirrorSyncedPreferences(
   storage: PreferenceStorage,
   consent: { requiresGrant: boolean; granted: () => boolean },
   preferences: Preferences,
+): Promise<boolean> {
+  if (!consent.requiresGrant || !consent.granted()) return false;
+  await saveGuestPreferences(storage, preferences);
+  return true;
+}
+
+/** #102 Account deletion forgets the Account's Preferences. Where the device
+ * held a mirrored copy of them, that copy goes too; the next panel starts from
+ * the defaults, as a fresh Guest. */
+export async function forgetMirroredPreferences(
+  storage: PreferenceStorage,
 ): Promise<void> {
-  if (consent.requiresGrant && consent.granted())
-    await saveGuestPreferences(storage, preferences);
+  await storage.write(preferencesKey, null);
 }
 
 export async function saveGuestPreferences(

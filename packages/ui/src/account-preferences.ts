@@ -7,6 +7,7 @@ import type {
 } from "@source-taster/contract-service";
 import type { SessionClient } from "./web-account-workspace.tsx";
 import {
+  forgetMirroredPreferences,
   isCitationStyle,
   mirrorSyncedPreferences,
   saveGuestPreferences,
@@ -64,6 +65,9 @@ export function useAccountPreferences(
   const writes = useRef(Promise.resolve());
   const previousAccount = useRef<string | null>(null);
   const current = useRef({ session, expired });
+  // Mirror writes run in order, so a deletion's forget always lands last.
+  const mirrorWrites = useRef(Promise.resolve());
+  const mirrored = useRef(false);
   useEffect(() => {
     current.current = { session, expired };
   }, [session, expired]);
@@ -73,9 +77,12 @@ export function useAccountPreferences(
     // from the Account, so a grant withdrawn while no panel is open needs no event.
     const authority = current.current;
     if (authority.session && !authority.expired)
-      void mirrorSyncedPreferences(storage, consent, next.preferences).catch(
-        () => {},
-      );
+      mirrorWrites.current = mirrorWrites.current
+        .then(() => mirrorSyncedPreferences(storage, consent, next.preferences))
+        .then((wrote) => {
+          if (wrote) mirrored.current = true;
+        })
+        .catch(() => {});
     void setLocale(next.preferences.language, { reload: false });
     document.documentElement.lang = next.preferences.language;
     setState(next);
@@ -186,11 +193,20 @@ export function useAccountPreferences(
   }, [client]);
   /** #102 Account deletion: ADR-0023 deletes Preferences with the Account, so
    * unlike sign-out or expiry nothing is copied into the local Guest store and
-   * pending reads/writes are fenced off. Displayed values stay in memory only. */
+   * pending reads/writes are fenced off. Displayed values stay in memory only.
+   * A copy mirrored onto this device while sync was granted (#174) is
+   * forgotten too; Guest values the mirror never touched stay as they were. */
   function forget() {
     previousAccount.current = null;
     epoch.current++;
     writes.current = Promise.resolve();
+    mirrorWrites.current = mirrorWrites.current
+      .then(async () => {
+        if (!mirrored.current) return;
+        mirrored.current = false;
+        await forgetMirroredPreferences(storage);
+      })
+      .catch(() => {});
     setFailure(false);
   }
   function change(patch: AccountPreferencesPatch) {
