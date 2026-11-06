@@ -89,7 +89,7 @@ OSV_SCANNER_BIN=/path/to/osv-scanner-2.7.0 pnpm audit:dependencies
 `pnpm test` needs two things from the CI prelude that a plain checkout lacks (CI runs both before the server suite):
 
 - **Built workspace packages and generated code.** `pnpm build` (and, for a bare server run, `pnpm --filter @source-taster/server generate`). Without them the test service dies at start-up with `Cannot find module …/dist/index.js` or `…/generated/prisma/client.ts`.
-- **The isolated document extractor image** (needs Docker). Without `SOURCE_TASTER_DOCUMENT_IMAGE`, PDF/DOCX upload fails closed with HTTP 503 and 18 tests in `documents`, `documents-limits`, `document-never-stored` and `bibliography-selection` fail with `expected 503`. Build it once and export the printed ID (the same two commands CI runs):
+- **The isolated document extractor image** (needs Docker). Without `SOURCE_TASTER_DOCUMENT_IMAGE`, PDF/DOCX upload fails closed with HTTP 503 and the tests in `documents`, `documents-limits`, `document-never-stored` and `bibliography-selection` fail with `expected 503`. Build it once and export the printed ID (the same two commands CI runs):
 
   ```sh
   node apps/server/scripts/extractor-image.ts > .tmp/document-image-id
@@ -127,7 +127,6 @@ never run in this repository's CI, only in the private service's CI. Locally:
   `dist/worker.js`) and expects exit code 78. Run `pnpm build` first and again
   after pulling; a missing `dist/` makes node exit 1 with `Cannot find module`.
 - `test:quota` includes `commerce.contract.ts`, which needs the EN 16931 validator
-  config. In the private worktree run `pnpm prepare:en16931` (downloads
-  hash-pinned tools; needs Java and unzip), which writes
-  `.tmp/en16931/validator.json`, or point `SERVICE_TEST_EN16931_CONFIG` at such a
-  file. Without it the suite fails with `ENOENT … .tmp/en16931/validator.json`.
+  configuration of the private worktree. Prepare it there as that worktree's own
+  documentation describes; without it the suite fails with
+  `ENOENT … .tmp/en16931/validator.json`.
