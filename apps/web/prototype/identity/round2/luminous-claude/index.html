@@ -1,0 +1,1174 @@
+<!doctype html>
+<html lang="de" data-theme="dark" data-width="web">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Source Taster · Luminous</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script>(function(){var p=new URLSearchParams(location.search),r=document.documentElement;if(p.get('theme')==='light')r.dataset.theme='light';if(p.get('width')==='panel')r.dataset.width='panel';})();</script>
+<style>
+@property --a { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+
+/* ───────────── Tokens (single source of truth; the brand sheet reads these) ───────────── */
+:root, .t-dark {
+  color-scheme: dark;
+  --bg: oklch(0.135 0.012 265);
+  --surface: oklch(0.18 0.014 265);
+  --surface-2: oklch(0.215 0.016 265);
+  --surface-3: oklch(0.26 0.018 265);
+  --line: oklch(1 0 0 / 0.09);
+  --line-2: oklch(1 0 0 / 0.16);
+  --text: oklch(0.96 0.006 265);
+  --muted: oklch(0.74 0.016 265);
+  --faint: oklch(0.64 0.016 265);
+  --accent: oklch(0.8 0.13 232);
+  --accent-fill: oklch(0.74 0.14 236);
+  --accent-ink: oklch(0.16 0.03 250);
+  --accent-glow: oklch(0.62 0.19 245 / 0.55);
+  --ink: oklch(0.17 0.02 265);            /* inner glyph mark on verdict fill */
+  --vf-ok: oklch(0.82 0.17 155);
+  --vf-diff: oklch(0.85 0.15 85);
+  --vf-mixed: oklch(0.75 0.17 355);
+  --vf-doi: oklch(0.72 0.18 25);
+  --vf-miss: oklch(0.75 0.16 48);
+  --vf-unk: oklch(0.74 0.012 265);
+  --vt: var(--text);                        /* verdict label text: neutral in dark */
+  --tile-bg: linear-gradient(180deg, oklch(0.215 0.016 265), oklch(0.17 0.013 265));
+  --tile-shadow: inset 0 1px 0 oklch(1 0 0 / 0.07), 0 0 0 1px oklch(0 0 0 / 0.5), 0 30px 60px -34px black;
+  --glow-a: oklch(0.5 0.19 252 / 0.5);
+  --glow-b: oklch(0.55 0.15 215 / 0.26);
+  --glow-c: oklch(0.5 0.2 290 / 0.2);
+  --gridline: oklch(1 0 0 / 0.055);
+  --glass-bg: linear-gradient(180deg, oklch(0.3 0.02 265 / 0.78), oklch(0.2 0.018 265 / 0.86));
+  --glass-line: oklch(1 0 0 / 0.16);
+  --glass-hi: inset 0 1px 0 oklch(1 0 0 / 0.2), inset 0 0 24px oklch(1 0 0 / 0.04);
+  --glass-shadow: 0 40px 90px -20px black, 0 0 0 1px oklch(0 0 0 / 0.6);
+  --g-tile: url(#mk-tile-d); --g-ring: url(#mk-ring-d); --g-edge: url(#mk-edge-d); --g-halo: url(#mk-halo-d);
+  --mk-t1: oklch(0.3 0.04 262); --mk-t2: oklch(0.15 0.02 265);
+  --mk-r1: oklch(0.97 0.02 220); --mk-r2: oklch(0.72 0.15 245);
+  --mk-edge1: oklch(0.8 0.12 232 / 0.9); --mk-edge2: oklch(0.8 0.12 232 / 0.05);
+  --mk-dot: oklch(0.97 0.03 210); --mk-halo: oklch(0.8 0.14 225);
+  --num-grad: linear-gradient(180deg, oklch(1 0 0) 15%, oklch(0.76 0.12 240));
+  --shadow-btn: 0 0 0 1px oklch(0.85 0.1 236 / 0.5), 0 8px 28px -6px oklch(0.62 0.19 245 / 0.6), inset 0 1px 0 oklch(1 0 0 / 0.35);
+  --focus: oklch(0.82 0.13 232);
+}
+[data-theme='light'], .t-light {
+  color-scheme: light;
+  --bg: oklch(0.972 0.006 245);
+  --surface: oklch(1 0 0);
+  --surface-2: oklch(0.955 0.008 245);
+  --surface-3: oklch(0.92 0.01 245);
+  --line: oklch(0.25 0.04 260 / 0.1);
+  --line-2: oklch(0.25 0.04 260 / 0.18);
+  --text: oklch(0.2 0.03 262);
+  --muted: oklch(0.44 0.022 262);
+  --faint: oklch(0.5 0.02 262);
+  --accent: oklch(0.5 0.17 252);
+  --accent-fill: oklch(0.5 0.17 252);
+  --accent-ink: oklch(1 0 0);
+  --accent-glow: oklch(0.7 0.14 240 / 0.45);
+  --ink: oklch(1 0 0);
+  --vf-ok: oklch(0.52 0.13 155);
+  --vf-diff: oklch(0.56 0.12 72);
+  --vf-mixed: oklch(0.52 0.18 355);
+  --vf-doi: oklch(0.52 0.19 25);
+  --vf-miss: oklch(0.54 0.15 48);
+  --vf-unk: oklch(0.5 0.02 262);
+  --vt: oklch(0.3 0.04 262);
+  --tile-bg: linear-gradient(180deg, oklch(1 0 0), oklch(0.985 0.004 245));
+  --tile-shadow: inset 0 1px 0 oklch(1 0 0), 0 1px 2px oklch(0.3 0.05 260 / 0.07), 0 18px 40px -22px oklch(0.45 0.12 250 / 0.35);
+  --glow-a: oklch(0.86 0.09 235 / 0.75);
+  --glow-b: oklch(0.9 0.07 205 / 0.55);
+  --glow-c: oklch(0.9 0.07 290 / 0.5);
+  --gridline: oklch(0.3 0.04 260 / 0.06);
+  --glass-bg: linear-gradient(180deg, oklch(1 0 0 / 0.82), oklch(0.97 0.01 245 / 0.88));
+  --glass-line: oklch(1 0 0 / 0.9);
+  --glass-hi: inset 0 1px 0 oklch(1 0 0), inset 0 0 0 1px oklch(0.3 0.05 260 / 0.1);
+  --glass-shadow: 0 40px 90px -24px oklch(0.35 0.1 255 / 0.45), 0 2px 6px oklch(0.3 0.05 260 / 0.1);
+  --g-tile: url(#mk-tile-l); --g-ring: url(#mk-ring-l); --g-edge: url(#mk-edge-l); --g-halo: url(#mk-halo-l);
+  --mk-t1: oklch(1 0 0); --mk-t2: oklch(0.955 0.012 245);
+  --mk-r1: oklch(0.34 0.1 258); --mk-r2: oklch(0.52 0.18 252);
+  --mk-edge1: oklch(0.55 0.16 250 / 0.55); --mk-edge2: oklch(0.55 0.16 250 / 0.1);
+  --mk-dot: oklch(0.58 0.2 245); --mk-halo: oklch(0.7 0.15 235);
+  --num-grad: linear-gradient(180deg, oklch(0.2 0.03 262) 20%, oklch(0.46 0.18 254));
+  --shadow-btn: 0 0 0 1px oklch(0.4 0.16 252), 0 10px 24px -8px oklch(0.5 0.17 252 / 0.55), inset 0 1px 0 oklch(1 0 0 / 0.25);
+  --focus: oklch(0.5 0.17 252);
+}
+
+:root {
+  --spring: linear(0, 0.009, 0.035 2.1%, 0.141, 0.281 6.7%, 0.723 12.9%, 0.938 16.7%, 1.017, 1.077, 1.121, 1.149 24.3%, 1.159, 1.163 27%, 1.154, 1.129 32.8%, 1.051 39.6%, 1.017 43.1%, 0.991, 0.977 51%, 0.975 57.1%, 0.997 69.8%, 1.003 76.9%, 1);
+  --spring-soft: linear(0, 0.012 1.6%, 0.05 3.4%, 0.2 8%, 0.45 13%, 0.72 18.5%, 0.9 24%, 0.985 30%, 1.012 36%, 1.014 44%, 1.004 56%, 1);
+  --out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --app-w: 1280px;
+}
+
+/* ───────────── Base ───────────── */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 400 14.5px/1.5 var(--sans); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow: hidden; }
+h1, h2, h3, h4, p, ul, ol { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: inherit; }
+button:disabled { cursor: default; }
+.mono { font-family: var(--mono); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+::selection { background: color-mix(in oklab, var(--accent) 35%, transparent); }
+kbd { font: 500 11px/1 var(--mono); padding: 3px 6px; border-radius: 6px; border: 1px solid var(--line-2); background: color-mix(in oklab, var(--text) 6%, transparent); color: var(--muted); display: inline-block; }
+svg { display: block; }
+.eyebrow { font: 500 11.5px/1.2 var(--mono); letter-spacing: 0.09em; text-transform: uppercase; color: var(--faint); }
+
+/* ───────────── World + app frame ───────────── */
+#world { height: 100%; display: grid; place-items: center; background: var(--bg); }
+[data-width='panel'] #world { background: radial-gradient(circle at 1px 1px, var(--gridline) 1px, transparent 0) 0 0 / 20px 20px, var(--bg); }
+.app { position: relative; width: min(var(--app-w), 100vw); height: 100dvh; overflow: hidden; background: var(--bg); container-type: inline-size; container-name: app; display: flex; flex-direction: column; isolation: isolate; }
+[data-width='panel'] { --app-w: 360px; }
+@media (min-width: 440px) { [data-width='panel'] .app { height: min(calc(100dvh - 40px), 800px); border-radius: 20px; box-shadow: 0 0 0 1px var(--line-2), 0 50px 100px -30px black; } }
+.app.grey { filter: grayscale(1); }
+
+.bgfx { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.bgfx::before { content: ''; position: absolute; inset: 0; background: radial-gradient(55% 42% at 50% -6%, var(--glow-a), transparent 72%), radial-gradient(38% 38% at 100% 100%, var(--glow-b), transparent 70%), radial-gradient(34% 34% at 0% 96%, var(--glow-c), transparent 70%); }
+.bgfx::after { content: ''; position: absolute; inset: 0; background-image: linear-gradient(var(--gridline) 1px, transparent 1px), linear-gradient(90deg, var(--gridline) 1px, transparent 1px); background-size: 56px 56px; background-position: center top; -webkit-mask-image: radial-gradient(70% 60% at 50% 0, #000, transparent 76%); mask-image: radial-gradient(70% 60% at 50% 0, #000, transparent 76%); }
+
+/* ───────────── Top bar / tab bar ───────────── */
+.top { flex: none; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 60px; padding: 0 22px; border-bottom: 1px solid var(--line); background: color-mix(in oklab, var(--bg) 70%, transparent); position: relative; z-index: 5; }
+.brand { display: inline-flex; align-items: center; justify-self: start; border-radius: 10px; min-height: 36px; }
+.brand svg { height: 28px; width: auto; }
+.nav { display: flex; gap: 2px; padding: 3px; border-radius: 12px; border: 1px solid var(--line); background: color-mix(in oklab, var(--text) 4%, transparent); }
+.nav button { min-height: 30px; padding: 0 14px; border-radius: 9px; color: var(--muted); font-weight: 500; font-size: 13.5px; transition: color 0.2s, background 0.3s; }
+.nav button:hover { color: var(--text); }
+.nav button[aria-current='page'] { color: var(--text); background: var(--surface-3); box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.08), 0 0 0 1px var(--line); }
+[data-theme='light'] .nav button[aria-current='page'] { background: var(--surface); box-shadow: 0 1px 2px oklch(0.3 0.05 260 / 0.14), 0 0 0 1px var(--line); }
+.tools { justify-self: end; display: flex; align-items: center; gap: 10px; }
+.cmdbtn { display: inline-flex; align-items: center; gap: 10px; min-height: 32px; padding: 0 8px 0 12px; border-radius: 10px; border: 1px solid var(--line-2); background: color-mix(in oklab, var(--text) 4%, transparent); color: var(--muted); font-size: 13px; min-width: 210px; transition: border-color 0.2s, background 0.2s; }
+.cmdbtn:hover { border-color: color-mix(in oklab, var(--accent) 50%, transparent); background: color-mix(in oklab, var(--text) 7%, transparent); }
+.cmdbtn .k { margin-left: auto; display: flex; gap: 3px; }
+.avatar { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font: 600 11.5px var(--sans); color: var(--accent-ink); background: linear-gradient(145deg, var(--accent), color-mix(in oklab, var(--accent) 50%, oklch(0.6 0.2 290))); box-shadow: 0 0 0 1px var(--line-2); }
+.iconbtn { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 10px; border: 1px solid var(--line-2); color: var(--muted); }
+.iconbtn:hover { color: var(--text); }
+.iconbtn svg { width: 17px; height: 17px; }
+.tabbar { display: none; }
+.cmdbtn .lbl-short { display: none; }
+
+#view { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; position: relative; }
+.canvas { width: min(100%, 1120px); margin: 0 auto; padding: 36px 32px 96px; }
+
+/* ───────────── Buttons ───────────── */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 36px; padding: 0 16px; border-radius: 11px; font-weight: 500; font-size: 14px; border: 1px solid var(--line-2); background: color-mix(in oklab, var(--text) 5%, transparent); transition: transform 0.4s var(--spring), border-color 0.2s, background 0.2s, box-shadow 0.3s; white-space: nowrap; }
+.btn:hover { border-color: color-mix(in oklab, var(--accent) 50%, var(--line-2)); background: color-mix(in oklab, var(--text) 8%, transparent); }
+.btn:active { transform: scale(0.97); }
+.btn.primary { color: var(--accent-ink); background: linear-gradient(180deg, color-mix(in oklab, var(--accent-fill) 82%, white), var(--accent-fill)); border-color: transparent; box-shadow: var(--shadow-btn); font-weight: 600; }
+[data-theme='light'] .btn.primary { background: linear-gradient(180deg, oklch(0.56 0.17 252), oklch(0.46 0.17 254)); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.primary kbd { background: color-mix(in oklab, var(--accent-ink) 14%, transparent); border-color: color-mix(in oklab, var(--accent-ink) 25%, transparent); color: var(--accent-ink); }
+.btn svg { width: 16px; height: 16px; }
+.btn.sm { min-height: 28px; padding: 0 11px; font-size: 13px; border-radius: 9px; }
+
+/* ───────────── Verdict glyph + chip ───────────── */
+.gl { width: 20px; height: 20px; flex: none; color: var(--c); --gi: var(--ink); }
+[data-theme='dark'] .gl, :root:not([data-theme='light']) .gl { filter: drop-shadow(0 0 7px color-mix(in oklab, var(--c) 55%, transparent)); }
+.gl.lg { width: 28px; height: 28px; }
+.gl.xl { width: 44px; height: 44px; }
+.v-ok { --c: var(--vf-ok); } .v-diff { --c: var(--vf-diff); } .v-mixed { --c: var(--vf-mixed); }
+.v-doi { --c: var(--vf-doi); } .v-miss { --c: var(--vf-miss); } .v-unk { --c: var(--vf-unk); }
+.chip { display: inline-flex; align-items: center; gap: 7px; min-height: 28px; padding: 0 12px 0 6px; border-radius: 99px; font-weight: 500; font-size: 13px; line-height: 1.2; color: var(--vt); background: color-mix(in oklab, var(--c) 12%, var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--c) 34%, transparent); white-space: nowrap; }
+.chip .gl { width: 18px; height: 18px; }
+.chip.lg { min-height: 36px; padding: 0 16px 0 8px; font-size: 15px; gap: 9px; }
+.chip.lg .gl { width: 24px; height: 24px; }
+.spin { width: 15px; height: 15px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; border-bottom-color: color-mix(in oklab, currentColor 25%, transparent); animation: rot 0.8s linear infinite; flex: none; }
+@keyframes rot { to { transform: rotate(360deg); } }
+
+/* ───────────── Intake ───────────── */
+.intake { min-height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 28px 32px 90px; max-width: 880px; margin: 0 auto; }
+.intake h1 { font-weight: 500; font-size: clamp(30px, 4.4vw, 46px); line-height: 1.08; letter-spacing: -0.03em; margin: 14px 0 12px; text-wrap: balance; }
+.intake h1 em { font-style: normal; background: linear-gradient(180deg, var(--text), color-mix(in oklab, var(--accent) 80%, var(--text))); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lede { color: var(--muted); font-size: 16px; max-width: 54ch; text-wrap: pretty; }
+.paste { position: relative; width: 100%; margin-top: 32px; border-radius: 22px; text-align: left; background: var(--tile-bg); box-shadow: var(--tile-shadow); border: 1px solid var(--line-2); transition: box-shadow 0.5s var(--out), border-color 0.3s; }
+.paste::before { content: ''; position: absolute; left: 12%; right: 12%; top: -1px; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--accent) 90%, white), transparent); opacity: 0.9; }
+.paste::after { content: ''; position: absolute; left: 20%; right: 20%; top: -28px; height: 56px; background: radial-gradient(closest-side, var(--accent-glow), transparent); filter: blur(10px); opacity: 0.55; pointer-events: none; transition: opacity 0.5s; }
+.paste:focus-within { border-color: color-mix(in oklab, var(--accent) 60%, var(--line-2)); box-shadow: var(--tile-shadow), 0 0 0 4px color-mix(in oklab, var(--accent) 16%, transparent), 0 0 60px -10px var(--accent-glow); }
+.paste:focus-within::after { opacity: 1; }
+.paste textarea { display: block; width: 100%; min-height: 168px; resize: none; background: transparent; border: 0; outline: 0; color: var(--text); font: 400 14px/1.7 var(--mono); padding: 22px 24px 8px; }
+.paste textarea::placeholder { color: var(--faint); font: 400 18px/1.6 var(--sans); }
+.paste-bar { display: flex; align-items: center; gap: 12px; padding: 10px 12px 12px 18px; border-top: 1px solid var(--line); }
+.paste-bar .srcs { font: 400 11.5px/1.4 var(--mono); color: var(--faint); flex: 1; min-width: 0; }
+.drop { margin-top: 14px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 14px; min-height: 64px; padding: 12px 20px; border-radius: 16px; border: 1.5px dashed var(--line-2); color: var(--muted); transition: border-color 0.3s, background 0.3s, transform 0.5s var(--spring); }
+.drop.over, .drop:hover { border-color: var(--accent); background: color-mix(in oklab, var(--accent) 7%, transparent); }
+.drop svg { width: 22px; height: 22px; color: var(--accent); flex: none; }
+.drop b { font-weight: 500; color: var(--text); }
+.drop .ext { font: 400 11.5px var(--mono); color: var(--faint); }
+.drop button { min-height: 28px; padding: 0 6px; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line-2); }
+.linkish { color: var(--accent); font-weight: 500; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; min-height: 28px; }
+.linkish:hover { text-decoration: underline; text-underline-offset: 3px; }
+.assure { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: center; color: var(--faint); font-size: 12.5px; }
+.assure span { display: inline-flex; gap: 7px; align-items: center; }
+.assure svg { width: 14px; height: 14px; }
+
+/* ───────────── Running ───────────── */
+.run { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 28px; align-items: start; }
+.run-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.run-head h2 { font-weight: 500; font-size: 34px; letter-spacing: -0.03em; line-height: 1.1; margin-top: 8px; }
+.run-head h2 .n { font-variant-numeric: tabular-nums; background: var(--num-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.progress { height: 3px; border-radius: 3px; background: var(--line); margin-bottom: 18px; position: relative; }
+.progress i { display: block; height: 100%; border-radius: 3px; width: calc(var(--p, 0) * 100%); background: linear-gradient(90deg, color-mix(in oklab, var(--accent) 60%, transparent), var(--accent)); box-shadow: 0 0 16px 1px var(--accent-glow); transition: width 0.5s var(--out); }
+.feed { display: grid; gap: 10px; }
+.row { position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; column-gap: 14px; align-items: start; padding: 14px 16px; border-radius: 16px; border: 1px solid var(--line); background: var(--tile-bg); box-shadow: var(--tile-shadow); overflow: hidden; transition: border-color 0.5s, box-shadow 0.6s, opacity 0.5s; }
+.row .ix { font: 500 12px/28px var(--mono); color: var(--faint); }
+.row .main { min-width: 0; }
+.row .res { min-height: 28px; display: flex; align-items: center; }
+.cite { display: block; line-height: 1.4; }
+.cite .au { font-weight: 600; }
+.cite .ti { color: var(--text); }
+.cite .doi { display: block; font: 400 11.5px/1.5 var(--mono); color: var(--faint); margin-top: 1px; overflow-wrap: anywhere; }
+.row[data-ph='queued'] { opacity: 0.55; border-style: dashed; box-shadow: none; background: transparent; }
+.row[data-ph='checking'] { border-color: color-mix(in oklab, var(--accent) 60%, transparent); box-shadow: var(--tile-shadow), 0 0 0 1px color-mix(in oklab, var(--accent) 16%, transparent), 0 0 38px -8px var(--accent-glow); }
+.row[data-ph='checking']::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(100deg, transparent 32%, color-mix(in oklab, var(--accent) 13%, transparent) 50%, transparent 68%); background-size: 260% 100%; animation: sweep 1.3s linear infinite; }
+@keyframes sweep { from { background-position: 150% 0; } to { background-position: -50% 0; } }
+.row[data-ph='done'] { border-color: color-mix(in oklab, var(--c) 30%, var(--line)); animation: land 0.7s var(--spring); }
+[data-theme='dark'] .row[data-ph='done'], :root:not([data-theme='light']) .row[data-ph='done'] { box-shadow: var(--tile-shadow), 0 0 34px -16px var(--c); }
+@keyframes land { 0% { transform: scale(0.985); } 100% { transform: none; } }
+.trail { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; margin-top: 8px; font-size: 12.5px; color: var(--muted); min-height: 20px; }
+.st { display: inline-flex; align-items: center; gap: 5px; animation: stin 0.45s var(--spring) both; }
+.st.ns + .st::before, .st.ns::before { }
+.st .src { font: 500 11px/1 var(--mono); letter-spacing: 0.02em; padding: 4px 7px; border-radius: 6px; background: color-mix(in oklab, var(--text) 8%, transparent); color: var(--text); margin-right: 3px; box-shadow: inset 0 0 0 1px var(--line); }
+.st.has-src::before { content: '' !important; margin: 0 6px 0 4px !important; }
+.st.has-src:first-child::before { display: none; }
+@keyframes stin { from { opacity: 0; transform: translateX(-6px); } }
+.mk { width: 14px; height: 14px; flex: none; color: var(--muted); }
+.st[data-m='ok'] .mk { color: var(--vf-ok); } .st[data-m='diff'] .mk { color: var(--vf-diff); } .st[data-m='x'] .mk { color: var(--vf-doi); }
+.queued-tag { font: 500 11.5px var(--mono); color: var(--faint); display: inline-flex; align-items: center; gap: 8px; }
+.queued-tag::before { content: ''; width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--faint); }
+.checking-tag { font: 500 12.5px var(--sans); color: var(--accent); display: inline-flex; align-items: center; gap: 8px; }
+.aside { position: sticky; top: 0; display: grid; gap: 12px; }
+.panelbox { border-radius: 18px; border: 1px solid var(--line); background: var(--tile-bg); box-shadow: var(--tile-shadow); padding: 16px; }
+.panelbox h3 { font: 500 11.5px var(--mono); letter-spacing: 0.09em; text-transform: uppercase; color: var(--faint); margin-bottom: 8px; }
+.srcrow { display: grid; grid-template-columns: 10px 1fr auto; gap: 10px; align-items: center; min-height: 34px; border-top: 1px solid var(--line); font-size: 13px; }
+.srcrow:first-of-type { border-top: 0; }
+.srcrow .dot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--faint); }
+.srcrow.act .dot { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 12px 1px var(--accent-glow); }
+.srcrow .cnt { font: 500 12px var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.runfoot { margin-top: 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; }
+.runfoot .btn { animation: pop 0.7s var(--spring) both; }
+@keyframes pop { from { opacity: 0; transform: translateY(10px) scale(0.94); } }
+
+/* ───────────── Bento ───────────── */
+.sum-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+.sum-head h2 { font-weight: 500; font-size: 22px; letter-spacing: -0.02em; margin-top: 6px; }
+.sum-head .acts { display: flex; gap: 8px; }
+.bento { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-rows: 118px; gap: 14px; }
+.tile { position: relative; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; text-align: left; padding: 18px 20px; border-radius: 24px; border: 1px solid var(--line); background: var(--tile-bg); box-shadow: var(--tile-shadow); overflow: hidden; isolation: isolate; animation: tin 0.9s var(--spring) both; animation-delay: calc(var(--i, 0) * 70ms); transition: border-color 0.3s, box-shadow 0.5s, transform 0.5s var(--spring); }
+@keyframes tin { from { opacity: 0; transform: translateY(18px) scale(0.965); } }
+.tile::before { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(120% 90% at 100% 0%, color-mix(in oklab, var(--c, var(--accent)) 15%, transparent), transparent 62%); opacity: 0.9; transition: opacity 0.4s; }
+[data-theme='light'] .tile::before { background: radial-gradient(120% 90% at 100% 0%, color-mix(in oklab, var(--c, var(--accent)) 12%, transparent), transparent 60%); }
+button.tile:hover { border-color: color-mix(in oklab, var(--c) 55%, var(--line)); transform: translateY(-2px); }
+button.tile:active { transform: scale(0.985); }
+button.tile[aria-pressed='true'] { border-color: var(--c); box-shadow: var(--tile-shadow), 0 0 0 1px var(--c), 0 0 36px -10px var(--c); }
+.tile .tp { display: flex; align-items: center; gap: 9px; }
+.tile .lab { font-weight: 500; font-size: 13.5px; line-height: 1.25; color: var(--vt); }
+.tile .big { font-weight: 500; font-size: 64px; line-height: 0.85; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+.tile .hint { font-size: 12.5px; color: var(--muted); line-height: 1.3; }
+.tile .foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
+.tile .go { font: 500 11.5px var(--mono); color: var(--faint); display: inline-flex; gap: 5px; align-items: center; white-space: nowrap; }
+button.tile:hover .go { color: var(--text); }
+.t-hero { grid-column: 1 / 7; grid-row: 1 / 4; --c: var(--accent); padding: 24px 26px; background: var(--tile-bg); }
+.t-hero::after { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; z-index: 1; pointer-events: none; background: conic-gradient(from var(--a), transparent 0 55%, color-mix(in oklab, var(--accent) 90%, white) 72%, transparent 84%); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: beam 8s linear infinite; }
+@keyframes beam { to { --a: 360deg; } }
+.t-hero::before { background: radial-gradient(60% 55% at 78% 20%, var(--accent-glow), transparent 72%); opacity: 0.55; }
+[data-theme='light'] .t-hero::before { opacity: 0.9; }
+.t-hero .headline { display: flex; align-items: flex-end; gap: 14px; margin-top: 8px; position: relative; z-index: 2; }
+.t-hero .num { font-weight: 500; font-size: clamp(132px, 15cqi, 196px); line-height: 0.78; letter-spacing: -0.07em; font-variant-numeric: tabular-nums; background: var(--num-grad); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: 0.02em; }
+.t-hero .of { font-size: 26px; line-height: 1.08; font-weight: 500; letter-spacing: -0.02em; padding-bottom: 6px; }
+.t-hero .of small { display: block; font-size: 15px; color: var(--muted); font-weight: 400; letter-spacing: 0; margin-top: 4px; }
+.t-hero .note { max-width: 32ch; position: relative; z-index: 2; color: var(--muted); font-size: 13.5px; line-height: 1.45; }
+.ringwrap { position: absolute; right: 22px; top: 50%; translate: 0 -54%; width: 236px; height: 236px; z-index: 0; }
+.ringwrap svg { width: 100%; height: 100%; overflow: visible; }
+.ring-trk { fill: none; stroke: var(--line); stroke-width: 11; }
+.ring-seg { fill: none; stroke: var(--c); stroke-width: 11; stroke-dasharray: 0 999; transition: stroke-dasharray 1.1s var(--spring-soft) calc(var(--i) * 90ms); }
+[data-theme='dark'] .ring-seg, :root:not([data-theme='light']) .ring-seg { filter: drop-shadow(0 0 6px color-mix(in oklab, var(--c) 60%, transparent)); }
+.ring-sat { transform-box: fill-box; }
+.ringwrap .mid { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.ringwrap .mid b { font-weight: 500; font-size: 34px; letter-spacing: -0.03em; line-height: 1; }
+.ringwrap .mid span { font: 500 10.5px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); margin-top: 5px; }
+.t-ok { grid-column: 7 / 10; grid-row: 1 / 3; }
+.t-diff { grid-column: 10 / 13; grid-row: 1 / 3; }
+.t-mixed { grid-column: 7 / 9; grid-row: 3; } .t-doi { grid-column: 9 / 11; grid-row: 3; } .t-miss { grid-column: 11 / 13; grid-row: 3; }
+.t-unk { grid-column: 1 / 5; grid-row: 4; border-style: dashed; border-color: var(--line-2); }
+.t-strip { grid-column: 5 / 13; grid-row: 4; cursor: default; padding: 14px 16px; }
+.t-ok .big, .t-diff .big { font-size: 96px; }
+.t-mixed .big, .t-doi .big, .t-miss .big { font-size: 44px; }
+.t-mixed, .t-doi, .t-miss { padding: 14px 16px; }
+.t-mixed .hint, .t-doi .hint, .t-miss .hint, .go { display: none; }
+.t-ok .foot, .t-diff .foot { flex-direction: column; align-items: flex-start; gap: 6px; }
+.t-unk .big { font-size: 44px; }
+.t-unk .row2 { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
+.stripcells { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px; flex: 1; margin-top: 8px; }
+.cell { display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 6px; padding: 8px 4px; border-radius: 12px; border: 1px solid color-mix(in oklab, var(--c) 28%, var(--line)); background: color-mix(in oklab, var(--c) 8%, transparent); min-height: 62px; transition: transform 0.4s var(--spring), border-color 0.2s; }
+.cell:hover { transform: translateY(-3px); border-color: var(--c); }
+.cell .mono { font-size: 11px; color: var(--muted); }
+.t-strip .tp { justify-content: space-between; }
+
+/* filter list */
+.filters { display: flex; gap: 6px; flex-wrap: wrap; margin: 30px 0 12px; align-items: center; }
+.filters .eyebrow { margin-right: 8px; }
+.fchip { display: inline-flex; align-items: center; gap: 7px; min-height: 30px; padding: 0 12px 0 8px; border-radius: 99px; border: 1px solid var(--line-2); font-size: 13px; color: var(--muted); transition: all 0.25s; }
+.fchip:hover { color: var(--text); border-color: var(--faint); }
+.fchip[aria-pressed='true'] { color: var(--text); background: color-mix(in oklab, var(--c, var(--accent)) 16%, transparent); border-color: var(--c, var(--accent)); }
+.fchip .gl { width: 16px; height: 16px; }
+.fchip .n { font: 500 11.5px var(--mono); }
+.list { border-radius: 20px; border: 1px solid var(--line); background: var(--tile-bg); box-shadow: var(--tile-shadow); overflow: hidden; }
+.li { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto 20px; gap: 14px; align-items: center; width: 100%; min-height: 56px; padding: 10px 18px; border-top: 1px solid var(--line); transition: background 0.2s; }
+.li:first-child { border-top: 0; }
+.li:hover { background: color-mix(in oklab, var(--text) 4%, transparent); }
+.li .ix { font: 500 12px var(--mono); color: var(--faint); }
+.li .cite { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.li .chev { width: 16px; height: 16px; color: var(--faint); transition: transform 0.4s var(--spring); }
+.li:hover .chev { transform: translateX(3px); color: var(--text); }
+.li[hidden] { display: none; }
+
+/* ───────────── Detail ───────────── */
+.back { display: inline-flex; align-items: center; gap: 8px; min-height: 30px; color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+.back:hover { color: var(--text); }
+.back svg { width: 15px; height: 15px; }
+.d-head { display: flex; flex-direction: column; gap: 14px; margin-bottom: 26px; align-items: flex-start; }
+.d-head h2 { font-weight: 500; font-size: 30px; line-height: 1.15; letter-spacing: -0.025em; max-width: 34ch; text-wrap: balance; }
+.d-head .by { color: var(--muted); font-size: 14px; }
+.d-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }
+.box { border-radius: 20px; border: 1px solid var(--line); background: var(--tile-bg); box-shadow: var(--tile-shadow); padding: 20px; position: relative; overflow: hidden; }
+.box > h3 { font: 500 11.5px var(--mono); letter-spacing: 0.09em; text-transform: uppercase; color: var(--faint); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.cmp { display: grid; }
+.cmp-h, .cmp-r { display: grid; grid-template-columns: 112px minmax(0, 1fr) minmax(0, 1fr) 128px; gap: 16px; align-items: start; padding: 11px 0; }
+.cmp-h { padding: 0 0 10px; font: 500 11.5px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint); }
+.cmp-r { border-top: 1px solid var(--line); }
+.cmp-r .f { color: var(--muted); font-size: 13px; padding-top: 1px; }
+.cmp-r .val { font-size: 14px; line-height: 1.45; overflow-wrap: anywhere; }
+.cmp-r .val .lab { display: none; }
+.val.mono { font: 400 12.5px/1.6 var(--mono); }
+.dv { font-weight: 600; background: color-mix(in oklab, var(--vf-diff) 20%, transparent); box-shadow: 0 2px 0 0 var(--vf-diff); border-radius: 3px; padding: 0 2px; margin: 0 -2px; text-decoration: none; }
+.fstat { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 500; min-height: 24px; white-space: nowrap; }
+.fstat .gl { width: 18px; height: 18px; }
+.fstat.same { color: var(--muted); font-weight: 400; }
+.fstat.dev { color: var(--text); }
+.sim { margin-top: 18px; display: flex; align-items: center; gap: 14px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+.sim .meter { flex: 1; height: 6px; border-radius: 4px; background: var(--line); position: relative; overflow: hidden; }
+.sim .meter i { position: absolute; inset: 0 auto 0 0; width: var(--w); background: linear-gradient(90deg, var(--vf-diff), color-mix(in oklab, var(--vf-diff) 60%, white)); border-radius: 4px; box-shadow: 0 0 12px var(--vf-diff); }
+.sim b { font: 500 13px var(--mono); color: var(--text); }
+.fix { background: color-mix(in oklab, var(--text) 5%, transparent); border: 1px solid var(--line-2); border-radius: 14px; padding: 14px 14px 14px 14px; font: 400 12.5px/1.65 var(--mono); color: var(--text); overflow-wrap: anywhere; position: relative; }
+.fix .dv { font-weight: 500; }
+.fix-acts { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.fix-note { font-size: 12.5px; color: var(--muted); margin-top: 12px; line-height: 1.45; }
+.srcl { display: grid; }
+.srci { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); align-items: start; }
+.srci:first-child { border-top: 0; padding-top: 0; }
+.srci .nm { font: 500 13px var(--mono); }
+.srci .rs { font-size: 12.5px; color: var(--muted); line-height: 1.4; margin-top: 1px; }
+.srci .ms { font: 400 11.5px var(--mono); color: var(--faint); padding-top: 2px; }
+.srci .mk { width: 18px; height: 18px; }
+.srci[data-m='ok'] .mk { color: var(--vf-ok); } .srci[data-m='x'] .mk { color: var(--vf-doi); }
+.right { display: grid; gap: 20px; }
+.callout { display: flex; gap: 10px; align-items: flex-start; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--line); background: color-mix(in oklab, var(--accent) 7%, transparent); font-size: 13px; color: var(--muted); line-height: 1.45; margin-top: 18px; }
+.callout svg { width: 16px; height: 16px; color: var(--accent); flex: none; margin-top: 2px; }
+
+/* ───────────── Glass layers (floating only) ───────────── */
+.glass { background: var(--glass-bg); -webkit-backdrop-filter: blur(30px) saturate(1.7); backdrop-filter: blur(30px) saturate(1.7); border: 1px solid var(--glass-line); box-shadow: var(--glass-hi), var(--glass-shadow); }
+.layer { position: absolute; inset: 0; z-index: 40; display: none; }
+.layer.open { display: block; }
+.scrim { position: absolute; inset: 0; background: oklch(0.1 0.01 265 / 0.5); animation: fade 0.3s var(--out) both; }
+[data-theme='light'] .scrim { background: oklch(0.3 0.05 260 / 0.22); }
+@keyframes fade { from { opacity: 0; } }
+.cmd { position: absolute; left: 50%; top: 12%; translate: -50% 0; width: min(580px, calc(100% - 28px)); border-radius: 20px; overflow: hidden; animation: cmdin 0.6s var(--spring) both; }
+@keyframes cmdin { from { opacity: 0; transform: translateY(-14px) scale(0.96); } }
+.cmd-in { display: flex; align-items: center; gap: 12px; padding: 0 18px; height: 56px; border-bottom: 1px solid var(--line); }
+.cmd-in svg { width: 18px; height: 18px; color: var(--muted); flex: none; }
+.cmd-in input { flex: 1; min-width: 0; height: 40px; background: transparent; border: 0; outline: 0; color: var(--text); font: 400 16px var(--sans); }
+.cmd-in input::placeholder { color: var(--muted); }
+.cmd-list { padding: 8px; max-height: 360px; overflow-y: auto; }
+.cmd-g { font: 500 11px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 10px 10px 6px; }
+.cmd-i { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 40px; padding: 0 10px; border-radius: 11px; font-size: 14px; }
+.cmd-i[aria-selected='true'] { background: color-mix(in oklab, var(--accent) 20%, transparent); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--accent) 45%, transparent); }
+.cmd-i svg.ic { width: 17px; height: 17px; color: var(--muted); flex: none; }
+.cmd-i .k { margin-left: auto; display: flex; gap: 3px; }
+.cmd-i .sub { color: var(--muted); font-size: 12.5px; margin-left: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cmd-foot { display: flex; gap: 14px; padding: 10px 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+.cmd-foot span { display: inline-flex; align-items: center; gap: 6px; }
+.toasts { position: absolute; left: 0; right: 0; bottom: 22px; z-index: 50; display: grid; justify-items: center; gap: 8px; pointer-events: none; }
+.toast { pointer-events: auto; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 18px 0 12px; border-radius: 99px; font-size: 13.5px; font-weight: 500; animation: toastin 0.7s var(--spring) both; }
+@keyframes toastin { from { opacity: 0; transform: translateY(20px) scale(0.9); } }
+.toast.out { animation: toastout 0.3s var(--out) forwards; }
+@keyframes toastout { to { opacity: 0; transform: translateY(10px) scale(0.96); } }
+
+/* ───────────── Brand sheet ───────────── */
+.sheet { display: grid; gap: 22px; }
+.sheet h2 { font-weight: 500; font-size: 30px; letter-spacing: -0.03em; margin-top: 6px; }
+.sheet .sec { border-radius: 22px; border: 1px solid var(--line); background: var(--tile-bg); box-shadow: var(--tile-shadow); padding: 22px; }
+.sheet .sec > h3 { font: 500 11.5px var(--mono); letter-spacing: 0.09em; text-transform: uppercase; color: var(--faint); margin-bottom: 16px; }
+.mk-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.mk-stage { border-radius: 16px; padding: 22px; background: var(--bg); color: var(--text); border: 1px solid var(--line); display: grid; gap: 22px; align-items: center; position: relative; overflow: hidden; }
+.mk-stage::before { content: ''; position: absolute; inset: 0; background: radial-gradient(60% 70% at 20% 0, var(--glow-a), transparent 70%); opacity: 0.7; }
+.mk-stage > * { position: relative; }
+.mk-row { display: flex; align-items: flex-end; gap: 26px; flex-wrap: wrap; }
+.mk-row figure { margin: 0; display: grid; gap: 8px; justify-items: start; }
+.mk-row figcaption { font: 400 11px var(--mono); color: var(--faint); }
+.mk-stage .lockup svg { height: 40px; width: auto; }
+.mk-note { margin-top: 14px; font-size: 13px; color: var(--muted); max-width: 70ch; line-height: 1.5; }
+.sw-wrap { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.sw-scope { border-radius: 16px; padding: 16px; background: var(--bg); color: var(--text); border: 1px solid var(--line); }
+.sw-scope > h4 { font: 500 11.5px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+.sw { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; align-items: center; padding: 6px 0; }
+.sw .chipc { width: 34px; height: 34px; border-radius: 10px; box-shadow: inset 0 0 0 1px var(--line-2); }
+.sw .tn { font: 500 12px var(--mono); }
+.sw .tv { font: 400 11.5px var(--mono); color: var(--muted); overflow-wrap: anywhere; }
+.vrow { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 12px; align-items: center; padding: 7px 0; border-top: 1px solid var(--line); }
+.vrow:first-of-type { border-top: 0; }
+.vrow .tn { font-size: 13px; font-weight: 500; }
+.vrow .tv { font: 400 11px var(--mono); color: var(--muted); overflow-wrap: anywhere; }
+.type-row { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 20px; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--line); }
+.type-row:first-of-type { border-top: 0; }
+.type-row .meta { font: 400 11px var(--mono); color: var(--faint); }
+
+/* ───────────── Prototype dock (not part of the design) ───────────── */
+.dock { position: fixed; z-index: 1000; left: 50%; bottom: 14px; translate: -50% 0; display: flex; align-items: center; gap: 4px; padding: 5px; border-radius: 12px; background: #111; color: #eee; border: 1px dashed #777; font: 500 12px/1 ui-monospace, Menlo, monospace; box-shadow: 0 10px 30px rgba(0,0,0,.5); max-width: calc(100vw - 16px); flex-wrap: wrap; justify-content: center; }
+.dock .tag { padding: 0 8px; color: #ffd24a; letter-spacing: .08em; font-size: 10.5px; }
+.dock button { min-height: 28px; min-width: 28px; padding: 0 9px; border-radius: 8px; color: #eee; background: #262626; font: inherit; }
+.dock button:hover { background: #3a3a3a; }
+.dock button[aria-pressed='true'], .dock button[aria-current='true'] { background: #ffd24a; color: #111; }
+.dock .sep { width: 1px; height: 18px; background: #444; margin: 0 4px; }
+body.clean .dock { display: none; }
+.dock :focus-visible { outline-color: #ffd24a; }
+
+/* ───────────── Compact (panel) via container queries ───────────── */
+@container app (max-width: 720px) {
+  .top { grid-template-columns: 1fr auto; height: 52px; padding: 0 14px; }
+  .top .nav, .cmdbtn .lbl, .cmdbtn .k, .avatar { display: none; }
+  .cmdbtn { min-width: 0; width: 36px; height: 36px; padding: 0; justify-content: center; }
+  .cmdbtn .lbl-short { display: block; }
+  .tabbar { display: grid; grid-template-columns: repeat(3, 1fr); flex: none; height: 56px; border-top: 1px solid var(--line); background: color-mix(in oklab, var(--surface) 88%, transparent); position: relative; z-index: 5; }
+  .tabbar button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 44px; font-size: 11.5px; font-weight: 500; color: var(--muted); }
+  .tabbar button svg { width: 19px; height: 19px; }
+  .tabbar button[aria-current='page'] { color: var(--text); }
+  .tabbar button[aria-current='page'] svg { color: var(--accent); filter: drop-shadow(0 0 8px var(--accent-glow)); }
+  .canvas { padding: 20px 14px 40px; }
+  .intake { padding: 20px 14px 40px; justify-content: flex-start; padding-top: 30px; text-align: left; align-items: stretch; }
+  .intake h1 { font-size: 27px; }
+  .lede { font-size: 14px; }
+  .paste { margin-top: 22px; border-radius: 18px; }
+  .paste textarea { min-height: 150px; padding: 16px 16px 6px; }
+  .paste textarea::placeholder { font-size: 16px; }
+  .paste-bar { flex-wrap: wrap; padding: 10px; }
+  .paste-bar .srcs { flex-basis: 100%; order: 3; }
+  .paste-bar .btn.primary { margin-left: auto; }
+  .drop { flex-direction: column; text-align: center; gap: 6px; padding: 16px; }
+  .assure { justify-content: flex-start; margin-top: 18px; }
+  .run { grid-template-columns: 1fr; }
+  .run .aside { display: none; }
+  .run-head h2 { font-size: 26px; }
+  .row { grid-template-columns: 28px minmax(0, 1fr); grid-template-areas: 'ix res' 'main main'; padding: 12px 14px; row-gap: 6px; }
+  .row .ix { grid-area: ix; align-self: center; line-height: 1; }
+  .row .res { grid-area: res; justify-self: end; }
+  .row .main { grid-area: main; }
+  .trail { font-size: 12px; }
+  .sum-head h2 { font-size: 19px; }
+  .sum-head .acts { display: none; }
+  .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: auto; gap: 10px; }
+  .bento > * { grid-column: auto !important; grid-row: auto !important; }
+  .tile { padding: 14px 15px; border-radius: 20px; gap: 14px; }
+  .t-hero { grid-column: 1 / -1 !important; padding: 18px; min-height: 0; justify-content: flex-start; gap: 14px; }
+  .t-hero .num { font-size: 124px; }
+  .t-hero .of { font-size: 20px; }
+  .t-hero .of small { font-size: 13px; }
+  .ringwrap { position: relative; right: auto; top: auto; translate: none; width: 176px; height: 176px; margin: 4px auto 0; }
+  .t-hero .headline { margin-top: 2px; }
+  .hero-body { display: grid; gap: 4px; }
+  .t-ok, .t-diff { min-height: 168px; }
+  .t-ok .big, .t-diff .big { font-size: 72px; }
+  .t-ok .foot, .t-diff .foot { flex-wrap: wrap; align-items: flex-end; row-gap: 8px; }
+  .t-ok .hint, .t-diff .hint, .t-ok .go, .t-diff .go { display: none; }
+  .t-mixed, .t-doi, .t-miss, .t-unk { min-height: 116px; }
+  .tile .hint { display: none; }
+  .t-strip { grid-column: 1 / -1 !important; }
+  .t-strip { padding: 12px; }
+  .stripcells { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .tile .big { font-size: 40px; }
+  .filters { margin-top: 24px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; margin-left: -14px; margin-right: -14px; padding-left: 14px; padding-right: 14px; scrollbar-width: none; }
+  .filters .eyebrow { display: none; }
+  .fchip { flex: none; }
+  .li { grid-template-columns: 24px minmax(0, 1fr) 16px; grid-template-areas: 'ix cite chev' '. chip chip'; padding: 11px 14px; row-gap: 8px; }
+  .li .ix { grid-area: ix; } .li .cite { grid-area: cite; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; } .li .chip { grid-area: chip; justify-self: start; } .li .chev { grid-area: chev; }
+  .d-head h2 { font-size: 22px; }
+  .d-grid { grid-template-columns: 1fr; }
+  .box { padding: 16px; border-radius: 18px; }
+  .cmp-h { display: none; }
+  .cmp-r { grid-template-columns: 1fr auto; gap: 8px 10px; padding: 14px 0; }
+  .cmp-r .f { grid-column: 1; font: 500 11.5px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint); align-self: center; }
+  .cmp-r .fstat { grid-column: 2; grid-row: 1; justify-self: end; }
+  .cmp-r .val { grid-column: 1 / -1; display: grid; grid-template-columns: 74px 1fr; gap: 10px; align-items: baseline; }
+  .cmp-r .val .lab { display: block; font: 500 10.5px var(--mono); letter-spacing: 0.05em; text-transform: uppercase; color: var(--faint); }
+  .layer .cmd { top: 8%; }
+  .mk-grid, .sw-wrap { grid-template-columns: 1fr; }
+  .type-row { grid-template-columns: 1fr; gap: 4px; }
+  .toasts { bottom: 74px; }
+  .sheet h2 { font-size: 24px; }
+}
+@container app (min-width: 721px) and (max-width: 1000px) {
+  .run { grid-template-columns: 1fr; } .run .aside { display: none; }
+  .d-grid { grid-template-columns: 1fr; }
+  .ringwrap { width: 190px; height: 190px; }
+}
+
+/* ───────────── View transition + reduced motion ───────────── */
+::view-transition-old(root) { animation: vt-out 0.25s var(--out) both; }
+::view-transition-new(root) { animation: vt-in 0.6s var(--spring-soft) both; }
+@keyframes vt-out { to { opacity: 0; transform: scale(0.99); } }
+@keyframes vt-in { from { opacity: 0; transform: translateY(14px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .spin { border-bottom-color: currentColor; transform: rotate(35deg); }
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none !important; }
+  .t-hero::after { background: conic-gradient(from 200deg, transparent 0 55%, color-mix(in oklab, var(--accent) 90%, white) 72%, transparent 84%); }
+}
+body.still *, body.still *::before, body.still *::after { animation: none !important; transition: none !important; }
+
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+<linearGradient id="mk-tile-d" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="oklch(0.3 0.04 262)"/><stop offset="1" stop-color="oklch(0.15 0.02 265)"/></linearGradient>
+    <linearGradient id="mk-ring-d" x1="0.1" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="oklch(0.97 0.02 220)"/><stop offset="1" stop-color="oklch(0.72 0.15 245)"/></linearGradient>
+    <linearGradient id="mk-edge-d" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="oklch(0.8 0.12 232 / 0.9)"/><stop offset="0.6" stop-color="oklch(0.8 0.12 232 / 0.05)"/><stop offset="1" stop-color="oklch(0.8 0.12 232 / 0.9)" stop-opacity="0.35"/></linearGradient>
+    <radialGradient id="mk-halo-d" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="oklch(0.8 0.14 225)" stop-opacity="0.9"/><stop offset="1" stop-color="oklch(0.8 0.14 225)" stop-opacity="0"/></radialGradient>
+    <linearGradient id="mk-tile-l" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="oklch(1 0 0)"/><stop offset="1" stop-color="oklch(0.955 0.012 245)"/></linearGradient>
+    <linearGradient id="mk-ring-l" x1="0.1" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="oklch(0.34 0.1 258)"/><stop offset="1" stop-color="oklch(0.52 0.18 252)"/></linearGradient>
+    <linearGradient id="mk-edge-l" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="oklch(0.55 0.16 250 / 0.55)"/><stop offset="0.6" stop-color="oklch(0.55 0.16 250 / 0.1)"/><stop offset="1" stop-color="oklch(0.55 0.16 250 / 0.55)" stop-opacity="0.35"/></linearGradient>
+    <radialGradient id="mk-halo-l" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="oklch(0.7 0.15 235)" stop-opacity="0.9"/><stop offset="1" stop-color="oklch(0.7 0.15 235)" stop-opacity="0"/></radialGradient>
+
+    <!-- Brand mark: a lens (open ring) with a luminous sample bead on its edge -->
+    <symbol id="mark" viewBox="0 0 32 32">
+      <rect x="0.5" y="0.5" width="31" height="31" rx="9.5" style="fill:var(--g-tile)"/>
+      <rect x="0.5" y="0.5" width="31" height="31" rx="9.5" fill="none" style="stroke:var(--g-edge)"/>
+      <circle cx="21.2" cy="10.6" r="7" style="fill:var(--g-halo)" opacity="0.8"/>
+      <path d="M21.4 13.9A6.5 6.5 0 1 1 16.1 8.6" fill="none" style="stroke:var(--g-ring)" stroke-width="2.7" stroke-linecap="round"/>
+      <path d="M19.9 19.9 24.6 24.6" fill="none" style="stroke:var(--g-ring)" stroke-width="2.7" stroke-linecap="round"/>
+      <circle cx="21.1" cy="10.9" r="2.3" style="fill:var(--mk-dot)"/>
+    </symbol>
+    <!-- Mark without tile, for 16px favicon use -->
+    <symbol id="mark-bare" viewBox="0 0 32 32">
+      <circle cx="21.2" cy="10.6" r="8" style="fill:var(--g-halo)" opacity="0.7"/>
+      <path d="M21.4 13.9A6.5 6.5 0 1 1 16.1 8.6" fill="none" style="stroke:var(--g-ring)" stroke-width="3.2" stroke-linecap="round" transform="translate(-0.5 0.5) scale(1.04)"/>
+      <path d="M19.9 19.9 24.6 24.6" fill="none" style="stroke:var(--g-ring)" stroke-width="3.2" stroke-linecap="round"/>
+      <circle cx="21.1" cy="10.9" r="2.5" style="fill:var(--mk-dot)"/>
+    </symbol>
+
+    <!-- Verdict glyphs: six distinct silhouettes, inner mark in --gi -->
+    <symbol id="g-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.5" fill="currentColor"/><path d="M7.4 12.4l3.1 3.1 6.1-6.9" fill="none" stroke="var(--gi)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="g-diff" viewBox="0 0 24 24"><path d="M12 1.8 22.2 12 12 22.2 1.8 12Z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M7.6 10.3c1.5-1.4 2.9-1.4 4.4 0s2.9 1.4 4.4 0M7.6 14.5c1.5-1.4 2.9-1.4 4.4 0s2.9 1.4 4.4 0" fill="none" stroke="var(--gi)" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="g-mixed" viewBox="0 0 24 24"><path d="M12 1.6 21 6.8v10.4L12 22.4 3 17.2V6.8Z" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M7.6 7.8 12 12.2l4.4-4.4M12 12.2v5" fill="none" stroke="var(--gi)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="g-doi" viewBox="0 0 24 24"><path d="M12 2.2 22.4 20.4H1.6Z" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9v5.2" fill="none" stroke="var(--gi)" stroke-width="2.3" stroke-linecap="round"/><circle cx="12" cy="17.2" r="1.35" fill="var(--gi)"/></symbol>
+    <symbol id="g-miss" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5.2" fill="currentColor"/><path d="M8.2 8.2l7.6 7.6m0-7.6-7.6 7.6" fill="none" stroke="var(--gi)" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="g-unk" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-dasharray="3.6 2.8"/><path d="M9.6 9.6a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1.1.9-1.1 1.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16.7" r="1.2" fill="currentColor"/></symbol>
+
+    <!-- evidence-trail marks -->
+    <symbol id="m-ok" viewBox="0 0 16 16"><path d="M3.2 8.6l3 3 6.6-7.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="m-diff" viewBox="0 0 16 16"><path d="M3 6h10M3 10h10M10.6 3 5.4 13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="m-none" viewBox="0 0 16 16"><path d="M4 8h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="m-x" viewBox="0 0 16 16"><path d="M4 4l8 8m0-8-8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+
+    <!-- UI icons -->
+    <symbol id="i-scan" viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M8 12h8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 19.5c.8-3.2 3.4-5 7-5s6.2 1.8 7 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m15 15 4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15.5V4.5m0 0L8 8.5m4-4 4 4M5 15v2.5A1.5 1.5 0 0 0 6.5 19h11a1.5 1.5 0 0 0 1.5-1.5V15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 16 16"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-back" viewBox="0 0 16 16"><path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 16 16"><rect x="5.5" y="5.5" width="8" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 5.5V4a1.5 1.5 0 0 0-1.5-1.5H4A1.5 1.5 0 0 0 2.5 4v5A1.5 1.5 0 0 0 4 10.5h1.5" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M7 3.5h6.5L18 8v11.5a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1Z M13.5 3.5V8H18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="i-info" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 7.2V11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="5" r="0.9" fill="currentColor"/></symbol>
+    <symbol id="i-down" viewBox="0 0 16 16"><path d="M8 2.5v8m0 0L4.8 7.3M8 10.5l3.2-3.2M3 13h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-play" viewBox="0 0 16 16"><path d="M5 3.2v9.6L13 8Z" fill="currentColor"/></symbol>
+
+    <!-- Lockup: mark + wordmark (text uses IBM Plex Sans; see NOTES for the webfont compromise) -->
+    <symbol id="lockup" viewBox="0 0 156 32">
+      <use href="#mark" x="0" y="0" width="32" height="32"/>
+      <text x="42" y="21.6" font-family="'IBM Plex Sans', system-ui, sans-serif" font-size="17.5" font-weight="600" letter-spacing="-0.2" style="fill:var(--text)">Source<tspan font-weight="500" dx="4" style="fill:var(--accent)">Taster</tspan></text>
+    </symbol>
+  </defs>
+</svg>
+
+<div id="world">
+  <div class="app" id="app">
+    <div class="bgfx" aria-hidden="true"></div>
+    <header class="top">
+      <button class="brand" id="brand" aria-label="Source Taster"><svg viewBox="0 0 156 32" width="156" height="28" aria-hidden="true"><use href="#lockup"/></svg></button>
+      <nav class="nav" id="nav" aria-label="Hauptnavigation"></nav>
+      <div class="tools">
+        <button class="cmdbtn" id="cmdbtn" aria-haspopup="dialog" aria-label="Befehle (⌘K)"><svg class="lbl-short" width="17" height="17" aria-hidden="true"><use href="#i-search"/></svg><svg width="16" height="16" class="lbl" aria-hidden="true" style="flex:none"><use href="#i-search"/></svg><span class="lbl" data-i="cmdbtn">Suchen oder Befehl …</span><span class="k"><kbd>⌘</kbd><kbd>K</kbd></span></button>
+        <span class="avatar" aria-hidden="true">JN</span>
+      </div>
+    </header>
+    <main id="view" tabindex="-1"></main>
+    <nav class="tabbar" id="tabbar" aria-label="Hauptnavigation"></nav>
+
+    <div class="layer" id="cmdlayer" role="dialog" aria-modal="true" aria-label="Befehlsleiste">
+      <div class="scrim" id="cmdscrim"></div>
+      <div class="cmd glass">
+        <div class="cmd-in"><svg aria-hidden="true"><use href="#i-search"/></svg><input id="cmdin" type="text" autocomplete="off" spellcheck="false" aria-controls="cmdlist" /><kbd>esc</kbd></div>
+        <div class="cmd-list" id="cmdlist" role="listbox"></div>
+        <div class="cmd-foot"><span><kbd>↑</kbd><kbd>↓</kbd> <span data-i="navigate">Navigieren</span></span><span><kbd>↵</kbd> <span data-i="open">Öffnen</span></span></div>
+      </div>
+    </div>
+    <div class="toasts" id="toasts" aria-live="polite"></div>
+  </div>
+</div>
+<div class="sr" id="live" aria-live="polite"></div>
+
+<div class="dock" id="dock" role="toolbar" aria-label="Prototype controls">
+  <span class="tag">PROTO</span>
+  <button data-step="intake" title="1 Intake">1</button><button data-step="running" title="2 Prüfung">2</button><button data-step="summary" title="3 Ergebnis">3</button><button data-step="detail" title="4 Detail">4</button>
+  <button data-act="auto" aria-pressed="false" title="Auto-play"><svg width="12" height="12" aria-hidden="true"><use href="#i-play"/></svg> Auto</button>
+  <span class="sep"></span>
+  <button data-act="theme" title="Theme">◐ Theme</button>
+  <button data-act="width" title="Width">↔ <span id="dock-w">Web</span></button>
+  <button data-act="grey" aria-pressed="false" title="Greyscale">Grey</button>
+  <button data-act="lang" title="Language">DE/EN</button>
+  <span class="sep"></span>
+  <button data-act="brand" title="Brand sheet">Brand</button>
+  <button data-act="cmd" title="Command bar">⌘K</button>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const P = new URLSearchParams(location.search);
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const still = P.has('still') || reduce;
+if (still) document.body.classList.add('still');
+if (P.has('clean')) document.body.classList.add('clean');
+
+/* ───────────── i18n ───────────── */
+const I = {
+  cmdbtn: ['Suchen oder Befehl …', 'Search or command …'],
+  navigate: ['Navigieren', 'Navigate'], open: ['Öffnen', 'Open'],
+  nav_check: ['Prüfen', 'Check'], nav_hist: ['Verlauf', 'History'], nav_acct: ['Konto', 'Account'],
+  in_eyebrow: ['Evidenzbasierte Prüfung', 'Evidence-based verification'],
+  in_h1: ['Welche Literaturliste soll <em>geprüft</em> werden?', 'Which reference list should we <em>check</em>?'],
+  in_lede: ['Einfügen oder ablegen. Jede Referenz wird mit offenen Katalogen abgeglichen, und Sie sehen jeden einzelnen Beleg.', 'Paste or drop it. Every reference is matched against open catalogues, and you see every single piece of evidence.'],
+  in_ph: ['Literaturliste einfügen …', 'Paste your reference list …'],
+  in_go: ['Prüfen', 'Check'], in_drop: ['Datei hierher ziehen', 'Drop a file here'], in_or: ['oder', 'or'], in_pick: ['Datei wählen', 'choose a file'],
+  in_sample: ['Beispielliste laden', 'Load sample list'],
+  as1: ['Jedes Urteil mit Belegen', 'Every verdict with evidence'], as2: ['Urteile sind Hinweise, keine Beweise', 'Verdicts are indicators, not proof'], as3: ['Korrekturen zum Kopieren', 'Corrections to copy'],
+  run_of: ['von 8 geprüft', 'of 8 checked'], run_file: ['Seminararbeit_final_v3.docx · 8 Referenzen erkannt', 'Seminararbeit_final_v3.docx · 8 references found'],
+  queued: ['Wartet', 'Queued'], checking: ['Prüft …', 'Checking …'],
+  run_cta: ['Ergebnis ansehen', 'View result'], run_skip: ['Überspringen', 'Skip ahead'], run_done: ['Alle 8 Referenzen geprüft', 'All 8 references checked'],
+  run_srcs: ['Datenquellen', 'Data sources'], queries: ['Abfragen', 'queries'],
+  sum_title: ['Ergebnis', 'Result'], sum_of: ['von 8', 'of 8'], sum_correct: ['korrekt', 'correct'],
+  sum_note: ['{n} Referenzen brauchen einen zweiten Blick. Urteile sind Hinweise, keine Beweise: Prüfen Sie Auffälliges an der Quelle.', '{n} references deserve a second look. Verdicts are indicators, not proof: check anything flagged against the source.'],
+  sum_refs: ['Referenzen', 'References'], sum_glance: ['Referenzliste im Überblick', 'Reference list at a glance'], show: ['Anzeigen', 'Show'],
+  new_check: ['Neue Prüfung', 'New check'], export: ['Exportieren', 'Export'],
+  all: ['Alle', 'All'], filter: ['Filter', 'Filter'],
+  d_back: ['Zurück zum Ergebnis', 'Back to result'], d_cmp: ['Feldvergleich', 'Field comparison'], d_yours: ['Ihre Referenz', 'Your reference'], d_best: ['Bester Treffer', 'Best match'],
+  d_same: ['Gleich', 'Match'], d_dev: ['Weicht ab', 'Deviates'], d_fix: ['Korrekturvorschlag', 'Suggested correction'], d_copy: ['Kopieren', 'Copy'], d_copied: ['Kopiert', 'Copied'],
+  d_src: ['Befragte Quellen', 'Sources consulted'], d_sim: ['Übereinstimmung', 'Agreement'], d_find: ['Befund', 'Finding'],
+  d_fixnote: ['Ein Vorschlag auf Basis des besten Treffers. Bitte gegen die Originalquelle prüfen, bevor Sie übernehmen.', 'A suggestion based on the best match. Please check against the original source before adopting it.'],
+  d_hint: ['Eine Abweichung ist kein Beleg für Fehlverhalten. Häufig sind es Vorabversionen, andere Ausgaben oder Tippfehler.', 'A deviation is not evidence of misconduct. It is often a preprint, another edition or a typo.'],
+  d_nobest: ['Kein einzelner bester Treffer, deshalb gibt es keinen Feldvergleich.', 'There is no single best match, so there is no field comparison.'],
+  toast_copied: ['Korrektur in die Zwischenablage kopiert', 'Correction copied to clipboard'], toast_na: ['{x} ist nicht Teil dieses Prototyps', '{x} is not part of this prototype'],
+  cmd_ph: ['Befehl oder Referenz suchen …', 'Search commands or references …'], cmd_actions: ['Aktionen', 'Actions'], cmd_refs: ['Referenzen', 'References'], cmd_view: ['Ansicht', 'View'], cmd_none: ['Keine Treffer', 'No results'],
+  c_new: ['Neue Prüfung starten', 'Start a new check'], c_run: ['Beispielliste prüfen', 'Check the sample list'], c_res: ['Ergebnis anzeigen', 'Show result'], c_brand: ['Markenblatt öffnen', 'Open brand sheet'], c_theme: ['Hell/Dunkel wechseln', 'Toggle light/dark'], c_ref: ['Referenz öffnen', 'Open reference'],
+  bs_title: ['Markenblatt', 'Brand sheet'],
+};
+const V = {
+  ok: ['Korrekt', 'Correct'], diff: ['Existiert, mit Abweichungen', 'Exists, with deviations'], mixed: ['Gemischte Referenz', 'Mixed citation'],
+  doi: ['DOI-Konflikt', 'DOI conflict'], miss: ['Nicht gefunden', 'Not found'], unk: ['Nicht verifizierbar', 'Not verifiable'],
+};
+const VH = {
+  ok: ['Existiert und stimmt', 'Exists and matches'], diff: ['Korrektur vorgeschlagen', 'Correction suggested'], mixed: ['Teile verschiedener Werke', 'Parts of different works'],
+  doi: ['DOI passt nicht zum Werk', 'DOI does not fit the work'], miss: ['Bitte manuell prüfen', 'Please check manually'], unk: ['Kein Urteil möglich', 'No verdict possible'],
+};
+const ORDER = ['ok', 'diff', 'mixed', 'doi', 'miss', 'unk'];
+let lang = P.get('lang') === 'en' ? 1 : 0;
+const t = (k, o) => { let s = (I[k] || [k, k])[lang]; if (o) for (const x in o) s = s.replace('{' + x + '}', o[x]); return s; };
+const vl = (k) => V[k][lang], vh = (k) => VH[k][lang];
+const L = (a) => (Array.isArray(a) ? a[lang] : a);
+
+/* ───────────── Data ───────────── */
+// trail steps: s=source (group start), m=mark (ok|diff|none|x), de/en text
+const S_ = (s, m, de, en) => ({ s, m, de, en });
+const N_ = (m, de, en) => ({ m, de, en });
+const REFS = [
+  { au: 'Luhmann, N.', yr: 1984, ti: 'Soziale Systeme: Grundriß einer allgemeinen Theorie', ve: 'Frankfurt a. M.: Suhrkamp', doi: 'ISBN 978-3-518-28266-3', k: 'ok',
+    trail: [S_('DNB', 'ok', 'Eintrag gefunden', 'Record found'), N_('ok', 'Titel stimmt', 'Title matches'), N_('ok', 'Jahr stimmt', 'Year matches')],
+    why: null },
+  { au: 'Wilkinson, M. D. et al.', yr: 2016, ti: 'The FAIR Guiding Principles for scientific data management and stewardship', ve: 'Scientific Data, 3, 160018', doi: '10.1038/sdata.2016.18', k: 'ok',
+    trail: [S_('Crossref', 'ok', 'DOI gefunden', 'DOI found'), N_('ok', 'Titel stimmt', 'Title matches'), N_('ok', 'Jahr stimmt', 'Year matches')] },
+  { au: 'Mayer, T.', yr: 2019, ti: 'Digitale Lehre in der Hochschulbildung', ve: 'Zeitschrift für Hochschulentwicklung, 14(3), 45–62', doi: '10.3217/zfhe-14-03/04', k: 'diff',
+    trail: [S_('Crossref', 'ok', 'DOI gefunden', 'DOI found'), N_('diff', 'Jahr weicht ab (2019 → 2020)', 'Year deviates (2019 → 2020)'), N_('diff', 'Titel weicht ab', 'Title deviates'), N_('diff', 'Seiten 45–62 → 45–61', 'Pages 45–62 → 45–61')] },
+  { au: 'Schmidt, A., & Weber, K.', yr: 2017, ti: 'Lernen mit Medien im Zeitalter der Digitalisierung', ve: 'Zeitschrift für Medienpädagogik, 12(2), 88–104', doi: null, k: 'mixed',
+    trail: [S_('Crossref', 'none', '3 mögliche Treffer zum Titel', '3 possible title matches'), S_('OpenAlex', 'diff', 'Titel gehört zu Werk A (2014)', 'Title belongs to work A (2014)'), N_('diff', 'Autor:innen gehören zu Werk B (2017)', 'Authors belong to work B (2017)')],
+    why: ['Titel und Autor:innen stammen aus zwei verschiedenen Werken. Der Titel passt zu „Lernen mit Medien“ (2014), die Autor:innen zu einem Aufsatz von 2017. Ein typisches Muster bei zusammengesetzten Angaben, aber kein Beleg für Absicht.', 'Title and authors come from two different works. The title fits “Lernen mit Medien” (2014), the authors fit a 2017 article. A typical pattern for stitched-together details, but not evidence of intent.'] },
+  { au: 'Krüger, J.', yr: 2021, ti: 'Datenschutz im digitalen Klassenzimmer', ve: 'Medienpädagogik Online, 9(1), 14–31', doi: '10.1007/s11625-021-0914-2', k: 'doi',
+    trail: [S_('Crossref', 'x', 'DOI gehört zu anderem Werk', 'DOI belongs to another work'), N_('none', 'Dort: „Medienpädagogik im Wandel“', 'There: “Medienpädagogik im Wandel”'), S_('OpenAlex', 'none', 'Titelsuche ohne Treffer', 'Title search found nothing')],
+    why: ['Die angegebene DOI existiert, führt aber zu „Medienpädagogik im Wandel“ (2020). Der zitierte Titel ließ sich unter keiner Quelle finden. Möglicherweise ein Tippfehler in der DOI.', 'The given DOI exists but resolves to “Medienpädagogik im Wandel” (2020). The cited title was not found in any source. It may simply be a typo in the DOI.'] },
+  { au: 'Hoffmann, K.', yr: 2022, ti: 'Resilienz durch Kollaboration: Eine Studie an deutschen Universitäten', ve: null, doi: null, k: 'miss',
+    trail: [S_('Crossref', 'none', '0 Treffer', '0 results'), S_('OpenAlex', 'none', '0 Treffer', '0 results'), S_('DNB', 'none', '0 Treffer', '0 results'), S_('Semantic Scholar', 'none', '0 Treffer', '0 results'), S_('Internet Archive', 'none', '0 Treffer', '0 results')],
+    why: ['Fünf abgeschlossene Suchen blieben ohne Treffer. Das spricht dafür, dass die Referenz frei erfunden oder falsch notiert ist, kann aber auch Literatur außerhalb der Kataloge betreffen. Bitte manuell prüfen.', 'Five completed searches found nothing. That suggests the reference is invented or mis-noted, but it could also be literature outside the catalogues. Please check manually.'] },
+  { au: 'Bundesministerium für Bildung und Forschung', yr: 2023, ti: 'Digitalisierung in der Bildung: Bericht zur Lage', ve: 'Berlin', doi: null, k: 'unk',
+    trail: [S_('DNB', 'none', 'außerhalb der Abdeckung (graue Literatur)', 'outside coverage (grey literature)'), S_('Crossref', 'none', 'kein Eintrag erwartet', 'no entry expected'), S_('Internet Archive', 'none', 'Zeitüberschreitung', 'timed out')],
+    why: ['Dieser Berichtstyp liegt außerhalb der abgedeckten Kataloge, und eine Quelle antwortete nicht. Das ist kein Mangel der Referenz: Es ist schlicht kein Urteil möglich.', 'This report type lies outside the covered catalogues and one source did not respond. That is no flaw in the reference: no verdict is simply possible.'] },
+  { au: 'Hattie, J.', yr: 2009, ti: 'Visible Learning: A Synthesis of Over 800 Meta-Analyses Relating to Achievement', ve: 'London: Routledge', doi: '10.4324/9780203887332', k: 'ok',
+    trail: [S_('Crossref', 'ok', 'DOI gefunden', 'DOI found'), N_('ok', 'Titel stimmt', 'Title matches'), N_('ok', 'Jahr stimmt', 'Year matches')] },
+];
+// effective source per step
+REFS.forEach((r) => { let cur = ''; r.trail.forEach((s) => { if (s.s) cur = s.s; s.src = cur; }); });
+const MAYER = {
+  fields: [
+    { l: ['Autor:in', 'Author'], a: 'Mayer, T.', b: 'Mayer, T.' },
+    { l: ['Jahr', 'Year'], a: '{{2019}}', b: '{{2020}}' },
+    { l: ['Titel', 'Title'], a: 'Digitale {{Lehre in der Hochschulbildung}}', b: 'Digitale {{Hochschullehre: Formate und Wirkungen}}' },
+    { l: ['Zeitschrift', 'Journal'], a: 'Zeitschrift für Hochschulentwicklung', b: 'Zeitschrift für Hochschulentwicklung' },
+    { l: ['Band (Heft)', 'Volume (issue)'], a: '14(3)', b: '14(3)' },
+    { l: ['Seiten', 'Pages'], a: '45–{{62}}', b: '45–{{61}}' },
+    { l: ['DOI', 'DOI'], a: '10.3217/zfhe-14-03/04', b: '10.3217/zfhe-14-03/04', mono: true },
+  ],
+  fix: 'Mayer, T. (2020). Digitale Hochschullehre: Formate und Wirkungen. Zeitschrift für Hochschulentwicklung, 14(3), 45–61. https://doi.org/10.3217/zfhe-14-03/04',
+  fixHTML: 'Mayer, T. (<span class="dv">2020</span>). <span class="dv">Digitale Hochschullehre: Formate und Wirkungen</span>. Zeitschrift für Hochschulentwicklung, 14(3), 45–<span class="dv">61</span>. https://doi.org/10.3217/zfhe-14-03/04',
+  sources: [
+    ['Crossref', 'ok', ['Treffer über DOI 10.3217/zfhe-14-03/04', 'Match via DOI 10.3217/zfhe-14-03/04'], '212 ms'],
+    ['OpenAlex', 'ok', ['Treffer, Erscheinungsjahr 2020', 'Match, publication year 2020'], '168 ms'],
+    ['Semantic Scholar', 'ok', ['Treffer, Seiten 45–61', 'Match, pages 45–61'], '301 ms'],
+    ['DNB', 'none', ['Kein Eintrag, Zeitschrift nicht erfasst', 'No record, journal not indexed'], '140 ms'],
+    ['Internet Archive', 'none', ['Nicht benötigt, bereits drei Treffer', 'Not needed, three matches already'], '–'],
+  ],
+  sim: 86,
+};
+const SOURCES = ['Crossref', 'OpenAlex', 'DNB', 'Semantic Scholar', 'Internet Archive'];
+const SAMPLE = REFS.map((r) => `${r.au} (${r.yr}). ${r.ti}.${r.ve ? ' ' + r.ve + '.' : ''}${r.doi && /^10\./.test(r.doi) ? ' doi:' + r.doi : ''}`).join('\n');
+
+/* timings: ~0.7 s between references */
+const GAP = 700, T0 = 160, TS = 260, TR = 200;
+const phase = (i, t) => {
+  const n = REFS[i].trail.length, el = t - i * GAP;
+  if (el < 0) return { ph: 'queued', shown: 0 };
+  const shown = Math.max(0, Math.min(n, Math.floor((el - T0) / TS) + 1));
+  if (el >= T0 + n * TS + TR) return { ph: 'done', shown: n };
+  return { ph: 'checking', shown };
+};
+const RUN_END = 7 * GAP + T0 + REFS[7].trail.length * TS + TR; // ≈ 6040 ms
+
+/* ───────────── State ───────────── */
+const S = {
+  state: ['intake', 'running', 'summary', 'detail', 'brand'].includes(P.get('state')) ? P.get('state') : 'intake',
+  theme: P.get('theme') === 'light' ? 'light' : 'dark',
+  width: P.get('width') === 'panel' ? 'panel' : 'web',
+  grey: P.has('grey'),
+  filter: ORDER.includes(P.get('filter')) ? P.get('filter') : 'all',
+  ref: P.has('ref') ? +P.get('ref') : 2,
+  at: P.has('at') ? +P.get('at') : null,
+  auto: P.has('auto'),
+};
+if (S.state === 'brand' || P.has('sheet')) S.state = 'brand';
+let runRaf = 0, runStart = 0, cmdOpen = false, cmdFrom = null, autoTimer = 0, countRafs = [];
+
+const app = $('#app'), view = $('#view'), root = document.documentElement;
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/* ───────────── Fragments ───────────── */
+const gl = (k, cls = '') => `<svg class="gl ${cls}" aria-hidden="true"><use href="#g-${k}"/></svg>`;
+const mkIcon = (m) => `<svg class="mk" aria-hidden="true"><use href="#m-${m}"/></svg>`;
+const icon = (id, cls = '') => `<svg class="${cls}" aria-hidden="true" width="16" height="16"><use href="#i-${id}"/></svg>`;
+const chip = (k, cls = '') => `<span class="chip v-${k} ${cls}">${gl(k)}<span>${esc(vl(k))}</span></span>`;
+const cite = (r, doi = true) => `<span class="cite"><span class="au">${esc(r.au)} (${r.yr}).</span> <span class="ti">${esc(r.ti)}.</span>${doi && r.doi ? `<span class="doi">${/^10\./.test(r.doi) ? 'doi:' : ''}${esc(r.doi)}</span>` : ''}</span>`;
+const stepEl = (r, i) => {
+  const s = r.trail[i], el = document.createElement('span');
+  el.className = 'st' + (s.s ? ' has-src' : ''); el.dataset.m = s.m;
+  el.innerHTML = (s.s ? `<span class="src">${esc(s.s)}</span>` : '') + mkIcon(s.m) + `<span>${esc(L([s.de, s.en]))}</span>`;
+  return el;
+};
+const counts = () => { const c = {}; ORDER.forEach((k) => (c[k] = 0)); REFS.forEach((r) => c[r.k]++); return c; };
+const pad = (n) => String(n).padStart(2, '0');
+
+/* ───────────── Navigation ───────────── */
+function mountNav() {
+  const items = [['check', 'nav_check', 'scan'], ['hist', 'nav_hist', 'clock'], ['acct', 'nav_acct', 'user']];
+  $('#nav').innerHTML = items.map(([id, k]) => `<button data-nav="${id}" ${id === 'check' ? 'aria-current="page"' : ''}>${t(k)}</button>`).join('');
+  $('#tabbar').innerHTML = items.map(([id, k, ic]) => `<button data-nav="${id}" ${id === 'check' ? 'aria-current="page"' : ''}><svg aria-hidden="true"><use href="#i-${ic}"/></svg>${t(k)}</button>`).join('');
+  $$('[data-nav]').forEach((b) => b.addEventListener('click', () => {
+    if (b.dataset.nav === 'check') go('intake'); else toast(t('toast_na', { x: b.textContent.trim() }));
+  }));
+  $('#cmdbtn span.lbl').textContent = t('cmdbtn');
+  $$('[data-i]').forEach((e) => (e.textContent = t(e.dataset.i)));
+  $('#cmdin').placeholder = t('cmd_ph');
+  document.documentElement.lang = lang ? 'en' : 'de';
+}
+
+/* ───────────── Views ───────────── */
+function mount() {
+  cancelAnimationFrame(runRaf); countRafs.forEach(cancelAnimationFrame); countRafs = [];
+  const st = S.state;
+  view.scrollTop = 0;
+  if (st === 'intake') mountIntake();
+  else if (st === 'running') mountRun();
+  else if (st === 'summary') mountSummary();
+  else if (st === 'detail') mountDetail();
+  else mountBrand();
+  $$('#dock [data-step]').forEach((b) => b.setAttribute('aria-current', String(b.dataset.step === st)));
+  $('#dock-w').textContent = S.width === 'web' ? 'Web 1280' : 'Panel 360';
+  sync();
+}
+
+function mountIntake() {
+  view.innerHTML = `
+  <section class="intake">
+    <p class="eyebrow">${t('in_eyebrow')}</p>
+    <h1>${t('in_h1')}</h1>
+    <p class="lede">${t('in_lede')}</p>
+    <div class="paste">
+      <label class="sr" for="paste">${t('in_ph')}</label>
+      <textarea id="paste" placeholder="${esc(t('in_ph'))}" spellcheck="false"></textarea>
+      <div class="paste-bar">
+        <span class="srcs">Crossref · OpenAlex · DNB · Semantic Scholar · Internet Archive</span>
+        <button class="btn primary" id="go">${t('in_go')} <kbd>⌘↵</kbd></button>
+      </div>
+    </div>
+    <div class="drop" id="drop">
+      ${icon('upload')}
+      <span><b>${t('in_drop')}</b> ${t('in_or')} <button id="pick">${t('in_pick')}</button></span>
+      <span class="ext">.docx · .pdf · .bib · .ris · .txt</span>
+    </div>
+    <div class="assure"><button class="linkish" id="sample">${icon('file')} ${t('in_sample')}</button><span>${icon('info')} ${t('as2')}</span></div>
+  </section>`;
+  const ta = $('#paste');
+  $('#go').addEventListener('click', () => { if (!ta.value.trim()) ta.value = SAMPLE; go('running'); });
+  $('#sample').addEventListener('click', () => { ta.value = SAMPLE; ta.style.minHeight = '210px'; ta.focus(); });
+  ta.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') $('#go').click(); });
+  const drop = $('#drop');
+  ['dragenter', 'dragover'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove('over'); if (ev === 'drop') { ta.value = SAMPLE; go('running'); } }));
+  $('#pick').addEventListener('click', () => toast(t('toast_na', { x: t('in_pick') })));
+  if (P.has('filled')) ta.value = SAMPLE;
+}
+
+let rows = [];
+function mountRun() {
+  view.innerHTML = `
+  <div class="canvas"><div class="run">
+    <div>
+      <div class="run-head"><div><p class="eyebrow mono">${esc(t('run_file'))}</p><h2><span class="n" id="rn">0</span> ${t('run_of')}</h2></div></div>
+      <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="8" id="pbar"><i id="pfill"></i></div>
+      <ol class="feed" id="feed">${REFS.map((r, i) => `
+        <li class="row v-${r.k}" data-ph="queued" data-i="${i}">
+          <span class="ix">${pad(i + 1)}</span>
+          <div class="main">${cite(r)}<div class="trail"></div></div>
+          <div class="res"><span class="queued-tag">${t('queued')}</span></div>
+        </li>`).join('')}</ol>
+      <div class="runfoot"><span class="eyebrow" id="rstat"></span><span id="rcta"></span></div>
+    </div>
+    <aside class="aside" aria-label="${t('run_srcs')}">
+      <div class="panelbox"><h3>${t('run_srcs')}</h3>${SOURCES.map((s) => `<div class="srcrow" data-src="${s}"><span class="dot"></span><span class="mono" style="font-size:12.5px">${s}</span><span class="cnt">0</span></div>`).join('')}</div>
+      <div class="panelbox"><h3>Lauf</h3><p class="mono" style="font-size:12px;color:var(--muted);line-height:1.7">Parser: Literaturliste<br>Abgleich: 5 Quellen<br>Parallel: 3 Anfragen</p></div>
+    </aside>
+  </div></div>`;
+  rows = $$('#feed .row');
+  rows.forEach((el, i) => { el._trail = $('.trail', el); el._res = $('.res', el); });
+  const frozen = S.at != null || reduce;
+  if (frozen) { paintRun((S.at != null ? S.at : 4.0) * 1000); return; }
+  runStart = performance.now();
+  const loop = () => {
+    const tt = performance.now() - runStart;
+    paintRun(tt);
+    if (tt < RUN_END + 50) runRaf = requestAnimationFrame(loop);
+    else onRunDone();
+  };
+  runRaf = requestAnimationFrame(loop);
+}
+let lastDone = -1;
+function paintRun(t_) {
+  let done = 0, prog = 0; const cnt = {}, act = {};
+  SOURCES.forEach((s) => { cnt[s] = 0; act[s] = false; });
+  REFS.forEach((r, i) => {
+    const { ph, shown } = phase(i, t_), el = rows[i];
+    if (el.dataset.ph !== ph) {
+      el.dataset.ph = ph;
+      el._res.innerHTML = ph === 'done' ? chip(r.k) : ph === 'checking' ? `<span class="checking-tag"><span class="spin"></span>${t('checking')}</span>` : `<span class="queued-tag">${t('queued')}</span>`;
+    }
+    while (el._trail.children.length < shown) el._trail.appendChild(stepEl(r, el._trail.children.length));
+    while (el._trail.children.length > shown) el._trail.lastChild.remove();
+    if (ph === 'done') done++;
+    prog += ph === 'done' ? 1 : shown / (r.trail.length + 1);
+    for (let k = 0; k < shown; k++) { const s = r.trail[k].src; cnt[s]++; const rev = i * GAP + T0 + k * TS; if (t_ - rev < 520 && ph !== 'done') act[s] = true; }
+  });
+  $('#rn').textContent = done;
+  $('#pfill').style.setProperty('--p', (prog / 8).toFixed(3) || 0); $('#pfill').parentElement.setAttribute('aria-valuenow', done);
+  $('#pfill').style.width = (prog / 8 * 100) + '%';
+  $$('.srcrow').forEach((e) => { const s = e.dataset.src; $('.cnt', e).textContent = cnt[s] + ' ' + t('queries'); e.classList.toggle('act', act[s]); });
+  if (done !== lastDone) { lastDone = done; $('#live').textContent = `${done} ${t('run_of')}`; }
+  const fin = done === 8;
+  $('#rstat').textContent = fin ? t('run_done') : '';
+  $('#rcta').innerHTML = fin ? `<button class="btn primary" id="seeres">${t('run_cta')} ${icon('chev')}</button>` : `<button class="btn sm" id="seeres">${t('run_skip')}</button>`;
+  $('#seeres').onclick = () => go('summary');
+}
+function onRunDone() { if (S.auto) autoTimer = setTimeout(() => go('summary'), 1400); }
+
+function ringHTML(c) {
+  const R = 72, C = 2 * Math.PI * R, g = 5; let acc = 0, segs = '', sats = '', i = 0;
+  ORDER.forEach((k) => {
+    const n = c[k]; if (!n) return;
+    const len = n / 8 * C, L_ = Math.max(len - g, 2), start = acc + g / 2;
+    segs += `<circle class="ring-seg v-${k}" style="--i:${i}" data-len="${L_.toFixed(1)}" data-c="${C.toFixed(1)}" cx="100" cy="100" r="${R}" stroke-dashoffset="${(-start).toFixed(1)}"/>`;
+    const mid = (acc + len / 2) / C * 2 * Math.PI - Math.PI / 2, x = 100 + 96 * Math.cos(mid), y = 100 + 96 * Math.sin(mid);
+    sats += `<svg class="gl v-${k}" x="${(x - 9).toFixed(1)}" y="${(y - 9).toFixed(1)}" width="18" height="18" style="overflow:visible"><use href="#g-${k}"/></svg>`;
+    acc += len; i++;
+  });
+  return `<svg viewBox="0 0 200 200" aria-hidden="true"><circle class="ring-trk" cx="100" cy="100" r="${R}"/><g transform="rotate(-90 100 100)">${segs}</g>${sats}</svg>`;
+}
+function tile(k, c, i, extra = '') {
+  const cls = { ok: 't-ok', diff: 't-diff', mixed: 't-mixed', doi: 't-doi', miss: 't-miss', unk: 't-unk' }[k];
+  return `<button class="tile ${cls} v-${k}" style="--i:${i}" data-filter="${k}" aria-pressed="${S.filter === k}" ${extra}>
+    <span class="tp">${gl(k, k === 'ok' || k === 'diff' ? 'lg' : '')}<span class="lab">${esc(vl(k))}</span></span>
+    <span class="foot"><span class="big" data-count="${c[k]}">${c[k]}</span><span class="hint">${esc(vh(k))}</span>${k === 'ok' || k === 'diff' ? `<span class="go">${t('show')} →</span>` : ''}</span>
+  </button>`;
+}
+function mountSummary() {
+  const c = counts(), bad = 8 - c.ok;
+  view.innerHTML = `
+  <div class="canvas">
+    <div class="sum-head"><div><p class="eyebrow mono">${esc(t('run_file').split(' · ')[0])}</p><h2>${t('sum_title')}</h2></div>
+      <div class="acts"><button class="btn sm" data-act="newcheck">${t('new_check')}</button><button class="btn sm" data-act="exp">${icon('down')} ${t('export')}</button></div></div>
+    <div class="bento">
+      <article class="tile t-hero" style="--i:0">
+        <span class="tp"><span class="eyebrow">${t('sum_refs')} · 8</span></span>
+        <div class="headline"><span class="num" data-count="${c.ok}">${c.ok}</span><span class="of">${t('sum_of')}<small>${t('sum_correct')}</small></span></div>
+        <p class="note">${t('sum_note', { n: bad })}</p>
+        <div class="ringwrap">${ringHTML(c)}<div class="mid"><b>8</b><span>${t('sum_refs')}</span></div></div>
+      </article>
+      ${tile('ok', c, 1)}${tile('diff', c, 2)}${tile('mixed', c, 3)}${tile('doi', c, 4)}${tile('miss', c, 5)}${tile('unk', c, 6)}
+      <article class="tile t-strip" style="--i:7">
+        <span class="tp"><span class="eyebrow">${t('sum_glance')}</span></span>
+        <div class="stripcells">${REFS.map((r, i) => `<button class="cell v-${r.k}" data-ref="${i}" aria-label="${pad(i + 1)} ${esc(vl(r.k))}">${gl(r.k)}<span class="mono">${pad(i + 1)}</span></button>`).join('')}</div>
+      </article>
+    </div>
+    <div class="filters" role="group" aria-label="${t('filter')}">
+      <span class="eyebrow">${t('filter')}</span>
+      <button class="fchip" data-filter="all" aria-pressed="${S.filter === 'all'}">${t('all')} <span class="n">8</span></button>
+      ${ORDER.filter((k) => c[k]).map((k) => `<button class="fchip v-${k}" data-filter="${k}" aria-pressed="${S.filter === k}">${gl(k)}${esc(vl(k))} <span class="n">${c[k]}</span></button>`).join('')}
+    </div>
+    <div class="list" id="list"></div>
+  </div>`;
+  paintList();
+  $$('#view [data-filter]').forEach((b) => b.addEventListener('click', () => { S.filter = S.filter === b.dataset.filter ? 'all' : b.dataset.filter; $$('#view [data-filter]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.filter === S.filter))); paintList(); sync(); }));
+  $$('#view [data-ref]').forEach((b) => b.addEventListener('click', () => { S.ref = +b.dataset.ref; go('detail'); }));
+  const nc = $('[data-act="newcheck"]'); if (nc) nc.onclick = () => go('intake');
+  const ex = $('[data-act="exp"]'); if (ex) ex.onclick = () => toast(t('toast_na', { x: t('export') }));
+  // ring + count-up
+  const fire = () => $$('.ring-seg').forEach((s) => { s.style.strokeDasharray = `${s.dataset.len} ${s.dataset.c}`; });
+  if (still) { fire(); } else requestAnimationFrame(() => requestAnimationFrame(fire));
+  $$('[data-count]').forEach(countUp);
+}
+function paintList() {
+  const idx = REFS.map((r, i) => i).filter((i) => S.filter === 'all' || REFS[i].k === S.filter);
+  $('#list').innerHTML = idx.map((i) => { const r = REFS[i]; return `<button class="li v-${r.k}" data-ref="${i}"><span class="ix">${pad(i + 1)}</span>${cite(r, false)}${chip(r.k)}<svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg></button>`; }).join('');
+  $$('#list [data-ref]').forEach((b) => b.addEventListener('click', () => { S.ref = +b.dataset.ref; go('detail'); }));
+}
+function countUp(el) {
+  const target = +el.dataset.count; if (still || !target) { el.textContent = target; return; }
+  const t0 = performance.now() + 150, d = 900; el.textContent = 0;
+  const f = (n) => { const p = Math.min(1, Math.max(0, (n - t0) / d)), e = 1 - Math.pow(1 - p, 3); el.textContent = Math.round(target * e); if (p < 1) countRafs.push(requestAnimationFrame(f)); };
+  countRafs.push(requestAnimationFrame(f));
+}
+
+function dv(s) { return esc(s).replace(/\{\{(.+?)\}\}/g, '<span class="dv">$1</span>'); }
+function fieldsFor(r, i) {
+  if (i === 2) return MAYER.fields.map((f) => ({ ...f, dev: /\{\{/.test(f.a) }));
+  if (r.k !== 'ok') return null;
+  const f = [{ l: ['Autor:in', 'Author'], a: r.au, b: r.au }, { l: ['Jahr', 'Year'], a: String(r.yr), b: String(r.yr) }, { l: ['Titel', 'Title'], a: r.ti, b: r.ti }];
+  if (r.ve) f.push({ l: ['Quelle', 'Source'], a: r.ve, b: r.ve });
+  if (r.doi) f.push({ l: [/^10\./.test(r.doi) ? 'DOI' : 'ISBN', /^10\./.test(r.doi) ? 'DOI' : 'ISBN'], a: r.doi.replace('ISBN ', ''), b: r.doi.replace('ISBN ', ''), mono: true });
+  return f;
+}
+function mountDetail() {
+  const i = S.ref, r = REFS[i], f = fieldsFor(r, i), ndev = f ? f.filter((x) => x.dev).length : 0;
+  const srcs = i === 2 ? MAYER.sources : (() => { const g = {}; r.trail.forEach((s) => { (g[s.src] = g[s.src] || []).push(L([s.de, s.en])); }); return Object.entries(g).map(([n, a]) => [n, r.k === 'ok' ? 'ok' : (r.k === 'miss' || r.k === 'unk') ? 'none' : 'x', a.join(' · '), '']); })();
+  const fixBox = i === 2 ? `
+    <div class="box"><h3>${t('d_fix')}</h3>
+      <div class="fix" id="fixtxt">${MAYER.fixHTML}</div>
+      <div class="fix-acts"><button class="btn primary sm" id="copy">${icon('copy')} <span id="copylbl">${t('d_copy')}</span></button></div>
+      <p class="fix-note">${t('d_fixnote')}</p></div>` : `
+    <div class="box"><h3>${t('d_find')}</h3><p style="font-size:14px;line-height:1.55">${esc(L(r.why || ['Alle Angaben stimmen mit dem Treffer überein. Es ist keine Korrektur nötig.', 'All details agree with the match. No correction is needed.']))}</p></div>`;
+  view.innerHTML = `
+  <div class="canvas">
+    <button class="back" id="back">${icon('back')} ${t('d_back')}</button>
+    <div class="d-head">
+      ${chip(r.k, 'lg')}
+      <h2>${esc(r.ti)}</h2>
+      <p class="by">${esc(r.au)} · ${r.yr}${r.ve ? ' · ' + esc(r.ve) : ''}</p>
+    </div>
+    <div class="d-grid">
+      <div>
+        <div class="box"><h3><span>${t('d_cmp')}</span>${f ? `<span class="mono" style="letter-spacing:0;text-transform:none">${ndev}/${f.length} ${t('d_dev').toLowerCase()}</span>` : ''}</h3>
+        ${f ? `<div class="cmp">
+          <div class="cmp-h"><span></span><span>${t('d_yours')}</span><span>${t('d_best')}</span><span>Status</span></div>
+          ${f.map((x) => `<div class="cmp-r"><span class="f">${L(x.l)}</span>
+            <span class="val ${x.mono ? 'mono' : ''}"><span class="lab">${t('d_yours')}</span><span>${dv(x.a)}</span></span>
+            <span class="val ${x.mono ? 'mono' : ''}"><span class="lab">${t('d_best')}</span><span>${dv(x.b)}</span></span>
+            <span class="fstat ${x.dev ? 'dev v-diff' : 'same v-ok'}">${gl(x.dev ? 'diff' : 'ok')}${x.dev ? t('d_dev') : t('d_same')}</span></div>`).join('')}
+        </div>
+        ${i === 2 ? `<div class="sim"><span>${t('d_sim')}</span><span class="meter" aria-hidden="true"><i style="--w:${MAYER.sim}%"></i></span><b>${MAYER.sim} %</b></div>` : ''}`
+        : `<p style="color:var(--muted);font-size:14px">${t('d_nobest')}</p>`}
+        <div class="callout">${icon('info')}<span>${t('d_hint')}</span></div></div>
+      </div>
+      <div class="right">
+        ${fixBox}
+        <div class="box"><h3>${t('d_src')}</h3><div class="srcl">${srcs.map(([n, m, tx, ms]) => `<div class="srci" data-m="${m === 'none' ? 'none' : m}"><svg class="mk" aria-hidden="true"><use href="#m-${m === 'none' ? 'none' : m === 'ok' ? 'ok' : 'x'}"/></svg><div><div class="nm">${n}</div><div class="rs">${esc(L(tx))}</div></div><span class="ms">${ms}</span></div>`).join('')}</div></div>
+      </div>
+    </div>
+  </div>`;
+  $('#back').addEventListener('click', () => go('summary'));
+  const cp = $('#copy');
+  if (cp) cp.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(MAYER.fix); } catch (e) { const ta = document.createElement('textarea'); ta.value = MAYER.fix; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (_) {} ta.remove(); }
+    $('#copylbl').textContent = t('d_copied'); toast(t('toast_copied'), 'ok'); setTimeout(() => { const l = $('#copylbl'); if (l) l.textContent = t('d_copy'); }, 1800);
+  });
+}
+
+/* ───────────── Brand sheet ───────────── */
+function mountBrand() {
+  const mk = (sz, bare) => `<svg width="${sz}" height="${sz}" viewBox="0 0 32 32" role="img" aria-label="Source Taster"><use href="#${bare ? 'mark-bare' : 'mark'}"/></svg>`;
+  const neutrals = [['--bg', 'Canvas'], ['--surface', 'Surface'], ['--surface-2', 'Surface 2'], ['--text', 'Text'], ['--muted', 'Muted'], ['--faint', 'Faint'], ['--line', 'Hairline']];
+  const accents = [['--accent', 'Accent (text, glow)'], ['--accent-fill', 'Accent fill'], ['--accent-ink', 'Ink on accent']];
+  const vk = [['ok', '--vf-ok'], ['diff', '--vf-diff'], ['mixed', '--vf-mixed'], ['doi', '--vf-doi'], ['miss', '--vf-miss'], ['unk', '--vf-unk']];
+  const scope = (cls, name) => `
+    <div class="sw-scope ${cls}" data-scope><h4>${name}</h4>
+      ${neutrals.map(([v, n]) => `<div class="sw"><span class="chipc" style="background:var(${v})"></span><div><div class="tn">${n}</div><div class="tv" data-tok="${v}"></div></div></div>`).join('')}
+      ${accents.map(([v, n]) => `<div class="sw"><span class="chipc" style="background:var(${v})"></span><div><div class="tn">${n}</div><div class="tv" data-tok="${v}"></div></div></div>`).join('')}
+      <div style="height:10px"></div>
+      ${vk.map(([k, v]) => `<div class="vrow v-${k}">${gl(k, 'lg')}<div><div class="tn" style="color:var(--vt)">${esc(vl(k))}</div><div class="tv" data-tok="${v}"></div></div></div>`).join('')}
+    </div>`;
+  const stage = (cls, name) => `
+    <div class="mk-stage ${cls}"><span class="eyebrow">${name}</span>
+      <div class="mk-row"><figure>${mk(128)}<figcaption>128</figcaption></figure><figure>${mk(32)}<figcaption>32</figcaption></figure><figure>${mk(16)}<figcaption>16</figcaption></figure><figure>${mk(16, true)}<figcaption>16 bare</figcaption></figure></div>
+      <div class="lockup"><svg viewBox="0 0 156 32" width="156" height="32" role="img" aria-label="Source Taster"><use href="#lockup"/></svg></div>
+    </div>`;
+  view.innerHTML = `
+  <div class="canvas sheet">
+    <div><p class="eyebrow">Source Taster · Luminous</p><h2>${t('bs_title')}</h2></div>
+    <section class="sec"><h3>01 · Zeichen &amp; Wortmarke</h3>
+      <div class="mk-grid">${stage('t-dark', 'Dark')}${stage('t-light', 'Light')}</div>
+      <p class="mk-note">Eine offene Linse mit einer leuchtenden Probe am Rand: prüfen heißt hinschauen, eine Stichprobe nehmen. Der Punkt ist die Quelle des Lichts im ganzen System: Er kehrt als Glow im Hintergrund, im Fokus und in der Fortschrittsleiste wieder.</p></section>
+    <section class="sec"><h3>02 · Palette · OKLCH</h3><div class="sw-wrap">${scope('t-dark', 'Dark · Standard')}${scope('t-light', 'Light')}</div></section>
+    <section class="sec"><h3>03 · Urteile: sechs Formen, nie nur Farbe</h3><div class="sw-wrap">
+      ${['t-dark', 't-light'].map((cls) => `<div class="sw-scope ${cls}"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px 8px">${ORDER.map((k) => `<div class="v-${k}" style="display:grid;gap:8px;justify-items:center;text-align:center">${gl(k, 'xl')}<span style="font-size:12px;color:var(--vt);line-height:1.25">${esc(vl(k))}</span></div>`).join('')}</div></div>`).join('')}
+    </div></section>
+    <section class="sec"><h3>04 · Typografie · IBM Plex Sans &amp; Plex Mono</h3>
+      <div class="type-row"><span class="meta">Display · 500 · −0.05em</span><span style="font-size:clamp(48px,9vw,96px);line-height:.95;font-weight:500;letter-spacing:-0.05em" class="">3 von 8</span></div>
+      <div class="type-row"><span class="meta">H1 · 500 · 30/34</span><span style="font-size:30px;line-height:1.15;font-weight:500;letter-spacing:-0.03em">Welche Literaturliste soll geprüft werden?</span></div>
+      <div class="type-row"><span class="meta">Body · 400 · 14.5/21</span><span style="max-width:62ch">Jede Referenz wird mit offenen Katalogen abgeglichen. Existiert das Werk, stimmen Titel, Jahr und Seiten? Sie sehen jeden einzelnen Beleg und entscheiden selbst.</span></div>
+      <div class="type-row"><span class="meta">Label · 600 · 13</span><span style="font-size:13px;font-weight:600">Existiert, mit Abweichungen · Nicht verifizierbar</span></div>
+      <div class="type-row"><span class="meta">Mono · Plex Mono 400</span><span class="mono" style="font-size:13px;line-height:1.7">doi:10.3217/zfhe-14-03/04<br>Crossref ✓ DOI gefunden · Jahr weicht ab (2019 → 2020)<br>0123456789 · 45–62 → 45–61</span></div>
+    </section>
+  </div>`;
+  $$('[data-scope]').forEach((sc) => $$('[data-tok]', sc).forEach((e) => (e.textContent = getComputedStyle(sc).getPropertyValue(e.dataset.tok).trim().replace(/\s+/g, ' '))));
+}
+
+/* ───────────── Command bar (glass) ───────────── */
+let cmdSel = 0, cmdItems = [];
+function buildCmd(q) {
+  const A = [
+    { ic: 'scan', l: t('c_new'), run: () => go('intake'), k: ['N'] },
+    { ic: 'play', l: t('c_run'), run: () => go('running'), k: ['⌘', '↵'] },
+    { ic: 'file', l: t('c_res'), run: () => go('summary'), k: ['G'] },
+    { ic: 'info', l: t('c_brand'), run: () => go('brand') },
+  ];
+  const Vw = [{ ic: 'clock', l: t('c_theme'), run: () => setTheme(S.theme === 'dark' ? 'light' : 'dark'), k: ['⌘', 'J'] }];
+  const R = REFS.map((r, i) => ({ ic: 'chev', l: `${r.au.split(',')[0]} (${r.yr})`, sub: vl(r.k), run: () => { S.ref = i; go('detail'); }, ref: true, g: r.k }));
+  const m = (x) => !q || (x.l + ' ' + (x.sub || '')).toLowerCase().includes(q.toLowerCase());
+  const groups = [[t('cmd_actions'), A.filter(m)], [t('cmd_refs'), R.filter(m).slice(0, q ? 8 : 4)], [t('cmd_view'), Vw.filter(m)]].filter((g) => g[1].length);
+  return groups;
+}
+function paintCmd() {
+  const q = $('#cmdin').value, groups = buildCmd(q); cmdItems = groups.flatMap((g) => g[1]);
+  cmdSel = Math.min(cmdSel, Math.max(0, cmdItems.length - 1)); let n = 0;
+  $('#cmdlist').innerHTML = groups.length ? groups.map(([g, items]) => `<div class="cmd-g" role="presentation">${g}</div>` + items.map((it) => { const i = n++; return `<button class="cmd-i" role="option" id="ci${i}" data-n="${i}" aria-selected="${i === cmdSel}">${it.g ? `<span class="v-${it.g}" style="display:inline-flex">${gl(it.g)}</span>` : `<svg class="ic" aria-hidden="true"><use href="#i-${it.ic}"/></svg>`}<span>${esc(it.l)}</span>${it.sub ? `<span class="sub">${esc(it.sub)}</span>` : ''}${it.k ? `<span class="k">${it.k.map((x) => `<kbd>${x}</kbd>`).join('')}</span>` : ''}</button>`; }).join('')).join('') : `<div class="cmd-g">${t('cmd_none')}</div>`;
+  $$('#cmdlist .cmd-i').forEach((b) => { b.addEventListener('mousemove', () => { cmdSel = +b.dataset.n; $$('#cmdlist .cmd-i').forEach((x) => x.setAttribute('aria-selected', String(+x.dataset.n === cmdSel))); }); b.addEventListener('click', () => runCmd(+b.dataset.n)); });
+  $('#cmdin').setAttribute('aria-activedescendant', 'ci' + cmdSel);
+}
+function runCmd(n) { const it = cmdItems[n]; closeCmd(true); if (it) it.run(); }
+function openCmd() { if (cmdOpen) return; cmdOpen = true; cmdFrom = document.activeElement; $('#cmdlayer').classList.add('open'); $('#cmdin').value = P.get('q') || ''; cmdSel = 0; paintCmd(); $('#cmdin').focus(); sync(); }
+function closeCmd(skipFocus) { if (!cmdOpen) return; cmdOpen = false; $('#cmdlayer').classList.remove('open'); if (!skipFocus && cmdFrom && cmdFrom.focus) cmdFrom.focus(); sync(); }
+$('#cmdin').addEventListener('input', () => { cmdSel = 0; paintCmd(); });
+$('#cmdin').addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowDown') { e.preventDefault(); cmdSel = (cmdSel + 1) % Math.max(1, cmdItems.length); paintCmd(); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); cmdSel = (cmdSel - 1 + cmdItems.length) % Math.max(1, cmdItems.length); paintCmd(); }
+  else if (e.key === 'Enter') { e.preventDefault(); runCmd(cmdSel); }
+  else if (e.key === 'Tab') e.preventDefault();
+});
+$('#cmdscrim').addEventListener('click', () => closeCmd());
+$('#cmdbtn').addEventListener('click', openCmd);
+document.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); cmdOpen ? closeCmd() : openCmd(); }
+  else if (e.key === 'Escape' && cmdOpen) { e.preventDefault(); closeCmd(); }
+});
+
+/* ───────────── Toast (glass) ───────────── */
+function toast(msg, kind) {
+  const el = document.createElement('div'); el.className = 'toast glass';
+  el.innerHTML = (kind === 'ok' ? `<span class="v-ok" style="display:inline-flex">${gl('ok')}</span>` : `<svg class="mk" style="width:18px;height:18px;color:var(--accent)" aria-hidden="true"><use href="#m-ok"/></svg>`) + `<span>${esc(msg)}</span>`;
+  if (kind !== 'ok') el.querySelector('svg').innerHTML = '<use href="#i-info"/>';
+  $('#toasts').appendChild(el);
+  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 320); }, 2600);
+}
+
+/* ───────────── Controls ───────────── */
+function go(state) {
+  clearTimeout(autoTimer); if (cmdOpen) closeCmd(true);
+  const apply = () => { S.state = state; if (state !== 'running') S.at = null; mount(); };
+  if (document.startViewTransition && !still) { const vt = document.startViewTransition(apply); [vt.ready, vt.finished].forEach((x) => x.catch(() => {})); } else apply();
+}
+function setTheme(th) { S.theme = th; root.dataset.theme = th; sync(); }
+function sync() {
+  root.dataset.theme = S.theme; root.dataset.width = S.width;
+  app.classList.toggle('grey', S.grey);
+  $('[data-act="grey"]').setAttribute('aria-pressed', String(S.grey));
+  $('[data-act="auto"]').setAttribute('aria-pressed', String(S.auto));
+  const q = new URLSearchParams(); q.set('state', S.state); q.set('theme', S.theme); q.set('width', S.width);
+  if (S.grey) q.set('grey', '1'); if (lang) q.set('lang', 'en'); if (S.filter !== 'all') q.set('filter', S.filter); if (S.state === 'detail') q.set('ref', S.ref);
+  if (P.has('clean')) q.set('clean', '1'); if (P.has('still')) q.set('still', '1'); if (S.at != null && S.state === 'running') q.set('at', S.at); if (cmdOpen) q.set('cmd', '1');
+  try { history.replaceState(null, '', '?' + q); } catch (e) {}
+}
+$('#dock').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.step) { S.at = null; go(b.dataset.step); }
+  const a = b.dataset.act;
+  if (a === 'theme') setTheme(S.theme === 'dark' ? 'light' : 'dark');
+  if (a === 'width') { S.width = S.width === 'web' ? 'panel' : 'web'; sync(); mount(); }
+  if (a === 'grey') { S.grey = !S.grey; sync(); }
+  if (a === 'lang') { lang = lang ? 0 : 1; mountNav(); mount(); }
+  if (a === 'brand') go('brand');
+  if (a === 'cmd') openCmd();
+  if (a === 'auto') { S.auto = !S.auto; sync(); if (S.auto) autoPlay(); else clearTimeout(autoTimer); }
+});
+$('#brand').addEventListener('click', () => go('intake'));
+function autoPlay() {
+  clearTimeout(autoTimer);
+  const seq = [['intake', 2200], ['running', 0], ['summary', 4500], ['detail', 4500]];
+  let i = Math.max(0, seq.findIndex((s) => s[0] === S.state));
+  const step = () => { if (!S.auto) return; const [st, d] = seq[i]; S.at = null; go(st); i = (i + 1) % seq.length; if (st !== 'running') autoTimer = setTimeout(step, d); else autoTimer = setTimeout(step, RUN_END + 2800); };
+  step();
+}
+
+/* ───────────── Boot ───────────── */
+mountNav(); mount();
+if (P.has('cmd')) openCmd();
+if (S.auto) autoPlay();
+window.__ready = true;
+})();
+
+</script>
+</body>
+</html>
