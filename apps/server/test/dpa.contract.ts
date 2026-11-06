@@ -46,7 +46,9 @@ test("a subprocessor notice drains stale processing authority across both progra
         await account.call("/v1/dpa/conclude", { operationId, code })
       ).json(),
     ).data.agreement!;
-    const held = b.trap("check:create", "request", 3);
+    // Entry check, History sync, then the create's own decision: the one guard
+    // that authorises the create and its response (#171).
+    const held = b.trap("check:create", "request", 2);
     const create = fetch(b.apiUrl + "/v1/checks", {
       method: "POST",
       headers: {

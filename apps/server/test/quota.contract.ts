@@ -33,6 +33,7 @@ const api = (both: Both, token: string) => {
         method: "POST",
         body: JSON.stringify({ text }),
       }),
+    read: (id: string) => call(`/v2/checks/${id}`),
     get: async (id: string) =>
       CheckResponse.parse(await (await call(`/v2/checks/${id}`)).json()),
     cancel: async (id: string) =>
@@ -169,6 +170,91 @@ test("insufficient Quota offers the first N in input order; the rest end as not-
   expect((await client.recheck(finished, 1)).status).toBe(200);
   expect((await client.recheck(finished, 23)).status).toBe(402);
   expect((await client.create(physicsReference)).status).toBe(402);
+});
+
+/**
+ * Holds one Owner-authority decision of `request` past the verification
+ * program's own 2 s abort, as a starved service does on a slow runner. Resolves
+ * with whether the decision existed at all, and the answer that came back.
+ */
+async function withHeldDecision(
+  both: Both,
+  permission: string,
+  skip: number,
+  request: () => Promise<Response>,
+) {
+  const held = both.trap(permission, "request", skip);
+  const pending = request();
+  const reached = await Promise.race([
+    held.arrived.then(() => true),
+    pending.then(() => false),
+  ]);
+  if (reached) {
+    await new Promise((resolve) => setTimeout(resolve, 2500));
+    held.release();
+  }
+  const response = await pending;
+  return { reached, status: response.status, body: await response.text() };
+}
+
+/** A response never pairs a success status with a truncated body. */
+function expectHonest(answer: { status: number; body: string }) {
+  if (answer.status < 300) {
+    expect(answer.body).not.toBe("");
+    expect(() => CheckResponse.parse(JSON.parse(answer.body))).not.toThrow();
+    return;
+  }
+  expect(answer.status).toBe(503);
+  expect(JSON.parse(answer.body)).toMatchObject({
+    code: "authority-unavailable",
+  });
+}
+
+test("no authority decision of a create can fail into an empty success or an orphaned Check", async () => {
+  const both = await bothPrograms({ startWorker: false });
+  cleanup.push(both.stop);
+  const text = Array.from({ length: 23 }, () => physicsReference).join("\n\n");
+  let reached = 0;
+  // Decision 0 is the request's entry check; every later one belongs to the
+  // create or to its response. Whichever of them cannot be made must leave
+  // neither a Check nor a reservation behind.
+  for (const skip of [1, 2, 3]) {
+    const guest = await both.issue();
+    const client = api(both, guest.token);
+    const answer = await withHeldDecision(both, "check:create", skip, () =>
+      client.create(text, "?maxReferences=20"),
+    );
+    expectHonest(answer);
+    if (!answer.reached) continue;
+    reached++;
+    expect(answer.status).toBe(503);
+    expect(await client.quota()).toMatchObject({
+      granted: 20,
+      remaining: 20,
+      reserved: 0,
+      consumed: 0,
+    });
+  }
+  expect(reached).toBeGreaterThan(0);
+});
+
+test("no authority decision of a read can fail into an empty success", async () => {
+  const both = await bothPrograms({ startWorker: false });
+  cleanup.push(both.stop);
+  let reached = 0;
+  for (const skip of [1, 2, 3]) {
+    const guest = await both.issue();
+    const client = api(both, guest.token);
+    const created = CheckResponse.parse(
+      await (await client.create(physicsReference)).json(),
+    );
+    const answer = await withHeldDecision(both, "check:read", skip, () =>
+      client.read(created.data.id),
+    );
+    expectHonest(answer);
+    if (answer.reached) reached++;
+  }
+  expect(reached).toBeGreaterThan(0);
 });
 
 test("parallel Checks never oversell the Quota", async () => {

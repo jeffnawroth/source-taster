@@ -190,6 +190,13 @@ untracked). It was copied untracked from the read-only #99 source worktree
 - The 2 h reservation cap runs from reservation creation, not from lease
   extensions. A crash between a billed change's reserve and its commit keeps the
   reservation until the cap, because every attempt uses a fresh change key.
+- A create answers only when its response was authorised (#171). The create
+  (`checks.create`), the serialization and the response hand-off run under one
+  Owner guard (see [#96 amendment](96-guest-authority.md)); if that guard's
+  decision or lock fails, no Check is committed, `billedCreate` releases the
+  reservation and the client gets `503 authority-unavailable`. The only gap left
+  is a transport failure after the response was handed off; the Check then ends
+  through the normal lease expiry (ADR-0005) and its reservation is released.
 - The Operator `correction` journal kind exists at schema level only; credit and
   Plan change are implemented operations.
 - The upgrade offer is a link only when the host supplies `upgradeUrl`; no
