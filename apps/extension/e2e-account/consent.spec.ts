@@ -56,8 +56,10 @@ function installBrowser(options: {
   promptAnswer: boolean;
   /** How permissions.getAll() behaves: at once, never, or when released. */
   lookup: "now" | "never" | "late";
+  /** Extension-local storage carried over from an earlier panel. */
+  seed: Record<string, unknown>;
 }) {
-  const local: Record<string, unknown> = {};
+  const local: Record<string, unknown> = { ...options.seed };
   if (options.session)
     local["source-taster-extension-session-v1"] = options.session;
   const changed = new Set<(c: object, area: string) => void>();
@@ -154,6 +156,7 @@ async function withFirefoxPanel(
     signedIn?: boolean;
     promptAnswer?: boolean;
     lookup?: "now" | "never" | "late";
+    seed?: Record<string, unknown>;
   },
   run: (tools: {
     page: Page;
@@ -178,6 +181,7 @@ async function withFirefoxPanel(
       session: (options.signedIn ?? true) ? credential : undefined,
       promptAnswer: options.promptAnswer ?? true,
       lookup: options.lookup ?? "now",
+      seed: options.seed ?? {},
     });
     await page.goto(`${files.url}/panel.html`);
     await run({
@@ -443,6 +447,37 @@ test.describe("Firefox Account Preferences sync consent", () => {
           .toMatchObject({ language: "en", citationStyle: "chicago" });
       },
       page,
+    );
+  });
+
+  test("a grant withdrawn while no panel is open leaves the next panel on the Preferences last seen, local only", async ({
+    page,
+  }) => {
+    let afterFirstPanel: Record<string, unknown> = {};
+    await withFirefoxPanel(
+      { granted: ["technicalAndInteraction"] },
+      async ({ stored }) => {
+        await expect(style(page)).toHaveValue("chicago");
+        await expect
+          .poll(async () => (await stored())[guestKey])
+          .toMatchObject({ citationStyle: "chicago" });
+        afterFirstPanel = await stored();
+      },
+      page,
+    );
+    // The panel was closed, the grant withdrawn in the add-on settings (no
+    // event reached any panel), and a new panel opens on the same storage.
+    const second = await page.context().newPage();
+    await withFirefoxPanel(
+      { seed: afterFirstPanel },
+      async ({ service }) => {
+        await expect(allow(second)).toBeVisible();
+        await expect(style(second)).toHaveValue("chicago");
+        await style(second).selectOption("ieee");
+        await second.waitForTimeout(500);
+        expect(service.preferenceRequests()).toEqual([]);
+      },
+      second,
     );
   });
 

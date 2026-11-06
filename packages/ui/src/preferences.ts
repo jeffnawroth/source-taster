@@ -63,6 +63,20 @@ export async function loadGuestPreferences(
   };
 }
 
+/** Keeps the local copy equal to the synced Preferences the user is shown, but
+ * only on a host that gates sync on a grant and only while that grant holds
+ * (nothing is stored beyond what is already displayed on this device). A
+ * withdrawal made while no panel is open then needs no event: the next panel
+ * opens on what the user last saw. */
+export async function mirrorSyncedPreferences(
+  storage: PreferenceStorage,
+  consent: { requiresGrant: boolean; granted: () => boolean },
+  preferences: Preferences,
+): Promise<void> {
+  if (consent.requiresGrant && consent.granted())
+    await saveGuestPreferences(storage, preferences);
+}
+
 export async function saveGuestPreferences(
   storage: PreferenceStorage,
   preferences: Preferences,

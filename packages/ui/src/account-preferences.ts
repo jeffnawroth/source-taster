@@ -8,6 +8,7 @@ import type {
 import type { SessionClient } from "./web-account-workspace.tsx";
 import {
   isCitationStyle,
+  mirrorSyncedPreferences,
   saveGuestPreferences,
   type Preferences,
   type PreferenceStorage,
@@ -68,6 +69,13 @@ export function useAccountPreferences(
   }, [session, expired]);
   function display(next: typeof initial) {
     displayed.current = next;
+    // Where sync needs a grant, the device always holds what the user last saw
+    // from the Account, so a grant withdrawn while no panel is open needs no event.
+    const authority = current.current;
+    if (authority.session && !authority.expired)
+      void mirrorSyncedPreferences(storage, consent, next.preferences).catch(
+        () => {},
+      );
     void setLocale(next.preferences.language, { reload: false });
     document.documentElement.lang = next.preferences.language;
     setState(next);

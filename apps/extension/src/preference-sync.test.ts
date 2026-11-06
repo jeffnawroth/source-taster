@@ -2,9 +2,14 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  extensionPreferenceStorage,
   firefoxPreferenceSyncConsent,
   type DataCollectionType,
 } from "./platform.ts";
+import {
+  loadGuestPreferences,
+  mirrorSyncedPreferences,
+} from "@source-taster/ui/preferences";
 
 type DataType = DataCollectionType;
 type DataCollection = { data_collection?: DataType[] };
@@ -183,4 +188,72 @@ await test("a late lookup does not overwrite a newer grant or revocation", async
   release();
   await settle();
   assert.equal(consent.granted(), false);
+});
+
+/** Extension-local storage as the browser edge: it survives a closed panel. */
+function fakeLocal() {
+  const data: Record<string, unknown> = {};
+  return {
+    data,
+    local: {
+      get: (key: string) =>
+        Promise.resolve(key in data ? { [key]: data[key] } : {}),
+      set: (values: Record<string, unknown>) => {
+        Object.assign(data, values);
+        return Promise.resolve();
+      },
+    },
+  };
+}
+const synced = {
+  language: "de",
+  citationStyle: "mla",
+  theme: "system",
+} as const;
+
+await test("a grant withdrawn while no panel is open leaves the next panel on the Preferences the user last saw, still local", async () => {
+  const edge = fakeLocal();
+  const storage = extensionPreferenceStorage(edge.local);
+  // First panel: synced Account values are displayed while the grant holds.
+  const first = fakePermissions([dataType]);
+  const open = await seam(first.api);
+  await mirrorSyncedPreferences(storage, open, synced);
+  // The panel closes. about:addons withdraws the grant: no seam exists to hear it.
+  // Next panel: a fresh seam that learns the grant is gone from getAll() alone.
+  const closedRevocation = fakePermissions();
+  const reopened = await seam(closedRevocation.api);
+  assert.equal(reopened.granted(), false);
+  const shown = await loadGuestPreferences(storage, ["en"]);
+  assert.deepEqual(shown.preferences, synced);
+  // Later displays stay off the mirror: nothing is copied without the grant.
+  await mirrorSyncedPreferences(storage, reopened, {
+    ...synced,
+    citationStyle: "ieee",
+  });
+  assert.equal(
+    (await loadGuestPreferences(storage, ["en"])).preferences.citationStyle,
+    "mla",
+  );
+  assert.deepEqual(closedRevocation.requests, []);
+});
+
+await test("a host that needs no grant keeps its local copy to the guest rules", async () => {
+  const edge = fakeLocal();
+  const storage = extensionPreferenceStorage(edge.local);
+  await mirrorSyncedPreferences(
+    storage,
+    { requiresGrant: false, granted: () => true },
+    synced,
+  );
+  assert.deepEqual(edge.data, {});
+});
+
+await test("an unanswered permission lookup mirrors nothing", async () => {
+  const edge = fakeLocal();
+  const storage = extensionPreferenceStorage(edge.local);
+  const fake = fakePermissions([dataType]);
+  fake.holdLookup();
+  const consent = firefoxPreferenceSyncConsent(fake.api);
+  await mirrorSyncedPreferences(storage, consent, synced);
+  assert.deepEqual(edge.data, {});
 });
