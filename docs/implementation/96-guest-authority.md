@@ -105,6 +105,37 @@ denial closes silently without content-bearing errors or Hono's automatic SSE
 error frame. The shared output guard also defines the obligation for future
 report/export/download writers. No download endpoint exists or is tested here.
 
+### Amendment (#171): one hold from decision to drained write
+
+Earlier, a JSON envelope committed its status and headers first and took the
+final authority decision afterwards, inside the streamed body. A decision that
+then failed (the 2 s service-call abort, or the 3 s Owner `lock_timeout`) could
+only abort the stream, which left a success status with an empty body. For
+`POST /v2/checks` that was an empty `201` for a Check that existed and held
+reserved Quota.
+
+Every JSON envelope now goes through one function, `deliver()` in
+`apps/server/src/http/app.ts`:
+
+1. The Owner guard (decision, then Owner lock) is entered first.
+2. Inside it the data is built and serialized. Nothing has been committed to the
+   response yet, so a failed decision, a lock timeout or a failing build is the
+   response: `503 authority-unavailable` (or the build's own problem).
+3. Only then are status and headers committed and the body written. The guard
+   stays held until that write has drained or the client went away, so a
+   revocation acknowledgement still waits for output exactly as before.
+
+The body is therefore still written under the Owner guard; only the order changed.
+There is no separate "check again before headers" decision any more, since the
+guard that wraps the write is that check. `build` runs under the Owner lock and
+must not take the guard again or make service calls (`aiEligibility` and the
+Quota snapshot run before `deliver`).
+
+A failure after the hand-off (for example the COMMIT that ends the guard) cannot
+change a response that is already on its way and is logged as `output-guard`.
+A client that disconnects after a successful hand-off leaves the Check to the
+normal lease expiry (ADR-0005).
+
 Every allow decision carries the current authority version. A decision is
 obtained **outside** the local Owner lock, then checked against a durable Owner
 fence while holding that lock through the effect/output. The service first

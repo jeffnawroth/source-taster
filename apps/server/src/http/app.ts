@@ -332,6 +332,78 @@ export function createApp(
       return { status: "unavailable" };
     }
   }
+  /**
+   * Answers one JSON envelope, with the body built and written under a single
+   * durable Owner guard.
+   *
+   * The guard's authority decision and Owner lock come first. `build` and the
+   * serialization run inside it, and only then are status and headers committed.
+   * A decision that cannot be made, a lock timeout or a failing `build` therefore
+   * surface as their own problem response, never as a success status with a
+   * truncated or empty body. Once the body is ready the guard stays held until
+   * the transport write has drained (or the client went away), so revocation
+   * still waits for in-flight output.
+   *
+   * `build` runs under the Owner lock: it must not take the guard again, call
+   * `aiEligibility` or make service calls. Do those before `deliver`.
+   */
+  async function deliver<T, S extends 200 | 201 | 202>(
+    c: Context,
+    principal: Principal,
+    permission: Permission,
+    status: S,
+    quota: Principal["quota"],
+    build: () => Promise<T>,
+    checkId?: string,
+  ) {
+    let ready!: (body: string) => void;
+    let refuse!: (error: unknown) => void;
+    const prepared = new Promise<string>((resolve, reject) => {
+      ready = resolve;
+      refuse = reject;
+    });
+    let release!: () => void;
+    const written = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    let handedOff = false;
+    const hold = async () => {
+      const body = JSON.stringify({ data: await build(), quota });
+      handedOff = true;
+      ready(body);
+      await written;
+    };
+    guarded(principal, permission, () =>
+      checkId ? checks.publish(principal, checkId, apiVersion, hold) : hold(),
+    ).catch((error: unknown) => {
+      // After the hand-off the response is already on its way; a late guard
+      // failure (for example the COMMIT that releases the lock) has no client to
+      // tell. Before it, the failure is the response.
+      if (!handedOff) refuse(error);
+      else console.error(JSON.stringify({ code: "output-guard" }));
+    });
+    const body = await prepared;
+    c.status(status);
+    c.header("Content-Type", "application/json");
+    c.header("Cache-Control", "no-store");
+    const response = stream(c, async (writer) => {
+      writer.onAbort(release);
+      try {
+        await writer.write(body);
+      } finally {
+        release();
+      }
+    });
+    return response as Response &
+      TypedResponse<
+        JSONParsed<{
+          data: T;
+          quota: Principal["quota"];
+        }>,
+        S,
+        "json"
+      >;
+  }
   async function output<T, S extends 200 | 201 | 202>(
     c: Context,
     principal: Principal,
@@ -353,44 +425,15 @@ export function createApp(
       typeof data.structuring === "object" &&
       "receipt" in data.structuring;
     if (aiPreview && (await aiEligibility(principal))) fail("forbidden");
-    // Check again after the database/parser work, before response headers. The
-    // transport write itself drains under the same durable Owner guard as commits.
-    await guarded(principal, permission, () =>
-      checkId
-        ? checks.publish(principal, checkId, apiVersion, async () => {})
-        : Promise.resolve(),
+    return deliver(
+      c,
+      principal,
+      permission,
+      status,
+      quota,
+      async () => (refreshData ? refreshData() : data),
+      checkId,
     );
-    c.status(status);
-    c.header("Content-Type", "application/json");
-    c.header("Cache-Control", "no-store");
-    const response = stream(c, async (writer) => {
-      try {
-        const send = async () =>
-          writer.write(
-            JSON.stringify({
-              data: refreshData ? await refreshData() : data,
-              quota,
-            }),
-          );
-        if (aiPreview && (await aiEligibility(principal))) fail("forbidden");
-        await guarded(principal, permission, () =>
-          checkId
-            ? checks.publish(principal, checkId, apiVersion, send)
-            : send(),
-        );
-      } catch {
-        writer.abort();
-      }
-    });
-    return response as Response &
-      TypedResponse<
-        JSONParsed<{
-          data: T;
-          quota: Principal["quota"];
-        }>,
-        S,
-        "json"
-      >;
   }
   const app = new OpenAPIHono({
     defaultHook: (result) => {
@@ -702,31 +745,40 @@ export function createApp(
       if (!input.references.length) fail("input-empty");
       const id = randomUUID();
       const maxReferences = c.req.valid("query").maxReferences;
-      const check = await billedCreate(
+      // The create, its serialization and the response hand-off share one Owner
+      // guard (see `deliver`): a response that cannot be authorised means no Check,
+      // and billedCreate releases the reservation.
+      return billedCreate(
         entitlements.quota,
         owner(principal),
         id,
         Math.min(input.references.length, maxReferences ?? Infinity),
-        () =>
-          guarded(principal, "check:create", async () => {
-            // Revalidate the source after reserving; deletion, downgrade or edits may
-            // have happened during the external Quota round trip.
-            const current = await checks.restartInput(
-              principal,
-              c.req.valid("param").checkId,
-            );
-            if (!current || JSON.stringify(current) !== JSON.stringify(input))
-              fail("reference-conflict");
-            return checks.create(
-              principal,
-              current.references,
-              2,
-              current.document,
-              { id, maxReferences },
-            );
-          }),
+        async () =>
+          deliver(
+            c,
+            principal,
+            "check:create",
+            201,
+            await quotaSlot(principal),
+            async () => {
+              // Revalidate the source after reserving; deletion, downgrade or edits may
+              // have happened during the external Quota round trip.
+              const current = await checks.restartInput(
+                principal,
+                c.req.valid("param").checkId,
+              );
+              if (!current || JSON.stringify(current) !== JSON.stringify(input))
+                fail("reference-conflict");
+              return checks.create(
+                principal,
+                current.references,
+                2,
+                current.document,
+                { id, maxReferences },
+              );
+            },
+          ),
       );
-      return output(c, principal, "check:create", check, 201, check.id);
     });
   }
   if (apiVersion === 2)
@@ -877,7 +929,10 @@ export function createApp(
       if (cap && !cap.success) fail("invalid-request");
       const started = Math.min(references.length, cap?.data ?? Infinity);
       const id = randomUUID();
-      const check = await billedCreate(
+      // The create, its serialization and the response hand-off share one Owner
+      // guard (see `deliver`): a response that cannot be authorised means no Check,
+      // and billedCreate releases the reservation.
+      return billedCreate(
         entitlements.quota,
         owner(principal),
         id,
@@ -889,15 +944,20 @@ export function createApp(
             (await aiEligibility(principal))
           )
             fail("forbidden");
-          return guarded(principal, "check:create", () =>
-            checks.create(principal, references, apiVersion, document, {
-              id,
-              maxReferences: started,
-            }),
+          return deliver(
+            c,
+            principal,
+            "check:create",
+            201,
+            await quotaSlot(principal),
+            () =>
+              checks.create(principal, references, apiVersion, document, {
+                id,
+                maxReferences: started,
+              }),
           );
         },
       );
-      return output(c, principal, "check:create", check, 201, check.id);
     },
   );
 
