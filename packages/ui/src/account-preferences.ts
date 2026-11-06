@@ -10,6 +10,7 @@ import {
   forgetMirroredPreferences,
   isCitationStyle,
   mirrorSyncedPreferences,
+  releaseMirroredPreferences,
   saveGuestPreferences,
   type Preferences,
   type PreferenceStorage,
@@ -67,7 +68,9 @@ export function useAccountPreferences(
   const current = useRef({ session, expired });
   // Mirror writes run in order, so a deletion's forget always lands last.
   const mirrorWrites = useRef(Promise.resolve());
-  const mirrored = useRef(false);
+  // The Account deleted in this panel: nothing more of it is mirrored onto the
+  // device, even while its session is still being torn down.
+  const forgotten = useRef<string | null>(null);
   useEffect(() => {
     current.current = { session, expired };
   }, [session, expired]);
@@ -76,11 +79,14 @@ export function useAccountPreferences(
     // Where sync needs a grant, the device always holds what the user last saw
     // from the Account, so a grant withdrawn while no panel is open needs no event.
     const authority = current.current;
-    if (authority.session && !authority.expired)
+    if (
+      authority.session &&
+      !authority.expired &&
+      authority.session.accountId !== forgotten.current
+    )
       mirrorWrites.current = mirrorWrites.current
-        .then(() => mirrorSyncedPreferences(storage, consent, next.preferences))
-        .then((wrote) => {
-          if (wrote) mirrored.current = true;
+        .then(async () => {
+          await mirrorSyncedPreferences(storage, consent, next.preferences);
         })
         .catch(() => {});
     void setLocale(next.preferences.language, { reload: false });
@@ -162,7 +168,14 @@ export function useAccountPreferences(
     } else if ((session === null || expired) && previousAccount.current) {
       // ADR-0023: keep the last displayed values, never restore pre-sign-in Guest values.
       previousAccount.current = null;
-      void saveGuestPreferences(storage, displayed.current.preferences);
+      const values = displayed.current.preferences;
+      // The values are now this device's own Guest Preferences, not an Account copy.
+      mirrorWrites.current = mirrorWrites.current
+        .then(async () => {
+          await saveGuestPreferences(storage, values);
+          await releaseMirroredPreferences(storage);
+        })
+        .catch(() => {});
       void Promise.resolve().then(() => {
         if (epoch.current === fence) {
           setLoadedAccount(null);
@@ -200,12 +213,9 @@ export function useAccountPreferences(
     previousAccount.current = null;
     epoch.current++;
     writes.current = Promise.resolve();
+    forgotten.current = current.current.session?.accountId ?? null;
     mirrorWrites.current = mirrorWrites.current
-      .then(async () => {
-        if (!mirrored.current) return;
-        mirrored.current = false;
-        await forgetMirroredPreferences(storage);
-      })
+      .then(() => forgetMirroredPreferences(storage))
       .catch(() => {});
     setFailure(false);
   }

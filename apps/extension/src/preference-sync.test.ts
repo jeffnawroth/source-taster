@@ -10,6 +10,8 @@ import {
   forgetMirroredPreferences,
   loadGuestPreferences,
   mirrorSyncedPreferences,
+  releaseMirroredPreferences,
+  saveGuestPreferences,
 } from "@source-taster/ui/preferences";
 
 type DataType = DataCollectionType;
@@ -273,4 +275,48 @@ await test("Account deletion forgets a mirrored copy: the next panel starts from
     theme: "system",
   });
   assert.equal(shown.citationStyleReset, false);
+});
+
+await test("Account deletion in a later panel still forgets the copy an earlier panel mirrored", async () => {
+  const edge = fakeLocal();
+  const storage = extensionPreferenceStorage(edge.local);
+  // Panel 1 mirrors while granted, then closes; the grant goes while closed.
+  await mirrorSyncedPreferences(
+    storage,
+    await seam(fakePermissions([dataType]).api),
+    synced,
+  );
+  // Panel 2 has no grant and mirrors nothing, then the Account is deleted.
+  await mirrorSyncedPreferences(storage, await seam(fakePermissions().api), {
+    ...synced,
+    citationStyle: "ieee",
+  });
+  await forgetMirroredPreferences(storage);
+  assert.equal(
+    (await loadGuestPreferences(storage, ["en"])).preferences.citationStyle,
+    "apa",
+  );
+});
+
+await test("Account deletion keeps local values the mirror never wrote, and values released at sign-out", async () => {
+  const edge = fakeLocal();
+  const storage = extensionPreferenceStorage(edge.local);
+  await saveGuestPreferences(storage, synced);
+  await forgetMirroredPreferences(storage);
+  assert.deepEqual(
+    (await loadGuestPreferences(storage, ["en"])).preferences,
+    synced,
+  );
+  // Mirrored, then signed out: the values became the Guest's own.
+  await mirrorSyncedPreferences(
+    storage,
+    await seam(fakePermissions([dataType]).api),
+    { ...synced, citationStyle: "ieee" },
+  );
+  await releaseMirroredPreferences(storage);
+  await forgetMirroredPreferences(storage);
+  assert.equal(
+    (await loadGuestPreferences(storage, ["en"])).preferences.citationStyle,
+    "ieee",
+  );
 });
