@@ -298,6 +298,37 @@ export async function abuseService() {
       now += ms;
     },
     now: () => now,
+    /** Every stored text row of the abuse accounting tables, as PostgreSQL renders it. */
+    async accountingRows() {
+      const client = new pg.Client({ connectionString: database.appUrl });
+      await client.connect();
+      try {
+        const read = async (table: string) =>
+          (
+            await client.query<{ row: string }>(
+              `SELECT t::text AS row FROM verification.${table} t ORDER BY 1`,
+            )
+          ).rows.map((r) => r.row);
+        return {
+          counters: await read("abuse_counters"),
+          origins: await read("abuse_origin_windows"),
+        };
+      } finally {
+        await client.end();
+      }
+    },
+    /** Admits one request from an explicit socket peer, bypassing the loopback HTTP peer. */
+    async enterFrom(peer: string, identity = "one") {
+      const request = new Request("http://127.0.0.1/v2/checks", {
+        method: "POST",
+        headers: { authorization: `Bearer ${token(identity)}` },
+      });
+      await instances[0]!.limiter.enter(
+        request,
+        peer,
+        instances[0]!.authority.entitlements,
+      );
+    },
     async request(
       identity = "one",
       options: {

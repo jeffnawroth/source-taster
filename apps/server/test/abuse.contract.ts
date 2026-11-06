@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { afterEach, expect, test } from "vitest";
+import { afterEach, expect, test, vi } from "vitest";
 import { ProblemDetails } from "@source-taster/contract-common";
 import { abuseService } from "./support/abuse-service.ts";
 let service: Awaited<ReturnType<typeof abuseService>> | undefined;
@@ -252,6 +252,79 @@ test("continuation time is the latest exceeded budget and malformed shared decis
     planId: "unlimited",
   });
   expect((await service.request()).status).toBe(503);
+});
+
+test("admissions from known peer addresses leave no address in any stored column", async () => {
+  service = await abuseService();
+  // Independent literals: every text form of each peer, plus its truncated prefix.
+  const peers = [
+    {
+      peer: "203.0.113.77",
+      forms: ["203.0.113.77", "203.0.113", "cb00714d", "cb0071", "::ffff:"],
+    },
+    {
+      peer: "::ffff:203.0.113.77",
+      forms: ["203.0.113.77", "cb00:714d", "cb00714d", "::ffff:"],
+    },
+    {
+      peer: "2001:db8:abcd:12:34:56:78:9a",
+      forms: [
+        "2001:db8:abcd:12:34:56:78:9a",
+        "2001:0db8:abcd:0012:0034:0056:0078:009a",
+        "20010db8abcd0012003400560078009a",
+        "20010db8abcd00",
+        "2001:db8:abcd",
+        "2001:0db8:abcd",
+      ],
+    },
+  ];
+  for (const { peer } of peers) await service.enterFrom(peer, peer);
+  // The socket peer of a real request is the loopback address.
+  expect((await service.request()).status).toBe(200);
+  peers.push({
+    peer: "127.0.0.1",
+    forms: ["127.0.0.1", "127.0.0", "7f000001", "7f0000", "::ffff:"],
+  });
+  const stored = await service.accountingRows();
+  // Not vacuous: one window pin, and an origin counter for each of the three
+  // distinct networks (the IPv4-mapped peer shares the plain IPv4 network).
+  expect(stored.origins).toHaveLength(1);
+  expect(
+    stored.counters.filter((row) => row.startsWith('("[""origin""')),
+  ).toHaveLength(3);
+  const text = [...stored.counters, ...stored.origins].join("\n").toLowerCase();
+  for (const { peer, forms } of peers)
+    for (const form of forms)
+      expect(text, `${peer} stored as ${form}`).not.toContain(form);
+});
+
+test("expired accounting rows are physically purged from both tables while live windows stay", async () => {
+  service = await abuseService();
+  // The all-Guest allowance uses a longer window, so its row outlives the 60 s ones.
+  service.policy.public.allGuests.windowMs = 120000;
+  expect((await service.request()).status).toBe(200);
+  const before = await service.accountingRows();
+  expect(before.origins).toHaveLength(1);
+  expect(before.counters).toHaveLength(4); // principal, guest, all-guests, origin
+  service.advance(60000);
+  // No request: only the maintenance job may remove the expired rows.
+  await vi.waitFor(
+    async () => {
+      const after = await service!.accountingRows();
+      expect(after.origins).toEqual([]);
+      expect(after.counters).toHaveLength(1);
+    },
+    { timeout: 8000, interval: 250 },
+  );
+  const [survivor] = (await service.accountingRows()).counters;
+  expect(survivor).toContain("all-guests");
+  service.advance(60000);
+  await vi.waitFor(
+    async () => {
+      expect((await service!.accountingRows()).counters).toEqual([]);
+    },
+    { timeout: 8000, interval: 250 },
+  );
 });
 
 test("SSE admission counts once per connection and its shared client stops on typed 429", async () => {
