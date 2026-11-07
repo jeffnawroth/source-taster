@@ -1,6 +1,6 @@
-# Voice and tone (DRAFT)
+# Voice and tone
 
-> **DRAFT for [How does Source Taster speak in DE and EN?](https://github.com/jeffnawroth/source-taster/issues/192).** Nothing here is settled until that ticket closes. Sections marked **OPEN** are waiting on a decision. The prototype at `apps/web/prototype/voice/index.html` on branch `prototype/192-voice` shows the candidate voices on real strings.
+> Settled with the user in [How does Source Taster speak in DE and EN?](https://github.com/jeffnawroth/source-taster/issues/192). The prototype `apps/web/prototype/voice/index.html` on branch `prototype/192-voice` shows the candidate voices on real strings; it was not updated after the decisions, so where it disagrees with this guide (for example „Urteil“ or capitalised English terms), this guide wins.
 
 ## Scope
 
@@ -61,7 +61,7 @@ Reason: a Verdict needs a traceable explanation and a spelled-out caveat more th
 
 ## Rules per category
 
-These are draft rules. The bracketed parts depend on the open decisions.
+German examples use Sie, Befund and the terminology decisions below.
 
 ### Address form
 
@@ -108,28 +108,25 @@ Use this for deletion, withdrawal and anything irreversible.
 
 ### Confirmations
 
-Use a toast for a reversible success: „Kopiert.“ When a result changes something visible, say what stays: „Das ursprüngliche Urteil bleibt daneben sichtbar.“
+Use a toast for a reversible success: „Kopiert.“ When a result changes something visible, say what stays: „Der ursprüngliche Befund bleibt daneben sichtbar.“
 
-## Open terminology decisions
+## Terminology decisions
 
-These are held constant in the prototype and decided separately.
+The prototype held these constant across voices; they were decided separately.
 
-1. ~~**German address form**~~ Decided: **Sie** everywhere. Today `auth_*`, `library_*`, `quota_loading`, `quota_unavailable` and `dpa_*` use du and need rewriting.
-2. ~~**German words for glossary terms**~~ Decided: the German UI uses German words throughout. English stays only for proper names and fixed abbreviations (DOI, PDF, Crossref, OpenAlex, Plan names). Check → **Prüfung** (fix `history_*` „Checks“). Quota → **Kontingent** (fix `history_billable` „Quota“). Plan → **Plan**, plural **Pläne** (fix `commerce_open` „Tarife“, `history_policy` „Plans“). Check pack → **Prüfpaket** (replaces „Prüfkontingent“, which collided with Kontingent: one buys a Prüfpaket and it raises the Kontingent). Plan names such as **Free** are proper names and are not translated („im Plan Free“).
-3. (merged into 2)
-4. (merged into 2)
-5. (merged into 2)
-6. ~~**Verdict (DE)**~~ Decided: **Befund** replaces „Urteil“ (20 uses in `de.json` today). It names what was found, not what follows from it, which fits evidence-first and „die Entscheidung trifft ein Mensch“; „Urteil“ sounds like a court ruling and nearly contradicts the FA-ERG-05 note. „Bewertung“ is ruled out as too close to „rating“ and grading. The six Verdict labels are unchanged. Examples: „Ein Befund ist kein Beweis für Täuschung.“, „Befund selbst festlegen“.
-7. ~~**Gendered nouns (DE)**~~ Decided: rephrase neutrally first („Autorenangabe {number}“, „Weitere Person hinzufügen“, „Von Ihnen eingegeben“ instead of „von der nutzenden Person“, „wer prüft“). Where that is impossible, use the paired form in running text („Autorinnen und Autoren“). Never use inner-word characters (`:`, `*`, `_`) or the slash („Autor/in“ in `revision_*` today). Reasons: since 1 April 2024, Bavaria's administrative rules (AGO) bar inner-word gender characters in state authorities, schools and university administration (not research and teaching), and that administration signs the DPA and buys licences ([Forschung & Lehre](https://www.forschung-und-lehre.de/politik/bayern-verbietet-gendern-in-schulen-hochschulen-und-behoerden-6318), [scope](https://www.forschung-und-lehre.de/politik/verbot-zu-gendern-gilt-nur-fuer-verwaltung-6407)). Screen readers read „Autor:innen“ unevenly, and neutral wording is usually shorter and calmer. English needs nothing here.
-8. ~~**EN capitalisation of glossary terms**~~ Decided: UI copy is lower-case and sentence case: „Check references“, „Your quota is used up“, „a re-check uses no quota“. Capitals stay for the sentence start, proper names (Free, Crossref, Source Taster) and Verdict and Status labels used as labels („Not found“, „Technical error“). GLOSSARY.md, ADRs and the spec keep capitalised terms as domain markers. A term is recognised by being the same word everywhere, not by its capital; capitalised nouns mid-sentence read like contract text in English.
-9. ~~**Typography**~~ Decided:
+1. **German address form:** **Sie** everywhere. Today `auth_*`, `library_*`, `quota_loading`, `quota_unavailable` and `dpa_*` use du and need rewriting.
+2. **German words for glossary terms:** the German UI uses German words throughout. English stays only for proper names and fixed abbreviations (DOI, PDF, Crossref, OpenAlex, Plan names). Check → **Prüfung** (fix `history_*` „Checks“). Quota → **Kontingent** (fix `history_billable` „Quota“). Plan → **Plan**, plural **Pläne** (fix `commerce_open` „Tarife“, `history_policy` „Plans“). Check pack → **Prüfpaket** (replaces „Prüfkontingent“, which collided with Kontingent: one buys a Prüfpaket and it raises the Kontingent). Plan names such as **Free** are proper names and are not translated („im Plan Free“).
+3. **Verdict (DE):** **Befund** replaces „Urteil“ (20 uses in `de.json` today). It names what was found, not what follows from it, which fits evidence-first and „die Entscheidung trifft ein Mensch“; „Urteil“ sounds like a court ruling and nearly contradicts the FA-ERG-05 note. „Bewertung“ is ruled out as too close to „rating“ and grading. The six Verdict labels are unchanged. Examples: „Ein Befund ist kein Beweis für Täuschung.“, „Befund selbst festlegen“.
+4. **Gendered nouns (DE):** rephrase neutrally first („Autorenangabe {number}“, „Weitere Person hinzufügen“, „Von Ihnen eingegeben“ instead of „von der nutzenden Person“, „wer prüft“). Where that is impossible, use the paired form in running text („Autorinnen und Autoren“). Never use inner-word characters (`:`, `*`, `_`) or the slash („Autor/in“ in `revision_*` today). Reasons: since 1 April 2024, Bavaria's administrative rules (AGO) bar inner-word gender characters in state authorities, schools and university administration (not research and teaching), and that administration signs the DPA and buys licences ([Forschung & Lehre](https://www.forschung-und-lehre.de/politik/bayern-verbietet-gendern-in-schulen-hochschulen-und-behoerden-6318), [scope](https://www.forschung-und-lehre.de/politik/verbot-zu-gendern-gilt-nur-fuer-verwaltung-6407)). Screen readers read „Autor:innen“ unevenly, and neutral wording is usually shorter and calmer. English needs nothing here.
+5. **EN capitalisation of glossary terms:** UI copy is lower-case and sentence case: „Check references“, „Your quota is used up“, „a re-check uses no quota“. Capitals stay for the sentence start, proper names (Free, Crossref, Source Taster) and Verdict and Status labels used as labels („Not found“, „Technical error“). GLOSSARY.md, ADRs and the spec keep capitalised terms as domain markers. A term is recognised by being the same word everywhere, not by its capital; capitalised nouns mid-sentence read like contract text in English.
+6. **Typography:**
    - Percent: DE „80 %“ with a narrow no-break space (U+202F); EN „80%“.
    - Dash: DE „–“ with spaces, EN „—“ without; both sparingly. In UI copy prefer a full stop and a new sentence.
    - Pending states: DE „Wird gestartet …“ with a space (Duden, broken-off sentence); EN „Starting…“.
    - Quotes: DE „…“, EN “…”, never straight quotes in copy.
    - Time: DE „14:32 Uhr“; EN per locale.
    - Numbers and dates are always formatted with `Intl`, never by hand.
-10. **„Bitte“ / "please":** always, only when asking for patience, or never.
+7. **„Bitte“ / "please":** only when we ask the person for something they do for us, mainly patience („Bitte warten Sie einen Moment.“). Never in instructions or errors: „Versuchen Sie es erneut.“, „Try again.“ The Sie imperative is polite enough; a „bitte“ before every instruction reads as pleading or irritated. 25 catalog strings use it today.
 
 ## Resolution
 
