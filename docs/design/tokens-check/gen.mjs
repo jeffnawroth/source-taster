@@ -79,6 +79,15 @@ for (const mode of ['light', 'dark']) {
       const worst = combos.map((g) => ({ ...g, r: wcagContrast(t[m], g.c) })).sort((a, b) => a.r - b.r)[0];
       check(mode, m, `${vn} worst case (${worst.name})`, worst.c, 3, 'non-text');
     }
+    // non-text roles that components put on glass (#195): Running icon, strip progress fill and pressed counters
+    // (accent), toast icons (feedback-*), the dashed Status contour and the command-bar field (border-emphasis)
+    for (const r of ['accent', 'feedback-danger', 'feedback-warning', 'feedback-success', 'feedback-info']) {
+      const worst = combos.map((g) => ({ ...g, r: wcagContrast(t[r], g.c) })).sort((a, b) => a.r - b.r)[0];
+      check(mode, r, `${vn} worst case (${worst.name})`, worst.c, 3, 'non-text');
+    }
+    const be = combos.map((g) => ({ ...g, fg: stack(g.c, t['border-emphasis']) })).map((g) => ({ ...g, r: wcagContrast(g.fg, g.c) })).sort((a, b) => a.r - b.r)[0];
+    check(mode, be.fg, `${vn} worst case (${be.name})`, be.c, 3, 'non-text');
+    gate[gate.length - 1].fg = `border-emphasis (over ${vn})`;
   }
   for (const v of verdicts) {
     const m = `verdict-${v}-mark`;

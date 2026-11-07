@@ -426,6 +426,7 @@ The gate uses the WCAG 2.2 contrast ratio. APCA is advisory only (see [#185](htt
   - for `glass-overlay`: the scrim over `bg` and over `surface`.
 - **Non-text, 3:1:**
   - each `verdict-*-mark` on `surface`, `bg` and each glass variant's worst case (counters in the sticky strip, verdicts in ⌘K results);
+  - `accent`, each `feedback-*` and `border-emphasis` on each glass variant's worst case (the Running icon, the strip's progress fill and pressed counters; toast icons; the dashed Status contour and the command-bar field);
   - `focus-ring` on `bg`, `surface`, `surface-sunken`, `accent-tint` and each glass variant's worst case (command-bar options and toast buttons take focus on glass);
   - `on-verdict-mark` on each `verdict-*-mark` (the inner symbol of a filled glyph);
   - `border-emphasis` (input boundary) on `surface`;
@@ -474,6 +475,12 @@ The gate uses the WCAG 2.2 contrast ratio. APCA is advisory only (see [#185](htt
 | light | `verdict-doi-conflict-mark` | glass worst case (surface-sunken) | 3 | 5.54 | ✓ |
 | light | `verdict-not-found-mark` | glass worst case (surface-sunken) | 3 | 7.43 | ✓ |
 | light | `verdict-not-verifiable-mark` | glass worst case (surface-sunken) | 3 | 5.42 | ✓ |
+| light | `accent` | glass worst case (surface-sunken) | 3 | 6.18 | ✓ |
+| light | `feedback-danger` | glass worst case (surface-sunken) | 3 | 6.51 | ✓ |
+| light | `feedback-warning` | glass worst case (surface-sunken) | 3 | 6.09 | ✓ |
+| light | `feedback-success` | glass worst case (surface-sunken) | 3 | 6.07 | ✓ |
+| light | `feedback-info` | glass worst case (surface-sunken) | 3 | 7.08 | ✓ |
+| light | `border-emphasis (over glass)` | glass worst case (surface-sunken) | 3 | 3.45 | ✓ |
 | light | `text` | glass-overlay worst case (scrim over bg) | 4.5 | 15.59 | ✓ |
 | light | `text-secondary` | glass-overlay worst case (scrim over bg) | (not allowed) | 8.99 | info |
 | light | `text-muted` | glass-overlay worst case (scrim over bg) | (not allowed) | 5.88 | info |
@@ -484,6 +491,12 @@ The gate uses the WCAG 2.2 contrast ratio. APCA is advisory only (see [#185](htt
 | light | `verdict-doi-conflict-mark` | glass-overlay worst case (scrim over bg) | 3 | 4.85 | ✓ |
 | light | `verdict-not-found-mark` | glass-overlay worst case (scrim over bg) | 3 | 6.50 | ✓ |
 | light | `verdict-not-verifiable-mark` | glass-overlay worst case (scrim over bg) | 3 | 4.74 | ✓ |
+| light | `accent` | glass-overlay worst case (scrim over bg) | 3 | 5.41 | ✓ |
+| light | `feedback-danger` | glass-overlay worst case (scrim over bg) | 3 | 5.69 | ✓ |
+| light | `feedback-warning` | glass-overlay worst case (scrim over bg) | 3 | 5.33 | ✓ |
+| light | `feedback-success` | glass-overlay worst case (scrim over bg) | 3 | 5.31 | ✓ |
+| light | `feedback-info` | glass-overlay worst case (scrim over bg) | 3 | 6.19 | ✓ |
+| light | `border-emphasis (over glass-overlay)` | glass-overlay worst case (scrim over bg) | 3 | 3.26 | ✓ |
 | light | `verdict-correct-mark` | surface | 3 | 4.35 | ✓ |
 | light | `verdict-correct-mark` | bg | 3 | 4.08 | ✓ |
 | light | `verdict-deviations-mark` | surface | 3 | 4.07 | ✓ |
@@ -545,6 +558,12 @@ The gate uses the WCAG 2.2 contrast ratio. APCA is advisory only (see [#185](htt
 | dark | `verdict-doi-conflict-mark` | glass worst case (surface) | 3 | 6.73 | ✓ |
 | dark | `verdict-not-found-mark` | glass worst case (surface) | 3 | 6.16 | ✓ |
 | dark | `verdict-not-verifiable-mark` | glass worst case (surface) | 3 | 7.24 | ✓ |
+| dark | `accent` | glass worst case (surface) | 3 | 8.62 | ✓ |
+| dark | `feedback-danger` | glass worst case (surface) | 3 | 7.58 | ✓ |
+| dark | `feedback-warning` | glass worst case (surface) | 3 | 10.88 | ✓ |
+| dark | `feedback-success` | glass worst case (surface) | 3 | 10.19 | ✓ |
+| dark | `feedback-info` | glass worst case (surface) | 3 | 9.59 | ✓ |
+| dark | `border-emphasis (over glass)` | glass worst case (surface) | 3 | 4.08 | ✓ |
 | dark | `text` | glass-overlay worst case (scrim over surface) | 4.5 | 16.91 | ✓ |
 | dark | `text-secondary` | glass-overlay worst case (scrim over surface) | (not allowed) | 10.92 | info |
 | dark | `text-muted` | glass-overlay worst case (scrim over surface) | (not allowed) | 7.16 | info |
@@ -555,6 +574,12 @@ The gate uses the WCAG 2.2 contrast ratio. APCA is advisory only (see [#185](htt
 | dark | `verdict-doi-conflict-mark` | glass-overlay worst case (scrim over surface) | 3 | 6.90 | ✓ |
 | dark | `verdict-not-found-mark` | glass-overlay worst case (scrim over surface) | 3 | 6.32 | ✓ |
 | dark | `verdict-not-verifiable-mark` | glass-overlay worst case (scrim over surface) | 3 | 7.43 | ✓ |
+| dark | `accent` | glass-overlay worst case (scrim over surface) | 3 | 8.85 | ✓ |
+| dark | `feedback-danger` | glass-overlay worst case (scrim over surface) | 3 | 7.78 | ✓ |
+| dark | `feedback-warning` | glass-overlay worst case (scrim over surface) | 3 | 11.16 | ✓ |
+| dark | `feedback-success` | glass-overlay worst case (scrim over surface) | 3 | 10.45 | ✓ |
+| dark | `feedback-info` | glass-overlay worst case (scrim over surface) | 3 | 9.83 | ✓ |
+| dark | `border-emphasis (over glass-overlay)` | glass-overlay worst case (scrim over surface) | 3 | 4.09 | ✓ |
 | dark | `verdict-correct-mark` | surface | 3 | 10.45 | ✓ |
 | dark | `verdict-correct-mark` | bg | 3 | 11.23 | ✓ |
 | dark | `verdict-deviations-mark` | surface | 3 | 10.74 | ✓ |
@@ -582,17 +607,17 @@ The gate uses the WCAG 2.2 contrast ratio. APCA is advisory only (see [#185](htt
 | dark | `border-emphasis (over surface)` | surface | 3 | 4.09 | ✓ |
 | dark | `correction-insert-line` | correction-insert-bg (over surface) | 3 | 6.92 | ✓ |
 
-134 gated pairs, 0 failing; 8 informational rows for roles that are not allowed on glass
+158 gated pairs, 0 failing; 8 informational rows for roles that are not allowed on glass
 
 The rows marked "info" are roles that section 2.3 keeps off glass. Since #195 they pass on the flat composite; the ban stays because the gate does not model blur over real content.
 
 **Tightest gated pairs** (closest to their minimum):
+- light `border-emphasis (over glass-overlay)` on glass-overlay worst case (scrim over bg), 3.26 (min 3)
+- light `border-emphasis (over glass)` on glass worst case (surface-sunken), 3.45 (min 3)
 - light `border-emphasis (over surface)` on surface, 3.48 (min 3)
 - light `verdict-deviations-mark` on glass-overlay worst case (scrim over bg), 3.50 (min 3)
 - light `feedback-success` on feedback-success-tint, 5.33 (min 4.5)
 - light `feedback-warning` on feedback-warning-tint, 5.35 (min 4.5)
-- light `verdict-correct-mark` on glass-overlay worst case (scrim over bg), 3.74 (min 3)
-- light `feedback-danger` on feedback-danger-tint, 5.69 (min 4.5)
 
 Do not lighten the light amber.
 
@@ -689,7 +714,7 @@ This section records the step from the prototype to the tokens as decided in #19
 - `glass-base` takes the former `glass-base-strong` value, and `glass-base-strong` is gone. Two variants remain: `glass` and `glass-overlay`.
 - The glass list now names the sticky summary strip and the detail drawer header, and no longer the summary hero and the pager. `z-pager` is removed: the pager sits inside the detail header, and the push drawer takes space instead of overlaying.
 - The glass fallback is opaque `surface`.
-- The gate drops the field, sheen and pointer combinations and gates the verdict marks on both remaining glass variants instead of on the hero lens: 134 gated pairs, 0 failing (was 156).
+- The gate drops the field, sheen and pointer combinations and gates the verdict marks on both remaining glass variants instead of on the hero lens: 158 gated pairs, 0 failing (was 156). The new pairs are the non-text roles the components put on glass: `accent`, `feedback-*` and `border-emphasis`.
 
 **Kept:** dark `verdict-not-found-mark` stays at L 0.70, although the hero-glass pair that forced it is gone; the value is decided and well inside the order of the verdict lightnesses.
 
