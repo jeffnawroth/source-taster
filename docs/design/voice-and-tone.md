@@ -119,7 +119,7 @@ These are held constant in the prototype and decided separately.
 3. (merged into 2)
 4. (merged into 2)
 5. (merged into 2)
-6. **Verdict:** „Urteil“, or the less judicial „Befund“ or „Bewertung“. The Glossary already rules out „rating“.
+6. ~~**Verdict (DE)**~~ Decided: **Befund** replaces „Urteil“ (20 uses in `de.json` today). It names what was found, not what follows from it, which fits evidence-first and „die Entscheidung trifft ein Mensch“; „Urteil“ sounds like a court ruling and nearly contradicts the FA-ERG-05 note. „Bewertung“ is ruled out as too close to „rating“ and grading. The six Verdict labels are unchanged. Examples: „Ein Befund ist kein Beweis für Täuschung.“, „Befund selbst festlegen“.
 7. **Gendered nouns:**
    - The options:
      - neutral rephrasing („Autorenangabe“)
