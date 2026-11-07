@@ -115,10 +115,10 @@ Use a toast for a reversible success: „Kopiert.“ When a result changes somet
 These are held constant in the prototype and decided separately.
 
 1. ~~**German address form**~~ Decided: **Sie** everywhere. Today `auth_*`, `library_*`, `quota_loading`, `quota_unavailable` and `dpa_*` use du and need rewriting.
-2. **Prüfung vs Check:** `history_*` says „Checks“, while the rest of the catalog says „Prüfung“.
-3. **Kontingent vs Quota:** `history_billable` says „verbraucht erneut Quota“.
-4. **Plan vs Tarif:** `commerce_open` says „Tarife“. Also open: the plural („bezahlte Plans“ in `history_policy` vs „Pläne“) and whether „Free“ is used as a German Plan name.
-5. **Check pack:** „Prüfkontingent“ collides with „Kontingent“. The alternative is „Prüfpaket“.
+2. ~~**German words for glossary terms**~~ Decided: the German UI uses German words throughout. English stays only for proper names and fixed abbreviations (DOI, PDF, Crossref, OpenAlex, Plan names). Check → **Prüfung** (fix `history_*` „Checks“). Quota → **Kontingent** (fix `history_billable` „Quota“). Plan → **Plan**, plural **Pläne** (fix `commerce_open` „Tarife“, `history_policy` „Plans“). Check pack → **Prüfpaket** (replaces „Prüfkontingent“, which collided with Kontingent: one buys a Prüfpaket and it raises the Kontingent). Plan names such as **Free** are proper names and are not translated („im Plan Free“).
+3. (merged into 2)
+4. (merged into 2)
+5. (merged into 2)
 6. **Verdict:** „Urteil“, or the less judicial „Befund“ or „Bewertung“. The Glossary already rules out „rating“.
 7. **Gendered nouns:**
    - The options:
