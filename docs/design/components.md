@@ -129,7 +129,7 @@ Each entry gives the RAC primitive, anatomy, variants and sizes, roles, keyboard
   - `primary`: flat `accent` fill, `on-accent` text. **At most one per view.**
   - `secondary`: `surface` fill, `border-strong` border, `text`.
   - `ghost`: no fill or border; text or icon only; hover `surface-sunken`.
-  - `danger`: `feedback-danger-tint` fill with `feedback-danger` text and border (the gated pair; a white-on-red fill would fail in dark mode, where `feedback-danger` is light). **Only inside a confirmation step** (AlertDialog). The trigger that opens the confirmation is `ghost` or `secondary`.
+  - `danger`: flat `feedback-danger` fill with a `surface`-coloured label (the gated pair `feedback-danger` on `surface`, 4.5:1 in both modes, read the other way round). **Only inside a confirmation step** (AlertDialog). The trigger that opens the confirmation is `ghost` or `secondary`.
 - Disabled: weaker and with its reason beside it (inventory problem 2: disabled primaries no longer look like enabled ones).
 - Loading: keeps its width; Spinner before the label; label stays.
 - Long text: never truncates; wraps to its own row in narrow layouts.
@@ -240,7 +240,7 @@ All fields share one anatomy through **Form, Label, Description and FieldError**
 - Label is the full glossary label from #192. It never truncates; in tight rows the badge wraps below the title.
 
 **StatusBadge** — for the four Statuses: Running, Not checked, Cancelled, Technical error.
-- Lucide icon + label in `text-muted`, inside a dashed `border-emphasis` contour, `radius-full`. Never a verdict colour or glyph.
+- Lucide icon + label in `text-muted`, inside a dashed `border-emphasis` contour, `radius-full`. On glass (the sticky strip) the label and icon use `text-on-glass-secondary`, because `text-muted` is not allowed on glass. Never a verdict colour or glyph.
 - Running: `accent` icon (`loader-circle`) with a pulse; reduced motion keeps it still.
 - Technical error: `triangle-alert`, never red.
 - `aria-live` is not on the badge; progress announcements come from the feed (3.2).
@@ -305,7 +305,7 @@ All fields share one anatomy through **Form, Label, Description and FieldError**
 
 **QuotaMeter** — Meter with the remaining Quota in words („Noch 12 von 50 Prüfungen“). The quota warning switches it to `feedback-warning` with icon and text (1.7). Quota facts follow #192 (a technical Status uses no Quota; a Re-check of the same slot is free).
 
-**HistorySheet** — Sheet from the left with a SearchField and a list of **HistoryEntry** rows: document name (one line, truncated), date, a compact verdict summary (glyph + number, with full labels as accessible names like the compact strip). Opening an entry loads it; "Als neue Prüfung starten" asks first (AlertDialog).
+**HistorySheet** — Sheet from the left with a SearchField and a list of **HistoryEntry** rows: document name (one line, truncated), date, and the summary sentence in text („5 von 10 Referenzen stimmen.“). No glyph-only counts: the compact-strip exception does not extend here. Opening an entry loads it; "Als neue Prüfung starten" asks first (AlertDialog).
 
 ### 3.5 Detail
 
@@ -363,4 +363,5 @@ The inventory from #187 named five cross-cutting problems:
 - **Correction flow:** confirm 3.6 against the client implementation, then drop "pending client".
 - **Website and docs:** the website's look beyond the shared recipes stays in that fog.
 - **Copy:** every string here is an example; #192's catalogue owns the final text.
+- **Drafted, not grilled:** the details below the grilled decisions were drafted for review, not decided: tooltip delay (600 ms), Spinner speed (800 ms), disabled zero counters, the Meter switching to `feedback-warning`, Checkbox, Radio and Switch sizes, the „Pflichtfeld“ convention, Sheet and Dialog widths, the Table breakpoint (560 px), and the batching of progress announcements.
 - **Verification:** the glyph greyscale test, axe in E2E, rendered-pixel contrast on glass, 200 % zoom and 320 px reflow in the panel, and forced-colors checks run on the built components, not on this spec.
