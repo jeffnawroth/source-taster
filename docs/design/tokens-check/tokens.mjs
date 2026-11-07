@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Token source for the #193 spec. Values start from prototype/191-identity round4/c-revised.
+// Amended in #195 (calm colour rule): glass fields, sheen, pointer light, background glow, hero and chart
+// roles, the primary-button gradient and the verdict tints are removed; glass-base takes the former
+// glass-base-strong value.
 // Opaque colours are [L, C, H]; translucent ones are [L, C, H, alpha].
 export const roles = {
   light: {
     canvas: [0.925, 0.012, 265],
     bg: [0.978, 0.007, 262],
-    'bg-glow': [0.925, 0.055, 252, 0.85],
     surface: [1, 0, 0],
     'surface-sunken': [0.966, 0.01, 262],
     border: [0.28, 0.05, 265, 0.11],
@@ -37,35 +39,17 @@ export const roles = {
     'correction-delete-bg': [0.3, 0.03, 265, 0.06],
     'correction-insert-bg': [0.55, 0.19, 264, 0.13],
     'correction-insert-line': [0.5, 0.2, 264],
-    'chart-track': [1, 0, 0, 0.55],
-    'glass-base': [1, 0, 0, 0.56],
     'glass-base-overlay': [1, 0, 0, 0.64],
-    'glass-base-strong': [1, 0, 0, 0.82],
+    'glass-base': [1, 0, 0, 0.82],
     'glass-border': [0.32, 0.06, 265, 0.14],
     'glass-rim-1': [1, 0, 0, 0.98],
     'glass-rim-2': [1, 0, 0, 0.1],
     'glass-rim-3': [1, 0, 0, 0.75],
-    'glass-sheen': [1, 0, 0, 0.42],
-    'glass-pointer-light': [1, 0, 0, 0.3],
-    'glass-field-1': [0.84, 0.1, 238, 0.85],
-    'glass-field-2': [0.86, 0.1, 292, 0.75],
-    'glass-field-3': [0.9, 0.08, 212, 0.8],
-    'hero-base': [0.93, 0.04, 255],
-    'hero-field-1': [0.8, 0.13, 238, 0.95],
-    'hero-field-2': [0.82, 0.12, 292, 0.9],
-    'hero-field-3': [0.86, 0.1, 212, 0.9],
     scrim: [0.3, 0.05, 265, 0.2],
-    // component tokens: primary button gradient stops (the rendered override, not --accent-hi/lo)
-    'button-primary-from': [0.55, 0.2, 263],
-    'button-primary-to': [0.47, 0.2, 266],
   },
   dark: {
     canvas: [0.1, 0.01, 265],
     bg: [0.15, 0.017, 266],
-    'bg-glow': [0.36, 0.15, 266, 0.5],
-    'bg-glow-2': [0.4, 0.14, 220, 0.14],
-    'bg-glow-3': [0.4, 0.15, 300, 0.1],
-    'bg-grain': [1, 0, 0, 0.07],
     surface: [0.195, 0.019, 266],
     'surface-sunken': [0.172, 0.017, 266],
     border: [1, 0, 0, 0.085],
@@ -97,27 +81,14 @@ export const roles = {
     'correction-delete-bg': [1, 0, 0, 0.05],
     'correction-insert-bg': [0.72, 0.15, 264, 0.2],
     'correction-insert-line': [0.8, 0.12, 262],
-    'chart-track': [1, 0, 0, 0.08],
-    'glass-base': [0.22, 0.025, 266, 0.62],
     'glass-base-overlay': [0.2, 0.022, 266, 0.84],
-    'glass-base-strong': [0.205, 0.022, 266, 0.88],
+    'glass-base': [0.205, 0.022, 266, 0.88],
     'glass-border': [0, 0, 0, 0.6],
     'glass-rim-1': [1, 0, 0, 0.36],
     'glass-rim-2': [1, 0, 0, 0.04],
     'glass-rim-3': [0.8, 0.1, 262, 0.3],
-    'glass-sheen': [1, 0, 0, 0.08],
-    'glass-pointer-light': [1, 0, 0, 0.06],
-    'glass-field-1': [0.42, 0.17, 266, 0.6],
-    'glass-field-2': [0.44, 0.15, 300, 0.5],
-    'glass-field-3': [0.46, 0.1, 220, 0.5],
-    'hero-base': [0.19, 0.035, 266],
-    'hero-field-1': [0.46, 0.2, 266, 0.95],
-    'hero-field-2': [0.42, 0.17, 300, 0.8],
-    'hero-field-3': [0.5, 0.12, 220, 0.65],
     scrim: [0.05, 0.01, 265, 0.55],
-    'button-primary-from': [0.83, 0.1, 258],
-    'button-primary-to': [0.72, 0.15, 264],
   },
 };
 export const verdicts = ['correct', 'deviations', 'mixed', 'doi-conflict', 'not-found', 'not-verifiable'];
-export const tintSteps = { tint: 0.10, 'tint-strong': 0.15, border: 0.28 };
+export const tintSteps = { tint: 0.10 }; // feedback tints only; verdict tints were removed in #195

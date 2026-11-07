@@ -37,7 +37,6 @@ const out = {};
 for (const mode of ['light', 'dark']) {
   const t = {};
   for (const [k, v] of Object.entries(roles[mode])) t[k] = fit(v);
-  for (const v of verdicts) for (const [step, p] of Object.entries(tintSteps)) t[`verdict-${v}-${step}`] = mix(t[`verdict-${v}-mark`], t.surface, p);
   for (const f of ['danger', 'warning', 'success', 'info']) t[`feedback-${f}-tint`] = mix(t[`feedback-${f}`], t.surface, tintSteps.tint);
   out[mode] = t;
 }
@@ -49,43 +48,33 @@ const check = (mode, fg, bgName, bgColour, min, kind) => {
 };
 for (const mode of ['light', 'dark']) {
   const t = out[mode];
-  const flat = { bg: t.bg, surface: t.surface, 'surface-sunken': t['surface-sunken'], 'glass-base-strong, the fallback (over bg)': stack(t.bg, t['glass-base-strong']) };
+  const flat = { bg: t.bg, surface: t.surface, 'surface-sunken': t['surface-sunken'], 'glass-base over bg (no blur)': stack(t.bg, t['glass-base']) };
   for (const fg of ['text', 'text-secondary', 'text-muted']) for (const [n, c] of Object.entries(flat)) check(mode, fg, n, c, 4.5, 'text');
   check(mode, 'accent-text', 'surface', t.surface, 4.5, 'text');
   check(mode, 'accent-text', 'accent-tint (over surface)', stack(t.surface, t['accent-tint']), 4.5, 'text');
   check(mode, 'on-accent', 'accent', t.accent, 4.5, 'text');
-  check(mode, 'on-accent', 'button-primary-from', t['button-primary-from'], 4.5, 'text');
-  check(mode, 'on-accent', 'button-primary-to', t['button-primary-to'], 4.5, 'text');
   for (const f of ['danger', 'warning', 'success', 'info']) {
     check(mode, `feedback-${f}`, 'surface', t.surface, 4.5, 'text');
     check(mode, `feedback-${f}`, `feedback-${f}-tint`, t[`feedback-${f}-tint`], 4.5, 'text');
   }
   check(mode, 'text', 'correction-insert-bg (over surface)', stack(t.surface, t['correction-insert-bg']), 4.5, 'text');
   check(mode, 'correction-delete-text', 'correction-delete-bg (over surface)', stack(t.surface, t['correction-delete-bg']), 4.5, 'text');
-  // text on real glass, per variant: backdrop x field x pointer, worst case per role
-  const scale = (c, k) => ({ ...c, alpha: c.alpha * k });
+  // text on glass, per variant (#195: no light field, sheen or pointer light; blur is not modelled, so the
+  // backdrop is the flat surface under the layer)
   const variants = {
-    glass: { base: 'glass-base', k: [1, 1, 1], backdrops: { bg: t.bg, surface: t.surface, 'surface-sunken': t['surface-sunken'], 'bg + bg-glow': stack(t.bg, t['bg-glow']) } },
-    'glass-strong': { base: 'glass-base-strong', k: [0.5, 0.5, 0], backdrops: Object.fromEntries([1, 2, 3].map((i) => [`hero-field-${i}`, stack(t['hero-base'], t[`hero-field-${i}`])])) },
-    'glass-overlay': { base: 'glass-base-overlay', k: mode === 'dark' ? [0.36, 0.26, 0] : [1, 1, 1], backdrops: { 'scrim over bg': stack(t.bg, t.scrim), 'scrim over surface': stack(t.surface, t.scrim), 'scrim over bg-glow': stack(t.bg, t['bg-glow'], t.scrim) } },
+    glass: { base: 'glass-base', backdrops: { bg: t.bg, surface: t.surface, 'surface-sunken': t['surface-sunken'] } },
+    'glass-overlay': { base: 'glass-base-overlay', backdrops: { 'scrim over bg': stack(t.bg, t.scrim), 'scrim over surface': stack(t.surface, t.scrim) } },
   };
   t.__glass = {};
   for (const [vn, v] of Object.entries(variants)) {
-    const combos = [];
-    for (const [bn, b] of Object.entries(v.backdrops)) for (const i of [0, 1, 2, 3]) for (const lit of [false, true]) {
-      if (i && !v.k[i - 1]) continue;
-      let c = stack(b, t[v.base]);
-      if (i) c = over(scale(t[`glass-field-${i}`], v.k[i - 1]), c);
-      if (lit) c = over(t['glass-pointer-light'], over(t['glass-sheen'], c));
-      combos.push({ name: `${bn}${i ? ` + field-${i}` : ''}${lit ? ' + sheen + pointer' : ''}`, c });
-    }
+    const combos = Object.entries(v.backdrops).map(([bn, b]) => ({ name: bn, c: stack(b, t[v.base]) }));
     t.__glass[vn] = combos;
     for (const fg of ['text', 'text-secondary', 'text-muted', 'text-on-glass-secondary']) {
       const worst = combos.map((g) => ({ ...g, r: wcagContrast(t[fg], g.c) })).sort((a, b) => a.r - b.r)[0];
       const gated = fg === 'text' || fg === 'text-on-glass-secondary';
       check(mode, fg, `${vn} worst case (${worst.name})`, worst.c, 4.5, gated ? 'text' : 'info');
     }
-    if (vn === 'glass-strong') for (const vd of verdicts) {
+    for (const vd of verdicts) {
       const m = `verdict-${vd}-mark`;
       const worst = combos.map((g) => ({ ...g, r: wcagContrast(t[m], g.c) })).sort((a, b) => a.r - b.r)[0];
       check(mode, m, `${vn} worst case (${worst.name})`, worst.c, 3, 'non-text');
@@ -95,8 +84,6 @@ for (const mode of ['light', 'dark']) {
     const m = `verdict-${v}-mark`;
     check(mode, m, 'surface', t.surface, 3, 'non-text');
     check(mode, m, 'bg', t.bg, 3, 'non-text');
-    check(mode, m, `verdict-${v}-tint`, t[`verdict-${v}-tint`], 3, 'non-text');
-    check(mode, m, `verdict-${v}-tint-strong`, t[`verdict-${v}-tint-strong`], 3, 'non-text');
   }
   for (const [n, c] of Object.entries({ bg: t.bg, surface: t.surface, 'surface-sunken': t['surface-sunken'], 'accent-tint (over surface)': stack(t.surface, t['accent-tint']) })) check(mode, 'focus-ring', n, c, 3, 'non-text');
   for (const [vn, combos] of Object.entries(t.__glass)) {
@@ -111,7 +98,7 @@ for (const mode of ['light', 'dark']) {
 
 const fmt = process.argv[2];
 if (fmt === 'tables') {
-  const keys = [...new Set([...Object.keys(out.light), ...Object.keys(out.dark)])];
+  const keys = [...new Set([...Object.keys(out.light), ...Object.keys(out.dark)])].filter((k) => !k.startsWith('__'));
   console.log('| Role | Light | Light sRGB | Dark | Dark sRGB |\n|---|---|---|---|---|');
   for (const k of keys) {
     const l = out.light[k], d = out.dark[k];
@@ -126,6 +113,8 @@ if (fmt === 'tables') {
   const fails = gate.filter((g) => !g.pass);
   const gated = gate.filter((g) => g.kind !== 'info');
   console.log(`\n${gated.length} gated pairs, ${fails.length} failing; ${gate.length - gated.length} informational rows for roles that are not allowed on glass`);
+  console.log('\nTightest gated pairs:');
+  for (const g of gated.sort((a, b) => a.ratio / a.min - b.ratio / b.min).slice(0, 6)) console.log(`- ${g.mode} \`${g.fg}\` on ${g.bg}, ${g.ratio.toFixed(2)} (min ${g.min})`);
   if (fails.length) process.exitCode = 1;
 } else if (fmt === 'json') {
   console.log(JSON.stringify(out, null, 1));
@@ -168,5 +157,5 @@ if (fmt === 'prims') {
 }
 if (fmt === 'tints') {
   console.log('| Token | Light | Light sRGB | Dark | Dark sRGB |\n|---|---|---|---|---|');
-  for (const k of Object.keys(out.light).filter((k) => !roles.light[k])) console.log(`| \`${k}\` | \`${css(out.light[k])}\` | \`${hex(out.light[k])}\` | \`${css(out.dark[k])}\` | \`${hex(out.dark[k])}\` |`);
+  for (const k of Object.keys(out.light).filter((k) => !roles.light[k] && !k.startsWith('__'))) console.log(`| \`${k}\` | \`${css(out.light[k])}\` | \`${hex(out.light[k])}\` | \`${css(out.dark[k])}\` | \`${hex(out.dark[k])}\` |`);
 }
