@@ -53,9 +53,9 @@ A mix is possible, for example B for chips, toasts and banners and A for verdict
 
 These are draft rules. The bracketed parts depend on the open decisions.
 
-### Address form — OPEN
+### Address form
 
-German: one form everywhere, either **Sie** or **du**. Today the catalog mixes both. English always uses "you".
+German uses **Sie** everywhere, including sign-in, import, Quota and DPA texts that use du today. English always uses "you". Reason: a Verdict about someone's references, Account deletion and the institutional DPA are serious moments where du reads as chummy, and the catalog is already mostly Sie. Warmth comes from plain, friendly sentences, not from the address form.
 
 ### Verdicts and "Not verifiable"
 
@@ -104,7 +104,7 @@ Use a toast for a reversible success: „Kopiert.“ When a result changes somet
 
 These are held constant in the prototype and decided separately.
 
-1. **German address form:** Sie or du. Today, `auth_*`, `library_*`, `quota_loading`, `quota_unavailable` and `dpa_*` use du, and the rest use Sie.
+1. ~~**German address form**~~ Decided: **Sie** everywhere. Today `auth_*`, `library_*`, `quota_loading`, `quota_unavailable` and `dpa_*` use du and need rewriting.
 2. **Prüfung vs Check:** `history_*` says „Checks“, while the rest of the catalog says „Prüfung“.
 3. **Kontingent vs Quota:** `history_billable` says „verbraucht erneut Quota“.
 4. **Plan vs Tarif:** `commerce_open` says „Tarife“. Also open: the plural („bezahlte Plans“ in `history_policy` vs „Pläne“) and whether „Free“ is used as a German Plan name.
