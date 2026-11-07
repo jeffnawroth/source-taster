@@ -122,11 +122,13 @@ These are held constant in the prototype and decided separately.
 6. ~~**Verdict (DE)**~~ Decided: **Befund** replaces „Urteil“ (20 uses in `de.json` today). It names what was found, not what follows from it, which fits evidence-first and „die Entscheidung trifft ein Mensch“; „Urteil“ sounds like a court ruling and nearly contradicts the FA-ERG-05 note. „Bewertung“ is ruled out as too close to „rating“ and grading. The six Verdict labels are unchanged. Examples: „Ein Befund ist kein Beweis für Täuschung.“, „Befund selbst festlegen“.
 7. ~~**Gendered nouns (DE)**~~ Decided: rephrase neutrally first („Autorenangabe {number}“, „Weitere Person hinzufügen“, „Von Ihnen eingegeben“ instead of „von der nutzenden Person“, „wer prüft“). Where that is impossible, use the paired form in running text („Autorinnen und Autoren“). Never use inner-word characters (`:`, `*`, `_`) or the slash („Autor/in“ in `revision_*` today). Reasons: since 1 April 2024, Bavaria's administrative rules (AGO) bar inner-word gender characters in state authorities, schools and university administration (not research and teaching), and that administration signs the DPA and buys licences ([Forschung & Lehre](https://www.forschung-und-lehre.de/politik/bayern-verbietet-gendern-in-schulen-hochschulen-und-behoerden-6318), [scope](https://www.forschung-und-lehre.de/politik/verbot-zu-gendern-gilt-nur-fuer-verwaltung-6407)). Screen readers read „Autor:innen“ unevenly, and neutral wording is usually shorter and calmer. English needs nothing here.
 8. ~~**EN capitalisation of glossary terms**~~ Decided: UI copy is lower-case and sentence case: „Check references“, „Your quota is used up“, „a re-check uses no quota“. Capitals stay for the sentence start, proper names (Free, Crossref, Source Taster) and Verdict and Status labels used as labels („Not found“, „Technical error“). GLOSSARY.md, ADRs and the spec keep capitalised terms as domain markers. A term is recognised by being the same word everywhere, not by its capital; capitalised nouns mid-sentence read like contract text in English.
-9. **Typography:**
-   - „80 %“ or „80%“
-   - en dash „–“ or em dash „—“
-   - spacing before „…“
-   - German quotation marks „…“ in DE
+9. ~~**Typography**~~ Decided:
+   - Percent: DE „80 %“ with a narrow no-break space (U+202F); EN „80%“.
+   - Dash: DE „–“ with spaces, EN „—“ without; both sparingly. In UI copy prefer a full stop and a new sentence.
+   - Pending states: DE „Wird gestartet …“ with a space (Duden, broken-off sentence); EN „Starting…“.
+   - Quotes: DE „…“, EN “…”, never straight quotes in copy.
+   - Time: DE „14:32 Uhr“; EN per locale.
+   - Numbers and dates are always formatted with `Intl`, never by hand.
 10. **„Bitte“ / "please":** always, only when asking for patience, or never.
 
 ## Resolution
