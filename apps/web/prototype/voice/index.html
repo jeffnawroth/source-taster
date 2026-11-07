@@ -291,9 +291,9 @@ const S = {
     ['Review each finding yourself: a ⟦Verdict⟧ is not proof of deception, and the decision rests with a person.', ['Prüfen Sie jeden Befund selbst: Ein Urteil ist kein Beweis für Täuschung, die Entscheidung trifft ein Mensch.', 'Prüfe jeden Befund selbst: Ein Urteil ist kein Beweis für Täuschung, die Entscheidung trifft ein Mensch.']]),
   missReason: F('reason_search_completed',
     ['The completed search in the enabled development indexes found no sufficiently matching Source.', 'Die abgeschlossene Suche in den aktivierten Entwicklungsindizes fand keine hinreichend passende Quelle.'],
-    ['The search was completed and found no sufficiently matching ⟦Source⟧ in the searched ⟦Data sources⟧.', 'Die Suche wurde abgeschlossen und fand in den durchsuchten Datenquellen keine ausreichend passende Quelle.'],
-    ['Search complete. No close enough ⟦Source⟧.', 'Suche abgeschlossen. Keine ausreichend passende Quelle.'],
-    ['Check the title and authors for typos, or add a DOI. The completed search found no sufficiently matching ⟦Source⟧ in the searched ⟦Data sources⟧.', ['Prüfen Sie Titel und Autoren auf Tippfehler oder ergänzen Sie eine DOI. Die abgeschlossene Suche fand in den durchsuchten Datenquellen keine ausreichend passende Quelle.', 'Prüfe Titel und Autoren auf Tippfehler oder ergänze eine DOI. Die abgeschlossene Suche fand in den durchsuchten Datenquellen keine ausreichend passende Quelle.']]),
+    ['The search was completed and found no sufficiently matching ⟦Source⟧ in the enabled ⟦Data sources⟧.', 'Die Suche wurde abgeschlossen und fand in den aktivierten Datenquellen keine ausreichend passende Quelle.'],
+    ['Search complete. No close enough ⟦Source⟧ in the enabled ⟦Data sources⟧.', 'Suche abgeschlossen. Keine ausreichend passende Quelle in den aktivierten Datenquellen.'],
+    ['Check the title and authors for typos, or add a DOI. The completed search found no sufficiently matching ⟦Source⟧ in the enabled ⟦Data sources⟧.', ['Prüfen Sie Titel und Autoren auf Tippfehler oder ergänzen Sie eine DOI. Die abgeschlossene Suche fand in den aktivierten Datenquellen keine ausreichend passende Quelle.', 'Prüfe Titel und Autoren auf Tippfehler oder ergänze eine DOI. Die abgeschlossene Suche fand in den aktivierten Datenquellen keine ausreichend passende Quelle.']]),
   missNext: F('(new) next step',
     null,
     ['Check the title and authors for typos, or add a DOI.', ['Prüfen Sie Titel und Autoren auf Tippfehler oder ergänzen Sie eine DOI.', 'Prüfe Titel und Autoren auf Tippfehler oder ergänze eine DOI.']],
@@ -316,7 +316,7 @@ const S = {
     ['The Source is unambiguously identified, but the marked fields differ. Both original values are shown.', 'Die Quelle ist eindeutig identifiziert, aber die markierten Felder weichen ab. Beide Originalwerte werden angezeigt.'],
     ['The ⟦Source⟧ is unambiguously identified, but the 2 marked fields differ. Both original values are shown side by side.', 'Die Quelle ist eindeutig identifiziert, aber die 2 markierten Felder weichen ab. Beide Originalwerte stehen nebeneinander.'],
     ['Identified. 2 fields differ.', 'Eindeutig identifiziert. 2 Felder weichen ab.'],
-    ['Review the 2 marked fields; the ⟦Correction suggestion⟧ uses the values of the ⟦Source⟧. It is unambiguously identified.', ['Sehen Sie sich die 2 markierten Felder an; der Korrekturvorschlag übernimmt die Werte der Quelle. Sie ist eindeutig identifiziert.', 'Sieh dir die 2 markierten Felder an; der Korrekturvorschlag übernimmt die Werte der Quelle. Sie ist eindeutig identifiziert.']]),
+    ['Review the 2 marked fields; the ⟦Correction suggestion⟧ is built from the metadata of the ⟦Source⟧, which is unambiguously identified.', ['Sehen Sie sich die 2 markierten Felder an; der Korrekturvorschlag beruht auf den Metadaten der Quelle, die eindeutig identifiziert ist.', 'Sieh dir die 2 markierten Felder an; der Korrekturvorschlag beruht auf den Metadaten der Quelle, die eindeutig identifiziert ist.']]),
   more: F('evidence_details',
     ['Explanation and source evidence', 'Erklärung und Quellenbelege'],
     ['Explanation and source evidence', 'Erklärung und Quellenbelege'],
@@ -426,7 +426,7 @@ const S = {
     ['All your Checks and their results are deleted and cannot be restored. You are signed out on every device.', 'Alle Ihre Prüfungen und deren Ergebnisse werden gelöscht und können nicht wiederhergestellt werden. Sie werden auf allen Geräten abgemeldet.'],
     ['All your ⟦Checks⟧ and their results will be deleted and cannot be restored. You will be signed out on every device.', ['Alle Ihre Prüfungen und deren Ergebnisse werden gelöscht und lassen sich nicht wiederherstellen. Sie werden auf allen Geräten abgemeldet.', 'Alle deine Prüfungen und ihre Ergebnisse werden gelöscht und lassen sich nicht wiederherstellen. Du wirst auf allen Geräten abgemeldet.']],
     ['All ⟦Checks⟧ and results are deleted for good. You are signed out everywhere.', ['Alle Prüfungen und Ergebnisse werden endgültig gelöscht. Sie werden überall abgemeldet.', 'Alle Prüfungen und Ergebnisse werden endgültig gelöscht. Du wirst überall abgemeldet.']],
-    ['Download anything you want to keep first. All your ⟦Checks⟧ and their results will be deleted and cannot be restored, and you will be signed out on every device.', ['Laden Sie zuerst herunter, was Sie behalten möchten. Alle Ihre Prüfungen und deren Ergebnisse werden gelöscht und lassen sich nicht wiederherstellen. Sie werden auf allen Geräten abgemeldet.', 'Lade zuerst herunter, was du behalten möchtest. Alle deine Prüfungen und ihre Ergebnisse werden gelöscht und lassen sich nicht wiederherstellen. Du wirst auf allen Geräten abgemeldet.']]),
+    ['Delete only if you no longer need your ⟦Checks⟧. All of them ⟦Checks⟧ and their results will be deleted and cannot be restored, and you will be signed out on every device.', ['Löschen Sie nur, wenn Sie Ihre Prüfungen nicht mehr brauchen. Alle und deren Ergebnisse werden gelöscht und lassen sich nicht wiederherstellen. Sie werden auf allen Geräten abgemeldet.', 'Lösch nur, wenn du deine Prüfungen nicht mehr brauchst. Alle und ihre Ergebnisse werden gelöscht und lassen sich nicht wiederherstellen. Du wirst auf allen Geräten abgemeldet.']]),
   delQuota: F('sensitive_delete_notice_quota',
     ['Your remaining Quota (37 checks) is lost and not restored.', 'Ihr verbleibendes Kontingent (37 Prüfungen) geht verloren und wird nicht wiederhergestellt.'],
     ['Your remaining ⟦Quota⟧ of 37 checks is lost and will not be restored.', ['Ihr verbleibendes Kontingent von 37 Prüfungen geht verloren und wird nicht wiederhergestellt.', 'Dein verbleibendes Kontingent von 37 Prüfungen geht verloren und wird nicht wiederhergestellt.']],
@@ -462,7 +462,7 @@ const S = {
   bCopy: F('correction_copy', ['Copy suggestion', 'Vorschlag kopieren'], ['Copy suggestion', 'Vorschlag kopieren'], ['Copy', 'Kopieren'], ['Copy corrected ⟦Reference⟧', 'Korrigierte Referenz kopieren']),
   bRecheck: F('revision_save_recheck', ['Save and re-check', 'Speichern und erneut prüfen'], ['Save and re-check', 'Speichern und erneut prüfen'], ['Save & re-check', 'Speichern & prüfen'], ['Save fields and re-check', 'Felder speichern und erneut prüfen']),
   bJudge: F('override_judge', ['Judge manually', 'Manuell beurteilen'], ['Judge manually', 'Manuell beurteilen'], ['Judge', 'Beurteilen'], ['Set the ⟦Verdict⟧ myself', 'Urteil selbst festlegen']),
-  bReport: F('report_ui_create', ['Create report', 'Bericht erstellen'], ['Create PDF report', 'PDF-Bericht erstellen'], ['PDF report', 'PDF-Bericht'], ['Create accessible PDF report', 'Barrierefreien PDF-Bericht erstellen']),
+  bReport: F('report_ui_create', ['Create report', 'Bericht erstellen'], ['Create PDF report', 'PDF-Bericht erstellen'], ['PDF report', 'PDF-Bericht'], ['Create PDF report of this ⟦Check⟧', 'PDF-Bericht dieser Prüfung erstellen']),
   copied: F('correction_copied',
     ['Copied.', 'Kopiert.'],
     ['Copied to the clipboard.', 'In die Zwischenablage kopiert.'],
@@ -484,8 +484,8 @@ const QUESTIONS = [
   ['<b>Plan oder Tarif:</b> <code>commerce_open</code> sagt „Tarife“, sonst steht „Plan“. Dazu kommen „Free“ als Planname und der Plural „bezahlte Plans“ (<code>history_policy</code>) statt „Pläne“.', '<b>Plan vs Tarif (DE):</b> <code>commerce_open</code> says „Tarife“; elsewhere the catalog says „Plan“. Also „Free“ as a Plan name, and the plural „bezahlte Plans“ (<code>history_policy</code>) instead of „Pläne“.'],
   ['<b>Check pack:</b> „Prüfkontingent“ kollidiert mit „Kontingent“. Alternative: „Prüfpaket“.', '<b>Check pack (DE):</b> „Prüfkontingent“ collides with „Kontingent“. Alternative: „Prüfpaket“.'],
   ['<b>Verdict:</b> „Urteil“ klingt nach Gericht. Alternativen: „Befund“, „Bewertung“. „Rating“ ist laut Glossar zu vermeiden.', '<b>Verdict (DE):</b> „Urteil“ sounds like a court ruling. Alternatives: „Befund“, „Bewertung“. The Glossary says to avoid „rating“.'],
-  ['<b>Gendern:</b> neutral umformulieren („Autorenangabe“, „wer prüft“), „Autor/in“ wie heute oder „Autor:innen“ wie im Glass-Entwurf. Bayern untersagt Gendersonderzeichen seit April 2024 in Behörden, Schulen und Hochschulen; das betrifft die Glaubwürdigkeit auf dem Campus.',
-   '<b>Gendered nouns (DE):</b> rephrase neutrally, keep „Autor/in“ as today, or use „Autor:innen“ as in the Glass draft. Since April 2024, Bavaria has barred gender special characters in authorities, schools and universities, which affects credibility on campus.'],
+  ['<b>Gendern:</b> neutral umformulieren („Autorenangabe“, „wer prüft“), „Autor/in“ wie heute oder „Autor:innen“ wie im Glass-Entwurf. Bayern untersagt Gendersonderzeichen seit 1. April 2024 per AGO in Behörden, Schulen und der Hochschulverwaltung (nicht in Forschung und Lehre); das betrifft die Glaubwürdigkeit auf dem Campus.',
+   '<b>Gendered nouns (DE):</b> rephrase neutrally, keep „Autor/in“ as today, or use „Autor:innen“ as in the Glass draft. Since 1 April 2024, Bavaria’s AGO bars gender special characters in state authorities, schools and university administration (not research and teaching), which affects credibility on campus.'],
   ['<b>Groß- oder Kleinschreibung von Glossarbegriffen im Englischen:</b> „Check Reference“ oder „check reference“. Schalter „Check / check“.', '<b>EN capitalisation of glossary terms</b> in running copy: „your Quota“ vs „your quota“. See the „Check / check“ toggle.'],
   ['<b>Typografie:</b> „80 %“ oder „80%“, Gedankenstrich „–“ oder „—“, „…“ mit oder ohne Leerzeichen, deutsche Anführungszeichen „…“.', '<b>Typography:</b> „80 %“ vs „80%“, dash „–“ vs „—“, ellipsis spacing, and German quotation marks „…“ in DE.'],
   ['<b>„Bitte“:</b> immer, nur bei Bitten um Geduld oder nie.', '<b>„Please“:</b> always, only when asking for patience, or never.'],
@@ -496,7 +496,7 @@ const P = new URLSearchParams(location.search);
 const pick = (k, d, ok) => (ok.includes(P.get(k)) ? P.get(k) : d);
 const st = {
   v: pick('v', 'A', ORDER), lang: pick('lang', 'de', ['de', 'en']), addr: pick('addr', 'sie', ['sie', 'du']),
-  case: pick('case', 'low', ['cap', 'low']), w: pick('w', 'web', ['web', '360']), theme: pick('theme', 'light', ['light', 'dark']),
+  case: pick('case', 'cap', ['cap', 'low']), w: pick('w', 'web', ['web', '360']), theme: pick('theme', 'light', ['light', 'dark']),
   keys: P.get('keys') === '1' ? '1' : '0',
 };
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -549,8 +549,8 @@ function render() {
     <h1>${esc(V[st.lang])}</h1>
     <div class="axes">${esc(axes)}</div>
     <ul>${V.rules[st.lang].map((r) => `<li>${esc(r)}</li>`).join('')}</ul>
-    <p class="const">${L('In allen Stimmen gleich: Urteils- und Statusnamen, Begriffe (Prüfung, Kontingent, Plan, Urteil) und jede sachliche Aussage. Nur Ton und Reihenfolge ändern sich.',
-      'Constant in every voice: Verdict and Status labels, terminology, and every factual claim. Only register and order change.')}</p>
+    <p class="const">${L('In allen Stimmen gleich: Urteils- und Statusnamen, Begriffe (Prüfung, Kontingent, Plan, Urteil) und jede sachliche Aussage. Nur Ton und Reihenfolge ändern sich; Stimme C darf zusätzlich einen nächsten Schritt voranstellen.',
+      'Constant in every voice: Verdict and Status labels, terminology, and every factual claim. Only register and order change; voice C may also lead with a next step.')}</p>
   </section>
 
   <section class="sec"><h2>${L('1 · Einstieg und leere Zustände', '1 · Intake and empty states')}</h2>

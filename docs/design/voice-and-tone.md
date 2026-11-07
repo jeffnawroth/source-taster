@@ -30,7 +30,7 @@ These follow from the positioning in [Who is Source Taster for and what should i
   - Verdicts: Correct / Korrekt, Exists, with deviations / Existiert, mit Abweichungen, Mixed citation / Gemischte Referenz, DOI conflict / DOI-Konflikt, Not found / Nicht gefunden, Not verifiable / Nicht verifizierbar.
   - Statuses: Running, Not checked, Cancelled, Technical error.
   - A Status is never phrased as a Verdict. The GLOSSARY.md _Avoid_ lists apply to UI copy too, for example no "Deviating", "Unverifiable", "credits", "rating" or "confidence".
-- **Claims never change with tone.** Rewording may reorder and shorten a string, but it may not add or drop a fact. Legal texts such as retention and the DPA may change register, but not content.
+- **Claims never change with tone.** Rewording may reorder and shorten a string, but it may not add or drop a fact. Voice C may additionally lead with a next step (advice such as „Prüfen Sie Titel und Autoren auf Tippfehler“), but never with a new factual claim. Legal texts such as retention and the DPA may change register, but not content.
 - **Quota facts stay explicit wherever they matter:**
   - A technical Status uses no Quota.
   - A Re-check of the same Reference slot is free.
@@ -61,7 +61,7 @@ German: one form everywhere, either **Sie** or **du**. Today the catalog mixes b
 
 - State what the search did, then what it found: „Die Suche wurde abgeschlossen und fand …“. Never use „Die Quelle existiert nicht“ unless a neutral authority confirms it, as doi.org does for a non-existent DOI.
 - "Not found" means the search finished without a match. "Not verifiable" means the search could not finish or found too little evidence. Both carry a caveat. Neither implies wrongdoing.
-- Name the data source when the finding depends on it: Crossref, OpenAlex, doi.org.
+- Name the data source when the finding depends on it: Crossref, OpenAlex, doi.org. Use the Glossary term „Data source“ / „Datenquelle“ rather than internal words such as „development indexes“, and keep qualifiers such as „enabled“ / „aktiviert“ that limit what was searched.
 - The summary leads with counts ("3 of 8 …") and points to what deserves a look first. It never sounds like a grade.
 
 ### Errors and technical Status
@@ -93,7 +93,7 @@ Use this for deletion, withdrawal and anything irreversible.
 ### Buttons
 
 - Use verb + object: „Referenzen prüfen“, „PDF-Bericht erstellen“. [Voice B allows the verb alone when the context names the object. Voice C adds the count: „8 Referenzen prüfen“.]
-- German buttons use the infinitive. English buttons use the imperative in sentence case.
+- German buttons use the infinitive. English buttons use the imperative [in sentence case, or with capitalised glossary terms; see open decision 8].
 - Use the same verb for the same action everywhere: prüfen / check, erneut prüfen / re-check, abbrechen / cancel.
 
 ### Confirmations
@@ -115,7 +115,7 @@ These are held constant in the prototype and decided separately.
      - neutral rephrasing („Autorenangabe“)
      - a slash („Autor/in“, as in `revision_*` today)
      - a colon („Autor:innen“, as in the Glass draft)
-   - Bavaria has barred gender special characters in authorities, schools and universities since April 2024.
+   - Since 1 April 2024, Bavaria's administrative rules (AGO) bar inner-word gender characters (asterisk, colon, gap, mid-dot) in state authorities, schools and university administration, though not in research and teaching. Sources: [Forschung & Lehre](https://www.forschung-und-lehre.de/politik/bayern-verbietet-gendern-in-schulen-hochschulen-und-behoerden-6318), [Forschung & Lehre on scope](https://www.forschung-und-lehre.de/politik/verbot-zu-gendern-gilt-nur-fuer-verwaltung-6407). Paired forms („Autorinnen und Autoren“) remain allowed.
 8. **English capitalisation of glossary terms in running copy:** "your Quota" or "your quota". Today's catalog capitalises them.
 9. **Typography:**
    - „80 %“ or „80%“
