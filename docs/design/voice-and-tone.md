@@ -37,7 +37,7 @@ These follow from the positioning in [Who is Source Taster for and what should i
   - Partial starts say how many References were left out.
 - **A chip is never only colour.** Verdict chips carry glyph and text, and copy never refers to "the red ones".
 
-## Sentence style — OPEN
+## Sentence style
 
 The prototype shows three voices on about 50 strings, next to today's catalog:
 
@@ -47,7 +47,17 @@ The prototype shows three voices on about 50 strings, next to today's catalog:
 | B · Brief | One core sentence plus at most one more. Detail lives behind „Erklärung und Quellenbelege“. | „Suche unvollständig oder zu wenige Belege. Die Quelle kann trotzdem existieren.“ |
 | C · Next step first | If there is something to do, it comes first, then the fact. | „Prüfen Sie diese Referenz später erneut; das verbraucht kein Kontingent. Die Suche …“ |
 
-A mix is possible, for example B for chips, toasts and banners and A for verdict explanations and dialogs. The decision should name the voice per surface.
+**Decided: the voice depends on the surface.**
+
+| Surface | Voice |
+| --- | --- |
+| Toasts, chips, labels, short limitation notes in the source evidence | B · Brief |
+| Verdict explanations, the summary, dialogs (Quota, deletion), empty states | A · Explanatory |
+| Errors and limits where the person has to act | C · Next step first |
+| Buttons | Verb + object; the count only where Quota is spent („8 Referenzen prüfen“, „Die ersten 5 prüfen“) |
+| Destructive buttons | Repeat the action, no first person („Konto endgültig löschen“, „Abbrechen“) |
+
+Reason: a Verdict needs a traceable explanation and a spelled-out caveat more than brevity, where a short „kann trotzdem existieren“ reads as offhand. An error is about what to do next. Small surfaces have no room for full sentences. The first person in buttons does not fit the calm, factual tone.
 
 ## Rules per category
 
@@ -88,11 +98,11 @@ Use this for deletion, withdrawal and anything irreversible.
 
 - The heading names the action and its finality: „Konto endgültig löschen“.
 - List what is lost, with numbers, before the confirmation.
-- The destructive button repeats the action. Never use a bare "OK" or "Yes". [In voice C the destructive button uses the first person: „Mein Konto endgültig löschen“ / „Mein Konto behalten“.]
+- The destructive button repeats the action. Never use a bare "OK" or "Yes". Do not use the first person: „Konto endgültig löschen“, not „Mein Konto endgültig löschen“.
 
 ### Buttons
 
-- Use verb + object: „Referenzen prüfen“, „PDF-Bericht erstellen“. [Voice B allows the verb alone when the context names the object. Voice C adds the count: „8 Referenzen prüfen“.]
+- Use verb + object: „Referenzen prüfen“, „PDF-Bericht erstellen“. Add the count only where the action spends Quota: „8 Referenzen prüfen“, „Die ersten 5 prüfen“.
 - German buttons use the infinitive. English buttons use the imperative [in sentence case, or with capitalised glossary terms; see open decision 8].
 - Use the same verb for the same action everywhere: prüfen / check, erneut prüfen / re-check, abbrechen / cancel.
 
