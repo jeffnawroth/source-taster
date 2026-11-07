@@ -246,3 +246,20 @@ button { font: inherit; color: inherit; }
 .st-dev { text-decoration: underline wavy var(--st-verdict-deviations-mark); text-underline-offset: 3px; }
 
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* ---------- review toggle "calm" (#194 feedback: fewer colours, no gradients) ----------
+   Colour stays only in the verdict glyph mark and its label; surfaces, borders, glass and
+   buttons go neutral. Prototype-only switch to compare against the identity as chosen. */
+:root[data-calm], :root[data-calm][data-theme="dark"] {
+  --st-bg-glow: transparent;
+  --st-glass-field-1: transparent; --st-glass-field-2: transparent; --st-glass-field-3: transparent;
+  --st-button-primary-from: var(--st-accent); --st-button-primary-to: var(--st-accent);
+  --st-verdict-correct-tint: var(--st-surface); --st-verdict-correct-border: var(--st-border-strong);
+  --st-verdict-deviations-tint: var(--st-surface); --st-verdict-deviations-border: var(--st-border-strong);
+  --st-verdict-mixed-tint: var(--st-surface); --st-verdict-mixed-border: var(--st-border-strong);
+  --st-verdict-doi-conflict-tint: var(--st-surface); --st-verdict-doi-conflict-border: var(--st-border-strong);
+  --st-verdict-not-found-tint: var(--st-surface); --st-verdict-not-found-border: var(--st-border-strong);
+  --st-verdict-not-verifiable-tint: var(--st-surface); --st-verdict-not-verifiable-border: var(--st-border-strong);
+}
+:root[data-calm] [data-v]:not(.gly) { --vt: var(--st-surface); --vb: var(--st-border-strong); }
+:root[data-calm] .st-glass { background: var(--st-glass-base-strong); }
