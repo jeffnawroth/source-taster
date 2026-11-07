@@ -10,12 +10,13 @@ window.ST = window.ST || {};
   ST.variant = (def) => V.push(def);
   const cfg = ST.cfg = {
     variant: qs.get('variant') || 'A', theme: qs.get('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'),
-    w: qs.get('w') === '360' ? '360' : 'web', lang: qs.get('lang') === 'en' ? 'en' : 'de', grey: qs.has('grey'), calm: qs.has('calm'), open: qs.has('dev')
+    w: qs.get('w') === '360' ? '360' : 'web', lang: qs.get('lang') === 'en' ? 'en' : 'de', grey: qs.has('grey'), calm: qs.has('calm'), open: qs.has('dev'),
+    strip: ['a', 'b'].includes(qs.get('strip')) ? qs.get('strip') : ''   /* #195: compact 360 px strip variants */
   };
   const sync = () => {
     const p = new URLSearchParams(location.search);
     p.set('variant', cfg.variant); cfg.w === '360' ? p.set('w', '360') : p.delete('w'); p.set('theme', cfg.theme); p.set('lang', cfg.lang);
-    cfg.grey ? p.set('grey', '1') : p.delete('grey'); cfg.calm ? p.set('calm', '1') : p.delete('calm');
+    cfg.grey ? p.set('grey', '1') : p.delete('grey'); cfg.calm ? p.set('calm', '1') : p.delete('calm'); cfg.strip ? p.set('strip', cfg.strip) : p.delete('strip');
     for (const [k, v] of [['acct', ST.state.account], ['quota', ST.state.quotaMode], ['corr', ST.state.corrModel]]) p.set(k, v);
     ST.state.historyOn ? p.set('hist', '1') : p.delete('hist');
     history.replaceState(null, '', '?' + p.toString());
@@ -54,6 +55,7 @@ window.ST = window.ST || {};
       <button type="button" data-dev="toggle" class="dev-handle" aria-expanded="${cfg.open}">⚙︎ Review</button>
       ${cfg.open ? `<div class="dev-body">
         <div><span>View</span>${btn('theme:light', 'Light', cfg.theme === 'light')}${btn('theme:dark', 'Dark', cfg.theme === 'dark')}${btn('w:web', 'Web', cfg.w === 'web')}${btn('w:360', 'Panel 360', cfg.w === '360')}${btn('lang:de', 'DE', cfg.lang === 'de')}${btn('lang:en', 'EN', cfg.lang === 'en')}${btn('grey', 'Greyscale', cfg.grey)}${btn('calm', 'Ruhig', cfg.calm)}</div>
+        <div><span>Strip 360 (#195)</span>${btn('strip:', 'As #194', !cfg.strip)}${btn('strip:a', 'a · Compact', cfg.strip === 'a')}${btn('strip:b', 'b · Scroll', cfg.strip === 'b')}</div>
         <div><span>Jump</span>${btn('jump:intake', 'Intake')}${btn('jump:counted', 'Counted')}${btn('jump:running', 'Running')}${btn('jump:done', 'Done')}${btn('jump:detail', 'Detail #3')}</div>
         <div><span>Account</span>${btn('acct:guest', 'Guest', s.account === 'guest')}${btn('acct:free', 'Signed in', s.account === 'free')}${btn('hist', 'History on', s.historyOn)}</div>
         <div><span>Quota</span>${btn('quota:enough', 'Enough', s.quotaMode === 'enough')}${btn('quota:short', 'Only 6 left', s.quotaMode === 'short')}${btn('conn', 'Connection lost', s.connection !== 'online')}</div>
@@ -69,6 +71,7 @@ window.ST = window.ST || {};
     if (k === 'theme') cfg.theme = v;
     if (k === 'lang') { cfg.lang = v; apply(); return mount(); } if (k === 'grey') cfg.grey = !cfg.grey; if (k === 'calm') cfg.calm = !cfg.calm;
     if (k === 'w') { cfg.w = v; apply(); return mount(); }
+    if (k === 'strip') { cfg.strip = v || ''; apply(); return mount(); }
     if (k === 'jump') ST.act.jump(v);
     if (k === 'acct') ST.act.setAccount(v); if (k === 'hist') ST.act.setHistory(!ST.state.historyOn);
     if (k === 'quota') ST.act.setQuotaMode(v); if (k === 'corr') ST.act.setCorrModel(v);

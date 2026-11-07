@@ -922,12 +922,13 @@ window.ST = window.ST || {};
   ST.variant = (def) => V.push(def);
   const cfg = ST.cfg = {
     variant: qs.get('variant') || 'A', theme: qs.get('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'),
-    w: qs.get('w') === '360' ? '360' : 'web', lang: qs.get('lang') === 'en' ? 'en' : 'de', grey: qs.has('grey'), calm: qs.has('calm'), open: qs.has('dev')
+    w: qs.get('w') === '360' ? '360' : 'web', lang: qs.get('lang') === 'en' ? 'en' : 'de', grey: qs.has('grey'), calm: qs.has('calm'), open: qs.has('dev'),
+    strip: ['a', 'b'].includes(qs.get('strip')) ? qs.get('strip') : ''   /* #195: compact 360 px strip variants */
   };
   const sync = () => {
     const p = new URLSearchParams(location.search);
     p.set('variant', cfg.variant); cfg.w === '360' ? p.set('w', '360') : p.delete('w'); p.set('theme', cfg.theme); p.set('lang', cfg.lang);
-    cfg.grey ? p.set('grey', '1') : p.delete('grey'); cfg.calm ? p.set('calm', '1') : p.delete('calm');
+    cfg.grey ? p.set('grey', '1') : p.delete('grey'); cfg.calm ? p.set('calm', '1') : p.delete('calm'); cfg.strip ? p.set('strip', cfg.strip) : p.delete('strip');
     for (const [k, v] of [['acct', ST.state.account], ['quota', ST.state.quotaMode], ['corr', ST.state.corrModel]]) p.set(k, v);
     ST.state.historyOn ? p.set('hist', '1') : p.delete('hist');
     history.replaceState(null, '', '?' + p.toString());
@@ -966,6 +967,7 @@ window.ST = window.ST || {};
       <button type="button" data-dev="toggle" class="dev-handle" aria-expanded="${cfg.open}">⚙︎ Review</button>
       ${cfg.open ? `<div class="dev-body">
         <div><span>View</span>${btn('theme:light', 'Light', cfg.theme === 'light')}${btn('theme:dark', 'Dark', cfg.theme === 'dark')}${btn('w:web', 'Web', cfg.w === 'web')}${btn('w:360', 'Panel 360', cfg.w === '360')}${btn('lang:de', 'DE', cfg.lang === 'de')}${btn('lang:en', 'EN', cfg.lang === 'en')}${btn('grey', 'Greyscale', cfg.grey)}${btn('calm', 'Ruhig', cfg.calm)}</div>
+        <div><span>Strip 360 (#195)</span>${btn('strip:', 'As #194', !cfg.strip)}${btn('strip:a', 'a · Compact', cfg.strip === 'a')}${btn('strip:b', 'b · Scroll', cfg.strip === 'b')}</div>
         <div><span>Jump</span>${btn('jump:intake', 'Intake')}${btn('jump:counted', 'Counted')}${btn('jump:running', 'Running')}${btn('jump:done', 'Done')}${btn('jump:detail', 'Detail #3')}</div>
         <div><span>Account</span>${btn('acct:guest', 'Guest', s.account === 'guest')}${btn('acct:free', 'Signed in', s.account === 'free')}${btn('hist', 'History on', s.historyOn)}</div>
         <div><span>Quota</span>${btn('quota:enough', 'Enough', s.quotaMode === 'enough')}${btn('quota:short', 'Only 6 left', s.quotaMode === 'short')}${btn('conn', 'Connection lost', s.connection !== 'online')}</div>
@@ -981,6 +983,7 @@ window.ST = window.ST || {};
     if (k === 'theme') cfg.theme = v;
     if (k === 'lang') { cfg.lang = v; apply(); return mount(); } if (k === 'grey') cfg.grey = !cfg.grey; if (k === 'calm') cfg.calm = !cfg.calm;
     if (k === 'w') { cfg.w = v; apply(); return mount(); }
+    if (k === 'strip') { cfg.strip = v || ''; apply(); return mount(); }
     if (k === 'jump') ST.act.jump(v);
     if (k === 'acct') ST.act.setAccount(v); if (k === 'hist') ST.act.setHistory(!ST.state.historyOn);
     if (k === 'quota') ST.act.setQuotaMode(v); if (k === 'corr') ST.act.setCorrModel(v);
@@ -3898,7 +3901,7 @@ html[data-still] .v-B .spin{animation:none}
       dRemove: 'Datei entfernen', dJudge: 'Wirksames Urteil wählen', dClearOv: 'Manuelles Urteil zurücknehmen',
       dManualHead: 'Manuelle Beurteilung', dConsent: 'Speichert Prüfungen bis zur Löschfrist im Verlauf. Die Einwilligung ist jederzeit widerrufbar.',
       dGroupNav: 'Navigation', dGroupAct: 'Aktionen', dGroupFilter: 'Filter', dGroupRefs: 'Referenzen', dNoResults: 'Keine Treffer',
-      dCounts: 'Zähler', dVerdicts: 'Urteile', dStopWhy: 'Nur während einer laufenden Prüfung.', dEditLocked: 'Gesperrt, solange die erneute Prüfung läuft.',
+      dCounts: 'Zähler', dLabelsShow: 'Alle Labels zeigen', dLabelsHide: 'Labels ausblenden', dRunLede: (d, n) => `Prüfung läuft · ${d} von ${n} fertig`, dVerdicts: 'Urteile', dStopWhy: 'Nur während einer laufenden Prüfung.', dEditLocked: 'Gesperrt, solange die erneute Prüfung läuft.',
       dHow1: 'Das Erkennen der Referenzen ist kostenlos. Danach sehen Sie die Anzahl und den Kontingentverbrauch, bevor gesucht wird.',
       dHow2: 'Jede Referenz wird mit mehreren Datenquellen abgeglichen. Jeder Schritt steht in der Nachweisspur.',
       dHow3: 'Unbekanntes bleibt unbekannt. Ein Urteil ist ein Befund, kein Beweis; die Entscheidung trifft ein Mensch.',
@@ -3919,7 +3922,7 @@ html[data-still] .v-B .spin{animation:none}
       dRemove: 'Remove file', dJudge: 'Choose the effective Verdict', dClearOv: 'Remove manual Verdict',
       dManualHead: 'Manual judgment', dConsent: 'Saves Checks to History until the deletion date. You can withdraw consent at any time.',
       dGroupNav: 'Navigation', dGroupAct: 'Actions', dGroupFilter: 'Filter', dGroupRefs: 'References', dNoResults: 'No results',
-      dCounts: 'Counts', dVerdicts: 'Verdicts', dStopWhy: 'Only while a Check is running.', dEditLocked: 'Locked while the re-check runs.',
+      dCounts: 'Counts', dLabelsShow: 'Show all labels', dLabelsHide: 'Hide labels', dRunLede: (d, n) => `Check running · ${d} of ${n} done`, dVerdicts: 'Verdicts', dStopWhy: 'Only while a Check is running.', dEditLocked: 'Locked while the re-check runs.',
       dHow1: 'Recognising the References is free. You see the count and the expected Quota use before any search starts.',
       dHow2: 'Every Reference is matched against several Data sources. Each step is listed in the evidence trail.',
       dHow3: 'Unknown stays unknown. A Verdict is a finding, not proof; a human makes the decision.',
@@ -4086,6 +4089,37 @@ html[data-still] .v-B .spin{animation:none}
 .v-D .mi:disabled { opacity: .6; }
 .v-D .mi small { grid-column: 2; color: var(--st-text-muted); font-weight: 400; font-size: var(--st-text-xs); }
 .v-D .mi .ico { width: 18px; height: 18px; }
+
+
+/* ---------- #195: compact 360 px strip variants (?strip=a|b) ---------- */
+.v-D .strip.cx { padding: 6px; gap: 6px; }
+.v-D .crow { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.v-D .c1 { display: flex; gap: 2px; flex: 1 1 auto; min-width: 0; }
+.v-D .cc { display: inline-flex; align-items: center; justify-content: center; gap: 3px; flex: 1 1 0; min-width: 34px; min-height: 32px; padding: 0 4px; border-radius: var(--st-radius-sm); border: 1px solid transparent; background: transparent; position: relative; white-space: nowrap; }
+.v-D .cc .gly { width: 16px; height: 16px; flex: none; }
+.v-D .cc .n { font-weight: 800; font-size: var(--st-text-sm); font-variant-numeric: tabular-nums; }
+.v-D .cc .l { font-size: var(--st-text-xs); color: var(--st-text-on-glass-secondary); font-weight: 600; }
+.v-D .cc:hover:not(:disabled) { border-color: var(--st-border-strong); }
+.v-D .cc:disabled { opacity: .45; }
+.v-D .cc[aria-pressed="true"] { border-color: var(--st-accent); background: var(--st-surface); box-shadow: inset 0 0 0 1px var(--st-accent); }
+.v-D .cc.st { flex: 0 0 auto; border: 1px dashed var(--st-border-emphasis); }
+.v-D .cc.st[aria-pressed="true"] { border-style: solid; }
+.v-D .cc .ico { width: 15px; height: 15px; }
+.v-D .crow .btn.sm.icon { min-height: 32px; width: 32px; flex: none; }
+.v-D .strip.cx .pbar { position: absolute; left: 14px; right: 14px; bottom: 0; height: 2px; border-radius: 2px; background: var(--st-border); overflow: hidden; }
+.v-D .strip.cx .pbar i { display: block; height: 100%; width: var(--p, 0%); background: var(--st-accent); transition: width var(--st-duration-base) var(--st-ease-standard); }
+.v-D .fchip { display: inline-flex; align-items: center; gap: 6px; align-self: start; justify-self: start; min-height: 28px; padding: 0 4px 0 10px; border-radius: var(--st-radius-full); border: 1px solid var(--st-border-strong); background: var(--st-surface); font-size: var(--st-text-sm); font-weight: 700; }
+.v-D .fchip .gly, .v-D .fchip .ico { width: 15px; height: 15px; }
+.v-D .fchip button { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; }
+.v-D .fchip button:hover { background: var(--st-accent-tint); }
+.v-D .fchip button .ico { width: 14px; height: 14px; }
+/* b: one scrolling row of labelled counters */
+.v-D .c1.sx { overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity; -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); padding-right: 24px; gap: 4px; }
+.v-D .c1.sx::-webkit-scrollbar { display: none; }
+.v-D .c1.sx .cc { flex: none; padding: 0 8px; scroll-snap-align: start; }
+.v-D .lede { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: var(--st-text-md); font-weight: 700; }
+.v-D .lede .ph { display: inline-flex; align-items: center; gap: 6px; }
+.v-D .lede .ico { width: 18px; height: 18px; }
 
 /* feed */
 .v-D .feed { max-width: 880px; margin: 0 auto; padding: 12px var(--pad) 110px; display: grid; gap: 12px; }
@@ -4353,9 +4387,39 @@ html[data-still] .v-B .spin{animation:none}
         return vis.map(card).join('');
       }
 
+
+      /* ---------- #195: compact 360 px strip, variants a (glyph + count) and b (scrolling labels) ---------- */
+      const SV = () => (narrow() && ['running', 'done'].includes(s.stage) && !ui.lab) ? ST.cfg.strip : '';
+      function stripCompact(kind) {
+        const c = ST.counts(), N = ST.N();
+        const cnts = VK.map((v) => { const n = c.verdicts[v], on = s.filter === v;
+          return `<button type="button" class="cc" data-v="${v}" data-k="cc-${v}" data-act="filter:${v}" aria-pressed="${on}" aria-label="${esc(VL(v) + ': ' + n)}" title="${esc(VL(v))}" ${n === 0 && !on ? 'disabled' : ''}>${ST.gly(v)}<span class="n tnum" aria-hidden="true">${n}</span>${kind === 'b' ? `<span class="l" aria-hidden="true">${esc(VS(v))}</span>` : ''}</button>`; }).join('');
+        const sts = ['running', 'queued', 'failed', 'cancelled', 'not-checked'].filter((k) => c.statuses[k] > 0);
+        const tot = sts.reduce((a, k) => a + c.statuses[k], 0);
+        const stName = t('statusesHeading') + ': ' + sts.map((k) => `${c.statuses[k]} ${SL(k)}`).join(', ');
+        const stb = !sts.length ? '' : kind === 'b'
+          ? sts.map((k) => `<button type="button" class="cc st" data-k="cc-st-${k}" data-act="filter:status" aria-pressed="${s.filter === 'status'}" aria-label="${esc(SL(k) + ': ' + c.statuses[k])}">${ST.stat(k, k === 'running' ? 'spin' : '')}<span class="n tnum" aria-hidden="true">${c.statuses[k]}</span><span class="l" aria-hidden="true">${esc(SL(k))}</span></button>`).join('')
+          : `<button type="button" class="cc st" data-k="cc-st" data-act="filter:status" aria-pressed="${s.filter === 'status'}" aria-label="${esc(stName)}" title="${esc(stName)}">${ST.stat(sts[0], sts[0] === 'running' ? 'spin' : '')}<span class="n tnum" aria-hidden="true">${tot}</span></button>`;
+        const row = kind === 'b'
+          ? `<div class="crow"><div class="c1 sx" role="group" aria-label="${esc(t('dVerdicts'))}">${cnts}${stb}</div>${menuBtnC()}</div>`
+          : `<div class="crow"><div class="c1" role="group" aria-label="${esc(t('dVerdicts'))}">${cnts}</div>${stb}${menuBtnC()}</div>`;
+        const fv = s.filter;
+        const chip = fv ? `<div class="fchip">${fv === 'status' ? ST.ico('i-info') : ST.gly(fv)}<span>${esc(fv === 'status' ? t('statusesHeading') : VL(fv))}</span><button type="button" data-k="fclear" data-act="filter-clear" aria-label="${esc(t('filterClear'))}">${ST.ico('i-x')}</button></div>` : '';
+        const pbar = s.stage === 'running' ? `<span class="pbar" role="progressbar" aria-label="${esc(t('running'))}" aria-valuemin="0" aria-valuemax="${N}" aria-valuenow="${c.done}" style="--p:${Math.round(c.done / N * 100)}%"><i></i></span>` : '';
+        return `<div class="stripw"><section class="strip cx st-glass" aria-label="${esc(s.stage === 'running' ? t('running') : t('done'))}">${row}${chip}${pbar}${ui.menu ? menu() : ''}</section></div>`;
+      }
+      const menuBtnC = () => `<button type="button" class="btn sm icon" data-k="menubtn" data-act="menu" aria-haspopup="menu" aria-expanded="${ui.menu}" aria-label="${esc(t('dMore'))}">${ST.ico('i-more')}</button>`;
+      function lede() {
+        if (!SV() && !(narrow() && ST.cfg.strip && ui.lab)) return '';
+        const c = ST.counts(), N = ST.N();
+        if (s.stage === 'running') return `<p class="lede"><span class="ph">${ST.stat('running', 'spin')}${esc(t('dRunLede', c.done, N))}</span>${btn('stop', t('stop'), { cls: 'sm', icon: 'i-stop' })}</p>`;
+        if (s.stage === 'done') return `<p class="lede">${esc(t('summarySentence', c.verdicts.correct, N))}</p>`;
+        return '';
+      }
       /* ---------- sticky strip ---------- */
       function strip() {
         if (!['counted', 'running', 'done'].includes(s.stage)) return '';
+        if (SV()) return stripCompact(SV());
         const c = ST.counts(), N = ST.N(), av = ST.available();
         let head;
         if (s.stage === 'counted') {
@@ -4381,11 +4445,12 @@ html[data-still] .v-B .spin{animation:none}
         const coll = narrow() && ui.coll;
         return `<div class="stripw"><section class="strip st-glass" aria-label="${esc(s.stage === 'running' ? t('running') : s.stage === 'counted' ? t('detected', N) : t('done'))}">${head}${coll ? '' : `<div class="r2"><div class="cnts" role="group" aria-label="${esc(t('dVerdicts'))}">${cnts}</div>${stg}</div>`}${frow}${ui.menu ? menu() : ''}</section></div>`;
       }
-      const menuBtn = () => (narrow() ? `<button type="button" class="btn sm icon" data-k="tgl" data-act="coll" aria-expanded="${!ui.coll}" aria-label="${esc(t('dCounts'))}">${ST.ico('i-filter')}</button>` : '') + `<button type="button" class="btn sm icon" data-k="menubtn" data-act="menu" aria-haspopup="menu" aria-expanded="${ui.menu}" aria-label="${esc(t('dMore'))}">${ST.ico('i-more')}</button>`;
+      const menuBtn = () => (narrow() ? (ST.cfg.strip && ui.lab ? `<button type="button" class="btn sm icon" data-k="tgl" data-act="labels" aria-expanded="true" aria-label="${esc(t('dLabelsHide'))}">${ST.ico('i-filter')}</button>` : `<button type="button" class="btn sm icon" data-k="tgl" data-act="coll" aria-expanded="${!ui.coll}" aria-label="${esc(t('dCounts'))}">${ST.ico('i-filter')}</button>`) : '') + `<button type="button" class="btn sm icon" data-k="menubtn" data-act="menu" aria-haspopup="menu" aria-expanded="${ui.menu}" aria-label="${esc(t('dMore'))}">${ST.ico('i-more')}</button>`;
       function menu() {
         const running = s.stage === 'running', busy = ST.isBusy();
         const mi = (act, icon, label, dis, why) => `<button type="button" role="menuitem" class="mi" data-act="${act}" ${dis ? 'disabled' : ''}>${ST.ico(icon)}<span>${esc(label)}</span>${dis && why ? `<small>${esc(why)}</small>` : ''}</button>`;
         return `<div class="menu" role="menu" aria-label="${esc(t('dMore'))}">
+          ${narrow() && ST.cfg.strip && ['running', 'done'].includes(s.stage) ? mi('labels', 'i-filter', ui.lab ? t('dLabelsHide') : t('dLabelsShow')) : ''}
           ${mi('stop', 'i-stop', t('stop'), !running, t('dStopWhy'))}
           ${mi('reset', 'i-reset', t('reset'))}
           ${mi('dlg:export', 'i-download', t('exportAction'))}
@@ -4433,7 +4498,7 @@ html[data-still] .v-B .spin{animation:none}
       /* ---------- feed view (counted / running / done) ---------- */
       function feedView() {
         const billed = s.refs.filter((r) => r.status === 'done').length;
-        return `${strip()}<div class="feed">
+        return `${strip()}<div class="feed">${lede()}
           <div class="echo">${ST.ico(s.intakeSource === 'file' ? 'i-doc' : s.intakeSource === 'selection' ? 'i-panel' : 'i-list')}<b>${esc(sourceLabel())}</b><span class="mono tnum muted">· ${esc(t('detected', ST.N()))}</span></div>${s.stage === 'running' ? `<p class="note">${esc(t('orderNote'))}</p>` : ''}
           ${s.account === 'guest' ? `<p class="nrow">${ST.ico('i-info')}<span>${esc(t('guestNotice'))} <button type="button" class="lnk" data-act="signin">${esc(t('signIn'))}</button></span></p>` : ''}
           <ol class="cards" aria-label="${esc(t('dGroupRefs'))}">${cards()}</ol>
@@ -4716,6 +4781,7 @@ html[data-still] .v-B .spin{animation:none}
           case 'reset': openDlg('reset'); break;
           case 'reset-do': ui.dlgOk = true; ui.pf = null; ST.act.dialog(null); ui.menu = false; ST.act.reset(); break;
           case 'coll': ui.coll = !ui.coll; ui.pf = 'tgl'; render(); break;
+          case 'labels': ui.lab = !ui.lab; ui.menu = false; ui.coll = false; ui.pf = ui.lab ? 'tgl' : 'menubtn'; render(); break;
           case 'menu': ui.menu = !ui.menu; ui.pf = ui.menu ? 'act:stop' : 'menubtn'; if (ui.menu && s.stage !== 'running') ui.pf = 'act:reset'; render(); break;
           case 'dlg': openDlg(id); break;
           case 'dlg-close': closeDlg(); break;
