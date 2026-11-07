@@ -120,12 +120,7 @@ These are held constant in the prototype and decided separately.
 4. (merged into 2)
 5. (merged into 2)
 6. ~~**Verdict (DE)**~~ Decided: **Befund** replaces „Urteil“ (20 uses in `de.json` today). It names what was found, not what follows from it, which fits evidence-first and „die Entscheidung trifft ein Mensch“; „Urteil“ sounds like a court ruling and nearly contradicts the FA-ERG-05 note. „Bewertung“ is ruled out as too close to „rating“ and grading. The six Verdict labels are unchanged. Examples: „Ein Befund ist kein Beweis für Täuschung.“, „Befund selbst festlegen“.
-7. **Gendered nouns:**
-   - The options:
-     - neutral rephrasing („Autorenangabe“)
-     - a slash („Autor/in“, as in `revision_*` today)
-     - a colon („Autor:innen“, as in the Glass draft)
-   - Since 1 April 2024, Bavaria's administrative rules (AGO) bar inner-word gender characters (asterisk, colon, gap, mid-dot) in state authorities, schools and university administration, though not in research and teaching. Sources: [Forschung & Lehre](https://www.forschung-und-lehre.de/politik/bayern-verbietet-gendern-in-schulen-hochschulen-und-behoerden-6318), [Forschung & Lehre on scope](https://www.forschung-und-lehre.de/politik/verbot-zu-gendern-gilt-nur-fuer-verwaltung-6407). Paired forms („Autorinnen und Autoren“) remain allowed.
+7. ~~**Gendered nouns (DE)**~~ Decided: rephrase neutrally first („Autorenangabe {number}“, „Weitere Person hinzufügen“, „Von Ihnen eingegeben“ instead of „von der nutzenden Person“, „wer prüft“). Where that is impossible, use the paired form in running text („Autorinnen und Autoren“). Never use inner-word characters (`:`, `*`, `_`) or the slash („Autor/in“ in `revision_*` today). Reasons: since 1 April 2024, Bavaria's administrative rules (AGO) bar inner-word gender characters in state authorities, schools and university administration (not research and teaching), and that administration signs the DPA and buys licences ([Forschung & Lehre](https://www.forschung-und-lehre.de/politik/bayern-verbietet-gendern-in-schulen-hochschulen-und-behoerden-6318), [scope](https://www.forschung-und-lehre.de/politik/verbot-zu-gendern-gilt-nur-fuer-verwaltung-6407)). Screen readers read „Autor:innen“ unevenly, and neutral wording is usually shorter and calmer. English needs nothing here.
 8. **English capitalisation of glossary terms in running copy:** "your Quota" or "your quota". Today's catalog capitalises them.
 9. **Typography:**
    - „80 %“ or „80%“
