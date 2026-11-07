@@ -99,6 +99,11 @@ for (const mode of ['light', 'dark']) {
     check(mode, m, `verdict-${v}-tint-strong`, t[`verdict-${v}-tint-strong`], 3, 'non-text');
   }
   for (const [n, c] of Object.entries({ bg: t.bg, surface: t.surface, 'surface-sunken': t['surface-sunken'], 'accent-tint (over surface)': stack(t.surface, t['accent-tint']) })) check(mode, 'focus-ring', n, c, 3, 'non-text');
+  for (const [vn, combos] of Object.entries(t.__glass)) {
+    const worst = combos.map((g) => ({ ...g, r: wcagContrast(t['focus-ring'], g.c) })).sort((a, b) => a.r - b.r)[0];
+    check(mode, 'focus-ring', `${vn} worst case (${worst.name})`, worst.c, 3, 'non-text');
+  }
+  for (const v of verdicts) check(mode, 'on-verdict-mark', `verdict-${v}-mark`, t[`verdict-${v}-mark`], 3, 'non-text');
   check(mode, stack(t.surface, t['border-emphasis']), 'surface', t.surface, 3, 'non-text');
   gate[gate.length - 1].fg = 'border-emphasis (over surface)';
   check(mode, 'correction-insert-line', 'correction-insert-bg (over surface)', stack(t.surface, t['correction-insert-bg']), 3, 'non-text');

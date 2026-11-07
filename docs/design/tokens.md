@@ -7,7 +7,7 @@ This is the token spec decided in "Which design tokens does the design system de
 - The colour-system research ([#185](https://github.com/jeffnawroth/source-taster/issues/185)).
 - The foundation decision ([#188](https://github.com/jeffnawroth/source-taster/issues/188)).
 
-**Reproducible:** every colour value, sRGB fallback and contrast ratio below comes from [`tokens-check/`](tokens-check/). Run it with `node gen.mjs gate|tables|prims|tints`, with Culori 4.0.2 as the only dependency. That folder is the seed for the production generator. It is not the production generator itself.
+**Reproducible:** every colour value, sRGB fallback and contrast ratio below comes from [`tokens-check/`](tokens-check/). Run `npm install` in that folder once, then `node gen.mjs gate|tables|prims|tints`. Culori 4.0.2 is the only dependency. That folder is the seed for the production generator. It is not the production generator itself.
 
 **Out of scope here:**
 - where the token package lives and how it reaches `source-taster-service` ("How do the design tokens and components reach the private repository?", [#189](https://github.com/jeffnawroth/source-taster/issues/189))
@@ -18,7 +18,7 @@ This is the token spec decided in "Which design tokens does the design system de
 
 There are three layers:
 
-1. **Primitives.** These are OKLCH stops grouped into hue families and named by lightness × 1000, for example `cobalt-500` = L 0.5. They are private: no Tailwind utility exists for them, and only the semantic layer reads them.
+1. **Primitives.** These are OKLCH stops grouped into hue families and named by lightness × 1000, for example `cobalt-500` = L 0.5. They are **not regular scales**: there is one stop per value in use (so `neutral-172`, `neutral-195` …), because Q15 keeps the prototype's values. Snapping them to a regular `50…950` ladder would change values and is a possible follow-up, not part of this spec. They are private: no Tailwind utility exists for them, and only the semantic layer reads them.
 2. **Semantic roles.** Each role is defined once per mode (light and dark). Every role points at a primitive, with an alpha value where it needs one. Components use **only** these roles.
 3. **Component tokens.** These exist only where a component needs values no role covers. For now there are two: `button-primary-from` and `button-primary-to`.
 
@@ -34,7 +34,7 @@ Rules:
   - Dark applies under `@media (prefers-color-scheme: dark) { :root:not([data-theme=light]) }` and under `:root[data-theme=dark]`. This is the Theme preference from ADR-0023, with System as the default.
   - Each mode block also sets `color-scheme`.
   - Components never use `dark:` utilities.
-- **Tints are computed at build time**, never with `color-mix` inside components (see 2.5).
+- **Tints are computed at build time**, never with `color-mix` inside components (see 2.4).
 - **Source and outputs:** one TypeScript module is the source. A small generator emits:
   - the Tailwind `theme.css` (primitives, mode blocks and `@theme inline`);
   - resolved sRGB constants (hex) for email HTML and the PDF;
@@ -63,8 +63,11 @@ The visible effect is mainly the **dark cobalt**: `accent` goes from chroma 0.13
 | `cobalt-420` | `oklch(0.42 0.17 266)` | `#2141a8` |
 | `cobalt-460` | `oklch(0.46 0.2 266)` | `#2347c5` |
 | `cobalt-470` | `oklch(0.47 0.2 265)` | `#214bc9` |
+| `cobalt-470-a` | `oklch(0.47 0.2 266)` | `#264ac9` |
 | `cobalt-500` | `oklch(0.5 0.2 264)` | `#2456d3` |
 | `cobalt-550` | `oklch(0.55 0.2 264)` | `#3266e4` |
+| `cobalt-550-a` | `oklch(0.55 0.19 264)` | `#3567de` |
+| `cobalt-550-b` | `oklch(0.55 0.2 263)` | `#2d67e4` |
 | `cobalt-720` | `oklch(0.72 0.144 264)` | `#76a2fe` |
 | `cobalt-770` | `oklch(0.77 0.116 262)` | `#8bb4fe` |
 | `cobalt-800` | `oklch(0.8 0.1 262)` | `#9bbeff` |
@@ -74,6 +77,7 @@ The visible effect is mainly the **dark cobalt**: `accent` goes from chroma 0.13
 | `green-480` | `oklch(0.48 0.12 152)` | `#10703a` |
 | `green-560` | `oklch(0.56 0.147 152)` | `#018c46` |
 | `green-800` | `oklch(0.8 0.17 152)` | `#56dc85` |
+| `green-800-a` | `oklch(0.8 0.15 152)` | `#69d98d` |
 | `neutral-0` | `oklch(0 0 0)` | `#000000` |
 | `neutral-50` | `oklch(0.05 0.01 265)` | `#000001` |
 | `neutral-100` | `oklch(0.1 0.01 265)` | `#020306` |
@@ -84,10 +88,12 @@ The visible effect is mainly the **dark cobalt**: `accent` goes from chroma 0.13
 | `neutral-190` | `oklch(0.19 0.035 266)` | `#0c1323` |
 | `neutral-195` | `oklch(0.195 0.019 266)` | `#11151e` |
 | `neutral-200` | `oklch(0.2 0.035 265)` | `#0e1626` |
+| `neutral-200-a` | `oklch(0.2 0.022 266)` | `#111620` |
 | `neutral-205` | `oklch(0.205 0.022 266)` | `#121721` |
 | `neutral-220` | `oklch(0.22 0.025 266)` | `#151a26` |
 | `neutral-280` | `oklch(0.28 0.05 265)` | `#1d2842` |
 | `neutral-300` | `oklch(0.3 0.03 265)` | `#262e3d` |
+| `neutral-300-a` | `oklch(0.3 0.05 265)` | `#212d47` |
 | `neutral-370` | `oklch(0.37 0.035 265)` | `#374053` |
 | `neutral-380` | `oklch(0.38 0.05 265)` | `#35425d` |
 | `neutral-400` | `oklch(0.4 0.03 265)` | `#404858` |
@@ -200,16 +206,16 @@ Each role points at a primitive. The alpha follows the slash.
 | `on-verdict-mark` | `neutral-1000` | `neutral-160` |
 | `feedback-danger` | `red-500` | `red-750` |
 | `feedback-warning` | `amber-500` | `amber-840` |
-| `feedback-success` | `green-480` | `green-800` |
+| `feedback-success` | `green-480` | `green-800-a` |
 | `feedback-info` | `cobalt-470` | `cobalt-800` |
 | `correction-delete-text` | `neutral-400` | `neutral-780` |
 | `correction-delete-line` | `neutral-400 / 0.9` | `neutral-780 / 0.85` |
 | `correction-delete-bg` | `neutral-300 / 0.06` | `neutral-1000 / 0.05` |
-| `correction-insert-bg` | `cobalt-550 / 0.13` | `cobalt-720 / 0.2` |
+| `correction-insert-bg` | `cobalt-550-a / 0.13` | `cobalt-720 / 0.2` |
 | `correction-insert-line` | `cobalt-500` | `cobalt-800` |
 | `chart-track` | `neutral-1000 / 0.55` | `neutral-1000 / 0.08` |
 | `glass-base` | `neutral-1000 / 0.56` | `neutral-220 / 0.62` |
-| `glass-base-overlay` | `neutral-1000 / 0.64` | `neutral-205 / 0.84` |
+| `glass-base-overlay` | `neutral-1000 / 0.64` | `neutral-200-a / 0.84` |
 | `glass-base-strong` | `neutral-1000 / 0.82` | `neutral-205 / 0.88` |
 | `glass-border` | `cobalt-320 / 0.14` | `neutral-0 / 0.6` |
 | `glass-rim-1` | `neutral-1000 / 0.98` | `neutral-1000 / 0.36` |
@@ -224,9 +230,9 @@ Each role points at a primitive. The alpha follows the slash.
 | `hero-field-1` | `sky-800 / 0.95` | `cobalt-460 / 0.95` |
 | `hero-field-2` | `violet-820 / 0.9` | `violet-420 / 0.8` |
 | `hero-field-3` | `sky-860 / 0.9` | `sky-500 / 0.65` |
-| `scrim` | `neutral-280 / 0.2` | `neutral-50 / 0.55` |
-| `button-primary-from` | `cobalt-550` | `cobalt-830` |
-| `button-primary-to` | `cobalt-470` | `cobalt-720` |
+| `scrim` | `neutral-300-a / 0.2` | `neutral-50 / 0.55` |
+| `button-primary-from` | `cobalt-550-b` | `cobalt-830` |
+| `button-primary-to` | `cobalt-470-a` | `cobalt-720` |
 | `bg-glow-2` | – | `sky-400 / 0.14` |
 | `bg-glow-3` | – | `violet-400 / 0.1` |
 | `bg-grain` | – | `neutral-1000 / 0.07` |
@@ -265,13 +271,13 @@ They replace the prototype's runtime mixes at 7, 10, 13, 15, 26, 28 and 36 %.
 | `verdict-not-verifiable-border` | `oklch(0.866 0.007 265)` | `#d1d3d8` | `oklch(0.342 0.019 265)` | `#343843` |
 | `feedback-danger-tint` | `oklch(0.95 0.019 27)` | `#fbeae8` | `oklch(0.251 0.032 25)` | `#301c1a` |
 | `feedback-warning-tint` | `oklch(0.95 0.011 62)` | `#f4ede7` | `oklch(0.26 0.03 80)` | `#2c2213` |
-| `feedback-success-tint` | `oklch(0.948 0.012 152)` | `#e8f0ea` | `oklch(0.256 0.034 152)` | `#16281b` |
+| `feedback-success-tint` | `oklch(0.948 0.012 152)` | `#e8f0ea` | `oklch(0.256 0.032 152)` | `#17281b` |
 | `feedback-info-tint` | `oklch(0.947 0.02 265)` | `#e7eefb` | `oklch(0.256 0.027 262)` | `#1c2330` |
 | `__glass` | `oklch(undefined undefined NaN)` | `#000000` | `oklch(undefined undefined NaN)` | `#000000` |
 
 ### 2.6 All resolved values (OKLCH and sRGB)
 
-The sRGB column is what the email and PDF constants get. Translucent values carry their alpha as the last hex pair. Values marked ¹ were reduced in chroma to fit sRGB.
+The sRGB column is what the email and PDF constants get. Translucent values carry their alpha as the last hex pair. Many mail clients do not render 8-digit hex, so email and PDF must use translucent roles only **pre-composited onto a named backdrop** (see section 9). Values marked ¹ were reduced in chroma to fit sRGB.
 
 | Role | Light | Light sRGB | Dark | Dark sRGB |
 |---|---|---|---|---|
@@ -302,16 +308,16 @@ The sRGB column is what the email and PDF constants get. Translucent values carr
 | `on-verdict-mark` | `oklch(1 0 0)` | `#ffffff` | `oklch(0.16 0.02 265)` | `#090d16` |
 | `feedback-danger` | `oklch(0.5 0.19 27)` | `#b7191c` | `oklch(0.75 0.15 25)` | `#ff847d` |
 | `feedback-warning` | `oklch(0.5 0.11 62)` | `#8f520d` | `oklch(0.84 0.13 80)` | `#f7c15f` |
-| `feedback-success` | `oklch(0.48 0.12 152)` | `#10703a` | `oklch(0.8 0.17 152)` | `#56dc85` |
+| `feedback-success` | `oklch(0.48 0.12 152)` | `#10703a` | `oklch(0.8 0.15 152)` | `#69d98d` |
 | `feedback-info` | `oklch(0.47 0.2 265)` | `#214bc9` | `oklch(0.8 0.1 262)` ¹ | `#9bbeff` |
 | `correction-delete-text` | `oklch(0.4 0.03 265)` | `#404858` | `oklch(0.78 0.012 265)` | `#b4b7bf` |
 | `correction-delete-line` | `oklch(0.4 0.03 265 / 0.9)` | `#404858e6` | `oklch(0.78 0.012 265 / 0.85)` | `#b4b7bfd9` |
 | `correction-delete-bg` | `oklch(0.3 0.03 265 / 0.06)` | `#262e3d0f` | `oklch(1 0 0 / 0.05)` | `#ffffff0d` |
-| `correction-insert-bg` | `oklch(0.55 0.2 264 / 0.13)` | `#3266e421` | `oklch(0.72 0.144 264 / 0.2)` ¹ | `#76a2fe33` |
+| `correction-insert-bg` | `oklch(0.55 0.19 264 / 0.13)` | `#3567de21` | `oklch(0.72 0.144 264 / 0.2)` ¹ | `#76a2fe33` |
 | `correction-insert-line` | `oklch(0.5 0.2 264)` | `#2456d3` | `oklch(0.8 0.1 262)` ¹ | `#9bbeff` |
 | `chart-track` | `oklch(1 0 0 / 0.55)` | `#ffffff8c` | `oklch(1 0 0 / 0.08)` | `#ffffff14` |
 | `glass-base` | `oklch(1 0 0 / 0.56)` | `#ffffff8f` | `oklch(0.22 0.025 266 / 0.62)` | `#151a269e` |
-| `glass-base-overlay` | `oklch(1 0 0 / 0.64)` | `#ffffffa3` | `oklch(0.205 0.022 266 / 0.84)` | `#121721d6` |
+| `glass-base-overlay` | `oklch(1 0 0 / 0.64)` | `#ffffffa3` | `oklch(0.2 0.022 266 / 0.84)` | `#111620d6` |
 | `glass-base-strong` | `oklch(1 0 0 / 0.82)` | `#ffffffd1` | `oklch(0.205 0.022 266 / 0.88)` | `#121721e0` |
 | `glass-border` | `oklch(0.32 0.06 265 / 0.14)` | `#24325124` | `oklch(0 0 0 / 0.6)` | `#00000099` |
 | `glass-rim-1` | `oklch(1 0 0 / 0.98)` | `#fffffffa` | `oklch(1 0 0 / 0.36)` | `#ffffff5c` |
@@ -326,9 +332,9 @@ The sRGB column is what the email and PDF constants get. Translucent values carr
 | `hero-field-1` | `oklch(0.8 0.114 238 / 0.95)` ¹ | `#72c8fef2` | `oklch(0.46 0.2 266 / 0.95)` | `#2347c5f2` |
 | `hero-field-2` | `oklch(0.82 0.098 292 / 0.9)` ¹ | `#c5b9ffe6` | `oklch(0.42 0.17 300 / 0.8)` | `#5e2b9acc` |
 | `hero-field-3` | `oklch(0.86 0.1 212 / 0.9)` | `#7ce3f7e6` | `oklch(0.5 0.091 220 / 0.65)` ¹ | `#006f87a6` |
-| `scrim` | `oklch(0.28 0.05 265 / 0.2)` | `#1d284233` | `oklch(0.05 0.01 265 / 0.55)` | `#0000018c` |
-| `button-primary-from` | `oklch(0.55 0.2 264)` | `#3266e4` | `oklch(0.83 0.085 258)` ¹ | `#a5c9ff` |
-| `button-primary-to` | `oklch(0.47 0.2 265)` | `#214bc9` | `oklch(0.72 0.144 264)` ¹ | `#76a2fe` |
+| `scrim` | `oklch(0.3 0.05 265 / 0.2)` | `#212d4733` | `oklch(0.05 0.01 265 / 0.55)` | `#0000018c` |
+| `button-primary-from` | `oklch(0.55 0.2 263)` | `#2d67e4` | `oklch(0.83 0.085 258)` ¹ | `#a5c9ff` |
+| `button-primary-to` | `oklch(0.47 0.2 266)` | `#264ac9` | `oklch(0.72 0.144 264)` ¹ | `#76a2fe` |
 | `verdict-correct-tint` | `oklch(0.956 0.014 152)` | `#eaf3ec` | `oklch(0.256 0.034 152)` | `#16281b` |
 | `verdict-correct-tint-strong` | `oklch(0.934 0.022 152)` | `#dfeee2` | `oklch(0.286 0.041 152)` | `#1a3020` |
 | `verdict-correct-border` | `oklch(0.877 0.041 152)` | `#c3dfc9` | `oklch(0.364 0.061 152)` | `#23472e` |
@@ -349,7 +355,7 @@ The sRGB column is what the email and PDF constants get. Translucent values carr
 | `verdict-not-verifiable-border` | `oklch(0.866 0.007 265)` | `#d1d3d8` | `oklch(0.342 0.019 265)` | `#343843` |
 | `feedback-danger-tint` | `oklch(0.95 0.019 27)` | `#fbeae8` | `oklch(0.251 0.032 25)` | `#301c1a` |
 | `feedback-warning-tint` | `oklch(0.95 0.011 62)` | `#f4ede7` | `oklch(0.26 0.03 80)` | `#2c2213` |
-| `feedback-success-tint` | `oklch(0.948 0.012 152)` | `#e8f0ea` | `oklch(0.256 0.034 152)` | `#16281b` |
+| `feedback-success-tint` | `oklch(0.948 0.012 152)` | `#e8f0ea` | `oklch(0.256 0.032 152)` | `#17281b` |
 | `feedback-info-tint` | `oklch(0.947 0.02 265)` | `#e7eefb` | `oklch(0.256 0.027 262)` | `#1c2330` |
 | `__glass` | `oklch(undefined undefined NaN)` | `#000000` | `oklch(undefined undefined NaN)` | `#000000` |
 | `bg-glow-2` | – | – | `oklch(0.4 0.072 220 / 0.14)` ¹ | `#02506224` |
@@ -453,7 +459,7 @@ A nested element's radius is the outer radius minus the padding between them, an
 |---|---|---|
 | `shadow-flat` | none (border only) | none (border only) |
 | `shadow-raised` | `0 1px 2px oklch(0.3 0.06 265 / 0.05), 0 12px 30px -18px oklch(0.3 0.08 265 / 0.2)` | `0 0 0 1px oklch(0 0 0 / 0.45), 0 20px 44px -28px oklch(0 0 0 / 0.9)` |
-| `shadow-lifted` (hover, drag, hero) | `0 2px 4px oklch(0.3 0.06 265 / 0.05), 0 26px 50px -24px oklch(0.3 0.1 265 / 0.3)` | `0 0 0 1px oklch(0 0 0 / 0.5), 0 34px 70px -30px oklch(0.35 0.18 266 / 0.45)` |
+| `shadow-lifted` (hover, drag, hero) | `0 2px 4px oklch(0.3 0.06 265 / 0.05), 0 26px 50px -24px oklch(0.3 0.1 265 / 0.3)` | `0 0 0 1px oklch(0 0 0 / 0.5), 0 34px 70px -30px oklch(0.35 0.15 266 / 0.45)` |
 | `shadow-glass` | `inset 0 -10px 22px -18px oklch(0.4 0.12 265 / 0.22), 0 1px 1px oklch(0.3 0.08 265 / 0.08), 0 10px 24px -12px oklch(0.32 0.12 265 / 0.22), 0 40px 70px -30px oklch(0.32 0.12 265 / 0.36)` | `inset 0 -12px 24px -18px oklch(0.6 0.15 266 / 0.2), 0 10px 24px -12px oklch(0 0 0 / 0.7), 0 40px 80px -24px oklch(0 0 0 / 0.85)` |
 | `highlight-inset` (top catch-light on raised surfaces) | `inset 0 1px 0 oklch(1 0 0)` | `inset 0 1px 0 oklch(1 0 0 / 0.06)` |
 
@@ -527,7 +533,8 @@ The gate uses the WCAG 2.2 contrast ratio. APCA is advisory only (see [#185](htt
   - for `glass-overlay`: the scrim over `bg`, `surface` and `bg-glow`.
 - **Non-text, 3:1:**
   - each `verdict-*-mark` on `surface`, `bg`, its own `-tint` and `-tint-strong`, and the `glass-strong` worst case (the hero ring and legend);
-  - `focus-ring` on `bg`, `surface`, `surface-sunken` and `accent-tint`;
+  - `focus-ring` on `bg`, `surface`, `surface-sunken`, `accent-tint` and each glass variant's worst case (command-bar options and toast buttons take focus on glass);
+  - `on-verdict-mark` on each `verdict-*-mark` (the inner symbol of a filled glyph);
   - `border-emphasis` (input boundary) on `surface`;
   - `correction-insert-line` on `correction-insert-bg`.
 - **Also gated, outside the generator:**
@@ -554,8 +561,8 @@ The gate uses the WCAG 2.2 contrast ratio. APCA is advisory only (see [#185](htt
 | light | `accent-text` | surface | 4.5 | 7.20 | ✓ |
 | light | `accent-text` | accent-tint (over surface) | 4.5 | 6.40 | ✓ |
 | light | `on-accent` | accent | 4.5 | 6.29 | ✓ |
-| light | `on-accent` | button-primary-from | 4.5 | 5.06 | ✓ |
-| light | `on-accent` | button-primary-to | 4.5 | 7.20 | ✓ |
+| light | `on-accent` | button-primary-from | 4.5 | 5.05 | ✓ |
+| light | `on-accent` | button-primary-to | 4.5 | 7.22 | ✓ |
 | light | `feedback-danger` | surface | 4.5 | 6.62 | ✓ |
 | light | `feedback-danger` | feedback-danger-tint | 4.5 | 5.69 | ✓ |
 | light | `feedback-warning` | surface | 4.5 | 6.20 | ✓ |
@@ -564,7 +571,7 @@ The gate uses the WCAG 2.2 contrast ratio. APCA is advisory only (see [#185](htt
 | light | `feedback-success` | feedback-success-tint | 4.5 | 5.33 | ✓ |
 | light | `feedback-info` | surface | 4.5 | 7.20 | ✓ |
 | light | `feedback-info` | feedback-info-tint | 4.5 | 6.17 | ✓ |
-| light | `text` | correction-insert-bg (over surface) | 4.5 | 15.20 | ✓ |
+| light | `text` | correction-insert-bg (over surface) | 4.5 | 15.23 | ✓ |
 | light | `correction-delete-text` | correction-delete-bg (over surface) | 4.5 | 8.27 | ✓ |
 | light | `text` | glass worst case (bg + bg-glow + field-1) | 4.5 | 11.94 | ✓ |
 | light | `text-secondary` | glass worst case (bg + bg-glow + field-1) | (not allowed) | 6.88 | info |
@@ -612,8 +619,17 @@ The gate uses the WCAG 2.2 contrast ratio. APCA is advisory only (see [#185](htt
 | light | `focus-ring` | surface | 3 | 6.29 | ✓ |
 | light | `focus-ring` | surface-sunken | 3 | 5.70 | ✓ |
 | light | `focus-ring` | accent-tint (over surface) | 3 | 5.59 | ✓ |
+| light | `focus-ring` | glass worst case (bg + bg-glow + field-1) | 3 | 4.14 | ✓ |
+| light | `focus-ring` | glass-strong worst case (hero-field-1 + field-1) | 3 | 4.85 | ✓ |
+| light | `focus-ring` | glass-overlay worst case (scrim over bg-glow + field-1) | 3 | 4.07 | ✓ |
+| light | `on-verdict-mark` | verdict-correct-mark | 3 | 4.35 | ✓ |
+| light | `on-verdict-mark` | verdict-deviations-mark | 3 | 4.07 | ✓ |
+| light | `on-verdict-mark` | verdict-mixed-mark | 3 | 5.65 | ✓ |
+| light | `on-verdict-mark` | verdict-doi-conflict-mark | 3 | 5.64 | ✓ |
+| light | `on-verdict-mark` | verdict-not-found-mark | 3 | 7.56 | ✓ |
+| light | `on-verdict-mark` | verdict-not-verifiable-mark | 3 | 5.51 | ✓ |
 | light | `border-emphasis (over surface)` | surface | 3 | 3.48 | ✓ |
-| light | `correction-insert-line` | correction-insert-bg (over surface) | 3 | 5.27 | ✓ |
+| light | `correction-insert-line` | correction-insert-bg (over surface) | 3 | 5.28 | ✓ |
 | dark | `text` | bg | 4.5 | 18.04 | ✓ |
 | dark | `text` | surface | 4.5 | 16.78 | ✓ |
 | dark | `text` | surface-sunken | 4.5 | 17.48 | ✓ |
@@ -635,8 +651,8 @@ The gate uses the WCAG 2.2 contrast ratio. APCA is advisory only (see [#185](htt
 | dark | `feedback-danger` | feedback-danger-tint | 4.5 | 6.80 | ✓ |
 | dark | `feedback-warning` | surface | 4.5 | 11.08 | ✓ |
 | dark | `feedback-warning` | feedback-warning-tint | 4.5 | 9.42 | ✓ |
-| dark | `feedback-success` | surface | 4.5 | 10.45 | ✓ |
-| dark | `feedback-success` | feedback-success-tint | 4.5 | 8.87 | ✓ |
+| dark | `feedback-success` | surface | 4.5 | 10.37 | ✓ |
+| dark | `feedback-success` | feedback-success-tint | 4.5 | 8.82 | ✓ |
 | dark | `feedback-info` | surface | 4.5 | 9.76 | ✓ |
 | dark | `feedback-info` | feedback-info-tint | 4.5 | 8.39 | ✓ |
 | dark | `text` | correction-insert-bg (over surface) | 4.5 | 11.90 | ✓ |
@@ -655,10 +671,10 @@ The gate uses the WCAG 2.2 contrast ratio. APCA is advisory only (see [#185](htt
 | dark | `verdict-doi-conflict-mark` | glass-strong worst case (hero-field-1 + field-1 + sheen + pointer) | 3 | 3.53 | ✓ |
 | dark | `verdict-not-found-mark` | glass-strong worst case (hero-field-1 + field-1 + sheen + pointer) | 3 | 3.23 | ✓ |
 | dark | `verdict-not-verifiable-mark` | glass-strong worst case (hero-field-1 + field-1 + sheen + pointer) | 3 | 3.80 | ✓ |
-| dark | `text` | glass-overlay worst case (scrim over bg-glow + field-1 + sheen + pointer) | 4.5 | 9.83 | ✓ |
-| dark | `text-secondary` | glass-overlay worst case (scrim over bg-glow + field-1 + sheen + pointer) | (not allowed) | 6.35 | info |
-| dark | `text-muted` | glass-overlay worst case (scrim over bg-glow + field-1 + sheen + pointer) | (not allowed) | 4.16 | info |
-| dark | `text-on-glass-secondary` | glass-overlay worst case (scrim over bg-glow + field-1 + sheen + pointer) | 4.5 | 7.47 | ✓ |
+| dark | `text` | glass-overlay worst case (scrim over bg-glow + field-1 + sheen + pointer) | 4.5 | 9.93 | ✓ |
+| dark | `text-secondary` | glass-overlay worst case (scrim over bg-glow + field-1 + sheen + pointer) | (not allowed) | 6.41 | info |
+| dark | `text-muted` | glass-overlay worst case (scrim over bg-glow + field-1 + sheen + pointer) | (not allowed) | 4.20 | info |
+| dark | `text-on-glass-secondary` | glass-overlay worst case (scrim over bg-glow + field-1 + sheen + pointer) | 4.5 | 7.54 | ✓ |
 | dark | `verdict-correct-mark` | surface | 3 | 10.45 | ✓ |
 | dark | `verdict-correct-mark` | bg | 3 | 11.23 | ✓ |
 | dark | `verdict-correct-mark` | verdict-correct-tint | 3 | 8.87 | ✓ |
@@ -687,18 +703,28 @@ The gate uses the WCAG 2.2 contrast ratio. APCA is advisory only (see [#185](htt
 | dark | `focus-ring` | surface | 3 | 9.76 | ✓ |
 | dark | `focus-ring` | surface-sunken | 3 | 10.17 | ✓ |
 | dark | `focus-ring` | accent-tint (over surface) | 3 | 8.05 | ✓ |
+| dark | `focus-ring` | glass worst case (bg + bg-glow + field-3 + sheen + pointer) | 3 | 4.06 | ✓ |
+| dark | `focus-ring` | glass-strong worst case (hero-field-1 + field-1 + sheen + pointer) | 3 | 5.03 | ✓ |
+| dark | `focus-ring` | glass-overlay worst case (scrim over bg-glow + field-1 + sheen + pointer) | 3 | 5.77 | ✓ |
+| dark | `on-verdict-mark` | verdict-correct-mark | 3 | 11.09 | ✓ |
+| dark | `on-verdict-mark` | verdict-deviations-mark | 3 | 11.40 | ✓ |
+| dark | `on-verdict-mark` | verdict-mixed-mark | 3 | 7.79 | ✓ |
+| dark | `on-verdict-mark` | verdict-doi-conflict-mark | 3 | 7.27 | ✓ |
+| dark | `on-verdict-mark` | verdict-not-found-mark | 3 | 6.65 | ✓ |
+| dark | `on-verdict-mark` | verdict-not-verifiable-mark | 3 | 7.82 | ✓ |
 | dark | `border-emphasis (over surface)` | surface | 3 | 4.09 | ✓ |
 | dark | `correction-insert-line` | correction-insert-bg (over surface) | 3 | 6.92 | ✓ |
 
-138 gated pairs, 0 failing; 12 informational rows for roles that are not allowed on glass
+156 gated pairs, 0 failing; 12 informational rows for roles that are not allowed on glass
 
 The rows marked "info" are roles that section 2.3 bans from glass. They are listed to show why the ban exists.
 
 **Tightest gated pairs:**
 - light `verdict-deviations-mark` on the `glass-strong` worst case, 3.13;
-- light `verdict-deviations-mark` on `-tint-strong`, 3.40;
 - dark `verdict-not-found-mark` on the `glass-strong` worst case, 3.23;
-- light `on-accent` on the upper primary-button stop, 5.06.
+- light `verdict-correct-mark` on the `glass-strong` worst case, 3.35;
+- light `verdict-deviations-mark` on `-tint-strong`, 3.40;
+- light `on-accent` on the upper primary-button stop, 5.05.
 
 Do not lighten the light amber.
 
@@ -715,7 +741,7 @@ Do not lighten the light amber.
 - `f1..f3` → `glass-field-1..3`, `hero-1..3` → `hero-field-1..3`
 - `--ease-out` → `ease-exit`
 
-**Primary button.** The tokens take the stops that were actually rendered and measured: light `oklch(0.55 0.2 264)` → `oklch(0.47 0.2 265)`. The prototype's `--accent-hi`/`--accent-lo` are dropped. In light mode, white on `--accent-hi` (L 0.6) is only **4.06:1**. The measured 5.03:1 came from a hard-coded override.
+**Primary button.** The tokens take the stops that were actually rendered and measured: light `oklch(0.55 0.2 263)` → `oklch(0.47 0.2 266)`. The prototype's `--accent-hi`/`--accent-lo` are dropped. In light mode, white on `--accent-hi` (L 0.6) is only **4.06:1**. The measured 5.03:1 came from a hard-coded override.
 
 **Gamut.** 24 values lost chroma at constant L and H (Q12):
 
@@ -744,14 +770,10 @@ Do not lighten the light amber.
 - dark button-primary-from: oklch(0.83 0.1 258) → oklch(0.83 0.085 258)
 - dark button-primary-to: oklch(0.72 0.15 264) → oklch(0.72 0.144 264)
 
-**Merged near-duplicates** (ΔH ≤ 1°, ΔC ≤ 0.01) to keep the primitive layer small:
-- light `button-primary-from` hue 263 → 264, `button-primary-to` hue 266 → 265
-- light `correction-insert-bg` chroma 0.19 → 0.2
-- dark `glass-base-overlay` L 0.2 → 0.205
-- light `scrim` L 0.3 → 0.28
+**No merges.** Values that differ only by a hair (for example the button hues 263/266 against `accent` 264) stay as the prototype had them (Q15). That is why the primitive layer has one stop per value.
 
 **Changed because the gate rejected them** (Q15):
-- Dark `verdict-not-found-mark` L 0.68 → **0.70**. On the hero glass it was 2.98:1. It stays below `doi-conflict` (0.72).
+- Dark `verdict-not-found-mark` L 0.68 → **0.70**. On the hero glass it was 2.98:1. That pair (verdict marks on the `glass-strong` worst case) was added to the gate after Q11, for the hero ring and legend. It stays below `doi-conflict` (0.72).
 - New role `text-on-glass-secondary` (light L 0.42, dark L 0.88) instead of muted text on glass (Q16).
 
 **New, not in the prototype:**
@@ -778,5 +800,6 @@ Do not lighten the light amber.
 - **Package location, licence and transport** to the private repository: [#189](https://github.com/jeffnawroth/source-taster/issues/189).
 - **Breakpoints, panel density** and whether the panel uses the same type steps one size down: [#194](https://github.com/jeffnawroth/source-taster/issues/194).
 - **Per-component token use** (button, field, chip, tile, toast …): the component inventory and specs.
-- **Email and PDF mapping** of the sRGB constants (no glass, no motion; verdict marks as inline SVG): the email/PDF fog patch.
+- **Email and PDF mapping** of the sRGB constants (no glass, no motion; verdict marks as inline SVG): the email/PDF fog patch. Translucent roles must be pre-composited onto a named backdrop there, because many mail clients do not render 8-digit hex.
+- **Regular primitive scales.** Snapping the per-value stops to a `50…950` ladder, if wanted, means changing values and re-running the gate.
 - **Production re-verification.** The prototype's rendered-pixel measurements and this generator's numbers must be re-run on the built tokens.
