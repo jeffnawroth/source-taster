@@ -1,0 +1,681 @@
+<!doctype html>
+<!--
+  PROTOTYPE (#192), throwaway. Question: how does Source Taster speak in DE and EN?
+  Four voices of the same strings on one page, in the "Glass" identity (#191):
+    H = today's catalog (packages/i18n, unchanged), A = Explanatory, B = Brief, C = Next step first.
+  Orthogonal toggles: DE address (Sie/du), EN capitalisation of glossary terms, width (web/360), theme.
+  Held constant in every voice: Verdict and Status labels, terminology (Prüfung, Kontingent, Plan, Urteil),
+  and every factual claim (only register and order change).
+  Open: double-click this file. URL params: ?v=H|A|B|C &lang=de|en &addr=sie|du &case=cap|low &w=web|360 &theme=light|dark &keys=1
+  ←/→ cycle the voices. Fonts load from Google Fonts (prototype only; the product self-hosts).
+-->
+<html lang="de" data-theme="light" data-w="web">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Source Taster · Voice and tone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sans: 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+  --r-xl: 24px; --r-lg: 20px; --r-md: 14px; --r-sm: 10px;
+  --spring-soft: linear(0, 0.06 2%, 0.23 5.5%, 0.5 10.5%, 0.75 16%, 0.9 21.5%, 0.985 27%, 1.02 32.5%, 1.03 38%, 1.022 45%, 1.008 55%, 0.999 68%, 1);
+}
+html[data-theme=light] {
+  color-scheme: light;
+  --outer: oklch(0.925 0.012 265); --bg: oklch(0.978 0.007 262); --bg-glow: oklch(0.925 0.055 252 / 0.85);
+  --surface: oklch(1 0 0); --surface-2: oklch(0.966 0.01 262);
+  --line: oklch(0.28 0.05 265 / 0.11); --line-2: oklch(0.28 0.05 265 / 0.19); --line-strong: oklch(0.38 0.05 265 / 0.62);
+  --ink: oklch(0.2 0.035 265); --ink-2: oklch(0.37 0.035 265); --ink-3: oklch(0.47 0.03 265);
+  --accent: oklch(0.5 0.2 264); --accent-ink: oklch(1 0 0); --accent-text: oklch(0.47 0.2 265); --accent-soft: oklch(0.5 0.2 264 / 0.08);
+  --focus: oklch(0.5 0.2 264);
+  --ok: oklch(0.56 0.15 152); --diff: oklch(0.6 0.13 68); --mixed: oklch(0.54 0.2 5); --doi: oklch(0.54 0.21 28); --miss: oklch(0.47 0.19 18); --unk: oklch(0.52 0.025 265);
+  --on: oklch(1 0 0); --warn: oklch(0.6 0.13 68); --danger: oklch(0.5 0.19 25);
+  --shadow: 0 1px 2px oklch(0.3 0.06 265 / 0.05), 0 12px 30px -18px oklch(0.3 0.08 265 / 0.2);
+  --glass: oklch(1 0 0 / 0.62); --glass-line: oklch(0.32 0.06 265 / 0.14);
+  --glass-shadow: 0 1px 1px oklch(0.3 0.08 265 / 0.08), 0 10px 24px -12px oklch(0.32 0.12 265 / 0.22), 0 40px 70px -30px oklch(0.32 0.12 265 / 0.36);
+  --hero-1: oklch(0.8 0.13 238 / 0.55); --hero-2: oklch(0.82 0.12 292 / 0.5);
+  --keybg: oklch(0.97 0.03 90); --keyink: oklch(0.38 0.06 70);
+}
+html[data-theme=dark] {
+  color-scheme: dark;
+  --outer: oklch(0.1 0.01 265); --bg: oklch(0.15 0.017 266); --bg-glow: oklch(0.36 0.15 266 / 0.5);
+  --surface: oklch(0.195 0.019 266); --surface-2: oklch(0.172 0.017 266);
+  --line: oklch(1 0 0 / 0.085); --line-2: oklch(1 0 0 / 0.14); --line-strong: oklch(1 0 0 / 0.42);
+  --ink: oklch(0.97 0.004 265); --ink-2: oklch(0.83 0.012 265); --ink-3: oklch(0.71 0.016 265);
+  --accent: oklch(0.77 0.13 262); --accent-ink: oklch(0.17 0.04 265); --accent-text: oklch(0.8 0.12 262); --accent-soft: oklch(0.77 0.13 262 / 0.11);
+  --focus: oklch(0.8 0.12 262);
+  --ok: oklch(0.8 0.17 152); --diff: oklch(0.83 0.15 85); --mixed: oklch(0.74 0.18 5); --doi: oklch(0.72 0.19 28); --miss: oklch(0.68 0.2 20); --unk: oklch(0.72 0.02 265);
+  --on: oklch(0.16 0.02 265); --warn: oklch(0.83 0.15 85); --danger: oklch(0.72 0.19 28);
+  --shadow: 0 0 0 1px oklch(0 0 0 / 0.45), 0 20px 44px -28px oklch(0 0 0 / 0.9);
+  --glass: oklch(0.22 0.025 266 / 0.66); --glass-line: oklch(0 0 0 / 0.6);
+  --glass-shadow: 0 10px 24px -12px oklch(0 0 0 / 0.7), 0 40px 80px -24px oklch(0 0 0 / 0.85);
+  --hero-1: oklch(0.46 0.2 266 / 0.55); --hero-2: oklch(0.42 0.17 300 / 0.45);
+  --keybg: oklch(0.28 0.04 80); --keyink: oklch(0.88 0.08 85);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font: 400 15px/1.5 var(--sans); color: var(--ink); background: var(--outer); -webkit-font-smoothing: antialiased; }
+h1, h2, h3, p { margin: 0; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+svg { display: block; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 8px; }
+
+.app { min-height: 100vh; background: var(--bg); position: relative; isolation: isolate; padding-bottom: 120px; }
+.app::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(70% 30% at 50% -8%, var(--bg-glow), transparent 72%); }
+.top { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 12px; padding: 12px 24px; background: var(--glass); backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4); border-bottom: 1px solid var(--glass-line); }
+.top .mark { width: 26px; height: 26px; border-radius: 7px; background: var(--accent); display: grid; place-items: center; }
+.top b { font-weight: 700; letter-spacing: -0.01em; }
+.top .tag { font: 500 11.5px/1 var(--mono); padding: 5px 8px; border-radius: 99px; background: var(--accent-soft); color: var(--accent-text); }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 28px 24px 0; }
+html[data-w="360"] .wrap { max-width: 360px; padding: 20px 16px 0; background: var(--bg); box-shadow: 0 0 0 1px var(--line-2); min-height: 100vh; }
+
+.rule { border-radius: var(--r-lg); padding: 18px 20px; background: var(--surface); box-shadow: var(--shadow); border: 1px solid var(--line); }
+.rule h1 { font: 700 26px/1.15 var(--sans); letter-spacing: -0.025em; }
+.rule .axes { font: 500 12px/1 var(--mono); color: var(--ink-3); margin-top: 8px; }
+.rule ul { margin: 12px 0 0; padding-left: 18px; color: var(--ink-2); }
+.rule li + li { margin-top: 4px; }
+.rule .const { margin-top: 12px; font-size: 13px; color: var(--ink-3); }
+
+.sec { margin-top: 36px; }
+.sec > h2 { font: 700 13px/1 var(--sans); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 12px; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+html[data-w="360"] .grid { grid-template-columns: 1fr; }
+@media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+.card { border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); padding: 18px; min-width: 0; }
+.card .cap { font: 500 11.5px/1 var(--mono); color: var(--ink-3); margin-bottom: 12px; }
+.card p + p, .card .t + .t { margin-top: 8px; }
+.t { color: var(--ink-2); text-wrap: pretty; }
+.t.lead { color: var(--ink); font-size: 16px; }
+.t.h { font: 700 18px/1.3 var(--sans); color: var(--ink); letter-spacing: -0.012em; text-wrap: balance; }
+.t.big { font: 700 26px/1.2 var(--sans); color: var(--ink); letter-spacing: -0.025em; text-wrap: balance; }
+.t.next { color: var(--ink); font-weight: 600; }
+.t.small { font-size: 13.5px; color: var(--ink-3); }
+.t.missing { font-style: italic; color: var(--ink-3); }
+
+.btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.btn { display: inline-flex; align-items: center; min-height: 36px; padding: 7px 14px; border-radius: 11px; font-weight: 600; font-size: 14px; background: var(--surface-2); border: 1px solid var(--line-2); color: var(--ink); text-align: left; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.btn.danger { background: var(--danger); color: oklch(1 0 0); border-color: transparent; }
+html[data-theme=dark] .btn.danger { color: oklch(0.16 0.02 265); }
+.btn.link { background: none; border: 0; padding: 7px 4px; color: var(--accent-text); }
+.btn .t { color: inherit; font: inherit; }
+
+.paste { border-radius: var(--r-md); border: 1.5px solid var(--line-strong); background: var(--surface); margin-top: 14px; overflow: hidden; }
+.paste .ph { font: 400 13.5px/1.6 var(--mono); color: var(--ink-3); padding: 14px 16px; min-height: 92px; }
+.paste .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 8px 10px 10px 16px; border-top: 1px solid var(--line); }
+.paste .bar .t { flex: 1 1 180px; font-size: 13.5px; color: var(--ink-3); }
+
+.vchip { display: inline-flex; align-items: center; gap: 8px; min-height: 28px; padding: 3px 12px 3px 6px; border-radius: 99px; font-size: 13.5px; font-weight: 700; color: var(--ink); background: color-mix(in oklch, var(--c) 10%, var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--c) 36%, transparent); white-space: nowrap; }
+.vchip svg { width: 20px; height: 20px; color: var(--c); }
+.vchip .n { font-variant-numeric: tabular-nums; color: var(--ink-2); font-weight: 600; }
+.vchip.st { --c: var(--ink-3); background: transparent; box-shadow: inset 0 0 0 1.5px var(--line-strong); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.vhead { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.vhead .ref { font-size: 13px; color: var(--ink-3); }
+.more { margin-top: 12px; font-size: 13.5px; font-weight: 600; color: var(--accent-text); }
+
+.hero { position: relative; overflow: hidden; border-radius: var(--r-xl); padding: 22px; border: 1px solid var(--glass-line); box-shadow: var(--glass-shadow); background: radial-gradient(60% 80% at 0% 0%, var(--hero-1), transparent 70%), radial-gradient(60% 80% at 100% 100%, var(--hero-2), transparent 70%), var(--surface); }
+.hero .human { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line-2); }
+
+.banner { display: flex; gap: 12px; align-items: flex-start; border-radius: var(--r-md); padding: 14px; background: color-mix(in oklch, var(--k) 9%, var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--k) 34%, transparent); }
+.banner + .banner { margin-top: 10px; }
+.banner > svg { width: 20px; height: 20px; flex: none; margin-top: 1px; color: var(--k); fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.banner .body { min-width: 0; flex: 1; }
+.banner .t { color: var(--ink); }
+.banner .btns { margin-top: 10px; }
+.k-info { --k: var(--accent); } .k-warn { --k: var(--warn); } .k-err { --k: var(--danger); } .k-neutral { --k: var(--ink-3); }
+
+.lim { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-top: 1px solid var(--line); }
+.lim:first-of-type { border-top: 0; padding-top: 0; }
+.lim .src { font: 500 12px/1.4 var(--mono); color: var(--ink-3); flex: none; width: 74px; padding-top: 2px; }
+.lim .t { font-size: 14px; }
+
+.toast { display: inline-flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 99px; background: var(--glass); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-line); box-shadow: var(--glass-shadow); font-weight: 600; max-width: 100%; }
+.toast + .toast { margin-top: 10px; }
+.toast .t { color: var(--ink); }
+.toast svg { width: 18px; height: 18px; flex: none; fill: none; stroke: var(--accent); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+.dialog { border-radius: var(--r-xl); padding: 22px; background: var(--surface); border: 1px solid var(--line-2); box-shadow: var(--glass-shadow); }
+.dialog .note { margin-top: 12px; padding: 12px; border-radius: var(--r-sm); background: var(--surface-2); }
+.dialog .ack { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; }
+.dialog .ack .box { width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--line-strong); flex: none; margin-top: 2px; }
+.dialog .ack .t { color: var(--ink); font-size: 14px; }
+
+.btnrow { display: grid; grid-template-columns: max-content 1fr; gap: 10px 14px; align-items: center; }
+.btnrow .lab { font: 500 11.5px/1.3 var(--mono); color: var(--ink-3); }
+html[data-w="360"] .btnrow { grid-template-columns: 1fr; gap: 4px; }
+html[data-w="360"] .btnrow .lab { margin-top: 8px; }
+
+.qs { margin: 0; padding-left: 20px; color: var(--ink-2); }
+.qs li + li { margin-top: 10px; }
+.qs b { color: var(--ink); }
+.qs code { font: 400 12.5px var(--mono); }
+
+/* key overlay: maps every string back to packages/i18n */
+.key { display: none; }
+html[data-keys] .key { display: block; margin-top: 4px; padding: 6px 8px; border-radius: 8px; background: var(--keybg); color: var(--keyink); font: 400 11.5px/1.45 var(--mono); white-space: normal; text-align: left; font-weight: 400; }
+html[data-keys] .key b { font-weight: 500; }
+html[data-keys] .btn { flex-direction: column; align-items: flex-start; }
+
+/* dev bar: deliberately not part of the design */
+.dev { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 10; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px; padding: 6px; max-width: calc(100vw - 16px); border-radius: 16px; background: oklch(0.18 0.01 265); color: oklch(0.96 0 0); box-shadow: 0 12px 40px -8px oklch(0 0 0 / 0.5); font: 500 13px/1 var(--sans); }
+.dev button { padding: 8px 10px; border-radius: 10px; }
+.dev button:hover { background: oklch(1 0 0 / 0.1); }
+.dev .cur { min-width: 200px; text-align: center; font-weight: 700; }
+.dev .seg { display: inline-flex; border-radius: 10px; background: oklch(1 0 0 / 0.08); }
+.dev .seg button[aria-pressed=true] { background: oklch(1 0 0 / 0.92); color: oklch(0.18 0.01 265); }
+.dev .seg button:disabled { opacity: 0.35; cursor: default; }
+.dev .sep { width: 1px; height: 20px; background: oklch(1 0 0 / 0.15); }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="g-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.3" style="fill:currentColor"/><path d="M7.3 12.4l3.2 3.2 6.2-6.8" style="fill:none;stroke:var(--on);stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round"/></symbol>
+  <symbol id="g-diff" viewBox="0 0 24 24"><path d="M12 1.6L22.4 12 12 22.4 1.6 12Z" style="fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round"/><path d="M8 10.2h8M8 13.8h8M13.4 6.8l-2.8 10.4" style="fill:none;stroke:var(--on);stroke-width:1.8;stroke-linecap:round"/></symbol>
+  <symbol id="g-mixed" viewBox="0 0 24 24"><path d="M12 1.7l8.9 5.1v10.4L12 22.3 3.1 17.2V6.8Z" style="fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round"/><circle cx="9.6" cy="12" r="3.3" style="fill:none;stroke:var(--on);stroke-width:1.7"/><circle cx="14.4" cy="12" r="3.3" style="fill:none;stroke:var(--on);stroke-width:1.7"/></symbol>
+  <symbol id="g-doi" viewBox="0 0 24 24"><rect x="2.4" y="2.4" width="19.2" height="19.2" rx="5.2" style="fill:currentColor"/><path d="M6.4 12h3.4M14.2 12h3.4M11 15.6l2-7.2" style="fill:none;stroke:var(--on);stroke-width:2;stroke-linecap:round"/></symbol>
+  <symbol id="g-miss" viewBox="0 0 24 24"><circle cx="10.2" cy="10.2" r="7.6" style="fill:none;stroke:currentColor;stroke-width:2.5"/><path d="M15.8 15.8l5.6 5.6" style="fill:none;stroke:currentColor;stroke-width:3.2;stroke-linecap:round"/><path d="M7.4 7.4l5.6 5.6M13 7.4l-5.6 5.6" style="fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round"/></symbol>
+  <symbol id="g-unk" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.6" style="fill:none;stroke:currentColor;stroke-width:2.1;stroke-dasharray:3.4 2.7"/><path d="M9.5 9.6a2.6 2.6 0 1 1 3.7 2.3c-.9.5-1.2 1-1.2 1.9M12 17h.01" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"/></symbol>
+  <symbol id="g-err" viewBox="0 0 24 24"><path d="M12 3.2L21.5 20H2.5Z" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round"/><path d="M12 9.5v4.6M12 17h.01" style="fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.6h.01"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3.5L21 19.5H3Z"/><path d="M12 10v4M12 16.8h.01"/></symbol>
+  <symbol id="i-err" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.4h.01"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.6 4.6L19 7.4"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-empty" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="3" stroke-dasharray="3 2.4"/></symbol>
+</svg>
+
+<div class="app">
+  <header class="top">
+    <span class="mark"><svg width="16" height="16" viewBox="-6 -2 32 20"><path transform="translate(14 2)" fill="#fff" fill-opacity=".55" d="M4.6 0C4.6 6.3 1.7 10.3-3.5 11.7C-4.5 12-5.1 10.8-4.3 10.2C-1.8 8.6-.4 6.8-.1 4.6A4.6 4.6 0 1 1 4.6 0Z"/><path transform="translate(3 2)" fill="#fff" d="M4.6 0C4.6 6.3 1.7 10.3-3.5 11.7C-4.5 12-5.1 10.8-4.3 10.2C-1.8 8.6-.4 6.8-.1 4.6A4.6 4.6 0 1 1 4.6 0Z"/></svg></span>
+    <b>Source Taster</b>
+    <span class="tag">PROTOTYPE #192 · voice</span>
+  </header>
+  <main class="wrap" id="root"></main>
+</div>
+
+<nav class="dev" aria-label="Prototype controls">
+  <button id="prev" aria-label="Previous voice">←</button>
+  <span class="cur" id="cur"></span>
+  <button id="next" aria-label="Next voice">→</button>
+  <span class="sep"></span>
+  <span class="seg" id="seg-lang"><button data-k="lang" data-v="de">DE</button><button data-k="lang" data-v="en">EN</button></span>
+  <span class="seg" id="seg-addr" title="DE address form"><button data-k="addr" data-v="sie">Sie</button><button data-k="addr" data-v="du">du</button></span>
+  <span class="seg" id="seg-case" title="EN: glossary terms capitalised or lower-case"><button data-k="case" data-v="cap">Check</button><button data-k="case" data-v="low">check</button></span>
+  <span class="sep"></span>
+  <span class="seg"><button data-k="w" data-v="web">Web</button><button data-k="w" data-v="360">360</button></span>
+  <span class="seg"><button data-k="theme" data-v="light">☀</button><button data-k="theme" data-v="dark">☾</button></span>
+  <span class="seg"><button data-k="keys" data-v="1" id="keysbtn">Keys</button></span>
+</nav>
+
+<script>
+/* ======================================================================
+   Copy data. Each field: F(key, H, A, B, C); each voice is [en, de],
+   where de is one string or [Sie form, du form]. H = today's catalog
+   (null = new string, not in the catalog). ⟦Term⟧ marks a glossary term
+   whose EN capitalisation the "Check / check" toggle switches.
+   ====================================================================== */
+const F = (key, H, A, B, C) => ({ key, H, A, B, C });
+
+const VOICES = {
+  H: { de: 'Heute', en: 'Today',
+       rules: { de: ['Unveränderter Katalog aus packages/i18n.', 'Anrede gemischt: meist Sie, Anmeldung, Import, Teile des Kontingents und DPA in du.', 'Glossarbegriffe im Englischen großgeschrieben.'],
+                en: ['Unchanged catalog from packages/i18n.', 'Mixed German address: mostly Sie, with du in sign-in, import, parts of Quota and the DPA.', 'Glossary terms capitalised in English.'] } },
+  A: { de: 'Erklärend', en: 'Explanatory',
+       rules: { de: ['Ganze Sätze in der Reihenfolge Fakt, Grund, nächster Schritt.', 'Vorbehalte werden ausgeschrieben: „Das ist kein Beleg dafür, dass …“', 'Buttons nennen Verb und Objekt („Referenzen prüfen“).'],
+                en: ['Full sentences: fact, reason, next step.', 'Caveats spelled out: "That is no evidence that …"', 'Buttons name verb and object ("Check references").'] } },
+  B: { de: 'Knapp', en: 'Brief',
+       rules: { de: ['Ein kurzer Kernsatz, höchstens ein Zusatz. Details stehen hinter „Erklärung und Quellenbelege“.', 'Vorbehalt als feste Kurzformel: „… kann trotzdem existieren.“', 'Buttons so kurz, wie der Kontext erlaubt („Prüfen“).'],
+                en: ['One short core sentence, at most one more. Detail lives behind "Explanation and source evidence".', 'Caveat as a fixed short formula: "… may still exist."', 'Buttons as short as the context allows ("Check").'] } },
+  C: { de: 'Handlung zuerst', en: 'Next step first',
+       rules: { de: ['Wenn es etwas zu tun gibt, steht das zuerst. Danach folgt der Fakt.', 'Vorbehalte hängen am Handlungssatz.', 'Buttons mit Verb, Objekt und, wo sinnvoll, der Zahl („8 Referenzen prüfen“). Destruktive Buttons sprechen in der Ich-Form.'],
+                en: ['If there is something to do, it comes first, then the fact.', 'Caveats attach to the action sentence.', 'Buttons carry verb, object and, where useful, the count ("Check 8 references"). Destructive buttons speak in the first person.'] } },
+};
+const ORDER = ['H', 'A', 'B', 'C'];
+
+const VL = { ok: ['Correct', 'Korrekt'], diff: ['Exists, with deviations', 'Existiert, mit Abweichungen'], mixed: ['Mixed citation', 'Gemischte Referenz'], doi: ['DOI conflict', 'DOI-Konflikt'], miss: ['Not found', 'Nicht gefunden'], unk: ['Not verifiable', 'Nicht verifizierbar'] };
+const COUNTS = { ok: 3, diff: 2, mixed: 0, doi: 1, miss: 1, unk: 1 };
+
+const S = {
+  /* ---------- intake + empty states ---------- */
+  intro: F('app_intro',
+    ['A first step towards checking your references.', 'Ein erster Schritt zur Prüfung Ihrer Referenzen.'],
+    ['Check whether your ⟦References⟧ exist and are cited correctly.', ['Prüfen Sie, ob Ihre Referenzen existieren und korrekt zitiert sind.', 'Prüfe, ob deine Referenzen existieren und korrekt zitiert sind.']],
+    ['Every ⟦Reference⟧, checked against its ⟦Source⟧.', 'Jede Referenz, geprüft an ihrer Quelle.'],
+    ['Paste your bibliography. Source Taster checks whether each ⟦Source⟧ exists and is cited correctly.', ['Fügen Sie Ihr Literaturverzeichnis ein. Source Taster prüft, ob jede Quelle existiert und korrekt zitiert ist.', 'Füge dein Literaturverzeichnis ein. Source Taster prüft, ob jede Quelle existiert und korrekt zitiert ist.']]),
+  hint: F('input_hint',
+    ['Paste one reference. You can also put each reference on its own line.', 'Fügen Sie eine Referenz ein. Sie können auch jede Referenz in eine eigene Zeile setzen.'],
+    ['Paste one or more ⟦References⟧, each on its own line.', ['Fügen Sie eine oder mehrere Referenzen ein, jede in einer eigenen Zeile.', 'Füge eine oder mehrere Referenzen ein, jede in einer eigenen Zeile.']],
+    ['One ⟦Reference⟧ per line.', 'Eine Referenz pro Zeile.'],
+    ['Paste one ⟦Reference⟧ per line, or upload a PDF or Word file.', ['Fügen Sie eine Referenz pro Zeile ein oder laden Sie eine PDF- oder Word-Datei hoch.', 'Füge eine Referenz pro Zeile ein oder lade eine PDF- oder Word-Datei hoch.']]),
+  checkBtn: F('check_action',
+    ['Check Reference', 'Referenz prüfen'],
+    ['Check ⟦References⟧', 'Referenzen prüfen'],
+    ['Check', 'Prüfen'],
+    ['Check 8 ⟦References⟧', '8 Referenzen prüfen']),
+  noRefs: F('structuring_no_references',
+    ['No References recognized. Paste a bibliography with an author, title and year, or an identifier such as a DOI. Put each Reference on a new line.', 'Keine Referenzen erkannt. Fügen Sie ein Literaturverzeichnis mit Autor, Titel und Jahr oder einer Kennung wie einer DOI ein. Beginnen Sie jede Referenz in einer neuen Zeile.'],
+    ['No ⟦References⟧ recognized. Each one needs an author, title and year, or an identifier such as a DOI. Put each ⟦Reference⟧ on its own line.', ['Keine Referenzen erkannt. Jede braucht Autor, Titel und Jahr oder eine Kennung wie eine DOI. Setzen Sie jede Referenz in eine eigene Zeile.', 'Keine Referenzen erkannt. Jede braucht Autor, Titel und Jahr oder eine Kennung wie eine DOI. Setze jede Referenz in eine eigene Zeile.']],
+    ['No ⟦References⟧ recognized. Each needs author, title and year, or an identifier like a DOI.', 'Keine Referenzen erkannt. Jede braucht Autor, Titel und Jahr oder eine Kennung wie eine DOI.'],
+    ['Add author, title and year, or an identifier such as a DOI, and put each ⟦Reference⟧ on its own line. No ⟦References⟧ were recognized yet.', ['Ergänzen Sie Autor, Titel und Jahr oder eine Kennung wie eine DOI und setzen Sie jede Referenz in eine eigene Zeile. Bisher wurde keine Referenz erkannt.', 'Ergänze Autor, Titel und Jahr oder eine Kennung wie eine DOI und setze jede Referenz in eine eigene Zeile. Bisher wurde keine Referenz erkannt.']]),
+  emptyFilter: F('workspace_empty',
+    ['No References in this filter.', 'Keine Referenzen in diesem Filter.'],
+    ['No ⟦References⟧ match this filter.', 'Keine Referenz passt zu diesem Filter.'],
+    ['Nothing in this filter.', 'Nichts in diesem Filter.'],
+    ['No ⟦References⟧ match this filter.', 'Keine Referenz passt zu diesem Filter.']),
+  emptyFilterBtn: F('workspace_all',
+    ['All References', 'Alle Referenzen'],
+    ['Show all ⟦References⟧', 'Alle Referenzen zeigen'],
+    ['Show all', 'Alle zeigen'],
+    ['Show all 8 ⟦References⟧', 'Alle 8 Referenzen zeigen']),
+  historyEmpty: F('history_empty',
+    ['No earlier Checks yet. Checks are kept when they end.', 'Noch keine früheren Checks. Checks werden bei ihrem Ende gespeichert.'],
+    ['No earlier ⟦Checks⟧ yet. Each ⟦Check⟧ is saved here when it ends.', 'Noch keine früheren Prüfungen. Jede Prüfung wird hier gespeichert, sobald sie endet.'],
+    ['No earlier ⟦Checks⟧ yet.', 'Noch keine früheren Prüfungen.'],
+    ['Your ⟦Checks⟧ appear here once they end.', ['Ihre Prüfungen erscheinen hier, sobald sie enden.', 'Deine Prüfungen erscheinen hier, sobald sie enden.']]),
+
+  /* ---------- verdicts ---------- */
+  summary: F('(new) summary sentence',
+    null,
+    ['3 of 8 ⟦References⟧ are correct. 2 exist with deviations. 2 deserve a closer look: one DOI conflict and one not found. 1 is not verifiable.', ['3 von 8 Referenzen sind korrekt. 2 existieren mit Abweichungen. 2 sollten Sie sich genauer ansehen: einen DOI-Konflikt und eine nicht gefundene Referenz. 1 ist nicht verifizierbar.', '3 von 8 Referenzen sind korrekt. 2 existieren mit Abweichungen. 2 solltest du dir genauer ansehen: einen DOI-Konflikt und eine nicht gefundene Referenz. 1 ist nicht verifizierbar.']],
+    ['3 of 8 correct.', '3 von 8 korrekt.'],
+    ['Start with the DOI conflict and the ⟦Reference⟧ that was not found. 3 of 8 are correct, 2 exist with deviations and 1 is not verifiable.', ['Beginnen Sie mit dem DOI-Konflikt und der nicht gefundenen Referenz. 3 von 8 sind korrekt, 2 existieren mit Abweichungen, 1 ist nicht verifizierbar.', 'Beginne mit dem DOI-Konflikt und der nicht gefundenen Referenz. 3 von 8 sind korrekt, 2 existieren mit Abweichungen, 1 ist nicht verifizierbar.']]),
+  human: F('workspace_human',
+    ['A Verdict is not proof of deception. A human makes the decision.', 'Ein Urteil ist kein Beweis für Täuschung. Die Entscheidung trifft ein Mensch.'],
+    ['A ⟦Verdict⟧ is not proof of deception. The decision is made by a person, not by Source Taster.', 'Ein Urteil ist kein Beweis für Täuschung. Die Entscheidung trifft ein Mensch, nicht Source Taster.'],
+    ['Not proof of deception. A person decides.', 'Kein Beweis für Täuschung. Ein Mensch entscheidet.'],
+    ['Review each finding yourself: a ⟦Verdict⟧ is not proof of deception, and the decision rests with a person.', ['Prüfen Sie jeden Befund selbst: Ein Urteil ist kein Beweis für Täuschung, die Entscheidung trifft ein Mensch.', 'Prüfe jeden Befund selbst: Ein Urteil ist kein Beweis für Täuschung, die Entscheidung trifft ein Mensch.']]),
+  missReason: F('reason_search_completed',
+    ['The completed search in the enabled development indexes found no sufficiently matching Source.', 'Die abgeschlossene Suche in den aktivierten Entwicklungsindizes fand keine hinreichend passende Quelle.'],
+    ['The search was completed and found no sufficiently matching ⟦Source⟧ in the searched ⟦Data sources⟧.', 'Die Suche wurde abgeschlossen und fand in den durchsuchten Datenquellen keine ausreichend passende Quelle.'],
+    ['Search complete. No close enough ⟦Source⟧.', 'Suche abgeschlossen. Keine ausreichend passende Quelle.'],
+    ['Check the title and authors for typos, or add a DOI. The completed search found no sufficiently matching ⟦Source⟧ in the searched ⟦Data sources⟧.', ['Prüfen Sie Titel und Autoren auf Tippfehler oder ergänzen Sie eine DOI. Die abgeschlossene Suche fand in den durchsuchten Datenquellen keine ausreichend passende Quelle.', 'Prüfe Titel und Autoren auf Tippfehler oder ergänze eine DOI. Die abgeschlossene Suche fand in den durchsuchten Datenquellen keine ausreichend passende Quelle.']]),
+  missNext: F('(new) next step',
+    null,
+    ['Check the title and authors for typos, or add a DOI.', ['Prüfen Sie Titel und Autoren auf Tippfehler oder ergänzen Sie eine DOI.', 'Prüfe Titel und Autoren auf Tippfehler oder ergänze eine DOI.']],
+    null, null),
+  unkReason: F('reason_insufficient_search',
+    ['The search is incomplete or lacks sufficient evidence. Unavailable steps do not prove that a Source does not exist.', 'Die Suche ist unvollständig oder liefert nicht genügend Belege. Nicht verfügbare Prüfschritte beweisen nicht, dass eine Quelle nicht existiert.'],
+    ['The search could not be completed or found too little evidence. That is no evidence that the ⟦Source⟧ does not exist.', 'Die Suche konnte nicht abgeschlossen werden oder fand zu wenige Belege. Das ist kein Beleg dafür, dass die Quelle nicht existiert.'],
+    ['Search incomplete or too little evidence. The ⟦Source⟧ may still exist.', 'Suche unvollständig oder zu wenige Belege. Die Quelle kann trotzdem existieren.'],
+    ['Check this ⟦Reference⟧ again later; a ⟦Re-check⟧ uses no ⟦Quota⟧. The search could not be completed or found too little evidence, which is no evidence that the ⟦Source⟧ does not exist.', ['Prüfen Sie diese Referenz später erneut; das verbraucht kein Kontingent. Die Suche konnte nicht abgeschlossen werden oder fand zu wenige Belege. Das ist kein Beleg dafür, dass die Quelle nicht existiert.', 'Prüfe diese Referenz später erneut; das verbraucht kein Kontingent. Die Suche konnte nicht abgeschlossen werden oder fand zu wenige Belege. Das ist kein Beleg dafür, dass die Quelle nicht existiert.']]),
+  unkNext: F('(new) next step',
+    null,
+    ['Check this ⟦Reference⟧ again later. A ⟦Re-check⟧ uses no ⟦Quota⟧.', ['Prüfen Sie diese Referenz später erneut. Das verbraucht kein Kontingent.', 'Prüfe diese Referenz später erneut. Das verbraucht kein Kontingent.']],
+    null, null),
+  doiReason: F('reason_doi_nonexistent',
+    ['The neutral doi.org Handle resolver confirms that the supplied DOI does not exist.', 'Der neutrale Handle-Resolver von doi.org bestätigt, dass die angegebene DOI nicht existiert.'],
+    ['The neutral resolver at doi.org confirms that this DOI does not exist.', 'Der neutrale Auflösungsdienst doi.org bestätigt, dass diese DOI nicht existiert.'],
+    ['doi.org: this DOI does not exist.', 'doi.org: Diese DOI existiert nicht.'],
+    ['Correct or remove the DOI, then check the ⟦Reference⟧ again. The neutral resolver at doi.org confirms that it does not exist.', ['Korrigieren oder entfernen Sie die DOI und prüfen Sie die Referenz erneut. Der neutrale Auflösungsdienst doi.org bestätigt, dass sie nicht existiert.', 'Korrigiere oder entferne die DOI und prüfe die Referenz erneut. Der neutrale Auflösungsdienst doi.org bestätigt, dass sie nicht existiert.']]),
+  diffReason: F('reason_fields_differ',
+    ['The Source is unambiguously identified, but the marked fields differ. Both original values are shown.', 'Die Quelle ist eindeutig identifiziert, aber die markierten Felder weichen ab. Beide Originalwerte werden angezeigt.'],
+    ['The ⟦Source⟧ is unambiguously identified, but the 2 marked fields differ. Both original values are shown side by side.', 'Die Quelle ist eindeutig identifiziert, aber die 2 markierten Felder weichen ab. Beide Originalwerte stehen nebeneinander.'],
+    ['Identified. 2 fields differ.', 'Eindeutig identifiziert. 2 Felder weichen ab.'],
+    ['Review the 2 marked fields; the ⟦Correction suggestion⟧ uses the values of the ⟦Source⟧. It is unambiguously identified.', ['Sehen Sie sich die 2 markierten Felder an; der Korrekturvorschlag übernimmt die Werte der Quelle. Sie ist eindeutig identifiziert.', 'Sieh dir die 2 markierten Felder an; der Korrekturvorschlag übernimmt die Werte der Quelle. Sie ist eindeutig identifiziert.']]),
+  more: F('evidence_details',
+    ['Explanation and source evidence', 'Erklärung und Quellenbelege'],
+    ['Explanation and source evidence', 'Erklärung und Quellenbelege'],
+    ['Explanation and source evidence', 'Erklärung und Quellenbelege'],
+    ['Explanation and source evidence', 'Erklärung und Quellenbelege']),
+  limCrossref: F('limitation_not_in_crossref',
+    ['Crossref has no metadata record for this DOI. This does not prove that the DOI does not exist.', 'Crossref enthält keine Metadaten für diese DOI. Das beweist nicht, dass die DOI nicht existiert.'],
+    ['Crossref has no record for this DOI. That is no evidence that the DOI does not exist.', 'Crossref hat keinen Datensatz zu dieser DOI. Das ist kein Beleg dafür, dass die DOI nicht existiert.'],
+    ['Not in Crossref. The DOI may still exist.', 'Nicht in Crossref. Die DOI kann trotzdem existieren.'],
+    ['Rely on the other evidence for this DOI: Crossref has no record of it, which is no evidence that it does not exist.', ['Stützen Sie sich auf die übrigen Belege: Crossref hat keinen Datensatz zu dieser DOI, was kein Beleg dafür ist, dass sie nicht existiert.', 'Stütz dich auf die übrigen Belege: Crossref hat keinen Datensatz zu dieser DOI, was kein Beleg dafür ist, dass sie nicht existiert.']]),
+  limBusy: F('limitation_rate_budget',
+    ['The data source is busy or its request limit was reached. Try this Reference again later.', 'Die Datenquelle ist ausgelastet oder ihr Anfragelimit wurde erreicht. Prüfen Sie diese Referenz später erneut.'],
+    ['The ⟦Data source⟧ is busy or has reached its request limit. Check this ⟦Reference⟧ again later.', ['Die Datenquelle ist ausgelastet oder hat ihr Anfragelimit erreicht. Prüfen Sie diese Referenz später erneut.', 'Die Datenquelle ist ausgelastet oder hat ihr Anfragelimit erreicht. Prüfe diese Referenz später erneut.']],
+    ['⟦Data source⟧ busy. Try again later.', ['Datenquelle ausgelastet. Versuchen Sie es später erneut.', 'Datenquelle ausgelastet. Versuch es später erneut.']],
+    ['Check this ⟦Reference⟧ again later. The ⟦Data source⟧ is busy or has reached its request limit.', ['Prüfen Sie diese Referenz später erneut. Die Datenquelle ist ausgelastet oder hat ihr Anfragelimit erreicht.', 'Prüfe diese Referenz später erneut. Die Datenquelle ist ausgelastet oder hat ihr Anfragelimit erreicht.']]),
+
+  /* ---------- errors + status ---------- */
+  failedLabel: F('status_failed',
+    ['Technical error', 'Technischer Fehler'], ['Technical error', 'Technischer Fehler'], ['Technical error', 'Technischer Fehler'], ['Technical error', 'Technischer Fehler']),
+  failedText: F('(new) failed Status explanation',
+    null,
+    ['This ⟦Reference⟧ has no ⟦Verdict⟧ because of a technical error on our side. It used no ⟦Quota⟧.', 'Wegen eines technischen Fehlers bei uns hat diese Referenz kein Urteil. Sie hat kein Kontingent verbraucht.'],
+    ['No ⟦Verdict⟧: technical error. No ⟦Quota⟧ used.', 'Kein Urteil: technischer Fehler. Kein Kontingent verbraucht.'],
+    ['Check this ⟦Reference⟧ again. A technical error on our side stopped it before a ⟦Verdict⟧; no ⟦Quota⟧ was used.', ['Prüfen Sie diese Referenz erneut. Ein technischer Fehler bei uns hat sie vor dem Urteil gestoppt; es wurde kein Kontingent verbraucht.', 'Prüfe diese Referenz erneut. Ein technischer Fehler bei uns hat sie vor dem Urteil gestoppt; es wurde kein Kontingent verbraucht.']]),
+  internal: F('problem_internal',
+    ['Something went wrong. Please try again.', 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.'],
+    ['A technical error occurred on our side. Please try again.', ['Bei uns ist ein technischer Fehler aufgetreten. Bitte versuchen Sie es erneut.', 'Bei uns ist ein technischer Fehler aufgetreten. Bitte versuch es erneut.']],
+    ['Error on our side. Try again.', ['Fehler bei uns. Versuchen Sie es erneut.', 'Fehler bei uns. Versuch es erneut.']],
+    ['Try again in a moment. A technical error occurred on our side.', ['Versuchen Sie es gleich noch einmal. Bei uns ist ein technischer Fehler aufgetreten.', 'Versuch es gleich noch einmal. Bei uns ist ein technischer Fehler aufgetreten.']]),
+  connection: F('problem_connection',
+    ['The connection failed. Please try again.', 'Die Verbindung ist fehlgeschlagen. Bitte versuchen Sie es erneut.'],
+    ['Source Taster could not be reached. Check your internet connection and try again.', ['Source Taster ist nicht erreichbar. Prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.', 'Source Taster ist nicht erreichbar. Prüfe deine Internetverbindung und versuch es erneut.']],
+    ['No connection. Try again.', ['Keine Verbindung. Versuchen Sie es erneut.', 'Keine Verbindung. Versuch es erneut.']],
+    ['Check your internet connection, then try again. Source Taster could not be reached.', ['Prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut. Source Taster ist nicht erreichbar.', 'Prüfe deine Internetverbindung und versuch es erneut. Source Taster ist nicht erreichbar.']]),
+  noText: F('problem_document_no_text',
+    ['This document contains no extractable text. For a scanned PDF, paste the References as text instead.', 'Dieses Dokument enthält keinen auslesbaren Text. Fügen Sie bei einem gescannten PDF die Referenzen als Text ein.'],
+    ['This document contains no readable text, which is common for scanned PDFs. Paste the ⟦References⟧ as text instead.', ['Dieses Dokument enthält keinen auslesbaren Text, wie oft bei gescannten PDFs. Fügen Sie die Referenzen stattdessen als Text ein.', 'Dieses Dokument enthält keinen auslesbaren Text, wie oft bei gescannten PDFs. Füge die Referenzen stattdessen als Text ein.']],
+    ['No readable text. Scanned? Paste the ⟦References⟧ as text.', ['Kein auslesbarer Text. Gescannt? Fügen Sie die Referenzen als Text ein.', 'Kein auslesbarer Text. Gescannt? Füge die Referenzen als Text ein.']],
+    ['Paste the ⟦References⟧ as text instead. This document contains no readable text, as is common with scanned PDFs.', ['Fügen Sie die Referenzen stattdessen als Text ein. Dieses Dokument enthält keinen auslesbaren Text, wie oft bei gescannten PDFs.', 'Füge die Referenzen stattdessen als Text ein. Dieses Dokument enthält keinen auslesbaren Text, wie oft bei gescannten PDFs.']]),
+  authInvalid: F('auth_invalid',
+    ['The code is invalid, expired or already used. Request a new code after the waiting period.', 'Der Code ist ungültig, abgelaufen oder bereits verwendet. Fordere nach der Wartezeit einen neuen Code an.'],
+    ['This code is invalid, expired or already used. Request a new code once the waiting time is over.', ['Dieser Code ist ungültig, abgelaufen oder schon verwendet. Fordern Sie nach der Wartezeit einen neuen Code an.', 'Dieser Code ist ungültig, abgelaufen oder schon verwendet. Fordere nach der Wartezeit einen neuen Code an.']],
+    ['Code not valid. Request a new one after the wait.', ['Code ungültig. Fordern Sie nach der Wartezeit einen neuen an.', 'Code ungültig. Fordere nach der Wartezeit einen neuen an.']],
+    ['Request a new code after the waiting time. This one is invalid, expired or already used.', ['Fordern Sie nach der Wartezeit einen neuen Code an. Dieser ist ungültig, abgelaufen oder schon verwendet.', 'Fordere nach der Wartezeit einen neuen Code an. Dieser ist ungültig, abgelaufen oder schon verwendet.']]),
+
+  /* ---------- limits + quota ---------- */
+  q80: F('quota_warning_eighty',
+    ['You have used 80 % of your Quota. Upgrade to keep checking without interruption.', 'Sie haben 80 % Ihres Kontingents verbraucht. Wechseln Sie auf einen größeren Plan, um ohne Unterbrechung weiterzuprüfen.'],
+    ['You have used 80 % of your ⟦Quota⟧. If you need more, you can switch to a larger ⟦Plan⟧.', ['Sie haben 80 % Ihres Kontingents verbraucht. Wenn Sie mehr brauchen, können Sie auf einen größeren Plan wechseln.', 'Du hast 80 % deines Kontingents verbraucht. Wenn du mehr brauchst, kannst du auf einen größeren Plan wechseln.']],
+    ['80 % of your ⟦Quota⟧ used.', ['80 % Ihres Kontingents verbraucht.', '80 % deines Kontingents verbraucht.']],
+    ['Switch to a larger ⟦Plan⟧ if you need more checks. You have used 80 % of your ⟦Quota⟧.', ['Wechseln Sie auf einen größeren Plan, wenn Sie mehr Prüfungen brauchen. Sie haben 80 % Ihres Kontingents verbraucht.', 'Wechsle auf einen größeren Plan, wenn du mehr Prüfungen brauchst. Du hast 80 % deines Kontingents verbraucht.']]),
+  upgrade: F('quota_upgrade',
+    ['Upgrade', 'Plan wechseln'],
+    ['Compare ⟦Plans⟧', 'Pläne vergleichen'],
+    ['Upgrade', 'Plan wechseln'],
+    ['Switch to a larger ⟦Plan⟧', 'Größeren Plan wählen']),
+  qOut: F('quota_warning_exhausted',
+    ['Your Quota is used up. Upgrade to check more References.', 'Ihr Kontingent ist aufgebraucht. Wechseln Sie auf einen größeren Plan, um weitere Referenzen zu prüfen.'],
+    ['Your ⟦Quota⟧ is used up. To check more ⟦References⟧, switch to a larger ⟦Plan⟧ or buy a ⟦Check pack⟧.', ['Ihr Kontingent ist aufgebraucht. Um weitere Referenzen zu prüfen, wechseln Sie auf einen größeren Plan oder kaufen Sie ein Prüfkontingent.', 'Dein Kontingent ist aufgebraucht. Um weitere Referenzen zu prüfen, wechsle auf einen größeren Plan oder kauf ein Prüfkontingent.']],
+    ['Your ⟦Quota⟧ is used up.', ['Ihr Kontingent ist aufgebraucht.', 'Dein Kontingent ist aufgebraucht.']],
+    ['Switch to a larger ⟦Plan⟧ or buy a ⟦Check pack⟧ to check more ⟦References⟧. Your ⟦Quota⟧ is used up.', ['Wechseln Sie auf einen größeren Plan oder kaufen Sie ein Prüfkontingent, um weitere Referenzen zu prüfen. Ihr Kontingent ist aufgebraucht.', 'Wechsle auf einen größeren Plan oder kauf ein Prüfkontingent, um weitere Referenzen zu prüfen. Dein Kontingent ist aufgebraucht.']]),
+  qcHead: F('quota_choice_heading',
+    ['Not enough Quota for all References', 'Kontingent reicht nicht für alle Referenzen'],
+    ['Not enough ⟦Quota⟧ for all ⟦References⟧', 'Das Kontingent reicht nicht für alle Referenzen'],
+    ['5 checks left for 12 ⟦References⟧', '5 Prüfungen übrig für 12 Referenzen'],
+    ['Check the first 5 ⟦References⟧, or get more ⟦Quota⟧', ['Prüfen Sie die ersten 5 Referenzen oder holen Sie mehr Kontingent', 'Prüf die ersten 5 Referenzen oder hol dir mehr Kontingent']]),
+  qcBody: F('quota_choice_body',
+    ['You entered 12 References but have 5 checks left. Check only the first 5 in input order (the rest are not checked), or upgrade.', 'Sie haben 12 Referenzen eingegeben, aber nur noch 5 Prüfungen übrig. Prüfen Sie nur die ersten 5 in Eingabereihenfolge (die übrigen werden nicht geprüft) oder wechseln Sie den Plan.'],
+    ['You entered 12 ⟦References⟧ and have 5 checks left. You can check the first 5 in the order you entered them; the other 7 are not checked. Or switch to a larger ⟦Plan⟧.', ['Sie haben 12 Referenzen eingegeben und noch 5 Prüfungen übrig. Sie können die ersten 5 in Ihrer Reihenfolge prüfen; die übrigen 7 werden nicht geprüft. Oder Sie wechseln auf einen größeren Plan.', 'Du hast 12 Referenzen eingegeben und noch 5 Prüfungen übrig. Du kannst die ersten 5 in deiner Reihenfolge prüfen; die übrigen 7 werden nicht geprüft. Oder du wechselst auf einen größeren Plan.']],
+    ['You can check the first 5 in your list. The other 7 stay unchecked.', ['Sie können die ersten 5 Ihrer Liste prüfen. Die übrigen 7 bleiben ungeprüft.', 'Du kannst die ersten 5 deiner Liste prüfen. Die übrigen 7 bleiben ungeprüft.']],
+    ['Your ⟦Quota⟧ covers 5 of the 12 ⟦References⟧ you entered. The first 5 in your order are checked; the other 7 are not.', ['Ihr Kontingent reicht für 5 der 12 eingegebenen Referenzen. Geprüft werden die ersten 5 in Ihrer Reihenfolge, die übrigen 7 nicht.', 'Dein Kontingent reicht für 5 der 12 eingegebenen Referenzen. Geprüft werden die ersten 5 in deiner Reihenfolge, die übrigen 7 nicht.']]),
+  qcFirst: F('quota_choice_first',
+    ['Check first 5', 'Die ersten 5 prüfen'],
+    ['Check the first 5', 'Die ersten 5 prüfen'],
+    ['Check 5', '5 prüfen'],
+    ['Check the first 5 ⟦References⟧', 'Die ersten 5 Referenzen prüfen']),
+  qcCancel: F('quota_choice_dismiss',
+    ['Cancel', 'Abbrechen'], ['Cancel', 'Abbrechen'], ['Cancel', 'Abbrechen'], ['Not now', 'Jetzt nicht']),
+  qStarted: F('quota_started',
+    ['Started 5 of 12 References; 7 were not checked.', '5 von 12 Referenzen gestartet; 7 wurden nicht geprüft.'],
+    ['5 of 12 ⟦References⟧ are being checked. The other 7 were not checked.', '5 von 12 Referenzen werden geprüft. Die übrigen 7 wurden nicht geprüft.'],
+    ['Checking 5 of 12. 7 skipped.', '5 von 12 werden geprüft. 7 übersprungen.'],
+    ['5 of 12 ⟦References⟧ are being checked; the other 7 were left out.', '5 von 12 Referenzen werden geprüft; die übrigen 7 wurden ausgelassen.']),
+  refLimit: F('problem_reference_limit',
+    ['At most 100 References can be processed at once. Split your bibliography into smaller lists.', 'Es können höchstens 100 Referenzen gleichzeitig verarbeitet werden. Teilen Sie Ihr Literaturverzeichnis in kleinere Listen auf.'],
+    ['Up to 100 ⟦References⟧ can be processed at once. Split your bibliography into smaller lists.', ['Es lassen sich höchstens 100 Referenzen auf einmal verarbeiten. Teilen Sie Ihr Literaturverzeichnis in kleinere Listen auf.', 'Es lassen sich höchstens 100 Referenzen auf einmal verarbeiten. Teile dein Literaturverzeichnis in kleinere Listen auf.']],
+    ['At most 100 ⟦References⟧ at once. Split the list.', ['Höchstens 100 Referenzen auf einmal. Teilen Sie die Liste auf.', 'Höchstens 100 Referenzen auf einmal. Teil die Liste auf.']],
+    ['Split your bibliography into lists of up to 100 ⟦References⟧. That is the most that can be processed at once.', ['Teilen Sie Ihr Literaturverzeichnis in Listen mit höchstens 100 Referenzen auf. Mehr lassen sich nicht auf einmal verarbeiten.', 'Teile dein Literaturverzeichnis in Listen mit höchstens 100 Referenzen auf. Mehr lassen sich nicht auf einmal verarbeiten.']]),
+  abuse: F('problem_abuse_limit + abuse_continue_at',
+    ['Too many requests. Please wait before trying again. Continue at 14:32', 'Zu viele Anfragen. Bitte warten Sie vor dem nächsten Versuch. Weiter ab 14:32'],
+    ['Too many requests in a short time. You can continue at 14:32.', ['Zu viele Anfragen in kurzer Zeit. Sie können ab 14:32 Uhr weitermachen.', 'Zu viele Anfragen in kurzer Zeit. Du kannst ab 14:32 Uhr weitermachen.']],
+    ['Too many requests. Continue at 14:32.', 'Zu viele Anfragen. Weiter ab 14:32 Uhr.'],
+    ['Continue at 14:32. There were too many requests in a short time.', ['Machen Sie ab 14:32 Uhr weiter. Es gab zu viele Anfragen in kurzer Zeit.', 'Mach ab 14:32 Uhr weiter. Es gab zu viele Anfragen in kurzer Zeit.']]),
+  aiGuest: F('ai_guest',
+    ['AI extraction is unavailable to Guests. The parser was used. Upgrade to a paid Plan for AI extraction.', 'KI-Extraktion ist für Gäste nicht verfügbar. Der Parser wurde verwendet. Ein kostenpflichtiger Plan bietet KI-Extraktion.'],
+    ['AI extraction is not available to ⟦Guests⟧, so the rule-based parser was used. Paid ⟦Plans⟧ include AI extraction.', 'KI-Extraktion steht Gästen nicht zur Verfügung, daher wurde der regelbasierte Parser verwendet. Bezahlte Pläne enthalten KI-Extraktion.'],
+    ['Structured without AI. AI extraction comes with paid ⟦Plans⟧.', 'Ohne KI strukturiert. KI-Extraktion gibt es in bezahlten Plänen.'],
+    ['Use a paid ⟦Plan⟧ for AI extraction. As a ⟦Guest⟧, the rule-based parser was used.', ['Nutzen Sie einen bezahlten Plan für KI-Extraktion. Für Gäste wurde der regelbasierte Parser verwendet.', 'Nutze einen bezahlten Plan für KI-Extraktion. Für Gäste wurde der regelbasierte Parser verwendet.']]),
+
+  /* ---------- sensitive moments ---------- */
+  delHead: F('sensitive_delete_heading',
+    ['Delete Account permanently', 'Konto endgültig löschen'],
+    ['Delete ⟦Account⟧ permanently', 'Konto endgültig löschen'],
+    ['Delete ⟦Account⟧?', 'Konto löschen?'],
+    ['Delete your ⟦Account⟧ permanently', ['Ihr Konto endgültig löschen', 'Dein Konto endgültig löschen']]),
+  delContent: F('sensitive_delete_notice_content',
+    ['All your Checks and their results are deleted and cannot be restored. You are signed out on every device.', 'Alle Ihre Prüfungen und deren Ergebnisse werden gelöscht und können nicht wiederhergestellt werden. Sie werden auf allen Geräten abgemeldet.'],
+    ['All your ⟦Checks⟧ and their results will be deleted and cannot be restored. You will be signed out on every device.', ['Alle Ihre Prüfungen und deren Ergebnisse werden gelöscht und lassen sich nicht wiederherstellen. Sie werden auf allen Geräten abgemeldet.', 'Alle deine Prüfungen und ihre Ergebnisse werden gelöscht und lassen sich nicht wiederherstellen. Du wirst auf allen Geräten abgemeldet.']],
+    ['All ⟦Checks⟧ and results are deleted for good. You are signed out everywhere.', ['Alle Prüfungen und Ergebnisse werden endgültig gelöscht. Sie werden überall abgemeldet.', 'Alle Prüfungen und Ergebnisse werden endgültig gelöscht. Du wirst überall abgemeldet.']],
+    ['Download anything you want to keep first. All your ⟦Checks⟧ and their results will be deleted and cannot be restored, and you will be signed out on every device.', ['Laden Sie zuerst herunter, was Sie behalten möchten. Alle Ihre Prüfungen und deren Ergebnisse werden gelöscht und lassen sich nicht wiederherstellen. Sie werden auf allen Geräten abgemeldet.', 'Lade zuerst herunter, was du behalten möchtest. Alle deine Prüfungen und ihre Ergebnisse werden gelöscht und lassen sich nicht wiederherstellen. Du wirst auf allen Geräten abgemeldet.']]),
+  delQuota: F('sensitive_delete_notice_quota',
+    ['Your remaining Quota (37 checks) is lost and not restored.', 'Ihr verbleibendes Kontingent (37 Prüfungen) geht verloren und wird nicht wiederhergestellt.'],
+    ['Your remaining ⟦Quota⟧ of 37 checks is lost and will not be restored.', ['Ihr verbleibendes Kontingent von 37 Prüfungen geht verloren und wird nicht wiederhergestellt.', 'Dein verbleibendes Kontingent von 37 Prüfungen geht verloren und wird nicht wiederhergestellt.']],
+    ['Your 37 remaining checks are lost.', ['Ihre 37 verbleibenden Prüfungen gehen verloren.', 'Deine 37 verbleibenden Prüfungen gehen verloren.']],
+    ['Use your 37 remaining checks first if you need them. They are lost and will not be restored.', ['Nutzen Sie vorher Ihre 37 verbleibenden Prüfungen, falls Sie sie brauchen. Sie gehen verloren und werden nicht wiederhergestellt.', 'Nutze vorher deine 37 verbleibenden Prüfungen, falls du sie brauchst. Sie gehen verloren und werden nicht wiederhergestellt.']]),
+  delRetention: F('sensitive_delete_notice_retention  (tone only, legal)',
+    ['Billing records that the law requires us to keep are blocked from any other use and kept for eight years. This deletion does not remove them.', 'Abrechnungsdaten, die wir gesetzlich aufbewahren müssen, werden für jede andere Nutzung gesperrt und acht Jahre aufbewahrt. Diese Löschung entfernt sie nicht.'],
+    ['By law, we must keep billing records for eight years. They are blocked from any other use, and this deletion does not remove them.', 'Abrechnungsdaten müssen wir gesetzlich acht Jahre aufbewahren. Sie werden für jede andere Nutzung gesperrt; diese Löschung entfernt sie nicht.'],
+    ['Billing records stay for eight years, as the law requires, blocked from any other use. This deletion does not remove them.', 'Abrechnungsdaten bleiben gesetzlich acht Jahre gespeichert, gesperrt für jede andere Nutzung. Diese Löschung entfernt sie nicht.'],
+    ['Billing records stay: by law, we must keep them for eight years. They are blocked from any other use, and this deletion does not remove them.', 'Abrechnungsdaten bleiben: Wir müssen sie gesetzlich acht Jahre aufbewahren. Sie werden für jede andere Nutzung gesperrt; diese Löschung entfernt sie nicht.']),
+  delAck: F('sensitive_delete_ack',
+    ['I understand that billing records are kept for eight years and that this deletion cannot be undone.', 'Ich verstehe, dass Abrechnungsdaten acht Jahre aufbewahrt werden und dass diese Löschung nicht rückgängig zu machen ist.'],
+    ['I understand that billing records are kept for eight years and that this deletion cannot be undone.', 'Ich verstehe, dass Abrechnungsdaten acht Jahre aufbewahrt werden und dass sich diese Löschung nicht rückgängig machen lässt.'],
+    ['I understand: this cannot be undone, and billing records stay for eight years.', 'Ich verstehe: Das lässt sich nicht rückgängig machen, und Abrechnungsdaten bleiben acht Jahre gespeichert.'],
+    ['I understand that billing records are kept for eight years and that this deletion cannot be undone.', 'Ich verstehe, dass Abrechnungsdaten acht Jahre aufbewahrt werden und dass sich diese Löschung nicht rückgängig machen lässt.']),
+  delConfirm: F('sensitive_delete_confirm',
+    ['Delete Account permanently', 'Konto endgültig löschen'],
+    ['Delete ⟦Account⟧ permanently', 'Konto endgültig löschen'],
+    ['Delete ⟦Account⟧', 'Konto löschen'],
+    ['Delete my ⟦Account⟧ permanently', 'Mein Konto endgültig löschen']),
+  delCancel: F('sensitive_cancel',
+    ['Cancel', 'Abbrechen'], ['Cancel', 'Abbrechen'], ['Cancel', 'Abbrechen'], ['Keep my ⟦Account⟧', 'Mein Konto behalten']),
+  aiUnc: F('ai_uncertainty',
+    ['AI results can be wrong. Check the extracted fields against your original text.', 'KI-Ergebnisse können falsch sein. Vergleichen Sie die extrahierten Felder mit Ihrem Originaltext.'],
+    ['AI extraction can make mistakes. Compare the extracted fields with your original text.', ['KI-Extraktion kann Fehler machen. Vergleichen Sie die extrahierten Felder mit Ihrem Originaltext.', 'KI-Extraktion kann Fehler machen. Vergleiche die extrahierten Felder mit deinem Originaltext.']],
+    ['AI can be wrong. Compare with your original.', ['KI kann irren. Vergleichen Sie mit Ihrem Original.', 'KI kann irren. Vergleich mit deinem Original.']],
+    ['Compare the extracted fields with your original text: AI extraction can make mistakes.', ['Vergleichen Sie die extrahierten Felder mit Ihrem Originaltext: KI-Extraktion kann Fehler machen.', 'Vergleiche die extrahierten Felder mit deinem Originaltext: KI-Extraktion kann Fehler machen.']]),
+
+  /* ---------- buttons + confirmations ---------- */
+  bStructure: F('structuring_action', ['Structure References', 'Referenzen strukturieren'], ['Structure ⟦References⟧', 'Referenzen strukturieren'], ['Structure', 'Strukturieren'], ['Structure 8 ⟦References⟧', '8 Referenzen strukturieren']),
+  bCancel: F('check_cancel', ['Cancel Check', 'Prüfung abbrechen'], ['Cancel ⟦Check⟧', 'Prüfung abbrechen'], ['Cancel', 'Abbrechen'], ['Stop this ⟦Check⟧', 'Diese Prüfung stoppen']),
+  bApply: F('correction_apply', ['Apply for export only', 'Nur für den Export übernehmen'], ['Use for export only', 'Nur für den Export übernehmen'], ['Use for export', 'Für Export nutzen'], ['Use in my export only', 'Nur in meinen Export übernehmen']),
+  bCopy: F('correction_copy', ['Copy suggestion', 'Vorschlag kopieren'], ['Copy suggestion', 'Vorschlag kopieren'], ['Copy', 'Kopieren'], ['Copy corrected ⟦Reference⟧', 'Korrigierte Referenz kopieren']),
+  bRecheck: F('revision_save_recheck', ['Save and re-check', 'Speichern und erneut prüfen'], ['Save and re-check', 'Speichern und erneut prüfen'], ['Save & re-check', 'Speichern & prüfen'], ['Save fields and re-check', 'Felder speichern und erneut prüfen']),
+  bJudge: F('override_judge', ['Judge manually', 'Manuell beurteilen'], ['Judge manually', 'Manuell beurteilen'], ['Judge', 'Beurteilen'], ['Set the ⟦Verdict⟧ myself', 'Urteil selbst festlegen']),
+  bReport: F('report_ui_create', ['Create report', 'Bericht erstellen'], ['Create PDF report', 'PDF-Bericht erstellen'], ['PDF report', 'PDF-Bericht'], ['Create accessible PDF report', 'Barrierefreien PDF-Bericht erstellen']),
+  copied: F('correction_copied',
+    ['Copied.', 'Kopiert.'],
+    ['Copied to the clipboard.', 'In die Zwischenablage kopiert.'],
+    ['Copied.', 'Kopiert.'],
+    ['Copied. Paste it into your document.', ['Kopiert. Fügen Sie sie in Ihr Dokument ein.', 'Kopiert. Füge sie in dein Dokument ein.']]),
+  overSaved: F('override_saved',
+    ['Manual Verdict saved.', 'Manuelles Urteil gespeichert.'],
+    ['Manual ⟦Verdict⟧ saved. The original ⟦Verdict⟧ stays visible next to it.', 'Manuelles Urteil gespeichert. Das ursprüngliche Urteil bleibt daneben sichtbar.'],
+    ['Saved.', 'Gespeichert.'],
+    ['Manual ⟦Verdict⟧ saved. The original ⟦Verdict⟧ stays visible next to it.', 'Manuelles Urteil gespeichert. Das ursprüngliche Urteil bleibt daneben sichtbar.']),
+};
+
+/* questions the voices deliberately hold constant; [de, en], HTML allowed */
+const QUESTIONS = [
+  ['<b>Anrede:</b> Sie oder du, und zwar überall gleich. Heute gemischt: <code>auth_*</code>, <code>library_*</code>, <code>quota_loading</code>, <code>quota_unavailable</code> und <code>dpa_*</code> duzen, der Rest siezt.',
+   '<b>German address:</b> Sie or du, the same everywhere. Mixed today: <code>auth_*</code>, <code>library_*</code>, <code>quota_loading</code>, <code>quota_unavailable</code> and <code>dpa_*</code> use du; the rest use Sie.'],
+  ['<b>Prüfung oder Check:</b> Der Katalog sagt meist „Prüfung“, <code>history_*</code> aber „Checks“.', '<b>Prüfung vs Check (DE):</b> the catalog mostly says „Prüfung“, but <code>history_*</code> says „Checks“.'],
+  ['<b>Kontingent oder Quota:</b> <code>history_billable</code> sagt „verbraucht erneut Quota“, sonst steht „Kontingent“.', '<b>Kontingent vs Quota (DE):</b> <code>history_billable</code> says „verbraucht erneut Quota“; elsewhere the catalog says „Kontingent“.'],
+  ['<b>Plan oder Tarif:</b> <code>commerce_open</code> sagt „Tarife“, sonst steht „Plan“. Dazu kommen „Free“ als Planname und der Plural „bezahlte Plans“ (<code>history_policy</code>) statt „Pläne“.', '<b>Plan vs Tarif (DE):</b> <code>commerce_open</code> says „Tarife“; elsewhere the catalog says „Plan“. Also „Free“ as a Plan name, and the plural „bezahlte Plans“ (<code>history_policy</code>) instead of „Pläne“.'],
+  ['<b>Check pack:</b> „Prüfkontingent“ kollidiert mit „Kontingent“. Alternative: „Prüfpaket“.', '<b>Check pack (DE):</b> „Prüfkontingent“ collides with „Kontingent“. Alternative: „Prüfpaket“.'],
+  ['<b>Verdict:</b> „Urteil“ klingt nach Gericht. Alternativen: „Befund“, „Bewertung“. „Rating“ ist laut Glossar zu vermeiden.', '<b>Verdict (DE):</b> „Urteil“ sounds like a court ruling. Alternatives: „Befund“, „Bewertung“. The Glossary says to avoid „rating“.'],
+  ['<b>Gendern:</b> neutral umformulieren („Autorenangabe“, „wer prüft“), „Autor/in“ wie heute oder „Autor:innen“ wie im Glass-Entwurf. Bayern untersagt Gendersonderzeichen seit April 2024 in Behörden, Schulen und Hochschulen; das betrifft die Glaubwürdigkeit auf dem Campus.',
+   '<b>Gendered nouns (DE):</b> rephrase neutrally, keep „Autor/in“ as today, or use „Autor:innen“ as in the Glass draft. Since April 2024, Bavaria has barred gender special characters in authorities, schools and universities, which affects credibility on campus.'],
+  ['<b>Groß- oder Kleinschreibung von Glossarbegriffen im Englischen:</b> „Check Reference“ oder „check reference“. Schalter „Check / check“.', '<b>EN capitalisation of glossary terms</b> in running copy: „your Quota“ vs „your quota“. See the „Check / check“ toggle.'],
+  ['<b>Typografie:</b> „80 %“ oder „80%“, Gedankenstrich „–“ oder „—“, „…“ mit oder ohne Leerzeichen, deutsche Anführungszeichen „…“.', '<b>Typography:</b> „80 %“ vs „80%“, dash „–“ vs „—“, ellipsis spacing, and German quotation marks „…“ in DE.'],
+  ['<b>„Bitte“:</b> immer, nur bei Bitten um Geduld oder nie.', '<b>„Please“:</b> always, only when asking for patience, or never.'],
+];
+
+/* ---------- state ---------- */
+const P = new URLSearchParams(location.search);
+const pick = (k, d, ok) => (ok.includes(P.get(k)) ? P.get(k) : d);
+const st = {
+  v: pick('v', 'A', ORDER), lang: pick('lang', 'de', ['de', 'en']), addr: pick('addr', 'sie', ['sie', 'du']),
+  case: pick('case', 'low', ['cap', 'low']), w: pick('w', 'web', ['web', '360']), theme: pick('theme', 'light', ['light', 'dark']),
+  keys: P.get('keys') === '1' ? '1' : '0',
+};
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function applyCase(s) {
+  if (st.lang !== 'en' || st.v === 'H') return s.replace(/[⟦⟧]/g, '');
+  return s.replace(/⟦([^⟧]+)⟧/g, (m, term, off, all) => {
+    if (st.case === 'cap') return term;
+    const before = all.slice(0, off).replace(/[⟦⟧]/g, '').trimEnd();
+    const sentenceStart = before === '' || /[.!?]$/.test(before);
+    return sentenceStart ? term : term.charAt(0).toLowerCase() + term.slice(1);
+  });
+}
+function pickLang(pair, voice) {
+  if (!pair) return null;
+  if (st.lang === 'en') return pair[0];
+  const de = pair[1];
+  return Array.isArray(de) ? de[voice === 'H' ? 0 : st.addr === 'du' ? 1 : 0] : de;
+}
+function raw(f) { return pickLang(f[st.v], st.v); }
+/* one string as an element; returns '' when a voice leaves the field out */
+function T(f, cls = '', tag = 'p', opt = {}) {
+  const s = raw(f);
+  const today = pickLang(f.H, 'H');
+  const key = `<span class="key"><b>${esc(f.key)}</b>${st.v !== 'H' && today ? ' · today: ' + esc(today) : ''}</span>`;
+  if (s == null) {
+    if (st.v === 'H' && !opt.quietWhenMissing) return `<${tag} class="t missing ${cls}">${st.lang === 'de' ? '(neu, nicht im Katalog)' : '(new, not in the catalog)'}${key}</${tag}>`;
+    return '';
+  }
+  return `<${tag} class="t ${cls}">${esc(applyCase(s))}${key}</${tag}>`;
+}
+const L = (de, en) => (st.lang === 'de' ? de : en);
+const vlabel = (k) => VL[k][st.lang === 'de' ? 1 : 0];
+const chip = (k, n) => `<span class="vchip" style="--c:var(--${k})"><svg aria-hidden="true"><use href="#g-${k}"/></svg>${esc(vlabel(k))}${n != null ? ` <span class="n">${n}</span>` : ''}</span>`;
+const btn = (f, kind = '') => `<button class="btn ${kind}">${T(f, '', 'span')}</button>`;
+const ico = (id) => `<svg aria-hidden="true" viewBox="0 0 24 24"><use href="#${id}"/></svg>`;
+
+/* ---------- render ---------- */
+function render() {
+  const V = VOICES[st.v];
+  const axes = st.v === 'H' ? 'packages/i18n · as is'
+    : `${st.v} · ${V[st.lang]} · ${st.lang === 'de' ? (st.addr === 'du' ? 'du' : 'Sie') : (st.case === 'cap' ? 'Terms Capitalised' : 'terms lower-case')}`;
+  const verdictCard = (k, ref, reason, next) => `
+    <div class="card"><div class="vhead">${chip(k)}<span class="ref">${ref}</span></div>
+      ${T(reason)}${next ? T(next, 'next', 'p', { quietWhenMissing: true }) : ''}
+      <div class="more">${esc(applyCase(raw(S.more)))} →</div></div>`;
+
+  document.getElementById('root').innerHTML = `
+  <section class="rule">
+    <h1>${esc(V[st.lang])}</h1>
+    <div class="axes">${esc(axes)}</div>
+    <ul>${V.rules[st.lang].map((r) => `<li>${esc(r)}</li>`).join('')}</ul>
+    <p class="const">${L('In allen Stimmen gleich: Urteils- und Statusnamen, Begriffe (Prüfung, Kontingent, Plan, Urteil) und jede sachliche Aussage. Nur Ton und Reihenfolge ändern sich.',
+      'Constant in every voice: Verdict and Status labels, terminology, and every factual claim. Only register and order change.')}</p>
+  </section>
+
+  <section class="sec"><h2>${L('1 · Einstieg und leere Zustände', '1 · Intake and empty states')}</h2>
+    <div class="grid">
+      <div class="card"><div class="cap">${L('Eingabe', 'Intake')}</div>
+        ${T(S.intro, 'h')}
+        <div class="paste"><div class="ph">Luhmann, N. (1984). Soziale Systeme. Suhrkamp.<br>Mayer, R. E. (2019). Thirty years of research …</div>
+          <div class="bar">${T(S.hint)}${btn(S.checkBtn, 'primary')}</div></div></div>
+      <div>
+        <div class="card"><div class="cap">${L('Nichts erkannt', 'Nothing recognised')}</div>
+          <div class="banner k-neutral">${ico('i-info')}<div class="body">${T(S.noRefs)}</div></div></div>
+        <div class="card" style="margin-top:16px"><div class="cap">${L('Leerer Filter · leerer Verlauf', 'Empty filter · empty History')}</div>
+          ${T(S.emptyFilter, 'lead')}<div class="btns">${btn(S.emptyFilterBtn, 'link')}</div>
+          <div style="height:12px"></div>${T(S.historyEmpty, 'small')}</div>
+      </div>
+    </div></section>
+
+  <section class="sec"><h2>${L('2 · Urteile und „Nicht verifizierbar“', '2 · Verdicts and "Not verifiable"')}</h2>
+    <div class="hero">
+      ${T(S.summary, 'big')}
+      <div class="chips">${Object.keys(VL).map((k) => chip(k, COUNTS[k])).join('')}</div>
+      <div class="human">${T(S.human, 'small')}</div>
+    </div>
+    <div class="grid" style="margin-top:16px">
+      ${verdictCard('miss', L('Referenz 5 · Becker (2021)', 'Reference 5 · Becker (2021)'), S.missReason, S.missNext)}
+      ${verdictCard('unk', L('Referenz 7 · Stadtarchiv (1998)', 'Reference 7 · City archive (1998)'), S.unkReason, S.unkNext)}
+      ${verdictCard('doi', L('Referenz 3 · Klein (2020)', 'Reference 3 · Klein (2020)'), S.doiReason)}
+      ${verdictCard('diff', L('Referenz 2 · Mayer (2019)', 'Reference 2 · Mayer (2019)'), S.diffReason)}
+    </div>
+    <div class="card" style="margin-top:16px"><div class="cap">${L('Einschränkungen in den Quellenbelegen', 'Limitations in the source evidence')}</div>
+      <div class="lim"><span class="src">Crossref</span>${T(S.limCrossref)}</div>
+      <div class="lim"><span class="src">OpenAlex</span>${T(S.limBusy)}</div>
+    </div></section>
+
+  <section class="sec"><h2>${L('3 · Fehler und technischer Status', '3 · Errors and technical Status')}</h2>
+    <div class="grid">
+      <div class="card"><div class="cap">${L('Status statt Urteil', 'Status instead of a Verdict')}</div>
+        <div class="vhead"><span class="vchip st"><svg aria-hidden="true"><use href="#g-err"/></svg>${esc(applyCase(raw(S.failedLabel)))}</span><span class="ref">${L('Referenz 6', 'Reference 6')}</span></div>
+        ${T(S.failedText)}</div>
+      <div>
+        <div class="banner k-err">${ico('i-err')}<div class="body">${T(S.internal)}</div></div>
+        <div class="banner k-err">${ico('i-err')}<div class="body">${T(S.connection)}</div></div>
+      </div>
+      <div class="banner k-warn">${ico('i-warn')}<div class="body">${T(S.noText)}</div></div>
+      <div class="card"><div class="cap">${L('Anmeldung', 'Sign-in')}</div>
+        <div class="paste" style="margin-top:0"><div class="ph" style="min-height:0;letter-spacing:.3em">4 8 1 2 0 7</div></div>
+        <div style="height:10px"></div>${T(S.authInvalid, '', 'p')}</div>
+    </div></section>
+
+  <section class="sec"><h2>${L('4 · Grenzen und Kontingent', '4 · Limits and Quota')}</h2>
+    <div class="grid">
+      <div>
+        <div class="banner k-info">${ico('i-info')}<div class="body">${T(S.q80)}<div class="btns">${btn(S.upgrade)}</div></div></div>
+        <div class="banner k-warn">${ico('i-warn')}<div class="body">${T(S.qOut)}<div class="btns">${btn(S.upgrade, 'primary')}</div></div></div>
+        <div class="banner k-neutral">${ico('i-info')}<div class="body">${T(S.aiGuest)}</div></div>
+      </div>
+      <div class="dialog">
+        ${T(S.qcHead, 'h')}<div style="height:6px"></div>${T(S.qcBody)}
+        <div class="btns">${btn(S.qcFirst, 'primary')}${btn(S.upgrade)}${btn(S.qcCancel, 'link')}</div>
+      </div>
+      <div class="toast">${ico('i-check')}${T(S.qStarted, '', 'span')}</div>
+      <div>
+        <div class="banner k-warn">${ico('i-warn')}<div class="body">${T(S.refLimit)}</div></div>
+        <div class="banner k-neutral">${ico('i-clock')}<div class="body">${T(S.abuse)}</div></div>
+      </div>
+    </div></section>
+
+  <section class="sec"><h2>${L('5 · Heikle Momente', '5 · Sensitive moments')}</h2>
+    <div class="grid">
+      <div class="dialog">
+        ${T(S.delHead, 'h')}<div style="height:6px"></div>${T(S.delContent)}${T(S.delQuota)}
+        <div class="note">${T(S.delRetention, 'small')}</div>
+        <div class="ack"><span class="box"></span>${T(S.delAck, '', 'span')}</div>
+        <div class="btns">${btn(S.delConfirm, 'danger')}${btn(S.delCancel)}</div>
+      </div>
+      <div class="banner k-info">${ico('i-info')}<div class="body">${T(S.aiUnc)}</div></div>
+    </div></section>
+
+  <section class="sec"><h2>${L('6 · Schaltflächen und Bestätigungen', '6 · Buttons and confirmations')}</h2>
+    <div class="grid">
+      <div class="card"><div class="btnrow">
+        ${[['structuring_action', S.bStructure, 'primary'], ['check_cancel', S.bCancel, ''], ['correction_apply', S.bApply, ''], ['correction_copy', S.bCopy, ''], ['revision_save_recheck', S.bRecheck, 'primary'], ['override_judge', S.bJudge, ''], ['report_ui_create', S.bReport, '']]
+          .map(([k, f, kind]) => `<span class="lab">${k}</span><span>${btn(f, kind)}</span>`).join('')}
+      </div></div>
+      <div>
+        <div class="toast">${ico('i-check')}${T(S.copied, '', 'span')}</div><br>
+        <div class="toast">${ico('i-check')}${T(S.overSaved, '', 'span')}</div>
+      </div>
+    </div></section>
+
+  <section class="sec"><h2>${L('7 · Offene Begriffsfragen (in keiner Stimme variiert)', '7 · Open terminology questions (not varied by any voice)')}</h2>
+    <div class="card"><ol class="qs">${QUESTIONS.map(([de, en]) => `<li>${L(de, en)}</li>`).join('')}</ol></div>
+  </section>`;
+
+  /* chrome */
+  const html = document.documentElement;
+  html.lang = st.lang; html.dataset.theme = st.theme; html.dataset.w = st.w;
+  if (st.keys === '1') html.dataset.keys = ''; else delete html.dataset.keys;
+  document.getElementById('cur').textContent = `${st.v} · ${V[st.lang]}`;
+  document.querySelectorAll('.dev .seg button').forEach((b) => {
+    const k = b.dataset.k;
+    b.setAttribute('aria-pressed', k === 'keys' ? String(st.keys === '1') : String(st[k] === b.dataset.v));
+  });
+  document.querySelectorAll('#seg-addr button').forEach((b) => (b.disabled = st.lang !== 'de' || st.v === 'H'));
+  document.querySelectorAll('#seg-case button').forEach((b) => (b.disabled = st.lang !== 'en' || st.v === 'H'));
+  const q = new URLSearchParams({ v: st.v, lang: st.lang, addr: st.addr, case: st.case, w: st.w, theme: st.theme });
+  if (st.keys === '1') q.set('keys', '1');
+  history.replaceState(null, '', `?${q}`);
+}
+
+const step = (d) => { st.v = ORDER[(ORDER.indexOf(st.v) + d + ORDER.length) % ORDER.length]; render(); };
+document.getElementById('prev').onclick = () => step(-1);
+document.getElementById('next').onclick = () => step(1);
+document.querySelectorAll('.dev .seg button').forEach((b) => (b.onclick = () => {
+  const k = b.dataset.k;
+  st[k] = k === 'keys' ? (st.keys === '1' ? '0' : '1') : b.dataset.v;
+  render();
+}));
+addEventListener('keydown', (e) => {
+  const el = document.activeElement;
+  if (el && (/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || el.isContentEditable)) return;
+  if (e.key === 'ArrowLeft') step(-1);
+  if (e.key === 'ArrowRight') step(1);
+});
+render();
+</script>
+</body>
+</html>
