@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Source Taster – Abgleich</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sans:'Atkinson Hyperlegible Next',ui-sans-serif,system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --outer:oklch(0.925 0.012 265);
+  --bg:oklch(0.978 0.007 262);
+  --surface:#fff;
+  --surface-2:oklch(0.966 0.01 262);
+  --line:oklch(0.28 0.05 265 / .12);
+  --line-2:oklch(0.28 0.05 265 / .2);
+  --line-strong:oklch(0.38 0.05 265 / .62);
+  --ink:oklch(0.2 0.035 265);
+  --ink-2:oklch(0.37 0.035 265);
+  --ink-3:oklch(0.47 0.03 265);
+  --accent:oklch(0.5 0.2 264);
+  --accent-lo:oklch(0.46 0.2 266);
+  --accent-soft:oklch(0.5 0.2 264 / .09);
+  /* strokes (>= 3:1 on white) and inks (>= 4.5:1) per verdict family */
+  --ok:oklch(0.55 0.15 152);      --ok-ink:oklch(0.4 0.11 152);
+  --diff:oklch(0.64 0.15 68);     --diff-ink:oklch(0.45 0.1 62);   --diff-tint:oklch(0.95 0.06 85);
+  --mixed:oklch(0.54 0.2 5);      --mixed-ink:oklch(0.45 0.17 5);
+  --doi:oklch(0.54 0.21 28);      --doi-ink:oklch(0.46 0.18 28);
+  --miss:oklch(0.47 0.19 18);     --miss-ink:oklch(0.42 0.16 18);
+  --unk:oklch(0.52 0.025 265);    --unk-ink:oklch(0.42 0.03 265);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--outer);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+svg{display:block}
+button{font:inherit;color:inherit}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* ---------- width toggle ---------- */
+#toggle{position:fixed;right:16px;bottom:16px;z-index:50;display:flex;gap:2px;padding:3px;border-radius:999px;background:#fff;border:1px solid var(--line-2);box-shadow:0 6px 20px -8px oklch(0.3 0.08 265 / .35)}
+#toggle button{min-height:28px;min-width:64px;padding:0 12px;border:0;border-radius:999px;background:transparent;cursor:pointer;font-size:13px;font-weight:600;color:var(--ink-2)}
+#toggle button[aria-pressed=true]{background:var(--accent);color:#fff}
+body.clean #toggle{display:none}
+body.only-moment #intake,body.only-intake #moment-wrap{display:none}
+
+#frame{container-type:inline-size;container-name:app;width:100%;background:var(--bg);margin:0 auto;min-height:100vh}
+body.panel{padding:24px 0}
+body.panel #frame{width:360px;min-height:0;box-shadow:0 0 0 1px var(--line-2),0 30px 60px -30px oklch(0.3 0.1 265 / .4)}
+
+/* ---------- header ---------- */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 40px;border-bottom:1px solid var(--line);background:oklch(0.99 0.004 262 / .9)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;letter-spacing:-.01em}
+.brand b{color:var(--accent);font-weight:700}
+.logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(145deg,oklch(0.6 0.19 262),oklch(0.45 0.2 268));display:grid;place-items:center}
+.nav{display:flex;gap:2px;padding:3px;border:1px solid var(--line-2);border-radius:999px;background:#fff}
+.nav span{padding:5px 16px;border-radius:999px;font-size:14px;font-weight:600;color:var(--ink-2)}
+.nav span.on{background:var(--accent-soft);color:var(--accent-lo)}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700;font-family:var(--mono)}
+
+main{max-width:1160px;margin:0 auto;padding:44px 40px 72px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+h1{margin:6px 0 4px;font-size:40px;line-height:1.08;letter-spacing:-.03em;font-weight:800}
+.sub{margin:0;color:var(--ink-2);font-size:16px}
+.sub .m{font-family:var(--mono);font-size:13.5px}
+
+/* verdict filter chips (inline, not tiles) */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 0}
+.chip{display:inline-flex;align-items:center;gap:7px;min-height:32px;padding:0 12px 0 8px;border:1px solid var(--line-2);border-radius:999px;background:#fff;cursor:pointer;font-size:14px;font-weight:600;color:var(--ink)}
+.chip .n{font-family:var(--mono);font-weight:500;color:var(--ink-3);font-size:13px}
+.chip[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.chip:focus-visible,.row-btn:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- the ledger ---------- */
+.ledger{margin-top:28px;background:#fff;border:1px solid var(--line-2);border-radius:14px;overflow:hidden;box-shadow:0 1px 2px oklch(0.3 0.06 265 / .05),0 16px 36px -22px oklch(0.3 0.08 265 / .22)}
+.key{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--surface-2);font-size:13px;color:var(--ink-2)}
+.key .k{display:inline-flex;align-items:center;gap:7px}
+.key .lead{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-right:4px}
+.cols,.row{display:grid;grid-template-columns:36px minmax(0,1fr) 136px 240px 32px;column-gap:20px;align-items:center;padding:0 20px}
+.cols{min-height:34px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.fieldhead{display:grid;grid-template-columns:repeat(7,1fr);width:128.8px;text-align:center;font-size:11.5px;letter-spacing:0}
+.fieldhead span{cursor:help}
+.item{border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.row{padding-top:13px;padding-bottom:13px;min-height:72px}
+.num{font-family:var(--mono);font-size:13px;color:var(--ink-3);align-self:start;padding-top:2px}
+.ref{min-width:0}
+.ref .cite{margin:0;font-size:15.5px;line-height:1.4;color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ref .cite b{color:var(--ink);font-weight:700}
+.ref .cite i{font-style:normal;color:var(--ink)}
+.ref .cite .doi,.mono{font-family:var(--mono);font-size:13px}
+.ref .why{margin:3px 0 0;font-size:14px;color:var(--ink-3);line-height:1.35}
+.sigcell{display:flex;align-items:center}
+.sigwrap{display:contents}
+.verdict{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;line-height:1.2}
+.verdict svg{flex:none}
+.v-ok{color:var(--ok-ink)}.v-diff{color:var(--diff-ink)}.v-mixed{color:var(--mixed-ink)}.v-doi{color:var(--doi-ink)}.v-miss{color:var(--miss-ink)}.v-unk{color:var(--unk-ink)}
+.row-btn{width:32px;height:32px;border-radius:8px;border:0;background:transparent;display:grid;place-items:center;cursor:pointer;color:var(--ink-3)}
+.row-btn:hover{background:var(--surface-2)}
+.row-btn svg{transition:transform .2s}
+.item.open .row-btn svg{transform:rotate(90deg)}
+.item.open .row{background:linear-gradient(90deg,var(--diff-tint),transparent 70%)}
+.item.hide{display:none}
+
+/* glyph fills */
+.g{fill:currentColor}
+.g-line{stroke:#fff;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:2.2}
+.g-dark{stroke:oklch(0.25 0.05 62);fill:none;stroke-linecap:round;stroke-width:2.2}
+
+/* ---------- Mayer: the full Abgleich ---------- */
+.plan{display:none;padding:6px 20px 26px 76px;position:relative}
+.item.open .plan{display:block}
+.plan::before{content:"";position:absolute;left:36px;top:0;bottom:26px;width:3px;border-radius:3px;background:var(--diff)}
+.plan-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 24px;align-items:baseline;margin:10px 0 10px}
+.plan-head h3{margin:0;font-size:15px;font-weight:700}
+.plan-head p{margin:0;font-size:14px;color:var(--ink-2)}
+.tracks{position:relative}
+.thead,.trk{display:grid;grid-template-columns:78px 236px 110px 290px 280px;column-gap:0;align-items:center}
+.thead{min-height:30px;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.thead .src,.srcs-h{display:grid;grid-template-columns:repeat(5,56px)}
+.thead .src span{text-align:center;cursor:help}
+.trk{min-height:52px;border-top:1px solid var(--line)}
+.trk .lab{font-size:13px;font-weight:600;color:var(--ink-3)}
+.tok{padding:0 4px;font-size:15px;color:var(--ink);overflow-wrap:anywhere}
+.tok.user.dev s{text-decoration-thickness:1.5px;text-decoration-color:var(--diff-ink);color:var(--ink-3)}
+.tok.match.dev b{background:var(--diff-tint);box-shadow:0 0 0 2px var(--diff-tint);border-radius:2px;font-weight:700}
+.tok .mono{font-size:13px}
+.tok small{display:block;font-size:12.5px;color:var(--diff-ink);font-weight:600}
+.conn,.srcsvg{display:block}
+.tracks .guides{position:absolute;left:714px;top:30px;bottom:0;width:280px;background:repeating-linear-gradient(90deg,transparent 0 28px,var(--line) 28px 29px,transparent 29px 56px);pointer-events:none}
+.srckey{margin:10px 0 0;font-size:12.5px;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center}
+.srckey .mono{font-size:12px;color:var(--ink-2)}
+.srckey .k{display:inline-flex;align-items:center;gap:6px}
+
+.fix{margin-top:20px;padding:16px 18px;border:1px solid var(--line-2);border-radius:12px;background:#fff;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 24px;align-items:center}
+.fix .l{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:4px}
+.fix p{margin:0;font-size:15.5px;line-height:1.5}
+.fix mark{background:var(--diff-tint);box-shadow:0 0 0 2px var(--diff-tint);border-radius:2px;color:var(--ink);font-weight:700}
+.fix .doi{font-family:var(--mono);font-size:13px;overflow-wrap:anywhere}
+.acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{min-height:36px;padding:0 16px;border-radius:999px;border:1px solid var(--line-2);background:#fff;font-weight:700;font-size:14.5px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn.primary{background:linear-gradient(180deg,var(--accent),var(--accent-lo));border-color:var(--accent-lo);color:#fff}
+.btn.quiet{border-color:transparent;background:transparent;color:var(--accent-lo)}
+.fix .meta{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 18px;font-size:13.5px;color:var(--ink-3)}
+.fix .meta a{color:var(--accent-lo);font-weight:600}
+
+/* ladder = vertical form (hidden on wide) */
+.ladder{display:none}
+
+/* ---------- intake -> moment frame ---------- */
+#intake{max-width:1160px;margin:0 auto;padding:8px 40px 80px}
+#intake h2{margin:0 0 4px;font-size:26px;letter-spacing:-.02em}
+#intake .lead{margin:0 0 24px;color:var(--ink-2)}
+.i2m{display:grid;grid-template-columns:minmax(0,.8fr) 90px minmax(0,1.5fr);gap:0 0;align-items:start}
+.card{background:#fff;border:1px solid var(--line-2);border-radius:20px;overflow:hidden}
+.card .hd{padding:12px 18px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);display:flex;justify-content:space-between}
+.ln{display:grid;align-items:center;height:56px;padding:0 18px;border-bottom:1px solid var(--line);gap:14px}
+.card.before .ln{grid-template-columns:minmax(0,1fr);border-bottom:0;font-family:var(--mono);font-size:13px;color:var(--ink-2)}
+.card.after .ln{grid-template-columns:minmax(0,1fr) 112px 150px}
+.ln .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14.5px;color:var(--ink-2)}
+.card.before .ln .t{font-family:var(--mono);font-size:13px}
+.ln .t b{color:var(--ink)}
+.card.after .verdict{font-size:13.5px;gap:7px}
+.mid{align-self:center;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0 8px;text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+
+/* =========================================================
+   Narrow frames (extension panel 360 and anything < 880)
+   ========================================================= */
+@container app (max-width: 879px){
+  .top{padding:12px 20px}
+  main{padding:32px 24px 56px}
+  h1{font-size:34px}
+  .cols{display:none}
+  .row{grid-template-columns:28px minmax(0,1fr) 32px;grid-template-areas:"n r b" ". s s";row-gap:10px;padding-top:14px;padding-bottom:14px}
+  .row .num{grid-area:n}.row .ref{grid-area:r}.row .row-btn{grid-area:b;align-self:start}
+  .row .sigwrap{grid-area:s;display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap}
+  .row .sigcell{display:block}
+  .row .verdict{flex:1 1 150px}
+  .ref .cite{-webkit-line-clamp:3}
+  .plan{padding:4px 20px 22px 20px}
+  .plan::before{left:0;top:0;bottom:0;width:3px}
+  .tracks,.srckey{display:none}
+  .ladder{display:block}
+  .i2m{grid-template-columns:1fr;gap:12px}
+  .mid{flex-direction:row;padding:4px 0}
+  .card.after .ln{grid-template-columns:minmax(0,1fr) 112px}
+  .card.after .ln .verdict{display:none}
+  .fix{grid-template-columns:1fr}
+  #intake{padding:8px 24px 60px}
+}
+@container app (max-width: 520px){
+  .top .nav{display:none}
+  .top{padding:10px 16px}
+  main{padding:24px 16px 48px}
+  h1{font-size:28px}
+  .ledger{border-radius:12px;margin-left:-4px;margin-right:-4px}
+  .key{padding:10px 14px;gap:6px 14px;display:grid;grid-template-columns:1fr 1fr}
+  .key .lead{grid-column:1/-1}
+  .row{padding-left:14px;padding-right:10px}
+  .plan{padding-left:14px;padding-right:14px}
+  #intake{padding:8px 16px 48px}
+  .ln{height:auto;min-height:48px;padding:8px 14px}
+  .card.after .ln{grid-template-columns:minmax(0,1fr) 112px}
+  .chip{min-height:32px}
+}
+
+/* ladder */
+.ladder .lhead{display:flex;flex-wrap:wrap;gap:4px 16px;margin:10px 0 6px;font-size:13px;color:var(--ink-2)}
+.ladder .lhead span{display:inline-flex;align-items:center;gap:6px}
+.rungs{position:relative;margin:0;padding:0;list-style:none}
+.rungs::before,.rungs::after{content:"";position:absolute;top:10px;bottom:10px;width:2px;background:var(--line-strong);border-radius:2px}
+.rungs::before{left:9px}.rungs::after{left:35px}
+.rung{position:relative;padding:8px 0 10px 60px;min-height:54px}
+.rung svg.r{position:absolute;left:0;top:6px}
+.rung .rl{font-size:12.5px;font-weight:700;color:var(--ink-3);letter-spacing:.02em}
+.rung .you{font-size:14.5px;color:var(--ink-2);overflow-wrap:anywhere}
+.rung .hit{font-size:15px;font-weight:600;color:var(--ink);overflow-wrap:anywhere}
+.rung.dev .you s{text-decoration-thickness:1.5px;text-decoration-color:var(--diff-ink);color:var(--ink-3)}
+.rung.dev .hit b{background:var(--diff-tint);box-shadow:0 0 0 2px var(--diff-tint);border-radius:2px}
+.rung .hit .mono,.rung .you .mono{font-size:12.5px;font-weight:500}
+.rung .sr-line{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 8px;border-radius:6px;border:1px solid var(--line-2);font-family:var(--mono);font-size:11.5px;color:var(--ink-2);background:#fff}
+.pill.y{border-color:oklch(0.5 0.2 264 / .35);color:var(--accent-lo);background:var(--accent-soft)}
+.pill.n{border-style:dashed}
+</style>
+</head>
+<body class="">
+<div id="toggle" role="group" aria-label="Breite">
+  <button type="button" data-w="web" aria-pressed="true">Web 1280</button>
+  <button type="button" data-w="panel" aria-pressed="false">Panel 360</button>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="g-ok" viewBox="0 0 24 24"><circle class="g" cx="12" cy="12" r="11"/><path class="g-line" d="M7 12.4l3.4 3.4L17 8.8"/></symbol>
+    <symbol id="g-diff" viewBox="0 0 24 24"><rect class="g" x="1.5" y="1.5" width="21" height="21" rx="5"/><path class="g-dark" d="M6.5 10.2c1.8-2 3.5-2 5.5 0s3.7 2 5.5 0M6.5 15.2c1.8-2 3.5-2 5.5 0s3.7 2 5.5 0"/></symbol>
+    <symbol id="g-mixed" viewBox="0 0 24 26"><path class="g" d="M10.4 1.5L1 11l9.4 9.5z"/><path class="g" d="M13.6 5.5L23 15l-9.4 9.5z" style="opacity:.92"/></symbol>
+    <symbol id="g-doi" viewBox="0 0 24 24"><path class="g" d="M12 1.5L23.2 21.5H.8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path class="g-line" d="M8.3 15.3h7.4M8.3 18.1h7.4M13.4 11.8l-2.8 8.6" style="stroke-width:1.7"/></symbol>
+    <symbol id="g-miss" viewBox="0 0 24 24"><path class="g" d="M7.2 1.8h9.6L22.6 12l-5.8 10.2H7.2L1.4 12z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><circle cx="12" cy="12" r="4.6" fill="none" stroke="#fff" stroke-width="2.1"/><path class="g-line" d="M7.7 16.3l8.6-8.6"/></symbol>
+    <symbol id="g-unk" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.2" fill="#fff" stroke="currentColor" stroke-width="2" stroke-dasharray="3.4 2.6"/><path d="M9.3 9.4a2.8 2.8 0 1 1 4.3 2.4c-1 .6-1.6 1.1-1.6 2.3" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/><circle cx="12" cy="17.6" r="1.25" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+
+<div id="frame">
+  <header class="top">
+    <div class="brand"><span class="logo"><svg width="16" height="16" viewBox="0 0 16 16"><path d="M2 8.2c0-2.6 1.3-4.3 3.7-4.7v1.6C4.6 5.4 4.1 6 4.1 7h1.9v4.6H2zm6.5 0c0-2.6 1.3-4.3 3.7-4.7v1.6c-1.1.3-1.6.9-1.6 1.9h1.9v4.6H8.5z" fill="#fff"/></svg></span><span>Source <b>Taster</b></span></div>
+    <nav class="nav" aria-label="Hauptnavigation"><span class="on">Prüfen</span><span>Verlauf</span><span>Konto</span></nav>
+    <div class="avatar">JN</div>
+  </header>
+
+  <div id="moment-wrap">
+  <main id="moment">
+    <div class="eyebrow">Prüfung abgeschlossen</div>
+    <h1>Liste abgeglichen</h1>
+    <p class="sub">8 Referenzen mit <span class="m">Crossref · OpenAlex · DNB · Semantic Scholar · Internet Archive</span> verglichen.</p>
+    <div class="chips" id="chips" role="group" aria-label="Nach Verdikt filtern"></div>
+
+    <section class="ledger" aria-label="Referenzen im Abgleich">
+      <div class="key" id="key"></div>
+      <div class="cols" aria-hidden="true">
+        <span>Nr.</span><span>Referenz und Befund</span>
+        <div class="fieldhead" id="fieldhead"></div>
+        <span>Verdikt</span><span></span>
+      </div>
+      <div id="list"></div>
+    </section>
+  </main>
+  </div>
+
+  <section id="intake">
+    <h2>Davor: Aus der Eingabe wird die Liste</h2>
+    <p class="lead">Dieselben acht Zeilen. Der Abgleich legt jeder Zeile ihren Fingerabdruck und ihr Verdikt an die Seite; der Text bleibt, wo er war.</p>
+    <div class="i2m" id="i2m"></div>
+  </section>
+</div>
+
+<script>
+/* ============ data ============ */
+const FIELDS=[['A','Autor:in'],['J','Jahr'],['T','Titel'],['Q','Quelle (Zeitschrift/Verlag)'],['H','Band/Heft'],['S','Seiten'],['D','DOI']];
+const V={
+  ok:{label:'Korrekt',g:'g-ok',c:'ok',color:'var(--ok)'},
+  diff:{label:'Existiert, mit Abweichungen',short:'Mit Abweichungen',g:'g-diff',c:'diff',color:'var(--diff)'},
+  mixed:{label:'Gemischte Referenz',short:'Gemischt',g:'g-mixed',c:'mixed',color:'var(--mixed)'},
+  doi:{label:'DOI-Konflikt',short:'DOI-Konflikt',g:'g-doi',c:'doi',color:'var(--doi)'},
+  miss:{label:'Nicht gefunden',short:'Nicht gefunden',g:'g-miss',c:'miss',color:'var(--miss)'},
+  unk:{label:'Nicht verifizierbar',short:'Nicht verifizierbar',g:'g-unk',c:'unk',color:'var(--unk)'}
+};
+// field states: ok stimmt | dev weicht ab | alt anderes Werk | none gesucht, kein Treffer | unv außerhalb Abdeckung | abs nicht angegeben
+const REFS=[
+ {n:1,v:'ok',f:['ok','ok','ok','ok','abs','abs','abs'],
+  cite:'<b>Luhmann, N. (1984).</b> <i>Soziale Systeme: Grundriß einer allgemeinen Theorie.</i> Suhrkamp.',
+  why:'DNB bestätigt über die ISBN.'},
+ {n:2,v:'ok',f:['ok','ok','ok','ok','ok','ok','ok'],
+  cite:'<b>Wilkinson, M. D. et al. (2016).</b> <i>The FAIR Guiding Principles for scientific data management and stewardship.</i> Scientific Data, 3, 160018. <span class="doi">doi:10.1038/sdata.2016.18</span>',
+  why:'Crossref und OpenAlex bestätigen alle Felder.'},
+ {n:3,v:'diff',open:true,f:['ok','dev','dev','ok','ok','dev','ok'],
+  cite:'<b>Mayer, T. (2019).</b> <i>Digitale Lehre in der Hochschulbildung.</i> Zeitschrift für Hochschulentwicklung, 14(3), 45–62. <span class="doi">doi:10.3217/zfhe-14-03/04</span>',
+  why:'DOI stimmt. Jahr, Titel und Seiten weichen ab, Korrektur liegt vor.'},
+ {n:4,v:'mixed',f:['ok','ok','alt','abs','abs','abs','abs'],
+  cite:'<b>Schmidt, A., &amp; Weber, K. (2017).</b> <i>Lernen mit Medien im Zeitalter der Digitalisierung.</i>',
+  why:'Autor:innen und Jahr passen zu Schmidt &amp; Weber (2017). Der Titel gehört zu Becker &amp; Lang (2015).'},
+ {n:5,v:'doi',f:['none','none','none','abs','abs','abs','alt'],
+  cite:'<b>Krüger, J. (2021).</b> <i>Datenschutz im digitalen Klassenzimmer.</i> <span class="doi">doi:10.1000/xyz123</span>',
+  why:'Die DOI gehört zu „Open Data in der Verwaltung“ (2020). Zur Angabe selbst gibt es keinen Treffer.'},
+ {n:6,v:'miss',f:['none','none','none','abs','abs','abs','abs'],
+  cite:'<b>Hoffmann, L. (2022).</b> <i>Resilienz durch Kollaboration: Eine Studie an deutschen Universitäten.</i>',
+  why:'Kein Treffer in Crossref, OpenAlex, DNB und Semantic Scholar. Bitte manuell prüfen.'},
+ {n:7,v:'unk',f:['unv','unv','unv','abs','abs','abs','abs'],
+  cite:'<b>Bundesministerium für Bildung und Forschung (2023).</b> <i>Digitalisierung in der Bildung: Bericht zur Lage.</i>',
+  why:'Graue Literatur, außerhalb der Abdeckung. Keine Aussage möglich.'},
+ {n:8,v:'ok',f:['ok','ok','ok','ok','abs','abs','abs'],
+  cite:'<b>Döring, N., &amp; Bortz, J. (2016).</b> <i>Forschungsmethoden und Evaluation in den Sozial- und Humanwissenschaften.</i> Springer.',
+  why:'DNB bestätigt.'}
+];
+
+/* ============ fingerprint ============ */
+const P=16, X0=8, YP=7, YA=28, YB=37;
+const colX=i=>X0+i*P;
+function sigSVG(f,vk,o={}){
+  const c=V[vk].color, s=o.scale||1;
+  let g='';
+  // runs of ok/dev columns share one solid baseline (the matching work)
+  let i=0;
+  while(i<7){
+    if(f[i]==='ok'||f[i]==='dev'){let j=i;while(j+1<7&&(f[j+1]==='ok'||f[j+1]==='dev'))j++;
+      g+=`<rect x="${colX(i)-5}" y="${YA-.5}" width="${colX(j)-colX(i)+10}" height="3.6" rx="1.8" style="fill:var(--ink)"/>`;i=j+1;}else i++;
+  }
+  const alts=f.map((s,k)=>s==='alt'?k:-1).filter(k=>k>=0);
+  if(alts.length) g+=`<rect x="${colX(alts[0])-5}" y="${YB-1.3}" width="${colX(alts[alts.length-1])-colX(alts[0])+10}" height="3.6" rx="1.8" style="fill:#fff;stroke:${c};stroke-width:1.6"/>`;
+  const unv=f.map((s,k)=>s==='unv'?k:-1).filter(k=>k>=0);
+  if(unv.length) g+=`<line x1="${colX(unv[0])-5}" x2="${colX(unv[unv.length-1])+5}" y1="${YA+1.4}" y2="${YA+1.4}" style="stroke:var(--unk);stroke-width:2;stroke-dasharray:1.2 3;stroke-linecap:round"/>`;
+  f.forEach((st,k)=>{
+    const x=colX(k);
+    if(st==='abs') g+=`<circle cx="${x}" cy="${YP}" r="1.2" style="fill:var(--line-strong)"/>`;
+    if(st==='ok') g+=`<path d="M${x} ${YP+3}V${YA}" style="stroke:var(--ok);stroke-width:2"/><circle cx="${x}" cy="${YP}" r="3.6" style="fill:var(--ok)"/>`;
+    if(st==='dev') g+=`<path d="M${x} ${YP+3}V13L${x+4.5} 17.5V19L${x} 23.5V${YA}" style="fill:none;stroke:var(--diff);stroke-width:2;stroke-linejoin:round"/><circle cx="${x}" cy="${YP}" r="3.6" style="fill:var(--diff)"/>`;
+    if(st==='alt') g+=`<path d="M${x} ${YP+4}V${YB-1.5}" style="stroke:${c};stroke-width:1.8;stroke-dasharray:3 2.2"/><path d="M${x} ${YP-4.4}l4.4 4.4-4.4 4.4-4.4-4.4z" style="fill:${c}"/>`;
+    if(st==='none') g+=`<circle cx="${x}" cy="${YP}" r="3.1" style="fill:#fff;stroke:${c};stroke-width:1.7"/><path d="M${x} ${YP+3.6}V15.5M${x-3.4} 15.5h6.8" style="fill:none;stroke:${c};stroke-width:1.7;stroke-linecap:round"/>`;
+    if(st==='unv') g+=`<circle cx="${x}" cy="${YP}" r="3.1" style="fill:#fff;stroke:var(--unk);stroke-width:1.6;stroke-dasharray:1.5 1.5"/>`;
+  });
+  return `<svg width="${112*s}" height="${42*s}" viewBox="0 0 112 42" role="img" aria-label="Abgleich-Fingerabdruck: ${V[vk].label}">${g}</svg>`;
+}
+const glyph=(k,sz=22)=>`<svg width="${sz}" height="${sz}" viewBox="0 0 24 ${k==='mixed'?26:24}" class="gl" style="color:${V[k].color}" aria-hidden="true"><use href="#${V[k].g}"/></svg>`;
+const verdictHTML=k=>`<span class="verdict v-${k}">${glyph(k)}<span>${V[k].label}</span></span>`;
+const miniPeg=st=>{const c='var(--doi)';
+  const m={ok:`<circle cx="8" cy="8" r="3.6" style="fill:var(--ok)"/><path d="M8 11.5V15" style="stroke:var(--ok);stroke-width:2"/>`,
+  dev:`<circle cx="8" cy="5" r="3.2" style="fill:var(--diff)"/><path d="M8 8v1.5l3 2.5v1.5l-3 2" style="fill:none;stroke:var(--diff);stroke-width:2;stroke-linejoin:round"/>`,
+  alt:`<path d="M8 1.5l4 4-4 4-4-4z" style="fill:var(--mixed)"/><path d="M8 9.5V14" style="stroke:var(--mixed);stroke-width:1.8;stroke-dasharray:2.4 1.8"/><rect x="3" y="14" width="10" height="3" rx="1.5" style="fill:#fff;stroke:var(--mixed);stroke-width:1.5"/>`,
+  none:`<circle cx="8" cy="5" r="3" style="fill:#fff;stroke:var(--miss);stroke-width:1.7"/><path d="M8 8.5V13M4.6 13h6.8" style="fill:none;stroke:var(--miss);stroke-width:1.7;stroke-linecap:round"/>`,
+  unv:`<circle cx="8" cy="8" r="3.1" style="fill:#fff;stroke:var(--unk);stroke-width:1.6;stroke-dasharray:1.5 1.5"/>`,
+  abs:`<circle cx="8" cy="8" r="1.3" style="fill:var(--line-strong)"/>`};
+  return `<svg width="16" height="18" viewBox="0 0 16 18" aria-hidden="true">${m[st]}</svg>`};
+
+/* ============ chips, key, header ============ */
+const counts={};REFS.forEach(r=>counts[r.v]=(counts[r.v]||0)+1);
+const groups=[['all','Alle',null,8],['ok','Korrekt','ok',3],['diff','Mit Abweichungen','diff',1],['mixed','Gemischt','mixed',1],['doi','DOI-Konflikt','doi',1],['miss','Nicht gefunden','miss',1],['unk','Nicht verifizierbar','unk',1]];
+document.getElementById('chips').innerHTML=groups.map(([k,l,g,n])=>`<button type="button" class="chip" data-f="${k}" aria-pressed="${k==='all'}">${g?glyph(g,18):''}<span>${l}</span><span class="n">${n}</span></button>`).join('');
+document.getElementById('key').innerHTML=`<span class="lead">So lesen</span>
+ <span class="k">${miniPeg('ok')}stimmt überein</span>
+ <span class="k">${miniPeg('dev')}weicht ab (Knick)</span>
+ <span class="k">${miniPeg('alt')}anderes Werk (gestrichelt)</span>
+ <span class="k">${miniPeg('none')}gesucht, kein Treffer</span>
+ <span class="k">${miniPeg('unv')}außerhalb der Abdeckung</span>
+ <span class="k">${miniPeg('abs')}nicht angegeben</span>`;
+document.getElementById('fieldhead').innerHTML=FIELDS.map(([a,t])=>`<span title="${t}">${a}</span>`).join('');
+
+/* ============ Mayer detail ============ */
+const SRC=['CR','OA','DNB','S2','IA'],SRCN=['Crossref','OpenAlex','DNB','Semantic Scholar','Internet Archive'];
+// y = bestätigt · n = abgefragt, ohne Angabe · x = nicht abgefragt
+const MAYER=[
+ {l:'Autor:in',you:'Mayer, T.',hit:'Mayer, T.',st:'ok',src:['y','y','x','x','x']},
+ {l:'Jahr',you:'2019',hit:'2020',st:'dev',src:['y','y','x','x','x']},
+ {l:'Titel',you:'Digitale Lehre in der Hochschulbildung',hit:'Digitale Hochschullehre: Formate und Wirkungen',st:'dev',src:['y','y','x','x','x']},
+ {l:'Zeitschrift',you:'Zeitschrift für Hochschulentwicklung',hit:'Zeitschrift für Hochschulentwicklung',st:'ok',src:['y','y','x','x','x']},
+ {l:'Band/Heft',you:'14(3)',hit:'14(3)',st:'ok',src:['y','n','x','x','x']},
+ {l:'Seiten',you:'45–62',hit:'45–61',st:'dev',src:['y','y','x','x','x']},
+ {l:'DOI',you:'10.3217/zfhe-14-03/04',hit:'10.3217/zfhe-14-03/04',st:'ok',mono:1,src:['y','y','x','x','x']},
+];
+function connSVG(st){
+  const col=st==='ok'?'var(--ok)':'var(--diff)';
+  const d=st==='ok'?'M6 26H90':'M6 26H26L36 14H60L70 26H90';
+  return `<svg class="conn" width="110" height="52" viewBox="-7 0 110 52" aria-hidden="true"><path d="${d}" style="fill:none;stroke:${col};stroke-width:2.2;stroke-linejoin:round"/><circle cx="6" cy="26" r="3.6" style="fill:${col}"/><circle cx="90" cy="26" r="3.6" style="fill:${col}"/></svg>`;
+}
+function srcSVG(src,st){
+  const last=src.lastIndexOf('y');let g='';
+  if(last>=0) g+=`<path d="M0 26H${last*56+28}" style="stroke:var(--accent);stroke-width:2"/>`;
+  src.forEach((s,i)=>{const x=i*56+28;
+    if(s==='y') g+=`<circle cx="${x}" cy="26" r="6" style="fill:var(--accent)"/><path d="M${x-2.6} 26.2l1.8 1.8 3.4-3.6" style="fill:none;stroke:#fff;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round"/>`;
+    if(s==='n') g+=`<circle cx="${x}" cy="26" r="5.2" style="fill:#fff;stroke:var(--ink-3);stroke-width:1.7"/><path d="M${x-9} 26h3.6" style="stroke:var(--ink-3);stroke-width:1.7;stroke-dasharray:1.5 2"/>`;
+    if(s==='x') g+=`<circle cx="${x}" cy="26" r="1.6" style="fill:var(--line-strong)"/>`;
+  });
+  return `<svg class="srcsvg" width="280" height="52" viewBox="0 0 280 52" role="img" aria-label="${src.map((s,i)=>SRCN[i]+': '+({y:'bestätigt',n:'abgefragt, ohne Angabe',x:'nicht abgefragt'}[s])).join('; ')}">${g}</svg>`;
+}
+const tokVal=(t,m)=>m?`<span class="mono">${t}</span>`:t;
+function mayerTracks(){
+  return `<div class="tracks">
+   <div class="guides"></div>
+   <div class="thead"><span></span><span>Ihre Angabe</span><span></span><span>Bester Treffer · Crossref</span>
+     <div class="src">${SRC.map((s,i)=>`<span title="${SRCN[i]}">${s}</span>`).join('')}</div></div>
+   ${MAYER.map(r=>`<div class="trk"><span class="lab">${r.l}</span>
+     <div class="tok user ${r.st}">${r.st==='dev'?`<s>${tokVal(r.you,r.mono)}</s>`:tokVal(r.you,r.mono)}</div>
+     ${connSVG(r.st)}
+     <div class="tok match ${r.st}">${r.st==='dev'?`<b>${tokVal(r.hit,r.mono)}</b>`:tokVal(r.hit,r.mono)}</div>
+     ${srcSVG(r.src,r.st)}</div>`).join('')}
+  </div>
+  <p class="srckey"><span class="k"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" style="fill:var(--accent)"/><path d="M5.4 8.2l1.8 1.8 3.4-3.6" style="fill:none;stroke:#fff;stroke-width:1.6;stroke-linecap:round"/></svg>bestätigt</span>
+   <span class="k"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.2" style="fill:#fff;stroke:var(--ink-3);stroke-width:1.7"/></svg>abgefragt, ohne Angabe</span>
+   <span class="k"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="1.6" style="fill:var(--line-strong)"/></svg>nicht abgefragt</span>
+   <span class="mono">CR Crossref · OA OpenAlex · DNB · S2 Semantic Scholar · IA Internet Archive</span></p>`;
+}
+function rungSVG(st){
+  const col=st==='ok'?'var(--ok)':'var(--diff)';
+  const y2=st==='ok'?12:22;
+  return `<svg class="r" width="46" height="34" viewBox="0 0 46 34" aria-hidden="true"><path d="M10 12L36 ${y2}" style="stroke:${col};stroke-width:2.2"/><circle cx="10" cy="12" r="4.2" style="fill:${col}"/><circle cx="36" cy="${y2}" r="4.2" style="fill:${col}"/></svg>`;
+}
+function mayerLadder(){
+  return `<div class="ladder">
+   <div class="lhead"><span><svg width="12" height="12"><circle cx="6" cy="6" r="4.5" style="fill:var(--ink-3)"/></svg>Ihre Angabe</span><span><svg width="12" height="12"><circle cx="6" cy="6" r="4.5" style="fill:var(--ink)"/></svg>Bester Treffer · Crossref</span></div>
+   <ol class="rungs">${MAYER.map(r=>`<li class="rung ${r.st}">${rungSVG(r.st)}
+     <div class="rl">${r.l}</div>
+     <div class="you">${r.st==='dev'?`<s>${tokVal(r.you,r.mono)}</s>`:tokVal(r.you,r.mono)}</div>
+     <div class="hit">${r.st==='dev'?`<b>${tokVal(r.hit,r.mono)}</b>`:tokVal(r.hit,r.mono)}</div>
+     <div class="sr-line">${r.src.map((s,i)=>s==='x'?'':`<span class="pill ${s}" title="${SRCN[i]}">${s==='y'?'✓':'–'} ${SRC[i]}</span>`).join('')}</div></li>`).join('')}</ol>
+  </div>`;
+}
+function plan(){
+  return `<div class="plan" id="plan-3">
+   <div class="plan-head"><h3>Abgleich mit dem besten Treffer</h3><p>4 von 7 Feldern stimmen, 3 weichen ab. Crossref liefert den Treffer, OpenAlex bestätigt.</p></div>
+   ${mayerTracks()}${mayerLadder()}
+   <div class="fix">
+     <div><div class="l">Vorgeschlagene Korrektur</div>
+       <p>Mayer, T. (<mark>2020</mark>). <mark>Digitale Hochschullehre: Formate und Wirkungen.</mark> Zeitschrift für Hochschulentwicklung, 14(3), <mark>45–61</mark>. <span class="doi">https://doi.org/10.3217/zfhe-14-03/04</span></p></div>
+     <div class="acts"><button class="btn primary" type="button">Korrektur übernehmen</button><button class="btn" type="button">Kopieren</button></div>
+     <div class="meta"><button class="btn quiet" type="button" style="padding:0 6px">Eingabe beibehalten</button><a href="#" onclick="return false">Treffer bei Crossref ansehen ↗</a><span>Die Korrektur ist ein Vorschlag. Sie entscheiden.</span></div>
+   </div>
+  </div>`;
+}
+
+/* ============ list ============ */
+const chev='<svg width="16" height="16" viewBox="0 0 16 16"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+document.getElementById('list').innerHTML=REFS.map(r=>`
+ <div class="item${r.open?' open':''}" data-v="${r.v}" id="ref-${r.n}">
+  <div class="row">
+   <span class="num">${String(r.n).padStart(2,'0')}</span>
+   <div class="ref"><p class="cite">${r.cite}</p><p class="why">${r.why}</p></div>
+   <div class="sigwrap"><div class="sigcell">${sigSVG(r.f,r.v,{scale:1.15})}</div>
+   ${verdictHTML(r.v)}</div>
+   <button class="row-btn" type="button" aria-expanded="${!!r.open}" aria-label="Referenz ${r.n} im Detail">${chev}</button>
+  </div>
+  ${r.n===3?plan():''}
+ </div>`).join('');
+// narrow layout wraps sig+verdict in one flex line
+function wrapNarrow(){
+  document.querySelectorAll('.sigwrap').forEach(w=>{});
+}
+document.querySelectorAll('.row-btn').forEach(b=>b.addEventListener('click',()=>{
+  const it=b.closest('.item');if(it.id!=='ref-3')return;
+  const o=it.classList.toggle('open');b.setAttribute('aria-expanded',o);
+}));
+document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{
+  document.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed',x===c));
+  const f=c.dataset.f;
+  document.querySelectorAll('.item').forEach(it=>it.classList.toggle('hide',f!=='all'&&it.dataset.v!==f));
+}));
+
+/* ============ intake -> moment ============ */
+const short=[
+ 'Luhmann, N. (1984). Soziale Systeme: Grundriß einer allgemeinen Theorie. Suhrkamp.',
+ 'Wilkinson, M. D. et al. (2016). The FAIR Guiding Principles for scientific data …',
+ 'Mayer, T. (2019). Digitale Lehre in der Hochschulbildung. Zeitschrift für …',
+ 'Schmidt, A., & Weber, K. (2017). Lernen mit Medien im Zeitalter der Digitalisierung.',
+ 'Krüger, J. (2021). Datenschutz im digitalen Klassenzimmer. doi:10.1000/xyz123',
+ 'Hoffmann, L. (2022). Resilienz durch Kollaboration: Eine Studie an deutschen …',
+ 'Bundesministerium für Bildung und Forschung (2023). Digitalisierung in der …',
+ 'Döring, N., & Bortz, J. (2016). Forschungsmethoden und Evaluation in den …'];
+const esc=s=>s.replace(/&/g,'&amp;');
+document.getElementById('i2m').innerHTML=`
+ <div class="card before"><div class="hd"><span>Eingabe</span><span>8 Absätze</span></div>${short.map(t=>`<div class="ln"><span class="t">${esc(t)}</span></div>`).join('')}</div>
+ <div class="mid"><svg width="40" height="16" viewBox="0 0 40 16"><path d="M2 8h34M30 3l6 5-6 5" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Abgleich</span></div>
+ <div class="card after"><div class="hd"><span>Liste mit Verdikten</span><span>5 Quellen</span></div>${short.map((t,i)=>`<div class="ln"><span class="t">${esc(t)}</span><span>${sigSVG(REFS[i].f,REFS[i].v,{scale:.86})}</span>${verdictHTML(REFS[i].v)}</div>`).join('')}</div>`;
+
+/* ============ toggle / params ============ */
+const q=new URLSearchParams(location.search);
+if(q.has('clean'))document.body.classList.add('clean');
+if(q.get('only')==='moment')document.body.classList.add('only-moment');
+if(q.get('only')==='intake')document.body.classList.add('only-intake');
+document.querySelectorAll('#toggle button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#toggle button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  document.body.classList.toggle('panel',b.dataset.w==='panel');
+}));
+if(q.get('w')==='panel')document.body.classList.add('panel');
+</script>
+</body>
+</html>

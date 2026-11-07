@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Source Taster · Katalog</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --outer: oklch(0.925 0.012 265);
+  --bg: oklch(0.978 0.007 262);
+  --surface: oklch(1 0 0);
+  --surface-2: oklch(0.955 0.012 262);
+  --line: oklch(0.28 0.05 265 / 0.12);
+  --line-2: oklch(0.28 0.05 265 / 0.22);
+  --line-strong: oklch(0.38 0.05 265 / 0.6);
+  --ink: oklch(0.2 0.035 265);
+  --ink-2: oklch(0.37 0.035 265);
+  --ink-3: oklch(0.47 0.03 265);
+  --accent: oklch(0.5 0.2 264);
+  --accent-lo: oklch(0.46 0.2 266);
+  --accent-soft: oklch(0.5 0.2 264 / 0.08);
+  --on: oklch(1 0 0);
+
+  --ok: oklch(0.56 0.15 152);   --ok-ink: oklch(0.38 0.09 152);   --ok-tint: oklch(0.955 0.04 152);
+  --diff: oklch(0.62 0.14 68);  --diff-ink: oklch(0.4 0.09 68);   --diff-tint: oklch(0.96 0.05 85);
+  --mixed: oklch(0.54 0.2 5);   --mixed-ink: oklch(0.4 0.16 5);   --mixed-tint: oklch(0.96 0.03 5);
+  --doi: oklch(0.54 0.21 28);   --doi-ink: oklch(0.4 0.16 28);    --doi-tint: oklch(0.96 0.03 28);
+  --miss: oklch(0.47 0.19 18);  --miss-ink: oklch(0.38 0.15 18);  --miss-tint: oklch(0.955 0.03 18);
+  --unk: oklch(0.52 0.025 265); --unk-ink: oklch(0.4 0.025 265);  --unk-tint: oklch(0.955 0.008 265);
+  --mark: oklch(0.9 0.1 88);    /* highlighter for the deviating characters */
+
+  --sans: "Atkinson Hyperlegible Next", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+  --r: 8px;
+  --lift: 0 1px 1px oklch(0.3 0.06 265 / 0.05), 0 12px 24px -16px oklch(0.3 0.08 265 / 0.22);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--outer);color:var(--ink);font:400 16px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+.mono{font-family:var(--mono)}
+button{font:inherit;color:inherit}
+
+/* verdict tokens */
+[data-v=ok]{--c:var(--ok);--ci:var(--ok-ink);--ct:var(--ok-tint)}
+[data-v=diff]{--c:var(--diff);--ci:var(--diff-ink);--ct:var(--diff-tint)}
+[data-v=mixed]{--c:var(--mixed);--ci:var(--mixed-ink);--ct:var(--mixed-tint)}
+[data-v=doi]{--c:var(--doi);--ci:var(--doi-ink);--ct:var(--doi-tint)}
+[data-v=miss]{--c:var(--miss);--ci:var(--miss-ink);--ct:var(--miss-tint)}
+[data-v=unk]{--c:var(--unk);--ci:var(--unk-ink);--ct:var(--unk-tint)}
+.g{width:16px;height:16px;flex:none;color:var(--c);display:block}
+.w{stroke:var(--on);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.s{fill:currentColor;stroke:currentColor;stroke-width:1.4;stroke-linejoin:round}
+.d{fill:none;stroke:currentColor;stroke-width:1.8;stroke-dasharray:2.6 2.2;stroke-linecap:round}
+.q{fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
+
+/* app frame */
+.app{container-type:inline-size;background:var(--bg);width:100%;margin:0 auto;min-height:100vh}
+body[data-w=panel]{padding:0}
+body[data-w=panel] .app{width:360px;box-shadow:0 0 0 1px var(--line-2),0 30px 60px -30px oklch(0.3 0.1 265 / .4)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 32px;border-bottom:1px solid var(--line);background:var(--bg)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.01em;font-size:17px}
+.brand b{color:var(--accent);font-weight:700}
+.logo{width:28px;height:28px;border-radius:8px;background:var(--accent);color:#fff;display:grid;place-items:center;font:700 20px/1 var(--sans)}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line-2);background:var(--surface);font-weight:600;font-size:14px;cursor:pointer}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.pri:hover{background:var(--accent-lo)}
+.btn:focus-visible,.rtab:focus-visible,.open:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1072px;margin:0 auto;padding:0 32px}
+
+/* hero */
+.hero{padding-block:44px 6px}
+.eyebrow{font:500 12px/1.4 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);margin:0 0 14px}
+h1{margin:0;font-size:clamp(26px,4.2cqi,44px);line-height:1.12;letter-spacing:-.025em;font-weight:700;max-width:22em;text-wrap:balance}
+h1 .soft{color:var(--ink-3);font-weight:500}
+.srcline{margin:16px 0 0;font:400 13px/1.6 var(--mono);color:var(--ink-3)}
+
+/* key */
+.key{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:28px 56px;padding-block:26px 24px}
+.key h2{margin:0 0 10px;font:500 12px/1.4 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.klist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 24px}
+.klist li{display:flex;align-items:center;gap:9px;min-height:28px;font-size:14px;color:var(--ink-2)}
+.klist .g{width:18px;height:18px}
+.klist b{font-weight:600;color:var(--ink)}
+.klist .n{margin-left:auto;font:500 13px var(--mono);color:var(--ink-3)}
+.read{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.read li{display:grid;grid-template-columns:38px 1fr;gap:12px;align-items:center;font-size:14px;color:var(--ink-2)}
+.read b{color:var(--ink);font-weight:600}
+.mini{position:relative;width:30px;height:20px}
+.mini i{position:absolute;inset:0;border-radius:3px;border:1px solid var(--line-strong);background:var(--surface)}
+.mini i+i{z-index:-1;background:var(--surface-2);border-color:var(--line-2)}
+.mini.al i+i{transform:translate(0,3px)}
+.mini.of i+i{transform:translate(5px,4px)}
+.mini.gh i+i{transform:translate(5px,4px);background:transparent;border:1px dashed var(--line-strong)}
+.mini{isolation:isolate}
+
+/* register (tab strip) */
+.reg{position:sticky;top:0;z-index:30;background:var(--bg);padding-top:10px;border-bottom:1px solid var(--line-strong)}
+body[data-shot] .reg{position:static}
+.reg .wrap{display:flex;align-items:flex-end;gap:14px}
+.rlab{font:500 12px/1.2 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);padding-bottom:12px;margin-right:4px;white-space:nowrap}
+.rtabs{display:flex;align-items:flex-end;gap:5px;margin:0;padding:0;list-style:none;margin-bottom:-1px}
+.rtab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:56px;height:50px;border-radius:8px 8px 0 0;border:1px solid var(--line-2);border-bottom:0;background:var(--ct);text-decoration:none;color:var(--ci);cursor:pointer}
+.rtab .g{width:17px;height:17px}
+.rtab span{font:500 12px/1 var(--mono)}
+.rtab[aria-current=true]{height:58px;background:var(--surface);border-color:var(--line-strong);border-top:3px solid var(--accent);padding-top:0}
+.rtab:hover{background:var(--surface)}
+.rtabs li{display:block}
+
+/* drawer */
+.drawer{padding-block:8px 120px}
+.card{position:relative;margin-top:44px;isolation:isolate;--dx:0px;--dy:0px}
+.card::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:var(--r);background:var(--surface-2);border:1px solid var(--line-2);transform:translate(var(--dx),var(--dy))}
+.card[data-fit=al]{--dx:0px;--dy:5px}
+.card[data-fit=of]{--dx:14px;--dy:8px}
+.card[data-fit=gh]{--dx:14px;--dy:8px}
+.card[data-fit=gh]::before{background:transparent;border:1.5px dashed var(--line-strong)}
+.card[data-fit=none]::before{display:none}
+.tab{position:absolute;left:20px;top:-30px;height:31px;display:flex;align-items:center;gap:8px;padding:0 14px 0 11px;border-radius:9px 9px 0 0;border:1px solid var(--line-2);border-bottom:0;background:var(--ct);color:var(--ci);font-weight:600;font-size:14px;z-index:2}
+.sheet{position:relative;background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r);box-shadow:var(--lift);padding:18px 22px 18px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 16px}
+.card:not(.case) .sheet{border-top-left-radius:0}
+.mk{grid-column:1/-1;font:500 12px/1.3 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);margin:0 0 6px}
+.mk b{color:var(--ink);font-weight:600}
+.ttl{grid-column:1;margin:0;font-size:19px;line-height:1.3;font-weight:600;letter-spacing:-.01em;text-wrap:balance}
+.by{grid-column:1;margin:2px 0 0;color:var(--ink-2);font-size:15px}
+.doi{grid-column:1;margin:6px 0 0;font:400 13px/1.4 var(--mono);color:var(--ink-3);overflow-wrap:anywhere}
+.open{grid-column:2;grid-row:2/4;align-self:start;justify-self:end;width:34px;height:34px;border-radius:50%;border:1px solid var(--line-2);background:var(--surface);display:grid;place-items:center;cursor:pointer;color:var(--ink-2)}
+.open:hover{background:var(--surface-2)}
+.find{grid-column:1/-1;margin:12px 0 0;padding-top:11px;border-top:1px dashed var(--line-2);display:grid;grid-template-columns:76px minmax(0,1fr);gap:0 12px;font-size:15px;color:var(--ink-2)}
+.find dt{font:500 12px/1.9 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+.find dd{margin:0}
+.find .src{font:400 13px var(--mono);color:var(--ink)}
+.behind{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px}
+.behind li{display:grid;grid-template-columns:48px minmax(0,1fr);gap:10px;font-size:14.5px;color:var(--ink-2);align-items:baseline}
+.behind .m{font:500 12px var(--mono);color:var(--ink);letter-spacing:.05em}
+
+/* ---- the opened case: two cards ---- */
+.case{margin-top:62px}
+.case .tab{top:-8px}
+.stack{display:grid;grid-template-columns:140px minmax(0,1fr) minmax(0,1fr);padding:22px 18px 0 0;position:relative;isolation:isolate}
+.frame{grid-row:1/span 8;border-radius:var(--r);border:1px solid var(--line-2);pointer-events:none}
+.f-front{grid-column:1/3;background:var(--surface);z-index:3;box-shadow:10px 0 22px -12px oklch(0.3 0.08 265 / .28), var(--lift);border-top-left-radius:0;margin-top:0}
+.f-back{grid-column:3;background:var(--surface-2);z-index:1;margin-left:-30px;margin-right:-18px;margin-top:-22px;border-color:var(--line-strong)}
+.stack>.hd,.stack .row>*{position:relative}
+.hd{grid-row:1;padding:16px 22px 12px;z-index:4}
+.hd .t{font:500 12px/1.3 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+.hd .t b{color:var(--ink);font-weight:600}
+.hd .s{display:block;font:400 13px/1.4 var(--mono);color:var(--ink);margin-top:2px}
+.h-front{grid-column:1/3}
+.h-back{grid-column:3;padding:16px 22px 12px 52px;z-index:2}
+.row{display:contents}
+.row>*{grid-row:var(--i);border-top:1px solid var(--line);padding:11px 22px;font-size:16px;line-height:1.4;min-width:0;overflow-wrap:anywhere}
+.lab{grid-column:1;z-index:4;font:500 12px/1.6 var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);display:flex;gap:6px;align-items:flex-start;padding-top:12px!important}
+.lab .g{width:14px;height:14px;margin-top:2px}
+.v{z-index:4;color:var(--ink-2)}
+.v.front{grid-column:2}
+.v.back{grid-column:3;padding-left:52px;z-index:2}
+.row.dev .v{color:var(--ink)}
+.row.dev .v.front{background:oklch(0.98 0.02 85 / .7)}
+.row.dev .v.back{background:oklch(0.97 0.035 85 / .8)}
+.row:last-child>*{padding-bottom:16px}
+.v .mono{font-size:14px}
+s.x{text-decoration:line-through;text-decoration-thickness:2px;text-decoration-color:var(--diff-ink);text-decoration-skip-ink:none;color:var(--diff-ink)}
+b.m{font-weight:700;background:var(--mark);box-shadow:0 0 0 2px var(--mark);border-radius:2px;color:var(--ink)}
+.v.back.dev b.m{font-weight:700}
+.evid{display:grid;grid-template-columns:140px minmax(0,1fr);gap:0 0;margin:18px 0 0;padding:0 22px 0 0}
+.evid h3{margin:0;font:500 12px/1.6 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);padding-left:22px}
+.evid ul{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:15px;color:var(--ink-2)}
+.evid li{display:grid;grid-template-columns:104px minmax(0,1fr);gap:12px}
+.evid .src{font:500 13px/1.6 var(--mono);color:var(--ink)}
+
+.slip{margin:22px 0 14px 0;position:relative;isolation:isolate;border:1px solid var(--accent);border-radius:var(--r);background:oklch(0.975 0.02 264);padding:18px 22px 18px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 28px;box-shadow:10px 7px 0 -1px var(--surface-2),10px 7px 0 0 var(--line-strong)}
+.slip .mk{grid-column:1/-1}
+.slip .mk b{color:var(--accent)}
+.slip p.cit{grid-column:1;margin:0;font-size:17px;line-height:1.5;color:var(--ink);text-wrap:pretty}
+.slip .u{background:oklch(0.5 0.2 264 / 0.13);box-shadow:0 0 0 2px oklch(0.5 0.2 264 / 0.13);border-radius:2px;font-weight:600}
+.slip .url{grid-column:1;margin:4px 0 0;font:400 13px/1.4 var(--mono);color:var(--ink-3);overflow-wrap:anywhere}
+.slip .acts{grid-column:2;grid-row:2/5;display:flex;flex-direction:column;gap:8px;align-self:center}
+.slip .note{grid-column:1/-1;margin:10px 0 0;font-size:14px;color:var(--ink-3)}
+
+/* ---- narrow (side panel) ---- */
+@container (max-width: 700px){
+  .top{padding:12px 16px}
+  .top .btn span{display:none}
+  .wrap{padding:0 16px}
+  .hero{padding-block:26px 2px}
+  .key{grid-template-columns:1fr;gap:22px;padding-block:18px}
+  .klist{grid-template-columns:1fr 1fr;gap:0 14px}
+  .klist li{font-size:13px;align-items:flex-start;padding:5px 0}
+  .klist .g{margin-top:1px;width:16px;height:16px}
+  .klist .n{display:none}
+  .klist li b{font-weight:600}
+  .klist li small{display:block;font:500 12px/1.2 var(--mono);color:var(--ink-3)}
+  .rlab{display:none}
+  .rtabs{width:100%;gap:3px}
+  .rtabs li{flex:1 1 0;min-width:0}
+  .rtab{width:100%;height:46px;gap:1px}
+  .rtab[aria-current=true]{height:53px}
+  .drawer{padding-block:8px 80px}
+  .card{margin-top:40px}
+  .tab{left:12px;font-size:13px;padding:0 10px 0 8px;top:-28px;height:29px;max-width:calc(100% - 24px)}
+  .sheet{padding:14px 16px 14px;grid-template-columns:minmax(0,1fr) auto}
+  .ttl{font-size:17px}
+  .card[data-fit=of],.card[data-fit=gh]{--dx:8px;--dy:7px}
+  .card{margin-right:8px}
+  .find{grid-template-columns:1fr;gap:2px}
+  .behind li{grid-template-columns:44px 1fr}
+
+  .case{margin-top:48px}
+  .case .tab{top:-28px}
+  .stack{display:block;padding:0;background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r);border-top-left-radius:0;box-shadow:8px 8px 0 -1px var(--surface-2),8px 8px 0 0 var(--line-strong);margin-bottom:0}
+  .frame,.h-back{display:none}
+  .hd{padding:14px 16px 6px}
+  .row{display:block;border-top:1px solid var(--line);padding:10px 16px}
+  .row>*{border:0;padding:0;background:none!important}
+  .lab{padding:0!important;margin-bottom:3px}
+  .v{display:block;padding:0}
+  .v.back{padding:0}
+  .row.dev .v{position:relative;padding-left:112px}
+  .row.dev .v.back{padding-left:112px}
+  .row.dev .v::before{content:attr(data-k);position:absolute;left:0;top:3px;font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+  .row.same .v.back{display:none}
+  .row.dev .v.back{margin-top:2px}
+  .row.dev{background:oklch(0.98 0.025 85 / .55)}
+  .row:last-child>*{padding-bottom:0}
+  .row:last-child{padding-bottom:14px}
+  .evid{grid-template-columns:1fr;gap:6px;margin:26px 0 0;padding:0}
+  .evid h3{padding:0}
+  .evid li{grid-template-columns:1fr;gap:0}
+  .slip{grid-template-columns:1fr;margin:20px 8px 0 0;padding:14px 16px}
+  .slip .acts{grid-column:1;grid-row:auto;flex-direction:column;align-items:stretch;margin-top:8px}
+  .slip .acts .btn{justify-content:center;min-height:40px}
+  .slip p.cit{font-size:16px}
+}
+
+/* toggle */
+.tgl{position:fixed;right:16px;bottom:16px;z-index:99;display:flex;background:var(--surface);border:1px solid var(--line-strong);border-radius:999px;padding:3px;box-shadow:0 8px 24px -10px oklch(0.3 0.1 265 / .4)}
+body[data-shot] .tgl{display:none}
+.tgl button{border:0;background:none;padding:6px 14px;border-radius:999px;font:600 13px var(--sans);cursor:pointer;color:var(--ink-2);min-height:30px}
+.tgl button[aria-pressed=true]{background:var(--accent);color:#fff}
+
+/* intake -> moment frame */
+.frame-intake{display:none}
+body[data-frame=intake]{background:var(--bg)}
+body[data-frame=intake] .frame-moment{display:none}
+body[data-frame=intake] .frame-intake{display:block}
+body[data-frame=intake] .tgl{display:none}
+.i-head{padding:40px 0 22px;text-align:left}
+.i-head h1{font-size:34px;max-width:none}
+.i-grid{display:grid;grid-template-columns:minmax(0,1fr) 54px minmax(0,1.05fr);align-items:start;padding-bottom:70px}
+.i-col h2{margin:0 0 10px;font:500 12px/1.4 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.i-ta{background:var(--surface);border:1px solid var(--line-strong);border-radius:14px;box-shadow:var(--lift);padding:10px 18px}
+.i-line{display:grid;grid-template-columns:24px minmax(0,1fr);gap:10px;height:58px;align-items:center;border-top:1px dashed var(--line)}
+.i-line:first-child{border-top:0}
+.i-line .no{font:500 12px var(--mono);color:var(--ink-3)}
+.i-line .tx{font:400 13.5px/1.35 var(--mono);color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.i-arrow{padding-top:46px;display:flex;flex-direction:column;align-items:center}
+.i-arrow>div{height:58px;display:grid;place-items:center;color:var(--ink-3);font:500 16px var(--mono)}
+.i-cards{display:grid;gap:0;padding-top:10px}
+.i-card{position:relative;isolation:isolate;height:58px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;margin:0 0 0 0;padding:0 14px}
+.i-card::after{content:"";position:absolute;inset:0;z-index:-1;background:var(--surface);border:1px solid var(--line-2);border-radius:6px;box-shadow:0 1px 1px oklch(0.3 0.06 265 / .05)}
+.i-card{height:44px;margin:7px 0}
+.i-card::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:6px;background:var(--surface-2);border:1px solid var(--line-2);transform:translate(var(--dx,0),var(--dy,3px))}
+.i-card[data-fit=of]{--dx:8px;--dy:4px}
+.i-card[data-fit=gh]::before{background:transparent;border:1.5px dashed var(--line-strong);--dx:8px;--dy:4px}
+.i-card[data-fit=none]::before{display:none}
+.i-card .nm{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.i-card .nm small{font:500 12px var(--mono);color:var(--ink-3);letter-spacing:.06em;margin-right:8px;font-weight:500}
+.i-card .vt{display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;color:var(--ci)}
+.i-card .vt.g-only{gap:0}
+</style>
+</head>
+<body data-w="web">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="g-ok" viewBox="0 0 20 20"><circle class="s" cx="10" cy="10" r="8.6"/><path class="w" d="M6 10.4l2.8 2.8L14.2 7.2"/></symbol>
+    <symbol id="g-diff" viewBox="0 0 20 20"><path class="s" d="M10 2.2L18.4 17.2H1.6Z"/><path class="w" d="M10 7.6v4.4M10 14.6v.1"/></symbol>
+    <symbol id="g-mixed" viewBox="0 0 20 20"><path class="s" d="M10 1L19 10L10 19L1 10Z"/><path class="w" d="M6.4 7.2h4v4h-4zM9.6 9.6h4v4h-4z" style="stroke-width:1.3"/></symbol>
+    <symbol id="g-doi" viewBox="0 0 20 20"><rect class="s" x="2" y="2" width="16" height="16" rx="2.4"/><path class="w" d="M7 7l6 6M13 7l-6 6"/></symbol>
+    <symbol id="g-miss" viewBox="0 0 20 20"><path class="s" d="M10 1.4L17.8 5.7V14.3L10 18.6L2.2 14.3V5.7Z"/><path class="w" d="M6.2 10h7.6"/></symbol>
+    <symbol id="g-unk" viewBox="0 0 20 20"><circle class="d" cx="10" cy="10" r="8"/><path class="q" d="M7.7 8.2a2.4 2.4 0 1 1 3.5 2.1c-.9.5-1.2 1-1.2 1.9M10 14.7v.1"/></symbol>
+  </defs>
+</svg>
+
+<div class="frame-moment">
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand"><span class="logo" aria-hidden="true">”</span><span>Source <b>Taster</b></span></div>
+    <button class="btn" type="button"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M7 2v10M2 7h10"/></svg><span>Neue Prüfung</span></button>
+  </header>
+
+  <main>
+    <div class="wrap hero">
+      <p class="eyebrow">Prüfung abgeschlossen · 8 Referenzen</p>
+      <h1>Drei von acht Referenzen stimmen. <span class="soft">Vier verdienen einen zweiten Blick, eine liegt außerhalb der Abdeckung.</span></h1>
+      <p class="srcline">Abgeglichen mit Crossref · OpenAlex · DNB · Semantic Scholar · Internet Archive</p>
+    </div>
+
+    <div class="wrap key">
+      <section aria-labelledby="k1">
+        <h2 id="k1">Schlüssel zu den Reitern</h2>
+        <ul class="klist" id="klist"></ul>
+      </section>
+      <section aria-labelledby="k2">
+        <h2 id="k2">So lesen Sie die Karten</h2>
+        <ul class="read">
+          <li><span class="mini al"><i></i><i></i></span><span><b>Deckungsgleich:</b> der beste Treffer liegt genau hinter Ihrer Karte.</span></li>
+          <li><span class="mini of"><i></i><i></i></span><span><b>Versetzt:</b> etwas weicht ab, die Felder sind markiert.</span></li>
+          <li><span class="mini gh"><i></i><i></i></span><span><b>Leerer Platz:</b> kein Treffer gefunden.</span></li>
+        </ul>
+      </section>
+    </div>
+
+    <nav class="reg" aria-label="Register der 8 Referenzen">
+      <div class="wrap">
+        <span class="rlab">Register</span>
+        <ul class="rtabs" id="rtabs"></ul>
+      </div>
+    </nav>
+
+    <div class="wrap drawer" id="drawer"></div>
+  </main>
+</div>
+</div>
+
+<!-- Frame B: intake -> moment (static before/after) -->
+<div class="frame-intake">
+  <div class="app" style="min-height:0">
+    <header class="top">
+      <div class="brand"><span class="logo" aria-hidden="true">”</span><span>Source <b>Taster</b></span></div>
+    </header>
+    <div class="wrap">
+      <div class="i-head">
+        <p class="eyebrow">Neue Prüfung → Ergebnis</p>
+        <h1>Jede Zeile Ihres Textes wird zu einer Karte.</h1>
+      </div>
+      <div class="i-grid">
+        <section class="i-col">
+          <h2>Ihre Literaturliste, unverändert</h2>
+          <div class="i-ta" id="i-ta"></div>
+        </section>
+        <div class="i-arrow" id="i-arrow" aria-hidden="true"></div>
+        <section class="i-col">
+          <h2>Acht Karten, die Reiter zeigen den Befund</h2>
+          <div class="i-cards" id="i-cards"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tgl" role="group" aria-label="Breite">
+  <button type="button" data-w="web" aria-pressed="true">Web 1280</button>
+  <button type="button" data-w="panel" aria-pressed="false">Panel 360</button>
+</div>
+
+<script>
+const V = {
+  ok:   {label:'Korrekt', g:'g-ok', short:'Korrekt'},
+  diff: {label:'Existiert, mit Abweichungen', g:'g-diff'},
+  mixed:{label:'Gemischte Referenz', g:'g-mixed'},
+  doi:  {label:'DOI-Konflikt', g:'g-doi'},
+  miss: {label:'Nicht gefunden', g:'g-miss'},
+  unk:  {label:'Nicht verifizierbar', g:'g-unk'}
+};
+const glyph = (v,c='') => `<svg class="g ${c}" viewBox="0 0 20 20" aria-hidden="true"><use href="#${V[v].g}"/></svg>`;
+
+const R = [
+ {n:1,v:'ok',fit:'al',who:'Luhmann',yr:1984,title:'Soziale Systeme: Grundriß einer allgemeinen Theorie',by:'Luhmann, N. (1984) · Suhrkamp',
+   find:'Deckungsgleich mit dem Eintrag der <span class="src">DNB</span>, gefunden über die ISBN.',raw:'Luhmann, N. (1984). Soziale Systeme: Grundriß einer allgemeinen Theorie. Suhrkamp.'},
+ {n:2,v:'ok',fit:'al',who:'Wilkinson',yr:2016,title:'The FAIR Guiding Principles for scientific data management and stewardship',by:'Wilkinson, M. D. et al. (2016) · Scientific Data, 3, 160018',doi:'10.1038/sdata.2016.18',
+   find:'Deckungsgleich mit <span class="src">Crossref</span>, bestätigt durch <span class="src">OpenAlex</span>.',raw:'Wilkinson, M. D. et al. (2016). The FAIR Guiding Principles for scientific data management and stewardship. Scientific Data, 3, 160018. doi:10.1038/sdata.2016.18'},
+ {n:3,v:'diff',fit:'of',who:'Mayer',yr:2019,title:'Digitale Lehre in der Hochschulbildung',raw:'Mayer, T. (2019). Digitale Lehre in der Hochschulbildung. Zeitschrift für Hochschulentwicklung, 14(3), 45–62. doi:10.3217/zfhe-14-03/04'},
+ {n:4,v:'mixed',fit:'of',who:'Schmidt',yr:2017,title:'Lernen mit Medien im Zeitalter der Digitalisierung',by:'Schmidt, A., & Weber, K. (2017)',
+   find:'Titel und Verfasser stammen aus verschiedenen Werken.',
+   behind:[['R04a','Der Titel gehört zu Becker & Lang (2015).'],['R04b','Schmidt & Weber (2017) existiert, mit einem anderen Titel.']],
+   raw:'Schmidt, A., & Weber, K. (2017). Lernen mit Medien im Zeitalter der Digitalisierung.'},
+ {n:5,v:'doi',fit:'of',who:'Krüger',yr:2021,title:'Datenschutz im digitalen Klassenzimmer',by:'Krüger, J. (2021)',doi:'10.1000/xyz123',
+   find:'Dieser DOI führt zu einem anderen Werk.',
+   behind:[['R05a','„Open Data in der Verwaltung“ (2020) trägt diesen DOI.']],
+   raw:'Krüger, J. (2021). Datenschutz im digitalen Klassenzimmer. doi:10.1000/xyz123'},
+ {n:6,v:'miss',fit:'gh',who:'Hoffmann',yr:2022,title:'Resilienz durch Kollaboration: Eine Studie an deutschen Universitäten',by:'Hoffmann, L. (2022)',
+   find:'Keine Treffer in <span class="src">Crossref</span>, <span class="src">OpenAlex</span>, <span class="src">DNB</span> und <span class="src">Semantic Scholar</span>. Bitte manuell prüfen.',
+   raw:'Hoffmann, L. (2022). Resilienz durch Kollaboration: Eine Studie an deutschen Universitäten.'},
+ {n:7,v:'unk',fit:'none',who:'BMBF',yr:2023,title:'Digitalisierung in der Bildung: Bericht zur Lage',by:'Bundesministerium für Bildung und Forschung (2023)',
+   find:'Graue Literatur, außerhalb der abgedeckten Quellen. Dazu ist keine Aussage möglich. Das ist kein Fehler.',
+   raw:'Bundesministerium für Bildung und Forschung (2023). Digitalisierung in der Bildung: Bericht zur Lage.'},
+ {n:8,v:'ok',fit:'al',who:'Döring',yr:2016,title:'Forschungsmethoden und Evaluation in den Sozial- und Humanwissenschaften',by:'Döring, N., & Bortz, J. (2016) · Springer',
+   find:'Deckungsgleich mit dem besten Treffer.',
+   raw:'Döring, N., & Bortz, J. (2016). Forschungsmethoden und Evaluation in den Sozial- und Humanwissenschaften. Springer.'}
+];
+const pad = n => String(n).padStart(2,'0');
+const counts = {}; R.forEach(r=>counts[r.v]=(counts[r.v]||0)+1);
+
+// key
+document.getElementById('klist').innerHTML = Object.keys(V).map(k=>`
+  <li data-v="${k}">${glyph(k)}<span><b>${V[k].label}</b></span><span class="n">${counts[k]}</span></li>`).join('');
+// register
+document.getElementById('rtabs').innerHTML = R.map(r=>`
+  <li data-v="${r.v}"><a class="rtab" data-v="${r.v}" href="#r${r.n}" ${r.n===3?'aria-current="true"':''}
+    title="${pad(r.n)} · ${r.who} ${r.yr} · ${V[r.v].label}" aria-label="Karte ${r.n}, ${r.who} ${r.yr}: ${V[r.v].label}">
+    ${glyph(r.v)}<span>${pad(r.n)}</span></a></li>`).join('');
+
+const chevron = (r)=>`<button class="open" type="button" aria-label="Details zu Karte ${pad(r.n)} öffnen"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5l4 4 4-4"/></svg></button>`;
+const tab = r => `<span class="tab" data-v="${r.v}">${glyph(r.v)}${V[r.v].label}</span>`;
+
+function compact(r){
+  return `<article class="card" id="r${r.n}" data-v="${r.v}" data-fit="${r.fit}" aria-label="Karte ${pad(r.n)}: ${V[r.v].label}">
+    ${tab(r)}
+    <div class="sheet">
+      <p class="mk"><b>R${pad(r.n)}</b> · ${r.who} · ${r.yr}</p>
+      <h3 class="ttl">${r.title}</h3>
+      <p class="by">${r.by}</p>
+      ${r.doi?`<p class="doi">doi:${r.doi}</p>`:''}
+      ${chevron(r)}
+      <dl class="find"><dt>Befund</dt><dd>${r.find}${r.behind?`<ul class="behind">${r.behind.map(b=>`<li><span class="m">${b[0]}</span><span>${b[1]}</span></li>`).join('')}</ul>`:''}</dd></dl>
+    </div>
+  </article>`;
+}
+
+function mayer(r){
+  const dg = glyph('diff');
+  let ri = 1;
+  const row = (lab,f,b,dev,k=['Ihre Angabe','Treffer'])=>`
+    <div class="row ${dev?'dev':'same'}" style="--i:${++ri}">
+      <div class="lab">${lab}${dev?glyph('diff'):''}</div>
+      <div class="v front" data-k="${k[0]}">${f}</div>
+      <div class="v back" data-k="${k[1]}">${b}</div>
+    </div>`;
+  return `<article class="card case" id="r3" data-v="diff" data-fit="none" aria-label="Karte 03: Existiert, mit Abweichungen">
+    ${tab(r)}
+    <div class="stack">
+      <div class="frame f-back"></div>
+      <div class="frame f-front"></div>
+      <div class="hd h-front"><span class="t"><b>R03</b> · Ihre Referenz</span><span class="s">Mayer · 2019</span></div>
+      <div class="hd h-back"><span class="t"><b>R03a</b> · Bester Treffer</span><span class="s">Crossref · bestätigt von OpenAlex</span></div>
+      ${row('Verfasser','Mayer, T.','Mayer, T.',false)}
+      ${row('Jahr','20<b class="m"><s class="x">19</s></b>','20<b class="m">20</b>',true)}
+      ${row('Titel','Digitale <b class="m"><s class="x">Lehre in der Hochschulbildung</s></b>','Digitale <b class="m">Hochschullehre: Formate und Wirkungen</b>',true)}
+      ${row('Zeitschrift','Zeitschrift für Hochschulentwicklung','Zeitschrift für Hochschulentwicklung',false)}
+      ${row('Band (Heft)','14 (3)','14 (3)',false)}
+      ${row('Seiten','45–6<b class="m"><s class="x">2</s></b>','45–6<b class="m">1</b>',true)}
+      ${row('DOI','<span class="mono">10.3217/zfhe-14-03/04</span>','<span class="mono">10.3217/zfhe-14-03/04</span>',false)}
+    </div>
+
+    <div class="evid">
+      <h3>Beleg</h3>
+      <ul>
+        <li><span class="src">Crossref</span><span>Treffer über den DOI. Jahr, Titel und Seiten weichen von Ihrer Angabe ab.</span></li>
+        <li><span class="src">OpenAlex</span><span>bestätigt dieselben Werte.</span></li>
+      </ul>
+    </div>
+
+    <div class="slip" data-v="diff">
+      <p class="mk"><b>R03b</b> · Korrekturvorschlag · 3 Änderungen</p>
+      <p class="cit">Mayer, T. (<span class="u">2020</span>). <span class="u">Digitale Hochschullehre: Formate und Wirkungen</span>. Zeitschrift für Hochschulentwicklung, 14(3), 45–<span class="u">61</span>.</p>
+      <p class="url">https://doi.org/10.3217/zfhe-14-03/04</p>
+      <div class="acts"><button class="btn pri" type="button">Korrektur übernehmen</button><button class="btn" type="button">Kopieren</button></div>
+      <p class="note">Sie entscheiden. Auch Datenquellen können Fehler enthalten.</p>
+    </div>
+  </article>`;
+}
+document.getElementById('drawer').innerHTML = R.map(r=> r.n===3?mayer(r):compact(r)).join('');
+
+// intake frame
+document.getElementById('i-ta').innerHTML = R.map(r=>`<div class="i-line"><span class="no">${r.n}</span><span class="tx">${r.raw}</span></div>`).join('');
+document.getElementById('i-arrow').innerHTML = R.map(()=>`<div>→</div>`).join('');
+document.getElementById('i-cards').innerHTML = R.map(r=>`
+  <div class="i-card" data-v="${r.v}" data-fit="${r.fit==='none'?'none':r.fit}">
+    <span class="nm"><small>R${pad(r.n)}</small>${r.who} ${r.yr}</span>
+    <span class="vt">${glyph(r.v)}${V[r.v].label}</span>
+  </div>`).join('');
+
+// toggle + flags
+const q = new URLSearchParams(location.search);
+if(q.has('shot')) document.body.dataset.shot = '';
+if(q.get('frame')) document.body.dataset.frame = q.get('frame');
+document.querySelectorAll('.tgl button').forEach(b=>b.addEventListener('click',()=>{
+  document.body.dataset.w = b.dataset.w;
+  document.querySelectorAll('.tgl button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+}));
+document.querySelectorAll('.rtab').forEach(a=>a.addEventListener('click',()=>{
+  document.querySelectorAll('.rtab').forEach(x=>x.removeAttribute('aria-current'));
+  a.setAttribute('aria-current','true');
+}));
+</script>
+</body>
+</html>
