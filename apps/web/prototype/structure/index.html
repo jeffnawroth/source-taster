@@ -1,0 +1,81 @@
+<!doctype html>
+<!--
+  PROTOTYPE (#194 "How are the web app and side panel structured?") — THROWAWAY, never merge.
+  Question: which app shell, navigation and intake → running → summary → detail flow fits the chosen
+  "Glass" identity, at web width and in the 360 px side panel, inside ADR-0016's workspace rules.
+  Plan: four structurally different variants (A–D) on one page, switchable via ?variant= and the bottom bar.
+  Assumption: standalone HTML instead of mounting in apps/web, because the real app has no styled shell
+  yet (apps/web/src is a thin mount of packages/ui) and the question is structural, not data wiring.
+  The 360 px frame approximates the Chromium sidePanel / Firefox sidebarAction; the real chrome could not
+  be captured (#187). Fonts come from Google Fonts here only; the product self-hosts them.
+  Open this file directly in a browser. URL params: variant, w=360, theme, lang, grey, stage=intake|counted|running|done|detail, ref, acct=guest|free, hist=1, quota=short, corr=export|draft|apply, still, dev
+-->
+<html lang="de" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>#194 Structure prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base/tokens.css">
+<style>
+  /* review frame only — not part of any variant */
+  #stage { min-height: 100vh; }
+  #stage[data-w="web"] #app { min-height: 100vh; container: app / inline-size; }
+  #stage[data-w="360"] { display: grid; grid-template-columns: 1fr 360px; height: 100vh; background: var(--st-canvas); }
+  #stage[data-w="360"] .fake-page { display: block; }
+  #stage[data-w="360"] .panel-wrap { display: flex; flex-direction: column; border-left: 1px solid var(--st-border-strong); min-height: 0; }
+  #stage[data-w="360"] #app { flex: 1; min-height: 0; overflow: auto; container: app / inline-size; position: relative; transform: translateZ(0); }
+  #stage[data-w="web"] .panel-chrome, .fake-page { display: none; }
+  .panel-chrome { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 10px; font: 12px system-ui, sans-serif; color: #444; background: #f1f3f4; border-bottom: 1px solid #dadce0; }
+  :root[data-theme="dark"] .panel-chrome { background: #202124; color: #bdc1c6; border-color: #3c4043; }
+  .panel-chrome b { font-weight: 600; } .panel-chrome .sp { flex: 1; } .panel-chrome small { opacity: .6; }
+  .fake-page { padding: 48px; overflow: hidden; font: 15px/1.6 Georgia, serif; color: #555; background: #fff; }
+  :root[data-theme="dark"] .fake-page { background: #1b1b1d; color: #999; }
+  .fake-page h1 { font-size: 22px; color: #333; } :root[data-theme="dark"] .fake-page h1 { color: #ccc; }
+  .fake-page mark { background: #c9dcff; color: inherit; } :root[data-theme="dark"] .fake-page mark { background: #2f4a7a; }
+
+  #switcher, #devbar { position: fixed; z-index: 9999; font: 12px/1.3 system-ui, sans-serif; color: #fff; }
+  #switcher { left: 50%; bottom: 12px; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; padding: 4px; border-radius: 999px; background: #111; box-shadow: 0 4px 18px rgb(0 0 0 / .35); outline: 2px dashed #ff5fa2; outline-offset: 2px; }
+  #switcher span { padding: 0 8px; white-space: nowrap; } #switcher small { opacity: .6; margin-left: 6px; }
+  #switcher button { width: 28px; height: 28px; border: 0; border-radius: 999px; background: #333; color: #fff; cursor: pointer; font-size: 16px; }
+  #devbar { left: 12px; bottom: 12px; max-width: min(560px, calc(100vw - 24px)); }
+  #devbar .dev-handle { border: 0; border-radius: 999px; padding: 7px 12px; background: #111; color: #fff; cursor: pointer; outline: 2px dashed #ff5fa2; outline-offset: 2px; }
+  #devbar .dev-body { margin-bottom: 8px; padding: 10px; border-radius: 12px; background: #111; display: grid; gap: 6px; box-shadow: 0 4px 18px rgb(0 0 0 / .35); position: absolute; bottom: 100%; left: 0; width: max-content; max-width: min(560px, calc(100vw - 24px)); }
+  #devbar .dev-body div { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+  #devbar .dev-body span { width: 74px; opacity: .6; }
+  #devbar .dev-body button { border: 1px solid #444; background: #222; color: #ddd; border-radius: 999px; padding: 3px 9px; cursor: pointer; font: inherit; }
+  #devbar .dev-body button[aria-pressed="true"] { background: #ff5fa2; border-color: #ff5fa2; color: #111; }
+  @media print { #switcher, #devbar { display: none; } }
+</style>
+</head>
+<body>
+<div id="stage" data-w="web">
+  <div class="fake-page" aria-hidden="true">
+    <h1>Seminar: Digitale Lehre — Literaturliste</h1>
+    <p>Bitte prüfen Sie Ihre Quellen vor der Abgabe. Die folgenden Titel wurden im Forum geteilt:</p>
+    <p><mark>Mayer, T. (2019). Digitale Lehre in der Hochschulbildung. Zeitschrift für Hochschulentwicklung, 14(3), 45–62.</mark></p>
+    <p><mark>Schmidt, K. &amp; Weber, P. (2017). Lernen mit Medien im Zeitalter der Digitalisierung. Beltz Juventa.</mark></p>
+    <p><mark>Krüger, A. (2021). Datenschutz im digitalen Klassenzimmer. doi:10.1016/j.compedu.2021.104312</mark></p>
+    <p><mark>Hoffmann, L. (2022). Resilienz durch Kollaboration.</mark></p>
+    <p>Rechtsklick → „Mit Source Taster prüfen“ öffnet das Seitenpanel.</p>
+  </div>
+  <div class="panel-wrap">
+    <div class="panel-chrome" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 32 32"><use href="#mark-sm"/></svg><b>Source Taster</b><span class="sp"></span><small>approx. browser panel chrome</small> ✕</div>
+    <div id="app"></div>
+  </div>
+</div>
+<div id="switcher"></div>
+<div id="devbar"></div>
+
+<script src="base/glyphs.js"></script>
+<script src="base/fixture.js"></script>
+<script src="base/i18n.js"></script>
+<script src="base/store.js"></script>
+<script src="base/devbar.js"></script>
+<script src="variants/a.js"></script>
+<script src="variants/b.js"></script>
+<script src="variants/c.js"></script>
+<script src="variants/d.js"></script>
+</body>
+</html>
