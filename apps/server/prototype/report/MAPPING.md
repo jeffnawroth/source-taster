@@ -1,4 +1,6 @@
-# Proposed medium mapping
+# Accepted medium mapping
+
+Accepted on 10 November 2026 with email A and PDF C. See `docs/design/email-and-pdf.md` for the durable decision.
 
 This exploration continues #193/#195 and the product continuity decision from #196. It changes no requirements, generator choice, delivery boundary or repository licence exception.
 

@@ -2,6 +2,8 @@
 
 Throwaway candidates on `prototype/197-email-report`, not a production renderer change. The question is how the accepted calm Glass identity carries onto a readable, tagged paper report. All three layouts use the same colours, static typefaces, vector Verdict glyphs, fictional snapshot and content order.
 
+**Accepted:** PDF C (Record sheet), alongside private email A. The durable decision is in `docs/design/email-and-pdf.md`. The gallery opens C by default; A/B remain exploration evidence.
+
 - **A — Working report:** neutral bounded Reference sections, a two-column summary and the app's grouping rhythm.
 - **B — Reading edition:** a single-column summary and open, continuous Reference sections with quiet margin rules.
 - **C — Record sheet:** compact labelled rows, left/right field alignment and horizontal separators.
@@ -26,6 +28,6 @@ Fonts are unmodified static upstream Atkinson Hyperlegible Next and IBM Plex Mon
 
 All 30 pages were rendered independently with PDF.js 6.4.299 and a local canvas, then visually inspected through page sheets and representative full-size pages. PDF.js found the heading/section/link structure; the PDF catalog marks the documents as tagged; all six include the original Cyrillic text, a document title, and the expected ten Reference sections. Page furniture and glyphs are Artifacts; their adjacent text carries the meaning.
 
-The review gallery provides rendered pixels from those PDFs, not a separate HTML report imitation. Its controls and the PDF download were checked in a local browser. The mapping is still a design proposal until the owner chooses a layout.
+The review gallery provides rendered pixels from those PDFs, not a separate HTML report imitation. Its controls and the PDF download were checked in a local browser. The owner accepted layout C and the medium mapping.
 
 These checks are not a PDF/UA claim or a screen-reader acceptance. The manual Windows/macOS review, production font/resource qualification, current authority/expiry behavior and other ADR-0017 gates remain implementation work. The simulated snapshot is explicitly fictional. Private transactional email specimens live only in the private repository, on the same branch name.
