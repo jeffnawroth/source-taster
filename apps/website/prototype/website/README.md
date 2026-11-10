@@ -1,6 +1,6 @@
 # Website and documentation design review — #198
 
-Throwaway, public-only snapshot on `prototype/198-website`. **Do not publish or merge the prototype.** The question is which page hierarchy and reading/navigation structure fits the accepted Source Taster identity. Selection is pending.
+Throwaway, public-only snapshot on `prototype/198-website`. **Do not publish or merge the prototype.** The question is which page hierarchy and reading/navigation structure fits the accepted Source Taster identity. The owner accepted A as the main structure with C’s question-led documentation index on 10 November 2026. The default `variant=S` captures this combination: homepage and article layouts from A, documentation index from C. The original alternatives remain available.
 
 Open `prototype-198.html` directly. It needs no server, dependencies or network access. To rebuild from the existing public website content, run from the repository root:
 
@@ -12,11 +12,13 @@ Equivalent dependency-free command: `node apps/website/prototype/website/build.m
 
 ## Compare
 
+- **S · Selected A + C:** accepted combination; default on opening the file.
+
 - **A · Product first:** split homepage with the familiar Check example; documentation has persistent chapters, a wide article and a secondary contents list on desktop. Chapters collapse on a phone.
 - **B · Reading edition:** single-column homepage with the example below the introduction and numbered narrative sections. Documentation centers the article, with a chapter disclosure and inline search.
 - **C · Questions first:** homepage leads through visitor questions; documentation starts as a task portal. Articles retain breadcrumbs, an inline contents list and related guides, with no permanent sidebar.
 
-Shared URL parameters: `variant=A|B|C`, `page=home|index|how-the-check-works|structuring|preferences|errors-and-retry|availability|faq|contact|accessibility|legal-notice|terms|privacy|withdrawal|source-access|cancellation|app-demo`, `lang=de|en`, `theme=light|dark`, `frame=web|360`.
+Shared URL parameters: `variant=S|A|B|C`, `page=home|index|how-the-check-works|structuring|preferences|errors-and-retry|availability|faq|contact|accessibility|legal-notice|terms|privacy|withdrawal|source-access|cancellation|app-demo`, `lang=de|en`, `theme=light|dark`, `frame=web|360`.
 
 The bottom arrows (or Left/Right outside text fields and disclosures) preserve the current page while changing structure. The review controls switch pages, simulate 360 px and expose search loading/failure fixtures. Product navigation, language switching, theme, FAQ disclosures, chapters, article anchors and search results also work. Search opens with the header button or Ctrl/Cmd+K. Escape closes the search dialog and returns focus. B uses inline search within documentation.
 
@@ -42,4 +44,4 @@ All surfaces share the accepted Atkinson Hyperlegible Next / IBM Plex Mono fonts
 
 See `verification.json`. Inspected desktop/phone and light/dark renderings; verified all public pages in DE/EN. Checks cover overflow, target size, content presence, script errors, network requests, search results/empty/loading/failure/retry, language continuity, modal focus/Escape, navigation, FAQ, exact legal text, URL stability, simulated width and the real D handoff. This is prototype evidence, not a production accessibility or release qualification.
 
-The owner still selects the structure. Keep #198 open until that choice is recorded; carry the accepted direction into the later design-system synthesis and implementation work.
+The selection is complete. Record the accepted A + C combination in #198 and #181; carry it into the later design-system synthesis and implementation work. The throwaway prototype remains off main.

@@ -1,8 +1,8 @@
 {
   "issue": 198,
   "date": "2026-11-10",
-  "selection": "pending",
-  "bundleSha256": "457c7be5c6bd747cea5c8fd42403974406e728b27bbd5d98ab22172f58c12ae8",
+  "selection": "accepted: A homepage and article layout, C question-led documentation index; default variant S",
+  "bundleSha256": "de51170c7ac2322a897a035578a1196061883a618048d5b55f6675f3f267b05a",
   "pageMatrix": {
     "variants": [
       "A",
@@ -54,5 +54,12 @@
     "Automated target/overflow/keyboard checks do not establish WCAG conformance",
     "No screen-reader, legal, publication, browser matrix or runtime dependency qualification is claimed",
     "Existing FAQ and opt-in DOI description need release-content reconciliation"
-  ]
+  ],
+  "selectedCombinationChecks": {
+    "pages": 24,
+    "journeys": 8,
+    "errors": [],
+    "requests": [],
+    "status": "passed"
+  }
 }
