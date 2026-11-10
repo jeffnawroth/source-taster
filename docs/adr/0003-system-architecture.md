@@ -121,3 +121,11 @@ Both programs write structured JSON logs, OpenTelemetry traces and metrics. Only
   - [Hosting and operations](https://github.com/jeffnawroth/source-taster/issues/22): physical database placement and correlated-failure boundaries; backup lifetime of content; reconciliation of Quota, payment webhooks and e-mail after a restore; the observability tool; the release checklist in the release process.
   - [Reference test set and release quality gate](https://github.com/jeffnawroth/source-taster/issues/15): the 50-Reference parity set for FA-GLE-03.
 - **Legal review.** The concrete program communication and contract packages remain subject to the review required by FA-UEB-23 (ADR-0001).
+
+## Proposed design-system refinement — ADR-0027
+
+Prepared for joint owner acceptance under #206; this addition is not effective while ADR-0027 remains proposed. The exact wording was agreed in #189.
+
+**Addition to “Contract packages”:** The design-token package is distributed the same way, pinned to the same reviewed commit SHA as the contracts. The service selects the MIT licence branch.
+
+This exception is limited to the value-only package described in [ADR-0027](0027-design-system.md). Private components remain independent; no `@source-taster/ui` or `@source-taster/i18n` implementation crosses repositories. The existing program/API/content and legal-review boundaries remain.

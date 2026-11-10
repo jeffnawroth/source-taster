@@ -141,3 +141,8 @@ Read earlier “belongs to another ticket” and “not yet chosen” passages t
 | ADR-0019 original five mail types | ADR-0021 adds two DPA types; closed launch inventory is seven |
 
 ADRs accepted before 26 October 2026 name requirements v3.3 (or earlier) as their baseline; apart from FA-ERF-03, their wording is unchanged in v3.4. The requirements remain authoritative where a historical phrase is broader than the permitted exception. In particular, “private Account UI” never means general Account functionality may be web-only. No additional substantive client choice is made by resolving these references.
+
+
+## Proposed design-system consolidation
+
+The later visual-system work in [#181](https://github.com/jeffnawroth/source-taster/issues/181) is consolidated for joint owner acceptance in [ADR-0027](adr/0027-design-system.md), the [styleguide](design/styleguide.md) and the [implementation plan](design/implementation-plan.md), tracked by #206. ADR-0027 remains proposed: its explicitly marked token-sharing, bounded Toast and suggestion-to-draft refinements do not take effect merely because this packet exists. The requirements baseline and the original functional/qualification findings above remain unchanged; Theme stays a should, legal review is not passed, and prototypes are not product release evidence. All design implementation slices have native dependencies on #206, with separate code/rights prerequisites.

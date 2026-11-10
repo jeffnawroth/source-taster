@@ -1,0 +1,177 @@
+{
+  "acceptanceGate": {
+    "repo": "jeffnawroth/source-taster",
+    "number": 206,
+    "url": "https://github.com/jeffnawroth/source-taster/issues/206"
+  },
+  "reusedPdf": {
+    "repo": "jeffnawroth/source-taster",
+    "number": 105,
+    "url": "https://github.com/jeffnawroth/source-taster/issues/105"
+  },
+  "issues": [
+    {
+      "key": "LEGAL",
+      "url": "https://github.com/jeffnawroth/source-taster/issues/207",
+      "repository": "jeffnawroth/source-taster",
+      "driver": "human",
+      "blockedBy": [
+        "https://github.com/jeffnawroth/source-taster/issues/206"
+      ]
+    },
+    {
+      "key": "TOKENS",
+      "url": "https://github.com/jeffnawroth/source-taster/issues/208",
+      "repository": "jeffnawroth/source-taster",
+      "driver": "agent",
+      "blockedBy": [
+        "https://github.com/jeffnawroth/source-taster/issues/206"
+      ]
+    },
+    {
+      "key": "PRIMITIVES",
+      "url": "https://github.com/jeffnawroth/source-taster/issues/209",
+      "repository": "jeffnawroth/source-taster",
+      "driver": "agent",
+      "blockedBy": [
+        "https://github.com/jeffnawroth/source-taster/issues/206",
+        "https://github.com/jeffnawroth/source-taster/issues/208"
+      ]
+    },
+    {
+      "key": "COPY",
+      "url": "https://github.com/jeffnawroth/source-taster/issues/210",
+      "repository": "jeffnawroth/source-taster",
+      "driver": "agent",
+      "blockedBy": [
+        "https://github.com/jeffnawroth/source-taster/issues/206"
+      ]
+    },
+    {
+      "key": "WORKSPACE",
+      "url": "https://github.com/jeffnawroth/source-taster/issues/211",
+      "repository": "jeffnawroth/source-taster",
+      "driver": "agent",
+      "blockedBy": [
+        "https://github.com/jeffnawroth/source-taster/issues/206",
+        "https://github.com/jeffnawroth/source-taster/issues/209",
+        "https://github.com/jeffnawroth/source-taster/issues/210"
+      ]
+    },
+    {
+      "key": "DETAIL",
+      "url": "https://github.com/jeffnawroth/source-taster/issues/212",
+      "repository": "jeffnawroth/source-taster",
+      "driver": "agent",
+      "blockedBy": [
+        "https://github.com/jeffnawroth/source-taster/issues/206",
+        "https://github.com/jeffnawroth/source-taster/issues/211"
+      ]
+    },
+    {
+      "key": "WEBSITE",
+      "url": "https://github.com/jeffnawroth/source-taster/issues/213",
+      "repository": "jeffnawroth/source-taster",
+      "driver": "agent",
+      "blockedBy": [
+        "https://github.com/jeffnawroth/source-taster/issues/206",
+        "https://github.com/jeffnawroth/source-taster/issues/209",
+        "https://github.com/jeffnawroth/source-taster/issues/210"
+      ]
+    },
+    {
+      "key": "ASSETS",
+      "url": "https://github.com/jeffnawroth/source-taster/issues/214",
+      "repository": "jeffnawroth/source-taster",
+      "driver": "agent",
+      "blockedBy": [
+        "https://github.com/jeffnawroth/source-taster/issues/206",
+        "https://github.com/jeffnawroth/source-taster/issues/208",
+        "https://github.com/jeffnawroth/source-taster/issues/207"
+      ]
+    },
+    {
+      "key": "STORE",
+      "url": "https://github.com/jeffnawroth/source-taster/issues/215",
+      "repository": "jeffnawroth/source-taster",
+      "driver": "agent",
+      "blockedBy": [
+        "https://github.com/jeffnawroth/source-taster/issues/206",
+        "https://github.com/jeffnawroth/source-taster/issues/212",
+        "https://github.com/jeffnawroth/source-taster/issues/213",
+        "https://github.com/jeffnawroth/source-taster/issues/214"
+      ]
+    },
+    {
+      "key": "AUTO",
+      "url": "https://github.com/jeffnawroth/source-taster/issues/216",
+      "repository": "jeffnawroth/source-taster",
+      "driver": "agent",
+      "blockedBy": [
+        "https://github.com/jeffnawroth/source-taster/issues/206",
+        "https://github.com/jeffnawroth/source-taster/issues/212",
+        "https://github.com/jeffnawroth/source-taster/issues/213",
+        "https://github.com/jeffnawroth/source-taster/issues/214",
+        "https://github.com/jeffnawroth/source-taster-service/issues/29"
+      ]
+    },
+    {
+      "key": "MANUAL",
+      "url": "https://github.com/jeffnawroth/source-taster/issues/217",
+      "repository": "jeffnawroth/source-taster",
+      "driver": "human",
+      "blockedBy": [
+        "https://github.com/jeffnawroth/source-taster/issues/206",
+        "https://github.com/jeffnawroth/source-taster/issues/216",
+        "https://github.com/jeffnawroth/source-taster/issues/105",
+        "https://github.com/jeffnawroth/source-taster-service/issues/30",
+        "https://github.com/jeffnawroth/source-taster-service/issues/31",
+        "https://github.com/jeffnawroth/source-taster-service/issues/32"
+      ]
+    },
+    {
+      "key": "PRIVATE_BASE",
+      "url": "https://github.com/jeffnawroth/source-taster-service/issues/29",
+      "repository": "jeffnawroth/source-taster-service",
+      "driver": "agent",
+      "blockedBy": [
+        "https://github.com/jeffnawroth/source-taster/issues/206",
+        "https://github.com/jeffnawroth/source-taster/issues/208",
+        "https://github.com/jeffnawroth/source-taster/issues/209",
+        "https://github.com/jeffnawroth/source-taster/issues/207"
+      ]
+    },
+    {
+      "key": "PRIVATE_ACCOUNT",
+      "url": "https://github.com/jeffnawroth/source-taster-service/issues/30",
+      "repository": "jeffnawroth/source-taster-service",
+      "driver": "agent",
+      "blockedBy": [
+        "https://github.com/jeffnawroth/source-taster/issues/206",
+        "https://github.com/jeffnawroth/source-taster-service/issues/29",
+        "https://github.com/jeffnawroth/source-taster/issues/211"
+      ]
+    },
+    {
+      "key": "PRIVATE_OPERATOR",
+      "url": "https://github.com/jeffnawroth/source-taster-service/issues/31",
+      "repository": "jeffnawroth/source-taster-service",
+      "driver": "agent",
+      "blockedBy": [
+        "https://github.com/jeffnawroth/source-taster/issues/206",
+        "https://github.com/jeffnawroth/source-taster-service/issues/29"
+      ]
+    },
+    {
+      "key": "PRIVATE_MAIL",
+      "url": "https://github.com/jeffnawroth/source-taster-service/issues/32",
+      "repository": "jeffnawroth/source-taster-service",
+      "driver": "agent",
+      "blockedBy": [
+        "https://github.com/jeffnawroth/source-taster/issues/206",
+        "https://github.com/jeffnawroth/source-taster-service/issues/29",
+        "https://github.com/jeffnawroth/source-taster/issues/210"
+      ]
+    }
+  ]
+}

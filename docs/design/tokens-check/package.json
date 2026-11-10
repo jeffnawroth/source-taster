@@ -1,0 +1,7 @@
+{
+  "name": "tokens-check",
+  "private": true,
+  "type": "module",
+  "description": "Throwaway generator behind docs/design/tokens.md (#193). Seed for the production token generator.",
+  "dependencies": { "culori": "4.0.2" }
+}

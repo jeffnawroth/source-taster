@@ -26,3 +26,13 @@ Publish the open repository after the license/contribution framework and intende
 Before distribution/public operation, prepare the applicable source offer and release-corresponding source/build material, license and attribution records, and exact contract/dependency versions. Coordinate compatible releases without exposing private code or credentials. The architecture/release decisions must specify the mechanics; this ADR grants no exception to applicable source obligations.
 
 The required FA-UEB-23 legal review must assess the actual program communication, imports, shared contracts, UI distribution, third-party rights and CLA wording. Repository/process/HTTP separation alone does not establish legal independence. If the concrete implementation cannot preserve the accepted boundary, return the choice to the client before proceeding. No legal review, library clearance, framework/provider choice or requirements amendment is claimed by this ADR.
+
+## Proposed design-system refinement — ADR-0027
+
+Prepared for joint owner acceptance under #206; this addition is not effective while ADR-0027 remains proposed. The exact wording was agreed in #189. Existing legal/source/CLA gates remain.
+
+**Addition to “Narrow contract exception”:** Project-owned design tokens are also available under `AGPL-3.0-or-later OR MIT`. These are the named colour, type, spacing, shape, elevation and motion values, expressed as CSS custom properties and as constants derived from them. The token package contains no components, no behaviour, no logo, wordmark, glyph or font files, and depends on no AGPL-only package.
+
+**Addition to “UI separation”:** Each program builds its own UI components; they share only the design tokens. The logo and wordmark are brand assets outside every code licence.
+
+See [ADR-0027](0027-design-system.md) for package shape, limited scope, unchanged review gates and fallback C.
