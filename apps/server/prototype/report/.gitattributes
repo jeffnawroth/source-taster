@@ -1,0 +1,3 @@
+# Generated documents are binary; preserve upstream licence files verbatim.
+output/pdf/*.pdf binary
+assets/*-OFL.txt -whitespace

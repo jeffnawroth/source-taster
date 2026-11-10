@@ -1,0 +1,56 @@
+[
+  {
+    "file": "report-A-de.pdf",
+    "pages": 5,
+    "marked": true,
+    "headings": 12,
+    "links": 6,
+    "cyrillic": true,
+    "title": "Prüfbericht - Beispiel-Zwischenstand"
+  },
+  {
+    "file": "report-A-en.pdf",
+    "pages": 5,
+    "marked": true,
+    "headings": 12,
+    "links": 6,
+    "cyrillic": true,
+    "title": "Verification report - sample intermediate snapshot"
+  },
+  {
+    "file": "report-B-de.pdf",
+    "pages": 5,
+    "marked": true,
+    "headings": 12,
+    "links": 6,
+    "cyrillic": true,
+    "title": "Prüfbericht - Beispiel-Zwischenstand"
+  },
+  {
+    "file": "report-B-en.pdf",
+    "pages": 5,
+    "marked": true,
+    "headings": 12,
+    "links": 6,
+    "cyrillic": true,
+    "title": "Verification report - sample intermediate snapshot"
+  },
+  {
+    "file": "report-C-de.pdf",
+    "pages": 5,
+    "marked": true,
+    "headings": 12,
+    "links": 6,
+    "cyrillic": true,
+    "title": "Prüfbericht - Beispiel-Zwischenstand"
+  },
+  {
+    "file": "report-C-en.pdf",
+    "pages": 5,
+    "marked": true,
+    "headings": 12,
+    "links": 6,
+    "cyrillic": true,
+    "title": "Verification report - sample intermediate snapshot"
+  }
+]

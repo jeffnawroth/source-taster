@@ -1,0 +1,41 @@
+{
+  "source": "design/193-tokens, as amended by #195",
+  "backdrops": {
+    "paper-and-mail-surface": "#ffffff",
+    "mail-canvas": "#f5f8fd"
+  },
+  "opaque": {
+    "text": "#0e1626",
+    "text-secondary": "#374053",
+    "text-muted": "#535b6c",
+    "accent": "#2456d3",
+    "on-accent": "#ffffff"
+  },
+  "composited": {
+    "border": {
+      "source": "#1d28421c",
+      "onPaper": "#e6e7ea",
+      "onMailCanvas": "#dde1e8"
+    },
+    "border-strong": {
+      "source": "#1d284230",
+      "onPaper": "#d4d7db",
+      "onMailCanvas": "#ccd1da"
+    },
+    "accent-tint": {
+      "source": "#2456d314",
+      "onPaper": "#eef2fc",
+      "onMailCanvas": "#e5ebfa"
+    },
+    "correction-delete-bg": {
+      "source": "#262e3d0f",
+      "onPaper": "#f2f3f4",
+      "onMailCanvas": "#e9ecf2"
+    },
+    "correction-insert-bg": {
+      "source": "#3567de21",
+      "onPaper": "#e5ebfb",
+      "onMailCanvas": "#dce5f9"
+    }
+  }
+}
