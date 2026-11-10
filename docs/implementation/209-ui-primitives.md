@@ -118,6 +118,22 @@ resolution, then inspects the minified bundled module graph and emitted code for
 client/hydration imports. The five recipes remain pure class-string functions.
 No prototype runtime or new dependency generator enters the token package.
 
+## Fallback-font reflow regression
+
+The first Linux CI run on `f60d8a9` passed 36 of 42 UI scenarios, including 12
+Firefox scenarios, but rejected German 320px reflow in every engine/theme. The
+minimal reproduction was the gallery heading alone with Arial fallback metrics:
+a 288px heading box painted a 306px unbroken word and made the document 322px wide.
+The native macOS fallback had hidden this defect locally.
+
+The gallery heading now wraps long words without clipping or changing the type
+step/container width. The existing language/theme regression cases additionally
+force Arial and compare document scroll width with **clientWidth**, so classic
+scrollbars and fallback metrics cannot be masked by `innerWidth`. The regression
+was run red before the CSS correction and green afterward; the original full and
+heading-only reproductions both return 320px document width after the fix. The
+full Chromium/WebKit suite and workspace gates are rerun on the correction.
+
 ## CI and remaining qualification
 
 CI verifies the static contract, builds the real examples and runs all **42 UI
