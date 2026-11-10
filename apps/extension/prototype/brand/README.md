@@ -1,8 +1,8 @@
 # Brand assets — #199
 
-**Throwaway design exploration. Selection pending. Never submit the prototype screenshots to a store or merge this implementation into production.** Branch: `prototype/199-brand-assets`.
+**Accepted design direction, 10 November 2026: A for store imagery/promo tiles, B for social link previews, and the shared icon family. Never submit the prototype screenshots to a store or merge this throwaway implementation into production.** Branch: `prototype/199-brand-assets`.
 
-Question: how does the accepted two-drop quotation mark work at small sizes, in browser chrome, in store imagery and in social previews? The identity is fixed; three image compositions are compared within it.
+Question: how does the accepted two-drop quotation mark work at small sizes, in browser chrome, in store imagery and in social previews? The identity is fixed. The gallery defaults to the accepted combination by format, while preserving all three original compositions for comparison. Its selection button restores the accepted combination after exploring alternatives.
 
 Open `prototype-199.html` directly. It is self-contained, with local fonts/images embedded and no server or network dependency. The gallery has Images, Icons and Export set sections, DE/EN, light/dark, format and story controls. Bottom arrows and Left/Right switch compositions while retaining the other review choices. Selects and editable fields keep their native arrow-key behavior. Review state is carried in the URL; no cookies or browser storage are used.
 
@@ -14,7 +14,7 @@ Open `prototype-199.html` directly. It is self-contained, with local fonts/image
 
 The three-story set is workspace → overview → evidence. The images are actual captures of accepted #194 D with fixture data, not newly drawn product screens. The document illustration is labelled synthetic. All rendered compositions carry a design-preview notice. DE uses the accepted Sie/neutral-copy voice; EN uses sentence case. There is no price, quality metric, certification, customer logo or live-service claim.
 
-Parameters: `variant=A|B|C`, `lang=de|en`, `theme=light|dark`, `tab=images|icons|inventory`, `kind=screenshot|amo|promo|marquee|social`, `slide=0|1|2`.
+Parameters: `variant=A|B|C`, `lang=de|en`, `theme=light|dark`, `tab=images|icons|inventory`, `kind=screenshot|amo|promo|marquee|social`, `slide=0|1|2`, `selection=accepted|compare`. Without an explicit comparison variant, the accepted combination is selected by default.
 
 ## Captured files
 
@@ -47,4 +47,4 @@ The maskable export is opaque. The essential mark occupies a centered square of 
 
 The chosen mark retains its own gradient and highlights as brand artwork. Product UI and composition backgrounds stay neutral, without decorative fields or glows. This branch does not change the public/private license boundary, production manifest generator, website head, app behavior or legal publication gates. Brand artwork remains outside the code-package license decision; font licenses and provenance accompany the embedded files.
 
-Once the owner chooses the image direction and icon applications, record the decision in #199 and #181. Carry the sizes, source masters, capture/copy policy and unresolved live-store checks into the final design-system synthesis and implementation issues. Replace every demo capture with a truthful capture of the current qualified product before publication, removing the design-preview label only then.
+The owner selected the direction and icon applications. Record the accepted A-store/B-social combination in #199 and #181. Carry the sizes, source masters, capture/copy policy and unresolved live-store checks into the final design-system synthesis and implementation issues. Replace every demo capture with a truthful capture of the current qualified product before publication, removing the design-preview label only then.

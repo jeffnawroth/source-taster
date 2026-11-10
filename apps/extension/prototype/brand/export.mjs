@@ -48,7 +48,7 @@ for(const job of imageJobs){
   await page.screenshot({path:new URL(file,root).pathname});artifacts.push({file,...job});
 }
 await browser.close();
-await writeFile(new URL('exports/manifest.json',root),JSON.stringify({issue:199,status:'Design candidates only; selection pending. Never upload these prototype captures as release evidence.',artifacts},null,2)+'\n');
+await writeFile(new URL('exports/manifest.json',root),JSON.stringify({issue:199,status:'Accepted design direction: A for store imagery/promo, B for social previews, shared icon family. Never upload these prototype captures as release evidence.',selection:{store:'A',social:'B',icons:'shared',date:'2026-11-10'},artifacts:artifacts.map(a=>({...a,selected:a.group?true:a.v?(a.kind==='social'?a.v==='B':a.v==='A'):true,...(a.group?.includes('optional')?{optional:true}:{})}))},null,2)+'\n');
 await writeFile(new URL('export-checks.json',root),JSON.stringify({errors,network,layout,icons:jobs.length,compositions:imageJobs.length,icoEntries:[16,32,48]},null,2)+'\n');
 if(errors.length||network.length||layout.length)throw new Error('Inspect export-checks.json');
 console.log(`Exported ${jobs.length} PNG icons, an ICO, and ${imageJobs.length} opaque composition PNGs.`);

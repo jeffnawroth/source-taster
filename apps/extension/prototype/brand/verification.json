@@ -1,8 +1,8 @@
 {
   "issue": 199,
   "date": "2026-11-10",
-  "selection": "pending",
-  "bundleSha256": "ff506120f85ce2ff3df41440b1621e615597c4b584f86112fa0438ad2c1f2311",
+  "selection": "accepted: A store imagery/promo, B social previews, shared icon family; 2026-11-10",
+  "bundleSha256": "80337905037e8d31b087ede51eae02f21883301b9fb2885dc2ad3b8ddbc20b9b",
   "gallery": {
     "combinations": 128,
     "interactionGroups": 8,
@@ -57,5 +57,11 @@
     "AMO conditional 4:3 upload rules have unverified deployment/feature-flag state",
     "Current X Card image guidance unverified",
     "No production publication, accessibility or legal qualification claimed"
-  ]
+  ],
+  "acceptedSelectionChecks": {
+    "combinations": 8,
+    "actionsPerCombination": 6,
+    "errors": [],
+    "status": "passed"
+  }
 }

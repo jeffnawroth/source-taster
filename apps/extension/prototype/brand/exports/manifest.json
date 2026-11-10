@@ -1,6 +1,6 @@
 {
   "issue": 199,
-  "status": "Design candidates only; selection pending. Never upload these prototype captures as release evidence.",
+  "status": "Accepted design direction: A for store imagery/promo, B for social previews, shared icon family. Never upload these prototype captures as release evidence.",
   "artifacts": [
     {
       "file": "exports/favicon-16.png",
@@ -15,7 +15,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/favicon-32.png",
@@ -30,7 +31,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/favicon-48.png",
@@ -45,7 +47,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/favicon-96.png",
@@ -60,7 +63,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/apple-touch-icon.png",
@@ -75,7 +79,8 @@
       ],
       "minAlpha": 255,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/web-app-any-192.png",
@@ -90,7 +95,9 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true,
+      "optional": true
     },
     {
       "file": "exports/web-app-maskable-192.png",
@@ -105,7 +112,9 @@
       ],
       "minAlpha": 255,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true,
+      "optional": true
     },
     {
       "file": "exports/web-app-any-512.png",
@@ -120,7 +129,9 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true,
+      "optional": true
     },
     {
       "file": "exports/web-app-maskable-512.png",
@@ -135,7 +146,9 @@
       ],
       "minAlpha": 255,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true,
+      "optional": true
     },
     {
       "file": "exports/extension-16.png",
@@ -150,7 +163,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/extension-24.png",
@@ -165,7 +179,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/extension-32.png",
@@ -180,7 +195,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/extension-48.png",
@@ -195,7 +211,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/extension-64.png",
@@ -210,7 +227,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/extension-96.png",
@@ -225,7 +243,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/extension-128.png",
@@ -240,7 +259,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/toolbar-default-16.png",
@@ -255,7 +275,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/toolbar-on-light-16.png",
@@ -270,7 +291,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/toolbar-on-dark-16.png",
@@ -285,7 +307,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/toolbar-default-24.png",
@@ -300,7 +323,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/toolbar-on-light-24.png",
@@ -315,7 +339,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/toolbar-on-dark-24.png",
@@ -330,7 +355,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/toolbar-default-32.png",
@@ -345,7 +371,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/toolbar-on-light-32.png",
@@ -360,7 +387,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/toolbar-on-dark-32.png",
@@ -375,7 +403,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/toolbar-default-48.png",
@@ -390,7 +419,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/toolbar-on-light-48.png",
@@ -405,7 +435,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/toolbar-on-dark-48.png",
@@ -420,7 +451,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/toolbar-default-64.png",
@@ -435,7 +467,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/toolbar-on-light-64.png",
@@ -450,7 +483,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/toolbar-on-dark-64.png",
@@ -465,7 +499,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/store-cws-128.png",
@@ -480,7 +515,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/store-amo-128.png",
@@ -495,7 +531,8 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true
     },
     {
       "file": "exports/store-edge-300.png",
@@ -510,7 +547,9 @@
       ],
       "minAlpha": 0,
       "maxAlpha": 255,
-      "essentialOutsideSafeCircle": 0
+      "essentialOutsideSafeCircle": 0,
+      "selected": true,
+      "optional": true
     },
     {
       "file": "exports/favicon.ico",
@@ -519,7 +558,8 @@
         32,
         48
       ],
-      "format": "ICO with PNG entries"
+      "format": "ICO with PNG entries",
+      "selected": true
     },
     {
       "file": "exports/A-de-light-screenshot-1.png",
@@ -529,7 +569,8 @@
       "slide": 0,
       "theme": "light",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": true
     },
     {
       "file": "exports/A-de-light-screenshot-2.png",
@@ -539,7 +580,8 @@
       "slide": 1,
       "theme": "light",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": true
     },
     {
       "file": "exports/A-de-light-screenshot-3.png",
@@ -549,7 +591,8 @@
       "slide": 2,
       "theme": "light",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": true
     },
     {
       "file": "exports/A-de-light-amo-1.png",
@@ -559,7 +602,8 @@
       "slide": 0,
       "theme": "light",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": true
     },
     {
       "file": "exports/A-de-light-amo-2.png",
@@ -569,7 +613,8 @@
       "slide": 1,
       "theme": "light",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": true
     },
     {
       "file": "exports/A-de-light-amo-3.png",
@@ -579,7 +624,8 @@
       "slide": 2,
       "theme": "light",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": true
     },
     {
       "file": "exports/A-en-light-screenshot-1.png",
@@ -589,7 +635,8 @@
       "slide": 0,
       "theme": "light",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": true
     },
     {
       "file": "exports/A-en-light-screenshot-2.png",
@@ -599,7 +646,8 @@
       "slide": 1,
       "theme": "light",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": true
     },
     {
       "file": "exports/A-en-light-screenshot-3.png",
@@ -609,7 +657,8 @@
       "slide": 2,
       "theme": "light",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": true
     },
     {
       "file": "exports/A-en-light-amo-1.png",
@@ -619,7 +668,8 @@
       "slide": 0,
       "theme": "light",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": true
     },
     {
       "file": "exports/A-en-light-amo-2.png",
@@ -629,7 +679,8 @@
       "slide": 1,
       "theme": "light",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": true
     },
     {
       "file": "exports/A-en-light-amo-3.png",
@@ -639,7 +690,8 @@
       "slide": 2,
       "theme": "light",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": true
     },
     {
       "file": "exports/A-de-dark-screenshot-2.png",
@@ -649,7 +701,8 @@
       "slide": 1,
       "theme": "dark",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": true
     },
     {
       "file": "exports/A-de-dark-amo-2.png",
@@ -659,7 +712,8 @@
       "slide": 1,
       "theme": "dark",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": true
     },
     {
       "file": "exports/A-en-dark-screenshot-2.png",
@@ -669,7 +723,8 @@
       "slide": 1,
       "theme": "dark",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": true
     },
     {
       "file": "exports/A-en-dark-amo-2.png",
@@ -679,7 +734,8 @@
       "slide": 1,
       "theme": "dark",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": true
     },
     {
       "file": "exports/A-de-light-social-3.png",
@@ -689,7 +745,8 @@
       "slide": 2,
       "theme": "light",
       "width": 1200,
-      "height": 630
+      "height": 630,
+      "selected": false
     },
     {
       "file": "exports/A-de-dark-social-3.png",
@@ -699,7 +756,8 @@
       "slide": 2,
       "theme": "dark",
       "width": 1200,
-      "height": 630
+      "height": 630,
+      "selected": false
     },
     {
       "file": "exports/A-en-light-social-3.png",
@@ -709,7 +767,8 @@
       "slide": 2,
       "theme": "light",
       "width": 1200,
-      "height": 630
+      "height": 630,
+      "selected": false
     },
     {
       "file": "exports/A-en-dark-social-3.png",
@@ -719,7 +778,8 @@
       "slide": 2,
       "theme": "dark",
       "width": 1200,
-      "height": 630
+      "height": 630,
+      "selected": false
     },
     {
       "file": "exports/A-en-light-promo-3.png",
@@ -729,7 +789,8 @@
       "slide": 2,
       "theme": "light",
       "width": 440,
-      "height": 280
+      "height": 280,
+      "selected": true
     },
     {
       "file": "exports/A-en-light-marquee-3.png",
@@ -739,7 +800,8 @@
       "slide": 2,
       "theme": "light",
       "width": 1400,
-      "height": 560
+      "height": 560,
+      "selected": true
     },
     {
       "file": "exports/B-de-light-screenshot-1.png",
@@ -749,7 +811,8 @@
       "slide": 0,
       "theme": "light",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": false
     },
     {
       "file": "exports/B-de-light-screenshot-2.png",
@@ -759,7 +822,8 @@
       "slide": 1,
       "theme": "light",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": false
     },
     {
       "file": "exports/B-de-light-screenshot-3.png",
@@ -769,7 +833,8 @@
       "slide": 2,
       "theme": "light",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": false
     },
     {
       "file": "exports/B-de-light-amo-1.png",
@@ -779,7 +844,8 @@
       "slide": 0,
       "theme": "light",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": false
     },
     {
       "file": "exports/B-de-light-amo-2.png",
@@ -789,7 +855,8 @@
       "slide": 1,
       "theme": "light",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": false
     },
     {
       "file": "exports/B-de-light-amo-3.png",
@@ -799,7 +866,8 @@
       "slide": 2,
       "theme": "light",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": false
     },
     {
       "file": "exports/B-en-light-screenshot-1.png",
@@ -809,7 +877,8 @@
       "slide": 0,
       "theme": "light",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": false
     },
     {
       "file": "exports/B-en-light-screenshot-2.png",
@@ -819,7 +888,8 @@
       "slide": 1,
       "theme": "light",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": false
     },
     {
       "file": "exports/B-en-light-screenshot-3.png",
@@ -829,7 +899,8 @@
       "slide": 2,
       "theme": "light",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": false
     },
     {
       "file": "exports/B-en-light-amo-1.png",
@@ -839,7 +910,8 @@
       "slide": 0,
       "theme": "light",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": false
     },
     {
       "file": "exports/B-en-light-amo-2.png",
@@ -849,7 +921,8 @@
       "slide": 1,
       "theme": "light",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": false
     },
     {
       "file": "exports/B-en-light-amo-3.png",
@@ -859,7 +932,8 @@
       "slide": 2,
       "theme": "light",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": false
     },
     {
       "file": "exports/B-de-dark-screenshot-2.png",
@@ -869,7 +943,8 @@
       "slide": 1,
       "theme": "dark",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": false
     },
     {
       "file": "exports/B-de-dark-amo-2.png",
@@ -879,7 +954,8 @@
       "slide": 1,
       "theme": "dark",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": false
     },
     {
       "file": "exports/B-en-dark-screenshot-2.png",
@@ -889,7 +965,8 @@
       "slide": 1,
       "theme": "dark",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": false
     },
     {
       "file": "exports/B-en-dark-amo-2.png",
@@ -899,7 +976,8 @@
       "slide": 1,
       "theme": "dark",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": false
     },
     {
       "file": "exports/B-de-light-social-3.png",
@@ -909,7 +987,8 @@
       "slide": 2,
       "theme": "light",
       "width": 1200,
-      "height": 630
+      "height": 630,
+      "selected": true
     },
     {
       "file": "exports/B-de-dark-social-3.png",
@@ -919,7 +998,8 @@
       "slide": 2,
       "theme": "dark",
       "width": 1200,
-      "height": 630
+      "height": 630,
+      "selected": true
     },
     {
       "file": "exports/B-en-light-social-3.png",
@@ -929,7 +1009,8 @@
       "slide": 2,
       "theme": "light",
       "width": 1200,
-      "height": 630
+      "height": 630,
+      "selected": true
     },
     {
       "file": "exports/B-en-dark-social-3.png",
@@ -939,7 +1020,8 @@
       "slide": 2,
       "theme": "dark",
       "width": 1200,
-      "height": 630
+      "height": 630,
+      "selected": true
     },
     {
       "file": "exports/B-en-light-promo-3.png",
@@ -949,7 +1031,8 @@
       "slide": 2,
       "theme": "light",
       "width": 440,
-      "height": 280
+      "height": 280,
+      "selected": false
     },
     {
       "file": "exports/B-en-light-marquee-3.png",
@@ -959,7 +1042,8 @@
       "slide": 2,
       "theme": "light",
       "width": 1400,
-      "height": 560
+      "height": 560,
+      "selected": false
     },
     {
       "file": "exports/C-de-light-screenshot-1.png",
@@ -969,7 +1053,8 @@
       "slide": 0,
       "theme": "light",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": false
     },
     {
       "file": "exports/C-de-light-screenshot-2.png",
@@ -979,7 +1064,8 @@
       "slide": 1,
       "theme": "light",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": false
     },
     {
       "file": "exports/C-de-light-screenshot-3.png",
@@ -989,7 +1075,8 @@
       "slide": 2,
       "theme": "light",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": false
     },
     {
       "file": "exports/C-de-light-amo-1.png",
@@ -999,7 +1086,8 @@
       "slide": 0,
       "theme": "light",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": false
     },
     {
       "file": "exports/C-de-light-amo-2.png",
@@ -1009,7 +1097,8 @@
       "slide": 1,
       "theme": "light",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": false
     },
     {
       "file": "exports/C-de-light-amo-3.png",
@@ -1019,7 +1108,8 @@
       "slide": 2,
       "theme": "light",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": false
     },
     {
       "file": "exports/C-en-light-screenshot-1.png",
@@ -1029,7 +1119,8 @@
       "slide": 0,
       "theme": "light",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": false
     },
     {
       "file": "exports/C-en-light-screenshot-2.png",
@@ -1039,7 +1130,8 @@
       "slide": 1,
       "theme": "light",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": false
     },
     {
       "file": "exports/C-en-light-screenshot-3.png",
@@ -1049,7 +1141,8 @@
       "slide": 2,
       "theme": "light",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": false
     },
     {
       "file": "exports/C-en-light-amo-1.png",
@@ -1059,7 +1152,8 @@
       "slide": 0,
       "theme": "light",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": false
     },
     {
       "file": "exports/C-en-light-amo-2.png",
@@ -1069,7 +1163,8 @@
       "slide": 1,
       "theme": "light",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": false
     },
     {
       "file": "exports/C-en-light-amo-3.png",
@@ -1079,7 +1174,8 @@
       "slide": 2,
       "theme": "light",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": false
     },
     {
       "file": "exports/C-de-dark-screenshot-2.png",
@@ -1089,7 +1185,8 @@
       "slide": 1,
       "theme": "dark",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": false
     },
     {
       "file": "exports/C-de-dark-amo-2.png",
@@ -1099,7 +1196,8 @@
       "slide": 1,
       "theme": "dark",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": false
     },
     {
       "file": "exports/C-en-dark-screenshot-2.png",
@@ -1109,7 +1207,8 @@
       "slide": 1,
       "theme": "dark",
       "width": 1280,
-      "height": 800
+      "height": 800,
+      "selected": false
     },
     {
       "file": "exports/C-en-dark-amo-2.png",
@@ -1119,7 +1218,8 @@
       "slide": 1,
       "theme": "dark",
       "width": 1280,
-      "height": 960
+      "height": 960,
+      "selected": false
     },
     {
       "file": "exports/C-de-light-social-3.png",
@@ -1129,7 +1229,8 @@
       "slide": 2,
       "theme": "light",
       "width": 1200,
-      "height": 630
+      "height": 630,
+      "selected": false
     },
     {
       "file": "exports/C-de-dark-social-3.png",
@@ -1139,7 +1240,8 @@
       "slide": 2,
       "theme": "dark",
       "width": 1200,
-      "height": 630
+      "height": 630,
+      "selected": false
     },
     {
       "file": "exports/C-en-light-social-3.png",
@@ -1149,7 +1251,8 @@
       "slide": 2,
       "theme": "light",
       "width": 1200,
-      "height": 630
+      "height": 630,
+      "selected": false
     },
     {
       "file": "exports/C-en-dark-social-3.png",
@@ -1159,7 +1262,8 @@
       "slide": 2,
       "theme": "dark",
       "width": 1200,
-      "height": 630
+      "height": 630,
+      "selected": false
     },
     {
       "file": "exports/C-en-light-promo-3.png",
@@ -1169,7 +1273,8 @@
       "slide": 2,
       "theme": "light",
       "width": 440,
-      "height": 280
+      "height": 280,
+      "selected": false
     },
     {
       "file": "exports/C-en-light-marquee-3.png",
@@ -1179,7 +1284,14 @@
       "slide": 2,
       "theme": "light",
       "width": 1400,
-      "height": 560
+      "height": 560,
+      "selected": false
     }
-  ]
+  ],
+  "selection": {
+    "store": "A",
+    "social": "B",
+    "icons": "shared",
+    "date": "2026-11-10"
+  }
 }

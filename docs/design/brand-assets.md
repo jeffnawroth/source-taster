@@ -1,6 +1,8 @@
-# Brand asset exploration
+# Brand assets
 
-Selection pending for #199, part of design-system map #181. Source: branch `prototype/199-brand-assets`, `apps/extension/prototype/brand/prototype-199.html`. This records review candidates, not production publication approval.
+**Accepted by the owner on 10 November 2026** for #199, part of design-system map #181: **A (Product window) for the store series and promo tiles, B (Margin note, typographic treatment) for social link previews, plus the shared icon family.** Source: branch `prototype/199-brand-assets`, `apps/extension/prototype/brand/prototype-199.html`. This accepts the visual direction; existing production publication gates remain unchanged.
+
+A gives the product enough room and a clear three-image reading order. B keeps link previews legible at small display sizes without relying on a miniature interface. The gallery opens in the accepted combination and switches between A/B by format; original A/B/C alternatives remain available through the comparison arrows. The export manifest identifies selected artifacts without discarding the exploration evidence.
 
 ## Shared icon family
 
@@ -12,7 +14,7 @@ Generate separate website, browser-package, toolbar and store files. Favicon can
 
 Package icons cover 16/24/32/48/64/96/128 PNG; toolbar color/on-light/on-dark cuts cover 16/24/32/48/64. The CWS 128 icon uses 96 px painted artwork plus 16 px transparent margins, separately from toolbar optical sizing. AMO has a 128 candidate with a chosen 8 px inset; optional Edge has 300. These are chosen export sets, not a claim that every size is required by every platform. Native toolbar selection and actual packaging remain implementation work.
 
-## Three compositions within one identity
+## Captured compositions within one identity
 
 | Candidate | Store series | Social preview |
 | --- | --- | --- |
@@ -30,4 +32,4 @@ All composition exports retain a design-preview label. A store must show the act
 
 AMO's older guide and current conditional server rules differ; deployment/feature-flag state remains unverified, so 4:3 is a prepared candidate. Meta recommends 1200×630, while Open Graph itself prescribes no size. Current X Card guidance was not verified. The existing accessibility, content and legal release gates remain in force; raster alt descriptions and storefront descriptions need production review.
 
-Once selected, capture the owner's chosen combination and rationale in #199 and #181. Carry source masters, optical rules, manifest mappings, export dimensions, copy/capture policy and the unresolved live-store checks into the final design-system ADR/styleguide and implementation issues. Keep prototype code off main and preserve the separate brand-artwork licensing scope from #189.
+Carry this accepted combination, source masters, optical rules, manifest mappings, export dimensions, copy/capture policy and the unresolved live-store checks into the final design-system ADR/styleguide and implementation issues. Keep prototype code off main and preserve the separate brand-artwork licensing scope from #189.
