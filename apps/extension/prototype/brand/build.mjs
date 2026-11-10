@@ -27,7 +27,7 @@ const mark=symbol('mark'),small=symbol('mark-sm'),mono=symbol('mark-mono');
 const svg=(content,size=32)=>`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 32 32"><defs>${defs}</defs>${content}</svg>`;
 const tile=(size)=>svg(size<=32?small:mark,size);
 const monochrome=(size,color)=>svg(`<g fill="${color}" color="${color}">${size<=32?mono.replace('stroke-width="1.55"','stroke-width="2"'):mono}</g>`,size);
-const cropSquare=mark.replaceAll(/<rect\b[^>]*\/>/g,'');
+const cropSquare=mark.replaceAll(/<rect\b[^>]*\/>/g,'').replaceAll(/^[ \t]+$/gm,'');
 const touch=svg(`<rect width="32" height="32" fill="url(#mk-g)"/>${cropSquare}`,180);
 const maskable=size=>svg(`<rect width="32" height="32" fill="#2456d3"/><g transform="translate(16 16) scale(.55) translate(-16 -16)" color="#fff">${mono}</g>`,size);
 const padded=(size,inset)=>svg(`<g transform="translate(${32*inset/size} ${32*inset/size}) scale(${(size-2*inset)/size*32/31}) translate(-.5 -.5)">${mark}</g>`,size);

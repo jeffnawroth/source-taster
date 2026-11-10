@@ -41,7 +41,6 @@ function artMarkup(data,{v='A',lang='de',theme='light',kind='screenshot',slide=0
   }
   return `<div class="art ${v} ${theme==='dark'?'dark':''} ${kind==='social'?'social':''} ${kind==='promo'||kind==='marquee'?'promo':''} ${kind==='marquee'?'marquee':''}" data-slide="${slide}" style="--w:${width}px;--h:${height}px">${body}</div>`;
 }
-
 </script><script>/* THROWAWAY #199. In-memory comparison; URL carries review choices only. */
 const params=new URLSearchParams(location.search);
 const s={v:['A','B','C'].includes(params.get('variant'))?params.get('variant'):'A',lang:params.get('lang')==='en'?'en':'de',theme:params.get('theme')==='dark'?'dark':'light',kind:['screenshot','amo','promo','marquee','social'].includes(params.get('kind'))?params.get('kind'):'screenshot',slide:[0,1,2].includes(Number(params.get('slide')))?Number(params.get('slide')):0,tab:['images','icons','inventory'].includes(params.get('tab'))?params.get('tab'):'images'};

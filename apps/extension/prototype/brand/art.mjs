@@ -38,4 +38,3 @@ export function artMarkup(data,{v='A',lang='de',theme='light',kind='screenshot',
   }
   return `<div class="art ${v} ${theme==='dark'?'dark':''} ${kind==='social'?'social':''} ${kind==='promo'||kind==='marquee'?'promo':''} ${kind==='marquee'?'marquee':''}" data-slide="${slide}" style="--w:${width}px;--h:${height}px">${body}</div>`;
 }
-
