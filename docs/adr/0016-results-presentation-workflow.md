@@ -113,8 +113,8 @@ Before launch demonstrate both clients against the same API and shared workflow,
 - Treating Use for export as a stored field correction or silently restarting a paid Check on reconnect/retry.
 - Hiding required Check capabilities in the narrow extension layout, persistent browser content caches, or reset deleting History.
 
-## Proposed suggestion-to-draft refinement — ADR-0027
+## Accepted suggestion-to-draft refinement — ADR-0027
 
-Prepared for explicit owner acceptance under #206; the existing edit/copy/export workflow above remains the baseline while ADR-0027 is proposed.
+Accepted by the owner on 10 November 2026 in [#206](https://github.com/jeffnawroth/source-taster/issues/206#issuecomment-6770556807). This convenience extends the edit/copy/export workflow above without changing its lifecycle or authority.
 
 Add “Apply to fields” as a convenience that copies eligible proven structured suggestion values into a draft bound to the current result/revision. It does not save fields, overwrite immutable input, start a request, charge Quota or establish a new verified result. Do not parse formatted suggestion text, silently replace an existing dirty draft or apply stale/unavailable values. Discard leaves committed fields/results unchanged. Only explicit “Save and re-check” commits the user-provenance revision and requests the same slot through existing APIs. Copy and transient “Use for export” remain separate. Existing one-debit-per-slot, authority, provenance, result/override reset and retention rules are unchanged. See [ADR-0027](0027-design-system.md).

@@ -27,9 +27,9 @@ Before distribution/public operation, prepare the applicable source offer and re
 
 The required FA-UEB-23 legal review must assess the actual program communication, imports, shared contracts, UI distribution, third-party rights and CLA wording. Repository/process/HTTP separation alone does not establish legal independence. If the concrete implementation cannot preserve the accepted boundary, return the choice to the client before proceeding. No legal review, library clearance, framework/provider choice or requirements amendment is claimed by this ADR.
 
-## Proposed design-system refinement — ADR-0027
+## Accepted design-system refinement — ADR-0027
 
-Prepared for joint owner acceptance under #206; this addition is not effective while ADR-0027 remains proposed. The exact wording was agreed in #189. Existing legal/source/CLA gates remain.
+Accepted by the owner on 10 November 2026 in [#206](https://github.com/jeffnawroth/source-taster/issues/206#issuecomment-6770556807). This addition is effective as the narrow refinement specified in ADR-0027. The exact wording was agreed in #189. Existing legal/source/CLA gates remain.
 
 **Addition to “Narrow contract exception”:** Project-owned design tokens are also available under `AGPL-3.0-or-later OR MIT`. These are the named colour, type, spacing, shape, elevation and motion values, expressed as CSS custom properties and as constants derived from them. The token package contains no components, no behaviour, no logo, wordmark, glyph or font files, and depends on no AGPL-only package.
 

@@ -1,6 +1,6 @@
 # Design decisions and primary sources
 
-Collected for #206 on 10 November 2026. Closed design tickets record the owner's choices; their prototypes and check seeds are primary evidence, not implemented behaviour or production acceptance. The consolidated public specifications live beside this file. Full private specifications remain in `source-taster-service`.
+Collected for #206 on 10 November 2026. Accepted by the owner on 10 November 2026 in [#206](https://github.com/jeffnawroth/source-taster/issues/206#issuecomment-6770556807). Closed design tickets record the owner's choices; their prototypes and check seeds are primary evidence, not implemented behaviour or production acceptance. The consolidated public specifications live beside this file. Full private specifications remain in `source-taster-service`.
 
 ## Decision coverage
 
@@ -19,7 +19,7 @@ Collected for #206 on 10 November 2026. Closed design tickets record the owner's
 | [#192 — voice](https://github.com/jeffnawroth/source-taster/issues/192) | Sie/Befund/Prüfpaket, sentence-case English, voice by surface; no factual drift |
 | [#193 — tokens](https://github.com/jeffnawroth/source-taster/issues/193) | Semantic role interface, sRGB gamut/contrast gate, type/shape/motion values |
 | [#194 — checking structure](https://github.com/jeffnawroth/source-taster/issues/194) | D feed + sticky strip, web push detail / narrow full view |
-| [#195 — components](https://github.com/jeffnawroth/source-taster/issues/195) | Layer/ownership rules, neutral evidence, compact strip, bounded Toast exception; correction convenience explicitly pending |
+| [#195 — components](https://github.com/jeffnawroth/source-taster/issues/195) | Layer/ownership rules, neutral evidence, compact strip, bounded Toast exception; correction convenience originally pending, now accepted in ADR-0027 |
 | [#196 — private surfaces](https://github.com/jeffnawroth/source-taster/issues/196) | KA + KC Plan/Quota; OC Operator; one-product continuity |
 | [#197 — media](https://github.com/jeffnawroth/source-taster/issues/197) | Email A / PDF C; opaque sRGB and medium-specific semantics |
 | [#198 — website](https://github.com/jeffnawroth/source-taster/issues/198) | A with C docs index; A article navigation |

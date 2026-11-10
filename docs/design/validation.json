@@ -1,12 +1,12 @@
 {
   "task": 206,
-  "status": "Proposed joint acceptance packet; production redesign not started.",
+  "status": "Accepted by the owner on 10 November 2026; production redesign not started.",
   "sourceDate": "2026-11-10",
   "documents": {
     "markdownFiles": 22,
     "localLinks": 90,
     "missingLocalLinks": [],
-    "proposedStatus": "verified",
+    "acceptedStatus": "verified",
     "sourcePrecedence": "verified",
     "publicPrivateDocuments": "separate",
     "pinnedInputRefs": "verified",
@@ -33,9 +33,14 @@
     "reproducibleGateComparison": "passed"
   },
   "notClaimed": [
-    "final ADR acceptance",
     "FA-UEB-23 review",
     "production implementation, browser/accessibility/medium qualification or publication"
   ],
-  "publicPrivateBoundary": "Full private surface/email specifications and implementation handoff remain in the private repository."
+  "publicPrivateBoundary": "Full private surface/email specifications and implementation handoff remain in the private repository.",
+  "acceptance": {
+    "date": "2026-11-10",
+    "resolution": "https://github.com/jeffnawroth/source-taster/issues/206#issuecomment-6770556807",
+    "adr": "0027",
+    "status": "accepted"
+  }
 }

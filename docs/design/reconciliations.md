@@ -1,13 +1,13 @@
 # Design-source reconciliation
 
-Prepared for #206 / proposed ADR-0027. This makes source precedence explicit rather than silently treating prototype behaviour as accepted product policy.
+Accepted by the owner on 10 November 2026 in [#206](https://github.com/jeffnawroth/source-taster/issues/206#issuecomment-6770556807). Consolidated under accepted ADR-0027. This makes source precedence explicit rather than silently treating prototype behaviour as accepted product policy.
 
 | Source mismatch or open point | Consolidated treatment | Status |
 | --- | --- | --- |
-| #189 token-only distribution widens ADR-0001/0003's transport-only exception | Exact agreed amendment is included in the ADR packet; only values/CSS/constants cross, no components/behaviour/brands/fonts; legal questions remain separate | Joint ADR acceptance pending; FA-UEB-23 is not passed |
-| #195 uses unstable RAC Toast exports on an otherwise stable foundation | One exact-pinned wrapper owns only the two named unstable exports, with upgrade tests and an exit at stable exports | Bounded exception included for joint acceptance |
-| #195 CorrectionActions is explicitly pending client; ADR-0016 currently offers edit/copy/export separately | Apply proven values to a revision-bound draft; explicit Save and re-check alone commits/runs; never overwrite input or infer values from formatted text | Explicit convenience refinement included for joint acceptance |
-| #195 calls tracked changes neutral, but #193 seed still has cobalt insertion values | Keep role names, use the existing neutral deletion background/line values, regenerate values and gate the actual alpha composite | Proposed presentational reconciliation; 158 pairs pass |
+| #189 token-only distribution widens ADR-0001/0003's transport-only exception | Exact agreed amendment is included in the ADR packet; only values/CSS/constants cross, no components/behaviour/brands/fonts; legal questions remain separate | Joint ADR accepted; FA-UEB-23 is not passed |
+| #195 uses unstable RAC Toast exports on an otherwise stable foundation | One exact-pinned wrapper owns only the two named unstable exports, with upgrade tests and an exit at stable exports | Bounded exception accepted in ADR-0027 |
+| #195 left CorrectionActions pending client; the original ADR-0016 offered edit/copy/export separately | Apply proven values to a revision-bound draft; explicit Save and re-check alone commits/runs; never overwrite input or infer values from formatted text | Explicit convenience refinement accepted in ADR-0027 |
+| #195 calls tracked changes neutral, but #193 seed still has cobalt insertion values | Keep role names, use the existing neutral deletion background/line values, regenerate values and gate the actual alpha composite | Accepted presentational reconciliation; 158 pairs pass |
 | #192 voice shorthand promises every same-slot Re-check is free | Qualify against ADR-0005/0016: no second debit for a debited slot; a previously unbilled slot can incur its first debit on a Verdict | Existing billing policy preserved; no new decision |
 | Earlier #194/195 Account popover can be mistaken for the working area | Keep the entry popover; #196 KA full pages and stepper own substantive Account work | Later accepted #196 choice prevails |
 | #191 originally proposed glow, colour fields, hero and large display text | Apply #194/195 removals, two glass variants, nine type steps, glyph-only Verdict colour | Accepted later refinement; historical source remains pinned |

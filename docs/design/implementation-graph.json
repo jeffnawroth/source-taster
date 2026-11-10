@@ -2,7 +2,9 @@
   "acceptanceGate": {
     "repo": "jeffnawroth/source-taster",
     "number": 206,
-    "url": "https://github.com/jeffnawroth/source-taster/issues/206"
+    "url": "https://github.com/jeffnawroth/source-taster/issues/206",
+    "status": "accepted",
+    "resolution": "https://github.com/jeffnawroth/source-taster/issues/206#issuecomment-6770556807"
   },
   "reusedPdf": {
     "repo": "jeffnawroth/source-taster",

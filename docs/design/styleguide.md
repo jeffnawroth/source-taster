@@ -1,12 +1,12 @@
 # Source Taster styleguide
 
-This is the consolidated design and implementation entry point for [#181](https://github.com/jeffnawroth/source-taster/issues/181). Its visual directions were selected by the owner; the joint [ADR-0027](../adr/0027-design-system.md) acceptance is pending under #206. It is a product specification, not an implementation or conformance claim.
+This is the consolidated design and implementation entry point for [#181](https://github.com/jeffnawroth/source-taster/issues/181). Its visual directions and the joint [ADR-0027](../adr/0027-design-system.md) were accepted by the owner on 10 November 2026 in [#206](https://github.com/jeffnawroth/source-taster/issues/206#issuecomment-6770556807). It is a product specification, not an implementation or conformance claim.
 
 ## Read in this order
 
 | Need | Authoritative document |
 | --- | --- |
-| Ownership, permitted sharing, bounded exceptions | [ADR-0027](../adr/0027-design-system.md), including the proposed refinements to ADR-0001/0002/0003/0016 |
+| Ownership, permitted sharing, bounded exceptions | [ADR-0027](../adr/0027-design-system.md), including the accepted refinements to ADR-0001/0002/0003/0016 |
 | Role values, text/spacing/shape/motion, glass and numerical contrast | [tokens.md](tokens.md) and its reproducible check seed |
 | Component anatomy, state, keyboard behaviour and responsive rules | [components.md](components.md) |
 | Human-facing language | [voice-and-tone.md](voice-and-tone.md); backend/domain identifiers remain governed by GLOSSARY.md |
@@ -62,7 +62,7 @@ German uses Sie, Befund, Prüfung, Kontingent and Prüfpaket. English uses sente
 
 Copy never invents a capability or changes an amount/deadline/consent. A previously debited slot is not charged again; a previously unbilled slot incurs its first debit only under ADR-0005's actual rule. Do not promise every retry is free. Reviewed/versioned legal texts and fixed statutory button wording are not freely rewritten to fit the voice.
 
-Apply to fields remains the explicitly proposed ADR-0027 convenience until acceptance. It creates only a draft, from proven structured values, with no save/check/debit before Save and re-check. Copy and transient export selection stay distinct. An existing dirty draft needs deliberate replacement; a stale result cannot supply a new draft. Immutable input and prior result/revision evidence remain intact.
+Apply to fields is the accepted ADR-0027 draft-only convenience. It creates only a draft, from proven structured values, with no save/check/debit before Save and re-check. Copy and transient export selection stay distinct. An existing dirty draft needs deliberate replacement; a stale result cannot supply a new draft. Immutable input and prior result/revision evidence remain intact.
 
 Preserve ADR-0003 mode semantics: hosted service failures fail closed, while explicit standalone mode has no Guest/Account/Plan/Quota/purchase service UI. Visual continuity is not permission to fabricate entitlement state or downgrade an outage into Guest mode.
 

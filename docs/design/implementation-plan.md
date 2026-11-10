@@ -1,12 +1,12 @@
 # Design-system implementation plan
 
-Prepared under [#206](https://github.com/jeffnawroth/source-taster/issues/206), destination of [design map #181](https://github.com/jeffnawroth/source-taster/issues/181). The [ADR](../adr/0027-design-system.md) is proposed; individual visual choices are accepted. **Do not begin the production redesign until #206 records final ADR acceptance.** Issues are fully scoped for agents or explicitly human-owned, with native blocking dependencies. Read an issue's actual live dependencies before claiming it.
+Prepared under [#206](https://github.com/jeffnawroth/source-taster/issues/206), destination of [design map #181](https://github.com/jeffnawroth/source-taster/issues/181). The [ADR](../adr/0027-design-system.md) and individual visual choices are accepted. Accepted by the owner on 10 November 2026 in [#206](https://github.com/jeffnawroth/source-taster/issues/206#issuecomment-6770556807). Closing #206 releases only the design gate; code, rights and execution qualifications remain blocking. Issues are fully scoped for agents or explicitly human-owned, with native blocking dependencies. Read an issue's actual live dependencies before claiming it.
 
 No prototype runtime is merged. Production work uses existing business/authority interfaces, preserves requirement priorities and includes concrete validation. All new public implementation slices are children of launch issue #70; the map's synthesis child is #206, not an implementation epic that stays open until every surface ships. Full private briefs/specs/evidence remain private.
 
 ## Acceptance and sequencing
 
-1. Owner accepts ADR-0027 and the explicit ADR-0001/0002/0003/0016 refinements. The exact token-sharing wording, bounded Toast export wrapper, suggestion-to-draft convenience and neutral insertion-role reconciliation are visible in the packet. Then close #206 to release the design gate.
+1. Completed: the owner accepted ADR-0027 and the explicit ADR-0001/0002/0003/0016 refinements on 10 November 2026. The token-sharing wording, bounded Toast wrapper, suggestion-to-draft convenience and neutral insertion-role reconciliation are effective. Close #206 to release this gate; retain the dependency edges as decision provenance.
 2. Build the token interface and align public copy; complete the specialist token/brand rights review in parallel. The legal review is not waived by owner design acceptance and still blocks private consumption/brand-distribution work.
 3. Build public primitives and static website recipes. PDF work reuses #105 and may proceed on its token/copy prerequisites without waiting for React composition.
 4. Build the shared checking shell, website, independently owned private primitives and brand packaging on their stated prerequisites.
@@ -47,7 +47,7 @@ These public scopes were already selected in #196/#197. Links target private iss
 
 Every issue names its source specifications, affected files/areas, acceptance criteria and actual validation. Foundation evidence checks generated contents/values/imports; UI evidence crosses real client/API seams; website uses actual local Pagefind; PDF and email retain their own semantic/output/client gates. Automation is not human screen-reader/native Safari qualification. Keep private evidence in the private repository.
 
-The licensing/brand review and human/native acceptance use `ready-for-human`; implementation work uses `ready-for-agent` plus the actual native blockers. The public #206 acceptance gate applies to every design slice. Do not infer readiness from the label alone. Existing launch work not changed by the redesign (for example Quota enforcement, source qualification and deployment) keeps its existing scope and blockers.
+The licensing/brand review and human/native acceptance use `ready-for-human`; implementation work uses `ready-for-agent` plus the actual native blockers. The public #206 acceptance gate is satisfied for every design slice; its closed dependency records provenance. Do not infer readiness from the label alone. Existing launch work not changed by the redesign (for example Quota enforcement, source qualification and deployment) keeps its existing scope and blockers.
 
 Both appearances, local resources and responsive design are implementation requirements here. Durable Theme preference storage remains a should seam, and the launcher remains an interface to existing actions/navigation. Optional Edge/PWA/Safari asset candidates stay optional. No registry, analytics, new application search, paid-feature promise, legal text rewrite or private verification-content bridge is introduced.
 

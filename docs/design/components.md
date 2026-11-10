@@ -1,6 +1,6 @@
 # Components
 
-This is the component spec decided in "Which components does the design system define, and how do they behave and look?" ([#195](https://github.com/jeffnawroth/source-taster/issues/195)), part of the map "Wayfinder: Brand and design system for Source Taster" ([#181](https://github.com/jeffnawroth/source-taster/issues/181)). This consolidated edition is part of the ADR-0027 review packet. Original source commits and accepted amendments are recorded in [sources.md](sources.md); the [styleguide](styleguide.md) resolves later surface choices.
+This is the component spec decided in "Which components does the design system define, and how do they behave and look?" ([#195](https://github.com/jeffnawroth/source-taster/issues/195)), part of the map "Wayfinder: Brand and design system for Source Taster" ([#181](https://github.com/jeffnawroth/source-taster/issues/181)). This consolidated edition is part of the accepted ADR-0027 specification. Original source commits and accepted amendments are recorded in [sources.md](sources.md); the [styleguide](styleguide.md) resolves later surface choices.
 
 **Sources:**
 - The tokens: [`tokens.md`](tokens.md), from "Which design tokens does the design system define?" ([#193](https://github.com/jeffnawroth/source-taster/issues/193)). Its current form includes #195 and the explicit #206 reconciliation; historical source amendments are pinned in sources.md.
@@ -324,7 +324,7 @@ Esc closes DetailPane and returns focus to the card; Back does the same for Deta
 
 ### 3.6 Correction
 
-> **Pending client.** The Correction suggestion's look is settled; the apply-to-draft action is proposed for explicit acceptance in ADR-0027. It must not ship from this proposed packet alone. Copy and transient export selection remain the accepted ADR-0016 baseline.
+> **Accepted in ADR-0027.** Accepted by the owner on 10 November 2026 in [#206](https://github.com/jeffnawroth/source-taster/issues/206#issuecomment-6770556807). Apply to fields is a draft-only convenience; explicit Save and re-check alone commits/runs. Copy and transient export selection remain separate. Implementation and qualification are still required.
 
 **TrackedChange** — a preview of the Correction suggestion against the original, never an editor.
 - Deletions: `correction-delete-text` with a neutral strike (`correction-delete-line`) on `correction-delete-bg`.
@@ -360,7 +360,7 @@ The inventory from #187 named five cross-cutting problems:
 
 - **Design-system ADR** (end of the map): the layer rule (1.1), no shared components (1.2), the calm colour rule and glass list (1.3), the compact-strip exception (3.2), and the Toast `UNSTABLE_` exception with pinned version and wrapper (1.10).
 - **Private surfaces:** #196 composes from section 2. After the first implementation, compare the two primitive layers (1.2).
-- **Correction flow:** confirm 3.6 against the client implementation, then drop "pending client".
+- **Correction flow:** implement the accepted section 3.6 draft-only workflow and verify current-result/revision guards, explicit save and unchanged billing/authority.
 - **Website and docs:** compose the shared static recipes using the accepted #198 layout.
 - **Copy:** every string here is an example; #192's catalogue owns the final text.
 - **Drafted, not grilled:** the details below the grilled decisions were drafted for review, not decided: tooltip delay (600 ms), Spinner speed (800 ms), disabled zero counters, the Meter switching to `feedback-warning`, Checkbox, Radio and Switch sizes, the „Pflichtfeld“ convention, Sheet and Dialog widths, the Table breakpoint (560 px), and the batching of progress announcements.

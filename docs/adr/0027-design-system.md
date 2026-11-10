@@ -1,12 +1,12 @@
 ---
-status: proposed
+status: accepted
 ---
 
 # Build one calm product identity with shared tokens and independently owned components
 
 The owner selected the identity and surface structures in [design map #181](https://github.com/jeffnawroth/source-taster/issues/181), after comparing the prototypes in #191–#199. Consolidate those decisions into one [styleguide](../design/styleguide.md), share only project-owned design tokens across the open/private repositories, and implement each surface against its existing business interfaces. This gives checking, Account, Operator, public information, email and PDF a coherent identity without distributing open verification components into the proprietary service.
 
-This ADR is the **proposed joint acceptance packet** under [#206](https://github.com/jeffnawroth/source-taster/issues/206). The individual visual choices are accepted; this record and its explicit refinements below await final owner acceptance. It neither merges the prototypes nor claims implemented, qualified or published output. The current requirements baseline remains v3.4. No must/should/deferred obligation is promoted by the component catalogue or a prototype control.
+Accepted by the owner on 10 November 2026 in [#206](https://github.com/jeffnawroth/source-taster/issues/206#issuecomment-6770556807). The joint acceptance covers this record and all explicit refinements below, alongside the individually accepted visual choices. It neither merges the prototypes nor claims implemented, qualified or published output. The current requirements baseline remains v3.4. No must/should/deferred obligation is promoted by the component catalogue or a prototype control.
 
 ## Identity, foundation and composition
 
@@ -20,7 +20,7 @@ This ADR is the **proposed joint acceptance packet** under [#206](https://github
 
 ## Token contract and repository ownership
 
-The proposed ADR-0001/0003 refinements below apply the exact wording agreed in [#189](https://github.com/jeffnawroth/source-taster/issues/189#issuecomment-6703601977):
+The accepted ADR-0001/0003 refinements below apply the exact wording agreed in [#189](https://github.com/jeffnawroth/source-taster/issues/189#issuecomment-6703601977):
 
 > **ADR-0001, “Narrow contract exception”, new sentence:** Project-owned design tokens are also available under `AGPL-3.0-or-later OR MIT`. These are the named colour, type, spacing, shape, elevation and motion values, expressed as CSS custom properties and as constants derived from them. The token package contains no components, no behaviour, no logo, wordmark, glyph or font files, and depends on no AGPL-only package.
 >
@@ -46,7 +46,7 @@ The existing FA-UEB-23 review must examine actual CSS/constants distribution, de
 
 Both light/dark appearances and System-default CSS are designed. A durable manual Theme preference remains the ADR-0023 should seam; it is not a launch blocker introduced here. Likewise the launcher may expose existing actions/navigation but does not promote a new application search service. Context-menu intake, reconnect, History, consent, eligibility, billing, cancellation, DPA, Operator proof and data boundaries remain under their accepted ADRs. No prototype fixture or UI placement grants authority.
 
-The [reconciliation record](../design/reconciliations.md) distinguishes source corrections from pending approval and implementation defaults. Legal/versioned copy, no-analytics/public-content-only search, token/brand rights, reported-wrong-Verdict ownership, exact Check/result snapshots and native acceptance gates remain in force. Keep private specifications and templates private. The [implementation plan](../design/implementation-plan.md) gives each slice a repository, dependencies, evidence and review gate; it reuses #105 for PDF instead of creating a competing implementation.
+The [reconciliation record](../design/reconciliations.md) distinguishes accepted source reconciliations from implementation defaults and still-open execution qualifications. Legal/versioned copy, no-analytics/public-content-only search, token/brand rights, reported-wrong-Verdict ownership, exact Check/result snapshots and native acceptance gates remain in force. Keep private specifications and templates private. The [implementation plan](../design/implementation-plan.md) gives each slice a repository, dependencies, evidence and review gate; it reuses #105 for PDF instead of creating a competing implementation.
 
 Before launch, verify actual built outputs: DE/EN, wide/narrow, keyboard and focus restoration, meaningful announcements, 200% zoom and 320 px reflow, greyscale, forced colours, reduced motion/transparency, rendered contrast including glass, supported native browsers and human screen-reader use. Email/client and tagged-PDF checks remain medium-specific. Prototype counts and the numerical token gate are useful source evidence, not production accessibility or release certification.
 
