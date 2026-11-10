@@ -28,10 +28,19 @@ stable `react-stately/useToastState` queue is used directly.
 
 Exact helper inventory: tailwind-variants 4.0.1 (MIT), tailwind-merge 3.7.0 (MIT),
 tailwindcss-react-aria-components 2.2.0 (Apache-2.0, CSS build plugin),
-lucide-react 1.66.0 (ISC), react-aria-components 1.22.1 and react-stately 3.51.0
+lucide-react 1.66.0 (ISC and Feather-derived MIT), react-aria-components 1.22.1 and react-stately 3.51.0
 (Apache-2.0). The repository dependency/license gates include their locked graphs.
 Retain their applicable upstream notices in distribution. Test-only pngjs 7.0.0
 (MIT), Playwright and axe do not enter the primitive or static-recipe runtime.
+
+The complete, unmodified Lucide 1.66.0 license, including its Feather icon list
+and Cole Bemis's MIT permission, is retained in
+[notices/lucide-LICENSE](notices/lucide-LICENSE). It was copied from the exact
+installed publisher package on 11 November 2026, SHA-256
+`b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57`.
+The ISC-only shorthand does not replace the MIT notice for Feather-derived icons.
+Actual browser/extension distributions must retain both applicable grants;
+retaining this source copy alone is not a release-notice qualification.
 
 Design acceptance does not complete #207 or the release rights review. Nothing
 here grants private component reuse, brand-distribution approval or font rights.
