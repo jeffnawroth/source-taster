@@ -1,0 +1,58 @@
+{
+  "issue": 198,
+  "date": "2026-11-10",
+  "selection": "pending",
+  "bundleSha256": "457c7be5c6bd747cea5c8fd42403974406e728b27bbd5d98ab22172f58c12ae8",
+  "pageMatrix": {
+    "variants": [
+      "A",
+      "B",
+      "C"
+    ],
+    "languages": [
+      "de",
+      "en"
+    ],
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "widths": [
+      1280,
+      360
+    ],
+    "pagesPerCombination": 16,
+    "count": 384,
+    "failures": [],
+    "errors": [],
+    "requests": []
+  },
+  "interactionChecks": {
+    "groups": 90,
+    "errors": [],
+    "requests": [],
+    "status": "passed"
+  },
+  "edgeChecks": {
+    "groups": 17,
+    "errors": [],
+    "network": [],
+    "status": "passed"
+  },
+  "finalBundleCheck": "passed: offline app D, selected language/theme/calm configuration, search, Escape, 728px; no script errors or external requests",
+  "contentCheck": "passed: 10 paired information pages, 4 paired legal documents, 30 paired UI texts, 8 paired source-access texts",
+  "visuallyInspected": [
+    "A/B/C desktop home",
+    "A/B desktop documentation",
+    "A phone home and documentation",
+    "C phone dark home",
+    "App D phone dark",
+    "728px embedded review"
+  ],
+  "limits": [
+    "Throwaway snapshot, not the production Astro build or actual Pagefind engine",
+    "Automated target/overflow/keyboard checks do not establish WCAG conformance",
+    "No screen-reader, legal, publication, browser matrix or runtime dependency qualification is claimed",
+    "Existing FAQ and opt-in DOI description need release-content reconciliation"
+  ]
+}

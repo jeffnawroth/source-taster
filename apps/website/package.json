@@ -16,7 +16,8 @@
     "typecheck": "tsc -p tsconfig.json",
     "lint": "eslint .",
     "i18n:check": "node scripts/content-check.ts",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "prototype:website": "node prototype/website/build.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
