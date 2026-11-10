@@ -1,0 +1,55 @@
+{
+  "status": "Illustrative fragments only, not production manifests; paths are relative to this prototype directory. Merge into the existing manifest generator in the implementation ticket.",
+  "chromium": {
+    "icons": {
+      "16": "exports/extension-16.png",
+      "32": "exports/extension-32.png",
+      "48": "exports/extension-48.png",
+      "64": "exports/extension-64.png",
+      "128": "exports/extension-128.png"
+    },
+    "action": {
+      "default_icon": {
+        "16": "exports/toolbar-default-16.png",
+        "24": "exports/toolbar-default-24.png",
+        "32": "exports/toolbar-default-32.png",
+        "48": "exports/toolbar-default-48.png",
+        "64": "exports/toolbar-default-64.png"
+      }
+    }
+  },
+  "firefox": {
+    "icons": {
+      "32": "exports/extension-32.png",
+      "64": "exports/extension-64.png",
+      "128": "exports/extension-128.png"
+    },
+    "action": {
+      "default_icon": {
+        "16": "exports/toolbar-default-16.png",
+        "24": "exports/toolbar-default-24.png",
+        "32": "exports/toolbar-default-32.png",
+        "48": "exports/toolbar-default-48.png",
+        "64": "exports/toolbar-default-64.png"
+      },
+      "theme_icons": [
+        {
+          "dark": "exports/toolbar-on-light-16.png",
+          "light": "exports/toolbar-on-dark-16.png",
+          "size": 16
+        },
+        {
+          "dark": "exports/toolbar-on-light-32.png",
+          "light": "exports/toolbar-on-dark-32.png",
+          "size": 32
+        }
+      ]
+    },
+    "sidebar_action": {
+      "default_icon": {
+        "16": "exports/toolbar-default-16.png",
+        "32": "exports/toolbar-default-32.png"
+      }
+    }
+  }
+}

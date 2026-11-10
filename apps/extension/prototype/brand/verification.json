@@ -1,0 +1,61 @@
+{
+  "issue": 199,
+  "date": "2026-11-10",
+  "selection": "pending",
+  "bundleSha256": "b0bc97c5ca86e1cb505e84bffa9ca22eb00b72dc928302eb6851969947feb84b",
+  "gallery": {
+    "combinations": 128,
+    "interactionGroups": 8,
+    "errors": [],
+    "requests": [],
+    "failures": [],
+    "status": "passed"
+  },
+  "exports": {
+    "errors": [],
+    "network": [],
+    "layout": [],
+    "icons": 34,
+    "compositions": 66,
+    "icoEntries": [
+      16,
+      32,
+      48
+    ]
+  },
+  "artifactValidation": {
+    "pngCount": 100,
+    "pngSignaturesAndDimensions": "passed for all 100 PNG exports",
+    "icoEntries": [
+      16,
+      32,
+      48
+    ],
+    "cwsPaintedBounds": [
+      16,
+      16,
+      111,
+      111
+    ],
+    "maskableOpaque": true,
+    "maskableEssentialPixelsOutsideSafeCircle": 0,
+    "svgColorValues": "all masters use explicit in-gamut sRGB artwork colors",
+    "logoColorsMapped": 1,
+    "logoColorsTotal": 4
+  },
+  "visuallyInspected": [
+    "A/B/C screenshot series in 728px review",
+    "Native-size icon sheet and light/dark toolbar context",
+    "C field-comparison crop at full exported size",
+    "B English social preview at full exported size",
+    "B small promo tile at full exported size",
+    "Light/dark and DE/EN image states"
+  ],
+  "limits": [
+    "Prototype captures with fixture data, not actual release evidence",
+    "No storefront upload, native toolbar theme selection or browser icon installation matrix was tested",
+    "AMO conditional 4:3 upload rules have unverified deployment/feature-flag state",
+    "Current X Card image guidance unverified",
+    "No production publication, accessibility or legal qualification claimed"
+  ]
+}

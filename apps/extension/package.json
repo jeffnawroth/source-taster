@@ -16,7 +16,10 @@
     "test:native-report": "playwright test --config report.playwright.config.ts",
     "test:native-guest": "playwright test --config guest.playwright.config.ts",
     "test:native-firefox": "playwright test --config firefox.playwright.config.ts",
-    "test:native-history": "playwright test --config history.playwright.config.ts"
+    "test:native-history": "playwright test --config history.playwright.config.ts",
+    "prototype:brand": "node prototype/brand/build.mjs",
+    "prototype:brand:capture": "node prototype/brand/capture.mjs",
+    "prototype:brand:export": "node prototype/brand/export.mjs"
   },
   "dependencies": {
     "@source-taster/contract-service": "workspace:*",

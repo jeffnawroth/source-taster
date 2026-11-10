@@ -1,0 +1,167 @@
+{
+  "source": "Public #194 D via accepted #198 offline adaptation, b6dfa14909b7ec8ed4f8a7057d4bc0ea94f14022",
+  "adaptations": "Neutral evidence marks per #195; ordinary German author label; mapped sRGB logo; no changed Check logic.",
+  "fixture": "Synthetic public prototype examples, not release evidence",
+  "shots": [
+    {
+      "name": "fields",
+      "lang": "de",
+      "theme": "light",
+      "width": 1100,
+      "height": 690,
+      "deviceScaleFactor": 2,
+      "pixelWidth": 2200,
+      "pixelHeight": 1380
+    },
+    {
+      "name": "feed",
+      "lang": "de",
+      "theme": "light",
+      "width": 1100,
+      "height": 690,
+      "deviceScaleFactor": 2,
+      "pixelWidth": 2200,
+      "pixelHeight": 1380
+    },
+    {
+      "name": "detail",
+      "lang": "de",
+      "theme": "light",
+      "width": 1100,
+      "height": 690,
+      "deviceScaleFactor": 2,
+      "pixelWidth": 2200,
+      "pixelHeight": 1380
+    },
+    {
+      "name": "panel",
+      "lang": "de",
+      "theme": "light",
+      "width": 360,
+      "height": 680,
+      "deviceScaleFactor": 2,
+      "pixelWidth": 720,
+      "pixelHeight": 1360
+    },
+    {
+      "name": "fields",
+      "lang": "de",
+      "theme": "dark",
+      "width": 1100,
+      "height": 690,
+      "deviceScaleFactor": 2,
+      "pixelWidth": 2200,
+      "pixelHeight": 1380
+    },
+    {
+      "name": "feed",
+      "lang": "de",
+      "theme": "dark",
+      "width": 1100,
+      "height": 690,
+      "deviceScaleFactor": 2,
+      "pixelWidth": 2200,
+      "pixelHeight": 1380
+    },
+    {
+      "name": "detail",
+      "lang": "de",
+      "theme": "dark",
+      "width": 1100,
+      "height": 690,
+      "deviceScaleFactor": 2,
+      "pixelWidth": 2200,
+      "pixelHeight": 1380
+    },
+    {
+      "name": "panel",
+      "lang": "de",
+      "theme": "dark",
+      "width": 360,
+      "height": 680,
+      "deviceScaleFactor": 2,
+      "pixelWidth": 720,
+      "pixelHeight": 1360
+    },
+    {
+      "name": "fields",
+      "lang": "en",
+      "theme": "light",
+      "width": 1100,
+      "height": 690,
+      "deviceScaleFactor": 2,
+      "pixelWidth": 2200,
+      "pixelHeight": 1380
+    },
+    {
+      "name": "feed",
+      "lang": "en",
+      "theme": "light",
+      "width": 1100,
+      "height": 690,
+      "deviceScaleFactor": 2,
+      "pixelWidth": 2200,
+      "pixelHeight": 1380
+    },
+    {
+      "name": "detail",
+      "lang": "en",
+      "theme": "light",
+      "width": 1100,
+      "height": 690,
+      "deviceScaleFactor": 2,
+      "pixelWidth": 2200,
+      "pixelHeight": 1380
+    },
+    {
+      "name": "panel",
+      "lang": "en",
+      "theme": "light",
+      "width": 360,
+      "height": 680,
+      "deviceScaleFactor": 2,
+      "pixelWidth": 720,
+      "pixelHeight": 1360
+    },
+    {
+      "name": "fields",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1100,
+      "height": 690,
+      "deviceScaleFactor": 2,
+      "pixelWidth": 2200,
+      "pixelHeight": 1380
+    },
+    {
+      "name": "feed",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1100,
+      "height": 690,
+      "deviceScaleFactor": 2,
+      "pixelWidth": 2200,
+      "pixelHeight": 1380
+    },
+    {
+      "name": "detail",
+      "lang": "en",
+      "theme": "dark",
+      "width": 1100,
+      "height": 690,
+      "deviceScaleFactor": 2,
+      "pixelWidth": 2200,
+      "pixelHeight": 1380
+    },
+    {
+      "name": "panel",
+      "lang": "en",
+      "theme": "dark",
+      "width": 360,
+      "height": 680,
+      "deviceScaleFactor": 2,
+      "pixelWidth": 720,
+      "pixelHeight": 1360
+    }
+  ]
+}
