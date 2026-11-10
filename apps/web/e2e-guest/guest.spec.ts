@@ -84,7 +84,7 @@ test("web Guest identity survives a real browser restart, with token and Check c
     await page.goto(url);
     await page.getByRole("textbox").fill(physicsReference);
     await page
-      .getByRole("button", { name: "Check Reference", exact: true })
+      .getByRole("button", { name: "Check reference", exact: true })
       .click();
     await expect(page.locator("#results-title")).toBeVisible();
     const id = await page.evaluate(() =>
@@ -120,7 +120,7 @@ test("web Guest identity survives a real browser restart, with token and Check c
     await expect(page.locator("#results-title")).toHaveCount(0);
     await page.getByRole("textbox").fill(physicsReference);
     await page
-      .getByRole("button", { name: "Structure References", exact: true })
+      .getByRole("button", { name: "Structure references", exact: true })
       .click();
     await expect(
       page.getByText("Measured measurement", { exact: true }),
@@ -152,7 +152,7 @@ for (const language of ["en", "de"] as const)
     await page.getByRole("textbox").fill(physicsReference);
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
@@ -174,8 +174,8 @@ for (const language of ["en", "de"] as const)
       page.getByRole("alert").filter({
         hasText:
           language === "en"
-            ? "You do not have permission for this action."
-            : "Sie haben keine Berechtigung für diese Aktion.",
+            ? "Check that you are signed in to the right account. You do not have permission for this action."
+            : "Prüfen Sie, ob Sie mit dem richtigen Konto angemeldet sind. Sie haben keine Berechtigung für diese Aktion.",
       }),
     ).toBeVisible();
     await page.waitForTimeout(300);
@@ -208,7 +208,7 @@ test("unavailable identity storage gives an explicit message and never falls bac
   await page.goto(url);
   await page.getByRole("textbox").fill(physicsReference);
   await page
-    .getByRole("button", { name: "Check Reference", exact: true })
+    .getByRole("button", { name: "Check reference", exact: true })
     .click();
   await expect(page.getByRole("alert")).toContainText(
     "Browser storage is required",
@@ -234,10 +234,10 @@ test("concurrent origin tabs share one Guest while an independent browser contex
     await tab.getByRole("textbox").fill(physicsReference);
   await Promise.all([
     page
-      .getByRole("button", { name: "Structure References", exact: true })
+      .getByRole("button", { name: "Structure references", exact: true })
       .click(),
     other
-      .getByRole("button", { name: "Structure References", exact: true })
+      .getByRole("button", { name: "Structure references", exact: true })
       .click(),
   ]);
   for (const tab of [page, other])
@@ -251,7 +251,7 @@ test("concurrent origin tabs share one Guest while an independent browser contex
     await foreign.goto(url);
     await foreign.getByRole("textbox").fill(physicsReference);
     await foreign
-      .getByRole("button", { name: "Structure References", exact: true })
+      .getByRole("button", { name: "Structure references", exact: true })
       .click();
     await expect(
       foreign.getByText("Measured measurement", { exact: true }),

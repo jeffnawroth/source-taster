@@ -19,7 +19,7 @@ const copy = {
     language: "Report language",
     create: "Create report",
     download: "Download report",
-    check: "Check Reference",
+    check: "Check reference",
     heading: "Verification report",
   },
   de: {

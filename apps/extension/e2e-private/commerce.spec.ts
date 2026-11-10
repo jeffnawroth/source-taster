@@ -52,7 +52,7 @@ test("signed-in native panel opens actual web Plan management without forwarding
     expect(
       (await browser.storage())["source-taster-extension-session-v1"],
     ).toBeTruthy();
-    const label = "Plans and Check packs on the web";
+    const label = "Plans and check packs on the web";
     const link = await panel.find("link", label);
     expect(
       await panel.call(

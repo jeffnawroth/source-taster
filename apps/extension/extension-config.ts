@@ -126,7 +126,7 @@ export function manifest(target: Target, config: ExtensionConfig) {
     default_locale: "en",
     name: "Source Taster (development)",
     version: "0.0.0",
-    description: "Development build of the Source Taster Check workspace.",
+    description: "Development build of the Source Taster check workspace.",
     host_permissions: hostPermissions(target, config),
     content_security_policy: {
       extension_pages: "script-src 'self'; object-src 'self'",

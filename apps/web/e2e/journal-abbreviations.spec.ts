@@ -17,7 +17,7 @@ for (const language of ["en", "de"] as const) {
         );
       await page
         .getByRole("button", {
-          name: language === "en" ? "Check Reference" : "Referenz prüfen",
+          name: language === "en" ? "Check reference" : "Referenz prüfen",
           exact: true,
         })
         .click();

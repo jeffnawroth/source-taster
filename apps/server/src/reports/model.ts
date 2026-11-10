@@ -211,6 +211,10 @@ export function buildReport(input: ReportInput): ReportModel {
         text: m.report_summary_total({ count: references.length }, locale),
       },
       {
+        kind: "paragraph",
+        text: m.workspace_human({}, locale),
+      },
+      {
         kind: "list",
         items: [...counts].map(([label, count]) =>
           m.report_summary_item({ label, count }, locale),

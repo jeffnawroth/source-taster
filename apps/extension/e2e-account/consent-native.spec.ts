@@ -64,7 +64,7 @@ const sees = (firefox: NativeFirefox, text: RegExp) =>
   );
 
 const allow = (firefox: NativeFirefox) =>
-  firefox.find("pushbutton", "Allow Preferences sync");
+  firefox.find("pushbutton", "Allow preferences sync");
 
 test("a fresh profile keeps Preferences local, and the visible control opens the real prompt", async () => {
   const { firefox, service, close } = await signedInFirefox();

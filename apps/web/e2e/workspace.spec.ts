@@ -15,10 +15,10 @@ test("summary filters current Verdicts separately from technical Statuses", asyn
       "Aspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170\nDarwin, C. (1859). On the Origin of Species.",
     );
   await page
-    .getByRole("button", { name: "Check Reference", exact: true })
+    .getByRole("button", { name: "Check reference", exact: true })
     .click();
   const summary = page.getByRole("region", { name: "Check summary" });
-  await expect(summary).toContainText("Recognized References: 2");
+  await expect(summary).toContainText("Recognized references: 2");
   await expect(
     summary.getByRole("button", { name: "Correct: 1", exact: true }),
   ).toBeVisible();
@@ -49,10 +49,13 @@ test("summary filters current Verdicts separately from technical Statuses", asyn
     .click();
   await expect(list.getByRole("listitem")).toHaveCount(0);
   await expect(
-    page.getByText("No References in this filter.", { exact: true }),
+    page.getByText(
+      "References matching the selected filter will appear here. Choose “All references” to see the whole check.",
+      { exact: true },
+    ),
   ).toBeVisible();
   await summary
-    .getByRole("button", { name: "All References: 2", exact: true })
+    .getByRole("button", { name: "All references: 2", exact: true })
     .click();
   await expect(list.getByRole("listitem")).toHaveCount(2);
 });
@@ -70,7 +73,7 @@ test("streaming keeps input order and focused selection; narrow Back restores li
       "Doe, J. (2020). Held Reference. doi:10.5555/browser-held\nDarwin, C. (1859). On the Origin of Species.\nAspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170",
     );
   await page
-    .getByRole("button", { name: "Check Reference", exact: true })
+    .getByRole("button", { name: "Check reference", exact: true })
     .click();
   const list = page.getByRole("list", { name: "References", exact: true });
   const rows = list.getByRole("listitem");
@@ -102,7 +105,7 @@ test("streaming keeps input order and focused selection; narrow Back restores li
     detail.getByRole("heading", { name: "Reference detail", exact: true }),
   ).toBeFocused();
   await page
-    .getByRole("button", { name: "Back to References", exact: true })
+    .getByRole("button", { name: "Back to references", exact: true })
     .click();
   await expect(second).toBeFocused();
   await expect(list).toBeVisible();
@@ -122,14 +125,14 @@ for (const language of ["en", "de"] as const)
     await page.getByRole("textbox").fill(original);
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
     const comparison = page.getByRole("table", {
       name:
         language === "en"
-          ? "Reference and Best match"
+          ? "Reference and best match"
           : "Referenz und bester Treffer",
       exact: true,
     });
@@ -230,7 +233,7 @@ for (const language of ["en", "de"] as const)
       .fill("Darwin, C. (1859). On the Origin of Species.");
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
@@ -253,8 +256,8 @@ for (const language of ["en", "de"] as const)
     });
     await expect(explanation).toContainText(
       language === "en"
-        ? "A Verdict is not proof of deception. A human makes the decision."
-        : "Ein Urteil ist kein Beweis für Täuschung. Die Entscheidung trifft ein Mensch.",
+        ? "A verdict is not proof of deception. A human makes the decision."
+        : "Ein Befund ist kein Beweis für Täuschung. Die Entscheidung trifft ein Mensch.",
     );
     await expect(help).toBeFocused();
     await expect(help).toHaveAttribute("aria-expanded", "true");
@@ -290,7 +293,7 @@ for (const language of ["en", "de"] as const)
     await page.getByRole("textbox").fill(Array(12).fill(reference).join("\n"));
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
@@ -313,7 +316,7 @@ for (const language of ["en", "de"] as const)
     await page.keyboard.press("Enter");
     await expect(list).toBeHidden();
     const back = page.getByRole("button", {
-      name: language === "en" ? "Back to References" : "Zurück zu Referenzen",
+      name: language === "en" ? "Back to references" : "Zurück zu Referenzen",
       exact: true,
     });
     await back.focus();
@@ -350,7 +353,7 @@ test("DOI conflict has its own current count and filter", async ({ page }) => {
       "Alpha, A. (2021). Workspace conflict. Journal of Testing, 1, 1–2. doi:10.5555/workspace-nonexistent",
     );
   await page
-    .getByRole("button", { name: "Check Reference", exact: true })
+    .getByRole("button", { name: "Check reference", exact: true })
     .click();
   const filter = page.getByRole("button", {
     name: "DOI conflict: 1",
@@ -381,7 +384,7 @@ test("selected detail stays on its Reference while streaming completes other slo
       "Doe, J. (2020). Held Reference. doi:10.5555/browser-held\nDarwin, C. (1859). On the Origin of Species.",
     );
   await page
-    .getByRole("button", { name: "Check Reference", exact: true })
+    .getByRole("button", { name: "Check reference", exact: true })
     .click();
   const list = page.getByRole("list", { name: "References", exact: true });
   await list.getByRole("button").first().click();

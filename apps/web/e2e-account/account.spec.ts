@@ -71,7 +71,7 @@ for (const language of ["en", "de"] as const)
         page.getByText(
           language === "de"
             ? "Gast-Prüfungen und Gast-Kontingent werden bei der Registrierung nicht übertragen."
-            : "Guest Checks and Guest Quota are not transferred when you register.",
+            : "Guest checks and guest quota are not transferred when you register.",
         ),
       ).toBeVisible();
       await page
@@ -133,7 +133,7 @@ for (const language of ["en", "de"] as const)
       await page.locator("textarea").fill(physicsReference);
       await page
         .getByRole("button", {
-          name: language === "de" ? "Referenz prüfen" : "Check Reference",
+          name: language === "de" ? "Referenz prüfen" : "Check reference",
           exact: true,
         })
         .click();

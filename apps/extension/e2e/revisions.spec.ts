@@ -33,7 +33,7 @@ for (const language of ["en", "de"] as const)
       );
       await panel.click(
         "button",
-        language === "en" ? "Check Reference" : "Referenz prüfen",
+        language === "en" ? "Check reference" : "Referenz prüfen",
       );
       await panel.waitForText(
         "list",
@@ -42,7 +42,7 @@ for (const language of ["en", "de"] as const)
       );
       await panel.click(
         "button",
-        language === "en" ? /^Open Reference 1:/ : /^Referenz 1 öffnen:/,
+        language === "en" ? /^Open reference 1:/ : /^Referenz 1 öffnen:/,
       );
       await panel.click(
         "button",
@@ -76,7 +76,7 @@ for (const language of ["en", "de"] as const)
       await panel.click(
         "button",
         language === "en"
-          ? "Re-check this Reference"
+          ? "Re-check this reference"
           : "Diese Referenz erneut prüfen",
       );
       await panel.waitForText(
@@ -116,17 +116,17 @@ for (const language of ["en", "de"] as const)
       ).toBe(true);
       await panel.click(
         "button",
-        language === "en" ? "Back to References" : "Zurück zu Referenzen",
+        language === "en" ? "Back to references" : "Zurück zu Referenzen",
       );
       await panel.click(
         "button",
-        language === "en" ? "Edit Reference list" : "Referenzliste bearbeiten",
+        language === "en" ? "Edit reference list" : "Referenzliste bearbeiten",
       );
       await panel.click("checkbox", /^1\. Measured measurment/);
       await panel.fill(
         "textbox",
         language === "en"
-          ? "Original input for the new Reference"
+          ? "Original input for the new reference"
           : "Originaleingabe für die neue Referenz",
         "A manually added Reference",
       );
@@ -151,8 +151,8 @@ for (const language of ["en", "de"] as const)
         ),
       ).toContain(
         language === "en"
-          ? "Additional Quota on first Verdicts: 1."
-          : "Zusätzliches Kontingent bei ersten Urteilen: 1.",
+          ? "Additional quota on first verdicts: 1."
+          : "Zusätzliches Kontingent bei ersten Befunden: 1.",
       );
       expect(await panel.axe()).toEqual([]);
       await panel.click(
@@ -162,7 +162,7 @@ for (const language of ["en", "de"] as const)
       await panel.find(
         "button",
         language === "en"
-          ? /^Open Reference 2: New slot/
+          ? /^Open reference 2: New slot/
           : /^Referenz 2 öffnen: New slot/,
       );
       const stored = await browser.storage();

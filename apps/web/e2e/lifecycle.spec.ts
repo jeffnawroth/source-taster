@@ -23,7 +23,7 @@ for (const language of ["en", "de"] as const) {
     );
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
@@ -34,7 +34,7 @@ for (const language of ["en", "de"] as const) {
       }),
     ).toBeVisible();
     const cancel = page.getByRole("button", {
-      name: language === "en" ? "Cancel Check" : "Prüfung abbrechen",
+      name: language === "en" ? "Cancel check" : "Prüfung abbrechen",
       exact: true,
     });
     await cancel.focus();
@@ -113,7 +113,7 @@ for (const operation of ["checks", "structurings"] as const) {
     await page
       .getByRole("button", {
         name:
-          operation === "checks" ? "Check Reference" : "Structure References",
+          operation === "checks" ? "Check reference" : "Structure references",
         exact: true,
       })
       .click();
@@ -176,13 +176,13 @@ test("late stream frames after Reset cannot replace a newer Check", async ({
     .getByRole("textbox")
     .fill("Darwin, C. (1859). On the Origin of Species.");
   await page
-    .getByRole("button", { name: "Check Reference", exact: true })
+    .getByRole("button", { name: "Check reference", exact: true })
     .click();
   await arrived;
   await page.getByRole("button", { name: "Reset", exact: true }).click();
   await page.getByRole("textbox").fill("Doe, J. (2020). A newer Reference.");
   await page
-    .getByRole("button", { name: "Check Reference", exact: true })
+    .getByRole("button", { name: "Check reference", exact: true })
     .click();
   release();
   await done;
@@ -205,9 +205,9 @@ test("an unconfirmed Cancel reports uncertainty and stops this workspace renewin
     .getByRole("textbox")
     .fill("Doe, J. (2020). Held Reference. doi:10.5555/browser-held");
   await page
-    .getByRole("button", { name: "Check Reference", exact: true })
+    .getByRole("button", { name: "Check reference", exact: true })
     .click();
-  await page.getByRole("button", { name: "Cancel Check", exact: true }).click();
+  await page.getByRole("button", { name: "Cancel check", exact: true }).click();
   await expect(page.getByRole("alert")).toContainText("could not be confirmed");
   await expect(
     page

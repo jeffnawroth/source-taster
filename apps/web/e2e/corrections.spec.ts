@@ -24,7 +24,7 @@ test("copies a Correction suggestion and applies it only to the formatted export
       "Aspelmeyer, M. (2008). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170\nAspelmeyer, M. (2007). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170",
     );
   await page
-    .getByRole("button", { name: "Check Reference", exact: true })
+    .getByRole("button", { name: "Check reference", exact: true })
     .click();
   const suggestion = page.getByRole("region", {
     name: "Correction suggestion",
@@ -104,7 +104,7 @@ for (const language of ["en", "de"] as const)
       );
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();

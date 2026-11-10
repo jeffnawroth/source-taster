@@ -53,7 +53,7 @@ test("the toolbar action opens the real native side panel with the shared Check 
       }),
     );
     await panel.find("textbox", "Reference");
-    await panel.find("button", "Check Reference");
+    await panel.find("button", "Check reference");
     expect(
       await panel.evaluate<number>("window.innerWidth"),
     ).toBeLessThanOrEqual(480);
@@ -147,7 +147,7 @@ test("closing, reopening and reloading the native panel keeps only validated Pre
     await panel.find("button", "Referenz prüfen");
     expect(await panel.query("region", "Referenzdetails")).toEqual([]);
     await panel.select("combobox", "Sprache", "en");
-    await panel.find("button", "Check Reference");
+    await panel.find("button", "Check reference");
     const english = witnesses[0]!;
     expectWitness(await checkInPanel(panel, "en", english), "en", english);
     expect(await panel.axe()).toEqual([]);
@@ -238,12 +238,12 @@ test("native panel downloads both citation formats with export-only corrections"
         await until(
           async () =>
             !(await panel.call<boolean>(
-              await panel.find("button", "Download References"),
+              await panel.find("button", "Download references"),
               "function () { return this.disabled; }",
             )),
           "Export is not ready",
         );
-        await panel.click("button", "Download References");
+        await panel.click("button", "Download references");
         const download = await until(() => {
           const value = started[index];
           return value && completed.has(value.guid) ? value : false;
@@ -367,7 +367,7 @@ for (const language of ["en", "de"] as const)
                   await panel.find(
                     "button",
                     language === "en"
-                      ? "Download References"
+                      ? "Download references"
                       : "Referenzen herunterladen",
                   ),
                   "function () { return this.disabled; }",
@@ -378,7 +378,7 @@ for (const language of ["en", "de"] as const)
             await panel.click(
               "button",
               language === "en"
-                ? "Download References"
+                ? "Download references"
                 : "Referenzen herunterladen",
             );
             const download = await until(() => {

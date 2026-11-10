@@ -188,7 +188,7 @@ async function withPanel(
 test("Account management links to private web without sending the extension credential", async () => {
   await withPanel({ sensitive: true }, async ({ panel, requests }) => {
     await panel.find("link", "Account security");
-    expect(await panel.query("button", "Delete Account")).toEqual([]);
+    expect(await panel.query("button", "Delete account")).toEqual([]);
     expect(await panel.query("button", "Change email address")).toEqual([]);
     expect(requests.some((r) => r.path.includes("/account/"))).toBe(false);
   });

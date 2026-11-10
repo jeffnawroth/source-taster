@@ -51,7 +51,7 @@ await test("the built Chromium manifest is unchanged and carries no Firefox-only
     default_locale: "en",
     name: "Source Taster (development)",
     version: "0.0.0",
-    description: "Development build of the Source Taster Check workspace.",
+    description: "Development build of the Source Taster check workspace.",
     host_permissions: ["http://127.0.0.1:3100/*"],
     content_security_policy: {
       extension_pages: "script-src 'self'; object-src 'self'",

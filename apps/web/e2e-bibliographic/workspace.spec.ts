@@ -20,7 +20,7 @@ for (const language of ["en", "de"] as const) {
         );
       await page
         .getByRole("button", {
-          name: language === "en" ? "Check Reference" : "Referenz prüfen",
+          name: language === "en" ? "Check reference" : "Referenz prüfen",
           exact: true,
         })
         .click();
@@ -31,7 +31,7 @@ for (const language of ["en", "de"] as const) {
       const comparison = detail.getByRole("region", {
         name:
           language === "en"
-            ? "Reference and Best match"
+            ? "Reference and best match"
             : "Referenz und bester Treffer",
         exact: true,
       });
@@ -131,7 +131,7 @@ for (const language of ["en", "de"] as const)
       );
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
@@ -147,7 +147,7 @@ for (const language of ["en", "de"] as const)
     const fields = detail.getByRole("table", {
       name:
         language === "en"
-          ? "Reference and Best match"
+          ? "Reference and best match"
           : "Referenz und bester Treffer",
       exact: true,
     });

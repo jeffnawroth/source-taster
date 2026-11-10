@@ -67,8 +67,14 @@
     },
     "faq": {
       "requirements": ["FA-UEB-02"],
-      "evidence": ["e2e/website.spec.ts"],
-      "state": "limits, local search and human decision"
+      "evidence": [
+        "e2e/website.spec.ts",
+        "../server/src/config.ts",
+        "../server/src/checks/scoring-calibration.ts",
+        "../../docs/implementation/74-doi-tracer.md",
+        "../../docs/implementation/94-quality-measurement.md"
+      ],
+      "state": "information preview; explicit opt-in uncalibrated DOI resolution with doi.org and Crossref, otherwise Not checked in the documented DOI profile; no qualified release or human-decision substitute"
     },
     "support": {
       "requirements": ["FA-UEB-20", "FA-UEB-23"],

@@ -83,7 +83,7 @@ for (const language of ["en", "de"] as const)
       );
       expect(extension.text).toContain(
         language === "en"
-          ? "The original URL and title identify the archived Source."
+          ? "The original URL and title identify the archived source."
           : "Die ursprüngliche URL und der Titel identifizieren die archivierte Quelle.",
       );
       expect(extension.text).toContain(originalUrl);

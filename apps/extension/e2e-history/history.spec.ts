@@ -44,20 +44,20 @@ for (const language of ["en", "de"] as const) {
     const t =
       language === "en"
         ? {
-            enable: "Enable History",
-            refresh: "Refresh History",
-            open: "Open Check",
-            restart: "Start as a new Check",
-            confirm: "Start new billable Check",
-            revoke: "Revoke History",
-            remove: "Delete all History",
+            enable: "Enable history",
+            refresh: "Refresh history",
+            open: "Open check",
+            restart: "Start as a new check",
+            confirm: "Start new billable check",
+            revoke: "Revoke history",
+            remove: "Delete all history",
           }
         : {
             enable: "Verlauf aktivieren",
             refresh: "Verlauf aktualisieren",
-            open: "Check öffnen",
-            restart: "Als neuen Check starten",
-            confirm: "Neuen kostenpflichtigen Check starten",
+            open: "Prüfung öffnen",
+            restart: "Als neue Prüfung starten",
+            confirm: "Neue kostenpflichtige Prüfung starten",
             revoke: "Verlauf widerrufen",
             remove: "Gesamten Verlauf löschen",
           };

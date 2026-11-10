@@ -14,7 +14,7 @@ for (const language of ["en", "de"] as const) {
     await page.getByRole("textbox").fill(reference);
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
@@ -66,7 +66,7 @@ for (const language of ["en", "de"] as const) {
     await expect(
       result
         .getByRole("link", {
-          name: language === "en" ? "Open Source" : "Quelle öffnen",
+          name: language === "en" ? "Open source" : "Quelle öffnen",
         })
         .first(),
     ).toHaveAttribute("href", "https://doi.org/10.1038%2Fnphys1170");
@@ -106,7 +106,7 @@ for (const language of ["en", "de"] as const)
         );
       await page
         .getByRole("button", {
-          name: language === "en" ? "Check Reference" : "Referenz prüfen",
+          name: language === "en" ? "Check reference" : "Referenz prüfen",
           exact: true,
         })
         .click();
@@ -133,7 +133,7 @@ for (const language of ["en", "de"] as const)
           language === "en"
             ? limitation === "invalid"
               ? "The data source returned incomplete or invalid metadata."
-              : "The data source could not be reached. Try this Reference again later."
+              : "The data source could not be reached. Try this reference again later."
             : limitation === "invalid"
               ? "Die Datenquelle hat unvollständige oder ungültige Metadaten geliefert."
               : "Die Datenquelle war nicht erreichbar. Prüfen Sie diese Referenz später erneut.",

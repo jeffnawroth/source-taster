@@ -15,7 +15,7 @@ for (const language of ["en", "de"] as const) {
     await page.getByRole("textbox").fill(original);
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
@@ -64,6 +64,11 @@ for (const language of ["en", "de"] as const) {
       name: language === "en" ? "Reference detail" : "Referenzdetails",
       exact: true,
     });
+    await expect(detail).toContainText(
+      language === "en"
+        ? "Already debited reference slot: a re-check uses no additional quota."
+        : "Bereits abgerechneter Referenzplatz: Eine erneute Prüfung verbraucht kein weiteres Kontingent.",
+    );
     await expect(detail).toContainText(original);
     await expect(detail).toContainText(
       language === "en"
@@ -120,13 +125,13 @@ for (const language of ["en", "de"] as const)
       );
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
     const edit = page.getByRole("button", {
       name:
-        language === "en" ? "Edit Reference list" : "Referenzliste bearbeiten",
+        language === "en" ? "Edit reference list" : "Referenzliste bearbeiten",
       exact: true,
     });
     await expect(edit).toBeEnabled({ timeout: 15000 });
@@ -138,7 +143,7 @@ for (const language of ["en", "de"] as const)
       .getByRole("textbox", {
         name:
           language === "en"
-            ? "Original input for the new Reference"
+            ? "Original input for the new reference"
             : "Originaleingabe für die neue Referenz",
         exact: true,
       })
@@ -175,8 +180,8 @@ for (const language of ["en", "de"] as const)
     });
     await expect(preview).toContainText(
       language === "en"
-        ? "Add 1, remove 1. Resulting References: 1. Additional Quota on first Verdicts: 1."
-        : "Hinzufügen: 1, entfernen: 1. Verbleibende Referenzen: 1. Zusätzliches Kontingent bei ersten Urteilen: 1.",
+        ? "Add 1, remove 1. Resulting references: 1. Additional quota on first verdicts: 1."
+        : "Hinzufügen: 1, entfernen: 1. Verbleibende Referenzen: 1. Zusätzliches Kontingent bei ersten Befunden: 1.",
     );
     expect(changes).toEqual([]);
     expect(
@@ -202,7 +207,7 @@ for (const language of ["en", "de"] as const)
     await expect(list.getByRole("listitem")).toHaveCount(1);
     await expect(list.getByRole("button")).toHaveText(
       language === "en"
-        ? "Open Reference 2: Added title"
+        ? "Open reference 2: Added title"
         : "Referenz 2 öffnen: Added title",
     );
     expect(changes).toHaveLength(1);

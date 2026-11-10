@@ -35,7 +35,7 @@ for (const language of ["en", "de"] as const)
         page.getByRole("status").filter({
           hasText:
             language === "en"
-              ? "1 References recognized"
+              ? "1 references recognized"
               : "1 Referenzen erkannt",
         }),
       ).toBeVisible();
@@ -48,7 +48,7 @@ for (const language of ["en", "de"] as const)
       await page
         .getByText(
           language === "en"
-            ? "Not recognized as a Reference"
+            ? "Not recognized as a reference"
             : "Nicht als Referenz erkannt",
           { exact: true },
         )
@@ -56,7 +56,7 @@ for (const language of ["en", "de"] as const)
       await expect(page.getByText(rejected, { exact: true })).toBeVisible();
       await page
         .getByRole("button", {
-          name: language === "en" ? "Check Reference" : "Referenz prüfen",
+          name: language === "en" ? "Check reference" : "Referenz prüfen",
           exact: true,
         })
         .click();
@@ -67,7 +67,7 @@ for (const language of ["en", "de"] as const)
       ).toBeVisible();
       const exports = page.getByRole("region", {
         name:
-          language === "en" ? "Export References" : "Referenzen exportieren",
+          language === "en" ? "Export references" : "Referenzen exportieren",
         exact: true,
       });
       await exports
@@ -81,7 +81,7 @@ for (const language of ["en", "de"] as const)
         .getByRole("button", {
           name:
             language === "en"
-              ? "Download References"
+              ? "Download references"
               : "Referenzen herunterladen",
           exact: true,
         })
@@ -107,7 +107,7 @@ for (const language of ["en", "de"] as const)
       await expect(page.getByRole("textbox")).toHaveValue("");
       await expect(
         page.getByRole("button", {
-          name: language === "en" ? "Check Reference" : "Referenz prüfen",
+          name: language === "en" ? "Check reference" : "Referenz prüfen",
           exact: true,
         }),
       ).toBeDisabled();
@@ -126,10 +126,10 @@ test("keeps canonical exports available when membership adds a non-imported Refe
     buffer: Buffer.from("@patent{Kept,title={Synthetic patent},year=2024}\n"),
   });
   await expect(
-    page.getByRole("status").filter({ hasText: "1 References recognized" }),
+    page.getByRole("status").filter({ hasText: "1 references recognized" }),
   ).toBeVisible();
   await page
-    .getByRole("button", { name: "Check Reference", exact: true })
+    .getByRole("button", { name: "Check reference", exact: true })
     .click();
   const format = page.getByRole("combobox", {
     name: "Export format",
@@ -137,14 +137,14 @@ test("keeps canonical exports available when membership adds a non-imported Refe
   });
   await format.selectOption("imported-format");
   const edit = page.getByRole("button", {
-    name: "Edit Reference list",
+    name: "Edit reference list",
     exact: true,
   });
   await expect(edit).toBeEnabled({ timeout: 15000 });
   await edit.click();
   await page
     .getByRole("textbox", {
-      name: "Original input for the new Reference",
+      name: "Original input for the new reference",
       exact: true,
     })
     .fill("A new Reference");
@@ -171,7 +171,7 @@ test("keeps canonical exports available when membership adds a non-imported Refe
   );
   const downloaded = page.waitForEvent("download");
   await page
-    .getByRole("button", { name: "Download References", exact: true })
+    .getByRole("button", { name: "Download references", exact: true })
     .click();
   const output = JSON.parse(
     await readFile(await (await downloaded).path(), "utf8"),

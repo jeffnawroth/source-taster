@@ -89,7 +89,7 @@ const probesAreAnonymous = (panel: Panel) =>
         (r.headers.Authorization ?? r.headers.authorization) === undefined &&
         (r.headers.Cookie ?? r.headers.cookie) === undefined,
     );
-async function check(panel: Panel, name = "Check Reference") {
+async function check(panel: Panel, name = "Check reference") {
   await panel.fill("textbox", /^(Reference|Referenz)$/, physicsReference);
   await panel.click("button", name);
 }
@@ -181,8 +181,8 @@ test("the extension Guest ID persists in extension storage across panel close, r
         "The side panel did not close",
       );
       panel = await browser.openPanel();
-      expect(await panel.query("region", "Your Check")).toEqual([]);
-      await check(panel, "Structure References");
+      expect(await panel.query("region", "Your check")).toEqual([]);
+      await check(panel, "Structure references");
       await panel.locate(
         `[...document.querySelectorAll("p, span, dd, li")].find((e) => e.textContent === "Measured measurement")`,
         20_000,
@@ -255,7 +255,7 @@ test("web and extension keep separate Guest IDs and Preferences in the same nati
     expect(stored[preferencesKey]).toBeUndefined();
     expect(JSON.stringify(local)).not.toContain(extension.guestId);
     // The panel keeps its own language; the web choice does not reach it.
-    expect(await panel.query("button", "Check Reference")).not.toEqual([]);
+    expect(await panel.query("button", "Check reference")).not.toEqual([]);
   });
 });
 
@@ -276,7 +276,7 @@ async function renewal(browser: NativeChromium) {
     // already issues its token on load to read the Quota (#99).
     await expireIssuedTokensIn(both, 40_000);
     const panel = await browser.openPanel();
-    await check(panel, "Structure References");
+    await check(panel, "Structure references");
     await panel.locate(
       `[...document.querySelectorAll("p, span, dd, li")].find((e) => e.textContent === "Measured measurement")`,
       20_000,
@@ -346,7 +346,7 @@ test("revocation stops lease renewal and later Checks fail closed without replac
     await until(
       async () =>
         (await alerts(panel)).includes(
-          "Sie haben keine Berechtigung für diese Aktion.",
+          "Prüfen Sie, ob Sie mit dem richtigen Konto angemeldet sind. Sie haben keine Berechtigung für diese Aktion.",
         ),
       "The refused Check was not reported",
     );
@@ -396,11 +396,11 @@ test("revocation stops lease renewal and later Checks fail closed without replac
 for (const language of ["en", "de"] as const) {
   const deniedText =
     language === "en"
-      ? "You do not have permission for this action."
-      : "Sie haben keine Berechtigung für diese Aktion.";
-  const checkName = language === "en" ? "Check Reference" : "Referenz prüfen";
+      ? "Check that you are signed in to the right account. You do not have permission for this action."
+      : "Prüfen Sie, ob Sie mit dem richtigen Konto angemeldet sind. Sie haben keine Berechtigung für diese Aktion.";
+  const checkName = language === "en" ? "Check reference" : "Referenz prüfen";
   const structureName =
-    language === "en" ? "Structure References" : "Referenzen strukturieren";
+    language === "en" ? "Structure references" : "Referenzen strukturieren";
   const resetName = language === "en" ? "Reset" : "Zurücksetzen";
   test(`native extension ${language} token refusal is readable and latched without replacing identity`, async () => {
     await native(async (browser) => {
@@ -442,7 +442,7 @@ for (const language of ["en", "de"] as const) {
       expect(apiRequests(panel, mark)).toEqual([]);
       expect(probesAreAnonymous(panel)).toBe(true);
       expect((await browser.storage())[identityKey]).toBe(id);
-      expect(await panel.query("region", "Your Check")).toEqual([]);
+      expect(await panel.query("region", "Your check")).toEqual([]);
       expect(await panel.axe()).toEqual([]);
       await panel.screenshot(
         evidence(`chromium-token-refused-${language}.png`),
@@ -523,7 +523,7 @@ test("a Guest without Check creation permission is refused by the API in the nat
     await until(
       async () =>
         (await alerts(panel)).includes(
-          "You do not have permission for this action.",
+          "Check that you are signed in to the right account. You do not have permission for this action.",
         ),
       "The refused Check was not reported",
     );
@@ -566,7 +566,7 @@ for (const failure of ["corrupt", "full"] as const)
       await until(
         async () =>
           (await alerts(panel)).includes(
-            "Browser storage is required to keep your Guest identity. Allow local storage and try again.",
+            "Allow local browser storage and try again. It is required to keep your guest identity.",
           ),
         "The storage failure was not reported",
       );
@@ -637,7 +637,7 @@ test("the production background denies extension-local storage to a test-only un
       try {
         await allowOrigins(both, [web.url, browser.origin]);
         const panel = await browser.openPanel();
-        await check(panel, "Structure References");
+        await check(panel, "Structure references");
         await panel.locate(
           `[...document.querySelectorAll("p, span, dd, li")].find((e) => e.textContent === "Measured measurement")`,
           20_000,
@@ -728,7 +728,7 @@ test("a Guest token refused for the extension origin is reported without any fal
         "The refusal was not reported",
       );
       expect(await alerts(panel)).toEqual([
-        "The connection failed. Please try again.",
+        "Check your connection and the progress of your check. A lost connection does not mean the check stopped. Already debited reference slots are not debited again.",
       ]);
       expect(apiRequests(panel)).toEqual([]);
       expect(probesAreAnonymous(panel)).toBe(true);
@@ -745,7 +745,7 @@ test("a Guest token refused for the extension origin is reported without any fal
       const refusedAttempts = issued(panel).length;
 
       await allowOrigins(both, [web.url, browser.origin]);
-      await panel.click("button", "Check Reference");
+      await panel.click("button", "Check reference");
       await results(panel);
       expect(issued(panel).length).toBeGreaterThan(refusedAttempts);
       expect(issued(panel).every((r) => r.guestId === id)).toBe(true);

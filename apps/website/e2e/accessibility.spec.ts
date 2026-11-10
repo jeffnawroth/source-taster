@@ -88,7 +88,9 @@ test("search results, empty and failure states are accessible", async ({
   await page.goto("/docs/en/");
   await page.getByRole("searchbox").fill("citation");
   await page.getByRole("searchbox").press("Enter");
-  await expect(page.getByRole("status")).toHaveText(/./);
+  await expect(page.getByRole("status")).toHaveText(
+    /^Try again or use the documentation links\./,
+  );
   await expect(page.locator("#search-results li")).toHaveCount(0);
   await expectAccessible(page, "failure");
 });

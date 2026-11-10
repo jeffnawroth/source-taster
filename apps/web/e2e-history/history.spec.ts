@@ -94,24 +94,24 @@ for (const language of ["en", "de"] as const) {
     const t =
       language === "en"
         ? {
-            enable: "Enable History",
-            refresh: "Refresh History",
-            open: "Open Check",
-            restart: "Start as a new Check",
-            confirm: "Start new billable Check",
-            revoke: "Revoke History",
-            remove: "Delete all History",
-            search: "Find an earlier Check",
+            enable: "Enable history",
+            refresh: "Refresh history",
+            open: "Open check",
+            restart: "Start as a new check",
+            confirm: "Start new billable check",
+            revoke: "Revoke history",
+            remove: "Delete all history",
+            search: "Find an earlier check",
           }
         : {
             enable: "Verlauf aktivieren",
             refresh: "Verlauf aktualisieren",
-            open: "Check öffnen",
-            restart: "Als neuen Check starten",
-            confirm: "Neuen kostenpflichtigen Check starten",
+            open: "Prüfung öffnen",
+            restart: "Als neue Prüfung starten",
+            confirm: "Neue kostenpflichtige Prüfung starten",
             revoke: "Verlauf widerrufen",
             remove: "Gesamten Verlauf löschen",
-            search: "Früheren Check finden",
+            search: "Frühere Prüfung finden",
           };
     await expect(
       page.getByRole("button", { name: t.enable, exact: true }),
@@ -245,17 +245,17 @@ test("locked entries explain the Plan rule and remain deletable", async ({
     page.getByText(/This entry is locked under the Free rules/),
   ).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "Open Check", exact: true }),
+    page.getByRole("button", { name: "Open check", exact: true }),
   ).toBeDisabled();
   await expect(
-    page.getByRole("button", { name: "Start as a new Check", exact: true }),
+    page.getByRole("button", { name: "Start as a new check", exact: true }),
   ).toBeDisabled();
   await page.getByRole("button", { name: "Delete entry", exact: true }).click();
   await page
-    .getByRole("button", { name: "Delete Check permanently", exact: true })
+    .getByRole("button", { name: "Delete check permanently", exact: true })
     .click();
   await expect(
-    page.getByText("No earlier Checks yet. Checks are kept when they end."),
+    page.getByText("No earlier checks yet. Checks are kept when they end."),
   ).toBeVisible();
   expect(
     (

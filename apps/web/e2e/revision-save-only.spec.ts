@@ -16,7 +16,7 @@ for (const language of ["en", "de"] as const)
     await page.getByRole("textbox").fill(original);
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
@@ -113,7 +113,7 @@ for (const language of ["en", "de"] as const)
       .getByRole("button", {
         name:
           language === "en"
-            ? "Re-check this Reference"
+            ? "Re-check this reference"
             : "Diese Referenz erneut prüfen",
         exact: true,
       })

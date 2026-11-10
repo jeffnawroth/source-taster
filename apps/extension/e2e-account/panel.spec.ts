@@ -392,7 +392,7 @@ test("Account verification uses an in-memory access token; sign-out everywhere d
   await withPanel(async ({ panel, browser, requests }) => {
     await signIn(panel);
     await panel.fill("textbox", "Reference", "Account private input");
-    await panel.click("button", "Check Reference");
+    await panel.click("button", "Check reference");
     await panel.waitForText("alert", undefined, /./);
     const verification = panel.requests.find((r) =>
       r.url.endsWith("/v2/structurings"),
@@ -468,11 +468,11 @@ test("an expired Account access token never reaches verification, including afte
     const mark = requests.length;
     state.expiredToken = true;
     await panel.fill("textbox", "Reference", "Expired token input");
-    await panel.click("button", "Check Reference");
+    await panel.click("button", "Check reference");
     await panel.waitForText("alert", undefined, /./);
     await panel.click("button", "Reset");
     await panel.fill("textbox", "Reference", "Retry expired token");
-    await panel.click("button", "Check Reference");
+    await panel.click("button", "Check reference");
     await panel.waitForText("alert", undefined, /./);
     expect(
       requests
@@ -498,7 +498,7 @@ test("revoked Account renewal stays denied after Reset and never changes into Gu
     await panel.waitForText(
       "main",
       undefined,
-      "Your session has expired or was revoked. Sign in again to continue.",
+      "Sign in again to continue. Your session has expired or was revoked.",
     );
     await panel.click("button", "Reset");
     await panel.fill(
@@ -506,7 +506,7 @@ test("revoked Account renewal stays denied after Reset and never changes into Gu
       "Reference",
       "Reset cannot revive Account access",
     );
-    await panel.click("button", "Check Reference");
+    await panel.click("button", "Check reference");
     await panel.waitForText("alert", undefined, /./);
     expect(
       requests.filter((r) => r.path === "/v1/extension/account-tokens"),
@@ -540,7 +540,7 @@ for (const failure of [true, "missing"] as const)
       await panel.waitForText(
         "alert",
         undefined,
-        "Sign-in is temporarily unavailable. Try again shortly.",
+        "Try again shortly. Sign-in is temporarily unavailable.",
       );
       expect(await browser.storage()).toEqual({ [guestKey]: guestId });
       expect(requests.some((r) => r.path.endsWith("/confirm"))).toBe(false);
@@ -654,7 +654,7 @@ test("Account streams reconnect with memory tokens and generic permission cannot
       "Reference",
       "Doe, J. (2020). Signal maps. Example Press.",
     );
-    await panel.click("button", "Check Reference");
+    await panel.click("button", "Check reference");
     const creation = await until(
       () =>
         panel.responses.find(
@@ -831,7 +831,7 @@ test("full extension-local storage cannot turn confirmation into successful sign
     await panel.waitForText(
       "alert",
       undefined,
-      "Sign-in is temporarily unavailable. Try again shortly.",
+      "Try again shortly. Sign-in is temporarily unavailable.",
     );
     expect((await browser.storage())[key]).toBeUndefined();
     expect((await browser.storage())[guestKey]).toBe(guestId);
@@ -867,7 +867,7 @@ test("browser restart restores only the extension session and never restores Che
 
 test("purchasing and Plan entries open the private web Plan management page without sending an extension credential", async () => {
   await withPanel(async ({ panel, requests }) => {
-    const link = await panel.find("link", "Plans and Check packs on the web");
+    const link = await panel.find("link", "Plans and check packs on the web");
     expect(
       await panel.call(
         link,
@@ -878,7 +878,7 @@ test("purchasing and Plan entries open the private web Plan management page with
       target: "_blank",
       rel: "noopener noreferrer",
     });
-    await panel.click("link", "Plans and Check packs on the web");
+    await panel.click("link", "Plans and check packs on the web");
     await until(
       () => requests.some((r) => r.path === "/plan?language=en"),
       "web Plan management page was not opened",

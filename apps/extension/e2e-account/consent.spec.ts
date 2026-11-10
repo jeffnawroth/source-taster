@@ -225,7 +225,7 @@ async function withFirefoxPanel(
 
 const style = (page: Page) => page.getByLabel("Preferred citation style");
 const allow = (page: Page) =>
-  page.getByRole("button", { name: "Allow Preferences sync" });
+  page.getByRole("button", { name: "Allow preferences sync" });
 
 test.describe("Firefox Account Preferences sync consent", () => {
   test("without the grant, Preferences stay local and the service sees no Preferences request", async ({

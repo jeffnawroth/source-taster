@@ -8,8 +8,8 @@ export type Language = "en" | "de";
 export const labels = {
   en: {
     input: "Reference",
-    check: "Check Reference",
-    open: /^Open Reference 1:/,
+    check: "Check reference",
+    open: /^Open reference 1:/,
     detail: "Reference detail",
     evidence: "Explanation and source evidence",
     correct: "Correct",

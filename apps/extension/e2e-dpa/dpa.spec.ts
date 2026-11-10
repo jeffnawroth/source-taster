@@ -122,7 +122,7 @@ for (const language of ["en", "de"] as const)
           "checkbox",
           de
             ? "Ich nutze den Dienst geschäftlich und bin zum Abschluss für diese Vertragspartei bevollmächtigt."
-            : "I use the service for business and am authorized to conclude for this Contracting party.",
+            : "I use the service for business and am authorized to conclude for this contracting party.",
         );
         const before = (await b.mail()).length;
         await panel.click(

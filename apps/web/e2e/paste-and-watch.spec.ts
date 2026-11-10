@@ -12,7 +12,7 @@ for (const language of ["en", "de"] as const) {
       .getByRole("combobox", { name: /^(Language|Sprache)$/ })
       .selectOption(language);
     const button = page.getByRole("button", {
-      name: language === "en" ? "Check Reference" : "Referenz prüfen",
+      name: language === "en" ? "Check reference" : "Referenz prüfen",
       exact: true,
     });
     await expect(button).toBeDisabled();
@@ -59,6 +59,23 @@ for (const language of ["en", "de"] as const) {
       language === "en" ? "Finished" : "Abgeschlossen",
     );
     await expect(checkStatus(page, language)).toContainText("Darwin");
+    await page
+      .getByRole("list", {
+        name: language === "en" ? "References" : "Referenzen",
+        exact: true,
+      })
+      .getByRole("button")
+      .click();
+    await expect(
+      page.getByRole("region", {
+        name: language === "en" ? "Reference detail" : "Referenzdetails",
+        exact: true,
+      }),
+    ).toContainText(
+      language === "en"
+        ? "Previously unbilled reference slot: the first verdict uses one check of quota. Technical statuses use no quota."
+        : "Bisher nicht abgerechneter Referenzplatz: Der erste Befund verbraucht eine Prüfung des Kontingents. Technische Status verbrauchen kein Kontingent.",
+    );
     expect(
       (
         await new AxeBuilder({ page })
@@ -96,7 +113,7 @@ test("resumes a prematurely closed event stream without losing Reference Status 
       "Darwin, C. (1859). On the Origin of Species.\nDarwin, C. (1871). The Descent of Man.",
     );
   await page
-    .getByRole("button", { name: "Check Reference", exact: true })
+    .getByRole("button", { name: "Check reference", exact: true })
     .click();
   await expect(checkStatus(page)).toContainText("Finished", {
     timeout: 15_000,

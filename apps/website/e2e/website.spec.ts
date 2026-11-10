@@ -16,7 +16,7 @@ test("reader opens a documentation deep link and switches to its counterpart", a
     "How the check works",
   );
   await expect(
-    page.getByText("A Verdict is not proof of deception.", { exact: false }),
+    page.getByText("A verdict is not proof of deception.", { exact: false }),
   ).toBeVisible();
   await page.getByRole("link", { name: "Deutsch", exact: true }).click();
   await expect(page).toHaveURL(/\/docs\/de\/how-the-check-works\/$/);
@@ -223,7 +223,7 @@ test("the Structuring preview is documented in both languages and found by searc
   page,
 }) => {
   for (const [language, query, title, searchbox] of [
-    ["en", "Harvard", "Structuring References", "Search documentation"],
+    ["en", "Harvard", "Structuring references", "Search documentation"],
     ["de", "Harvard", "Referenzen strukturieren", "Dokumentation durchsuchen"],
   ] as const) {
     await page.goto(`/docs/${language}/`);
@@ -239,6 +239,59 @@ test("the Structuring preview is documented in both languages and found by searc
     await expect(page.locator("article")).toContainText(
       language === "en" ? "not been verified" : "nicht geprüft",
     );
+  }
+});
+
+test("FAQ and documentation explain the same opt-in DOI limits without a release claim", async ({
+  page,
+}) => {
+  for (const [language, limits, human] of [
+    [
+      "en",
+      [
+        "doi.org",
+        "Crossref",
+        "explicitly enabled",
+        "Not checked",
+        "not qualified",
+      ],
+      "A verdict is not proof of deception",
+    ],
+    [
+      "de",
+      [
+        "doi.org",
+        "Crossref",
+        "ausdrücklich aktiviert",
+        "Nicht geprüft",
+        "nicht qualifiziert",
+      ],
+      "Ein Befund ist kein Beweis für Täuschung",
+    ],
+  ] as const) {
+    await page.goto(`/${language}/faq/`);
+    const article = page.locator("article");
+    for (const fact of limits) await expect(article).toContainText(fact);
+    await expect(article).toContainText(human);
+    // Search the actual local index and follow its result to the explanation.
+    await page.goto(`/docs/${language}/`);
+    await page.getByRole("searchbox").fill("doi.org");
+    await page.getByRole("searchbox").press("Enter");
+    await page
+      .getByRole("region", {
+        name: language === "en" ? "Search results" : "Suchergebnisse",
+        exact: true,
+      })
+      .getByRole("link", {
+        name:
+          language === "en"
+            ? "How the check works"
+            : "So funktioniert die Prüfung",
+        exact: true,
+      })
+      .click();
+    for (const fact of limits) await expect(article).toContainText(fact);
+    await expect(article).toContainText(human);
   }
 });
 

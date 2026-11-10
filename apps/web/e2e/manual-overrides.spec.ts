@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { CheckResponse } from "@source-taster/contract-verification/v2";
 for (const language of ["en", "de"] as const) {
-  test(`manual Verdicts filter and reset while preserving historical evidence in ${language}`, async ({
+  test(`manual verdicts filter and reset while preserving historical evidence in ${language}`, async ({
     page,
   }) => {
     const en = language === "en";
@@ -19,7 +19,7 @@ for (const language of ["en", "de"] as const) {
       );
     await page
       .getByRole("button", {
-        name: en ? "Check Reference" : "Referenz prüfen",
+        name: en ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
@@ -37,17 +37,17 @@ for (const language of ["en", "de"] as const) {
     });
     await detail
       .getByRole("button", {
-        name: en ? "Confirm Verdict" : "Urteil bestätigen",
+        name: en ? "Confirm verdict" : "Befund bestätigen",
         exact: true,
       })
       .click();
     await expect(detail).toContainText(
-      en ? "Manual Verdict: Correct" : "Manuelles Urteil: Korrekt",
+      en ? "Manual verdict: Correct" : "Manueller Befund: Korrekt",
     );
     await expect(detail).toContainText(
       en
-        ? "Original system Verdict: Correct"
-        : "Ursprüngliches Systemurteil: Korrekt",
+        ? "Original system verdict: Correct"
+        : "Ursprünglicher Systembefund: Korrekt",
     );
     await detail
       .getByRole("button", {
@@ -57,18 +57,18 @@ for (const language of ["en", "de"] as const) {
       .click();
     await detail
       .getByRole("combobox", {
-        name: en ? "Manual Verdict" : "Manuelles Urteil",
+        name: en ? "Manual verdict" : "Manueller Befund",
         exact: true,
       })
       .selectOption("not-found");
     await detail
       .getByRole("button", {
-        name: en ? "Save manual Verdict" : "Manuelles Urteil speichern",
+        name: en ? "Save manual verdict" : "Manuellen Befund speichern",
         exact: true,
       })
       .click();
     await expect(detail).toContainText(
-      en ? "Manual Verdict: Not found" : "Manuelles Urteil: Nicht gefunden",
+      en ? "Manual verdict: Not found" : "Manueller Befund: Nicht gefunden",
     );
     const summary = page.getByRole("region", {
       name: en ? "Check summary" : "Prüfungsübersicht",
@@ -81,12 +81,12 @@ for (const language of ["en", "de"] as const) {
     ).toContainText(en ? "Manual: 1" : "Manuell: 1");
     await detail
       .getByRole("button", {
-        name: en ? "Back to References" : "Zurück zu Referenzen",
+        name: en ? "Back to references" : "Zurück zu Referenzen",
         exact: true,
       })
       .click();
     await expect(list).toContainText(
-      en ? "Manual Verdict: Not found" : "Manuelles Urteil: Nicht gefunden",
+      en ? "Manual verdict: Not found" : "Manueller Befund: Nicht gefunden",
     );
     const filter = summary.getByRole("button", {
       name: en ? /^Not found: 1/ : /^Nicht gefunden: 1/,
@@ -98,22 +98,22 @@ for (const language of ["en", "de"] as const) {
     // Return to all before Re-check so the running Status stays visible.
     await summary
       .getByRole("button", {
-        name: en ? /^All References:/ : /^Alle Referenzen:/,
+        name: en ? /^All references:/ : /^Alle Referenzen:/,
       })
       .click();
     await list.getByRole("button").click();
     await detail
       .getByRole("button", {
-        name: en ? "Re-check this Reference" : "Diese Referenz erneut prüfen",
+        name: en ? "Re-check this reference" : "Diese Referenz erneut prüfen",
         exact: true,
       })
       .click();
     await expect(detail.getByRole("status")).toContainText(
-      en ? "reset by the Re-check" : "durch die erneute Prüfung zurückgesetzt",
+      en ? "reset by the re-check" : "durch die erneute Prüfung zurückgesetzt",
     );
     await expect(
       detail.getByRole("button", {
-        name: en ? "Confirm Verdict" : "Urteil bestätigen",
+        name: en ? "Confirm verdict" : "Befund bestätigen",
         exact: true,
       }),
     ).toBeVisible({ timeout: 15000 });
@@ -133,12 +133,12 @@ for (const language of ["en", "de"] as const) {
       exact: true,
     });
     await expect(history).toContainText(
-      en ? "Manual Verdict: Not found" : "Manuelles Urteil: Nicht gefunden",
+      en ? "Manual verdict: Not found" : "Manueller Befund: Nicht gefunden",
     );
     await expect(history).toContainText(
       en
-        ? "Original system Verdict: Correct"
-        : "Ursprüngliches Systemurteil: Korrekt",
+        ? "Original system verdict: Correct"
+        : "Ursprünglicher Systembefund: Korrekt",
     );
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     expect(
@@ -171,7 +171,7 @@ test("a manual draft cannot silently move to a newer same-revision result", asyn
       "Aspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170",
     );
   await page
-    .getByRole("button", { name: "Check Reference", exact: true })
+    .getByRole("button", { name: "Check reference", exact: true })
     .click();
   const list = page.getByRole("list", { name: "References", exact: true });
   await expect(list).toContainText("Correct", { timeout: 15000 });
@@ -184,7 +184,7 @@ test("a manual draft cannot silently move to a newer same-revision result", asyn
     .getByRole("button", { name: "Judge manually", exact: true })
     .click();
   await detail
-    .getByRole("combobox", { name: "Manual Verdict", exact: true })
+    .getByRole("combobox", { name: "Manual verdict", exact: true })
     .selectOption("not-found");
   const url = `http://127.0.0.1:${apiPort}/v2/checks/${checkId}`;
   // Another client runs the same field revision, producing a different immutable result ID.
@@ -201,10 +201,10 @@ test("a manual draft cannot silently move to a newer same-revision result", asyn
     .poll(async () => (await snapshot()).references[0]!.results.length)
     .toBe(2);
   await detail
-    .getByRole("button", { name: "Save manual Verdict", exact: true })
+    .getByRole("button", { name: "Save manual verdict", exact: true })
     .click();
   await expect(detail.getByRole("alert")).toContainText("changed");
-  await expect(detail).not.toContainText("Manual Verdict: Not found");
+  await expect(detail).not.toContainText("Manual verdict: Not found");
   const [reference] = (await snapshot()).references;
   expect(reference!.manualOverride).toBeNull();
   expect(

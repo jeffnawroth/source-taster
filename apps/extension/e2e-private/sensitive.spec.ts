@@ -48,7 +48,7 @@ test("native panel with a real Account offers private-web management", async () 
     await panel.click("button", "Confirm code");
     await panel.find("button", "Sign out here");
     await panel.find("link", "Account security");
-    expect(await panel.query("button", "Delete Account")).toEqual([]);
+    expect(await panel.query("button", "Delete account")).toEqual([]);
     expect(
       (await browser.storage())["source-taster-extension-session-v1"],
     ).toBeTruthy();

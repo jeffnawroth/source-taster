@@ -18,6 +18,37 @@ beforeAll(async () => {
 }, 60_000);
 
 describe("report PDF structure", () => {
+  it("explains human responsibility beside the summary and keeps technical statuses distinct from verdicts", async () => {
+    for (const language of ["en", "de"] as const) {
+      const final = samples.find((s) => s.name === `report-final-${language}`)!;
+      const { text } = await inspectPdf(final.pdf);
+      expect(text).toContain(
+        language === "de"
+          ? "Ein Befund ist kein Beweis für Täuschung. Die Entscheidung trifft ein Mensch."
+          : "A verdict is not proof of deception. A human makes the decision.",
+      );
+      expect(text).toContain(
+        language === "de"
+          ? "Manueller Befund: Korrekt"
+          : "Manual verdict: Correct",
+      );
+      expect(text).toContain(
+        language === "de"
+          ? "Ursprünglicher Systembefund: Existiert, mit Abweichungen"
+          : "Original system verdict: Exists, with deviations",
+      );
+      expect(text).toContain(
+        language === "de"
+          ? "Status: Technischer Fehler"
+          : "Status: Technical error",
+      );
+      expect(text).not.toContain(
+        language === "de"
+          ? "Befund: Technischer Fehler"
+          : "Verdict: Technical error",
+      );
+    }
+  });
   it("produces DE and EN samples, including a multi-page one", async () => {
     expect(samples.map((s) => s.name).sort()).toEqual([
       "report-final-de",
