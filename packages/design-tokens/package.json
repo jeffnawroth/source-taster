@@ -1,0 +1,42 @@
+{
+  "name": "@source-taster/design-tokens",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Value-only Source Taster design tokens; generated CSS and opaque medium constants.",
+  "license": "AGPL-3.0-or-later OR MIT",
+  "type": "module",
+  "files": [
+    "dist/index.js",
+    "dist/index.d.ts",
+    "theme.css",
+    "README.md",
+    "NOTICE.md",
+    "LICENSE",
+    "LICENSE-AGPL",
+    "LICENSE-MIT"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./theme.css": "./theme.css"
+  },
+  "sideEffects": [
+    "./theme.css"
+  ],
+  "scripts": {
+    "check": "node scripts/generate.ts --check",
+    "build": "pnpm check",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "test": "node --test test/*.test.ts",
+    "tokens:generate": "node scripts/generate.ts"
+  },
+  "devDependencies": {
+    "@types/culori": "4.0.1",
+    "culori": "4.0.2",
+    "tailwindcss": "4.3.4",
+    "prettier": "3.9.10"
+  }
+}

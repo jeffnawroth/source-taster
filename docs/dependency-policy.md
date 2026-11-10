@@ -103,3 +103,19 @@ The product owner approved **veraPDF** as a **CI-only check tool** on 5 Nov 2026
 ## Further launch qualification
 
 Dependabot is configured daily, but its pnpm 12 update behavior still needs live evidence; lockfile recognition alone is not proof. ADR-0015's full ASVS assessment, deployed-version inventory/alert ownership, scanner failure controls, Semgrep, Gitleaks, ZAP and parser isolation are release work beyond #71. Stable selected libraries include pinned 0.x transitive dependencies (for example the Hono validator, React store, React Aria helpers and Paraglide SDK tooling); this gate inventories them and does not silently declare the unresolved maturity-rule interpretation approved. No excluded pre-1.0 library takes a new application core role here.
+
+## Value-only design tokens (#208, ADR-0027)
+
+`@source-taster/design-tokens` has no runtime, peer or optional dependencies. Its
+open-repository generator exact-pins **Culori 4.0.2** (MIT), with
+`@types/culori` **4.0.1** (MIT), Prettier **3.9.10** and Tailwind CSS **4.3.4**
+as development-only generation/type/integration tools. The existing pnpm licence
+inventory and all-packages lockfile advisory scan include them without a new
+licence exception. Nothing from those tools is bundled into the packed outputs.
+
+The packed-file allowlist and isolated import test enforce the value/CSS boundary;
+CI also checks committed output drift, sRGB gamut and the accepted 158 WCAG pairs.
+The dual-licence notice is limited to token values/CSS/constants, not generators,
+components, behaviour, brand/glyph artwork or fonts. #207 remains the separate
+rights gate for private consumption and affected brand distribution. No private
+consumer or public Git pin is updated by this package implementation.

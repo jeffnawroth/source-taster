@@ -82,6 +82,8 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Verify design-token drift, gamut, contrast and packed boundary
+        run: pnpm --filter @source-taster/design-tokens check && pnpm --filter @source-taster/design-tokens test
       - name: Fetch checksum-pinned controlled website inputs (Linux amd64 GNU)
         shell: bash
         run: |
