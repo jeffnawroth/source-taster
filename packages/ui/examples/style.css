@@ -24,6 +24,7 @@ section {
   background: var(--st-surface);
 }
 h1 {
+  overflow-wrap: anywhere;
   font-size: var(--st-text-2xl);
   font-weight: 600;
 }

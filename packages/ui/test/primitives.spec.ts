@@ -238,7 +238,9 @@ test("table exposes sort direction, selection and bounded horizontal overflow", 
   ).toBe(true);
   expect(
     await page.evaluate(
-      () => document.documentElement.scrollWidth <= innerWidth,
+      () =>
+        document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth,
     ),
   ).toBe(true);
 });
@@ -310,9 +312,15 @@ for (const lang of ["de", "en"])
       expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
       await page.setViewportSize({ width: 320, height: 900 });
       await page.reload();
+      // Exercise fallback metrics too: the native macOS face hid a German-heading overflow.
+      await page.addStyleTag({
+        content: ":root { --st-font-sans: Arial, sans-serif; }",
+      });
       expect(
         await page.evaluate(
-          () => document.documentElement.scrollWidth <= innerWidth,
+          () =>
+            document.documentElement.scrollWidth <=
+            document.documentElement.clientWidth,
         ),
       ).toBe(true);
       const primary = page
@@ -337,7 +345,9 @@ for (const lang of ["de", "en"])
       });
       expect(
         await page.evaluate(
-          () => document.documentElement.scrollWidth <= innerWidth,
+          () =>
+            document.documentElement.scrollWidth <=
+            document.documentElement.clientWidth,
         ),
       ).toBe(true);
       expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
