@@ -53,7 +53,7 @@ for (const language of ["en", "de"] as const) {
     await action.click();
     await expect(page.getByRole("status")).toContainText(
       language === "en"
-        ? "No References recognized"
+        ? "No references recognized"
         : "Keine Referenzen erkannt",
     );
     await expect(page.getByRole("status")).toContainText(

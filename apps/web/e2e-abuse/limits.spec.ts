@@ -72,7 +72,7 @@ for (const language of ["en", "de"] as const) {
       .click();
     const alert = page.getByRole("alert");
     await expect(alert).toContainText(
-      language === "en" ? "Too many requests" : "Zu viele Anfragen",
+      language === "en" ? "too many requests" : "zu viele Anfragen",
     );
     await expect(alert.locator("time")).toHaveAttribute(
       "datetime",
@@ -109,7 +109,7 @@ for (const language of ["en", "de"] as const) {
       await panel.waitForText(
         "alert",
         undefined,
-        language === "en" ? "Too many requests" : "Zu viele Anfragen",
+        language === "en" ? "too many requests" : "zu viele Anfragen",
       );
       expect(
         await panel.evaluate<string>(

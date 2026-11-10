@@ -166,7 +166,7 @@ for (const language of ["en", "de"] as const)
         );
         if (reason !== "configuration-unavailable")
           expect(await panel.text("main")).toContain(
-            language === "en" ? "paid Plan" : "kostenpflichtiger Plan",
+            language === "en" ? "paid plan" : "kostenpflichtiger Plan",
           );
       }
       witness.structuring.ai = {

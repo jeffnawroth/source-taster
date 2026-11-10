@@ -14,7 +14,7 @@ export const labels = {
     evidence: "Explanation and source evidence",
     correct: "Correct",
     exists: "Exists, with deviations",
-    best: "Best match by Score",
+    best: "Best match by score",
     library: "Import BibTeX or RIS",
   },
   de: {

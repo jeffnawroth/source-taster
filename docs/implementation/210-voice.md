@@ -71,3 +71,21 @@ part of this handoff.
 
 The current integration tip is merged into the implementation branch before
 handoff; the parent owns integration and PR management.
+
+## Integration follow-up — 11 November 2026
+
+The first #220 CI run exposed six remaining old text expectations in AI upgrade,
+empty Structuring, Best match and rate-limit assertions. They now follow the
+accepted sentence-case/action-first copy without removing the original outcome,
+candidate identity or continuation-time assertions. The bibliography journey
+also waits for the actual document-structuring response and checks success before
+checking highlighted regions, keeping cold extractor startup outside the DOM
+assertion's wait while retaining the original test deadline.
+
+After rebuilding local generated catalogs, all nine targeted AI/Structuring
+browser cases, all three real DOCX bibliography-selection cases, four Web/native
+panel rate-limit cases, one native AI fallback case and the full English
+synthetic-witness panel/Web parity journey pass. The five catalog tests, changed
+file ESLint/format checks and `git diff --check` pass. The DOCX tests require the
+existing isolated extractor image; a run without that prerequisite correctly
+returned HTTP 503 and is not counted as passing evidence.

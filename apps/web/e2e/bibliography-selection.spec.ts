@@ -24,6 +24,7 @@ for (const language of ["en", "de"] as const)
           "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         buffer: Buffer.from(await docx(text.split("\n"))),
       });
+    const uploaded = page.waitForResponse("**/v2/document-structurings");
     await page
       .getByRole("button", {
         name:
@@ -33,6 +34,7 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
+    expect((await uploaded).ok()).toBe(true);
     const selection = page.getByRole("region", {
       name: language === "en" ? "Bibliography selection" : "Literaturauswahl",
       exact: true,

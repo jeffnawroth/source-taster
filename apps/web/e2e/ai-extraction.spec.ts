@@ -190,7 +190,7 @@ for (const language of ["en", "de"] as const)
       );
       if (reason !== "configuration-unavailable")
         await expect(page.getByTestId("ai-unavailable")).toContainText(
-          language === "en" ? "paid Plan" : "kostenpflichtiger Plan",
+          language === "en" ? "paid plan" : "kostenpflichtiger Plan",
         );
     }
     witness.structuring.ai = {
