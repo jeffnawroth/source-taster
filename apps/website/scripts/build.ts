@@ -24,6 +24,16 @@ const verify = spawnSync(
 );
 if (verify.status !== 0)
   throw new Error("A current controlled Pagefind source build is required");
+// ProductExample renders the real localized product at build time. A direct
+// website-only build must prepare its generated catalogs on a clean checkout,
+// as well as when Turbo has already built the workspace dependencies.
+const catalogs = spawnSync(
+  "pnpm",
+  ["--filter", "@source-taster/i18n", "generate"],
+  { cwd: project, stdio: "inherit" },
+);
+if (catalogs.status !== 0)
+  throw new Error("The public product catalogs could not be generated");
 const buildEnvironment = {
   ...process.env,
   ASTRO_TELEMETRY_DISABLED: "1",

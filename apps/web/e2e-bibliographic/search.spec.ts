@@ -249,14 +249,14 @@ for (const language of ["en", "de"] as const)
       await expect(result).toContainText(
         scenario === "mixed"
           ? language === "en"
-            ? "different Sources"
+            ? "different sources"
             : "verschiedenen Quellen"
           : scenario === "missing"
             ? language === "en"
               ? "completed search"
               : "abgeschlossene Suche"
             : language === "en"
-              ? "unambiguous Source"
+              ? "unambiguous source"
               : "eindeutige Quelle",
       );
       expect(
