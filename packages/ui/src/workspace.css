@@ -600,6 +600,9 @@ html:has(.check-workspace) {
   text-decoration: underline 2px var(--st-correction-insert-line);
   text-underline-offset: 0.2em;
 }
+.tracked-change del + ins {
+  margin-inline-start: 0.25em;
+}
 
 @media (min-width: 768px) {
   .check-panes[data-detail-open="false"] {

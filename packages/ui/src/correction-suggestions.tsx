@@ -297,11 +297,12 @@ export function trackedChanges(before: string, after: string) {
       i++;
       j++;
     } else if (
-      j < b.length &&
-      (i === a.length || table[i]![j + 1]! >= table[i + 1]![j]!)
+      i < a.length &&
+      (j === b.length || table[i + 1]![j]! >= table[i]![j + 1]!)
     )
-      push("insert", b[j++]!);
-    else push("delete", a[i++]!);
+      // Deletions precede insertions at a replacement, as in tracked changes.
+      push("delete", a[i++]!);
+    else push("insert", b[j++]!);
   }
   return parts;
 }
