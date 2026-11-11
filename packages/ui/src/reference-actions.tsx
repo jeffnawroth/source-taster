@@ -188,6 +188,7 @@ export function ReferenceActions({
     token: string;
   } | null>(null);
   const busy = useRef(false);
+  const editButton = useRef<HTMLButtonElement>(null);
   const live = useRef<{ check: Check; binding: string } | null>(null);
   useLayoutEffect(() => {
     live.current = { check, binding };
@@ -380,6 +381,7 @@ export function ReferenceActions({
       {!editing ? (
         <div className="flex flex-wrap gap-3">
           <Button
+            ref={editButton}
             type="button"
             className={`${action} border-border-emphasis bg-surface-sunken`}
             {...availability(running || pending)}
@@ -451,7 +453,11 @@ export function ReferenceActions({
               className={action}
               type="button"
               {...availability(pending)}
-              onPress={() => setEditing(false)}
+              onPress={() => {
+                setEditing(false);
+                // The pressed control unmounts; focus returns to its opener.
+                requestAnimationFrame(() => editButton.current?.focus());
+              }}
             >
               {m.revision_discard()}
             </Button>
