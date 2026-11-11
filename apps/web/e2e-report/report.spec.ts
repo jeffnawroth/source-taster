@@ -23,7 +23,8 @@ const copy = {
     heading: "Verification report",
     suggestion: "Correction suggestion",
     exportChoice: "Apply for export only",
-    edit: "Edit fields",
+    apply: "Apply to fields",
+    date: "Publication date",
     title: "Title",
   },
   de: {
@@ -35,7 +36,8 @@ const copy = {
     heading: "Prüfbericht",
     suggestion: "Korrekturvorschlag",
     exportChoice: "Nur für den Export übernehmen",
-    edit: "Felder bearbeiten",
+    apply: "In Felder übernehmen",
+    date: "Veröffentlichungsdatum",
     title: "Titel",
   },
 } as const;
@@ -69,7 +71,13 @@ for (const language of ["en", "de"] as const)
     await suggestion
       .getByRole("checkbox", { name: t.exportChoice, exact: true })
       .check();
-    await page.getByRole("button", { name: t.edit, exact: true }).click();
+    // Apply to fields only builds a local draft; the report keeps committed fields.
+    await suggestion
+      .getByRole("button", { name: t.apply, exact: true })
+      .click();
+    await expect(
+      page.getByRole("textbox", { name: t.date, exact: true }),
+    ).toHaveValue("2009-01");
     await page
       .getByRole("textbox", { name: t.title, exact: true })
       .fill("UNSAVED REPORT DRAFT");
