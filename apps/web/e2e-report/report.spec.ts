@@ -65,7 +65,7 @@ for (const language of ["en", "de"] as const)
       name: t.suggestion,
       exact: true,
     });
-    await expect(suggestion).toContainText("Aspelmeyer, M. (2009).", {
+    await expect(suggestion.locator("ins").first()).toContainText("(2009).", {
       timeout: 20_000,
     });
     await suggestion

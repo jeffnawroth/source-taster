@@ -129,7 +129,10 @@ for (const language of ["en", "de"] as const)
       `${t.inserted}: (2009).`,
       `${t.inserted}: 5(1),`,
     ]);
-    await expect(suggestion).toContainText("Measured measurement.");
+    // A replacement reads as deletion, then insertion.
+    await expect(suggestion).toContainText(
+      `${t.deleted}: (2008).${t.inserted}: (2009). Measured measurement.`,
+    );
     await expect(detail).toContainText(t.debited);
     const apply = detail.getByRole("button", { name: t.apply, exact: true });
     await apply.click();

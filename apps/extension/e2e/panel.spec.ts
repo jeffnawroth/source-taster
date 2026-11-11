@@ -173,7 +173,7 @@ test("native panel renders a Correction suggestion and keeps export choices loca
         region,
         "function () { return this.innerText; }",
       ),
-    ).toContain("Aspelmeyer, M. (2009).");
+    ).toContain("Inserted: (2009).");
     await panel.click("checkbox", "Apply for export only");
     expect(
       await panel.call<boolean>(

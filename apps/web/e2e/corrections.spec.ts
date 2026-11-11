@@ -30,7 +30,7 @@ test("copies a Correction suggestion and applies it only to the formatted export
     name: "Correction suggestion",
     exact: true,
   });
-  await expect(suggestion).toContainText("Aspelmeyer, M. (2009).", {
+  await expect(suggestion.locator("ins").first()).toContainText("(2009).", {
     timeout: 15000,
   });
   await suggestion
@@ -112,7 +112,7 @@ for (const language of ["en", "de"] as const)
       name: language === "en" ? "Correction suggestion" : "Korrekturvorschlag",
       exact: true,
     });
-    await expect(suggestion).toContainText("Aspelmeyer, M. (2009).", {
+    await expect(suggestion.locator("ins").first()).toContainText("(2009).", {
       timeout: 15000,
     });
     await page
