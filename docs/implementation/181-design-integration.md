@@ -14,6 +14,7 @@ private.
 | #208 | Value-only token package; implementation issue closed | [Token contract and contrast gate](208-design-tokens.md) |
 | #209 | Owned primitives and static recipes; implementation issue closed | [Primitive evidence](209-ui-primitives.md) |
 | #210 | Public DE/EN voice; implementation issue closed | [Copy and integration regressions](210-voice.md) |
+| #211 | Shared streamed feed, compact strip, navigation and locally packaged fonts; implementation issue closed | [Real Web/Hosted/native panel evidence](211-checking-shell.md) |
 | #213 | Product-first website and question-led documentation | [116 real-site Chromium cases and source-bound build](213-website.md) |
 | #105 | PDF C design and publication-entitlement revalidation; qualification issue remains open | [Actual generated-output evidence](105-design-record-sheet.md) |
 | #207 | Concrete automated rights research and retained complete Lucide/Feather text; specialist gate remains open | [Primary-source review and owner-supplied provenance](../research/207-design-rights-review.md) |
@@ -26,9 +27,9 @@ closed by this work.
 
 ## Work and actual gates still pending
 
-#211 checking-shell implementation is running in its existing isolated worktree.
-#212 detail and suggestion-to-draft implementation waits on its native #211
-dependency. No claim of completion is made for either ticket here.
+#211 is integrated at `665fc890ede18b9f7e2f14c91860d9ae70baa6c9` and closed as
+an implementation dependency. #212 detail and suggestion-to-draft implementation
+is next on this base; no completion is claimed for it yet.
 
 #207's value-only boundary and express MIT permission were concretely inspected,
 but the required specialist review and complete authority/brand distribution
@@ -52,6 +53,13 @@ build without pre-existing generated product catalogs. Confirm the receipt
 still matches the final integrated inputs before final validation. After #211,
 include any new transitive build-rendered product sources in the website
 publication fingerprint.
+
+The current CI database also reports `RUSTSEC-2026-0486` for the actually selected
+`rustix` 1.1.4 native build dependency. [#221](https://github.com/jeffnawroth/source-taster/issues/221)
+tracks updating the controlled graph to the published fixed version without a
+scan/native-policy waiver. A separate server same-slot test's initial completion
+wait failed once in that CI run and is being reproduced; its behavior is not
+declared fixed or its assertion weakened.
 
 Final integrated checks and the two-axis Standards/Spec review remain pending.
 There is no release, deployment, conformance or specialist clearance claim.
