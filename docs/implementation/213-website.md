@@ -6,8 +6,10 @@ The isolated branch `t3/product-first-website` initially matched required base
 `55275f49179ac0a2dc832f19ac407161f5202fb4`; ancestry was verified before edits.
 It subsequently merged `d5c33ce` (#210 assertion follow-up) and `7dd3d0d` (#207
 research/notice/provenance). Partial work survived both scheduled continuations
-and was checkpointed at `ad8d72a`. The latest integration tip `1da017b` (#209 pending-width test timing) is merged
-before handoff. No predecessor, private source or other worktree was used.
+and was checkpointed at `ad8d72a`. The final integration merge `135987a` includes
+`1da017b` (#209 pending-width test timing) and the current tip `3b480eb00e2fbcb2d2f2ad285e0b9c71e84c15a0`
+(public #105 PDF integration). No predecessor, private source or other worktree
+was used.
 
 Read #213 and its comments/native dependencies through `gh`; #206/#209/#210
 are closed. Implementation follows accepted ADR-0020/0027, the styleguide,
@@ -78,7 +80,8 @@ and client islands. Actual Pagefind source/WASM object downloads remain hash-bou
 ## Final validation
 
 - `SOURCE_TASTER_WEBSITE_E2E_PORT=53213 pnpm --filter @source-taster/website test:e2e`:
-  **116 Chromium tests pass** (49.8 s), including every original website assertion.
+  **116 Chromium tests pass** after the final integration merge, including every
+  original website assertion.
   Search assertions now open the visible dialog and retain language, destination,
   privacy and output checks. No deadline or outcome check was weakened.
 - All emitted index-page routes pass existing 320/1280px axe/reflow checks.
@@ -89,7 +92,10 @@ and client islands. Actual Pagefind source/WASM object downloads remain hash-bou
 - `pnpm --filter @source-taster/website build`: passes with the controlled native
   receipt/trace, actual DE/EN Pagefind indexes and corresponding-source delivery.
   `pnpm pagefind:verify` passes; no native dependency gate or policy was changed.
-- `pnpm i18n:check`: passes, with 541 messages per public catalog, 10 paired
+  After the integration Lockfile/catalog update, frozen installation, catalog
+  generation and controlled fetch/build/site-build were rerun before the full
+  116-case suite. The receipt therefore binds the merged Lockfile.
+- `pnpm i18n:check`: passes, with 551 messages per public catalog, 10 paired
   information pages, 4 paired legal documents, 45 site UI texts and 8 source
   access texts. Guide questions and section-heading completeness are checked.
 - Website typecheck, ESLint, Prettier and `git diff --check` pass.
