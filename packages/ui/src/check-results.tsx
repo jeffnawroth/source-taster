@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { effectiveVerdict } from "./effective-verdict.ts";
 import { verdictLabels, statusLabels } from "./outcome-badges.tsx";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button, IconButton } from "./primitives/actions.tsx";
+import { Button } from "./primitives/actions.tsx";
 import { GlassSurface } from "./primitives/overlays.tsx";
 import { useRef, useState } from "react";
 import type {
@@ -35,6 +34,7 @@ import {
   ReferenceOutcomeView,
   sourceNames,
 } from "./reference-outcome.tsx";
+import { useReferenceWork, useSnapshotGate } from "./reference-work.ts";
 
 function RunningStep({ reference }: { reference: ReferenceSlot }) {
   if (
@@ -97,12 +97,17 @@ export function CheckResults({
     transport,
     selectedSlot,
   );
-  // "default" leaves the layout to the stylesheet: two panes show the detail
-  // beside the list, a single pane shows the list. An explicit open or Back
-  // holds across the breakpoint without a transient state that hides focus.
-  const [detailOpen, setDetailOpen] = useState<"default" | "true" | "false">(
-    "default",
+  // "auto" leaves the layout to the stylesheet, the single breakpoint source:
+  // two panes show the detail beside the list, a single pane shows the list.
+  // An explicit open or Back holds across the breakpoint without a transient
+  // state that hides focus.
+  const [detailOpen, setDetailOpen] = useState<"auto" | "open" | "closed">(
+    "auto",
   );
+  // Drafts and in-flight requests outlive the keyed detail, so navigation
+  // never silently drops unsaved work.
+  const work = useReferenceWork();
+  const gate = useSnapshotGate(check, onSnapshot);
   const list = useRef<HTMLDivElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const buttons = useRef(new Map<number, HTMLDivElement>());
@@ -111,28 +116,17 @@ export function CheckResults({
     matchesFilter(reference, filter),
   );
   const selected = visible.find((reference) => reference.slot === selectedSlot);
-  const selectedIndex = visible.findIndex(
-    (reference) => reference.slot === selectedSlot,
-  );
-  function pageReference(offset: number) {
-    const reference = visible[selectedIndex + offset];
-    if (!reference) return;
-    selectSlot(reference.slot);
-    requestAnimationFrame(() =>
-      heading.current?.focus({ preventScroll: true }),
-    );
-  }
   function open(slot: number) {
     position.current = {
       list: list.current?.scrollTop ?? 0,
       page: window.scrollY,
     };
     selectSlot(slot);
-    setDetailOpen("true");
+    setDetailOpen("open");
     requestAnimationFrame(() => heading.current?.focus());
   }
   function back() {
-    setDetailOpen("false");
+    setDetailOpen("closed");
     requestAnimationFrame(() => {
       if (selectedSlot !== undefined)
         buttons.current.get(selectedSlot)?.focus({ preventScroll: true });
@@ -193,15 +187,15 @@ export function CheckResults({
         filter={filter}
         onFilter={(value) => {
           setFilter(value);
-          // Two panes keep the open detail while its slot remains in the
-          // filtered feed; a single pane returns to the filtered list.
-          if (!window.matchMedia("(min-width: 768px)").matches)
-            setDetailOpen("default");
+          // An explicit open returns to the stylesheet layout: two panes keep
+          // the detail while its slot remains in the filtered feed, a single
+          // pane returns to the filtered list.
+          setDetailOpen((open) => (open === "open" ? "auto" : open));
         }}
       />
       <div
         className="check-panes"
-        data-detail-open={selected ? detailOpen : "false"}
+        data-detail-open={selected ? detailOpen : "closed"}
       >
         <div ref={list} className="check-list">
           <p className="feed-sentence">
@@ -330,41 +324,6 @@ export function CheckResults({
                       outcome={selected.outcome}
                       manualOverride={selected.manualOverride}
                     />
-                    <nav
-                      aria-label={m.detail_pager()}
-                      className="flex flex-wrap items-center gap-2"
-                    >
-                      <IconButton
-                        label={m.detail_previous()}
-                        onPress={() => pageReference(-1)}
-                        {...(selectedIndex <= 0
-                          ? {
-                              isDisabled: true,
-                              disabledReason: m.detail_previous(),
-                            }
-                          : { isDisabled: false })}
-                      >
-                        <ChevronLeft aria-hidden="true" size={20} />
-                      </IconButton>
-                      <span>
-                        {m.detail_position({
-                          current: selectedIndex + 1,
-                          total: visible.length,
-                        })}
-                      </span>
-                      <IconButton
-                        label={m.detail_next()}
-                        onPress={() => pageReference(1)}
-                        {...(selectedIndex >= visible.length - 1
-                          ? {
-                              isDisabled: true,
-                              disabledReason: m.detail_next(),
-                            }
-                          : { isDisabled: false })}
-                      >
-                        <ChevronRight aria-hidden="true" size={20} />
-                      </IconButton>
-                    </nav>
                   </GlassSurface>
                 }
                 outcome={selected.outcome}
@@ -375,9 +334,10 @@ export function CheckResults({
                 key={selected.slot}
                 check={check}
                 reference={selected}
-                rendered={bibliography}
+                bibliography={bibliography}
                 transport={transport}
-                onSnapshot={onSnapshot}
+                work={work(selected.slot)}
+                gate={gate}
               />
             </>
           ) : (

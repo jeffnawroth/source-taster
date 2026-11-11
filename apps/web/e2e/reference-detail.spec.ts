@@ -34,8 +34,8 @@ const copy = {
       "Already debited reference slot: a re-check uses no additional quota.",
     unbilled:
       "Previously unbilled reference slot: the first verdict uses one check of quota. Technical statuses use no quota.",
-    unavailable:
-      "Apply to fields is unavailable until proven structured values for the current result are ready.",
+    noSuggestion:
+      "There is no correction suggestion with proven values for the current result. You can still edit the fields.",
     deleted: "Deleted",
     inserted: "Inserted",
   },
@@ -58,8 +58,8 @@ const copy = {
       "Bereits abgerechneter Referenzplatz: Eine erneute Prüfung verbraucht kein weiteres Kontingent.",
     unbilled:
       "Bisher nicht abgerechneter Referenzplatz: Der erste Befund verbraucht eine Prüfung des Kontingents. Technische Status verbrauchen kein Kontingent.",
-    unavailable:
-      "In Felder übernehmen ist erst verfügbar, wenn belegte strukturierte Werte für das aktuelle Ergebnis vorliegen.",
+    noSuggestion:
+      "Für das aktuelle Ergebnis gibt es keinen Korrekturvorschlag mit belegten Werten. Sie können die Felder weiterhin bearbeiten.",
     deleted: "Gelöscht",
     inserted: "Eingefügt",
   },
@@ -223,7 +223,6 @@ test("detail leads with the effective Verdict in the documented section order an
   const { detail, grid } = await openDeviating(page);
   const order = [
     detail.getByRole("heading", { level: 3 }).first(),
-    detail.getByRole("navigation", { name: "Reference navigation" }),
     detail.getByRole("heading", { name: "Original text", exact: true }),
     detail.getByRole("table", { name: "Reference and best match" }),
     detail.getByText("Explanation and source evidence", { exact: true }),
@@ -272,7 +271,7 @@ test("Escape in the replacement dialog keeps the dirty draft and the open detail
   await expect(apply).toBeFocused();
 });
 
-test("the Pager stays within the filter and narrow Back restores filter and focus", async ({
+test("narrow Back restores the filter and focus after opening a filtered Reference", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 360, height: 780 });
@@ -292,26 +291,10 @@ test("the Pager stays within the filter and narrow Back restores filter and focu
       exact: true,
     }),
   ).toBeVisible({ timeout: 15000 });
-  await grid.getByRole("row").first().getByRole("button").click();
-  const pager = detail.getByRole("navigation", {
-    name: "Reference navigation",
-  });
-  await expect(pager).toContainText("1 of 3");
-  await pager
-    .getByRole("button", { name: "Next reference", exact: true })
-    .click();
-  await expect(pager).toContainText("2 of 3");
-  await expect(detail).toContainText(unchecked);
-  await page
-    .getByRole("button", { name: "Back to references", exact: true })
-    .click();
   await correctFilter.click();
   await expect(grid.getByRole("row")).toHaveCount(1);
   await grid.getByRole("button").click();
-  await expect(pager).toContainText("1 of 1");
-  await expect(
-    pager.getByRole("button", { name: "Next reference", exact: true }),
-  ).toBeDisabled();
+  await expect(detail).toContainText(correct);
   await expect(grid).toBeHidden();
   await page
     .getByRole("button", { name: "Back to references", exact: true })
@@ -321,7 +304,60 @@ test("the Pager stays within the filter and narrow Back restores filter and focu
   await expect(grid.getByRole("row")).toBeFocused();
 });
 
-test("an unbilled technical Status explains why Apply to fields is unavailable", async ({
+test("an unsaved draft survives selecting another Reference, keyboard selection, a filter change and Escape", async ({
+  page,
+}) => {
+  const { grid, detail } = await start(page, `${deviating}\n${correct}`);
+  const summary = page.getByRole("region", { name: "Check summary" });
+  const correctFilter = summary.getByRole("button", {
+    name: "Correct: 1",
+    exact: true,
+  });
+  await expect(correctFilter).toBeVisible({ timeout: 15000 });
+  await expect(
+    summary.getByRole("button", {
+      name: "Exists, with deviations: 1",
+      exact: true,
+    }),
+  ).toBeVisible({ timeout: 15000 });
+  const rows = grid.getByRole("row");
+  await rows.first().getByRole("button").click();
+  await detail
+    .getByRole("button", { name: "Apply to fields", exact: true })
+    .click();
+  const title = detail.getByRole("textbox", { name: "Title", exact: true });
+  await title.fill("Unsaved across navigation");
+  // Another feed row shows that Reference without the draft …
+  await rows.nth(1).getByRole("button").click();
+  await expect(detail).toContainText(correct);
+  await expect(title).toHaveCount(0);
+  // … and returning shows the same unsaved draft.
+  await rows.first().getByRole("button").click();
+  await expect(title).toHaveValue("Unsaved across navigation");
+  // Keyboard selection follows focus in the feed.
+  await rows.first().focus();
+  await page.keyboard.press("ArrowDown");
+  await expect(detail).toContainText(correct);
+  await page.keyboard.press("ArrowUp");
+  await expect(title).toHaveValue("Unsaved across navigation");
+  // A filter that hides the Reference does not discard its draft.
+  await correctFilter.click();
+  await expect(rows).toHaveCount(1);
+  await correctFilter.click();
+  await expect(rows).toHaveCount(2);
+  await rows.first().getByRole("button").click();
+  await expect(title).toHaveValue("Unsaved across navigation");
+  // Escape closes the detail; reopening restores the draft.
+  await title.press("Escape");
+  await expect(detail).toBeHidden();
+  await rows.first().getByRole("button").click();
+  await expect(title).toHaveValue("Unsaved across navigation");
+  await expect(
+    detail.getByRole("button", { name: "Save and re-check", exact: true }),
+  ).toBeEnabled();
+});
+
+test("an unbilled technical Status says no suggestion is available and offers no Apply to fields", async ({
   page,
 }) => {
   for (const language of ["en", "de"] as const) {
@@ -333,11 +369,69 @@ test("an unbilled technical Status explains why Apply to fields is unavailable",
     );
     await grid.getByRole("button").click();
     await expect(detail).toContainText(t.unbilled);
-    await expect(detail).toContainText(t.unavailable);
+    await expect(detail).toContainText(t.noSuggestion);
     await expect(
       detail.getByRole("button", { name: t.apply, exact: true }),
     ).toHaveCount(0);
   }
+});
+
+test("a previously unbilled slot shows its first debit once the first Verdict arrives", async ({
+  page,
+}) => {
+  const t = copy.en;
+  const { grid, detail } = await start(page, unchecked);
+  await expect(grid).toContainText("Not checked", { timeout: 15000 });
+  await grid.getByRole("button").click();
+  await expect(detail).toContainText(t.unbilled);
+  await detail.getByRole("button", { name: t.edit, exact: true }).click();
+  await detail
+    .getByRole("textbox", { name: "DOI", exact: true })
+    .fill("10.1038/nphys1170");
+  await detail.getByRole("button", { name: t.save, exact: true }).click();
+  await expect(grid).not.toContainText("Not checked", { timeout: 15000 });
+  await expect(detail).toContainText(t.debited, { timeout: 15000 });
+  await expect(detail).not.toContainText(t.unbilled);
+});
+
+test("once the committed fields carry the suggestion, Apply to fields is not offered as a no-op", async ({
+  page,
+}) => {
+  const t = copy.en;
+  const { detail } = await openDeviating(page);
+  await detail.getByRole("button", { name: t.apply, exact: true }).click();
+  await detail.getByRole("button", { name: t.save, exact: true }).click();
+  await expect(detail.getByRole("heading", { level: 3 }).first()).toHaveText(
+    t.correct,
+    { timeout: 15000 },
+  );
+  const apply = detail.getByRole("button", { name: t.apply, exact: true });
+  await expect(apply).toBeDisabled();
+  await expect(detail).toContainText(
+    "Apply to fields is unavailable because the suggestion has no proven values that differ from the committed fields.",
+  );
+  await expect(
+    detail.getByRole("button", { name: t.edit, exact: true }),
+  ).toBeEnabled();
+});
+
+test("an update that keeps the same result leaves an Apply draft current", async ({
+  page,
+}) => {
+  const t = copy.en;
+  const { detail } = await openDeviating(page);
+  await detail.getByRole("button", { name: t.apply, exact: true }).click();
+  const title = detail.getByRole("textbox", { name: "Title", exact: true });
+  await title.fill("Draft through a manual verdict");
+  await detail
+    .getByRole("button", { name: "Confirm verdict", exact: true })
+    .click();
+  await expect(detail).toContainText("Manual verdict: Exists, with deviations");
+  await expect(title).toHaveValue("Draft through a manual verdict");
+  await expect(detail).not.toContainText("earlier revision or result");
+  await expect(
+    detail.getByRole("button", { name: t.save, exact: true }),
+  ).toBeEnabled();
 });
 
 test("export and formatted bibliography use committed fields, never an Apply draft", async ({
@@ -515,9 +609,7 @@ test("same-revision Re-check invalidates the draft and export choice even when t
 }) => {
   const { detail, url, snapshot } = await openDeviating(page);
   const before = await snapshot();
-  await detail
-    .getByRole("checkbox", { name: "Apply for export only", exact: true })
-    .check();
+  await detail.getByText("Apply for export only", { exact: true }).click();
   await detail
     .getByRole("button", { name: "Apply to fields", exact: true })
     .click();

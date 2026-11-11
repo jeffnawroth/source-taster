@@ -58,8 +58,9 @@ test("summary filters current Verdicts separately from technical Statuses", asyn
     .getByRole("button", { name: "Judge manually", exact: true })
     .click();
   await detail
-    .getByRole("combobox", { name: "Manual verdict", exact: true })
-    .selectOption("not-found");
+    .getByRole("radiogroup", { name: "Manual verdict", exact: true })
+    .getByText("Not found", { exact: true })
+    .click();
   await detail
     .getByRole("button", { name: "Save manual verdict", exact: true })
     .click();
