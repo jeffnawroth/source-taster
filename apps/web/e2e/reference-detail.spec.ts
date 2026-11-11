@@ -141,7 +141,10 @@ for (const language of ["en", "de"] as const)
     // Apply neither saves, re-checks nor debits anything.
     expect(requests).toEqual([]);
     await detail.getByRole("button", { name: t.discard, exact: true }).click();
-    await detail.getByRole("button", { name: t.edit, exact: true }).click();
+    // Discard unmounts the pressed control; focus returns to its opener.
+    const edit = detail.getByRole("button", { name: t.edit, exact: true });
+    await expect(edit).toBeFocused();
+    await edit.click();
     await expect(date).toHaveValue("2008");
     await date.fill("2006");
     await apply.click();
@@ -668,4 +671,26 @@ test("pending Save sends once, failures retain the draft and a late reply cannot
   ).toHaveValue("");
   await expect(detail).toHaveCount(0);
   await page.unrouteAll({ behavior: "ignoreErrors" });
+});
+
+test("on two panes a filter keeps the open detail only while its Reference still matches", async ({
+  page,
+}) => {
+  const { grid, detail } = await start(page, `${correct}\n${deviating}`);
+  const summary = page.getByRole("region", { name: "Check summary" });
+  const deviations = summary.getByRole("button", {
+    name: "Exists, with deviations: 1",
+    exact: true,
+  });
+  await expect(deviations).toBeVisible({ timeout: 15000 });
+  await grid.getByRole("row").first().getByRole("button").click();
+  await expect(detail).toContainText(correct);
+  await summary
+    .getByRole("button", { name: "Correct: 1", exact: true })
+    .click();
+  await expect(detail).toBeVisible();
+  await expect(detail).toContainText(correct);
+  await deviations.click();
+  await expect(detail).toBeHidden();
+  await expect(grid.getByRole("row")).toHaveCount(1);
 });
