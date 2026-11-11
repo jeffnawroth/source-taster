@@ -107,6 +107,21 @@ and client islands. Actual Pagefind source/WASM object downloads remain hash-bou
 
 ## Remaining qualification gates
 
+### Direct-build integration follow-up
+
+The first Linux dependency job invoked the website build directly on a clean
+checkout and exposed its new build-rendered product's missing generated i18n
+runtime. The website script now generates its public catalog dependency before
+starting the guarded Astro build, independently of Turbo's dependency ordering.
+The native guard, source receipts and publication refusal are unchanged.
+
+The main integration worktree has since passed controlled Pagefind fetch, build
+and verify. A direct website-only build with the generated product catalog
+directory removed regenerated it and passed the full controlled build, real
+DE/EN indexing and hash-bound source/notice delivery. No stale generated runtime
+or another worktree's receipt was used. The original generated directory was
+kept as a temporary rollback until this check succeeded.
+
 No known #213 implementation gap remains. Chromium automation is not human
 screen-reader review, native browser-chrome zoom, Safari/Firefox qualification,
 translation approval, legal review or deployment/release acceptance. Those

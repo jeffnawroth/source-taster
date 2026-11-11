@@ -89,3 +89,10 @@ synthetic-witness panel/Web parity journey pass. The five catalog tests, changed
 file ESLint/format checks and `git diff --check` pass. The DOCX tests require the
 existing isolated extractor image; a run without that prerequisite correctly
 returned HTTP 503 and is not counted as passing evidence.
+
+The subsequent full Linux bibliographic suite reached four further assertions
+still expecting capitalized English nouns (different Sources, unambiguous
+Source, Best match by Score, No Best match). Those literals now match the
+accepted prose. All four targeted real-API Chromium journeys pass, retaining
+their original Candidate-order, Score, missing/ambiguous evidence and field
+preservation assertions. No product behavior or timeout was changed.

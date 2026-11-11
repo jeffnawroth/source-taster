@@ -46,9 +46,10 @@ work named in its ticket; automation does not satisfy it.
 ## Integration validation to finish
 
 The merged website's own worktree passed the exact controlled source build,
-receipt and 116 browser cases. The main integration worktree's older Pagefind
-receipt becomes stale after the new lockfile; run controlled fetch/build/verify
-again against the final integrated inputs before final validation. After #211,
+receipt and 116 browser cases. The main integration worktree has since rebuilt
+and verified its controlled Pagefind receipt and passed a direct website-only
+build without pre-existing generated product catalogs. Confirm the receipt
+still matches the final integrated inputs before final validation. After #211,
 include any new transitive build-rendered product sources in the website
 publication fingerprint.
 
