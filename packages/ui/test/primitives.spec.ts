@@ -29,7 +29,11 @@ test("buttons retain width and label while pending; disabled reason is visible a
   await expect(icon).toHaveAttribute("aria-busy", "true");
   await expect(icon.locator(".st-spinner")).toBeVisible();
   await expect(button).toHaveText("Prepare report");
-  expect((await button.boundingBox())!.width).toBeCloseTo(width, 1);
+  // The permitted press animation briefly scales the painted box. Measure the
+  // pending state after it settles, with the same layout-width tolerance.
+  await expect
+    .poll(async () => (await button.boundingBox())!.width)
+    .toBeCloseTo(width, 1);
   const disabled = page.getByRole("button", {
     name: "Start check",
     exact: true,
