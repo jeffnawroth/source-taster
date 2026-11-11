@@ -4,7 +4,7 @@ import { verdictLabels, statusLabels } from "./outcome-badges.tsx";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button, IconButton } from "./primitives/actions.tsx";
 import { GlassSurface } from "./primitives/overlays.tsx";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import type {
   Check,
   ReferenceSlot,
@@ -97,22 +97,12 @@ export function CheckResults({
     transport,
     selectedSlot,
   );
-  const [detailOpen, setDetailOpen] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      window.matchMedia("(min-width: 768px)").matches,
+  // "default" leaves the layout to the stylesheet: two panes show the detail
+  // beside the list, a single pane shows the list. An explicit open or Back
+  // holds across the breakpoint without a transient state that hides focus.
+  const [detailOpen, setDetailOpen] = useState<"default" | "true" | "false">(
+    "default",
   );
-  // A detail the person opened stays open across the breakpoint; otherwise
-  // each layout shows its default: two panes beside, one pane the list.
-  const explicit = useRef(false);
-  useEffect(() => {
-    const wide = window.matchMedia("(min-width: 768px)");
-    const reset = () => {
-      if (!explicit.current) setDetailOpen(wide.matches);
-    };
-    wide.addEventListener("change", reset);
-    return () => wide.removeEventListener("change", reset);
-  }, []);
   const list = useRef<HTMLDivElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const buttons = useRef(new Map<number, HTMLDivElement>());
@@ -138,13 +128,11 @@ export function CheckResults({
       page: window.scrollY,
     };
     selectSlot(slot);
-    explicit.current = true;
-    setDetailOpen(true);
+    setDetailOpen("true");
     requestAnimationFrame(() => heading.current?.focus());
   }
   function back() {
-    explicit.current = false;
-    setDetailOpen(false);
+    setDetailOpen("false");
     requestAnimationFrame(() => {
       if (selectedSlot !== undefined)
         buttons.current.get(selectedSlot)?.focus({ preventScroll: true });
@@ -207,20 +195,14 @@ export function CheckResults({
           setFilter(value);
           // Two panes keep the open detail while its slot remains in the
           // filtered feed; a single pane returns to the filtered list.
-          const current = check.references.find(
-            (reference) => reference.slot === selectedSlot,
-          );
-          if (
-            !window.matchMedia("(min-width: 768px)").matches ||
-            !current ||
-            !matchesFilter(current, value)
-          ) {
-            explicit.current = false;
-            setDetailOpen(false);
-          }
+          if (!window.matchMedia("(min-width: 768px)").matches)
+            setDetailOpen("default");
         }}
       />
-      <div className="check-panes" data-detail-open={detailOpen && !!selected}>
+      <div
+        className="check-panes"
+        data-detail-open={selected ? detailOpen : "false"}
+      >
         <div ref={list} className="check-list">
           <p className="feed-sentence">
             {check.references.some(
