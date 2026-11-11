@@ -1,94 +1,153 @@
 # #211 — Shared checking shell
 
-Implementation checkpoint, 11 November 2026. Work is still in progress.
-
-The prepared isolated branch started exactly at required integration commit
+Public implementation completed on 11 November 2026 under the explicitly invoked
+implement-spec and TDD workflows. The prepared worktree started at required base
 `55275f49179ac0a2dc832f19ac407161f5202fb4`; ancestry was verified before edits.
-Integration follow-up `d5c33ce06c3d04e83ec321cd17382bee2bc20536` was merged
-before implementation. AGENTS.md, GLOSSARY.md, the issue and its closed native
-dependencies, accepted ADR-0027/0016/0023 and the component/style specifications
-were read. The explicitly invoked implement-spec and TDD skills and TDD support
-files govern this work. No subagent, predecessor, push, PR or issue closure is
-part of this branch.
+The integration follow-ups, including `3c8247b962d9780936be1e0873bdb1c52c812728`,
+are merged. AGENTS.md, GLOSSARY.md, the issue/dependencies/comments, accepted
+ADR-0027/0016/0023 and the component/style specifications informed the work.
 
-Public seams: real web/native-panel journeys over existing verification APIs,
-DE/EN catalogs and packaged assets. External-provider and Account-authority
-fixtures remain at their existing HTTP boundaries. Product authority, identity,
-content storage, consent, billing, native dependency and release gates are not
-relaxed.
+## Delivered behavior
 
-Observed red/green so far:
+- Owned RAC GridList feed keeps Reference slot identities and input order while
+  streamed evidence updates in place. Keyboard selection, push detail, narrow
+  Back/Escape, scroll and focus restoration retain the existing detail workflow.
+  Six distinct owned Verdict silhouettes carry the result colors; labels, cards,
+  manual provenance, technical Statuses and evidence tracks stay neutral.
+- The sticky strip uses six counters, a separate Status menu, labelled active
+  filter, tooltips, label reveal and 2 px progress below 700 px. Zero counters
+  remain discoverable by keyboard but cannot activate an empty filter. Actual
+  wrapped sticky heights keep detail actions reachable at narrow zoom. The strip
+  starts at the feed boundary, after existing bulk/export controls, so it cannot
+  cover those controls while they are in use.
+- The TopBar wires modal History, safe-focus restart/delete/revoke confirmation,
+  nonmodal Account entry with real Quota facts, and an existing-action launcher.
+  Intake expands with content and retains file selection/drop, document upload,
+  Bibliography selection, rejected entries, imports, Page selection and Undo.
+- Count/expected consumption precedes automatic search; first-N partial starts
+  preserve original slots. Reconnect reads the same Check, while cancellation,
+  lease expiry, Reset and late-event handling retain the established lifecycle.
+  Hosted session failures fail closed; explicit standalone mode exposes no
+  private-service UI, including when a service URL is configured. Hosted
+  statutory cancellation remains independent of session failure.
+- Private Account/order links carry language/context without Reference/document
+  content. Product authority, separate Web/extension sessions, consent, billing,
+  content storage and release policies remain under their existing interfaces.
 
-- The new streamed GridList test first failed because no grid existed. It then
-  passed with stable input order, roving keyboard focus and narrow Back return.
-- Compact summary tests first failed because no toolbar existed; both DE/EN
-  320px dark/reduced-motion journeys passed with six glyph filters, separate
-  Status menu, labelled active filter and label reveal.
-- Existing-action launcher tests first failed because no launcher existed;
-  both DE/EN journeys passed with Escape/focus restoration and intake focus.
-- Font loading first returned zero actual font faces. The same browser test
-  passed after local fonts were bundled; it observes no external requests.
-- Both DE/EN explicit reconnect tests first failed on the absent action and
-  then passed: a real snapshot read restores the same Check after a simulated
-  stream 503, with exactly one Check creation.
-- Three native Chromium journeys passed: actual toolbar/panel opening, English
-  synthetic-witness Web/panel outcome parity, and DE/EN close/reopen/reload with
-  preference-only storage and axe assertions.
-- A 97-case exploratory Web run passed 71. Follow-up 31-case regression run
-  passed 22. Remaining failures included selectors for the new compact filter,
-  duplicate finding text, an accessible-name mismatch and tests interrupted by
-  concurrent development reloads; they are not passing validation evidence.
-  Two real DOCX/PDF upload journeys passed in the follow-up run with the existing
-  isolated document image from `/tmp/source-taster-design-document-image-id`.
-- Workspace typecheck passed before the latest follow-up edits. Final full
-  checks, packaging and serial regressions are still required.
+The checking UI owns six original locally bundled font files and their pinned
+OFL provenance under `packages/ui/public/fonts`, with complete Adobe/Lucide
+notices in built distributions. The withdrawn optional relocation is absent:
+#105 PDF and #213 website font paths, exact bytes, manifests, runtime packaging
+and source ownership are preserved. No backend/UI font build coupling was added.
+The website publication fingerprint also binds the now-transitive rendered
+`outcome-badges.tsx` input; its existing coverage is retained.
 
-The owner-approved existing private test source is at
-`a6d358ea41eb6be1ede14e6d2634460d358509a4`. Its tracked files were clean. Existing
-both-program Account/History fixtures currently stop on an HTTP 404 for their
-required sign-in challenge route. No private tracked code, branch, dependency,
-content or design-token consumption was changed. New public shell tests use the
-established public HTTP-edge Account-authority fixture with the real verification
-API/worker/PostgreSQL; they do not qualify the private implementation.
+## Public seams and red/green evidence
 
-History restart confirmation and final focused regression fixes remain under
-active implementation. Human screen-reader, supported native-browser, release
-and #207 rights qualifications remain separate and open. Agent provenance is
-not specialist clearance or private token/brand activation approval.
+The owner approved real Web/native-panel journeys over existing APIs, DE/EN
+catalogs, actual local Pagefind, generated PDF and packaged assets. Existing
+external-provider and Account-authority fixtures stay at their HTTP boundaries.
 
-## Second checkpoint
+Observed red before green: absent GridList, compact toolbar, command launcher,
+local font faces, explicit reconnect and History restart confirmation; the
+standalone service-link leak; enabled zero-count filters; History focus lost
+when a native consent button disabled itself during its request; and a
+publication fingerprint unchanged by its newly transitive badge module. The
+corresponding public-output journeys now pass. Native axe also exposed two controls partly
+covered by the strip; moving it to the feed boundary made all four affected
+DE/EN import/revision journeys pass, with the axe assertions retained. Existing
+detail, transport, storage, candidate, export and lifecycle assertions are retained. The old empty-filter assertion now
+uses a real Manual override to move a result out of its active filter, preserving
+both the empty state and Show all recovery checks.
 
-History now uses a modal drawer and a nested safe-focus confirmation. Its new
-public HTTP-edge Account journey observed the absent alert dialog as red and
-passed after implementation in DE/EN. Public hosted handoff, fail-closed session
-and first-N behavior have passing English/DE cases; one parallel run encountered
-transient HTTP 500s and is being repeated serially after stopping only orphaned
-processes whose working directory belonged to this worktree.
+## Validation
 
-Four native Account regressions now pass: opaque-credential persistence/reload,
-Account-token verification and sign-out everywhere, German keyboard confirmation
-and scoped sign-out, and separate actual Web/native sessions. Navigation asserts
-the full accessible Account name in the narrow panel and explicitly opens the
-entry before sign-out. The draft and original transport/storage assertions stay.
+Commands run from the repository root unless a package filter is shown. Browser
+suites use one worker and isolated fixture databases; PostgreSQL-heavy final
+suites run serially. Local logs/traces are ignored artifacts under `.tmp/211-*`
+and the package test-result directories, not publication or qualification proof.
 
-All 22 extension package/preference tests pass, including exact built font
-hashes and full OFL/Lucide/Adobe notices in Chromium and Firefox packages. The two
-UI boundary tests and five catalog tests pass. Workspace typecheck, lint and
-DE/EN checks passed at this checkpoint. A concurrent website build collided with
-another build's output directory; the serial `pnpm build` passed. These checks
-must be repeated after the latest integration/font consolidation.
+| Check | Observed result |
+| --- | --- |
+| `pnpm pagefind:verify` | Controlled Pagefind 1.5.2 verified; no gate bypass |
+| `pnpm typecheck` | 22 tasks passed after final code and integration |
+| `pnpm lint` | 22 tasks and repository Prettier check passed |
+| `pnpm i18n:check` | 580 paired DE/EN messages; website content check passed |
+| `pnpm build` | 13 tasks passed, including standalone website i18n preparation |
+| `pnpm --filter @source-taster/extension test` | 22 passed; both package targets include six exact font hashes and complete notices |
+| `pnpm --filter @source-taster/ui test` | 2 passed; React-free recipe/Toast boundaries |
+| `pnpm --filter @source-taster/i18n test` | 5 passed |
+| Default Web Playwright suite | 101 passed, including upload/selection/import/export, revisions, manual provenance, cancellation/Reset/reconnect, DE/EN, narrow zoom and axe |
+| Final Web `checking-shell.spec.ts workspace.spec.ts manual-overrides.spec.ts revisions.spec.ts` | 27 passed after the final strip placement; includes preserved empty-filter recovery |
+| Hosted shell Playwright suite | 8 passed after the History focus fix; DE/EN History, content-free handoff, fail-closed session, actual pre-search count/first-N completion and explicit standalone mode |
+| Native Chromium panel functional suite | 16 passed after final strip placement, including actual upload, Bibliography selection, manual overrides, revisions, import/export, archive evidence, reopen/storage and axe |
+| Native/Web synthetic-witness parity | Both EN/DE journeys passed in the preceding broad native run (12 witnesses each); not repeated after the final DOM-only strip relocation |
+| Chromium selection/runtime/Undo suite | 13 passed on owned ports; native Firefox excluded explicitly |
+| Native Account regressions | 4 passed: opaque credential/reload, access-token/sign-out, German keyboard confirmation, separate actual Web/native sessions |
+| UI primitives Chromium | 14 passed: DE/EN light/dark, keyboard/modality, 320 px/zoom, reduced settings and actual glass contrast |
+| Website `publication-inputs.spec.ts notices.spec.ts website.spec.ts privacy.spec.ts` | 15 passed after restoring original medium ownership; actual local Pagefind, source delivery, notices, no external resources/storage and transitive fingerprint invalidation |
+| PDF structure suite | 13 passed on the original report fonts, independently parsed generated output |
+| PDF packaged-assets suite | 1 passed using a local no-database Vitest config selecting `test/report-assets.test.ts`; emitted worker generates from exact manifest-bound original assets/notices |
+| Web distribution asset inspection | Six built font SHA-256 values match pinned provenance; complete OFL, Adobe, Lucide and provenance files are byte-identical to owned sources |
 
-The standalone-mode test exposed a real service-UI leak when a service URL was
-configured despite explicit standalone mode: the statutory service link was
-rendered. Its mount is now limited to hosted mode; hosted service failure still
-leaves that independent statutory link reachable. This is mode enforcement,
-not a change to cancellation policy.
+The 101-case Web run preceded the final zero-count, History pending-focus and
+strip-placement refinements. All 27 affected standalone journeys were repeated
+after the final layout change. The final native functional run excludes only the
+previously passing synthetic parity journeys; the repository's full suite and native
+gates remain intact.
+The History pending-focus fix was observed red and then passed in both
+languages; the complete hosted suite passed against the final layout. Its first-N
+journeys additionally wait for all 20 selected Verdicts before closing the
+streaming client and changing the fixture Account identity. A minimized EN/DE
+run reproduced the cross-case failure before that added completion assertion and
+passed afterwards. No arbitrary sleep, retry, fabricated result or weaker
+assertion was introduced. Final static/package checks follow all code refinements
+and the integration merge.
+Withdrawn-relocation-era observations are not counted in this table.
 
-## Owner scope correction
+Exact browser commands (with the owned port environment listed below):
 
-The uncommitted cross-medium font consolidation was withdrawn at the owner's
-request. Existing #105 PDF and #213 website font ownership, paths, exact bytes,
-manifests and runtime packaging are preserved. Only the checking UI's own local
-fonts/notices remain in this ticket. Existing transitive publication-fingerprint
-coverage is retained. The relocation-era package/site/PDF observations are not
-used as final evidence for this scope; final checks follow integration.
+```sh
+pnpm --filter @source-taster/web exec playwright test --output test-results-211-final
+pnpm --filter @source-taster/web exec playwright test checking-shell.spec.ts workspace.spec.ts manual-overrides.spec.ts revisions.spec.ts --output test-results-211-focus-final
+pnpm --filter @source-taster/web exec playwright test --config shell.playwright.config.ts
+pnpm --filter @source-taster/extension exec playwright test --grep-invert 'synthetic witnesses' --output test-results-211-handoff
+pnpm --filter @source-taster/extension exec playwright test --config selection.playwright.config.ts --grep-invert 'Firefox native selection' --output test-results-selection-211-handoff
+pnpm --filter @source-taster/extension exec playwright test --config account.playwright.config.ts panel.spec.ts --grep 'native sign-in persists|Account verification uses|German native email-code|actual web UI keeps' --output test-results-account-211-handoff
+```
+
+Reproduction environment for real document uploads:
+
+```sh
+SOURCE_TASTER_DOCUMENT_IMAGE=$(cat /tmp/source-taster-design-document-image-id)
+```
+
+Owned final ports: Web/API `5622/3622`; hosted Web/API/HTTP-edge authority
+`5623/3623/4623`; native panel Web/API `5613/3613`; selection Web/API/auxiliary
+`5615/3615/3616`; native Account Web/API/authority `5618/3618/4618`; website `5624`.
+The extractor was the existing isolated digest
+`sha256:a36fa02bdeea666e023b219e6bafa4f020833cd703ca1e1e069623cb7a061707`.
+
+## Remaining qualification gates
+
+The owner-approved private test source remains at
+`a6d358ea41eb6be1ede14e6d2634460d358509a4`, with clean tracked files. Existing
+both-program Account/History fixture attempts stop on HTTP 404 at the required
+sign-in challenge prerequisite. No private tracked source, branch or dependencies
+were modified. Only the public journey outcome and source SHA are recorded here.
+The public hosted shell suite instead uses the established HTTP-edge Account
+authority fixture with real verification API/worker/PostgreSQL; it does not
+qualify the private implementation.
+
+#207 remains open. Agent provenance is not specialist clearance, brand approval
+or permission to activate private token consumption. Human screen-reader,
+supported Web Safari/Firefox, native Firefox extension and OS context-menu,
+frozen-quality/release, translation/publication and PDF-specific human acceptance
+remain separate gates.
+Chromium synthetic-witness Web/panel parity is not frozen release parity. The
+controlled native dependency, PDF/UA and publication gates were not relaxed.
+No new Check lifecycle or speculative structured suggestion fields were added;
+the accepted new detail treatment is the separate #212 task.
+
+The parent owns integration PR #220 and final review. No PR, push, issue closure,
+subagent or other-worktree mutation is part of this implementation.
