@@ -23,13 +23,21 @@ test("buttons retain width and label while pending; disabled reason is visible a
       .boundingBox())!.height,
   ).toBe(28);
   const button = page.getByTestId("pending");
-  const width = (await button.boundingBox())!.width;
-  await button.click();
+  // Layout width must stay stable while the permitted press transform animates.
+  // The gallery uses an intrinsic-width button, so a missing spinner reservation is observable.
+  const width = await button.evaluate((el) => getComputedStyle(el).width);
+  await button.hover();
+  await page.mouse.down();
+  await expect(button).toHaveAttribute("data-pressed", "true");
+  expect(await button.evaluate((el) => getComputedStyle(el).width)).toBe(width);
+  await page.mouse.up();
   await expect(button).toHaveAttribute("aria-busy", "true");
   await expect(icon).toHaveAttribute("aria-busy", "true");
   await expect(icon.locator(".st-spinner")).toBeVisible();
   await expect(button).toHaveText("Prepare report");
-  expect((await button.boundingBox())!.width).toBeCloseTo(width, 1);
+  expect(await button.evaluate((el) => getComputedStyle(el).width)).toBe(width);
+  await expect(button).not.toHaveAttribute("aria-busy", "true");
+  expect(await button.evaluate((el) => getComputedStyle(el).width)).toBe(width);
   const disabled = page.getByRole("button", {
     name: "Start check",
     exact: true,

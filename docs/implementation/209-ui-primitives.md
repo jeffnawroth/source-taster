@@ -134,6 +134,22 @@ was run red before the CSS correction and green afterward; the original full and
 heading-only reproductions both return 320px document width after the fix. The
 full Chromium/WebKit suite and workspace gates are rerun on the correction.
 
+## Pending-width measurement regression
+
+Linux CI on `f6d94ef` passed 41 of 42 UI scenarios, including every reflow case.
+Its remaining WebKit failure measured the loading button during the permitted
+press/release scale animation. A pinned pointer reproduction showed unchanged
+311px layout width before/after activation while `scale(0.98)` temporarily painted
+a 305.10px box. Comparing bounding boxes therefore confused motion with layout.
+
+The pending specimen now uses its natural width rather than stretching across
+its gallery column. The regression holds a real pointer press and compares
+computed layout widths before, during and after loading, keeping the busy/label/
+spinner assertions. A temporary negative control removed the idle spinner
+reservation: the test correctly rejected the resulting 28px layout increase
+(133.42px to 161.42px). That fault was removed immediately afterward. The press
+animation and production component behavior are unchanged; no tolerance was widened.
+
 ## CI and remaining qualification
 
 CI verifies the static contract, builds the real examples and runs all **42 UI
