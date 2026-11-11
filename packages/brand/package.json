@@ -1,0 +1,18 @@
+{
+  "name": "@source-taster/brand",
+  "version": "0.0.0",
+  "private": true,
+  "license": "SEE LICENSE IN NOTICE.md",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "test": "node --test test/*.test.ts",
+    "brand:export": "node scripts/export.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@types/pngjs": "6.0.5",
+    "pngjs": "7.0.0"
+  }
+}

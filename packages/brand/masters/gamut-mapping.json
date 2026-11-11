@@ -1,0 +1,86 @@
+{
+  "method": "Reduce chroma at fixed OKLCH lightness and hue until every linear-sRGB channel is in [0, 1], floor chroma to 0.001, then encode 8-bit sRGB. No channel is clipped to fit an out-of-gamut colour.",
+  "source": "Accepted #199 two-drop mark (geometry from the #194 sprite, identity from #191); docs/design/brand-assets.md.",
+  "mappings": [
+    {
+      "stop": "gradientStart",
+      "source": [
+        0.66,
+        0.17,
+        252
+      ],
+      "mapped": [
+        0.66,
+        0.17,
+        252
+      ],
+      "hex": "#3295f6",
+      "chromaReduced": false,
+      "linearSrgb": [
+        0.03232123181955704,
+        0.29833937566661933,
+        0.9200284290792956
+      ]
+    },
+    {
+      "stop": "gradientMiddle",
+      "source": [
+        0.52,
+        0.21,
+        263
+      ],
+      "mapped": [
+        0.52,
+        0.21,
+        263
+      ],
+      "hex": "#205bdf",
+      "chromaReduced": false,
+      "linearSrgb": [
+        0.01469643080852348,
+        0.10523895561310753,
+        0.7379148709265647
+      ]
+    },
+    {
+      "stop": "gradientEnd",
+      "source": [
+        0.42,
+        0.2,
+        274
+      ],
+      "mapped": [
+        0.42,
+        0.2,
+        274
+      ],
+      "hex": "#3433b7",
+      "chromaReduced": false,
+      "linearSrgb": [
+        0.03426172571763608,
+        0.03272826876730972,
+        0.4718344599282546
+      ]
+    },
+    {
+      "stop": "highlight",
+      "source": [
+        0.93,
+        0.035,
+        262
+      ],
+      "mapped": [
+        0.93,
+        0.033,
+        262
+      ],
+      "hex": "#dce9ff",
+      "chromaReduced": true,
+      "linearSrgb": [
+        0.7159934918707074,
+        0.8112449370965786,
+        0.9973479563238266
+      ]
+    }
+  ]
+}
