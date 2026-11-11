@@ -86,3 +86,16 @@ source archives retained in `.tmp/pagefind/license-sources/` and CI artifacts.
 See the dependency policy and primary-source license note. Human legal and
 publication gates remain closed; this recipe grants no security or prerelease
 exception or general runtime license permission.
+
+## rustix security patch — 11 November 2026
+
+The four controlled native locks pin `rustix 1.1.6` to registry SHA-256
+`e5e76742e5294153d4dde1207dbec5bdd81eef6fabdc0d2118babadabfd858aa`,
+removing the affected `1.1.4` from the selected artifacts for
+[RUSTSEC-2026-0486](https://rustsec.org/advisories/RUSTSEC-2026-0486.html).
+The patch corrects extended-attribute zero-buffer handling. Its normal dependency names remain unchanged, and the tighter lower bounds
+fit the frozen versions; the license remains
+`Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT`, with upstream notices retained.
+Raw upstream locks remain immutable evidence. The normal fetch/build/verify,
+actual target/feature closure, license/advisory and refusal controls apply to the
+new exact identity; this is no scanner waiver or publication approval.

@@ -150,6 +150,38 @@ reservation: the test correctly rejected the resulting 28px layout increase
 (133.42px to 161.42px). That fault was removed immediately afterward. The press
 animation and production component behavior are unchanged; no tolerance was widened.
 
+## Blocking native-build advisory maintenance
+
+The fresh OSV database on 11 November 2026 blocked the inherited controlled
+website build at `64377fb` for **RUSTSEC-2026-0486**. Five reports referred to one
+actual affected identity, `rustix 1.1.4`: the selected native closure plus four
+immutable upstream inventories. This was a real selected-dependency finding,
+not a license or scanner-infrastructure failure.
+
+The minimal stable patch pins `rustix 1.1.6` in the four owned native Cargo locks
+(Pagefind, Astro compiler, Rolldown and Sätteri). Registry archive SHA-256:
+`e5e76742e5294153d4dde1207dbec5bdd81eef6fabdc0d2118babadabfd858aa`.
+It fixes extended-attribute zero-buffer initialization handling; the crate's
+license and retained notices stay `Apache-2.0 WITH LLVM-exception OR Apache-2.0
+OR MIT`. Its tightened normal-dependency lower bounds fit the existing frozen
+versions, so no other dependency identity or configured target/feature selection is changed.
+The reproducible controlled-vs-upstream ledger is regenerated in its original
+format. Raw upstream locks and the advisory/refusal policy remain unchanged.
+
+This is the supporting build prerequisite needed to finish #209's required CI,
+recorded as a separate maintenance commit. It does not migrate a website surface,
+add a UI dependency, change private rights or grant publication approval. The
+normal source-checksummed fetch, offline native rebuild, target/feature graph,
+license inventory, fresh offline OSV matching and failure controls apply to the
+patched exact identity. The local rebuilt graph passed license qualification
+and OSV-Scanner 2.7.0 with fresh npm/crates.io databases: zero blocking findings,
+93 raw upstream findings preserved, and no license issues. All 23 qualification
+control results pass, including refusal of positive/incomplete/stale scans and
+reproduction of all three shipped WASM objects from the delivered source archive. The patched build also passes all 92 local website Chromium
+scenarios and the workspace type/lint/build/license gates. The complete E2E job
+on `64377fb` passed in Linux CI, including all 42 UI cases across three engines;
+the final head with this native security patch still requires its own full CI.
+
 ## CI and remaining qualification
 
 CI verifies the static contract, builds the real examples and runs all **42 UI
