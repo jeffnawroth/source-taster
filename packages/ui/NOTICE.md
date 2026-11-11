@@ -6,7 +6,8 @@ Private programs implement their own components and never import this package.
 The six Verdict glyphs are project-owned UI artwork under the UI licence.
 Local font assets have their separate complete OFL-1.1 notices and pinned
 provenance in [public/fonts](public/fonts/README.md). Web/extension builds carry
-these notices. No logo or wordmark artwork is distributed here.
+these notices. No logo or wordmark artwork is distributed in this package; the
+two-drop mark lives in `packages/brand` under its own draft notice.
 
 The primitive anatomy, RAC composition, render-prop/class merge pattern and
 Tailwind variant approach are adapted from Adobe's official

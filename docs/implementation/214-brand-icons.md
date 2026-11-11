@@ -1,7 +1,9 @@
 # #214 — sRGB brand masters and browser icon packaging
 
 Public implementation completed on 11 November 2026 under the TDD workflow, on
-`implement/214-brand-icons` from a base that contains `ceb4161`. The scope
+`implement/214-brand-icons` from a base that contains `ceb4161`. A fresh
+fetch before the report found the `implement/design-remaining` tip still at
+`ceb4161`, already contained, so no merge was needed. The scope
 follows the owner's latest comment on #214: public repository packaging only,
 no wait for the #207 legal review, a draft brand notice marked as not legally
 reviewed, and no publication or store upload. Sources were ADR-0027,
