@@ -30,6 +30,7 @@ export function QuotaMeter({
     <section
       aria-label={m.quota_meter_label()}
       data-testid="quota-meter"
+      data-warning={quota.warning}
       className="mb-6 rounded-xl border border-border-emphasis bg-surface p-4"
     >
       <p className="font-semibold">{m.quota_meter_label()}</p>

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { useState } from "react";
+import { useStickySize } from "./sticky-layout.ts";
 import { Ellipsis, CircleDashed } from "lucide-react";
 import type { Check, Verdict } from "@source-taster/contract-verification/v2";
 import { effectiveVerdict } from "./effective-verdict.ts";
@@ -55,6 +56,7 @@ export function CheckSummary({
   completed: number;
 }) {
   const [labels, setLabels] = useState(false);
+  const strip = useStickySize("--checking-strip-height");
   const statuses = (Object.keys(statusLabels) as Status[])
     .map((status) => ({
       status,
@@ -66,6 +68,7 @@ export function CheckSummary({
   const statusCount = statuses.reduce((sum, s) => sum + s.count, 0);
   return (
     <section
+      ref={strip}
       aria-label={m.workspace_summary()}
       className="summary-container"
       data-labels={labels}
@@ -88,7 +91,14 @@ export function CheckSummary({
                 <ToggleButton
                   aria-label={label}
                   isSelected={filter === verdict}
-                  onChange={() => onFilter(filter === verdict ? null : verdict)}
+                  aria-disabled={count === 0 && filter !== verdict}
+                  onChange={() => {
+                    // Keep zero-count labels discoverable by keyboard/tooltip,
+                    // but never activate an empty filter. An active filter can
+                    // still be cleared if its last matching result changes.
+                    if (count > 0 || filter === verdict)
+                      onFilter(filter === verdict ? null : verdict);
+                  }}
                   className="summary-counter"
                 >
                   <VerdictGlyph verdict={verdict} />

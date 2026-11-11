@@ -556,3 +556,32 @@ body {
     stroke: CanvasText !important;
   }
 }
+/* A push detail scrolls within the working viewport, rather than underneath
+   the sticky controls. Both heights follow wrapping/zoom and active filters. */
+html:has(.check-workspace) {
+  scroll-padding-block-start: calc(
+    var(--checking-topbar-height, 56px) + var(--checking-strip-height, 64px) +
+      32px
+  );
+}
+.summary-container {
+  top: calc(var(--checking-topbar-height, 56px) + 16px);
+}
+.check-detail {
+  max-height: calc(
+    100dvh - var(--checking-topbar-height, 56px) -
+      var(--checking-strip-height, 64px) - 48px
+  );
+  overflow-y: auto;
+  scroll-padding-block: 12px;
+}
+[data-testid="quota-meter"] progress {
+  accent-color: var(--st-accent);
+}
+[data-testid="quota-meter"][data-warning]:not([data-warning="none"]) progress {
+  accent-color: var(--st-feedback-warning);
+}
+.check-workspace [data-testid^="quota-warning-"] {
+  background: var(--st-feedback-warning-tint);
+  border-inline-start-color: var(--st-feedback-warning);
+}

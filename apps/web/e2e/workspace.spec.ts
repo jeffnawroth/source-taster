@@ -44,8 +44,24 @@ test("summary filters current Verdicts separately from technical Statuses", asyn
   const list = page.getByRole("grid", { name: "References" });
   await expect(list.getByRole("row")).toHaveCount(1);
   await expect(list).toContainText("Measured measurement");
-  await summary
-    .getByRole("button", { name: "Not found: 0", exact: true })
+  await expect(
+    summary.getByRole("button", { name: "Not found: 0", exact: true }),
+  ).toBeDisabled();
+  // A currently matching result can leave the active filter after a real
+  // Manual override; keep the empty-state and Show all recovery assertions.
+  await list.getByRole("button").click();
+  const detail = page.getByRole("region", {
+    name: "Reference detail",
+    exact: true,
+  });
+  await detail
+    .getByRole("button", { name: "Judge manually", exact: true })
+    .click();
+  await detail
+    .getByRole("combobox", { name: "Manual verdict", exact: true })
+    .selectOption("not-found");
+  await detail
+    .getByRole("button", { name: "Save manual verdict", exact: true })
     .click();
   await expect(list.getByRole("row")).toHaveCount(0);
   await expect(

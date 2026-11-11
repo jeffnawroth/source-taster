@@ -537,6 +537,13 @@ export function AccountWorkspace({
                 granted: String(quota.granted),
                 consumed: String(quota.consumed),
               })}
+              warning={
+                quota.warning === "none"
+                  ? undefined
+                  : quota.warning === "exhausted"
+                    ? m.quota_warning_exhausted()
+                    : m.quota_warning_eighty()
+              }
               value={quota.remaining}
               maxValue={Math.max(1, quota.granted)}
             />

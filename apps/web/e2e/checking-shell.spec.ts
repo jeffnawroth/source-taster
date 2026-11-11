@@ -95,6 +95,14 @@ for (const language of ["en", "de"] as const)
       expect(box!.x).toBeGreaterThanOrEqual(0);
       expect(box!.x + box!.width).toBeLessThanOrEqual(320);
     }
+    const emptyCounter = toolbar.getByRole("button", {
+      name: en ? "Not found: 0" : "Nicht gefunden: 0",
+      exact: true,
+    });
+    await expect(emptyCounter).toBeDisabled();
+    await emptyCounter.focus();
+    await page.keyboard.press("Enter");
+    await expect(summary.locator(".active-filter")).toHaveCount(0);
     const shapes = await toolbar
       .locator("svg[data-verdict] > :first-child")
       .evaluateAll((elements) => elements.map((element) => element.outerHTML));

@@ -57,6 +57,7 @@ export async function reviewDigest(root: string): Promise<string> {
     "ui/package.json",
     "ui/src/recipes.ts",
     "ui/src/reference-outcome.tsx",
+    "ui/src/outcome-badges.tsx",
     "ui/src/journal-abbreviation.tsx",
     "ui/NOTICE.md",
     "ui/notices/react-spectrum-LICENSE",

@@ -42,7 +42,7 @@ export function BibliographyEditor({
     const before = document.text.slice(ordered[i - 1]?.end ?? 0, region.start);
     return [
       before,
-      <mark key={i} className="bg-amber-200 text-text underline decoration-2">
+      <mark key={i} className="bg-accent-tint text-text underline decoration-2">
         {document.text.slice(region.start, region.end)}
       </mark>,
     ];

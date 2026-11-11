@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Command, History, UserRound, X } from "lucide-react";
 import { m } from "@source-taster/i18n";
+import { useStickySize } from "./sticky-layout.ts";
 import {
   Autocomplete,
   useFilter,
@@ -38,6 +39,7 @@ export function CheckingTopBar({
   onStop?: () => void;
 }) {
   const [commands, setCommands] = useState(false);
+  const topbar = useStickySize("--checking-topbar-height");
   const [historyOpen, setHistoryOpen] = useState(false);
   const [query, setQuery] = useState("");
   const launcher = useRef<HTMLButtonElement>(null);
@@ -67,7 +69,7 @@ export function CheckingTopBar({
     requestAnimationFrame(action);
   }
   return (
-    <header className="checking-topbar">
+    <header ref={topbar} className="checking-topbar">
       <GlassSurface layer="topbar" className="checking-topbar-inner">
         {history && (
           <DialogTrigger isOpen={historyOpen} onOpenChange={setHistoryOpen}>

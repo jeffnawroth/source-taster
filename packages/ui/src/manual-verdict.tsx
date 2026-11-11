@@ -84,7 +84,7 @@ export function ManualVerdictActions({
   return (
     <section
       aria-label={m.override_actions()}
-      className="my-4 min-w-0 space-y-3 rounded border border-indigo-700 bg-indigo-50 p-3"
+      className="my-4 min-w-0 space-y-3 rounded border border-border bg-surface p-3"
     >
       {reference.manualOverrideReset && (
         <p role="status">{m.override_reset()}</p>

@@ -205,10 +205,11 @@ for (const language of ["en", "de"] as const)
       exact: true,
     });
     await expect(list.getByRole("row")).toHaveCount(1);
-    await expect(list.getByRole("button")).toHaveText(
+    await expect(list.getByRole("button")).toHaveAccessibleName(
       language === "en"
         ? "Open reference 2: Added title"
         : "Referenz 2 öffnen: Added title",
     );
+    await expect(list.getByRole("button")).toContainText("Added title");
     expect(changes).toHaveLength(1);
   });
