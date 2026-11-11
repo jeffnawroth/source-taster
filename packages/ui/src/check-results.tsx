@@ -4,7 +4,7 @@ import { verdictLabels, statusLabels } from "./outcome-badges.tsx";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button, IconButton } from "./primitives/actions.tsx";
 import { GlassSurface } from "./primitives/overlays.tsx";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type {
   Check,
   ReferenceSlot,
@@ -102,6 +102,17 @@ export function CheckResults({
       typeof window !== "undefined" &&
       window.matchMedia("(min-width: 768px)").matches,
   );
+  // A detail the person opened stays open across the breakpoint; otherwise
+  // each layout shows its default: two panes beside, one pane the list.
+  const explicit = useRef(false);
+  useEffect(() => {
+    const wide = window.matchMedia("(min-width: 768px)");
+    const reset = () => {
+      if (!explicit.current) setDetailOpen(wide.matches);
+    };
+    wide.addEventListener("change", reset);
+    return () => wide.removeEventListener("change", reset);
+  }, []);
   const list = useRef<HTMLDivElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const buttons = useRef(new Map<number, HTMLDivElement>());
@@ -127,10 +138,12 @@ export function CheckResults({
       page: window.scrollY,
     };
     selectSlot(slot);
+    explicit.current = true;
     setDetailOpen(true);
     requestAnimationFrame(() => heading.current?.focus());
   }
   function back() {
+    explicit.current = false;
     setDetailOpen(false);
     requestAnimationFrame(() => {
       if (selectedSlot !== undefined)
@@ -192,11 +205,19 @@ export function CheckResults({
         filter={filter}
         onFilter={(value) => {
           setFilter(value);
-          // Keep the open detail only while its slot remains in the filtered feed.
+          // Two panes keep the open detail while its slot remains in the
+          // filtered feed; a single pane returns to the filtered list.
           const current = check.references.find(
             (reference) => reference.slot === selectedSlot,
           );
-          if (!current || !matchesFilter(current, value)) setDetailOpen(false);
+          if (
+            !window.matchMedia("(min-width: 768px)").matches ||
+            !current ||
+            !matchesFilter(current, value)
+          ) {
+            explicit.current = false;
+            setDetailOpen(false);
+          }
         }}
       />
       <div className="check-panes" data-detail-open={detailOpen && !!selected}>
