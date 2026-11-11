@@ -199,6 +199,21 @@ for (const locale of ["en", "de"] as const) {
       { timeout: 15000 },
     );
     await trigger.click();
+    const beforeOpen = api.state.quotaCalls.filter((c) =>
+      c.path.endsWith("/reserve"),
+    ).length;
+    await page
+      .getByRole("button", {
+        name: en ? "Open check" : "Prüfung öffnen",
+        exact: true,
+      })
+      .click();
+    await expect(drawer).toBeHidden();
+    await expect(page.getByRole("grid")).toContainText("Measured measurement");
+    expect(
+      api.state.quotaCalls.filter((c) => c.path.endsWith("/reserve")),
+    ).toHaveLength(beforeOpen);
+    await trigger.click();
     const restart = page.getByRole("button", {
       name: en ? "Start as a new check" : "Als neue Prüfung starten",
       exact: true,

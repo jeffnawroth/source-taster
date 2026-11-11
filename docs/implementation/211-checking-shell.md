@@ -83,3 +83,12 @@ configured despite explicit standalone mode: the statutory service link was
 rendered. Its mount is now limited to hosted mode; hosted service failure still
 leaves that independent statutory link reachable. This is mode enforcement,
 not a change to cancellation policy.
+
+## Owner scope correction
+
+The uncommitted cross-medium font consolidation was withdrawn at the owner's
+request. Existing #105 PDF and #213 website font ownership, paths, exact bytes,
+manifests and runtime packaging are preserved. Only the checking UI's own local
+fonts/notices remain in this ticket. Existing transitive publication-fingerprint
+coverage is retained. The relocation-era package/site/PDF observations are not
+used as final evidence for this scope; final checks follow integration.

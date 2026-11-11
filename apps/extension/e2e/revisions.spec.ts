@@ -36,7 +36,7 @@ for (const language of ["en", "de"] as const)
         language === "en" ? "Check reference" : "Referenz prüfen",
       );
       await panel.waitForText(
-        "list",
+        "grid",
         language === "en" ? "References" : "Referenzen",
         language === "en" ? "Correct" : "Korrekt",
       );

@@ -32,7 +32,7 @@ for (const language of ["en", "de"] as const) {
       );
       await panel.click("button", en ? "Check reference" : "Referenz prüfen");
       await panel.waitForText(
-        "list",
+        "grid",
         en ? "References" : "Referenzen",
         en ? "Correct" : "Korrekt",
       );
@@ -73,15 +73,14 @@ for (const language of ["en", "de"] as const) {
         en ? "Back to references" : "Zurück zu Referenzen",
       );
       await panel.waitForText(
-        "list",
+        "grid",
         en ? "References" : "Referenzen",
         en ? "Manual verdict: Not found" : "Manueller Befund: Nicht gefunden",
       );
       await panel.click("button", en ? /^Not found: 1/ : /^Nicht gefunden: 1/);
-      await panel.waitForText(
-        "region",
-        en ? "Check summary" : "Prüfungsübersicht",
-        en ? "Manual: 1" : "Manuell: 1",
+      await panel.find(
+        "button",
+        en ? /^Not found: 1 · Manual: 1/ : /^Nicht gefunden: 1 · Manuell: 1/,
       );
       await panel.click(
         "button",
@@ -89,7 +88,7 @@ for (const language of ["en", "de"] as const) {
       );
       await panel.click(
         "button",
-        en ? /^All references:/ : /^Alle Referenzen:/,
+        en ? "Remove filter: Not found" : "Filter entfernen: Nicht gefunden",
       );
       await panel.click(
         "button",
@@ -121,7 +120,7 @@ for (const language of ["en", "de"] as const) {
         en ? "Back to references" : "Zurück zu Referenzen",
       );
       await panel.waitForText(
-        "list",
+        "grid",
         en ? "References" : "Referenzen",
         en ? "Correct" : "Korrekt",
       );

@@ -284,6 +284,7 @@ async function withIntake(
 test("ordinary-page selection opens the native panel synchronously and stays local until Check", async () => {
   await withIntake(async ({ panel }) => {
     expect(await panel.query("region", "Reference detail")).toEqual([]);
+    expect(await panel.text("main")).toContain("Page selection");
   });
 });
 
