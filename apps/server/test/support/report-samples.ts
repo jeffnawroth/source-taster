@@ -26,7 +26,13 @@ const score = (value: number, fullAgreement: boolean) => ({
 });
 
 function verdict(
-  verdictName: "correct" | "exists-with-deviations" | "not-found",
+  verdictName:
+    | "correct"
+    | "exists-with-deviations"
+    | "mixed-citation"
+    | "doi-conflict"
+    | "not-found"
+    | "not-verifiable",
   doi: string,
   title: string,
   differing: boolean,
@@ -156,7 +162,7 @@ export function finalSample() {
   return check("ended", [
     slot(
       1,
-      "Aspelmeyer, M. (2008). Measured measurement. Nature Physics, 5, 12.",
+      "Aspelmeyer, M. (2008). Measured measurement. Nature Physics, 5, 12. Кириллица, ə, ǂ, ᵹ.",
       verdict("correct", "10.1038/nphys1170", "Measured measurement", false),
     ),
     slot(
@@ -207,15 +213,24 @@ export function intermediateSample() {
 export function longSample() {
   const references = Array.from({ length: 28 }, (_, index) => {
     const n = index + 1;
-    const doi = `10.5555/${"long-identifier-segment-".repeat(1 + (n % 4))}${n}`;
-    const text = `Schröder, K., & Núñez, P. (${2000 + n}). ${"Ein langer Titel über Größe, Maß und Gewicht von Quellen. ".repeat(1 + (n % 3))}Journal ${n}, ${n}(2), ${n}-${n + 14}. https://doi.org/${doi}`;
+    const doi = `10.5555/${"long-identifier-segment-".repeat(n === 1 ? 45 : 1 + (n % 4))}${n}`;
+    const text = `Schröder, K., & Núñez, P. (${2000 + n}). ${"Ein langer Titel über Größe, Maß und Gewicht von Quellen. ".repeat(n === 1 ? 120 : 1 + (n % 3))}Journal ${n}, ${n}(2), ${n}-${n + 14}. https://doi.org/${doi}`;
     return slot(
       n,
       text,
       n % 5 === 0
         ? notFound
         : verdict(
-            n % 2 ? "exists-with-deviations" : "correct",
+            (
+              [
+                "correct",
+                "exists-with-deviations",
+                "mixed-citation",
+                "doi-conflict",
+                "not-found",
+                "not-verifiable",
+              ] as const
+            )[n % 6]!,
             doi,
             `Titel ${n}: ${"Größe und Maß ".repeat(1 + (n % 3))}`,
             n % 2 === 1,

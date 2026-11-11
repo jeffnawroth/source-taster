@@ -12,11 +12,24 @@ import { m } from "@source-taster/i18n";
 import { render } from "../citations/renderer.ts";
 import { suggestionFields } from "../citations/suggestion.ts";
 
+export type ReportVerdict = keyof typeof verdictLabels;
+
 /** One piece of reading content below a heading, in reading order. */
 export type Block =
-  | { kind: "paragraph"; text: string }
-  | { kind: "labelled"; label: string; text: string }
+  | { kind: "paragraph"; text: string; keepWithNext?: boolean }
+  | {
+      kind: "labelled";
+      label: string;
+      text: string;
+      face?: "Mono" | "Italic";
+      verdict?: ReportVerdict;
+    }
   | { kind: "list"; items: string[] }
+  | {
+      kind: "counts";
+      label: string;
+      items: { text: string; verdict?: ReportVerdict }[];
+    }
   | { kind: "link"; label: string; url: string };
 export interface Section {
   heading: string;
@@ -175,7 +188,14 @@ export function buildReport(input: ReportInput): ReportModel {
     if (outcome.kind === "verdict") versions.add(outcome.scoringRules.version);
   }
 
-  const front: Block[] = [];
+  const front: Block[] = [
+    {
+      kind: "labelled",
+      label: m.report_check_id({}, locale),
+      text: check.id,
+      face: "Mono",
+    },
+  ];
   if (input.documentName)
     front.push({
       kind: "labelled",
@@ -186,6 +206,7 @@ export function buildReport(input: ReportInput): ReportModel {
     kind: "labelled",
     label: m.report_date({}, locale),
     text: when,
+    face: "Mono",
   });
   front.push({
     kind: "paragraph",
@@ -215,10 +236,33 @@ export function buildReport(input: ReportInput): ReportModel {
         text: m.workspace_human({}, locale),
       },
       {
-        kind: "list",
-        items: [...counts].map(([label, count]) =>
-          m.report_summary_item({ label, count }, locale),
+        kind: "counts",
+        label: m.report_verdict_counts({}, locale),
+        items: (Object.keys(verdictLabels) as ReportVerdict[]).map(
+          (verdict) => ({
+            verdict,
+            text: m.report_summary_item(
+              {
+                label: verdictName(verdict),
+                count: counts.get(verdictName(verdict)) ?? 0,
+              },
+              locale,
+            ),
+          }),
         ),
+      },
+      {
+        kind: "counts",
+        label: m.report_status_counts({}, locale),
+        items: Object.values(statuses).map((key) => ({
+          text: m.report_summary_item(
+            {
+              label: m[key]({}, locale),
+              count: counts.get(m[key]({}, locale)) ?? 0,
+            },
+            locale,
+          ),
+        })),
       },
       ...(versions.size
         ? [
@@ -226,6 +270,7 @@ export function buildReport(input: ReportInput): ReportModel {
               kind: "labelled" as const,
               label: m.report_scoring_versions({}, locale),
               text: [...versions].join(", "),
+              face: "Mono" as const,
             },
           ]
         : []),
@@ -253,6 +298,7 @@ export function buildReport(input: ReportInput): ReportModel {
         kind: "labelled",
         label: m.report_verdict({}, locale),
         text: verdictName(manual?.verdict ?? outcome.verdict),
+        verdict: manual?.verdict ?? outcome.verdict,
       });
       if (manual) {
         blocks.push({
@@ -278,10 +324,88 @@ export function buildReport(input: ReportInput): ReportModel {
         });
       }
       blocks.push(...explanation(outcome, locale, unknown));
+      const result = reference.results[0];
+      const currentResult =
+        result?.revision === reference.revision &&
+        result.outcome.kind === "verdict"
+          ? result
+          : undefined;
+      blocks.push({
+        kind: "labelled",
+        label: m.report_field_revision({}, locale),
+        text: String(reference.revision),
+        face: "Mono",
+      });
+      if (currentResult)
+        blocks.push({
+          kind: "labelled",
+          label: m.report_result_id({}, locale),
+          text: currentResult.id,
+          face: "Mono",
+        });
+      const revision = reference.revisions.find(
+        (r) => r.revision === reference.revision,
+      );
+      if (revision)
+        blocks.push({
+          kind: "labelled",
+          label: m.report_origin({}, locale),
+          text: m[
+            {
+              user: "report_origin_user",
+              parser: "report_origin_parser",
+              ai: "report_origin_ai",
+            }[revision.provenance] as
+              "report_origin_user" | "report_origin_parser" | "report_origin_ai"
+          ]({}, locale),
+        });
+      blocks.push({
+        kind: "paragraph",
+        text: m.report_checked_fields({}, locale),
+        keepWithNext: true,
+      });
+      for (const [key, value] of Object.entries(outcome.reference.csl)) {
+        blocks.push({
+          kind: "labelled",
+          label:
+            key in fieldLabels
+              ? m[fieldLabels[key as keyof typeof fieldLabels]]({}, locale)
+              : key,
+          text: raw(value, unknown),
+          ...([
+            "DOI",
+            "page",
+            "ISBN",
+            "ISSN",
+            "PMID",
+            "PMCID",
+            "arXiv",
+          ].includes(key)
+            ? { face: "Mono" as const }
+            : {}),
+        });
+      }
+      if (outcome.reference.ai) {
+        blocks.push({ kind: "paragraph", text: m.ai_uncertainty({}, locale) });
+        if (outcome.reference.ai.changedFields.length)
+          blocks.push({
+            kind: "labelled",
+            label: m.ai_changed({}, locale),
+            text: outcome.reference.ai.changedFields
+              .map((key) =>
+                key in fieldLabels
+                  ? m[fieldLabels[key as keyof typeof fieldLabels]]({}, locale)
+                  : key,
+              )
+              .join(", "),
+          });
+      }
+
       blocks.push({
         kind: "labelled",
         label: m.scoring_rules_label({}, locale),
         text: outcome.scoringRules.version,
+        face: "Mono",
       });
     }
     const suggestion = suggestionFor(index);
@@ -289,6 +413,7 @@ export function buildReport(input: ReportInput): ReportModel {
       kind: "labelled",
       label: m.correction_heading({}, locale),
       text: suggestion ?? m.report_no_suggestion({}, locale),
+      ...(suggestion ? { face: "Italic" as const } : {}),
     });
     if (suggestion)
       blocks.push({
@@ -334,6 +459,7 @@ function explanation(
       kind: "labelled",
       label: m.failed_sources_heading({}, locale),
       text: outcome.failedSources.map((s) => sourceNames[s] ?? s).join(", "),
+      face: "Mono",
     });
   const best = outcome.candidates.find((c) => c.id === outcome.bestMatchId);
   if (!best) {
@@ -344,6 +470,7 @@ function explanation(
     kind: "labelled",
     label: m.report_best_match({}, locale),
     text: best.id,
+    face: "Mono",
   });
   const differing = best.fields.filter(
     (field) =>
@@ -358,6 +485,7 @@ function explanation(
     blocks.push({
       kind: "paragraph",
       text: m.report_differences({}, locale),
+      keepWithNext: true,
     });
     blocks.push({
       kind: "list",

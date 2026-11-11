@@ -31,7 +31,8 @@
     "extractor:image": "node scripts/extractor-image.ts",
     "test:history": "vitest run --config history.vitest.config.ts",
     "test:report-structure": "vitest run --config report-structure.vitest.config.ts",
-    "reports:pdfua": "node scripts/report-pdfua.ts"
+    "reports:pdfua": "node scripts/report-pdfua.ts",
+    "reports:resources": "node scripts/report-resources.ts"
   },
   "devDependencies": {
     "@types/pg": "8.23.1",
@@ -48,6 +49,7 @@
     "@source-taster/contract-service": "workspace:*",
     "@source-taster/contract-verification": "workspace:*",
     "@source-taster/core": "workspace:*",
+    "@source-taster/design-tokens": "workspace:*",
     "@source-taster/i18n": "workspace:*",
     "@source-taster/website": "workspace:*",
     "bibliojson": "4.1.0",

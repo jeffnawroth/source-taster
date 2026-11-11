@@ -147,3 +147,11 @@ Human screen-reader announcement/timing review, real Safari and supported native
 platform/release qualification remain the existing release gates. The local
 Firefox launcher failure does not waive the Linux Firefox CI suite. No production
 deployment, private rollout, legal approval or autonomous merge is authorized.
+## Integration follow-up — 11 November 2026
+
+The #220 Linux WebKit run sampled the pending Button's painted width during the
+allowed press-scale transition. The assertion now waits for the stable pending
+width with its original 0.05 px tolerance; label, spinner and availability
+assertions remain. The targeted WebKit case passes five consecutive runs. The
+parallel web suite was interrupted when this primitive suite failed, so its
+interrupted correction journey is not counted as an independent failure.

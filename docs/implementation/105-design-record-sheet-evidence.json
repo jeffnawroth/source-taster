@@ -1,0 +1,77 @@
+{
+  "provenance": "Synthetic public Check fixtures; actual production PDFKit worker output, independently inspected with pdf.js and Poppler. No customer or private service content.",
+  "reviewedOn": "2026-11-11",
+  "samples": [
+    {
+      "file": "report-final-de.pdf",
+      "sha256": "bcf02c2c3805194fb2866dcf854a407d5bab474ea08e702d51f8b15fd8e861d5",
+      "pages": 4
+    },
+    {
+      "file": "report-final-en.pdf",
+      "sha256": "55b473c153ef8e7bb15445d5bdd55fce07b380a79c0df0aa656548d91e9c531c",
+      "pages": 3
+    },
+    {
+      "file": "report-intermediate-de.pdf",
+      "sha256": "7f7828201e68b18118565296a3319d74ff276b2f09eb10b5acdaacf950daa967",
+      "pages": 2
+    },
+    {
+      "file": "report-intermediate-en.pdf",
+      "sha256": "27cf65a7e71b881eb5c2a5701dda0b6592d9c7c910a46c6a8889b387d2b80865",
+      "pages": 2
+    },
+    {
+      "file": "report-long-de.pdf",
+      "sha256": "45b007a797fa48873dca768d23c843001d187162544688ee498c9ba31aa0d1be",
+      "pages": 24
+    },
+    {
+      "file": "report-long-en.pdf",
+      "sha256": "b9f36fd0fb08a878ed81d24c901adc5dbeb4e7b53d0a859ac1acda7d46ed5451",
+      "pages": 24
+    }
+  ],
+  "resourceObservation": {
+    "provenance": "synthetic-local-observation",
+    "node": "v24.14.0",
+    "platform": "darwin",
+    "architecture": "arm64",
+    "limits": {
+      "wallClockMs": 120000,
+      "maxOldGenerationSizeMb": 512,
+      "maxYoungGenerationSizeMb": 64,
+      "maxBytes": 25165824
+    },
+    "observations": [
+      {
+        "language": "de",
+        "references": 1000,
+        "pages": 451,
+        "bytes": 4245672,
+        "generatedMs": 1830,
+        "maxRssBeforeInspectionKiB": 470272,
+        "inputSha256": "75106a3c3d4b33fd39d23282a8fe1980f6182b777ba0d3cfc816b11058933dae",
+        "pdfSha256": "9829629a32fd08e2a2ad8bd1abe0a84862b0688125fc1a4333f1bf7d89c6e5e4"
+      },
+      {
+        "language": "en",
+        "references": 1000,
+        "pages": 430,
+        "bytes": 4169555,
+        "generatedMs": 1871,
+        "maxRssBeforeInspectionKiB": 726208,
+        "inputSha256": "dec20e64d68ded860b1d5615e31b1871fe99d6054ec77300ac3e3fa7dfeea928",
+        "pdfSha256": "77be5d298cc48dddeaa19c0245f3b9fdd35a8aa8ae77f2f5424a4d05183fc55b"
+      },
+      {
+        "references": 1000,
+        "charactersPerReference": 94500,
+        "failure": "limit-exceeded",
+        "elapsedMs": 3850
+      }
+    ],
+    "limitation": "Process high-water RSS includes earlier samples and independent PDF inspection; it is not an isolated renderer heap measurement or a deployment concurrency qualification."
+  }
+}

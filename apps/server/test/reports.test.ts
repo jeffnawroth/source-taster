@@ -349,7 +349,7 @@ it("writes a German report in reading order with overview first, one numbered se
   expect(text).toContain(
     `Ursprünglicher Systembefund: ${second.outcome.kind === "verdict" ? "Existiert, mit Abweichungen" : "?"}`,
   );
-  expect(text).toContain("Version der Bewertungsregeln");
+  expect(text.replace(/\s+/gu, " ")).toContain("Version der Bewertungsregeln");
   // A long version identifier may wrap; its characters must all be there.
   const outcome = check.references[0]!.outcome;
   if (outcome.kind !== "verdict") throw new Error("expected a Verdict");

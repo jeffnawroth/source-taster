@@ -9,6 +9,50 @@ export interface StructNode {
   children?: StructNode[];
   id?: string;
 }
+/** Paint operations independently decoded by pdf.js, including Artifact scope. */
+export async function inspectPaint(bytes: Uint8Array) {
+  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  const task = pdfjs.getDocument({ data: new Uint8Array(bytes), verbosity: 0 });
+  const doc = await task.promise;
+  const paints: {
+    kind: "text" | "path";
+    fill: string;
+    stroke: string;
+    artifact: boolean;
+  }[] = [];
+  try {
+    for (let n = 1; n <= doc.numPages; n++) {
+      const operators = await (await doc.getPage(n)).getOperatorList();
+      let state = { fill: "#000000", stroke: "#000000" };
+      const saved: (typeof state)[] = [];
+      const marked: string[] = [];
+      for (const [i, op] of operators.fnArray.entries()) {
+        const args = operators.argsArray[i] as unknown[] | null;
+        if (op === pdfjs.OPS.save) saved.push({ ...state });
+        else if (op === pdfjs.OPS.restore) state = saved.pop() ?? state;
+        else if (op === pdfjs.OPS.setFillRGBColor)
+          state.fill = args?.[0] as string;
+        else if (op === pdfjs.OPS.setStrokeRGBColor)
+          state.stroke = args?.[0] as string;
+        else if (
+          op === pdfjs.OPS.beginMarkedContent ||
+          op === pdfjs.OPS.beginMarkedContentProps
+        )
+          marked.push(args?.[0] as string);
+        else if (op === pdfjs.OPS.endMarkedContent) marked.pop();
+        else if (op === pdfjs.OPS.showText || op === pdfjs.OPS.constructPath)
+          paints.push({
+            kind: op === pdfjs.OPS.showText ? "text" : "path",
+            ...state,
+            artifact: marked.includes("Artifact"),
+          });
+      }
+    }
+    return paints;
+  } finally {
+    await task.destroy();
+  }
+}
 export async function inspectPdf(bytes: Uint8Array) {
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
   const task = pdfjs.getDocument({
