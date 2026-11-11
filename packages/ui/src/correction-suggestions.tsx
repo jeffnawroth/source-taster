@@ -318,6 +318,7 @@ export function CorrectionSuggestion({
   originalText,
   onApply,
   unavailableReason,
+  busy,
 }: {
   slot: number;
   rendered: Rendered;
@@ -325,13 +326,15 @@ export function CorrectionSuggestion({
   onApply: () => void;
   /** Why Apply to fields cannot run now; null when it can. */
   unavailableReason: string | null;
+  /** A save, re-check or verdict change runs, so there is no current result. */
+  busy: boolean;
 }) {
   const [notice, setNotice] = useState<"copied" | "failed" | null>(null);
   const entry = rendered.data?.entries.find((entry) => entry.slot === slot);
   if (!entry?.suggestion)
     return (
       <p className="my-4">
-        {rendered.data
+        {rendered.data && !busy
           ? m.correction_none_current()
           : (unavailableReason ?? m.correction_loading())}
       </p>

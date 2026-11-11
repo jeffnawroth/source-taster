@@ -376,6 +376,29 @@ test("an unbilled technical Status says no suggestion is available and offers no
   }
 });
 
+test("a running Reference names the running check instead of claiming no suggestion", async ({
+  page,
+}) => {
+  const t = copy.en;
+  const rendered = page.waitForResponse((response) =>
+    /\/v2\/checks\/[^/]+\/bibliography$/u.test(response.url()),
+  );
+  const { grid, detail } = await start(page, held);
+  await expect(grid).toContainText("Running", { timeout: 15000 });
+  await grid.getByRole("button").click();
+  // The suggestions have loaded; the slot still has no current result.
+  expect((await rendered).ok()).toBe(true);
+  await expect(
+    detail.getByText(
+      "Apply to fields is unavailable while a save, re-check or verdict change is running.",
+      { exact: true },
+    ),
+  ).toBeVisible();
+  await expect(detail.getByText(t.noSuggestion, { exact: true })).toHaveCount(
+    0,
+  );
+});
+
 test("a previously unbilled slot shows its first debit once the first Verdict arrives", async ({
   page,
 }) => {

@@ -320,6 +320,7 @@ export function ReferenceActions({
         originalText={reference.originalText}
         onApply={apply}
         unavailableReason={unavailableReason}
+        busy={running || pending}
       />
       <Modal
         isOpen={replacement !== null}
