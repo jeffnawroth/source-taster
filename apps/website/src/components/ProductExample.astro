@@ -1,0 +1,33 @@
+---
+// SPDX-License-Identifier: AGPL-3.0-or-later
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { getLocale, setLocale } from '@source-taster/i18n/runtime';
+import { ReferenceOutcomeSummary } from '../../../../packages/ui/src/reference-outcome';
+import { badgeRecipe } from '@source-taster/ui/recipes';
+import { copy, type Language } from '../content';
+interface Props { language: Language }
+const { language } = Astro.props;
+const t = copy[language];
+// Synchronous build-time rendering of the actual product component. Restore
+// the catalog locale before another route renders; no React runtime is shipped.
+const previous = getLocale();
+let outcome: string;
+try {
+  setLocale(language, { reload: false });
+  outcome = renderToStaticMarkup(createElement(ReferenceOutcomeSummary, {
+    outcome: { kind: 'status', status: 'not-checked' },
+  }));
+} finally { setLocale(previous, { reload: false }); }
+---
+<figure class="product-example" aria-labelledby="example-caption">
+  <figcaption id="example-caption"><span class={badgeRecipe()}>{t.example}</span></figcaption>
+  <div class="example-workspace">
+    <h2>{t.exampleTitle}</h2>
+    <ol><li>
+      <p class="reference-input">{t.exampleInput}</p>
+      <div class="product-outcome" set:html={outcome} />
+    </li></ol>
+  </div>
+  <p class="example-note">{t.exampleNote}</p>
+</figure>

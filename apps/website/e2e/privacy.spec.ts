@@ -27,9 +27,16 @@ test("the built site references no third-party resource, embed or requirement ID
           offending.push(`${file}: ${tag}`);
       if (/<(?:iframe|frame|embed|object)\b/i.test(content))
         offending.push(`${file}: embed`);
+      if (/<astro-island\b/i.test(content))
+        offending.push(`${file}: client island on static content`);
       if (/\bFA-[A-Z]{3}-\d/.test(content))
         offending.push(`${file}: requirement ID`);
     }
+    if (
+      file.endsWith(".js") &&
+      /react-dom|react\.transitional\.element|react\.element/.test(content)
+    )
+      offending.push(`${file}: React runtime on the static site`);
     if (
       file.endsWith(".css") &&
       /(?:url\(|@import)\s*["']?(?:https?:)?\/\//i.test(content)

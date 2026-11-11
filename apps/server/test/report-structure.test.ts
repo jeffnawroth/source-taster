@@ -6,11 +6,19 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import {
   inspectPdf,
+  inspectPaint,
   rawLinks,
   roles,
   untaggedText,
 } from "./support/pdf-inspect.ts";
-import { generateSamples, type Sample } from "./support/report-samples.ts";
+import {
+  generateSamples,
+  intermediateSample,
+  longSample,
+  type Sample,
+} from "./support/report-samples.ts";
+import { generateReport } from "../src/reports/generate.ts";
+import { finalSample } from "./support/report-samples.ts";
 
 let samples: Sample[];
 beforeAll(async () => {
@@ -18,6 +26,269 @@ beforeAll(async () => {
 }, 60_000);
 
 describe("report PDF structure", () => {
+  it("keeps text neutral or link blue and artifacts all six supplementary colored vector marks", async () => {
+    const colors = [
+      "#018c46",
+      "#b26f06",
+      "#c41f5f",
+      "#cd1819",
+      "#ab0130",
+      "#626978",
+    ];
+    for (const language of ["de", "en"] as const) {
+      const sample = samples.find(
+        (s) => s.name === `report-final-${language}`,
+      )!;
+      const paints = await inspectPaint(sample.pdf);
+      for (const paint of paints.filter((p) => p.kind === "text"))
+        expect(["#0e1626", "#214bc9"]).toContain(paint.fill);
+      const marks = paints.filter(
+        (p) =>
+          p.kind === "path" &&
+          (colors.includes(p.fill) || colors.includes(p.stroke)),
+      );
+      for (const color of colors)
+        expect(
+          marks.some((p) => p.fill === color || p.stroke === color),
+          color,
+        ).toBe(true);
+      expect(marks.every((p) => p.artifact)).toBe(true);
+    }
+  });
+  it("presents the effective Verdict before checked fields and never promotes a historical result into a running Re-check", async () => {
+    const check = intermediateSample();
+    const finished = check.references[0]!;
+    const running = check.references[1]!;
+    running.results = [
+      {
+        id: "00000000-0000-4000-8000-000000000099",
+        revision: 1,
+        generation: 0,
+        createdAt: "2026-11-04T08:00:00.000Z",
+        outcome: structuredClone(finished.outcome),
+        manualOverride: null,
+      },
+    ];
+    if (running.results[0]!.outcome.kind === "verdict")
+      running.results[0]!.outcome.reference.csl.title = "HISTORICAL ONLY";
+    running.fields = { title: "COMMITTED BUT STILL RUNNING" };
+    const pdf = await generateReport({
+      check,
+      language: "en",
+      style: "apa",
+      capturedAt: "2026-11-05T08:00:00.000Z",
+    });
+    const { text } = await inspectPdf(pdf);
+    const first = text.slice(
+      text.indexOf("Reference 1"),
+      text.indexOf("Reference 2"),
+    );
+    expect(first.indexOf("Verdict: Correct")).toBeLessThan(
+      first.indexOf("Checked fields"),
+    );
+    const second = text.slice(
+      text.indexOf("Reference 2"),
+      text.indexOf("Reference 3"),
+    );
+    expect(second).toContain("Status: Running");
+    expect(second).not.toContain("Verdict:");
+    expect(text).not.toContain("HISTORICAL ONLY");
+    expect(text).not.toContain("COMMITTED BUT STILL RUNNING");
+  });
+  it("preserves a multi-page Reference and long DOI without clipping text or losing continuation content", async () => {
+    const original = longSample().references[0]!.originalText.replace(
+      /\s/gu,
+      "",
+    );
+    for (const sample of samples.filter((s) => s.name.includes("long"))) {
+      const pdf = await inspectPdf(sample.pdf);
+      const record = pdf.text.slice(
+        pdf.text.indexOf(
+          sample.language === "de" ? "Referenz 1" : "Reference 1",
+        ),
+        pdf.text.indexOf(
+          sample.language === "de" ? "Referenz 2" : "Reference 2",
+        ),
+      );
+      // Pagination furniture may interrupt the original text at page breaks.
+      const withoutFurniture = record.replace(
+        /Source Taster (?:Verification report|Prüfbericht) · (?:Page|Seite) \d+ (?:of|von) \d+/giu,
+        "",
+      );
+      expect(withoutFurniture.replace(/\s/gu, "")).toContain(original);
+      for (const page of pdf.pages)
+        for (const item of page.items) {
+          if (!("str" in item) || !item.str.trim()) continue;
+          expect(item.transform[4], item.str).toBeGreaterThanOrEqual(55.9);
+          expect(item.transform[4] + item.width, item.str).toBeLessThanOrEqual(
+            540,
+          );
+          expect(item.transform[5], item.str).toBeGreaterThan(30);
+          expect(item.transform[5], item.str).toBeLessThan(790);
+        }
+    }
+  });
+  it("keeps the checked-fields introduction on the same page as its first field", async () => {
+    for (const sample of samples) {
+      const pdf = await inspectPdf(sample.pdf);
+      const label =
+        sample.language === "de" ? "Geprüfte Felder" : "Checked fields";
+      for (const page of pdf.pages) {
+        const content = page.text
+          .replace(
+            /Source Taster (?:Verification report|Prüfbericht) · (?:Page|Seite) \d+ (?:of|von) \d+/giu,
+            "",
+          )
+          .trim();
+        expect(content.endsWith(label), sample.name).toBe(false);
+      }
+    }
+  });
+  it("reports the checked revision and exact result separately from immutable input, with per-result rule versions", async () => {
+    for (const language of ["de", "en"] as const) {
+      const check = finalSample();
+      const reference = check.references[0]!;
+      if (reference.outcome.kind !== "verdict")
+        throw new Error("expected Verdict");
+      reference.originalText = "Immutable original input";
+      reference.fields = { title: "Not the checked evidence" };
+      reference.revision = 2;
+      reference.outcome.reference.csl = {
+        title: "Committed checked title",
+        DOI: "10.1038/nphys1170",
+        page: "11-12",
+      };
+      reference.revisions = [
+        {
+          revision: 2,
+          reference: reference.outcome.reference,
+          provenance: "user",
+          createdAt: "2026-11-05T07:30:00.000Z",
+        },
+      ];
+      reference.results = [
+        {
+          id: "00000000-0000-4000-8000-000000000042",
+          revision: 2,
+          generation: 1,
+          createdAt: "2026-11-05T08:00:00.000Z",
+          outcome: reference.outcome,
+          manualOverride: null,
+        },
+      ];
+      const second = check.references[1]!;
+      if (second.outcome.kind !== "verdict")
+        throw new Error("expected Verdict");
+      second.outcome.scoringRules = {
+        ...second.outcome.scoringRules,
+        version: "different-rules-2",
+      };
+      const pdf = await generateReport({
+        check,
+        language,
+        style: "apa",
+        capturedAt: "2026-11-05T08:01:00.000Z",
+      });
+      const { text } = await inspectPdf(pdf);
+      expect(text).toContain("Immutable original input");
+      expect(text).toContain("Committed checked title");
+      expect(text).not.toContain("Not the checked evidence");
+      expect(text.replace(/\s/gu, "")).toContain(
+        "00000000-0000-4000-8000-000000000042",
+      );
+      expect(text).toContain(
+        language === "de" ? "Feldrevision: 2" : "Field revision: 2",
+      );
+      expect(text).toContain(
+        language === "de"
+          ? "Herkunft: Manuell bearbeitet"
+          : "Origin: Edited by user",
+      );
+      const sections = text.split(
+        language === "de" ? /Referenz \d/gu : /Reference \d/gu,
+      );
+      expect(sections[1]).toContain("scoring-rules-2026.1+sample");
+      expect(sections[1]).not.toContain("different-rules-2");
+      expect(sections[2]).toContain("different-rules-2");
+    }
+  });
+  it("embeds the local text and metadata families and aligns record values in a stable second column", async () => {
+    const sample = samples.find((s) => s.name === "report-final-en")!;
+    const raw = Buffer.from(sample.pdf).toString("latin1");
+    expect(raw).toContain("AtkinsonHyperlegibleNext-Regular");
+    expect(raw).toContain("AtkinsonHyperlegibleNext-Bold");
+    expect(raw).toContain("AtkinsonHyperlegibleNext-Italic");
+    expect(raw).toContain("IBMPlexMono");
+    const pdf = await inspectPdf(sample.pdf);
+    const items = pdf.pages.flatMap((p) => p.items).filter((i) => "str" in i);
+    const original = items.find(
+      (i) => "str" in i && i.str.startsWith("Aspelmeyer"),
+    )!;
+    const verdict = items.find((i) => "str" in i && i.str === "Verdict:")!;
+    expect("transform" in original && original.transform[4]).toBeGreaterThan(
+      190,
+    );
+    expect("transform" in verdict && verdict.transform[4]).toBe(56);
+  });
+  it("uses a mapped Noto fallback run without changing bibliographic Unicode and refuses impossible output", async () => {
+    const check = finalSample();
+    check.references[0]!.originalText =
+      "Latin, Ελληνικά, Кириллица, ə, ǂ, ᵹ (2020).";
+    const input = {
+      check,
+      language: "en" as const,
+      style: "apa" as const,
+      capturedAt: "2026-11-05T08:00:00.000Z",
+    };
+    const bytes = await generateReport(input);
+    expect((await inspectPdf(bytes)).text).toContain(
+      check.references[0]!.originalText,
+    );
+    expect(Buffer.from(bytes).toString("latin1")).toContain("NotoSans");
+    check.references[0]!.originalText = "東京";
+    await expect(generateReport(input)).rejects.toMatchObject({
+      failure: "unsupported-character",
+    });
+  });
+  it("names all six Verdict counts, including zero, before a separate Status count group", async () => {
+    for (const language of ["en", "de"] as const) {
+      const sample = samples.find(
+        (s) => s.name === `report-final-${language}`,
+      )!;
+      const { text } = await inspectPdf(sample.pdf);
+      const overview = text.slice(
+        text.indexOf(language === "de" ? "Überblick" : "Overview"),
+        text.indexOf(language === "de" ? "Referenz 1" : "Reference 1"),
+      );
+      const labels =
+        language === "de"
+          ? [
+              "Korrekt: 2",
+              "Existiert, mit Abweichungen: 0",
+              "Gemischte Referenz: 0",
+              "DOI-Konflikt: 0",
+              "Nicht gefunden: 1",
+              "Nicht verifizierbar: 0",
+              "Statusanzahlen",
+              "Abgebrochen: 1",
+              "Technischer Fehler: 1",
+            ]
+          : [
+              "Correct: 2",
+              "Exists, with deviations: 0",
+              "Mixed citation: 0",
+              "DOI conflict: 0",
+              "Not found: 1",
+              "Not verifiable: 0",
+              "Status counts",
+              "Cancelled: 1",
+              "Technical error: 1",
+            ];
+      for (const label of labels) expect(overview).toContain(label);
+      const positions = labels.map((label) => overview.indexOf(label));
+      expect(positions).toEqual([...positions].sort((a, b) => a - b));
+    }
+  });
   it("explains human responsibility beside the summary and keeps technical statuses distinct from verdicts", async () => {
     for (const language of ["en", "de"] as const) {
       const final = samples.find((s) => s.name === `report-final-${language}`)!;

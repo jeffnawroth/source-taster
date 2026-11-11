@@ -333,9 +333,20 @@ export async function startWorkerRuntime(
           console.error(JSON.stringify({ code: "report-failed", reportId }));
       }
       try {
-        await guard(work.subject, "commit", () =>
-          checks.reports.finish(reportId, result),
-        );
+        await guard(work.subject, "commit", async () => {
+          // Rendering may outlast a Plan/feature change. Read the current
+          // external scope again before publishing, outside the store's
+          // transaction, while the current-authority fence is held.
+          if (options.quota) {
+            const quota = await options.quota.snapshot({
+              ownerId: work.subject.ownerId,
+              actorId: work.subject.actorId,
+            });
+            if (!quota.features.includes(reportFeature))
+              return void (await checks.reports.discard(reportId));
+          }
+          await checks.reports.finish(reportId, result);
+        });
       } catch {
         await checks.reports.discard(reportId);
       }

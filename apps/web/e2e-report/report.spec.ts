@@ -21,6 +21,10 @@ const copy = {
     download: "Download report",
     check: "Check reference",
     heading: "Verification report",
+    suggestion: "Correction suggestion",
+    exportChoice: "Apply for export only",
+    edit: "Edit fields",
+    title: "Title",
   },
   de: {
     region: "Barrierefreier PDF-Bericht",
@@ -29,6 +33,10 @@ const copy = {
     download: "Bericht herunterladen",
     check: "Referenz prüfen",
     heading: "Prüfbericht",
+    suggestion: "Korrekturvorschlag",
+    exportChoice: "Nur für den Export übernehmen",
+    edit: "Felder bearbeiten",
+    title: "Titel",
   },
 } as const;
 
@@ -49,6 +57,22 @@ for (const language of ["en", "de"] as const)
     await expect(
       region.getByRole("combobox", { name: t.language, exact: true }),
     ).toHaveValue(language);
+    // The report is frozen from server evidence even while local draft and
+    // export-only suggestion state exist in the real shared workspace.
+    const suggestion = page.getByRole("region", {
+      name: t.suggestion,
+      exact: true,
+    });
+    await expect(suggestion).toContainText("Aspelmeyer, M. (2009).", {
+      timeout: 20_000,
+    });
+    await suggestion
+      .getByRole("checkbox", { name: t.exportChoice, exact: true })
+      .check();
+    await page.getByRole("button", { name: t.edit, exact: true }).click();
+    await page
+      .getByRole("textbox", { name: t.title, exact: true })
+      .fill("UNSAVED REPORT DRAFT");
     await region.getByRole("button", { name: t.create, exact: true }).click();
     const download = region.getByRole("button", {
       name: t.download,
@@ -70,6 +94,12 @@ for (const language of ["en", "de"] as const)
     expect(pdf.title).toContain(t.heading);
     expect(roles(pdf.pages[0]!.tree).slice(0, 2)).toEqual(["Document", "H1"]);
     expect(pdf.text).toContain("Aspelmeyer, M. (2008)");
+    expect(pdf.text).not.toContain("UNSAVED REPORT DRAFT");
+    expect(pdf.text.replace(/\s+/gu, " ")).toContain(
+      language === "de"
+        ? "Veröffentlichungsdatum: 2008"
+        : "Publication date: 2008",
+    );
     // Nothing of the report is kept in browser storage.
     const storage = await page.evaluate(() => ({
       local: Object.keys(localStorage),

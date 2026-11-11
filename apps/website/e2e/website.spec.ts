@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { test, expect } from "@playwright/test";
+import { openDocumentationSearch } from "./search.ts";
 const websiteOrigin = `http://127.0.0.1:${process.env.SOURCE_TASTER_WEBSITE_E2E_PORT ?? "53115"}`;
 import { informationLinks } from "@source-taster/ui/information";
 
@@ -85,6 +86,7 @@ test("documentation search stays local, language-scoped and keyboard accessible"
   const requests: string[] = [];
   page.on("request", (req) => requests.push(req.url()));
   await page.goto("/docs/en/");
+  await openDocumentationSearch(page);
   const query = page.getByRole("searchbox", {
     name: "Search documentation",
     exact: true,
@@ -95,7 +97,7 @@ test("documentation search stays local, language-scoped and keyboard accessible"
     name: "Language and citation style",
     exact: true,
   });
-  await expect(result).toHaveCount(2);
+  await expect(result).toHaveCount(1);
   const results = page.getByRole("region", {
     name: "Search results",
     exact: true,
@@ -108,7 +110,15 @@ test("documentation search stays local, language-scoped and keyboard accessible"
   await expect(page.getByRole("status")).toHaveText(
     "No matching pages. Try another word.",
   );
+  await query.press("Escape");
   await page.getByRole("link", { name: "Deutsch", exact: true }).click();
+  await expect(
+    page.getByRole("link", {
+      name: "Wie wähle ich Sprache und Zitierstil?",
+      exact: true,
+    }),
+  ).toHaveAttribute("href", "/docs/de/preferences/");
+  await openDocumentationSearch(page);
   await page.getByRole("searchbox").fill("Zitierstil");
   await page.getByRole("searchbox").press("Enter");
   await expect(
@@ -227,6 +237,7 @@ test("the Structuring preview is documented in both languages and found by searc
     ["de", "Harvard", "Referenzen strukturieren", "Dokumentation durchsuchen"],
   ] as const) {
     await page.goto(`/docs/${language}/`);
+    await openDocumentationSearch(page);
     const box = page.getByRole("searchbox", { name: searchbox, exact: true });
     await box.fill(query);
     await box.press("Enter");
@@ -275,6 +286,7 @@ test("FAQ and documentation explain the same opt-in DOI limits without a release
     await expect(article).toContainText(human);
     // Search the actual local index and follow its result to the explanation.
     await page.goto(`/docs/${language}/`);
+    await openDocumentationSearch(page);
     await page.getByRole("searchbox").fill("doi.org");
     await page.getByRole("searchbox").press("Enter");
     await page
