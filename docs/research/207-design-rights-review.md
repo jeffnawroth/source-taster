@@ -90,6 +90,16 @@ React/React DOM are the UI's exact peer versions and were checked from their act
 
 ## 4. Contribution and agent-output authority
 
+**Owner-supplied provenance update, 11 November 2026:** in response to the
+artifact-provenance question, the owner stated “Alles mit claude und codex”
+(everything with Claude and Codex). Record this as the owner's statement that
+these contributions were created using those tools. It does not identify the
+contracting customer/accounts, applicable accepted provider terms, any relevant
+input rights or the intended brand rights holder, and it supplies no additional
+human contributor's grant or specialist approval. The concrete questions below
+therefore remain to the extent not answered by actual records; do not infer a
+solely human creation process or silently turn this statement into a licence.
+
 Git records **Jeff Nawroth** as author/committer of the token introduction `c64fe26…`, primitive introduction `f60d8a9…`, consolidated design documents `57ff21f…`/`e8ae2d3…`, token-spec history `6d71840…` onward, chosen identity `63d1909…`, and brand generation `9cf6e4e…`/`9ab8fbf…`. The current token notice claims copyright © 2026 Jeff Nawroth. These are concrete attribution records, **not contributor consents, proof of all creative authorship, employer authorization or a chain-of-title certificate**. The public #191 record explicitly describes both Claude and Codex prototype work. Do not infer a solely human creation process from one Git author field. [4–5, 7–10, 19]
 
 The tracked repository and relevant history contain no CLA text, `CONTRIBUTING` agreement, signed design/agent contribution schedule or consent register found by filename/content inspection. #12's resolution explicitly says it did not draft or sign a CLA. ADR-0001 requires a legally reviewed **non-exclusive additional rights grant**, without copyright assignment, and contributor/employer authority before external contributions merge. GitHub's current terms, section D.6, provide inbound-under-repository-license licensing with a representation of authority and recognize separate CLAs. That supports the stated outbound terms where applicable; it does not automatically supply all intended later proprietary relicensing rights, cure missing authority, or prove consent to relicense an older AGPL contribution under MIT. No DCO or bot identity supplies such missing additional rights either. [2, 19–20]
