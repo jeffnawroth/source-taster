@@ -8,6 +8,7 @@ import { readFileSync } from "node:fs";
 import {
   extensionConfig,
   manifest,
+  manifestIcons,
   parseTarget,
   type ExtensionConfig,
   type Target,
@@ -34,10 +35,33 @@ function extensionPackage(target: Target, config: ExtensionConfig): Plugin {
         )
           throw new Error(`Remote code reference in ${output.fileName}`);
       }
+      const generated = manifest(target, config);
       this.emitFile({
         type: "asset",
         fileName: "manifest.json",
-        source: `${JSON.stringify(manifest(target, config), null, 2)}\n`,
+        source: `${JSON.stringify(generated, null, 2)}\n`,
+      });
+      // Icons keep fixed names and the committed brand export bytes; only the
+      // files this manifest references are packaged, none of the store files.
+      for (const path of manifestIcons(generated))
+        this.emitFile({
+          type: "asset",
+          fileName: path,
+          source: readFileSync(
+            new URL(
+              `../../packages/brand/exports/${path.slice("icons/".length)}`,
+              import.meta.url,
+            ),
+          ),
+        });
+      // Draft, not legally reviewed (#207); its own scope beside the
+      // unchanged font and UI notices.
+      this.emitFile({
+        type: "asset",
+        fileName: "notices/brand/NOTICE.md",
+        source: readFileSync(
+          new URL("../../packages/brand/NOTICE.md", import.meta.url),
+        ),
       });
       for (const locale of ["de", "en"]) {
         const catalog = JSON.parse(
