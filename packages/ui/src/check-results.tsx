@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { effectiveVerdict } from "./effective-verdict.ts";
 import { verdictLabels, statusLabels } from "./outcome-badges.tsx";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button, IconButton } from "./primitives/actions.tsx";
+import { GlassSurface } from "./primitives/overlays.tsx";
 import { useRef, useState } from "react";
 import type {
   Check,
@@ -11,7 +14,6 @@ import type { CitationStyle } from "./preferences.ts";
 import {
   useBibliography,
   BibliographyActions,
-  CorrectionSuggestion,
 } from "./correction-suggestions.tsx";
 import { ReferenceExports } from "./reference-exports.tsx";
 import type { OwnerQuota } from "./quota.ts";
@@ -28,6 +30,7 @@ import {
   type OutcomeFilter,
 } from "./check-summary.tsx";
 import {
+  ReferenceOutcomeHeader,
   ReferenceOutcomeSummary,
   ReferenceOutcomeView,
   sourceNames,
@@ -94,7 +97,11 @@ export function CheckResults({
     transport,
     selectedSlot,
   );
-  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(min-width: 768px)").matches,
+  );
   const list = useRef<HTMLDivElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const buttons = useRef(new Map<number, HTMLDivElement>());
@@ -103,6 +110,17 @@ export function CheckResults({
     matchesFilter(reference, filter),
   );
   const selected = visible.find((reference) => reference.slot === selectedSlot);
+  const selectedIndex = visible.findIndex(
+    (reference) => reference.slot === selectedSlot,
+  );
+  function pageReference(offset: number) {
+    const reference = visible[selectedIndex + offset];
+    if (!reference) return;
+    selectSlot(reference.slot);
+    requestAnimationFrame(() =>
+      heading.current?.focus({ preventScroll: true }),
+    );
+  }
   function open(slot: number) {
     position.current = {
       list: list.current?.scrollTop ?? 0,
@@ -174,7 +192,11 @@ export function CheckResults({
         filter={filter}
         onFilter={(value) => {
           setFilter(value);
-          setDetailOpen(false);
+          // Keep the open detail only while its slot remains in the filtered feed.
+          const current = check.references.find(
+            (reference) => reference.slot === selectedSlot,
+          );
+          if (!current || !matchesFilter(current, value)) setDetailOpen(false);
         }}
       />
       <div className="check-panes" data-detail-open={detailOpen && !!selected}>
@@ -274,20 +296,16 @@ export function CheckResults({
           id="reference-detail"
           aria-labelledby="reference-detail-title"
           onKeyDown={(event) => {
-            if (event.key === "Escape") {
+            if (event.key === "Escape" && !event.defaultPrevented) {
               event.preventDefault();
               back();
             }
           }}
           className="check-detail min-w-0 rounded-xl border border-border-emphasis p-4"
         >
-          <button
-            type="button"
-            className="check-back mb-4 rounded border border-border-emphasis p-3"
-            onClick={back}
-          >
+          <Button className="check-back mb-3" onPress={back}>
             {m.workspace_back()}
-          </button>
+          </Button>
           <h2
             id="reference-detail-title"
             ref={heading}
@@ -299,22 +317,64 @@ export function CheckResults({
           {selected ? (
             <>
               <RunningStep reference={selected} />
+              <ReferenceOutcomeView
+                header={
+                  <GlassSurface
+                    layer="detail-header"
+                    className="detail-verdict-header"
+                  >
+                    <ReferenceOutcomeHeader
+                      outcome={selected.outcome}
+                      manualOverride={selected.manualOverride}
+                    />
+                    <nav
+                      aria-label={m.detail_pager()}
+                      className="flex flex-wrap items-center gap-2"
+                    >
+                      <IconButton
+                        label={m.detail_previous()}
+                        onPress={() => pageReference(-1)}
+                        {...(selectedIndex <= 0
+                          ? {
+                              isDisabled: true,
+                              disabledReason: m.detail_previous(),
+                            }
+                          : { isDisabled: false })}
+                      >
+                        <ChevronLeft aria-hidden="true" size={20} />
+                      </IconButton>
+                      <span>
+                        {m.detail_position({
+                          current: selectedIndex + 1,
+                          total: visible.length,
+                        })}
+                      </span>
+                      <IconButton
+                        label={m.detail_next()}
+                        onPress={() => pageReference(1)}
+                        {...(selectedIndex >= visible.length - 1
+                          ? {
+                              isDisabled: true,
+                              disabledReason: m.detail_next(),
+                            }
+                          : { isDisabled: false })}
+                      >
+                        <ChevronRight aria-hidden="true" size={20} />
+                      </IconButton>
+                    </nav>
+                  </GlassSurface>
+                }
+                outcome={selected.outcome}
+                manualOverride={selected.manualOverride}
+                originalText={selected.originalText}
+              />
               <ReferenceActions
                 key={selected.slot}
                 check={check}
                 reference={selected}
+                rendered={bibliography}
                 transport={transport}
                 onSnapshot={onSnapshot}
-              />
-              <CorrectionSuggestion
-                key={`${selected.slot}:${citationStyle}`}
-                slot={selected.slot}
-                rendered={bibliography}
-              />
-              <ReferenceOutcomeView
-                outcome={selected.outcome}
-                manualOverride={selected.manualOverride}
-                originalText={selected.originalText}
               />
             </>
           ) : (

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import type { ReactNode } from "react";
 import type {
   ManualOverride,
   ReferenceOutcome,
@@ -227,43 +228,74 @@ export function ReferenceOutcomeSummary({
     </>
   );
 }
+export function ReferenceOutcomeHeader({
+  outcome,
+  manualOverride,
+}: {
+  outcome: ReferenceOutcome;
+  manualOverride?: ManualOverride | null;
+}) {
+  return (
+    <>
+      <h3 className="text-lg font-semibold">
+        {outcome.kind === "verdict" ? (
+          <VerdictBadge verdict={manualOverride?.verdict ?? outcome.verdict} />
+        ) : (
+          <StatusBadge status={outcome.status} />
+        )}
+      </h3>
+      {outcome.kind === "verdict" && (
+        <>
+          {manualOverride && (
+            <>
+              <ManualVerdictLabel manualOverride={manualOverride} />
+              <p className="manual-system">
+                {m.override_system({
+                  verdict: m[verdictLabels[outcome.verdict]](),
+                })}
+              </p>
+            </>
+          )}
+          {outcome.reasons.map((reason) => (
+            <p key={reason}>{m[reasons[reason]]()}</p>
+          ))}
+        </>
+      )}
+    </>
+  );
+}
 export function ReferenceOutcomeView({
   outcome,
   originalText,
   manualOverride,
   contextLabel,
+  header,
 }: {
+  header?: ReactNode;
   outcome: ReferenceOutcome;
   contextLabel?: string;
   originalText?: string;
   manualOverride?: ManualOverride | null;
 }) {
   if (outcome.kind === "status") {
-    const keys = {
-      running: "status_running",
-      cancelled: "status_cancelled",
-      failed: "status_failed",
-      "not-checked": "status_not_checked",
-    } as const;
     return (
-      <div>
-        <p className="mt-2 font-semibold text-text">
-          {m[keys[outcome.status]]()}
-        </p>
+      <div className="space-y-3">
+        {header ?? <ReferenceOutcomeHeader outcome={outcome} />}
         {originalText !== undefined && <OriginalInput text={originalText} />}
+        <p>{m.detail_status_evidence()}</p>
       </div>
     );
   }
-  const key = verdictLabels[outcome.verdict];
   return (
-    <div className="mt-3 space-y-3">
-      {manualOverride && <ManualVerdictLabel manualOverride={manualOverride} />}
-      <p className="font-semibold">
-        <VerdictGlyph verdict={outcome.verdict} />
-        <span>
-          {manualOverride ? m.override_system({ verdict: m[key]() }) : m[key]()}
-        </span>
-      </p>
+    <div className="space-y-3">
+      {header ?? (
+        <ReferenceOutcomeHeader
+          outcome={outcome}
+          manualOverride={manualOverride}
+        />
+      )}
+      {originalText !== undefined && <OriginalInput text={originalText} />}
+      <BestMatchComparison outcome={outcome} contextLabel={contextLabel} />
       {outcome.retraction === "retracted" && (
         <div className="border-l-4 border-border-emphasis bg-surface-sunken p-3 text-text">
           <p className="font-semibold">{m.retraction_reported()}</p>
@@ -271,9 +303,6 @@ export function ReferenceOutcomeView({
         </div>
       )}
       <p className="text-sm font-semibold">{m.doi_uncalibrated()}</p>
-      {outcome.reasons.map((reason) => (
-        <p key={reason}>{m[reasons[reason]]()}</p>
-      ))}
       {outcome.reasons.some((r) =>
         ["web-original-unavailable", "url-unavailable"].includes(r),
       ) && (
@@ -297,8 +326,6 @@ export function ReferenceOutcomeView({
           </ul>
         </section>
       )}
-      {originalText !== undefined && <OriginalInput text={originalText} />}
-      <BestMatchComparison outcome={outcome} contextLabel={contextLabel} />
       <details>
         <summary className="cursor-pointer py-2 font-semibold">
           {m.evidence_details()}
@@ -500,7 +527,7 @@ export function ReferenceOutcomeView({
 
 function OriginalInput({ text }: { text: string }) {
   return (
-    <div className="my-4">
+    <div className="my-4 rounded-lg bg-surface-sunken p-3 font-mono">
       <h3 className="font-semibold">{m.structuring_original()}</h3>
       <p className="whitespace-pre-wrap break-words">{text}</p>
     </div>
@@ -598,6 +625,7 @@ function BestMatchComparison({
                 </tr>
                 <tr>
                   <td>
+                    {deviates && <span aria-hidden="true">≠ </span>}
                     {raw(
                       comparison
                         ? comparison.reference
@@ -605,6 +633,7 @@ function BestMatchComparison({
                     )}
                   </td>
                   <td>
+                    {deviates && <span aria-hidden="true">≠ </span>}
                     {raw(comparison ? comparison.candidate : best?.csl[field])}
                   </td>
                 </tr>

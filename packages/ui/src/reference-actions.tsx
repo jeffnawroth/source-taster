@@ -3,7 +3,7 @@ import { abuseMessage } from "./abuse-message.tsx";
 import { AiProvenance } from "./ai-provenance.tsx";
 import { ManualVerdictActions } from "./manual-verdict.tsx";
 import { CheckSelectionActions } from "./bibliography-selection.tsx";
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import type {
   Check,
   ReferenceSlot,
@@ -16,12 +16,25 @@ import {
   type VerificationClientOptions,
 } from "@source-taster/contract-verification/client-v2";
 import { m } from "@source-taster/i18n";
+import { Button } from "./primitives/actions.tsx";
+import { Form, TextField } from "./primitives/fields.tsx";
+import { AlertDialog, Modal } from "./primitives/overlays.tsx";
+import {
+  CorrectionSuggestion,
+  referenceBinding,
+  type Rendered,
+} from "./correction-suggestions.tsx";
 import { fieldLabels, ReferenceOutcomeView } from "./reference-outcome.tsx";
 
 const control =
   "w-full min-w-0 rounded border border-border-emphasis bg-surface p-2 disabled:bg-surface-sunken";
 const action =
   "rounded border border-border-emphasis px-3 py-2 disabled:opacity-50";
+function availability(disabled: boolean) {
+  return disabled
+    ? { isDisabled: true as const, disabledReason: m.revision_busy() }
+    : { isDisabled: false as const };
+}
 function errorMessage(error: unknown) {
   const limited = abuseMessage(error);
   if (limited) return limited;
@@ -60,18 +73,16 @@ function Fields({
       {(Object.keys(fieldLabels) as (keyof typeof fieldLabels)[])
         .filter((key) => key !== "author")
         .map((key) => (
-          <label key={key} className="block min-w-0">
-            {m[fieldLabels[key]]()}
-            <input
-              className={control}
-              value={
-                key === "issued"
-                  ? (fields.issued?.literal ?? "")
-                  : (fields[key] ?? "")
-              }
-              onChange={(event) => scalar(key, event.target.value)}
-            />
-          </label>
+          <TextField
+            key={key}
+            label={m[fieldLabels[key]]()}
+            value={
+              key === "issued"
+                ? (fields.issued?.literal ?? "")
+                : (fields[key] ?? "")
+            }
+            onChange={(value) => scalar(key, value)}
+          />
         ))}
       <fieldset className="min-w-0 space-y-3">
         <legend>{m.field_author()}</legend>
@@ -112,10 +123,10 @@ function Fields({
                 />
               </label>
             ))}
-            <button
+            <Button
               type="button"
               className={action}
-              onClick={() =>
+              onPress={() =>
                 onChange({
                   ...fields,
                   author: fields.author!.filter((_, i) => i !== index),
@@ -123,18 +134,18 @@ function Fields({
               }
             >
               {m.revision_remove_author()}
-            </button>
+            </Button>
           </fieldset>
         ))}
-        <button
+        <Button
           type="button"
           className={action}
-          onClick={() =>
+          onPress={() =>
             onChange({ ...fields, author: [...(fields.author ?? []), {}] })
           }
         >
           {m.revision_add_author()}
-        </button>
+        </Button>
         <label className="block">
           <input
             type="checkbox"
@@ -152,7 +163,9 @@ export function ReferenceActions({
   reference,
   transport,
   onSnapshot,
+  rendered,
 }: {
+  rendered: Rendered;
   check: Check;
   reference: ReferenceSlot;
   transport: VerificationClientOptions;
@@ -165,14 +178,96 @@ export function ReferenceActions({
     reference.authorsTruncated ?? false,
   );
   const [expectedRevision, setExpectedRevision] = useState(reference.revision);
+  const binding = referenceBinding(check.id, reference);
+  const [draftBinding, setDraftBinding] = useState(binding);
+  const [baseline, setBaseline] = useState(
+    JSON.stringify([reference.fields, reference.authorsTruncated ?? false]),
+  );
+  const [replacement, setReplacement] = useState<{
+    binding: string;
+    token: string;
+  } | null>(null);
+  const busy = useRef(false);
+  const live = useRef<{ check: Check; binding: string } | null>(null);
+  useLayoutEffect(() => {
+    live.current = { check, binding };
+    return () => {
+      live.current = null;
+    };
+  }, [check, binding]);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const running =
     reference.outcome.kind === "status" &&
     reference.outcome.status === "running";
+  const stale = editing && draftBinding !== binding;
+  const dirty = editing && baseline !== JSON.stringify([fields, truncated]);
+  const entry = rendered.data?.entries.find(
+    (entry) => entry.slot === reference.slot,
+  );
+  const current =
+    reference.outcome.kind === "verdict" &&
+    reference.results[0]?.revision === reference.revision &&
+    !!reference.results[0]?.id;
+  const unavailable =
+    running || pending
+      ? m.correction_fields_busy()
+      : !current || (rendered.data && !entry?.suggestion)
+        ? m.correction_fields_unavailable()
+        : rendered.pending || rendered.failed || !entry?.resultToken
+          ? m.correction_fields_loading()
+          : null;
+  const eligible = unavailable === null && !!entry?.suggestion;
+  function applySuggestion(expected: { binding: string; token: string }) {
+    if (
+      !eligible ||
+      busy.current ||
+      expected.binding !== binding ||
+      expected.token !== entry?.resultToken ||
+      !entry?.suggestion
+    )
+      return;
+    // Overlay only the proven suggestion values. Committed fields the
+    // suggestion does not supply stay as committed; nothing is inferred.
+    setFields({
+      ...reference.fields,
+      ...structuredClone(entry.suggestion.csl),
+    });
+    setTruncated(reference.authorsTruncated ?? false);
+    setExpectedRevision(reference.revision);
+    setDraftBinding(binding);
+    setBaseline(
+      JSON.stringify([reference.fields, reference.authorsTruncated ?? false]),
+    );
+    setEditing(true);
+    setError(null);
+    setReplacement(null);
+  }
+  function apply() {
+    if (!eligible || busy.current || !entry?.resultToken) return;
+    const expected = { binding, token: entry.resultToken };
+    if (dirty || stale) setReplacement(expected);
+    else applySuggestion(expected);
+  }
+  // Only current, monotonic snapshots may affect this mounted Check. In
+  // particular, a late HTTP response cannot roll back a newer stream event.
+  function accept(snapshot: Check) {
+    const current = live.current;
+    if (
+      !current ||
+      current.check.id !== snapshot.id ||
+      snapshot.lastEventSeq < current.check.lastEventSeq
+    )
+      return false;
+    onSnapshot(snapshot);
+    return true;
+  }
   async function submit(recheck: boolean, save: boolean) {
+    if (busy.current || running || (save && stale)) return;
+    busy.current = true;
     setPending(true);
     setError(null);
+    const started = binding;
     try {
       const snapshot = save
         ? await api.saveFields(check.id, reference.slot, {
@@ -184,19 +279,27 @@ export function ReferenceActions({
         : await api.recheckReference(check.id, reference.slot, {
             expectedRevision: reference.revision,
           });
-      onSnapshot(snapshot);
-      setEditing(false);
+      // The commit succeeded even when a newer stream event already
+      // superseded this reply; the draft is no longer unsaved either way.
+      accept(snapshot);
+      if (live.current?.check.id === snapshot.id) setEditing(false);
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
         try {
-          onSnapshot(await api.getCheck(check.id));
+          accept(await api.getCheck(check.id));
         } catch {
           /* Keep the draft and original denial. */
         }
       }
-      setError(errorMessage(error));
+      if (
+        live.current &&
+        (live.current.binding === started ||
+          (error instanceof ApiError && error.status === 409))
+      )
+        setError(errorMessage(error));
     } finally {
-      setPending(false);
+      busy.current = false;
+      if (live.current) setPending(false);
     }
   }
   const previous = reference.results.filter(
@@ -224,12 +327,14 @@ export function ReferenceActions({
           <AiProvenance
             extracted={reference.revisions.at(-1)?.provenance === "ai"}
             ai={reference.revisions.at(-1)!.reference.ai!}
-            disabled={running || pending}
+            {...availability(running || pending)}
             onAdopt={async (field, value) => {
+              if (busy.current || running || pending) return;
+              busy.current = true;
               setPending(true);
               setError(null);
               try {
-                onSnapshot(
+                accept(
                   await api.saveFields(check.id, reference.slot, {
                     expectedRevision: reference.revision,
                     fields: { ...reference.fields, [field]: value },
@@ -240,90 +345,126 @@ export function ReferenceActions({
               } catch (error) {
                 setError(errorMessage(error));
               } finally {
-                setPending(false);
+                busy.current = false;
+                if (live.current) setPending(false);
               }
             }}
           />
         )}
-      {error && <p role="alert">{error}</p>}
-      <ManualVerdictActions
-        check={check}
-        reference={reference}
-        transport={transport}
-        onSnapshot={onSnapshot}
+      <CorrectionSuggestion
+        slot={reference.slot}
+        rendered={rendered}
+        originalText={reference.originalText}
+        onApply={apply}
+        unavailable={unavailable}
       />
+      <Modal
+        isOpen={replacement !== null}
+        onOpenChange={(open) => {
+          if (!open) setReplacement(null);
+        }}
+      >
+        <AlertDialog
+          title={m.correction_replace_title()}
+          cancelLabel={m.correction_keep()}
+          actionLabel={m.correction_replace()}
+          onAction={() => {
+            if (replacement) applySuggestion(replacement);
+            setReplacement(null);
+          }}
+        >
+          {m.correction_replace_note()}
+        </AlertDialog>
+      </Modal>
+      {error && <p role="alert">{error}</p>}
       {!editing ? (
         <div className="flex flex-wrap gap-3">
-          <button
+          <Button
             type="button"
             className={`${action} border-border-emphasis bg-surface-sunken`}
-            disabled={running || pending}
-            onClick={() => {
+            {...availability(running || pending)}
+            onPress={() => {
               setFields(reference.fields);
               setTruncated(reference.authorsTruncated ?? false);
               setExpectedRevision(reference.revision);
+              setDraftBinding(binding);
+              setBaseline(
+                JSON.stringify([
+                  reference.fields,
+                  reference.authorsTruncated ?? false,
+                ]),
+              );
               setEditing(true);
               setError(null);
             }}
           >
             {m.revision_edit()}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             className={`${action} bg-surface text-text`}
-            disabled={running || pending}
-            onClick={() => {
+            {...availability(running || pending)}
+            onPress={() => {
               void submit(true, false);
             }}
           >
             {m.revision_recheck()}
-          </button>
+          </Button>
         </div>
       ) : (
-        <form
+        <Form
           className="space-y-3 rounded border-2 border-border-emphasis bg-surface-sunken p-3"
           onSubmit={(event) => {
             event.preventDefault();
             void submit(true, true);
           }}
         >
-          <p>{m.revision_draft()}</p>
+          <p role="status">
+            {stale ? m.revision_stale_draft() : m.revision_draft()}
+          </p>
           <Fields
             fields={fields}
             onChange={setFields}
             truncated={truncated}
             onTruncated={setTruncated}
-            disabled={running || pending}
+            disabled={running || pending || stale}
           />
           <div className="flex flex-wrap gap-3">
-            <button
+            <Button
               className={`${action} bg-surface text-text`}
               type="submit"
-              disabled={running || pending}
+              {...availability(running || pending || stale)}
             >
               {m.revision_save_recheck()}
-            </button>
-            <button
+            </Button>
+            <Button
               className={action}
               type="button"
-              disabled={running || pending}
-              onClick={() => {
+              {...availability(running || pending || stale)}
+              onPress={() => {
                 void submit(false, true);
               }}
             >
               {m.revision_save()}
-            </button>
-            <button
+            </Button>
+            <Button
               className={action}
               type="button"
-              disabled={pending}
-              onClick={() => setEditing(false)}
+              {...availability(pending)}
+              onPress={() => setEditing(false)}
             >
               {m.revision_discard()}
-            </button>
+            </Button>
           </div>
-        </form>
+        </Form>
       )}
+      <ManualVerdictActions
+        check={check}
+        reference={reference}
+        transport={transport}
+        onSnapshot={onSnapshot}
+        disabled={pending}
+      />
       {!!previous.length && (
         <details>
           <summary className="cursor-pointer py-2 font-semibold">

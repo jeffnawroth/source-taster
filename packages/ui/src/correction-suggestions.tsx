@@ -1,13 +1,21 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { useEffect, useMemo, useState } from "react";
-import type { Check } from "@source-taster/contract-verification/v2";
+import type {
+  Check,
+  ReferenceSlot,
+} from "@source-taster/contract-verification/v2";
 import type { Bibliography } from "@source-taster/contract-verification/bibliography";
 import { bibliographyClient } from "@source-taster/contract-verification/bibliography-client";
 import type { VerificationClientOptions } from "@source-taster/contract-verification/client-v2";
 import { m } from "@source-taster/i18n";
+import { Button } from "./primitives/actions.tsx";
 import type { CitationStyle } from "./preferences.ts";
 const buttonClass =
   "rounded-lg border border-border-emphasis px-4 py-2 font-semibold disabled:bg-surface-sunken disabled:text-text-secondary";
+/** Outcome equality is not result identity: repeated runs may return identical data. */
+export function referenceBinding(checkId: string, reference: ReferenceSlot) {
+  return `${checkId}:${reference.slot}:${reference.revision}:${reference.results[0]?.id ?? "none"}:${JSON.stringify(reference.outcome)}`;
+}
 export function useBibliography(
   check: Check,
   style: CitationStyle,
@@ -16,13 +24,13 @@ export function useBibliography(
 ) {
   const request = useMemo(() => bibliographyClient(transport), [transport]);
   const [choices, setChoices] = useState<
-    { slot: number; resultToken: string; outcome: string }[]
+    { slot: number; resultToken: string; binding: string }[]
   >([]);
   const selected = choices.filter((choice) =>
     check.references.some(
       (reference) =>
         reference.slot === choice.slot &&
-        JSON.stringify(reference.outcome) === choice.outcome,
+        referenceBinding(check.id, reference) === choice.binding,
     ),
   );
   const applied = selected.map((choice) => choice.slot);
@@ -40,9 +48,7 @@ export function useBibliography(
   // terminal slots and source progress never regenerate the whole Check.
   const results = check.references
     .filter((reference) => slots.includes(reference.slot))
-    .map(
-      (reference) => `${reference.slot}:${JSON.stringify(reference.outcome)}`,
-    )
+    .map((reference) => referenceBinding(check.id, reference))
     .join(",");
   const contentKey = `${check.id}:${style}:${results}`;
   const key = `${contentKey}:${applied.join(",")}:${attempt}`;
@@ -113,7 +119,11 @@ export function useBibliography(
       return data.bibliography;
     },
     apply: (slot: number, selected: boolean) => {
-      const entry = response?.data.entries.find((entry) => entry.slot === slot);
+      // Only an entry rendered for the current result binding can be chosen.
+      const entry =
+        response?.contentKey === contentKey
+          ? response.data.entries.find((entry) => entry.slot === slot)
+          : undefined;
       const reference = check.references.find(
         (reference) => reference.slot === slot,
       );
@@ -124,7 +134,7 @@ export function useBibliography(
               {
                 slot,
                 resultToken: entry.resultToken,
-                outcome: JSON.stringify(reference.outcome),
+                binding: referenceBinding(check.id, reference),
               },
             ]
           : []),
@@ -251,16 +261,74 @@ export function BibliographyActions({
     </section>
   );
 }
+/**
+ * Word-level preview of the suggestion against the immutable original. It only
+ * presents two strings; it never derives structured fields from either.
+ */
+export function trackedChanges(before: string, after: string) {
+  const a = before.split(/(\s+)/u).filter(Boolean);
+  const b = after.split(/(\s+)/u).filter(Boolean);
+  // Bounded quadratic table; very long inputs fall back to whole replacement.
+  if (a.length * b.length > 250_000)
+    return [
+      { kind: "delete" as const, text: before },
+      { kind: "insert" as const, text: after },
+    ];
+  const table = Array.from({ length: a.length + 1 }, () =>
+    new Array<number>(b.length + 1).fill(0),
+  );
+  for (let i = a.length - 1; i >= 0; i--)
+    for (let j = b.length - 1; j >= 0; j--)
+      table[i]![j] =
+        a[i] === b[j]
+          ? table[i + 1]![j + 1]! + 1
+          : Math.max(table[i + 1]![j]!, table[i]![j + 1]!);
+  const parts: { kind: "same" | "delete" | "insert"; text: string }[] = [];
+  const push = (kind: "same" | "delete" | "insert", text: string) => {
+    const last = parts.at(-1);
+    if (last?.kind === kind) last.text += text;
+    else parts.push({ kind, text });
+  };
+  let i = 0;
+  let j = 0;
+  while (i < a.length || j < b.length) {
+    if (i < a.length && j < b.length && a[i] === b[j]) {
+      push("same", a[i]!);
+      i++;
+      j++;
+    } else if (
+      j < b.length &&
+      (i === a.length || table[i]![j + 1]! >= table[i + 1]![j]!)
+    )
+      push("insert", b[j++]!);
+    else push("delete", a[i++]!);
+  }
+  return parts;
+}
 export function CorrectionSuggestion({
   slot,
   rendered,
+  originalText,
+  onApply,
+  unavailable,
 }: {
   slot: number;
   rendered: Rendered;
+  originalText: string;
+  onApply: () => void;
+  /** Why Apply to fields cannot run now; null when it can. */
+  unavailable: string | null;
 }) {
   const [notice, setNotice] = useState<"copied" | "failed" | null>(null);
   const entry = rendered.data?.entries.find((entry) => entry.slot === slot);
-  if (!entry?.suggestion) return null;
+  if (!entry?.suggestion)
+    return (
+      <p className="my-4">
+        {rendered.data
+          ? m.correction_fields_unavailable()
+          : (unavailable ?? m.correction_loading())}
+      </p>
+    );
   const suggestion = entry.suggestion;
   return (
     <section
@@ -268,27 +336,54 @@ export function CorrectionSuggestion({
       className="my-4 space-y-3 rounded border border-border-emphasis bg-surface-sunken p-4"
     >
       <h3 className="font-semibold">{m.correction_heading()}</h3>
-      <p className="break-words">{suggestion.text}</p>
-      <button
-        type="button"
-        className={buttonClass}
-        onClick={() => {
-          void navigator.clipboard
-            .writeText(suggestion.text)
-            .then(() => setNotice("copied"))
-            .catch(() => setNotice("failed"));
-        }}
-      >
-        {m.correction_copy()}
-      </button>
-      <label className="flex items-center gap-3">
-        <input
-          type="checkbox"
-          checked={entry.applied}
-          onChange={(event) => rendered.apply(slot, event.target.checked)}
-        />
-        {m.correction_apply()}
-      </label>
+      <p className="tracked-change break-words">
+        {trackedChanges(originalText, suggestion.text).map((part, index) =>
+          part.kind === "same" ? (
+            <span key={index}>{part.text}</span>
+          ) : part.kind === "delete" ? (
+            <del key={index}>
+              <span className="sr-only">{m.correction_deleted()}: </span>
+              {part.text}
+            </del>
+          ) : (
+            <ins key={index}>
+              <span className="sr-only">{m.correction_inserted()}: </span>
+              {part.text}
+            </ins>
+          ),
+        )}
+      </p>
+      <div className="flex flex-wrap items-center gap-3">
+        <Button
+          variant="secondary"
+          onPress={onApply}
+          {...(unavailable
+            ? { isDisabled: true, disabledReason: unavailable }
+            : { isDisabled: false })}
+        >
+          {m.correction_fields_apply()}
+        </Button>
+        <button
+          type="button"
+          className={buttonClass}
+          onClick={() => {
+            void navigator.clipboard
+              .writeText(suggestion.text)
+              .then(() => setNotice("copied"))
+              .catch(() => setNotice("failed"));
+          }}
+        >
+          {m.correction_copy()}
+        </button>
+        <label className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            checked={entry.applied}
+            onChange={(event) => rendered.apply(slot, event.target.checked)}
+          />
+          {m.correction_apply()}
+        </label>
+      </div>
       {notice && (
         <p role="status">
           {notice === "copied"

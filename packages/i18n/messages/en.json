@@ -578,5 +578,22 @@
   "shell_reconnecting": "Reconnecting…",
   "shell_connecting": "Connecting to live updates…",
   "shell_connected": "Live updates connected",
-  "shell_selection_source": "Page selection"
+  "shell_selection_source": "Page selection",
+  "correction_fields_apply": "Apply to fields",
+  "correction_fields_unavailable": "Apply to fields is unavailable until proven structured values for the current result are ready. You can still edit fields, copy or choose eligible suggestions for export.",
+  "correction_deleted": "Deleted",
+  "correction_inserted": "Inserted",
+  "correction_replace_title": "Replace unsaved draft?",
+  "correction_replace_note": "Your draft has unsaved changes. Replace it with the current proven suggestion? Nothing will be saved or checked.",
+  "correction_keep": "Keep draft",
+  "correction_replace": "Replace draft",
+  "revision_stale_draft": "This draft belongs to an earlier revision or result. It is retained for inspection. Discard it or explicitly replace it with a current suggestion before saving.",
+  "detail_status_evidence": "There is no current verified evidence for this Status. Earlier results remain historical.",
+  "detail_pager": "Reference navigation",
+  "detail_previous": "Previous reference",
+  "detail_next": "Next reference",
+  "detail_position": "{current} of {total}",
+  "revision_busy": "Wait for the current operation or discard a stale draft before saving.",
+  "correction_fields_busy": "Apply to fields is unavailable while a save, re-check or verdict change is running.",
+  "correction_fields_loading": "Apply to fields becomes available once the suggestion for the current result has loaded."
 }
