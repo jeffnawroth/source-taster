@@ -144,15 +144,6 @@ export function CheckResults({
         <p>{m.workspace_limits()}</p>
         <p>{m.doi_uncalibrated()}</p>
       </section>
-      <CheckSummary
-        check={check}
-        completed={completed}
-        filter={filter}
-        onFilter={(value) => {
-          setFilter(value);
-          setDetailOpen(false);
-        }}
-      />
       <ReferenceExports
         checkId={check.id}
         importedFormat={importedFormat}
@@ -176,6 +167,15 @@ export function CheckResults({
         key={citationStyle}
         rendered={bibliography}
         styleLabel={citationStyleLabel}
+      />
+      <CheckSummary
+        check={check}
+        completed={completed}
+        filter={filter}
+        onFilter={(value) => {
+          setFilter(value);
+          setDetailOpen(false);
+        }}
       />
       <div className="check-panes" data-detail-open={detailOpen && !!selected}>
         <div ref={list} className="check-list">
