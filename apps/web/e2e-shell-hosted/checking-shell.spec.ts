@@ -181,13 +181,26 @@ for (const locale of ["en", "de"] as const) {
         exact: true,
       })
       .click();
-    await page.keyboard.press("Escape");
-    await page
-      .getByRole("textbox", {
-        name: en ? "Reference" : "Referenz",
+    await expect(
+      drawer.getByRole("button", {
+        name: en ? "Revoke history" : "Verlauf widerrufen",
         exact: true,
-      })
-      .fill(reference);
+      }),
+    ).toBeVisible();
+    await expect(
+      drawer.getByRole("button", {
+        name: en ? "Revoke history" : "Verlauf widerrufen",
+        exact: true,
+      }),
+    ).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(drawer).toBeHidden();
+    const input = page.getByRole("textbox", {
+      name: en ? "Reference" : "Referenz",
+      exact: true,
+    });
+    await input.fill(reference);
+    await expect(input).toHaveValue(reference);
     await page
       .getByRole("button", {
         name: en ? "Check reference" : "Referenz prüfen",
@@ -392,6 +405,14 @@ for (const locale of ["en", "de"] as const)
     await expect(feed.getByRole("row").last()).toContainText(
       en ? "Not checked" : "Nicht geprüft",
     );
+    // Finish the real selected work before closing its streaming client and
+    // changing the HTTP-edge Account identity for the next journey.
+    await expect(
+      page.getByRole("button", {
+        name: en ? "Correct: 20" : "Korrekt: 20",
+        exact: true,
+      }),
+    ).toBeVisible({ timeout: 30000 });
   });
 
 test("explicit standalone mode exposes no private service UI even when a service URL is configured", async ({

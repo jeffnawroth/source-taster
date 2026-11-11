@@ -7,7 +7,13 @@ import {
 } from "@source-taster/contract-verification/client-v2";
 import type { Check } from "@source-taster/contract-verification/v2";
 import { ownerQuota, planStart } from "./quota.ts";
-import { Button, Modal, Dialog, DialogHeading } from "./primitives/index.ts";
+import {
+  Button,
+  Modal,
+  Dialog,
+  DialogHeading,
+  type Availability,
+} from "./primitives/index.ts";
 import { QuotaChoice } from "./quota-panel.tsx";
 type Api = ReturnType<typeof verificationClient>;
 type HistoryData = Awaited<ReturnType<Api["getHistory"]>>;
@@ -95,6 +101,9 @@ export function HistoryPanel({
     }
   }
   const disabled = busy || pending;
+  const whileBusy: Availability = busy
+    ? { isDisabled: true, disabledReason: m.shell_busy() }
+    : { isDisabled: false };
   return (
     <section
       aria-labelledby={`${id}-heading`}
@@ -106,38 +115,40 @@ export function HistoryPanel({
       <p>{m.history_policy()}</p>
       {error && <p role="alert">{m.history_unavailable()}</p>}
       <div className="my-3 flex flex-wrap gap-3">
-        <button
+        <Button
           className="rounded border border-border-emphasis px-3 py-2"
-          disabled={pending}
-          onClick={() =>
+          isPending={pending}
+          onPress={() =>
             void run(async () => {
               setData(await api.getHistory());
             })
           }
         >
           {m.history_refresh()}
-        </button>
+        </Button>
         {data &&
           (data.enabled ? (
-            <button
+            <Button
               className="rounded border border-border-emphasis px-3 py-2"
-              disabled={disabled}
-              onClick={() => setChoice({ kind: "revoke" })}
+              isPending={pending}
+              {...whileBusy}
+              onPress={() => setChoice({ kind: "revoke" })}
             >
               {m.history_revoke()}
-            </button>
+            </Button>
           ) : (
-            <button
+            <Button
               className="rounded border border-border-emphasis px-3 py-2"
-              disabled={disabled}
-              onClick={() =>
+              isPending={pending}
+              {...whileBusy}
+              onPress={() =>
                 void run(async () => {
                   setData(await api.setHistory(true));
                 })
               }
             >
               {m.history_enable()}
-            </button>
+            </Button>
           ))}
       </div>
       {data?.enabled && (
