@@ -33,7 +33,16 @@ This is a technical inventory read from the installed packages; the unattributed
 
 ## Embedded fonts
 
-`fonts/NotoSans-{Regular,Bold,Italic}.ttf` are Noto Sans, licensed under the SIL Open Font License 1.1 (`fonts/OFL.txt`). The fonts are embedded as subsets in generated PDFs and copied unchanged by `scripts/citation-assets.ts`. The OFL permits embedding in documents; the fonts are not sold on their own.
+The production inputs are static Atkinson Hyperlegible Next 2.001
+Regular/Bold/Italic (`fonts/Atkinson-OFL.txt`), IBM Plex Mono 2.3 Regular
+(`fonts/Plex-OFL.txt`, Reserved Font Name "Plex") and the unchanged Noto Sans
+2.015 Regular/Bold/Italic fallback (`fonts/OFL.txt`). Each full upstream SIL OFL
+1.1 notice travels in the build with the binaries. Exact pinned upstream paths,
+the Noto acquisition-provenance limitation and every variant/notice SHA-256 are
+recorded in `fonts/README.md` and `fonts/manifest.json`. Fonts are embedded as
+subsets in PDFs and copied unchanged by `scripts/citation-assets.ts`. The OFL
+permits document embedding; fonts are not sold on their own. This inventory
+supplies concrete bytes/notices, not a specialist legal qualification.
 
 ## CI-only check tool
 

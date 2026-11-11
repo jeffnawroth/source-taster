@@ -48,6 +48,7 @@
     "@source-taster/contract-service": "workspace:*",
     "@source-taster/contract-verification": "workspace:*",
     "@source-taster/core": "workspace:*",
+    "@source-taster/design-tokens": "workspace:*",
     "@source-taster/i18n": "workspace:*",
     "@source-taster/website": "workspace:*",
     "bibliojson": "4.1.0",

@@ -284,6 +284,9 @@ importers:
       '@source-taster/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@source-taster/design-tokens':
+        specifier: workspace:*
+        version: link:../../packages/design-tokens
       '@source-taster/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n

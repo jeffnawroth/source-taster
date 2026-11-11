@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// The only importer of PDFKit (ADR-0017). Lays a ReportModel out as a tagged
-// PDF with embedded local fonts. No engine switch exists: when an accessibility
-// gate fails, the report fails.
+// The only importer of PDFKit (ADR-0017). The owned adapter retains semantic
+// reading order while adapting the accepted record sheet to opaque paper.
 import { readFileSync } from "node:fs";
 import PDFDocument, { type StructElement } from "pdfkit";
+import { opaque, values } from "@source-taster/design-tokens";
 import type { Block, ReportModel, Section } from "./model.ts";
+import { verdictMark } from "./verdict-mark.ts";
 
 export type ReportFailureCode = "unsupported-character" | "limit-exceeded";
 export class ReportError extends Error {
@@ -14,17 +15,25 @@ export class ReportError extends Error {
     this.code = code;
   }
 }
-/** A report longer than this is refused rather than half-delivered. */
 export const maxPages = 2500;
 const PAGE = { top: 56, bottom: 64, left: 56, right: 56 } as const;
+// Intentional medium mapping: PDFs always use white paper, independent of the
+// application's appearance. All alpha roles come precomposited on that paper.
+const paper = opaque.white;
+const bodySize = 10.7;
+const column = 148;
 const fontFiles = {
-  Regular: "NotoSans-Regular.ttf",
-  Bold: "NotoSans-Bold.ttf",
-  Italic: "NotoSans-Italic.ttf",
+  Regular: "Atkinson-Regular.ttf",
+  Bold: "Atkinson-Bold.ttf",
+  Italic: "Atkinson-Italic.ttf",
+  Mono: "PlexMono-Regular.ttf",
+  NotoRegular: "NotoSans-Regular.ttf",
+  NotoBold: "NotoSans-Bold.ttf",
+  NotoItalic: "NotoSans-Italic.ttf",
 } as const;
-// Loaded from the package, never from a network or the host's font set.
+type Face = keyof typeof fontFiles;
 const fonts = new Map<string, Uint8Array>();
-function font(name: keyof typeof fontFiles) {
+function font(name: Face) {
   let data = fonts.get(name);
   if (!data) {
     data = readFileSync(new URL(`./fonts/${fontFiles[name]}`, import.meta.url));
@@ -32,8 +41,6 @@ function font(name: keyof typeof fontFiles) {
   }
   return data;
 }
-// Zero-width and bidirectional formatting characters have no glyph and no
-// reading value; control characters other than the line break are noise.
 const removable = /[\p{Cc}--[\n]]|\p{Default_Ignorable_Code_Point}/gv;
 export function clean(text: string) {
   return text
@@ -41,7 +48,6 @@ export function clean(text: string) {
     .replace(/\t/gu, " ")
     .replace(removable, "");
 }
-
 export async function renderPdf(model: ReportModel): Promise<Uint8Array> {
   const doc = new PDFDocument({
     size: "A4",
@@ -51,9 +57,7 @@ export async function renderPdf(model: ReportModel): Promise<Uint8Array> {
     displayTitle: true,
     bufferPages: true,
     pdfVersion: "1.7",
-    info: {
-      Creator: "Source Taster",
-    },
+    info: { Creator: "Source Taster" },
   });
   const chunks: Uint8Array[] = [];
   const finished = new Promise<Uint8Array>((resolve, reject) => {
@@ -65,45 +69,83 @@ export async function renderPdf(model: ReportModel): Promise<Uint8Array> {
   doc.on("pageAdded", () => {
     if (++pages > maxPages) throw new ReportError("limit-exceeded");
   });
-  for (const [name] of Object.entries(fontFiles))
-    doc.registerFont(name, font(name as keyof typeof fontFiles));
-
-  // No placeholder boxes: every code point must exist in every embedded face.
-  const faces = (["Regular", "Bold", "Italic"] as const).map((name) => {
-    const face = doc.font(name)._font?.font;
-    if (!face) throw new Error("font-unavailable");
-    return face;
+  for (const name of Object.keys(fontFiles) as Face[])
+    doc.registerFont(name, font(name));
+  const faces = new Map(
+    (Object.keys(fontFiles) as Face[]).map((name) => {
+      const face = doc.font(name)._font?.font;
+      if (!face) throw new Error("font-unavailable");
+      return [name, face];
+    }),
+  );
+  const graphemes = new Intl.Segmenter(model.language, {
+    granularity: "grapheme",
   });
-  function text(value: string) {
-    const out = clean(value);
-    for (const char of out) {
-      if (char === "\n") continue;
-      const point = char.codePointAt(0)!;
-      if (!faces.every((face) => face.hasGlyphForCodePoint(point)))
-        throw new ReportError("unsupported-character");
+  // Keep a combining sequence in one face. A font is selected only when it
+  // maps every code point; an impossible sequence fails the complete job.
+  function runs(value: string, face: Face) {
+    const fallback: Face =
+      face === "Bold"
+        ? "NotoBold"
+        : face === "Italic"
+          ? "NotoItalic"
+          : "NotoRegular";
+    const out: { text: string; face: Face }[] = [];
+    for (const { segment } of graphemes.segment(clean(value))) {
+      const covers = (name: Face) =>
+        [...segment].every(
+          (c) =>
+            c === "\n" ||
+            faces.get(name)!.hasGlyphForCodePoint(c.codePointAt(0)!),
+        );
+      const selected = covers(face) ? face : covers(fallback) ? fallback : null;
+      if (!selected) throw new ReportError("unsupported-character");
+      const last = out.at(-1);
+      if (last?.face === selected) last.text += segment;
+      else out.push({ text: segment, face: selected });
     }
     return out;
   }
-
-  // Viewers show this title (DisplayDocTitle) instead of the file name.
-  doc.info.Title = text(model.metaTitle);
-  const root = doc.struct("Document");
+  // Every wrapped run shares the enclosing structure closure, including when
+  // PDFKit adds pages. No visible text is attached as a finished content ref.
+  function write(
+    value: string,
+    face: Face,
+    x: number,
+    y: number,
+    width: number,
+    size = bodySize,
+    link?: string,
+  ) {
+    const parts = runs(value, face);
+    doc.x = x;
+    doc.y = y;
+    for (const [index, part] of parts.entries()) {
+      doc
+        .font(part.face)
+        .fontSize(size)
+        .fillColor(link ? paper["accent-text"] : paper.text)
+        .text(part.text, {
+          width,
+          continued: index < parts.length - 1,
+          lineGap: 2.5,
+          ...(link ? { link, underline: true } : {}),
+        });
+    }
+  }
+  doc.info.Title = runs(model.metaTitle, "Regular")
+    .map((r) => r.text)
+    .join("");
+  const root = doc.struct("Document", { lang: model.language });
   doc.addStructure(root);
   const width = doc.page.width - PAGE.left - PAGE.right;
   const ensureRoom = (height: number) => {
     if (doc.y + height > doc.page.height - PAGE.bottom) doc.addPage();
+    doc.x = PAGE.left;
   };
-
-  // Every tagged block is a structure element whose content is drawn inside a
-  // closure. PDFKit keeps such an element open while the closure runs, so text
-  // that wraps onto the next page stays reachable from the structure tree. An
-  // element built from a finished content reference would be flushed at once
-  // and lose every later page of the same paragraph.
   function tagged(parent: StructElement, type: string, draw: () => void) {
-    parent.add(doc.struct(type, draw));
+    parent.add(doc.struct(type, { lang: model.language }, draw));
   }
-  // PDFKit leaves a tagged link annotation's /Contents empty; the description
-  // a link announces must be non-empty.
   let linkDescription = "";
   const pdfkitLink = doc.link.bind(doc);
   doc.link = (x, y, w, h, url, options) =>
@@ -113,125 +155,159 @@ export async function renderPdf(model: ReportModel): Promise<Uint8Array> {
         ? { Contents: new String(linkDescription) }
         : {}),
     });
-
-  function heading(level: 1 | 2, value: string) {
-    // A heading is never the last line of a page.
-    ensureRoom(level === 1 ? 120 : 110);
-    tagged(root, `H${level}`, () => {
-      doc
-        .font("Bold")
-        .fontSize(level === 1 ? 20 : 14)
-        .fillColor("#000000")
-        .text(text(value), { width });
-    });
-    doc.moveDown(0.4);
+  function separator() {
+    doc.save();
+    doc.markContent("Artifact", { type: "Layout" });
+    doc
+      .moveTo(PAGE.left, doc.y)
+      .lineTo(PAGE.left + width, doc.y)
+      .lineWidth(0.6)
+      .stroke(paper["border-strong"]);
+    doc.endMarkedContent();
+    doc.restore();
+    doc.y += 12;
   }
-  const bullet = { radius: 1.6, indent: 14, midLine: 5.5, minHeight: 16 };
+  function heading(level: 1 | 2, value: string) {
+    ensureRoom(level === 1 ? 120 : 110);
+    if (level === 2) separator();
+    tagged(root, `H${level}`, () =>
+      write(value, "Bold", PAGE.left, doc.y, width, level === 1 ? 24 : 14),
+    );
+    doc.y += 8;
+  }
   function bulletList(items: string[]) {
     const list = doc.struct("L");
     root.add(list);
     for (const item of items) {
-      // The bullet and its first line share a page.
-      ensureRoom(bullet.minHeight);
-      const left = doc.x;
+      ensureRoom(22);
       const top = doc.y;
       const entry = doc.struct("LI");
       list.add(entry);
       tagged(entry, "Lbl", () => {
-        doc
-          .circle(left + bullet.radius, top + bullet.midLine, bullet.radius)
-          .fill("#000000");
+        doc.circle(PAGE.left + 2, top + 6, 1.6).fill(paper.text);
       });
-      tagged(entry, "LBody", () => {
-        doc.font("Regular").text(item, left + bullet.indent, top, {
-          width: width - bullet.indent,
-        });
-      });
-      doc.x = left;
+      tagged(entry, "LBody", () =>
+        write(item, "Regular", PAGE.left + 14, top, width - 14),
+      );
+      doc.y += 3;
+      doc.x = PAGE.left;
       entry.end();
     }
     list.end();
   }
+  function field(
+    label: string,
+    value: string,
+    face: Face = "Regular",
+    link?: string,
+    verdict?: import("./model.ts").ReportVerdict,
+  ) {
+    ensureRoom(42);
+    const top = doc.y;
+    const pageBefore = pages;
+    const paragraph = doc.struct("P");
+    root.add(paragraph);
+    tagged(paragraph, "Span", () =>
+      write(`${label}:`, "Bold", PAGE.left, top, column - 16),
+    );
+    const labelBottom = doc.y;
+    const x = PAGE.left + column;
+    if (verdict) verdictMark(doc, verdict, x, top - 1);
+    const indent = verdict ? 22 : 0;
+    const size =
+      face === "Mono" ? bodySize * Number(values["font-mono-scale"]) : bodySize;
+    if (link) {
+      linkDescription = label;
+      paragraph.add(
+        doc.struct("Link", { alt: label, lang: model.language }, () =>
+          write(value, face, x, top, width - column, size, link),
+        ),
+      );
+    } else
+      tagged(paragraph, "Span", () =>
+        write(value, face, x + indent, top, width - column - indent, size),
+      );
+    // If the content crossed a page, the label's old page coordinate must not
+    // create a spurious blank region on the continuation page.
+    if (pages === pageBefore) doc.y = Math.max(doc.y, labelBottom);
+    paragraph.end();
+    doc.x = PAGE.left;
+  }
   function body(block: Block) {
-    doc.fontSize(10.5).fillColor("#000000");
     switch (block.kind) {
       case "paragraph":
-        tagged(root, "P", () => {
-          doc.font("Regular").text(text(block.text), { width });
-        });
+        ensureRoom(22);
+        tagged(root, "P", () =>
+          write(block.text, "Regular", PAGE.left, doc.y, width),
+        );
         break;
       case "labelled":
-        tagged(root, "P", () => {
-          doc.font("Bold").text(`${text(block.label)}: `, {
-            continued: true,
-            width,
-          });
-          doc
-            .font("Regular")
-            .text(text(block.text), { continued: false, width });
-        });
+        field(block.label, block.text, block.face, undefined, block.verdict);
         break;
-      case "list": {
-        if (!block.items.length) return;
-        doc.font("Regular");
-        bulletList(block.items.map(text));
-        break;
-      }
-      case "link": {
-        const label = text(block.label);
-        const paragraph = doc.struct("P");
-        root.add(paragraph);
-        tagged(paragraph, "Span", () => {
-          doc.font("Bold").text(`${label}: `, { continued: true, width });
-        });
-        // The Link element owns the annotation (an OBJR child), so assistive
-        // technology reaches the link and its destination.
-        linkDescription = label;
-        paragraph.add(
-          doc.struct("Link", { alt: label }, () => {
-            doc.font("Regular").fillColor("#0b3d91").text(block.url, {
-              link: block.url,
-              underline: true,
-              continued: false,
-              width,
-            });
-          }),
+      case "counts": {
+        ensureRoom(24 + block.items.length * 21);
+        tagged(root, "P", () =>
+          write(block.label, "Bold", PAGE.left, doc.y, width),
         );
-        paragraph.end();
+        doc.y += 5;
+        const list = doc.struct("L");
+        root.add(list);
+        for (const item of block.items) {
+          ensureRoom(21);
+          const top = doc.y;
+          const entry = doc.struct("LI");
+          list.add(entry);
+          // The readable label carries meaning; the redundant vector is skipped.
+          if (item.verdict) verdictMark(doc, item.verdict, PAGE.left, top - 1);
+          tagged(entry, "LBody", () =>
+            write(item.text, "Regular", PAGE.left + 22, top, width - 22),
+          );
+          doc.y += 5;
+          entry.end();
+        }
+        list.end();
         break;
       }
+      case "list":
+        if (block.items.length) bulletList(block.items);
+        break;
+      case "link":
+        field(block.label, block.url, "Mono", block.url);
+        break;
     }
-    doc.moveDown(0.5);
+    doc.x = PAGE.left;
+    doc.y += 6;
   }
   function section(value: Section) {
     heading(2, value.heading);
     for (const block of value.blocks) body(block);
-    doc.moveDown(0.6);
+    doc.y += 8;
   }
-
+  // Real text, redundant with the footer; no brand artwork is embedded.
+  doc.markContent("Artifact", { type: "Layout" });
+  write("Source Taster", "Bold", PAGE.left, doc.y, width, 11);
+  doc.endMarkedContent();
+  doc.y += 12;
   heading(1, model.title);
   for (const block of model.front) body(block);
   section(model.overview);
   for (const value of model.references) section(value);
   root.end();
-
-  // Page furniture is an Artifact: screen readers skip it.
   const range = doc.bufferedPageRange();
   for (let index = 0; index < range.count; index++) {
     doc.switchToPage(range.start + index);
     const bottom = doc.page.margins.bottom;
     doc.page.margins.bottom = 0;
     doc.markContent("Artifact", { type: "Pagination" });
-    doc
-      .font("Regular")
-      .fontSize(8.5)
-      .fillColor("#444444")
-      .text(
-        text(`${model.footer} · ${model.pageLabel(index + 1, range.count)}`),
-        PAGE.left,
-        doc.page.height - 40,
-        { width, align: "center", lineBreak: false },
-      );
+    // White paper is the physical medium; do not paint an application canvas.
+    write(
+      `${model.footer} · ${model.pageLabel(index + 1, range.count)}`,
+      "Mono",
+      PAGE.left,
+      doc.page.height - 40,
+      width,
+      8,
+    );
     doc.endMarkedContent();
     doc.page.margins.bottom = bottom;
   }
