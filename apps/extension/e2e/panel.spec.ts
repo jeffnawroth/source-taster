@@ -185,10 +185,15 @@ test("native panel renders a Correction suggestion and keeps export choices loca
     await until(async () => {
       const [suggestion] = await panel.query("region", "Correction suggestion");
       if (!suggestion) return false;
+      // The tracked change's kept and inserted parts read as the suggestion.
       return (
         await panel.call<string>(
           suggestion,
-          "function () { return this.innerText; }",
+          `function () {
+            const clone = this.cloneNode(true);
+            for (const node of clone.querySelectorAll("del, .sr-only")) node.remove();
+            return clone.textContent;
+          }`,
         )
       ).includes("M. Aspelmeyer");
     }, "The panel did not re-render the IEEE suggestion");
