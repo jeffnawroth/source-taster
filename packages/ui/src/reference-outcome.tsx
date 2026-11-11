@@ -8,16 +8,14 @@ import type {
   Verdict,
   SourceEvidence,
 } from "@source-taster/contract-verification/v2";
+import {
+  VerdictBadge,
+  VerdictGlyph,
+  StatusBadge,
+  verdictLabels,
+} from "./outcome-badges.tsx";
 import { m } from "@source-taster/i18n";
 import { JournalAbbreviationExplanation } from "./journal-abbreviation.tsx";
-const verdicts = {
-  correct: ["✓", "text-green-900", "verdict_correct"],
-  "exists-with-deviations": ["△", "text-amber-950", "verdict_exists"],
-  "mixed-citation": ["✕", "text-red-900", "verdict_mixed"],
-  "doi-conflict": ["✕", "text-red-900", "verdict_doi_conflict"],
-  "not-found": ["✕", "text-red-900", "verdict_not_found"],
-  "not-verifiable": ["?", "text-slate-700", "verdict_not_verifiable"],
-} as const satisfies Record<Verdict, readonly [string, string, keyof typeof m]>;
 const reasons = {
   "url-unavailable": "reason_url_unavailable",
   "web-original-unavailable": "reason_web_original_unavailable",
@@ -211,23 +209,20 @@ export function ReferenceOutcomeSummary({
   manualOverride?: ManualOverride | null;
 }) {
   if (outcome.kind === "status") {
-    const keys = {
-      running: "status_running",
-      cancelled: "status_cancelled",
-      failed: "status_failed",
-      "not-checked": "status_not_checked",
-    } as const;
-    return <p className="mt-2 font-semibold">{m[keys[outcome.status]]()}</p>;
+    return <StatusBadge status={outcome.status} />;
   }
-  const [icon, color, key] = verdicts[outcome.verdict];
+  const key = verdictLabels[outcome.verdict];
   return (
     <>
       {manualOverride && <ManualVerdictLabel manualOverride={manualOverride} />}
-      <p className={`mt-2 ${color}`}>
-        <span aria-hidden="true">{icon} </span>
-        {manualOverride
-          ? m.override_system({ verdict: m[key]() })
-          : m[key]()} ·{" "}
+      <p className="feed-reason">
+        <VerdictBadge verdict={manualOverride?.verdict ?? outcome.verdict} />
+        {manualOverride && (
+          <span className="manual-system">
+            {m.override_system({ verdict: m[key]() })}
+          </span>
+        )}
+        {" · "}
         {outcome.reasons.map((reason) => m[reasons[reason]]()).join(" ")}
       </p>
     </>
@@ -253,25 +248,25 @@ export function ReferenceOutcomeView({
     } as const;
     return (
       <div>
-        <p className="mt-2 font-semibold text-teal-900">
+        <p className="mt-2 font-semibold text-text">
           {m[keys[outcome.status]]()}
         </p>
         {originalText !== undefined && <OriginalInput text={originalText} />}
       </div>
     );
   }
-  const [icon, color, key] = verdicts[outcome.verdict];
+  const key = verdictLabels[outcome.verdict];
   return (
     <div className="mt-3 space-y-3">
       {manualOverride && <ManualVerdictLabel manualOverride={manualOverride} />}
-      <p className={`font-semibold ${color}`}>
-        <span aria-hidden="true">{icon} </span>
+      <p className="font-semibold">
+        <VerdictGlyph verdict={outcome.verdict} />
         <span>
           {manualOverride ? m.override_system({ verdict: m[key]() }) : m[key]()}
         </span>
       </p>
       {outcome.retraction === "retracted" && (
-        <div className="border-l-4 border-amber-700 bg-amber-50 p-3 text-slate-900">
+        <div className="border-l-4 border-border-emphasis bg-surface-sunken p-3 text-text">
           <p className="font-semibold">{m.retraction_reported()}</p>
           <p>{m.retraction_independent()}</p>
         </div>
@@ -403,7 +398,7 @@ export function ReferenceOutcomeView({
         {outcome.candidates.map((candidate) => (
           <section
             key={candidate.id}
-            className="mt-5 border-t border-slate-400 pt-4"
+            className="mt-5 border-t border-border-emphasis pt-4"
           >
             <h3 className="font-semibold">
               {m.candidate_label()}: {candidate.csl.title ?? candidate.id} (
@@ -447,7 +442,7 @@ export function ReferenceOutcomeView({
                   className={
                     (field.score && !field.score.fullAgreement) ||
                     field.agreement === false
-                      ? "rounded border-l-4 border-amber-700 pl-3"
+                      ? "rounded border-l-4 border-border-emphasis pl-3"
                       : ""
                   }
                 >
@@ -628,10 +623,10 @@ function ManualVerdictLabel({
 }: {
   manualOverride: ManualOverride;
 }) {
-  const [icon, color, key] = verdicts[manualOverride.verdict];
+  const key = verdictLabels[manualOverride.verdict];
   return (
-    <p className={`mt-2 font-semibold ${color}`}>
-      <span aria-hidden="true">{icon} </span>
+    <p className="manual-tag mt-2 font-semibold">
+      <VerdictGlyph verdict={manualOverride.verdict} />
       {m.override_manual({ verdict: m[key]() })}
     </p>
   );

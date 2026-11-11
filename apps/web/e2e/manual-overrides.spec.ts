@@ -23,7 +23,7 @@ for (const language of ["en", "de"] as const) {
         exact: true,
       })
       .click();
-    const list = page.getByRole("list", {
+    const list = page.getByRole("grid", {
       name: en ? "References" : "Referenzen",
       exact: true,
     });
@@ -93,12 +93,15 @@ for (const language of ["en", "de"] as const) {
     });
     await filter.click();
     await expect(filter).toHaveAttribute("aria-pressed", "true");
-    await expect(list.getByRole("listitem")).toHaveCount(1);
+    await expect(list.getByRole("row")).toHaveCount(1);
     await list.getByRole("button").click();
     // Return to all before Re-check so the running Status stays visible.
     await summary
       .getByRole("button", {
-        name: en ? /^All references:/ : /^Alle Referenzen:/,
+        name: en
+          ? "Remove filter: Not found"
+          : "Filter entfernen: Nicht gefunden",
+        exact: true,
       })
       .click();
     await list.getByRole("button").click();
@@ -173,7 +176,7 @@ test("a manual draft cannot silently move to a newer same-revision result", asyn
   await page
     .getByRole("button", { name: "Check reference", exact: true })
     .click();
-  const list = page.getByRole("list", { name: "References", exact: true });
+  const list = page.getByRole("grid", { name: "References", exact: true });
   await expect(list).toContainText("Correct", { timeout: 15000 });
   await list.getByRole("button").click();
   const detail = page.getByRole("region", {

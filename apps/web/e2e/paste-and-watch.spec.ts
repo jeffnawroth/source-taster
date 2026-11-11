@@ -60,7 +60,7 @@ for (const language of ["en", "de"] as const) {
     );
     await expect(checkStatus(page, language)).toContainText("Darwin");
     await page
-      .getByRole("list", {
+      .getByRole("grid", {
         name: language === "en" ? "References" : "Referenzen",
         exact: true,
       })
@@ -120,7 +120,7 @@ test("resumes a prematurely closed event stream without losing Reference Status 
   });
   await expect(
     page
-      .getByRole("list", { name: "References", exact: true })
+      .getByRole("grid", { name: "References", exact: true })
       .getByText("Not checked", { exact: true }),
   ).toHaveCount(2);
   await expect(checkStatus(page)).toContainText("The Descent of Man");

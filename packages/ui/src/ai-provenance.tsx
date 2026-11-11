@@ -27,7 +27,7 @@ export function AiProvenance({
   disabled?: boolean;
 }) {
   return (
-    <div className="my-3 space-y-2 rounded border border-amber-500 bg-amber-50 p-3">
+    <div className="my-3 space-y-2 rounded border border-border-emphasis bg-surface-sunken p-3">
       <p data-testid="ai-uncertainty">{m.ai_uncertainty()}</p>
       {extracted && <p>{m.ai_extracted()}</p>}
       {extracted && ai.changedFields.length > 0 && (
@@ -45,7 +45,7 @@ export function AiProvenance({
                 {label(p.field)}: {display(p.value)}
                 {onAdopt && (
                   <button
-                    className="ml-2 rounded border border-slate-600 px-3 py-2 disabled:opacity-50"
+                    className="ml-2 rounded border border-border-emphasis px-3 py-2 disabled:opacity-50"
                     disabled={disabled}
                     type="button"
                     onClick={() => {

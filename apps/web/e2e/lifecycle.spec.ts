@@ -29,9 +29,14 @@ for (const language of ["en", "de"] as const) {
       .click();
     const created = CheckResponse.parse(await (await creation).json()).data;
     await expect(
-      page.getByText(language === "en" ? "Correct" : "Korrekt", {
-        exact: true,
-      }),
+      page
+        .getByRole("grid", {
+          name: language === "en" ? "References" : "Referenzen",
+          exact: true,
+        })
+        .getByText(language === "en" ? "Correct" : "Korrekt", {
+          exact: true,
+        }),
     ).toBeVisible();
     const cancel = page.getByRole("button", {
       name: language === "en" ? "Cancel check" : "Prüfung abbrechen",
@@ -45,9 +50,14 @@ for (const language of ["en", "de"] as const) {
       }),
     ).toBeVisible();
     await expect(
-      page.getByText(language === "en" ? "Correct" : "Korrekt", {
-        exact: true,
-      }),
+      page
+        .getByRole("grid", {
+          name: language === "en" ? "References" : "Referenzen",
+          exact: true,
+        })
+        .getByText(language === "en" ? "Correct" : "Korrekt", {
+          exact: true,
+        }),
     ).toBeVisible();
     expect(
       (
@@ -211,7 +221,7 @@ test("an unconfirmed Cancel reports uncertainty and stops this workspace renewin
   await expect(page.getByRole("alert")).toContainText("could not be confirmed");
   await expect(
     page
-      .getByRole("list", { name: "References", exact: true })
+      .getByRole("grid", { name: "References", exact: true })
       .getByText("Cancelled", { exact: true }),
   ).toBeVisible({ timeout: 4000 });
 });

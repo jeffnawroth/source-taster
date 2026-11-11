@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { effectiveVerdict } from "./effective-verdict.ts";
+import { verdictLabels, statusLabels } from "./outcome-badges.tsx";
 import { useRef, useState } from "react";
 import type {
   Check,
   ReferenceSlot,
-  Verdict,
 } from "@source-taster/contract-verification/v2";
 import type { VerificationClientOptions } from "@source-taster/contract-verification/client-v2";
 import type { CitationStyle } from "./preferences.ts";
@@ -21,7 +21,12 @@ import {
   ReferenceActions,
   ReferenceListActions,
 } from "./reference-actions.tsx";
-import { CheckSummary } from "./check-summary.tsx";
+import { GridList, GridListItem } from "./primitives/grid-list.tsx";
+import {
+  CheckSummary,
+  matchesFilter,
+  type OutcomeFilter,
+} from "./check-summary.tsx";
 import {
   ReferenceOutcomeSummary,
   ReferenceOutcomeView,
@@ -35,16 +40,19 @@ function RunningStep({ reference }: { reference: ReferenceSlot }) {
   )
     return null;
   return (
-    <p>
-      {reference.progress === "queued"
-        ? m.reference_queued()
-        : Object.hasOwn(sourceNames, reference.progress)
-          ? m.reference_source({
-              source:
-                sourceNames[reference.progress as keyof typeof sourceNames],
-            })
-          : m.reference_checking()}
-    </p>
+    <ol className="evidence-track">
+      <li>
+        <span aria-hidden="true">◌</span>
+        {reference.progress === "queued"
+          ? m.reference_queued()
+          : Object.hasOwn(sourceNames, reference.progress)
+            ? m.reference_source({
+                source:
+                  sourceNames[reference.progress as keyof typeof sourceNames],
+              })
+            : m.reference_checking()}
+      </li>
+    </ol>
   );
 }
 /** Selection is a stable slot, never an outcome, array index or sorted result. */
@@ -78,7 +86,7 @@ export function CheckResults({
       ? firstFormat
       : undefined;
   const [helpOpen, setHelpOpen] = useState(false);
-  const [filter, setFilter] = useState<Verdict | null>(null);
+  const [filter, setFilter] = useState<OutcomeFilter>(null);
   const [selectedSlot, selectSlot] = useState(check.references[0]?.slot);
   const bibliography = useBibliography(
     check,
@@ -89,10 +97,10 @@ export function CheckResults({
   const [detailOpen, setDetailOpen] = useState(false);
   const list = useRef<HTMLDivElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
-  const buttons = useRef(new Map<number, HTMLButtonElement>());
+  const buttons = useRef(new Map<number, HTMLDivElement>());
   const position = useRef({ list: 0, page: 0 });
-  const visible = check.references.filter(
-    (reference) => !filter || effectiveVerdict(reference) === filter,
+  const visible = check.references.filter((reference) =>
+    matchesFilter(reference, filter),
   );
   const selected = visible.find((reference) => reference.slot === selectedSlot);
   function open(slot: number) {
@@ -107,7 +115,7 @@ export function CheckResults({
   function back() {
     setDetailOpen(false);
     requestAnimationFrame(() => {
-      if (selectedSlot)
+      if (selectedSlot !== undefined)
         buttons.current.get(selectedSlot)?.focus({ preventScroll: true });
       if (list.current) list.current.scrollTop = position.current.list;
       window.scrollTo({ top: position.current.page });
@@ -117,7 +125,7 @@ export function CheckResults({
     <>
       <button
         type="button"
-        className="my-3 rounded border border-slate-500 p-3 underline"
+        className="my-3 rounded border border-border-emphasis p-3 underline"
         aria-expanded={helpOpen}
         aria-controls="check-explanation"
         onClick={() => setHelpOpen((value) => !value)}
@@ -128,7 +136,7 @@ export function CheckResults({
         id="check-explanation"
         aria-label={m.workspace_help()}
         hidden={!helpOpen}
-        className="my-3 space-y-3 rounded border border-slate-300 bg-teal-50 p-4"
+        className="my-3 space-y-3 rounded border border-border-emphasis bg-surface-sunken p-4"
       >
         <h2 className="font-semibold">{m.workspace_help()}</h2>
         <p>{m.workspace_human()}</p>
@@ -171,45 +179,111 @@ export function CheckResults({
       />
       <div className="check-panes" data-detail-open={detailOpen && !!selected}>
         <div ref={list} className="check-list">
-          <ol aria-label={m.workspace_references()} className="space-y-4">
+          <p className="feed-sentence">
+            {check.references.some(
+              (r) =>
+                r.outcome.kind === "status" && r.outcome.status === "running",
+            )
+              ? `${m.check_running()} · ${m.check_progress({ completed: String(completed), total: String(check.references.length) })}`
+              : m.shell_feed_done({
+                  correct: check.references.filter(
+                    (r) => effectiveVerdict(r) === "correct",
+                  ).length,
+                  total: check.references.length,
+                })}
+          </p>
+          <GridList
+            aria-label={m.workspace_references()}
+            className="space-y-4"
+            selectionMode="single"
+            selectionBehavior="replace"
+            selectedKeys={selectedSlot === undefined ? [] : [selectedSlot]}
+            onSelectionChange={(keys) => {
+              if (keys !== "all") {
+                const key = [...keys][0];
+                if (key !== undefined) selectSlot(Number(key));
+              }
+            }}
+          >
             {visible.map((reference) => (
-              <li key={reference.slot} className="rounded-xl bg-slate-100 p-4">
-                <button
-                  type="button"
-                  ref={(element) => {
-                    if (element) buttons.current.set(reference.slot, element);
-                    else buttons.current.delete(reference.slot);
-                  }}
-                  aria-current={
-                    selectedSlot === reference.slot ? "true" : undefined
-                  }
-                  aria-controls="reference-detail"
-                  onClick={() => open(reference.slot)}
-                  className="w-full rounded text-left font-semibold underline decoration-teal-700 underline-offset-4"
-                >
-                  {m.workspace_open({
-                    slot: reference.slot,
-                    title: reference.fields.title ?? reference.originalText,
-                  })}
-                </button>
+              <GridListItem
+                key={reference.slot}
+                id={reference.slot}
+                onAction={() => open(reference.slot)}
+                textValue={reference.fields.title ?? reference.originalText}
+                ref={(element) => {
+                  if (element) buttons.current.set(reference.slot, element);
+                  else buttons.current.delete(reference.slot);
+                }}
+                aria-label={`${m.workspace_open({ slot: reference.slot, title: reference.fields.title ?? reference.originalText })} · ${reference.outcome.kind === "status" ? m[statusLabels[reference.outcome.status]]() : m[verdictLabels[effectiveVerdict(reference)!]]()}`}
+                className="feed-card"
+              >
+                <div className="feed-head">
+                  <span className="feed-slot" aria-hidden="true">
+                    {reference.slot}
+                  </span>
+                  <button
+                    type="button"
+                    aria-label={m.workspace_open({
+                      slot: reference.slot,
+                      title: reference.fields.title ?? reference.originalText,
+                    })}
+                    tabIndex={-1}
+                    aria-current={
+                      selectedSlot === reference.slot ? "true" : undefined
+                    }
+                    aria-controls="reference-detail"
+                    onClick={() => open(reference.slot)}
+                    className="w-full rounded text-left font-semibold underline decoration-border-emphasis underline-offset-4"
+                  >
+                    <span className="feed-title">
+                      {reference.fields.title ?? reference.originalText}
+                    </span>
+                  </button>
+                </div>
+                <p className="feed-meta">
+                  {reference.fields.author
+                    ?.map(
+                      (author) =>
+                        author.literal ??
+                        [author.given, author.family].filter(Boolean).join(" "),
+                    )
+                    .join("; ")}
+                  {reference.fields.issued?.literal
+                    ? ` · ${reference.fields.issued.literal}`
+                    : ""}
+                </p>
                 <ReferenceOutcomeSummary
                   outcome={reference.outcome}
                   manualOverride={reference.manualOverride}
                 />
                 <RunningStep reference={reference} />
-              </li>
+              </GridListItem>
             ))}
-          </ol>
-          {!visible.length && <p>{m.workspace_empty()}</p>}
+          </GridList>
+          {!visible.length && (
+            <p>
+              {m.workspace_empty()}{" "}
+              <button type="button" onClick={() => setFilter(null)}>
+                {m.workspace_all()}
+              </button>
+            </p>
+          )}
         </div>
         <section
           id="reference-detail"
           aria-labelledby="reference-detail-title"
-          className="check-detail min-w-0 rounded-xl border border-slate-300 p-4"
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              event.preventDefault();
+              back();
+            }
+          }}
+          className="check-detail min-w-0 rounded-xl border border-border-emphasis p-4"
         >
           <button
             type="button"
-            className="check-back mb-4 rounded border border-slate-500 p-3"
+            className="check-back mb-4 rounded border border-border-emphasis p-3"
             onClick={back}
           >
             {m.workspace_back()}

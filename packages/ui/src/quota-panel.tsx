@@ -30,7 +30,7 @@ export function QuotaMeter({
     <section
       aria-label={m.quota_meter_label()}
       data-testid="quota-meter"
-      className="mb-6 rounded-xl border border-slate-300 bg-white p-4"
+      className="mb-6 rounded-xl border border-border-emphasis bg-surface p-4"
     >
       <p className="font-semibold">{m.quota_meter_label()}</p>
       <progress
@@ -53,7 +53,7 @@ export function QuotaMeter({
         <p
           role="alert"
           data-testid={`quota-warning-${quota.warning}`}
-          className="mt-3 rounded-lg border border-amber-400 bg-amber-50 p-3 text-amber-950"
+          className="mt-3 rounded-lg border border-border-emphasis bg-surface-sunken p-3 text-text"
         >
           {quota.warning === "exhausted"
             ? m.quota_warning_exhausted()
@@ -72,7 +72,7 @@ export function QuotaPending({ state }: { state: "loading" | "unavailable" }) {
       aria-label={m.quota_meter_label()}
       aria-busy={state === "loading"}
       data-testid="quota-meter"
-      className="mb-6 rounded-xl border border-slate-300 bg-white p-4"
+      className="mb-6 rounded-xl border border-border-emphasis bg-surface p-4"
     >
       <p className="font-semibold">{m.quota_meter_label()}</p>
       <p data-testid={`quota-${state}`}>
@@ -101,7 +101,7 @@ export function QuotaChoice({
       role="alertdialog"
       aria-labelledby="quota-choice-title"
       data-testid="quota-choice"
-      className="mt-6 rounded-xl border border-amber-400 bg-amber-50 p-4 text-amber-950"
+      className="mt-6 rounded-xl border border-border-emphasis bg-surface-sunken p-4 text-text"
     >
       <h2 id="quota-choice-title" className="font-semibold">
         {m.quota_choice_heading()}
@@ -119,7 +119,7 @@ export function QuotaChoice({
           <Button
             type="button"
             onPress={onFirst}
-            className="rounded-xl bg-teal-800 px-5 py-3 font-semibold text-white hover:bg-teal-900"
+            className="rounded-xl bg-surface px-5 py-3 font-semibold text-text hover:bg-surface"
           >
             {m.quota_choice_first({ available: String(available) })}
           </Button>
@@ -128,7 +128,7 @@ export function QuotaChoice({
         <Button
           type="button"
           onPress={onDismiss}
-          className="rounded-xl border border-slate-600 px-5 py-3 font-semibold"
+          className="rounded-xl border border-border-emphasis px-5 py-3 font-semibold"
         >
           {m.quota_choice_dismiss()}
         </Button>

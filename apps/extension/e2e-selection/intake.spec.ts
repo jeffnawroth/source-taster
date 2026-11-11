@@ -431,7 +431,7 @@ test("selection keeps the running Check reachable and its finished evidence inta
         await panel.fill("textbox", "Reference", physicsReference);
         await panel.click("button", "Check reference");
         await held.arrived;
-        await panel.waitForText("list", "References", "Running");
+        await panel.waitForText("grid", "References", "Running");
         const create = () =>
           panel.requests.filter(
             (r) => r.method === "POST" && r.url.endsWith("/v2/checks"),
@@ -446,10 +446,10 @@ test("selection keeps the running Check reachable and its finished evidence inta
             )) === "Draft received while running",
           "Selection while running was lost",
         );
-        await panel.waitForText("list", "References", "Running");
+        await panel.waitForText("grid", "References", "Running");
         expect(await panel.query("button", "Cancel check")).toHaveLength(1);
         held.release();
-        await panel.waitForText("list", "References", "Correct");
+        await panel.waitForText("grid", "References", "Correct");
         await panel.click("button", /^Open reference 1:/);
         const before = await panel.text("region", "Reference detail");
         await select("Draft received after completion");

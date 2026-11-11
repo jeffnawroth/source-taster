@@ -20,7 +20,7 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
-    const list = page.getByRole("list", {
+    const list = page.getByRole("grid", {
       name: language === "en" ? "References" : "Referenzen",
       exact: true,
     });

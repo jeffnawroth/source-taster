@@ -7,7 +7,7 @@ import type { VerificationClientOptions } from "@source-taster/contract-verifica
 import { m } from "@source-taster/i18n";
 import type { CitationStyle } from "./preferences.ts";
 const buttonClass =
-  "rounded-lg border border-slate-600 px-4 py-2 font-semibold disabled:bg-slate-100 disabled:text-slate-500";
+  "rounded-lg border border-border-emphasis px-4 py-2 font-semibold disabled:bg-surface-sunken disabled:text-text-secondary";
 export function useBibliography(
   check: Check,
   style: CitationStyle,
@@ -187,7 +187,7 @@ export function BibliographyActions({
   return (
     <section
       aria-label={m.bibliography_heading()}
-      className="my-4 space-y-3 rounded border border-slate-300 p-4"
+      className="my-4 space-y-3 rounded border border-border-emphasis p-4"
     >
       <h3 className="font-semibold">{m.bibliography_heading()}</h3>
       <p>{m.correction_export_hint()}</p>
@@ -265,7 +265,7 @@ export function CorrectionSuggestion({
   return (
     <section
       aria-label={m.correction_heading()}
-      className="my-4 space-y-3 rounded border border-teal-700 bg-teal-50 p-4"
+      className="my-4 space-y-3 rounded border border-border-emphasis bg-surface-sunken p-4"
     >
       <h3 className="font-semibold">{m.correction_heading()}</h3>
       <p className="break-words">{suggestion.text}</p>

@@ -97,7 +97,7 @@ export function HistoryPanel({
   return (
     <section
       aria-labelledby={`${id}-heading`}
-      className="my-6 rounded-xl border border-slate-400 bg-white p-4"
+      className="my-6 rounded-xl border border-border-emphasis bg-surface p-4"
     >
       <h2 id={`${id}-heading`} className="text-xl font-semibold">
         {m.history_heading()}
@@ -106,7 +106,7 @@ export function HistoryPanel({
       {error && <p role="alert">{m.history_unavailable()}</p>}
       <div className="my-3 flex flex-wrap gap-3">
         <button
-          className="rounded border border-slate-500 px-3 py-2"
+          className="rounded border border-border-emphasis px-3 py-2"
           disabled={pending}
           onClick={() =>
             void run(async () => {
@@ -119,7 +119,7 @@ export function HistoryPanel({
         {data &&
           (data.enabled ? (
             <button
-              className="rounded border border-slate-500 px-3 py-2"
+              className="rounded border border-border-emphasis px-3 py-2"
               disabled={disabled}
               onClick={() => setChoice({ kind: "revoke" })}
             >
@@ -127,7 +127,7 @@ export function HistoryPanel({
             </button>
           ) : (
             <button
-              className="rounded border border-slate-500 px-3 py-2"
+              className="rounded border border-border-emphasis px-3 py-2"
               disabled={disabled}
               onClick={() =>
                 void run(async () => {
@@ -147,7 +147,7 @@ export function HistoryPanel({
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="my-2 block w-full max-w-md rounded border border-slate-500 p-2"
+            className="my-2 block w-full max-w-md rounded border border-border-emphasis p-2"
           />
           {!data.entries.length && <p>{m.history_empty()}</p>}
           <ul className="space-y-4">
@@ -160,7 +160,7 @@ export function HistoryPanel({
               .map((entry) => (
                 <li
                   key={entry.id}
-                  className="rounded border border-slate-300 p-3"
+                  className="rounded border border-border-emphasis p-3"
                 >
                   {entry.label && <p>{entry.label}</p>}
                   <p>
@@ -178,7 +178,7 @@ export function HistoryPanel({
                   )}
                   <div className="flex flex-wrap gap-3">
                     <button
-                      className="rounded border border-slate-500 px-3 py-2"
+                      className="rounded border border-border-emphasis px-3 py-2"
                       disabled={disabled || entry.locked}
                       onClick={() =>
                         void run(async () => {
@@ -189,7 +189,7 @@ export function HistoryPanel({
                       {m.history_open()}
                     </button>
                     <button
-                      className="rounded border border-slate-500 px-3 py-2"
+                      className="rounded border border-border-emphasis px-3 py-2"
                       disabled={
                         disabled || entry.locked || entry.referenceCount === 0
                       }
@@ -201,7 +201,7 @@ export function HistoryPanel({
                       {m.history_restart()}
                     </button>
                     <button
-                      className="rounded border border-slate-500 px-3 py-2"
+                      className="rounded border border-border-emphasis px-3 py-2"
                       disabled={disabled}
                       onClick={() => setChoice({ kind: "delete", entry })}
                     >
@@ -217,7 +217,7 @@ export function HistoryPanel({
         <div
           role="group"
           aria-labelledby={`${id}-confirm`}
-          className="my-4 rounded border border-amber-600 p-3"
+          className="my-4 rounded border border-border-emphasis p-3"
         >
           <p id={`${id}-confirm`}>
             {choice.kind === "restart"
@@ -229,7 +229,7 @@ export function HistoryPanel({
                 : m.history_delete_warning()}
           </p>
           <button
-            className="rounded border border-slate-500 px-3 py-2"
+            className="rounded border border-border-emphasis px-3 py-2"
             disabled={disabled}
             onClick={() =>
               void run(async () => {
@@ -253,7 +253,7 @@ export function HistoryPanel({
                 : m.history_delete_confirm()}
           </button>
           <button
-            className="rounded border border-slate-500 px-3 py-2"
+            className="rounded border border-border-emphasis px-3 py-2"
             disabled={pending}
             onClick={() => setChoice(null)}
           >

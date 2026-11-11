@@ -126,7 +126,7 @@ for (const language of ["en", "de"] as const) {
         en ? "Correct" : "Korrekt",
       );
       expect(
-        await panel.text("list", en ? "References" : "Referenzen"),
+        await panel.text("grid", en ? "References" : "Referenzen"),
       ).not.toContain(en ? "Manual verdict:" : "Manueller Befund:");
       await panel.click(
         "button",

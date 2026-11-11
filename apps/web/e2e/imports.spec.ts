@@ -162,8 +162,8 @@ test("keeps canonical exports available when membership adds a non-imported Refe
     .click();
   await expect(
     page
-      .getByRole("list", { name: "References", exact: true })
-      .getByRole("listitem"),
+      .getByRole("grid", { name: "References", exact: true })
+      .getByRole("row"),
   ).toHaveCount(2);
   await expect(format).toHaveValue("csl-json");
   await expect(format.locator('option[value="imported-format"]')).toHaveCount(

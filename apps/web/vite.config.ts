@@ -2,10 +2,12 @@
 import { defineConfig } from "vite";
 import { openWebsite } from "@source-taster/website/hosting";
 import { fileURLToPath } from "node:url";
+import { fontNotices } from "../../packages/ui/font-assets.ts";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [
+    fontNotices(),
     react(),
     tailwindcss(),
     {

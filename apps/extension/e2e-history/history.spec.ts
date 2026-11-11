@@ -67,6 +67,7 @@ for (const language of ["en", "de"] as const) {
       });
       const panel = await browser.openPanel();
       try {
+        await panel.click("button", language === "en" ? "History" : "Verlauf");
         await panel.find("button", t.enable);
         await panel.click("button", t.enable);
         await panel.find("button", t.revoke);
@@ -107,6 +108,7 @@ for (const language of ["en", "de"] as const) {
             (c) => c.path.endsWith("/reserve") && c.body.checkId === id,
           ),
         ).toHaveLength(1);
+        await panel.click("button", language === "en" ? "History" : "Verlauf");
         await expect
           .poll(async () =>
             panel.call(
@@ -124,6 +126,7 @@ for (const language of ["en", "de"] as const) {
                 .length,
           )
           .toBe(2);
+        await panel.click("button", language === "en" ? "History" : "Verlauf");
         // Wait for the restarted Check to end before the destructive control.
         await expect
           .poll(async () => {

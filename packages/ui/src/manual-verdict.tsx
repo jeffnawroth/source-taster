@@ -14,7 +14,8 @@ import {
 } from "@source-taster/contract-verification/client-v2";
 import { m } from "@source-taster/i18n";
 import { verdictLabels } from "./check-summary.tsx";
-const action = "rounded border border-slate-600 px-3 py-2 disabled:opacity-50";
+const action =
+  "rounded border border-border-emphasis px-3 py-2 disabled:opacity-50";
 export function ManualVerdictActions({
   check,
   reference,
@@ -135,7 +136,7 @@ export function ManualVerdictActions({
               <label className="block">
                 {m.override_label()}
                 <select
-                  className="block w-full min-w-0 rounded border border-slate-500 bg-white p-2"
+                  className="block w-full min-w-0 rounded border border-border-emphasis bg-surface p-2"
                   disabled={pending}
                   value={draft.verdict}
                   onChange={(event) =>

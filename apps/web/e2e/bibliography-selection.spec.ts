@@ -68,7 +68,7 @@ for (const language of ["en", "de"] as const)
       })
       .click();
     await expect(
-      page.getByRole("list", {
+      page.getByRole("grid", {
         name: language === "en" ? "References" : "Referenzen",
         exact: true,
       }),
@@ -185,7 +185,7 @@ test("an undetected document requires a manual region and never checks surroundi
     ).violations,
   ).toEqual([]);
   await check.click();
-  const list = page.getByRole("list", { name: "References", exact: true });
+  const list = page.getByRole("grid", { name: "References", exact: true });
   await expect(list).toContainText("Signal maps");
   await expect(list).not.toContainText("Running text");
   await expect(list).not.toContainText("Outside");

@@ -664,7 +664,7 @@ test("Account streams reconnect with memory tokens and generic permission cannot
       "Check creation did not answer",
     );
     expect(creation.status).toBe(201);
-    await panel.waitForText("list", "References", /Queued|Running/);
+    await panel.waitForText("grid", "References", /Queued|Running/);
     const created = panel.requests.find(
       (r) =>
         r.url === `http://127.0.0.1:${apiPort}/v2/checks` &&
@@ -719,7 +719,7 @@ test("Account streams reconnect with memory tokens and generic permission cannot
       [key]: credential,
     });
     await panel.click("button", "Reset");
-    expect(await panel.query("list", "References")).toEqual([]);
+    expect(await panel.query("grid", "References")).toEqual([]);
   });
 });
 

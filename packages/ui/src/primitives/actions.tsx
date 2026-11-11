@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Adapted from Adobe's RAC Tailwind starter; see ../../NOTICE.md.
-import { useId, type ReactNode } from "react";
+import { useId, type ReactNode, type Ref } from "react";
 import * as Aria from "react-aria-components";
 import { ArrowUpRight } from "lucide-react";
 import { buttonRecipe, linkRecipe } from "../recipes.ts";
@@ -12,6 +12,7 @@ export type Availability =
   | { isDisabled: true; disabledReason: string }
   | { isDisabled?: false; disabledReason?: never };
 type ButtonBase = Omit<Aria.ButtonProps, "isDisabled" | "render"> & {
+  ref?: Ref<HTMLButtonElement>;
   variant?: "primary" | "secondary" | "ghost" | "danger";
   size?: "md" | "sm";
 };

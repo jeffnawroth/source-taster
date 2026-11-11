@@ -91,6 +91,21 @@ for (const language of ["en", "de"] as const) {
       },
     ]);
     await page.goto(webUrl);
+    const historyTrigger = page.getByRole("button", {
+      name: language === "en" ? "History" : "Verlauf",
+      exact: true,
+    });
+    await historyTrigger.focus();
+    await page.keyboard.press("Enter");
+    const historyDialog = page.getByRole("dialog", {
+      name: language === "en" ? "History" : "Verlauf",
+      exact: true,
+    });
+    await expect(historyDialog).toHaveAttribute("aria-modal", "true");
+    await page.keyboard.press("Escape");
+    await expect(historyDialog).toBeHidden();
+    await expect(historyTrigger).toBeFocused();
+    await historyTrigger.click();
     const t =
       language === "en"
         ? {
@@ -155,6 +170,8 @@ for (const language of ["en", "de"] as const) {
         (c) => c.path.endsWith("/reserve") && c.body.checkId === id,
       ),
     ).toHaveLength(1);
+    await expect(historyDialog).toBeHidden();
+    await historyTrigger.click();
     await page.getByRole("button", { name: t.restart, exact: true }).click();
     await page.getByRole("button", { name: t.confirm, exact: true }).click();
     await expect
@@ -164,6 +181,7 @@ for (const language of ["en", "de"] as const) {
             .length,
       )
       .toBeGreaterThanOrEqual(2);
+    await historyTrigger.click();
     await page.getByRole("button", { name: t.revoke, exact: true }).click();
     await expect(
       page.getByRole("button", { name: t.remove, exact: true }),
@@ -241,6 +259,7 @@ test("locked entries explain the Plan rule and remain deletable", async ({
     },
   ]);
   await page.goto(webUrl);
+  await page.getByRole("button", { name: "History", exact: true }).click();
   await expect(
     page.getByText(/This entry is locked under the Free rules/),
   ).toBeVisible();

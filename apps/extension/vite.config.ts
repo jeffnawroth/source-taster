@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // One codebase, two explicit targets: `vite build --mode chromium|firefox`.
 import { defineConfig, type Plugin } from "vite";
+import { fontNotices } from "../../packages/ui/font-assets.ts";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { readFileSync } from "node:fs";
@@ -65,7 +66,12 @@ export default defineConfig(({ mode }) => {
   const config = extensionConfig(process.env);
   return {
     base: "./",
-    plugins: [react(), tailwindcss(), extensionPackage(target, config)],
+    plugins: [
+      fontNotices(),
+      react(),
+      tailwindcss(),
+      extensionPackage(target, config),
+    ],
     define: {
       __SOURCE_TASTER_EXTENSION__: JSON.stringify(config),
       // A bare constant, so the other target's code is removed from the bundle.

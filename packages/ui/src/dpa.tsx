@@ -10,8 +10,8 @@ import {
   type DpaClient,
 } from "@source-taster/contract-service/client";
 import { m } from "@source-taster/i18n";
-const field = "block w-full rounded border border-slate-500 p-2";
-const button = "rounded border border-slate-500 px-3 py-2";
+const field = "block w-full rounded border border-border-emphasis p-2";
+const button = "rounded border border-border-emphasis px-3 py-2";
 const emptyParty = { name: "", address: "", representative: "" };
 function failure(error: unknown) {
   if (error instanceof GuestTokenError) {
@@ -205,7 +205,7 @@ export function DpaControls({
       {open && (
         <section
           aria-label={m.dpa_title()}
-          className="mt-3 rounded border border-slate-400 p-3"
+          className="mt-3 rounded border border-border-emphasis p-3"
         >
           <h3 className="font-semibold">{m.dpa_title()}</h3>
           <p>{m.dpa_legal_review()}</p>

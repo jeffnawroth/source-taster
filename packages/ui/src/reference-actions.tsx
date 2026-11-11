@@ -19,8 +19,9 @@ import { m } from "@source-taster/i18n";
 import { fieldLabels, ReferenceOutcomeView } from "./reference-outcome.tsx";
 
 const control =
-  "w-full min-w-0 rounded border border-slate-500 bg-white p-2 disabled:bg-slate-100";
-const action = "rounded border border-slate-600 px-3 py-2 disabled:opacity-50";
+  "w-full min-w-0 rounded border border-border-emphasis bg-surface p-2 disabled:bg-surface-sunken";
+const action =
+  "rounded border border-border-emphasis px-3 py-2 disabled:opacity-50";
 function errorMessage(error: unknown) {
   const limited = abuseMessage(error);
   if (limited) return limited;
@@ -76,7 +77,7 @@ function Fields({
         <legend>{m.field_author()}</legend>
         {(fields.author ?? []).map((author, index) => (
           <fieldset
-            className="min-w-0 space-y-2 rounded border border-slate-400 p-2"
+            className="min-w-0 space-y-2 rounded border border-border-emphasis p-2"
             key={index}
           >
             <legend>{m.revision_author_number({ number: index + 1 })}</legend>
@@ -255,7 +256,7 @@ export function ReferenceActions({
         <div className="flex flex-wrap gap-3">
           <button
             type="button"
-            className={`${action} border-teal-800 bg-teal-50`}
+            className={`${action} border-border-emphasis bg-surface-sunken`}
             disabled={running || pending}
             onClick={() => {
               setFields(reference.fields);
@@ -269,7 +270,7 @@ export function ReferenceActions({
           </button>
           <button
             type="button"
-            className={`${action} bg-teal-800 text-white`}
+            className={`${action} bg-surface text-text`}
             disabled={running || pending}
             onClick={() => {
               void submit(true, false);
@@ -280,7 +281,7 @@ export function ReferenceActions({
         </div>
       ) : (
         <form
-          className="space-y-3 rounded border-2 border-teal-800 bg-teal-50 p-3"
+          className="space-y-3 rounded border-2 border-border-emphasis bg-surface-sunken p-3"
           onSubmit={(event) => {
             event.preventDefault();
             void submit(true, true);
@@ -296,7 +297,7 @@ export function ReferenceActions({
           />
           <div className="flex flex-wrap gap-3">
             <button
-              className={`${action} bg-teal-800 text-white`}
+              className={`${action} bg-surface text-text`}
               type="submit"
               disabled={running || pending}
             >
@@ -335,7 +336,7 @@ export function ReferenceActions({
                   ? m.revision_historical()
                   : `${m.revision_historical()} · ${m.override_run({ run: result.generation + 1 })}`
               }
-              className="my-3 rounded border border-slate-400 bg-slate-100 p-3"
+              className="my-3 rounded border border-border-emphasis bg-surface-sunken p-3"
               key={result.id}
             >
               <p>
@@ -459,7 +460,7 @@ export function ReferenceListActions({
   return (
     <section
       aria-label={m.revision_list()}
-      className="my-4 rounded border-2 border-amber-700 bg-amber-50 p-3"
+      className="my-4 rounded border-2 border-border-emphasis bg-surface-sunken p-3"
     >
       <button
         type="button"
@@ -581,7 +582,7 @@ export function ReferenceListActions({
               </ul>
               <p>{m.revision_no_refund()}</p>
               <button
-                className={`${action} bg-amber-900 text-white`}
+                className={`${action} bg-surface text-text`}
                 type="button"
                 disabled={active || pending}
                 onClick={() => {

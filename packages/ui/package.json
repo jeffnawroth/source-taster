@@ -15,7 +15,8 @@
     "./web-account-workspace": "./src/web-account-workspace.tsx",
     "./primitives": "./src/primitives/index.ts",
     "./recipes": "./src/recipes.ts",
-    "./primitives.css": "./src/primitives.css"
+    "./primitives.css": "./src/primitives.css",
+    "./fonts.css": "./src/fonts.css"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",

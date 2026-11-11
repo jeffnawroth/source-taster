@@ -41,13 +41,13 @@ test("summary filters current Verdicts separately from technical Statuses", asyn
   await expect(
     summary.getByRole("button", { name: "Correct: 1", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
-  const list = page.getByRole("list", { name: "References" });
-  await expect(list.getByRole("listitem")).toHaveCount(1);
+  const list = page.getByRole("grid", { name: "References" });
+  await expect(list.getByRole("row")).toHaveCount(1);
   await expect(list).toContainText("Measured measurement");
   await summary
     .getByRole("button", { name: "Not found: 0", exact: true })
     .click();
-  await expect(list.getByRole("listitem")).toHaveCount(0);
+  await expect(list.getByRole("row")).toHaveCount(0);
   await expect(
     page.getByText(
       "References matching the selected filter will appear here. Choose “All references” to see the whole check.",
@@ -57,7 +57,7 @@ test("summary filters current Verdicts separately from technical Statuses", asyn
   await summary
     .getByRole("button", { name: "All references: 2", exact: true })
     .click();
-  await expect(list.getByRole("listitem")).toHaveCount(2);
+  await expect(list.getByRole("row")).toHaveCount(2);
 });
 
 test("streaming keeps input order and focused selection; narrow Back restores list context", async ({
@@ -75,9 +75,9 @@ test("streaming keeps input order and focused selection; narrow Back restores li
   await page
     .getByRole("button", { name: "Check reference", exact: true })
     .click();
-  const list = page.getByRole("list", { name: "References", exact: true });
-  const rows = list.getByRole("listitem");
-  const second = rows.nth(1).getByRole("button");
+  const list = page.getByRole("grid", { name: "References", exact: true });
+  const rows = list.getByRole("row");
+  const second = rows.nth(1);
   await second.focus();
   await expect(rows.nth(1)).toContainText("Not checked");
   await expect(rows.nth(0)).toContainText("Running");
@@ -158,7 +158,7 @@ for (const language of ["en", "de"] as const)
     await expect(missing).not.toContainText("0.00 %");
     await page.setViewportSize({ width: 320, height: 640 });
     await page
-      .getByRole("list", {
+      .getByRole("grid", {
         name: language === "en" ? "References" : "Referenzen",
         exact: true,
       })
@@ -303,11 +303,11 @@ for (const language of ["en", "de"] as const)
     });
     await expect(filter).toBeVisible({ timeout: 15000 });
     await filter.click();
-    const list = page.getByRole("list", {
+    const list = page.getByRole("grid", {
       name: language === "en" ? "References" : "Referenzen",
       exact: true,
     });
-    const last = list.getByRole("button").last();
+    const last = list.getByRole("row").last();
     await last.focus();
     const scroll = await list
       .locator("..")
@@ -363,8 +363,8 @@ test("DOI conflict has its own current count and filter", async ({ page }) => {
   await filter.click();
   await expect(
     page
-      .getByRole("list", { name: "References", exact: true })
-      .getByRole("listitem"),
+      .getByRole("grid", { name: "References", exact: true })
+      .getByRole("row"),
   ).toHaveCount(1);
   await expect(
     page.getByRole("region", { name: "Reference detail", exact: true }),
@@ -386,7 +386,7 @@ test("selected detail stays on its Reference while streaming completes other slo
   await page
     .getByRole("button", { name: "Check reference", exact: true })
     .click();
-  const list = page.getByRole("list", { name: "References", exact: true });
+  const list = page.getByRole("grid", { name: "References", exact: true });
   await list.getByRole("button").first().click();
   const detail = page.getByRole("region", {
     name: "Reference detail",
@@ -397,7 +397,7 @@ test("selected detail stays on its Reference while streaming completes other slo
     exact: true,
   });
   await expect(heading).toBeFocused();
-  await expect(list.getByRole("listitem").nth(1)).toContainText("Not checked");
+  await expect(list.getByRole("row").nth(1)).toContainText("Not checked");
   await expect(detail.getByText("Running", { exact: true })).toBeVisible();
   await expect(detail.getByText("Not verifiable", { exact: true })).toBeVisible(
     { timeout: 15000 },

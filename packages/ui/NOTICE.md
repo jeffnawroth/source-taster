@@ -3,7 +3,10 @@
 Original Source Taster UI components, behavior, examples and recipes retain
 **AGPL-3.0-or-later**. They are outside the design-token dual-license exception.
 Private programs implement their own components and never import this package.
-No fonts, logo, wordmark or Verdict artwork are distributed here.
+The six Verdict glyphs are project-owned UI artwork under the UI licence.
+Local font assets have their separate complete OFL-1.1 notices and pinned
+provenance in [public/fonts](public/fonts/README.md). Web/extension builds carry
+these notices. No logo or wordmark artwork is distributed here.
 
 The primitive anatomy, RAC composition, render-prop/class merge pattern and
 Tailwind variant approach are adapted from Adobe's official

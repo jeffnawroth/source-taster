@@ -10,6 +10,12 @@ for (const language of ["en", "de"] as const) {
     await page
       .getByRole("combobox", { name: /^(Language|Sprache)$/ })
       .selectOption(language);
+    await page
+      .getByRole("button", {
+        name: language === "en" ? "Files and selection" : "Dateien und Auswahl",
+        exact: true,
+      })
+      .click();
     const input = page.getByLabel(
       language === "en" ? "PDF or Word document" : "PDF- oder Word-Dokument",
       { exact: true },

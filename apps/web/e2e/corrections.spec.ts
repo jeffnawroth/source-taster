@@ -46,7 +46,7 @@ test("copies a Correction suggestion and applies it only to the formatted export
     .check();
   await expect(suggestion.getByRole("checkbox")).toBeChecked();
   await page
-    .getByRole("list", { name: "References", exact: true })
+    .getByRole("grid", { name: "References", exact: true })
     .getByRole("button")
     .nth(1)
     .click();

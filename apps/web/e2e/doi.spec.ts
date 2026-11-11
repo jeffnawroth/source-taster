@@ -40,15 +40,15 @@ for (const language of ["en", "de"] as const) {
     await expect(filter).toHaveAttribute("aria-pressed", "true");
     await expect(
       page
-        .getByRole("list", {
+        .getByRole("grid", {
           name: language === "en" ? "References" : "Referenzen",
           exact: true,
         })
-        .getByRole("listitem"),
+        .getByRole("row"),
     ).toHaveCount(1);
     await expect(
-      verdict.locator("..").locator('span[aria-hidden="true"]'),
-    ).toHaveText("△");
+      verdict.locator("..").locator('svg[data-verdict="exists-with-deviations"]'),
+    ).toBeVisible();
     await result
       .getByText(
         language === "en"

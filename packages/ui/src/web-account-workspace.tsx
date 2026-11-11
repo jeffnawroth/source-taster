@@ -138,21 +138,21 @@ export function AccountControls({
   return (
     <section
       aria-label={m.auth_sign_in()}
-      className="mb-8 rounded-xl border border-slate-400 bg-white p-4"
+      className="mb-8 rounded-xl border border-border-emphasis bg-surface p-4"
     >
       {account ? (
         <>
           <p>{account.email}</p>
           <div className="mt-3 flex flex-wrap gap-3">
             <button
-              className="rounded border border-slate-500 px-3 py-2"
+              className="rounded border border-border-emphasis px-3 py-2"
               disabled={pending}
               onClick={() => void logout(false)}
             >
               {m.auth_here()}
             </button>
             <button
-              className="rounded border border-slate-500 px-3 py-2"
+              className="rounded border border-border-emphasis px-3 py-2"
               disabled={pending}
               onClick={() => void logout(true)}
             >
@@ -176,7 +176,7 @@ export function AccountControls({
           <p>{m.auth_guest_notice()}</p>
           {!open ? (
             <button
-              className="mt-3 rounded border border-slate-500 px-3 py-2"
+              className="mt-3 rounded border border-border-emphasis px-3 py-2"
               onClick={() => setOpen(true)}
             >
               {m.auth_sign_in()}
@@ -192,7 +192,7 @@ export function AccountControls({
               <label>
                 {m.auth_email()}
                 <input
-                  className="block w-full rounded border border-slate-500 p-2"
+                  className="block w-full rounded border border-border-emphasis p-2"
                   type="email"
                   autoComplete="email"
                   required
@@ -208,7 +208,7 @@ export function AccountControls({
                   <label>
                     {m.auth_code()}
                     <input
-                      className="block w-full rounded border border-slate-500 p-2"
+                      className="block w-full rounded border border-border-emphasis p-2"
                       type="text"
                       inputMode="numeric"
                       autoComplete="one-time-code"
@@ -225,7 +225,7 @@ export function AccountControls({
                 </>
               )}
               <button
-                className="rounded bg-blue-700 px-3 py-2 text-white"
+                className="rounded bg-surface px-3 py-2 text-text"
                 disabled={pending}
               >
                 {pending
@@ -237,7 +237,7 @@ export function AccountControls({
               {challenge && (
                 <button
                   type="button"
-                  className="rounded border border-slate-500 px-3 py-2"
+                  className="rounded border border-border-emphasis px-3 py-2"
                   disabled={pending || now < challenge.resendAt}
                   onClick={() => void send()}
                 >
@@ -246,7 +246,7 @@ export function AccountControls({
               )}
               <button
                 type="button"
-                className="rounded border border-slate-500 px-3 py-2"
+                className="rounded border border-border-emphasis px-3 py-2"
                 disabled={pending}
                 onClick={() => {
                   setOpen(false);
@@ -262,7 +262,7 @@ export function AccountControls({
         </>
       )}
       {error && (
-        <p role="alert" className="mt-3 text-red-800">
+        <p role="alert" className="mt-3 text-text">
           {error}
         </p>
       )}
@@ -282,7 +282,7 @@ function PreferenceSyncControl({
   return (
     <section
       aria-label={m.preferences_sync_title()}
-      className="mb-8 rounded-xl border border-slate-400 bg-white p-4"
+      className="mb-8 rounded-xl border border-border-emphasis bg-surface p-4"
     >
       {granted ? (
         <p role="status">{m.preferences_sync_on()}</p>
@@ -290,7 +290,7 @@ function PreferenceSyncControl({
         <>
           <p>{m.preferences_sync_off()}</p>
           <button
-            className="mt-3 rounded border border-slate-500 px-3 py-2"
+            className="mt-3 rounded border border-border-emphasis px-3 py-2"
             onClick={() => {
               void consent.request().then((answer) => setDeclined(!answer));
             }}
@@ -510,6 +510,20 @@ export function AccountWorkspace({
     <CheckWorkspace
       key={generation}
       accountHistory={!!session && !credentialFailure}
+      accountLabel={session && !credentialFailure ? session.email : undefined}
+      accountNotice={
+        <>
+          {accountPreferences.failure && (
+            <p role="alert">
+              {m.preferences_unavailable()}{" "}
+              <button onClick={() => void accountPreferences.refresh()}>
+                {m.auth_retry()}
+              </button>
+            </p>
+          )}
+          {credentialFailure && <p role="alert">{m.auth_expired()}</p>}
+        </>
+      }
       initial={{ ...initial, preferences }}
       controlledPreferences={accountPreferences}
       preferenceStorage={preferenceStorage}
@@ -536,15 +550,6 @@ export function AccountWorkspace({
               language={language}
             />
           )}
-          {accountPreferences.failure && (
-            <p role="alert">
-              {m.preferences_unavailable()}{" "}
-              <button onClick={() => void accountPreferences.refresh()}>
-                {m.auth_retry()}
-              </button>
-            </p>
-          )}
-          {credentialFailure && <p role="alert">{m.auth_expired()}</p>}
           {preferenceSync.requiresGrant && session && !credentialFailure && (
             <PreferenceSyncControl consent={preferenceSync} />
           )}

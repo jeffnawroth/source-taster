@@ -19,7 +19,7 @@ for (const language of ["en", "de"] as const) {
         exact: true,
       })
       .click();
-    const list = page.getByRole("list", {
+    const list = page.getByRole("grid", {
       name: language === "en" ? "References" : "Referenzen",
       exact: true,
     });
@@ -200,11 +200,11 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
-    const list = page.getByRole("list", {
+    const list = page.getByRole("grid", {
       name: language === "en" ? "References" : "Referenzen",
       exact: true,
     });
-    await expect(list.getByRole("listitem")).toHaveCount(1);
+    await expect(list.getByRole("row")).toHaveCount(1);
     await expect(list.getByRole("button")).toHaveText(
       language === "en"
         ? "Open reference 2: Added title"
