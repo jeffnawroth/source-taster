@@ -44,6 +44,28 @@ if (dialog && trigger && form && input && close && retry && status && list) {
     if (event.key === "Escape") {
       event.preventDefault();
       dialog.close();
+    } else if (event.key === "Tab") {
+      // Keep the keyboard loop within the modal rather than allowing the
+      // native dialog's boundary to hand focus to browser chrome.
+      const controls = [
+        ...dialog.querySelectorAll<HTMLElement>(
+          "button, input, a[href], select, textarea, [tabindex]",
+        ),
+      ].filter(
+        (element) =>
+          element.tabIndex >= 0 &&
+          !element.matches(":disabled") &&
+          element.getClientRects().length > 0,
+      );
+      const first = controls[0];
+      const last = controls.at(-1);
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
     }
   });
   const resetResults = () => {

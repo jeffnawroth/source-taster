@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { spawnSync } from "node:child_process";
-import { rm, writeFile, readdir, readFile } from "node:fs/promises";
+import { rm, writeFile, readdir, readFile, mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
@@ -133,6 +133,42 @@ if (sourceDelivery.status !== 0)
   throw new Error("Browser source/notice delivery failed");
 for (const { path, html } of sourceLandings)
   await writeFile(resolve(output, path), html);
+// Retain the complete grants for the compiled static recipes and local fonts.
+// React renders the illustrative product markup only during this build; its
+// grant is also retained here, without shipping React to the browser.
+const uiRequire = createRequire(resolve(project, "packages/ui/package.json"));
+const noticeInputs = [
+  ["Source Taster UI provenance", resolve(project, "packages/ui/NOTICE.md")],
+  [
+    "Adobe starter — Apache-2.0",
+    resolve(project, "packages/ui/notices/react-spectrum-LICENSE"),
+  ],
+  [
+    "Lucide / Feather — ISC and MIT",
+    resolve(project, "packages/ui/notices/lucide-LICENSE"),
+  ],
+  ...["tailwindcss", "tailwind-variants", "react", "react-dom"].map((name) => [
+    name,
+    resolve(uiRequire.resolve(`${name}/package.json`), "../LICENSE"),
+  ]),
+  [
+    "Atkinson Hyperlegible Next — OFL-1.1",
+    resolve("public/fonts/atkinsonhyperlegiblenext-OFL.txt"),
+  ],
+  ["IBM Plex Mono — OFL-1.1", resolve("public/fonts/ibmplexmono-OFL.txt")],
+];
+const notices = await Promise.all(
+  noticeInputs.map(
+    async ([name, path]) =>
+      `${name}\n${"=".repeat(72)}\n${await readFile(path!, "utf8")}\n`,
+  ),
+);
+await mkdir(resolve(output, "third-party/ui"), { recursive: true });
+await writeFile(
+  resolve(output, "third-party/ui/NOTICE.txt"),
+  "Source Taster public interface — retained upstream notices.\nProject source: https://github.com/jeffnawroth/source-taster\nProject software: AGPL-3.0-or-later; upstream grants below retain their own scope.\nNo brand distribution or specialist legal clearance is asserted.\n\n" +
+    notices.join("\n"),
+);
 const files: Record<string, string> = {};
 async function inventory(dir: string) {
   for (const entry of await readdir(resolve(output, dir), {

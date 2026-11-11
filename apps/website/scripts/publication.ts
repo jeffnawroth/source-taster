@@ -36,7 +36,7 @@ export async function reviewDigest(root: string): Promise<string> {
       else files.push(path);
     }
   }
-  for (const dir of ["src", "content", "scripts", "qualification"])
+  for (const dir of ["src", "content", "scripts", "qualification", "public"])
     await collect(dir);
   files.push(
     "astro.config.mjs",
@@ -48,6 +48,27 @@ export async function reviewDigest(root: string): Promise<string> {
   const inputs: [string, string][] = Object.entries(
     await websiteRecipe(resolve(root, "../..")),
   );
+  // Shared static recipes, typography roles and build-rendered product markup
+  // now contribute to the distributed site. A review of an earlier version of
+  // any of these inputs must not approve changed output implicitly.
+  for (const file of [
+    "design-tokens/theme.css",
+    "design-tokens/package.json",
+    "ui/package.json",
+    "ui/src/recipes.ts",
+    "ui/src/reference-outcome.tsx",
+    "ui/src/journal-abbreviation.tsx",
+    "ui/NOTICE.md",
+    "ui/notices/react-spectrum-LICENSE",
+    "ui/notices/lucide-LICENSE",
+    "i18n/package.json",
+    "i18n/project.inlang/settings.json",
+    "i18n/messages/de.json",
+    "i18n/messages/en.json",
+  ]) {
+    const path = `../../packages/${file}`;
+    inputs.push([path, digest(await readFile(resolve(root, path)))]);
+  }
   for (const file of files.sort()) {
     if (file === "publication.json") {
       const config = JSON.parse(

@@ -1,74 +1,112 @@
 # #213 — Product-first website and question-led documentation
 
-## Basis and scope
+## Basis and delivered behavior
 
-The prepared isolated branch `t3/product-first-website` initially matched required
-integration commit `55275f49179ac0a2dc832f19ac407161f5202fb4` exactly. Before edits,
-ancestry was verified. After the user-scheduled continuation, the clean branch
-fast-forwarded to the current local `implement/design-remaining` tip `d5c33ce`,
-including the #210 assertion follow-up.
+The isolated branch `t3/product-first-website` initially matched required base
+`55275f49179ac0a2dc832f19ac407161f5202fb4`; ancestry was verified before edits.
+It subsequently merged `d5c33ce` (#210 assertion follow-up) and `7dd3d0d` (#207
+research/notice/provenance). Partial work survived both scheduled continuations
+and was checkpointed at `ad8d72a`. The latest integration tip `1da017b` (#209 pending-width test timing) is merged
+before handoff. No predecessor, private source or other worktree was used.
 
-Read issue #213, its body/comments and native dependencies through `gh`;
-#206/#209/#210 are closed. Sources are AGENTS.md, GLOSSARY.md,
-docs/agents/issue-tracker.md, accepted ADR-0020/0027, the consolidated styleguide,
-components static recipes, tokens, voice guide and website design. The explicit
-implement-spec and TDD workflows apply within the assigned implementation role.
-No predecessor or private repository is needed or read.
+Read #213 and its comments/native dependencies through `gh`; #206/#209/#210
+are closed. Implementation follows accepted ADR-0020/0027, the styleguide,
+website specification, static component recipes, tokens and voice guide, within
+the explicitly invoked implement-spec/TDD workflows and approved public seams.
 
-The agreed public test seam is the built static website and its actual local
-Pagefind distribution. Tests use real routes, browser interactions, output,
-requests and storage. Separate release/legal/rights/native gates remain intact;
-#214 brand packaging is outside this ticket.
+- Home uses the product-first split with a labelled synthetic Reference and the
+  actual `ReferenceOutcomeSummary` Not checked markup, rendered synchronously at
+  build time with locale restoration. It runs no Check and claims no source
+  existence, available public service or qualified release.
+- The docs index asks questions leading to the existing guides. Articles retain
+  their content, with persistent desktop chapters/reading/contents and a native
+  chapter disclosure on phones. Public routes, same-page DE/EN switching, skip
+  link, help/FAQ/contact/accessibility and configured cancellation handoff remain.
+- The common header opens local Pagefind in a modal search dialog. Loading,
+  result counts, empty/error/retry states are translated. Esc dismisses, focus
+  wraps and returns, and late results cannot replace newer input. A fresh module
+  instance retries poisoned module/index/WASM/fragment loads without putting
+  user text in URLs. Closing clears the transient query.
+- Button/Link/Badge/Banner/Kbd use `@source-taster/ui/recipes`. Tailwind 4.3.4's
+  pure JavaScript compiler emits the finite static class set. No React runtime,
+  client island, prototype runtime, iframe/state bridge or native CSS tool is
+  added. Colors/type use semantic roles and local typography.
+- All four exact legal drafts link to their immutable version and language
+  counterpart. Legal JSON and business/security/consent/billing/storage policy
+  are unchanged. No support address/domain, qualified feature or brand asset is
+  invented or activated.
+- The three existing Pagefind source landings now use the Astro shell. The
+  controlled delivery tool still owns the actual archive, notices and bound
+  source/object manifest; the website restores only its own static landing HTML.
+  Complete UI/font grants are also delivered via a translated footer link.
+- Publication fingerprints now include the new public assets and actual shared
+  recipe/token/product/catalog inputs. This retains the existing byte-bound
+  review policy; it adds no approval, native exception or rights clearance.
 
-## Validation record
+Website-local font provenance, hashes, complete OFL grants and conversion details
+are in `apps/website/public/fonts/README.md`. Atkinson retains its full variable
+coverage and declares no Reserved Font Name in its notice. Plex uses the exact
+unmodified upstream IBM WOFF2, preserving its RFN and complete notice. No shared
+UI font assets were added; #211's separate future integration can deduplicate
+these public assets against its actual chosen files.
 
-The first built-site journey failed on the absent labelled illustrative figure
-before the layout implementation. It now passes in DE and EN: homepage → docs
-question → matching article → in-page contents target, including the active
-chapter link. Original information/legal paragraphs are retained.
+## Observed red → green evidence
 
-The product example synchronously renders the existing
-`ReferenceOutcomeSummary` at build time with an explicitly synthetic Reference
-and the actual Not checked Status. It performs no Check, makes no source-existence
-claim and ships no React hydration/runtime. No prototype runtime, iframe, state
-bridge or unapproved brand asset is used.
+Tests cross the agreed built-site/actual Pagefind/public output seams, with
+independent expected routes, labels, grants and version rules. No internal
+collaborator or search-engine stand-in is mocked.
 
-Button/Link/Badge/Banner/Kbd classes come from `@source-taster/ui/recipes`.
-Tailwind 4.3.4's pure JavaScript compiler emits the finite recipe class set;
-no native CSS scanner/compiler or native allowlist is added. The controlled
-Astro/Rolldown/Pagefind source build, receipt checks and notice/source package
-remain in use. Website-local WOFF2 files have pinned upstream provenance,
-conversion details, SHA-256 hashes and complete OFL notices in `public/fonts/`.
+| Observed red | Result after implementation |
+| --- | --- |
+| No labelled product example | DE/EN home → question → guide → contents target passes |
+| No common-header search | Real module failure/retry/loading/empty and keyboard activation pass |
+| Search input consumed Esc | Dismissal clears input and restores the trigger |
+| Missing narrow chapter disclosure | Native keyboard chapter navigation passes in both languages/modes |
+| No immutable-version link | Four legal documents × DE/EN retain exact paragraphs/version counterparts |
+| Source landing lost common navigation/theme | DE/EN light/dark 320px source-to-search journey passes |
+| Font/shared-input edits retained the publication fingerprint | CLI negative controls invalidate every tested input and restore original bytes |
+| No distributed interface notice | Complete Apache/MIT/ISC/OFL grants are publicly downloadable |
+| Native modal boundary could hand focus to browser chrome | Explicit first/last control loop passes forced-color/reduced-setting cases |
 
-Remaining targeted validation is recorded below before the finished commit.
+Actual entry/WASM/fragment abort-and-retry cases pass in DE/EN. Delayed fragment
+responses cannot overwrite a newer empty search. Tests verify same-language
+expected guide routes, query-free requests, same-origin resources, zero cookies,
+local/session storage, IndexedDB, CacheStorage and service-worker registrations.
+The full retained privacy suite rejects remote resources/embeds, React runtime
+and client islands. Actual Pagefind source/WASM object downloads remain hash-bound.
 
-## Checkpoint after integration continuation
+## Final validation
 
-The existing partial changes were preserved and `7dd3d0d` was merged without
-conflict. The #207 evidence and owner provenance record do not constitute
-specialist clearance; no brand distribution or private token activation occurs.
+- `SOURCE_TASTER_WEBSITE_E2E_PORT=53213 pnpm --filter @source-taster/website test:e2e`:
+  **116 Chromium tests pass** (49.8 s), including every original website assertion.
+  Search assertions now open the visible dialog and retain language, destination,
+  privacy and output checks. No deadline or outcome check was weakened.
+- All emitted index-page routes pass existing 320/1280px axe/reflow checks.
+  Additional DE/EN light/dark home/index/article cases cover 24 rendered
+  combinations with loaded local fonts. Source landings, no-JavaScript chapter
+  access, reduced motion/transparency, forced colors and modal focus are covered.
+  Rendered captures were inspected for desktop home and narrow dark article.
+- `pnpm --filter @source-taster/website build`: passes with the controlled native
+  receipt/trace, actual DE/EN Pagefind indexes and corresponding-source delivery.
+  `pnpm pagefind:verify` passes; no native dependency gate or policy was changed.
+- `pnpm i18n:check`: passes, with 541 messages per public catalog, 10 paired
+  information pages, 4 paired legal documents, 45 site UI texts and 8 source
+  access texts. Guide questions and section-heading completeness are checked.
+- Website typecheck, ESLint, Prettier and `git diff --check` pass.
+  `pnpm audit:licenses` passes: 570 installed package licenses, 108 runtime packages.
+- `pnpm --filter @source-taster/website publication:check`: **expected rejection**
+  for the unselected HTTPS domain/support address/seller details, eight approved
+  legal versions and current legal/claims/dependency/accessibility/translation
+  reviews. Browser tests also confirm publication builds/servers reject drafts.
 
-Observed red → green cycles additionally cover:
+## Remaining qualification gates
 
-- Search absent from the common header → DE/EN dialog, actual failed Pagefind
-  module/retry/loading/empty results, keyboard result activation and focus return.
-  A real regression exposed search-input Esc handling; explicit dialog dismissal
-  now handles it consistently. Query text enters neither request URLs nor storage.
-- Missing narrow chapter disclosure → native keyboard-operated chapter navigation
-  in DE/EN light/dark. The six-case design run passed, including 24 rendered
-  home/index/article combinations at 320/1280 px, reduced motion, loaded local
-  typography, font responses and axe checks.
-- Missing immutable-version link → all four legal drafts in both languages link
-  to `draft-2026-10-26.1`, keep their paragraphs and switch version counterparts.
-  The legal draft files are unchanged; Contact invents no working address.
-- Standalone source landing lacked common navigation/theme → the Astro shell now
-  wraps all three existing source landing routes. Its focused DE/EN light/dark
-  narrow journey passes with real search and existing download destinations.
-  The native delivery tool still generates and verifies the actual archive,
-  notices and source/object manifest. The host restores only its static landing
-  HTML after delivery; native tool/dependency gates are unchanged.
-
-Website build, website typecheck and content completeness checks pass at this
-checkpoint. Full regression, additional search-asset failure cases and final
-publication evidence remain pending; this checkpoint is not completion or release
-qualification.
+No known #213 implementation gap remains. Chromium automation is not human
+screen-reader review, native browser-chrome zoom, Safari/Firefox qualification,
+translation approval, legal review or deployment/release acceptance. Those
+existing gates remain, together with actual capability/provider qualification.
+#207 is still open: Claude/Codex owner provenance is not specialist clearance.
+Brand packaging #214 and private token activation remain blocked and untouched.
+The site stays a local preview; no PR, push, issue closure or production release
+is part of this handoff. Backend/private fixtures, document uploads and PDF tests
+were unnecessary for this website-only change and were not run.
