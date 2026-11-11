@@ -12,6 +12,7 @@ const mime: Record<string, string> = {
   ".svg": "image/svg+xml",
   ".txt": "text/plain; charset=utf-8",
   ".gz": "application/gzip",
+  ".woff2": "font/woff2",
 };
 /**
  * ADR-0020: the bare apex negotiates from Accept-Language on the server, so

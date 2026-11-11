@@ -1,13 +1,20 @@
 ---
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { copy, pages, pathFor, type Language, type Page } from '../content';
+import { buttonRecipe, linkRecipe, badgeRecipe, bannerRecipe } from '@source-taster/ui/recipes';
+import { guideNavigation, type GuideId } from '../guide-navigation';
+import ProductExample from './ProductExample.astro';
+import Chapters from './Chapters.astro';
+import Search from './Search.astro';
+import 'virtual:website-recipes.css';
 import '../style.css';
 interface Props {
   language: Language;
   page: Page;
   legal?: { version: string; status: string };
+  alternateHref?: string;
 }
-const { language, page, legal } = Astro.props;
+const { language, page, legal, alternateHref } = Astro.props;
 const t = copy[language];
 const preview = process.env.SOURCE_TASTER_WEBSITE_PREVIEW !== '0';
 const cancellationService = process.env.SOURCE_TASTER_CANCELLATION_SERVICE_ORIGIN;
@@ -19,6 +26,12 @@ if (!preview && !cancellationService) throw new Error('Publication requires the 
 const cancellationLabel = t.cancellation;
 const other = language === 'en' ? 'de' : 'en';
 const site = (id: string) => pathFor(language, { id, section: 'site' });
+const guides = pages[language].filter(p => p.section === 'docs' && p.id !== 'index');
+const isHome = page.section === 'site' && page.id === 'home';
+const isIndex = page.section === 'docs' && page.id === 'index';
+const isArticle = page.section === 'docs' && !isIndex;
+const guide = isArticle ? guideNavigation[language][page.id as GuideId] : undefined;
+const docsHref = pathFor(language, { id: 'index', section: 'docs' });
 ---
 <!doctype html>
 <html lang={language}>
@@ -29,47 +42,76 @@ const site = (id: string) => pathFor(language, { id, section: 'site' });
     <meta name="referrer" content="no-referrer" />
     {preview && <meta name="robots" content="noindex, nofollow" />}
     <title>{page.title} · Source Taster</title>
-    <link rel="alternate" hreflang={other} href={pathFor(other, page)} />
+    <link rel="alternate" hreflang={other} href={alternateHref ?? pathFor(other, page)} />
   </head>
   <body>
     <a class="skip" href="#content">{t.skip}</a>
-    {preview && <div class="draft">{t.draft}</div>}
-    <header>
+    {preview && <div class={`draft ${bannerRecipe({tone:'warning'})}`}>{t.draft}</div>}
+    <header class="site-header">
       <a class="brand" href={site('home')}>Source Taster</a>
       <nav aria-label={t.nav}>
-        <a href={pathFor(language, {id:'index',section:'docs'})}>{t.docs}</a>
-        <a href={site('faq')}>{t.faq}</a>
-        <a href={site('contact')}>{t.contact}</a>
-        <a href={pathFor(other, page)} lang={other} hreflang={other}>{other === 'de' ? 'Deutsch' : 'English'}</a>
+        <a class={linkRecipe()} href={docsHref}>{t.docs}</a>
+        <a class={linkRecipe()} href={site('faq')}>{t.faq}</a>
+        <a class={linkRecipe()} href={site('contact')}>{t.contact}</a>
+        <button type="button" class={buttonRecipe()} data-search-open aria-haspopup="dialog" aria-controls="documentation-search" aria-keyshortcuts="Control+k Meta+k" hidden>{t.search}</button>
+        <a class={linkRecipe()} href={alternateHref ?? pathFor(other, page)} lang={other} hreflang={other}>{other === 'de' ? 'Deutsch' : 'English'}</a>
       </nav>
     </header>
-    <main id="content" tabindex="-1">
-      <article data-pagefind-body={page.section === 'docs' ? '' : undefined}>
-        <h1>{page.title}</h1>
-        <p class="summary">{page.summary}</p>
-        {legal && <p class="legal-state">{legal.status === 'draft' ? t.pending : ''} · {t.version}: {legal.version}</p>}
-        {page.paragraphs.map(p => <p>{p}</p>)}
+    <main id="content" tabindex="-1" class:list={{'docs-layout':isArticle}}>
+      {isArticle && <aside class="desktop-chapters"><Chapters language={language} current={page.id} /></aside>}
+      {isArticle && <details class="mobile-chapters"><summary>{t.chapters}</summary><Chapters language={language} current={page.id} /></details>}
+      <article class:list={{'home':isHome, 'reading':!isHome}} data-pagefind-body={page.section === 'docs' ? '' : undefined}>
+        {isHome ? <>
+          <div class="home-split">
+            <div class="home-intro">
+              <span class={badgeRecipe()}>{t.development}</span>
+              <h1>{page.title}</h1>
+              <p class="summary">{page.summary}</p>
+              <a class={buttonRecipe({variant:'primary'})} href={docsHref}>{t.readDocs}</a>
+              <p>{page.paragraphs[0]}</p>
+            </div>
+            <ProductExample language={language} />
+          </div>
+          <section class="home-explanation" aria-labelledby="human-heading">
+            <h2 id="human-heading">{t.humanTitle}</h2>
+            {page.paragraphs.slice(1).map(p => <p>{p}</p>)}
+          </section>
+          <section aria-labelledby="explore-heading">
+            <h2 id="explore-heading">{t.explore}</h2>
+            <div class="topic-grid">{guides.filter(p => ['how-the-check-works','structuring','availability'].includes(p.id)).map(p =>
+              <div class="topic"><h3><a class={linkRecipe()} href={pathFor(language,p)}>{p.title}</a></h3><p>{p.summary}</p></div>
+            )}</div>
+          </section>
+        </> : <>
+          <h1>{page.title}</h1>
+          <p class="summary">{page.summary}</p>
+          {legal && <p class="legal-state">{legal.status === 'draft' ? t.pending : ''} · {t.version}: <a class={linkRecipe()} href={site(`${page.id.split('/versions/')[0]}/versions/${legal.version}`)}>{legal.version}</a></p>}
+          {page.paragraphs.map((p,index) => guide ?
+            <section aria-labelledby={`section-${index+1}`}><h2 id={`section-${index+1}`}>{guide.sections[index]}</h2><p>{p}</p></section> : <p>{p}</p>
+          )}
+          {isIndex && <div class="topic-grid">{guides.map(p =>
+            <section class="topic">
+              <h2><a class={linkRecipe()} href={pathFor(language,p)}>{guideNavigation[language][p.id as GuideId].question}</a></h2>
+              <p>{p.summary}</p><p class="topic-title">{p.title}</p>
+            </section>
+          )}</div>}
+        </>}
+        <slot />
       </article>
-      {page.section === 'docs' && (
-        <section aria-labelledby="guides">
-          <h2 id="guides">{t.docs}</h2>
-          <ul>
-            {pages[language]
-              .filter(p => p.section === 'docs' && p.id !== 'index')
-              .map(p => <li><a href={pathFor(language, p)}>{p.title}</a></li>)}
-          </ul>
-        </section>
-      )}
-      <slot />
+      {guide && <aside class="contents"><nav aria-label={t.contents}><h2>{t.contents}</h2><ol>{guide.sections.map((title,index) =>
+        <li><a class={linkRecipe()} href={`#section-${index+1}`}>{title}</a></li>
+      )}</ol></nav></aside>}
+      {page.section === 'docs' && <noscript><p>{t.noScript}</p></noscript>}
     </main>
-    <footer><nav aria-label={t.legal}>
-      {cancellationService && <a href={`${cancellationService.replace(/\/$/, '')}/cancel?language=${language}`} referrerpolicy="no-referrer">{cancellationLabel}</a>}
-      <a href={site('legal-notice')}>{t.notice}</a>
-      <a href={site('terms')}>{t.terms}</a>
-      <a href={site('privacy')}>{t.privacy}</a>
-      <a href={site('withdrawal')}>{t.withdrawal}</a>
-      <a href={site('accessibility')}>{t.accessibility}</a>
-      <a href={`/third-party/pagefind/${language}/`}>{t.searchLicenses}</a>
+    <footer class="site-footer"><nav aria-label={t.legal}>
+      {cancellationService && <a class={linkRecipe()} href={`${cancellationService.replace(/\/$/, '')}/cancel?language=${language}`} referrerpolicy="no-referrer">{cancellationLabel}</a>}
+      <a class={linkRecipe()} href={site('legal-notice')}>{t.notice}</a>
+      <a class={linkRecipe()} href={site('terms')}>{t.terms}</a>
+      <a class={linkRecipe()} href={site('privacy')}>{t.privacy}</a>
+      <a class={linkRecipe()} href={site('withdrawal')}>{t.withdrawal}</a>
+      <a class={linkRecipe()} href={site('accessibility')}>{t.accessibility}</a>
+      <a class={linkRecipe()} href={`/third-party/pagefind/${language}/`}>{t.searchLicenses}</a>
     </nav></footer>
+    <Search language={language} />
   </body>
 </html>

@@ -111,6 +111,19 @@ for (const language of languages) {
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
+// The controlled source-delivery tool owns the actual archives/notices and
+// provides standalone fallback landings. This host supplies its own static
+// Astro landings, with the same public downloads in the common site shell.
+const landingPaths = [
+  "third-party/pagefind/index.html",
+  ...languages.map((language) => `third-party/pagefind/${language}/index.html`),
+];
+const sourceLandings = await Promise.all(
+  landingPaths.map(async (path) => ({
+    path,
+    html: await readFile(resolve(output, path)),
+  })),
+);
 const sourceDelivery = spawnSync(
   process.execPath,
   [resolve(project, "scripts/pagefind-delivery.ts"), resolve(output)],
@@ -118,6 +131,8 @@ const sourceDelivery = spawnSync(
 );
 if (sourceDelivery.status !== 0)
   throw new Error("Browser source/notice delivery failed");
+for (const { path, html } of sourceLandings)
+  await writeFile(resolve(output, path), html);
 const files: Record<string, string> = {};
 async function inventory(dir: string) {
   for (const entry of await readdir(resolve(output, dir), {

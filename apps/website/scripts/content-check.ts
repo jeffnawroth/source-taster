@@ -3,6 +3,7 @@ import { readFile, stat } from "node:fs/promises";
 import { resolve } from "node:path";
 import { sourceAccess } from "../src/source-access.ts";
 import { languages, copy, pages } from "../src/content.ts";
+import { guideNavigation, type GuideId } from "../src/guide-navigation.ts";
 import { legalDocuments, legalIds } from "../src/legal.ts";
 import type { Publication } from "./publication.ts";
 interface Claims {
@@ -44,6 +45,15 @@ for (const language of languages) {
       throw new Error(`Incomplete ${language} page: ${page.id}`);
     if (!other.claim || !claims.claims[other.claim])
       throw new Error(`Unmapped feature claim: ${page.id}`);
+    if (page.section === "docs" && page.id !== "index") {
+      const guide = guideNavigation[language][page.id as GuideId];
+      if (
+        !guide?.question.trim() ||
+        guide.sections.length !== other.paragraphs.length ||
+        guide.sections.some((section) => !section.trim())
+      )
+        throw new Error(`Incomplete ${language} guide navigation: ${page.id}`);
+    }
   }
   if (pages[language].length !== pages.en.length)
     throw new Error("Unpaired content");
