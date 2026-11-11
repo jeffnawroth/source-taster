@@ -22,6 +22,9 @@ test("the publication review fingerprint binds local fonts and shared rendered i
     "../../packages/ui/src/reference-outcome.tsx",
     "../../packages/ui/src/outcome-badges.tsx",
     "../../packages/i18n/messages/de.json",
+    "../../packages/brand/exports/favicon.ico",
+    "../../packages/brand/exports/apple-touch-icon.png",
+    "../../packages/brand/NOTICE.md",
   ]) {
     const original = await readFile(input);
     try {
