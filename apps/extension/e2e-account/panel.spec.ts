@@ -1,3 +1,9 @@
+import {
+  openPanelAccount,
+  openFirefoxAccount,
+  openWebAccount,
+  panelAccountName,
+} from "../e2e/support/account-entry.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { test, expect } from "@playwright/test";
 import {
@@ -347,7 +353,7 @@ async function signIn(panel: Panel) {
   await panel.click("button", "Send code");
   await panel.fill("textbox", "Six-digit code", "123456");
   await panel.click("button", "Confirm code");
-  await panel.waitForText("main", undefined, account.email);
+  await panel.find("button", panelAccountName(account.email));
 }
 
 test("native sign-in persists only the opaque extension credential, clears Guest input and survives panel reload", async () => {
@@ -368,10 +374,11 @@ test("native sign-in persists only the opaque extension credential, clears Guest
       await panel.evaluate("localStorage.length + sessionStorage.length"),
     ).toBe(0);
     await panel.reload();
-    await panel.waitForText("main", undefined, account.email);
+    await panel.find("button", panelAccountName(account.email));
     expect(requests.find((r) => r.path === "/v1/extension/session")?.auth).toBe(
       `Bearer ${credential}`,
     );
+    await openPanelAccount(panel);
     await panel.click("button", "Sign out here");
     await panel.find("button", "Sign in");
     expect(await browser.storage()).toEqual({
@@ -411,6 +418,7 @@ test("Account verification uses an in-memory access token; sign-out everywhere d
       [guestKey]: guestId,
       [key]: credential,
     });
+    await openPanelAccount(panel);
     await panel.click("button", "Sign out everywhere");
     await panel.find("button", "Sign in");
     expect(
@@ -584,12 +592,13 @@ test("German native email-code controls support keyboard confirmation and scoped
       code: "Enter",
       windowsVirtualKeyCode: 13,
     });
-    await panel.waitForText("main", undefined, account.email);
+    await panel.find("button", panelAccountName(account.email));
     expect(requests.find((r) => r.path.endsWith("/challenges"))?.body).toEqual({
       email: account.email,
       language: "de",
     });
     expect(await panel.axe()).toEqual([]);
+    await openPanelAccount(panel, "de");
     await panel.click("button", "Hier abmelden");
     await panel.find("button", "Anmelden");
   });
@@ -626,9 +635,11 @@ test("Firefox's native sidebar uses the same cookie-free session transport witho
       await firefox.click(await firefox.find("entry", "Six-digit code"));
       await firefox.type("123456");
       await firefox.click(await firefox.find("pushbutton", "Confirm code"));
+      await openFirefoxAccount(firefox);
       await firefox.find("pushbutton", "Sign out here");
       await firefox.clickToolbarButton();
       await firefox.clickToolbarButton();
+      await openFirefoxAccount(firefox);
       await firefox.find("pushbutton", "Sign out here");
       expect(
         requests.find((r) => r.path === "/v1/extension/session")?.auth,
@@ -770,15 +781,18 @@ test("the actual web UI keeps #97 cookie transport while the native extension si
       await page
         .getByRole("textbox", { name: "Six-digit code" })
         .press("Enter");
+      await openWebAccount(page);
       await expect(
         page.getByRole("button", { name: "Sign out here", exact: true }),
       ).toBeVisible();
       // A web cookie never automatically authenticates the extension.
       await panel.find("button", "Sign in");
       await signIn(panel);
+      await openPanelAccount(panel);
       await panel.click("button", "Sign out here");
       await panel.find("button", "Sign in");
       await page.reload();
+      await openWebAccount(page);
       await expect(
         page.getByRole("button", { name: "Sign out here", exact: true }),
       ).toBeVisible();
@@ -851,7 +865,7 @@ test("browser restart restores only the extension session and never restores Che
       "Never persist this Account input",
     );
     const restored = await restart();
-    await restored.panel.waitForText("main", undefined, account.email);
+    await restored.panel.find("button", panelAccountName(account.email));
     expect(
       await restored.panel.call(
         await restored.panel.find("textbox", "Reference"),

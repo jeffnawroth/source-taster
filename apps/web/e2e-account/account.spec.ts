@@ -69,7 +69,8 @@ for (const language of ["en", "de"] as const)
       await page.goto(url);
       await page
         .getByRole("button", {
-          name: language === "de" ? /^Konto:/ : /^Account:/,
+          name: language === "de" ? "Anmelden" : "Sign in",
+          exact: true,
         })
         .click();
       await expect(
@@ -79,12 +80,6 @@ for (const language of ["en", "de"] as const)
             : "Guest checks and guest quota are not transferred when you register.",
         ),
       ).toBeVisible();
-      await page
-        .getByRole("button", {
-          name: language === "de" ? "Anmelden" : "Sign in",
-          exact: true,
-        })
-        .click();
       await page
         .getByLabel(language === "de" ? "E-Mail-Adresse" : "Email address", {
           exact: true,
@@ -122,10 +117,15 @@ for (const language of ["en", "de"] as const)
         })
         .click();
       await expect(
-        page.getByText(
-          `browser-${language}-${testInfo.repeatEachIndex}@example.invalid`,
-          { exact: true },
-        ),
+        page
+          .getByRole("dialog", {
+            name: language === "de" ? "Konto" : "Account",
+            exact: true,
+          })
+          .getByText(
+            `browser-${language}-${testInfo.repeatEachIndex}@example.invalid`,
+            { exact: true },
+          ),
       ).toBeVisible();
       const states = await context.storageState();
       expect(JSON.stringify(states.origins)).not.toMatch(
@@ -141,10 +141,15 @@ for (const language of ["en", "de"] as const)
         })
         .click();
       await expect(
-        page.getByText(
-          `browser-${language}-${testInfo.repeatEachIndex}@example.invalid`,
-          { exact: true },
-        ),
+        page
+          .getByRole("dialog", {
+            name: language === "de" ? "Konto" : "Account",
+            exact: true,
+          })
+          .getByText(
+            `browser-${language}-${testInfo.repeatEachIndex}@example.invalid`,
+            { exact: true },
+          ),
       ).toBeVisible();
       await page.keyboard.press("Escape");
       const tokens: string[] = [];

@@ -306,6 +306,11 @@ jobs:
       - run: pnpm --filter @source-taster/web exec playwright install --with-deps chromium
       - name: Web Abuse entrance suite (public API, native extension panel)
         run: pnpm --filter @source-taster/web exec playwright test --config abuse.playwright.config.ts
+      - name: Public hosted checking shell (real verification API and Account HTTP boundary)
+        env:
+          DATABASE_ADMIN_URL: postgres://postgres:postgres@localhost:5433/postgres
+          DATABASE_TEST_URL: postgres://verification_test:fixture@localhost:5433/owned
+        run: pnpm --filter @source-taster/web exec playwright test --config shell.playwright.config.ts
       - name: Web Verification report suite (fake Quota grant)
         run: pnpm --filter @source-taster/web exec playwright test --config report.playwright.config.ts
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
@@ -313,6 +318,7 @@ jobs:
         with:
           name: browser-evidence-web-suites
           path: |
+            apps/web/test-results-shell-hosted
             apps/web/test-results-report
             .tmp/100/browser-artifacts
           include-hidden-files: true

@@ -135,7 +135,7 @@ for (const language of ["en", "de"] as const)
       .click();
     await expect(
       toolbar.getByText(
-        en ? "Exists, with deviations" : "Existiert, mit Abweichungen",
+        en ? "Exists, with deviations:" : "Existiert, mit Abweichungen:",
         { exact: true },
       ),
     ).toBeVisible();
@@ -341,4 +341,85 @@ for (const language of ["en", "de"] as const)
       { timeout: 15000 },
     );
     expect(creations).toBe(1);
+  });
+
+for (const language of ["en", "de"] as const)
+  test(`compact shell stays opaque and keyboard usable with reduced transparency and forced colors (${language})`, async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(
+      browserName !== "chromium",
+      "This test uses Chromium CDP media emulation; native qualification remains separate.",
+    );
+    await page.setViewportSize({ width: 320, height: 700 });
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send("Emulation.setEmulatedMedia", {
+      features: [
+        { name: "prefers-reduced-transparency", value: "reduce" },
+        { name: "prefers-reduced-motion", value: "reduce" },
+        { name: "forced-colors", value: "active" },
+      ],
+    });
+    await page.goto("/");
+    await page
+      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
+      .selectOption(language);
+    const en = language === "en";
+    await page
+      .getByRole("textbox", {
+        name: en ? "Reference" : "Referenz",
+        exact: true,
+      })
+      .fill("Darwin, C. (1859). On the Origin of Species.");
+    await page
+      .getByRole("button", {
+        name: en ? "Check reference" : "Referenz prüfen",
+        exact: true,
+      })
+      .click();
+    const summary = page.getByRole("region", {
+      name: en ? "Check summary" : "Prüfungsübersicht",
+      exact: true,
+    });
+    await expect(summary).toBeVisible();
+    expect(
+      await summary
+        .locator(".summary-strip")
+        .evaluate((element) => getComputedStyle(element).backdropFilter),
+    ).toBe("none");
+    const glyphs = summary.locator("svg[data-verdict]");
+    expect(
+      new Set(
+        await glyphs.evaluateAll((elements) =>
+          elements.map((element) => getComputedStyle(element).color),
+        ),
+      ).size,
+    ).toBe(1);
+    const question = glyphs
+      .locator("..")
+      .locator('svg[data-verdict="not-verifiable"]');
+    const questionColors = await question.evaluate((element) => ({
+      mark: getComputedStyle(element).color,
+      question: getComputedStyle(element.querySelector("path")!).stroke,
+    }));
+    expect(questionColors.question).toBe(questionColors.mark);
+    const feed = page.getByRole("grid", {
+      name: en ? "References" : "Referenzen",
+      exact: true,
+    });
+    await feed.getByRole("row").focus();
+    await page.keyboard.press("Enter");
+    await page
+      .getByRole("button", {
+        name: en ? "Back to references" : "Zurück zu Referenzen",
+        exact: true,
+      })
+      .click();
+    await expect(feed.getByRole("row")).toBeFocused();
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
   });

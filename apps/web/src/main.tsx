@@ -43,7 +43,7 @@ createRoot(document.getElementById("root")!).render(
         siteUrl={import.meta.env.VITE_SOURCE_TASTER_WEBSITE_URL}
       />
     )}
-    {serviceUrl && (
+    {mode === "hosted" && serviceUrl && (
       <CancellationLink
         serviceUrl={serviceUrl}
         language={initial.preferences.language}

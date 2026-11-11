@@ -1,3 +1,4 @@
+import { openPanelAccount } from "../e2e/support/account-entry.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { test, expect } from "@playwright/test";
 import { readFile, writeFile } from "node:fs/promises";
@@ -46,6 +47,7 @@ test("native panel with a real Account offers private-web management", async () 
     await panel.find("textbox", "Six-digit code");
     await panel.fill("textbox", "Six-digit code", await code());
     await panel.click("button", "Confirm code");
+    await openPanelAccount(panel);
     await panel.find("button", "Sign out here");
     await panel.find("link", "Account security");
     expect(await panel.query("button", "Delete account")).toEqual([]);

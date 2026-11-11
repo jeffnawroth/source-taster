@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Autocomplete, useFilter } from "react-aria-components";
 import { Command, History, UserRound, X } from "lucide-react";
 import { m } from "@source-taster/i18n";
 import {
+  Autocomplete,
+  useFilter,
   Button,
   IconButton,
   Dialog,
@@ -154,15 +155,40 @@ export function CheckingTopBar({
           <DialogTrigger>
             <Button
               variant="ghost"
-              aria-label={`${m.shell_account()}: ${accountLabel ?? m.auth_sign_in()}`}
+              aria-label={
+                accountLabel
+                  ? `${m.shell_account()}: ${accountLabel}`
+                  : m.auth_sign_in()
+              }
             >
-              <UserRound aria-hidden="true" size={20} />
+              {accountLabel ? (
+                <span className="account-avatar" aria-hidden="true">
+                  {accountLabel[0]?.toLocaleUpperCase()}
+                </span>
+              ) : (
+                <UserRound aria-hidden="true" size={20} />
+              )}
               <span className="account-chip-label">
                 {accountLabel ?? m.auth_sign_in()}
               </span>
             </Button>
             <Popover className="account-entry">
-              <Dialog aria-label={m.shell_account()}>{account}</Dialog>
+              <Dialog aria-label={m.shell_account()}>
+                {({ close }) => (
+                  <>
+                    <Button
+                      variant="ghost"
+                      onPress={() => {
+                        close();
+                        requestAnimationFrame(onPreferences);
+                      }}
+                    >
+                      {m.shell_preferences()}
+                    </Button>
+                    {account}
+                  </>
+                )}
+              </Dialog>
             </Popover>
           </DialogTrigger>
         )}

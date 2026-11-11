@@ -1,3 +1,8 @@
+import {
+  openPanelAccount,
+  openWebAccount,
+  panelAccountName,
+} from "../e2e/support/account-entry.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Client race injection at the HTTP edge; Preferences persist in the real private service.
 import type { Page } from "@playwright/test";
@@ -197,6 +202,7 @@ test("existing Account wins, immediate partial changes never write Guest storage
       guestKey,
     ),
   ).toEqual({ language: "en", citationStyle: "oxford", theme: "system" });
+  await openWebAccount(page);
   await page
     .getByRole("button", { name: "Sign out here", exact: true })
     .click();
@@ -366,6 +372,7 @@ test("a late Account reply after sign-out cannot change Guest values", async ({
   };
   await page.evaluate(() => window.dispatchEvent(new Event("focus")));
   await expect.poll(() => !!release).toBe(true);
+  await openWebAccount(page);
   await page
     .getByRole("button", { name: "Hier abmelden", exact: true })
     .click();
@@ -403,7 +410,7 @@ test("web and native Chromium panel share Account values on refocus while keepin
     });
     signedIn = true;
     panel = await browser.openPanel();
-    await panel.waitForText("main", undefined, account.email);
+    await panel.find("button", panelAccountName(account.email));
     expect(await panel.evaluate("document.documentElement.lang")).toBe("de");
     expect(await browser.storage()).toEqual({
       [sessionKey]: "s".repeat(43),
@@ -438,6 +445,7 @@ test("web and native Chromium panel share Account values on refocus while keepin
     expect(
       await page.evaluate((key) => localStorage.getItem(key), guestKey),
     ).toBeNull();
+    await openPanelAccount(panel);
     await panel.click("button", "Sign out here");
     await panel.find("button", "Sign in");
     // #99 reads the Guest Quota on mount, so the panel may now hold its own
@@ -500,6 +508,7 @@ test("an already expired sign-out copies last displayed values and announces ses
   await language(page).selectOption("en");
   await expect.poll(() => patches.length).toBe(1);
   logoutDenied = true;
+  await openWebAccount(page);
   await page
     .getByRole("button", { name: "Sign out here", exact: true })
     .click();

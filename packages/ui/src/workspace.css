@@ -504,5 +504,55 @@ body {
   background: var(--st-feedback-danger-tint);
   color: var(--st-text);
 }
-.feed-head { display:flex; gap:8px; align-items:baseline; }
-.feed-head .feed-slot { flex:none; }
+.feed-head {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+.feed-head .feed-slot {
+  flex: none;
+}
+.summary-counter.st-toggle::before {
+  content: none;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+.account-avatar {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--st-radius-full);
+  background: var(--st-surface-sunken);
+  color: var(--st-text);
+}
+.account-entry :where(button, a) {
+  min-height: 28px;
+  min-width: 24px;
+}
+.account-entry a {
+  display: inline-flex;
+  align-items: center;
+  padding-block: 4px;
+  color: var(--st-accent-text);
+  text-decoration: underline;
+}
+.account-entry :where(input, select, textarea) {
+  color: var(--st-text);
+  background: var(--st-surface);
+  border: 1px solid var(--st-border-emphasis);
+  border-radius: var(--st-radius-sm);
+  padding: 6px 10px;
+  min-height: 36px;
+  max-width: 100%;
+}
+@media (forced-colors: active) {
+  .verdict-glyph[data-verdict="not-verifiable"] path {
+    stroke: CanvasText !important;
+  }
+}

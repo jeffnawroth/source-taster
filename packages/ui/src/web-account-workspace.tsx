@@ -10,6 +10,7 @@ import {
 } from "@source-taster/contract-service/client";
 import type { AccountSession } from "@source-taster/contract-service";
 import { m } from "@source-taster/i18n";
+import { Meter, Button } from "./primitives/index.ts";
 import type { VerificationClientOptions } from "@source-taster/contract-verification/client";
 import { CheckWorkspace, type SelectionIntake } from "./check-workspace.tsx";
 import {
@@ -63,8 +64,7 @@ export function AccountControls({
    * lacks consent to send Preferences to the service. */
   sendPreferences?: () => boolean;
 }) {
-  const [open, setOpen] = useState(false),
-    [email, setEmail] = useState(""),
+  const [email, setEmail] = useState(""),
     [code, setCode] = useState("");
   const [challenge, setChallenge] = useState<{
     challengeId: string;
@@ -174,91 +174,87 @@ export function AccountControls({
       ) : (
         <>
           <p>{m.auth_guest_notice()}</p>
-          {!open ? (
+          <form
+            className="mt-4 flex max-w-md flex-col gap-3"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void (challenge ? confirm() : send());
+            }}
+          >
+            <label>
+              {m.auth_email()}
+              <input
+                className="block w-full rounded border border-border-emphasis p-2"
+                type="email"
+                autoComplete="email"
+                required
+                maxLength={254}
+                value={email}
+                disabled={pending || !!challenge}
+                onChange={(event) => setEmail(event.target.value)}
+              />
+            </label>
+            {challenge && (
+              <>
+                <p role="status">{m.auth_code_sent()}</p>
+                <label>
+                  {m.auth_code()}
+                  <input
+                    className="block w-full rounded border border-border-emphasis p-2"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    pattern="[0-9]{6}"
+                    minLength={6}
+                    maxLength={6}
+                    required
+                    autoFocus
+                    value={code}
+                    onChange={(event) => setCode(event.target.value)}
+                    disabled={pending}
+                  />
+                </label>
+              </>
+            )}
             <button
-              className="mt-3 rounded border border-border-emphasis px-3 py-2"
-              onClick={() => setOpen(true)}
+              className="rounded bg-surface px-3 py-2 text-text"
+              disabled={pending}
             >
-              {m.auth_sign_in()}
+              {pending
+                ? m.auth_pending()
+                : challenge
+                  ? m.auth_confirm()
+                  : m.auth_send_code()}
             </button>
-          ) : (
-            <form
-              className="mt-4 flex max-w-md flex-col gap-3"
-              onSubmit={(event) => {
-                event.preventDefault();
-                void (challenge ? confirm() : send());
-              }}
-            >
-              <label>
-                {m.auth_email()}
-                <input
-                  className="block w-full rounded border border-border-emphasis p-2"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  maxLength={254}
-                  value={email}
-                  disabled={pending || !!challenge}
-                  onChange={(event) => setEmail(event.target.value)}
-                />
-              </label>
-              {challenge && (
-                <>
-                  <p role="status">{m.auth_code_sent()}</p>
-                  <label>
-                    {m.auth_code()}
-                    <input
-                      className="block w-full rounded border border-border-emphasis p-2"
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      pattern="[0-9]{6}"
-                      minLength={6}
-                      maxLength={6}
-                      required
-                      autoFocus
-                      value={code}
-                      onChange={(event) => setCode(event.target.value)}
-                      disabled={pending}
-                    />
-                  </label>
-                </>
-              )}
-              <button
-                className="rounded bg-surface px-3 py-2 text-text"
-                disabled={pending}
-              >
-                {pending
-                  ? m.auth_pending()
-                  : challenge
-                    ? m.auth_confirm()
-                    : m.auth_send_code()}
-              </button>
-              {challenge && (
-                <button
-                  type="button"
-                  className="rounded border border-border-emphasis px-3 py-2"
-                  disabled={pending || now < challenge.resendAt}
-                  onClick={() => void send()}
-                >
-                  {m.auth_resend()}
-                </button>
-              )}
+            {challenge && (
               <button
                 type="button"
                 className="rounded border border-border-emphasis px-3 py-2"
-                disabled={pending}
-                onClick={() => {
-                  setOpen(false);
-                  setChallenge(null);
-                  setCode("");
-                  setError(null);
-                }}
+                disabled={pending || now < challenge.resendAt}
+                onClick={() => void send()}
               >
-                {m.auth_cancel()}
+                {m.auth_resend()}
               </button>
-            </form>
-          )}
+            )}
+            <Button
+              type="button"
+              className="rounded border border-border-emphasis px-3 py-2"
+              slot="close"
+              {...(pending
+                ? {
+                    isDisabled: true as const,
+                    disabledReason: m.auth_pending(),
+                  }
+                : { isDisabled: false as const })}
+              onPress={() => {
+                setChallenge(null);
+                setCode("");
+                setError(null);
+              }}
+            >
+              {m.auth_cancel()}
+            </Button>
+          </form>
         </>
       )}
       {error && (
@@ -532,8 +528,20 @@ export function AccountWorkspace({
       selectionIntake={selectionIntake}
       upgradeUrl={localizedUpgradeUrl}
       onPreferencesChange={accountPreferences.change}
-      accountControls={(language) => (
+      accountControls={(language, quota) => (
         <>
+          {quota && (
+            <Meter
+              label={m.quota_meter_summary({
+                remaining: String(quota.remaining),
+                granted: String(quota.granted),
+                consumed: String(quota.consumed),
+              })}
+              value={quota.remaining}
+              maxValue={Math.max(1, quota.granted)}
+            />
+          )}
+
           {upgradeUrl && (
             <a
               href={localizedUpgradeUrl}

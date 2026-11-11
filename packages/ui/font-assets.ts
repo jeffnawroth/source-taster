@@ -15,6 +15,13 @@ export function fontNotices(): Plugin {
           ),
         });
       }
+      for (const notice of ["lucide-LICENSE", "react-spectrum-LICENSE"]) {
+        this.emitFile({
+          type: "asset",
+          fileName: `notices/ui/${notice}`,
+          source: readFileSync(new URL(`./notices/${notice}`, import.meta.url)),
+        });
+      }
       this.emitFile({
         type: "asset",
         fileName: "notices/fonts/provenance.json",

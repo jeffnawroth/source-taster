@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { useEffect, useState } from "react";
 import { m } from "@source-taster/i18n";
-/** Always rendered by the web shell, independently of Account/Quota requests. */
+/** Always rendered in hosted mode, independently of Account/Quota requests. */
 export function CancellationLink({
   serviceUrl,
   language: initial,
@@ -23,7 +23,7 @@ export function CancellationLink({
   return (
     <footer className="mx-auto max-w-5xl p-6">
       <a
-        className="inline-block rounded border border-slate-700 p-3 underline"
+        className="inline-block rounded border border-border-emphasis p-3 underline"
         href={`${serviceUrl.replace(/\/$/, "")}/cancel?language=${language}`}
         referrerPolicy="no-referrer"
       >

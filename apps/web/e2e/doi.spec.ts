@@ -47,7 +47,9 @@ for (const language of ["en", "de"] as const) {
         .getByRole("row"),
     ).toHaveCount(1);
     await expect(
-      verdict.locator("..").locator('svg[data-verdict="exists-with-deviations"]'),
+      verdict
+        .locator("..")
+        .locator('svg[data-verdict="exists-with-deviations"]'),
     ).toBeVisible();
     await result
       .getByText(

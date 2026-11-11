@@ -55,3 +55,31 @@ History restart confirmation and final focused regression fixes remain under
 active implementation. Human screen-reader, supported native-browser, release
 and #207 rights qualifications remain separate and open. Agent provenance is
 not specialist clearance or private token/brand activation approval.
+
+## Second checkpoint
+
+History now uses a modal drawer and a nested safe-focus confirmation. Its new
+public HTTP-edge Account journey observed the absent alert dialog as red and
+passed after implementation in DE/EN. Public hosted handoff, fail-closed session
+and first-N behavior have passing English/DE cases; one parallel run encountered
+transient HTTP 500s and is being repeated serially after stopping only orphaned
+processes whose working directory belonged to this worktree.
+
+Four native Account regressions now pass: opaque-credential persistence/reload,
+Account-token verification and sign-out everywhere, German keyboard confirmation
+and scoped sign-out, and separate actual Web/native sessions. Navigation asserts
+the full accessible Account name in the narrow panel and explicitly opens the
+entry before sign-out. The draft and original transport/storage assertions stay.
+
+All 22 extension package/preference tests pass, including exact built font
+hashes and full OFL/Lucide/Adobe notices in Chromium and Firefox packages. The two
+UI boundary tests and five catalog tests pass. Workspace typecheck, lint and
+DE/EN checks passed at this checkpoint. A concurrent website build collided with
+another build's output directory; the serial `pnpm build` passed. These checks
+must be repeated after the latest integration/font consolidation.
+
+The standalone-mode test exposed a real service-UI leak when a service URL was
+configured despite explicit standalone mode: the statutory service link was
+rendered. Its mount is now limited to hosted mode; hosted service failure still
+leaves that independent statutory link reachable. This is mode enforcement,
+not a change to cancellation policy.

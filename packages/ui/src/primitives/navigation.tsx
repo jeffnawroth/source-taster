@@ -118,4 +118,14 @@ export function TabPanel(props: Aria.TabPanelProps) {
     />
   );
 }
-export { DisclosureGroup, Toolbar } from "react-aria-components";
+export { DisclosureGroup } from "react-aria-components";
+
+export function Toolbar(props: Aria.ToolbarProps) {
+  return (
+    <Aria.Toolbar
+      {...props}
+      className={styles(props.className, "st-toolbar")}
+    />
+  );
+}
+export { Autocomplete, useFilter } from "react-aria-components";

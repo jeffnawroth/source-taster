@@ -263,7 +263,7 @@ export function CheckResults({
           </GridList>
           {!visible.length && (
             <p>
-              {m.workspace_empty()}{" "}
+              <span>{m.workspace_empty()}</span>{" "}
               <button type="button" onClick={() => setFilter(null)}>
                 {m.workspace_all()}
               </button>

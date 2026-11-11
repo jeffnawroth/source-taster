@@ -567,5 +567,6 @@
   "shell_reconnect": "Verbindung wiederherstellen",
   "shell_reconnecting": "Verbindung wird wiederhergestellt…",
   "shell_connecting": "Verbindung für laufende Aktualisierungen wird aufgebaut…",
-  "shell_connected": "Laufende Aktualisierungen verbunden"
+  "shell_connected": "Laufende Aktualisierungen verbunden",
+  "shell_selection_source": "Seitenauswahl"
 }

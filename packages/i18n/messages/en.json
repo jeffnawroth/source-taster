@@ -567,5 +567,6 @@
   "shell_reconnect": "Reconnect",
   "shell_reconnecting": "Reconnecting…",
   "shell_connecting": "Connecting to live updates…",
-  "shell_connected": "Live updates connected"
+  "shell_connected": "Live updates connected",
+  "shell_selection_source": "Page selection"
 }

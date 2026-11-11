@@ -40,7 +40,12 @@ import {
   FileTrigger,
   type Availability,
 } from "./primitives/index.ts";
-import { Label, Text, TextArea, TextField } from "./index.tsx";
+import {
+  Label,
+  Description,
+  TextArea,
+  TextFieldRoot,
+} from "./primitives/fields.tsx";
 import { CheckingTopBar } from "./checking-top-bar.tsx";
 import {
   citationStyles,
@@ -166,6 +171,7 @@ export function CheckWorkspace({
     controlledPreferences?.citationStyleReset ?? localStyleReset;
   const locale = preferences.language;
   const [text, setText] = useState("");
+  const [inputKind, setInputKind] = useState<"text" | "selection">("text");
   const [filesOpen, setFilesOpen] = useState(false);
   const languageInput = useRef<HTMLSelectElement>(null);
   const fileId = useId();
@@ -178,6 +184,7 @@ export function CheckWorkspace({
   >(null);
   const [selectionUndo, setSelectionUndo] = useState<{
     text: string;
+    inputKind: "text" | "selection";
     library: LibraryInput | null;
     preview: StructuringResult | ImportResult | null;
     fileName: string;
@@ -196,6 +203,7 @@ export function CheckWorkspace({
       setSelectionNotice(selection.possiblyShortened ? "shortened" : null);
       setSelectionUndo({
         text,
+        inputKind,
         library,
         preview,
         fileName,
@@ -213,6 +221,7 @@ export function CheckWorkspace({
         setPending(null);
       }
       setText(selection.text);
+      setInputKind("selection");
       setSourceDocument(null);
       setSelectionLimit(null);
       setLibrary(null);
@@ -804,6 +813,7 @@ export function CheckWorkspace({
     )
       void cancelDetached(check.id);
     setText("");
+    setInputKind("text");
     setSelectionUndo(null);
     setSelectionNotice(null);
     setFile(null);
@@ -964,10 +974,11 @@ export function CheckWorkspace({
       >
         <div className="intake-command">
           {!sourceDocument && (
-            <TextField
+            <TextFieldRoot
               value={text}
               onChange={(value) => {
                 setText(value);
+                setInputKind("text");
                 setSelectionUndo(null);
                 setLibrary(null);
                 setFileName("");
@@ -980,30 +991,39 @@ export function CheckWorkspace({
               className="intake-text"
             >
               <Label>{m.input_label()}</Label>
-              <Text slot="description">{m.input_hint()}</Text>
+              <Description>
+                {m.input_hint()}
+                {busy && ` · ${m.shell_busy()}`}
+              </Description>
               <TextArea
                 ref={inputRef}
                 placeholder={m.input_example()}
                 className="intake-textarea"
                 rows={2}
               />
-            </TextField>
+            </TextFieldRoot>
           )}
           <DropZone
             aria-label={m.shell_drop()}
             isDisabled={!!busy}
-            onDrop={async (event) => {
-              const item = event.items.find((item) => item.kind === "file");
-              if (item?.kind === "file") {
-                const dropped = await item.getFile();
-                setFilesOpen(true);
-                if (/\.(bib|bibtex|ris)$/iu.test(dropped.name))
-                  void loadLibrary(dropped);
-                else {
-                  setFile(dropped);
-                  setRequestError(null);
+            onDrop={(event) => {
+              const token = generation.current;
+              void (async () => {
+                const item = event.items.find((item) => item.kind === "file");
+                if (item?.kind === "file") {
+                  const dropped = await item.getFile();
+                  if (generation.current !== token) return;
+                  setFilesOpen(true);
+                  if (/\.(bib|bibtex|ris)$/iu.test(dropped.name))
+                    void loadLibrary(dropped);
+                  else {
+                    setFile(dropped);
+                    setRequestError(null);
+                  }
                 }
-              }
+              })().catch((error: unknown) => {
+                if (generation.current === token) setRequestError(error);
+              });
             }}
           >
             <p>{m.shell_drop()}</p>
@@ -1035,7 +1055,9 @@ export function CheckWorkspace({
           <p className="intake-source">
             {fileName || file
               ? m.shell_file_source({ name: fileName || file!.name })
-              : m.shell_text_source()}
+              : inputKind === "selection"
+                ? m.shell_selection_source()
+                : m.shell_text_source()}
           </p>
         )}
         <Button
@@ -1154,6 +1176,7 @@ export function CheckWorkspace({
             onPress={() => {
               setSelectionNotice(null);
               setText(selectionUndo.text);
+              setInputKind(selectionUndo.inputKind);
               setSourceDocument(selectionUndo.sourceDocument);
               setSelectionLimit(selectionUndo.selectionLimit);
               setLibrary(selectionUndo.library);

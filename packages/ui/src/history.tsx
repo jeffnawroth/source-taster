@@ -7,6 +7,7 @@ import {
 } from "@source-taster/contract-verification/client-v2";
 import type { Check } from "@source-taster/contract-verification/v2";
 import { ownerQuota, planStart } from "./quota.ts";
+import { Button, Modal, Dialog, DialogHeading } from "./primitives/index.ts";
 import { QuotaChoice } from "./quota-panel.tsx";
 type Api = ReturnType<typeof verificationClient>;
 type HistoryData = Awaited<ReturnType<Api["getHistory"]>>;
@@ -214,52 +215,78 @@ export function HistoryPanel({
         </>
       )}
       {choice && (
-        <div
-          role="group"
-          aria-labelledby={`${id}-confirm`}
-          className="my-4 rounded border border-border-emphasis p-3"
+        <Modal
+          isOpen
+          isDismissable={!pending}
+          isKeyboardDismissDisabled={pending}
+          onOpenChange={(open) => {
+            if (!open && !pending) setChoice(null);
+          }}
         >
-          <p id={`${id}-confirm`}>
-            {choice.kind === "restart"
-              ? m.history_billable({
-                  count: String(choice.entry.referenceCount),
-                })
-              : choice.kind === "revoke"
-                ? m.history_revoke_warning()
-                : m.history_delete_warning()}
-          </p>
-          <button
-            className="rounded border border-border-emphasis px-3 py-2"
-            disabled={disabled}
-            onClick={() =>
-              void run(async () => {
-                if (choice.kind === "restart") await restart(choice.entry);
-                else if (choice.kind === "delete") {
-                  setData(await api.deleteHistory(choice.entry.id));
-                  onDelete(choice.entry.id);
-                  setChoice(null);
-                } else {
-                  setData(await api.setHistory(false));
-                  onDelete();
-                  setChoice(null);
-                }
-              })
-            }
-          >
-            {choice.kind === "restart"
-              ? m.history_restart_confirm()
-              : choice.kind === "revoke"
-                ? m.history_revoke_confirm()
-                : m.history_delete_confirm()}
-          </button>
-          <button
-            className="rounded border border-border-emphasis px-3 py-2"
-            disabled={pending}
-            onClick={() => setChoice(null)}
-          >
-            {m.history_back()}
-          </button>
-        </div>
+          <Dialog role="alertdialog" aria-describedby={`${id}-confirm`}>
+            <DialogHeading>
+              {choice.kind === "restart"
+                ? m.history_restart()
+                : choice.kind === "revoke"
+                  ? m.history_revoke()
+                  : m.history_delete()}
+            </DialogHeading>
+            <p id={`${id}-confirm`}>
+              {choice.kind === "restart"
+                ? m.history_billable({
+                    count: String(choice.entry.referenceCount),
+                  })
+                : choice.kind === "revoke"
+                  ? m.history_revoke_warning()
+                  : m.history_delete_warning()}
+            </p>
+            {error && <p role="alert">{m.history_unavailable()}</p>}
+            <div className="st-actions">
+              <Button
+                autoFocus
+                {...(pending
+                  ? {
+                      isDisabled: true as const,
+                      disabledReason: m.shell_busy(),
+                    }
+                  : { isDisabled: false as const })}
+                onPress={() => setChoice(null)}
+              >
+                {m.history_back()}
+              </Button>
+              <Button
+                variant={choice.kind === "restart" ? "primary" : "danger"}
+                isPending={pending}
+                {...(disabled
+                  ? {
+                      isDisabled: true as const,
+                      disabledReason: m.shell_busy(),
+                    }
+                  : { isDisabled: false as const })}
+                onPress={() => {
+                  void run(async () => {
+                    if (choice.kind === "restart") await restart(choice.entry);
+                    else if (choice.kind === "delete") {
+                      setData(await api.deleteHistory(choice.entry.id));
+                      onDelete(choice.entry.id);
+                      setChoice(null);
+                    } else {
+                      setData(await api.setHistory(false));
+                      onDelete();
+                      setChoice(null);
+                    }
+                  });
+                }}
+              >
+                {choice.kind === "restart"
+                  ? m.history_restart_confirm()
+                  : choice.kind === "revoke"
+                    ? m.history_revoke_confirm()
+                    : m.history_delete_confirm()}
+              </Button>
+            </div>
+          </Dialog>
+        </Modal>
       )}
       {partial && (
         <QuotaChoice

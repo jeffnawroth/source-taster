@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Adapted from Adobe's RAC Tailwind starter; see ../../NOTICE.md.
-import { useCallback, useLayoutEffect, useRef, type ReactNode } from "react";
+import {
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  type ReactNode,
+  type Ref,
+} from "react";
 import * as Aria from "react-aria-components";
 import { CircleAlert, Search, X, ChevronDown, Check } from "lucide-react";
 import { cx, styles } from "./utils.ts";
@@ -76,6 +82,18 @@ export type FieldContent = {
 type DisabledField =
   | { isDisabled: true; disabledReason: string }
   | { isDisabled?: false; disabledReason?: never };
+/** Composable field root for surfaces that need a named textarea ref or extra controls. */
+export function TextFieldRoot(props: Aria.TextFieldProps) {
+  return (
+    <Aria.TextField
+      {...props}
+      className={styles(
+        props.className,
+        "st-field flex min-w-0 flex-col gap-1",
+      )}
+    />
+  );
+}
 export type TextFieldProps = Omit<
   Aria.TextFieldProps,
   "children" | "isDisabled"
@@ -120,7 +138,10 @@ export function TextField({
     </Aria.TextField>
   );
 }
-export function TextArea(props: Aria.TextAreaProps) {
+export function TextArea({
+  ref: externalRef,
+  ...props
+}: Aria.TextAreaProps & { ref?: Ref<HTMLTextAreaElement> }) {
   const ref = useRef<HTMLTextAreaElement>(null);
   const resize = useCallback(() => {
     if (ref.current) {
@@ -128,11 +149,16 @@ export function TextArea(props: Aria.TextAreaProps) {
       ref.current.style.height = `${Math.min(ref.current.scrollHeight, 320)}px`;
     }
   }, []);
-  useLayoutEffect(resize, [resize, props.value, props.defaultValue]);
+  // Context-provided values (paste/selection intake) must resize on commit too.
+  useLayoutEffect(resize);
   return (
     <Aria.TextArea
       {...props}
-      ref={ref}
+      ref={(element) => {
+        ref.current = element;
+        if (typeof externalRef === "function") return externalRef(element);
+        if (externalRef) externalRef.current = element;
+      }}
       onChange={(event) => {
         resize();
         props.onChange?.(event);

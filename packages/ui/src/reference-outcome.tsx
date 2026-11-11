@@ -5,7 +5,6 @@ import type {
   VerdictResult,
   Candidate,
   Score,
-  Verdict,
   SourceEvidence,
 } from "@source-taster/contract-verification/v2";
 import {

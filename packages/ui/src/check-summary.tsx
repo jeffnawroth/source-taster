@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { useState } from "react";
-import { Toolbar, ToggleButton, TooltipTrigger } from "react-aria-components";
 import { Ellipsis, CircleDashed } from "lucide-react";
 import type { Check, Verdict } from "@source-taster/contract-verification/v2";
 import { effectiveVerdict } from "./effective-verdict.ts";
 import { m } from "@source-taster/i18n";
 import {
+  Toolbar,
+  ToggleButton,
+  TooltipTrigger,
   Button,
   IconButton,
   GlassSurface,

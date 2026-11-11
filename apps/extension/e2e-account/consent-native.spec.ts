@@ -1,3 +1,4 @@
+import { openFirefoxAccount } from "../e2e/support/account-entry.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Native Firefox: the real sidebar, the real optional data collection prompt
 // and the browser's own permission store. Only the private session service is
@@ -35,6 +36,7 @@ async function signedInFirefox() {
     await firefox.click(await firefox.find("entry", "Six-digit code"));
     await firefox.type("123456");
     await firefox.click(await firefox.find("pushbutton", "Confirm code"));
+    await openFirefoxAccount(firefox);
     await firefox.find("pushbutton", "Sign out here");
   } catch (error) {
     await firefox.close();
