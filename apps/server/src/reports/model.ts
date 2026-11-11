@@ -16,7 +16,7 @@ export type ReportVerdict = keyof typeof verdictLabels;
 
 /** One piece of reading content below a heading, in reading order. */
 export type Block =
-  | { kind: "paragraph"; text: string }
+  | { kind: "paragraph"; text: string; keepWithNext?: boolean }
   | {
       kind: "labelled";
       label: string;
@@ -293,6 +293,37 @@ export function buildReport(input: ReportInput): ReportModel {
         text: m[statuses[outcome.status]]({}, locale),
       });
     } else {
+      const manual = reference.manualOverride;
+      blocks.push({
+        kind: "labelled",
+        label: m.report_verdict({}, locale),
+        text: verdictName(manual?.verdict ?? outcome.verdict),
+        verdict: manual?.verdict ?? outcome.verdict,
+      });
+      if (manual) {
+        blocks.push({
+          kind: "paragraph",
+          text: m.override_manual(
+            { verdict: verdictName(manual.verdict) },
+            locale,
+          ),
+        });
+        blocks.push({
+          kind: "paragraph",
+          text: m.override_system(
+            { verdict: verdictName(outcome.verdict) },
+            locale,
+          ),
+        });
+        blocks.push({
+          kind: "paragraph",
+          text: m.report_manual_since(
+            { date: stamp(manual.createdAt) },
+            locale,
+          ),
+        });
+      }
+      blocks.push(...explanation(outcome, locale, unknown));
       const result = reference.results[0];
       const currentResult =
         result?.revision === reference.revision &&
@@ -331,6 +362,7 @@ export function buildReport(input: ReportInput): ReportModel {
       blocks.push({
         kind: "paragraph",
         text: m.report_checked_fields({}, locale),
+        keepWithNext: true,
       });
       for (const [key, value] of Object.entries(outcome.reference.csl)) {
         blocks.push({
@@ -368,37 +400,7 @@ export function buildReport(input: ReportInput): ReportModel {
               .join(", "),
           });
       }
-      const manual = reference.manualOverride;
-      blocks.push({
-        kind: "labelled",
-        label: m.report_verdict({}, locale),
-        text: verdictName(manual?.verdict ?? outcome.verdict),
-        verdict: manual?.verdict ?? outcome.verdict,
-      });
-      if (manual) {
-        blocks.push({
-          kind: "paragraph",
-          text: m.override_manual(
-            { verdict: verdictName(manual.verdict) },
-            locale,
-          ),
-        });
-        blocks.push({
-          kind: "paragraph",
-          text: m.override_system(
-            { verdict: verdictName(outcome.verdict) },
-            locale,
-          ),
-        });
-        blocks.push({
-          kind: "paragraph",
-          text: m.report_manual_since(
-            { date: stamp(manual.createdAt) },
-            locale,
-          ),
-        });
-      }
-      blocks.push(...explanation(outcome, locale, unknown));
+
       blocks.push({
         kind: "labelled",
         label: m.scoring_rules_label({}, locale),
@@ -483,6 +485,7 @@ function explanation(
     blocks.push({
       kind: "paragraph",
       text: m.report_differences({}, locale),
+      keepWithNext: true,
     });
     blocks.push({
       kind: "list",

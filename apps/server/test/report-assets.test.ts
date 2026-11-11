@@ -7,6 +7,7 @@ import { readFile } from "node:fs/promises";
 import { expect, it } from "vitest";
 import manifest from "../src/reports/fonts/manifest.json" with { type: "json" };
 import { inspectPdf } from "./support/pdf-inspect.ts";
+import type { generateReport as ProductionGenerateReport } from "../src/reports/generate.ts";
 import { finalSample } from "./support/report-samples.ts";
 it("ships every exact local font variant and full OFL notice and generates from packaged assets", async () => {
   execFileSync("pnpm", ["run", "build"], {
@@ -22,7 +23,7 @@ it("ships every exact local font variant and full OFL notice and generates from 
   // A runtime-computed URL prevents TS from including emitted code in rootDir.
   const { generateReport } = (await import(
     new URL("../dist/reports/generate.js", import.meta.url).href
-  )) as typeof import("../src/reports/generate.ts");
+  )) as { generateReport: typeof ProductionGenerateReport };
   const pdf = await generateReport({
     check: finalSample(),
     language: "de",

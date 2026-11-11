@@ -4,7 +4,7 @@
 import { readFileSync } from "node:fs";
 import PDFDocument, { type StructElement } from "pdfkit";
 import { opaque, values } from "@source-taster/design-tokens";
-import type { Block, ReportModel, Section } from "./model.ts";
+import type { Block, ReportModel, ReportVerdict, Section } from "./model.ts";
 import { verdictMark } from "./verdict-mark.ts";
 
 export type ReportFailureCode = "unsupported-character" | "limit-exceeded";
@@ -200,7 +200,7 @@ export async function renderPdf(model: ReportModel): Promise<Uint8Array> {
     value: string,
     face: Face = "Regular",
     link?: string,
-    verdict?: import("./model.ts").ReportVerdict,
+    verdict?: ReportVerdict,
   ) {
     ensureRoom(42);
     const top = doc.y;
@@ -236,7 +236,7 @@ export async function renderPdf(model: ReportModel): Promise<Uint8Array> {
   function body(block: Block) {
     switch (block.kind) {
       case "paragraph":
-        ensureRoom(22);
+        ensureRoom(block.keepWithNext ? 68 : 22);
         tagged(root, "P", () =>
           write(block.text, "Regular", PAGE.left, doc.y, width),
         );
