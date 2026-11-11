@@ -109,6 +109,7 @@ test("allowing the prompt starts sync, and withdrawing the grant in Firefox's pe
     const sent = service.requests.length;
     await firefox.clickToolbarButton();
     await firefox.clickToolbarButton();
+    await openFirefoxAccount(firefox);
     await allow(firefox);
     expect(
       service.requests

@@ -10,6 +10,7 @@ import { readFile } from "node:fs/promises";
 import { extname, join } from "node:path";
 import type { AddressInfo } from "node:net";
 import { buildExtension } from "../e2e/support/build.ts";
+import { openWebAccount } from "../e2e/support/account-entry.ts";
 import {
   account,
   credential,
@@ -184,6 +185,7 @@ async function withFirefoxPanel(
       seed: options.seed ?? {},
     });
     await page.goto(`${files.url}/panel.html`);
+    if (options.signedIn ?? true) await openWebAccount(page);
     await run({
       page,
       service,
@@ -327,6 +329,7 @@ test.describe("Firefox Account Preferences sync consent", () => {
         await page.waitForTimeout(500);
         expect(service.preferenceRequests()).toEqual([]);
         // The control stays available for another attempt.
+        await openWebAccount(page);
         await expect(allow(page)).toBeVisible();
       },
       page,
@@ -381,6 +384,7 @@ test.describe("Firefox Account Preferences sync consent", () => {
           .poll(() => service.preferenceRequests().map((r) => r.method))
           .toEqual(["GET", "PATCH"]);
         await revoke();
+        await openWebAccount(page);
         await expect(allow(page)).toBeVisible();
         await style(page).selectOption("ieee");
         // A refocus must not read either.

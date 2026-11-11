@@ -24,6 +24,16 @@ export async function openFirefoxAccount(
   browser: NativeFirefox,
   language?: "en" | "de",
 ) {
+  // A successful sign-in remounts the checking workspace. Wait for its signed-in
+  // trigger before deciding whether the old sign-in dialog is still open.
+  await browser.find(
+    "pushbutton",
+    language
+      ? language === "de"
+        ? /^Konto:/
+        : /^Account:/
+      : /^(Account|Konto):/,
+  );
   const label = language
     ? language === "de"
       ? "Konto"

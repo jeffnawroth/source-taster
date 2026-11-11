@@ -881,6 +881,7 @@ test("browser restart restores only the extension session and never restores Che
 
 test("purchasing and Plan entries open the private web Plan management page without sending an extension credential", async () => {
   await withPanel(async ({ panel, requests }) => {
+    await panel.click("button", "Sign in");
     const link = await panel.find("link", "Plans and check packs on the web");
     expect(
       await panel.call(
@@ -909,6 +910,7 @@ test("purchasing and Plan entries open the private web Plan management page with
 test("native Account invoice access uses current extension credentials without web forwarding", async () => {
   await withPanel(async ({ panel, browser, requests }) => {
     await signIn(panel);
+    await openPanelAccount(panel);
     await panel.click("button", "Load invoices");
     await panel.find("button", "Download PDF");
     await panel.click("button", "Download PDF");

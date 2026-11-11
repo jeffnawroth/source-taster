@@ -151,3 +151,29 @@ the accepted new detail treatment is the separate #212 task.
 
 The parent owns integration PR #220 and final review. No PR, push, issue closure,
 subagent or other-worktree mutation is part of this implementation.
+
+## Parent integration follow-up
+
+The Linux CI workflow-contract check still expected the pre-shell Web suite
+inventory. Its exact list now includes `shell.playwright.config.ts`; all 13
+workflow-contract checks pass with bounded jobs, PostgreSQL isolation, pinned
+actions and the private-service prohibition retained.
+
+Thirteen Account-suite failures came from old navigation assumptions. The
+consent bundle journeys now open the Account popover and reopen it after
+preferences focus dismisses it. Native Firefox waits for the signed-in trigger
+before inspecting the dialog, so the outgoing sign-in dialog cannot masquerade
+as the new Account entry; it also reopens that entry after closing/reopening the
+sidebar. Guest Plan and signed-in invoice tests follow their explicit entry.
+No request, authority, consent, cookie or storage assertion was removed.
+
+All 12 consent journeys on the actual Firefox-target panel bundle pass. Both
+real native Firefox consent/prompt cases pass, including withdrawal, reopen and
+zero further Preferences requests; native Firefox session transport and the
+Chromium Plan/invoice cases also pass (3 cases). Firefox Developer Edition
+reports version 160.0 on this Mac. The latter fixtures use explicit owned
+PostgreSQL URLs and isolated API/service/Web ports 4631/4632/5631; an initial
+run missing those required environment values failed at fixture setup and is
+not passing evidence. Changed-file lint/format, extension typecheck and source
+whitespace checks pass. These targeted native regressions do not complete the
+broader OS/browser/assistive release matrix or human acceptance.

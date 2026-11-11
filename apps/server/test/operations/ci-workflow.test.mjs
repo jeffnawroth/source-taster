@@ -194,6 +194,7 @@ test("the public Playwright and contract suites run in CI on local fakes, each i
   const web = workflow.jobs["web-suites"];
   assert.deepEqual(configsOf(web), [
     "abuse.playwright.config.ts",
+    "shell.playwright.config.ts",
     "report.playwright.config.ts",
   ]);
   assert.ok(

@@ -50,16 +50,18 @@ The merged website's own worktree passed the exact controlled source build,
 receipt and 116 browser cases. The main integration worktree has since rebuilt
 and verified its controlled Pagefind receipt and passed a direct website-only
 build without pre-existing generated product catalogs. Confirm the receipt
-still matches the final integrated inputs before final validation. After #211,
-include any new transitive build-rendered product sources in the website
-publication fingerprint.
+still matches the final integrated inputs before final validation. #211 added
+the now-transitive rendered outcome-badge source to the website publication
+fingerprint and verified its invalidation control.
 
 The current CI database also reports `RUSTSEC-2026-0486` for the actually selected
 `rustix` 1.1.4 native build dependency. [#221](https://github.com/jeffnawroth/source-taster/issues/221)
 tracks updating the controlled graph to the published fixed version without a
-scan/native-policy waiver. A separate server same-slot test's initial completion
-wait failed once in that CI run and is being reproduced; its behavior is not
-declared fixed or its assertion weakened.
+scan/native-policy waiver. A prior server same-slot completion wait passed all
+five cases locally without code/timeout changes, and all four server shards
+passed in the following full CI run. No assertion was weakened. The CI suite
+inventory and remaining Account-popover navigation assumptions found by that
+run have targeted passing integration evidence in the #211 record.
 
 Final integrated checks and the two-axis Standards/Spec review remain pending.
 There is no release, deployment, conformance or specialist clearance claim.
