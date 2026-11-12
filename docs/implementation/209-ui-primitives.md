@@ -134,6 +134,54 @@ was run red before the CSS correction and green afterward; the original full and
 heading-only reproductions both return 320px document width after the fix. The
 full Chromium/WebKit suite and workspace gates are rerun on the correction.
 
+## Pending-width measurement regression
+
+Linux CI on `f6d94ef` passed 41 of 42 UI scenarios, including every reflow case.
+Its remaining WebKit failure measured the loading button during the permitted
+press/release scale animation. A pinned pointer reproduction showed unchanged
+311px layout width before/after activation while `scale(0.98)` temporarily painted
+a 305.10px box. Comparing bounding boxes therefore confused motion with layout.
+
+The pending specimen now uses its natural width rather than stretching across
+its gallery column. The regression holds a real pointer press and compares
+computed layout widths before, during and after loading, keeping the busy/label/
+spinner assertions. A temporary negative control removed the idle spinner
+reservation: the test correctly rejected the resulting 28px layout increase
+(133.42px to 161.42px). That fault was removed immediately afterward. The press
+animation and production component behavior are unchanged; no tolerance was widened.
+
+## Blocking native-build advisory maintenance
+
+The fresh OSV database on 11 November 2026 blocked the inherited controlled
+website build at `64377fb` for **RUSTSEC-2026-0486**. Five reports referred to one
+actual affected identity, `rustix 1.1.4`: the selected native closure plus four
+immutable upstream inventories. This was a real selected-dependency finding,
+not a license or scanner-infrastructure failure.
+
+The minimal stable patch pins `rustix 1.1.6` in the four owned native Cargo locks
+(Pagefind, Astro compiler, Rolldown and Sätteri). Registry archive SHA-256:
+`e5e76742e5294153d4dde1207dbec5bdd81eef6fabdc0d2118babadabfd858aa`.
+It fixes extended-attribute zero-buffer initialization handling; the crate's
+license and retained notices stay `Apache-2.0 WITH LLVM-exception OR Apache-2.0
+OR MIT`. Its tightened normal-dependency lower bounds fit the existing frozen
+versions, so no other dependency identity or configured target/feature selection is changed.
+The reproducible controlled-vs-upstream ledger is regenerated in its original
+format. Raw upstream locks and the advisory/refusal policy remain unchanged.
+
+This is the supporting build prerequisite needed to finish #209's required CI,
+recorded as a separate maintenance commit. It does not migrate a website surface,
+add a UI dependency, change private rights or grant publication approval. The
+normal source-checksummed fetch, offline native rebuild, target/feature graph,
+license inventory, fresh offline OSV matching and failure controls apply to the
+patched exact identity. The local rebuilt graph passed license qualification
+and OSV-Scanner 2.7.0 with fresh npm/crates.io databases: zero blocking findings,
+93 raw upstream findings preserved, and no license issues. All 23 qualification
+control results pass, including refusal of positive/incomplete/stale scans and
+reproduction of all three shipped WASM objects from the delivered source archive. The patched build also passes all 92 local website Chromium
+scenarios and the workspace type/lint/build/license gates. The complete E2E job
+on `64377fb` passed in Linux CI, including all 42 UI cases across three engines;
+the final head with this native security patch still requires its own full CI.
+
 ## CI and remaining qualification
 
 CI verifies the static contract, builds the real examples and runs all **42 UI
@@ -155,3 +203,28 @@ width with its original 0.05 px tolerance; label, spinner and availability
 assertions remain. The targeted WebKit case passes five consecutive runs. The
 parallel web suite was interrupted when this primitive suite failed, so its
 interrupted correction journey is not counted as an independent failure.
+
+## Merge of the remaining #219 commits into the #220 fix branch
+
+`fix/220-ci` merged `origin/feat/209-ui-primitives`, which carried two commits
+that were not yet in the integration branch: the WebKit-stable pending-layout
+test (`64377fb`) and the `rustix 1.1.6` pins in the compiler, native and Sätteri
+controlled Cargo locks (`e6a38b0`). The Rolldown lock pin was already integrated
+by #221.
+
+- `packages/ui/test/primitives.spec.ts`: both intents are kept. The pending
+  Button's computed widths are asserted per specimen and the painted width is
+  polled until the press-scale transition settles, with the original 0.05 px
+  tolerance. `packages/ui/examples/main.tsx` merged cleanly.
+- `apps/website/qualification/controlled/lock-changes.diff` was regenerated, not
+  hand-merged: it is the unified diff of each `upstream/<x>/Cargo.lock` against
+  `controlled/locks/<y>.Cargo.lock` (native, web, compiler, rolldown, Sätteri, in
+  that order). The regenerated ledger equals the incoming one (525 lines) and
+  patching the upstream locks with it reproduces all five controlled locks
+  byte for byte.
+- Verification: `pagefind:fetch`, `pagefind:build` and `pagefind:verify` pass;
+  the offline OSV/license gate reports zero blocking findings, 93 raw upstream
+  findings preserved and no license issues; the primitive suite passes 28/28 on
+  Chromium and WebKit (the pending-layout case 10 consecutive runs on each).
+  Local runs are macOS arm64; the Linux CI gate on the pushed head remains
+  authoritative.

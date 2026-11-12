@@ -278,16 +278,82 @@ Reference is still running. The check now matches whole words; the parity
 journey then passed 2/2 runs in EN and DE, and the full native run passed
 12/12.
 
+## Manual-override journey: lost Save press (#220 CI)
+
+CI run 43157513685 failed `manual-overrides.spec.ts:71` (EN): after the second
+manual judgment to "Not found" the detail still read "Manual verdict: Correct".
+It passed locally. The radio selection was not the problem: the Save press was
+lost, so no submit ran.
+
+**Cause (product bug, not a test race).** `.check-detail` scrolls (max-height,
+`overflow-y: auto`) but was not positioned. The correction diff's visually hidden
+labels (`span.sr-only`, "Deleted:"/"Inserted:") are absolutely positioned, so
+their containing block was outside the scroller. They escaped its clip and added
+phantom scrollable overflow to the page: at 360 x 780 the document was 6339 px
+tall while the app root was 3933 px. Layout changes inside the detail (the
+correction suggestions render roughly 50-300 ms after "Judge manually" and add
+235-350 px) then move the window scroll. In the captured failures the window
+moved 3387 to 3152 (and in another capture 3130 to 3387) between Save's
+pointerdown and focusin, with no JavaScript `focus`, `scrollTo` or
+`scrollIntoView` call and an unchanged detail scroll. Pointerup then landed on
+another element, so no click or submit fired. Captured only with real CPU
+contention (busy loops on every core, `CI=1`); CDP CPU throttling alone never
+reproduced it. A real mouse user pressing a Button in the detail is exposed the
+same way. This is the same class as the earlier "native focus scrolls the nested
+detail scroller mid-press" note (focus after Discard).
+
+**Causation check.** With the stylesheet fix reverted, inserting a 300 px block
+above Save while the pointer is down moved the window from 3153 to 3453 and the
+press was lost; with the fix the window stays at 3153 and the press saves.
+
+**Ruled out:** the radio preset or selection state (the draft keeps "Not found"
+and the press reached Save), a RadioGroup label press, and the
+`scroll-padding-block-start` band (padding 141 px, no jump at any Save offset).
+
+**Fix.** `.check-detail { position: relative }` in
+`packages/ui/src/workspace.css`, so the scroller clips its hidden descendants and
+the page range equals the app height (6339 to 3933 px).
+
+**Test-first evidence** (`apps/web/e2e/manual-overrides.spec.ts`, 360 px, after
+Confirm verdict and Judge manually, hidden diff labels present). Both are red on
+the pristine stylesheet and green with the fix:
+
+- "the scrolling reference detail does not extend the page's scroll range":
+  document height must not exceed the app root (red: 6339 against 3933).
+- "a layout change in the detail during a Save press does not lose the press":
+  pointer down on Save, late 300 px content above it, pointer up; the window
+  scroll must not move and the verdict must save (red: scroll 3153 to 3453).
+
+**Evidence.** Instrumented repro, 60 repeats under full-core CPU load: 2 failed
+before the fix (one of them this press loss; the other a check that ended
+"Cancelled" under load before any verdict appeared), 60/60 passed after it. At the original rate of about 1 in
+30-60 that alone is weak evidence; the deterministic tests carry the causal
+claim. Full web suite (`--project chromium`): 123/123. Native panel, revisions
+and manual-overrides suites: 12/12. The native journey presses with real mouse
+events after `scrollIntoViewIfNeeded` (the same pattern) and renders the same
+detail from `@source-taster/ui`; the side panel's document-versus-root height
+was not measured separately.
+
 ## Open
 
 - Before the review follow-up, one native `manual-overrides` (EN) run failed
   once: the Manual verdict combobox (now a RadioGroup) never appeared after
   "Judge manually". It did not recur in the follow-up's runs. The UI code was identical to
   the passing runs before and after it (the merge changed only lock files and
-  docs). The cause was not reproduced. It matches the diagnosed lost-press
-  mechanism: native focus scrolls the nested detail scroller mid-press. That
-  mechanism is fixed only for Discard → Edit fields, so other partly clipped
-  detail buttons may still lose a press.
+  docs). The cause was not reproduced then. It is likely the same mechanism as
+  above (page scroll range moving mid-press), but this is not verified in the
+  side panel; the phantom overflow itself is fixed in the stylesheet. The earlier
+  Discard → Edit fields focus handling remains. `.check-list` also scrolls; whether
+  it holds absolutely positioned hidden content was not checked, and it would
+  need the same containing block if it does.
+- Under the same full-core CPU stress a Check occasionally ends "Cancelled" (or
+  stays "Running") before any verdict appears. It is a separate, stress-only
+  outcome unrelated to this fix, seen once in 60 and once in 40 stressed runs,
+  and was not investigated; it could still appear in CI.
+- The integrated state regression (`regression.playwright.config.ts`) needs the
+  owned PostgreSQL on port 5433 and was not run locally; the rest of the web
+  suite ran on the merged head. All local runs are macOS arm64; the Linux CI
+  run on the pushed head remains authoritative.
 - The Quota-journal suite needs the private service worktree and was not run.
   Billing copy is covered by the debited/unbilled journeys and by "no request
   on Apply". No server or billing code changed.

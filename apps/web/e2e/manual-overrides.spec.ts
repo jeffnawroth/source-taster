@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { CheckResponse } from "@source-taster/contract-verification/v2";
 for (const language of ["en", "de"] as const) {
@@ -152,6 +152,91 @@ for (const language of ["en", "de"] as const) {
     ).toBe(true);
   });
 }
+// Visually hidden text (the correction diff's "Deleted:"/"Inserted:" labels) is
+// absolutely positioned. When the scrolling detail is not its containing block
+// it escapes the detail's clip and adds phantom scrollable overflow to the
+// page. Layout changes inside the detail then move the window scroll, and a
+// press that straddles such a change is lost (manual verdict "Save" on a narrow
+// viewport).
+async function openManualJudgment(page: Page) {
+  await page.setViewportSize({ width: 360, height: 780 });
+  await page.goto("/");
+  await page
+    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
+    .selectOption("en");
+  await page
+    .getByRole("textbox")
+    .fill(
+      "Aspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170",
+    );
+  await page
+    .getByRole("button", { name: "Check reference", exact: true })
+    .click();
+  const list = page.getByRole("grid", { name: "References", exact: true });
+  await expect(list).toContainText("Correct", { timeout: 15000 });
+  await list.getByRole("button").click();
+  const detail = page.getByRole("region", {
+    name: "Reference detail",
+    exact: true,
+  });
+  await detail
+    .getByRole("button", { name: "Confirm verdict", exact: true })
+    .click();
+  await expect(detail).toContainText("Manual verdict: Correct");
+  await detail
+    .getByRole("button", { name: "Judge manually", exact: true })
+    .click();
+  const group = detail.getByRole("radiogroup", {
+    name: "Manual verdict",
+    exact: true,
+  });
+  await expect(group).toBeVisible();
+  // The scenarios are only meaningful while the hidden diff labels are present.
+  await expect(detail.locator(".sr-only").first()).toBeAttached();
+  return { detail, group };
+}
+test("the scrolling reference detail does not extend the page's scroll range", async ({
+  page,
+}) => {
+  await openManualJudgment(page);
+  const range = () =>
+    page.evaluate(() => ({
+      document: document.documentElement.scrollHeight,
+      app: Math.ceil(
+        document.getElementById("root")!.getBoundingClientRect().bottom +
+          scrollY,
+      ),
+    }));
+  await expect
+    .poll(async () => (await range()).document)
+    .toBeLessThanOrEqual((await range()).app);
+});
+test("a layout change in the detail during a Save press does not lose the press", async ({
+  page,
+}) => {
+  const { detail, group } = await openManualJudgment(page);
+  await group.getByText("Not found", { exact: true }).click();
+  const save = detail.getByRole("button", {
+    name: "Save manual verdict",
+    exact: true,
+  });
+  await save.scrollIntoViewIfNeeded();
+  const box = (await save.boundingBox())!;
+  const scrollBefore = await page.evaluate(() => scrollY);
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  // Late content above the pressed control, as when suggestions render while
+  // the pointer is down.
+  await page.evaluate(() => {
+    const block = document.createElement("div");
+    block.style.height = "300px";
+    const detail = document.querySelector(".check-detail")!;
+    detail.insertBefore(block, detail.firstElementChild);
+  });
+  await page.mouse.up();
+  expect(await page.evaluate(() => scrollY)).toBe(scrollBefore);
+  await expect(detail).toContainText("Manual verdict: Not found");
+});
 test("a manual draft cannot silently move to a newer same-revision result", async ({
   page,
 }) => {
