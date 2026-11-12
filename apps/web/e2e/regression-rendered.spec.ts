@@ -291,7 +291,7 @@ for (const language of ["en", "de"] as const)
         expect(measured.count).toBeGreaterThan(5);
         expect(
           measured.min,
-          "counter text on the opaque strip",
+          `counter text on the opaque strip ${JSON.stringify(measured.worst)}`,
         ).toBeGreaterThanOrEqual(ratioFloor.text);
       }
       for (const glyph of await strip.locator("svg[data-verdict]").all()) {
