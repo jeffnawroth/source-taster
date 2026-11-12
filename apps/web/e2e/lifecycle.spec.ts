@@ -2,6 +2,7 @@
 import { CheckResponse } from "@source-taster/contract-verification";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { e2eClientLeaseMs } from "../../server/test/support/e2e-lease.ts";
 import { checkStatus } from "./check-status.ts";
 for (const language of ["en", "de"] as const) {
   test(`Cancel preserves a committed Verdict and one-action Reset clears the workspace in ${language}`, async ({
@@ -201,6 +202,50 @@ test("late stream frames after Reset cannot replace a newer Check", async ({
   await expect(checkStatus(page)).not.toContainText("Darwin");
   await expect(page.getByRole("alert")).toHaveCount(0);
 });
+// #220: under a loaded machine a lease renewal answered in about 0.8 s, and the
+// harness's 1.5 s lease (renewed every 500 ms) lapsed, so a running Check ended
+// Cancelled before any verdict. Each renewal here is held for 1.1 s, slower than
+// that, at the route seam: the lease the harness grants must outlast it.
+test("a Check keeps running while every lease renewal is answered slowly", async ({
+  page,
+}) => {
+  const slowMs = 1100;
+  let answered = 0;
+  let third!: () => void;
+  const enough = new Promise<void>((resolve) => {
+    third = resolve;
+  });
+  await page.route("**/v2/checks/*/lease", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, slowMs));
+    await route.continue();
+    if (++answered === 3) third();
+  });
+  await page.goto("/");
+  await page
+    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
+    .selectOption("en");
+  await page
+    .getByRole("textbox")
+    .fill("Doe, J. (2020). Held Reference. doi:10.5555/browser-held");
+  await page
+    .getByRole("button", { name: "Check reference", exact: true })
+    .click();
+  const lapsed = page
+    .getByText("The connection was not renewed in time", { exact: false })
+    .waitFor()
+    .then(
+      () => "lapsed",
+      () => "page closed",
+    );
+  expect(
+    await Promise.race([enough.then(() => "renewed three times"), lapsed]),
+    "the Check outlived three slowly answered renewals",
+  ).toBe("renewed three times");
+  await expect(
+    page.getByRole("button", { name: "Cancel check", exact: true }),
+  ).toBeVisible();
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+});
 test("an unconfirmed Cancel reports uncertainty and stops this workspace renewing the lease", async ({
   page,
 }) => {
@@ -223,5 +268,5 @@ test("an unconfirmed Cancel reports uncertainty and stops this workspace renewin
     page
       .getByRole("grid", { name: "References", exact: true })
       .getByText("Cancelled", { exact: true }),
-  ).toBeVisible({ timeout: 4000 });
+  ).toBeVisible({ timeout: e2eClientLeaseMs + 2500 });
 });

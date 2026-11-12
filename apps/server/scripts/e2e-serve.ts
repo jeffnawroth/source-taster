@@ -4,6 +4,7 @@ import { once } from "node:events";
 import { startBibliographicFixtures } from "../test/support/bibliographic-fixtures.ts";
 import { registerPreviewFixtures } from "../test/support/preview-fixtures.ts";
 import { startDoiFixtures } from "../test/support/doi-fixtures.ts";
+import { e2eClientLeaseMs } from "../test/support/e2e-lease.ts";
 import { startTestService } from "../test/support/service.ts";
 
 const fixtures = await startDoiFixtures();
@@ -23,7 +24,7 @@ const service = await startTestService(
     ...fixtures.env,
     ...bibliographic?.env,
     ...preview.env,
-    SOURCE_TASTER_CLIENT_LEASE_MS: "1500",
+    SOURCE_TASTER_CLIENT_LEASE_MS: String(e2eClientLeaseMs),
     // Test composition with a fake Quota, because the real report feature
     // grant belongs to the private service (see test/support/report-web.ts).
     ...(reports ? { TEST_REPORT_FEATURE: reports } : {}),
