@@ -41,6 +41,7 @@ export function useBibliography(
   const [response, setResponse] = useState<{
     key: string;
     contentKey: string;
+    exportKey: string;
     data: Bibliography;
   } | null>(null);
   const [attempt, retry] = useState(0);
@@ -57,6 +58,16 @@ export function useBibliography(
   const contentKey = `${check.id}:${style}:${results}`;
   const key = `${contentKey}:${applied.join(",")}:${attempt}`;
   const appliedKey = applied.join(",");
+  // What the panels and exports depend on: the applied set with each choice's
+  // result binding, the style and the retry attempt. Unlike `key`, it does not
+  // follow the opened Reference, so an earlier rendering with the same export
+  // key stays valid for them while another suggestion renders.
+  const exportKey = [
+    check.id,
+    style,
+    attempt,
+    ...selected.map((choice) => `${choice.slot}=${choice.binding}`),
+  ].join("|");
   useEffect(() => {
     let current = true;
     const applied = appliedKey ? appliedKey.split(",").map(Number) : [];
@@ -71,7 +82,7 @@ export function useBibliography(
     })
       .then((data) => {
         if (current) {
-          setResponse({ key, contentKey, data });
+          setResponse({ key, contentKey, exportKey, data });
           setError(null);
         }
       })
@@ -81,15 +92,27 @@ export function useBibliography(
     return () => {
       current = false;
     };
-  }, [request, check.id, style, appliedKey, selectedSlot, key, contentKey]);
-  const corrections = selected.filter(
-    (choice) =>
-      response?.contentKey === contentKey &&
-      response.data.entries.some(
-        (entry) =>
-          entry.slot === choice.slot &&
-          entry.resultToken === choice.resultToken,
-      ),
+  }, [
+    request,
+    check.id,
+    style,
+    appliedKey,
+    selectedSlot,
+    key,
+    contentKey,
+    exportKey,
+  ]);
+  // The rendering the corrections are read from: the one for the current
+  // result bindings, or one for exactly the current applied set.
+  const exportRendering =
+    response?.contentKey === contentKey || response?.exportKey === exportKey
+      ? response
+      : null;
+  const corrections = selected.filter((choice) =>
+    exportRendering?.data.entries.some(
+      (entry) =>
+        entry.slot === choice.slot && entry.resultToken === choice.resultToken,
+    ),
   );
   return {
     corrections: corrections.map(({ slot, resultToken }) => ({
@@ -111,13 +134,24 @@ export function useBibliography(
         : null,
     pending: response?.key !== key,
     /**
-     * The formatted bibliography's export follows the rendering only through
-     * the applied corrections. With none applied it waits on nothing, so
-     * opening a Reference does not reflow the panel above the detail.
+     * The suggestion text of each correction, read from the same rendering as
+     * `corrections`; the export panels list these.
      */
-    exportReady:
-      applied.length === 0 ||
-      (response?.key === key && response.contentKey === contentKey),
+    appliedSuggestions: (exportRendering?.data.entries ?? []).flatMap(
+      (entry) =>
+        entry.suggestion &&
+        corrections.some((choice) => choice.slot === entry.slot)
+          ? [{ slot: entry.slot, text: entry.suggestion.text }]
+          : [],
+    ),
+    /**
+     * The exports follow the rendering only through the applied corrections.
+     * With none applied they wait on nothing; otherwise they wait for a
+     * rendering of exactly the current applied set, which the opened Reference
+     * does not change. The panels above the detail therefore stay still while
+     * another suggestion renders.
+     */
+    exportReady: applied.length === 0 || response?.exportKey === exportKey,
     failed: error === key,
     retry: () => retry((value) => value + 1),
     renderExport: async () => {
@@ -222,18 +256,16 @@ export function BibliographyActions({
       <h4 className="font-semibold">{m.correction_selected_heading()}</h4>
       {!rendered.exportReady ? (
         <p>{m.correction_loading()}</p>
-      ) : rendered.data?.entries.some((entry) => entry.applied) ? (
+      ) : rendered.appliedSuggestions.length ? (
         <ul className="list-disc space-y-2 pl-5">
-          {rendered.data.entries
-            .filter((entry) => entry.applied)
-            .map((entry) => (
-              <li key={entry.slot} className="break-words">
-                {m.correction_selected_item({
-                  slot: String(entry.slot),
-                  text: entry.suggestion!.text,
-                })}
-              </li>
-            ))}
+          {rendered.appliedSuggestions.map((entry) => (
+            <li key={entry.slot} className="break-words">
+              {m.correction_selected_item({
+                slot: String(entry.slot),
+                text: entry.text,
+              })}
+            </li>
+          ))}
         </ul>
       ) : (
         <p>{m.correction_none_selected()}</p>

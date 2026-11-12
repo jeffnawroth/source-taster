@@ -130,9 +130,9 @@ export function ReferenceExports({
               {m.correction_selected_item({
                 slot: String(choice.slot),
                 text:
-                  rendered.data?.entries.find(
+                  rendered.appliedSuggestions.find(
                     (entry) => entry.slot === choice.slot,
-                  )?.suggestion?.text ?? "",
+                  )?.text ?? "",
               })}
             </li>
           ))}
@@ -146,7 +146,7 @@ export function ReferenceExports({
         disabled={
           pending ||
           (mode === "selected-corrections" &&
-            (rendered.pending || rendered.failed))
+            (!rendered.exportReady || rendered.failed))
         }
         onClick={() => {
           void download();
