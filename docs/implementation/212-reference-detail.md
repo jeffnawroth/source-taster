@@ -424,8 +424,54 @@ open as a possible lost row click on Linux.
 on the fix, and also in 2 of 15 repeats on the pristine product: the existing
 flake below, not caused by this change.
 
+## Back press lost: the bibliography panel reflows above the detail (#220)
+
+The #220 CI rerun on `734c0a9` failed "narrow Back restores the filter and focus
+after opening a filtered Reference": after Back, the grid had 0 rows. The trace
+shows the press landing on Back (`[active]`) and the detail staying open. Two
+screencast frames on either side of the press show the "Formatted bibliography"
+panel, which sits above the detail at 360 px, switching from "Formatting…" to
+"No corrections selected…". Back moved up by about 22 px between press and
+release.
+
+**Cause.** The panel was pending whenever the shared suggestion rendering was
+pending, and that rendering reruns when the selected Reference or its result
+changes. While pending it showed "Formatting…" and disabled Copy and Download.
+Since `058a0d1` the disabled buttons also show their reason under each button.
+When the rendering settled, the panel changed height under the pointer. The
+window's scroll anchor sat in the panel, above the change, so the browser did
+not compensate. Before `058a0d1` the panel also reflowed (one line becoming
+two), but by a smaller amount and in the other direction.
+
+**Fix.** The formatted bibliography export depends on the rendering only through
+the applied corrections. `useBibliography` exposes `exportReady`: true when no
+correction is applied, otherwise the previous condition (current rendering
+loaded and not pending). With nothing applied, the panel shows "No corrections
+selected" at once and Copy and Download stay enabled. The export still sends
+`corrections`, which is empty in that case. With corrections applied, the panel
+still waits for the rendering, so opening a Reference can still reflow it.
+
+**Evidence.** The new test "narrow Back stays under the pointer while the opened
+Reference's suggestion loads" holds the suggestion response opened by a
+Reference. It places Back low in the viewport, with the panel showing above it,
+as a click finds it. It then presses, releases the held response, and checks
+that Back's centre has not moved before releasing the press.
+
+- Pristine product: 3 of 3 red (moved 21.5 px).
+- Fix: 10 of 10 green with `--repeat-each 5`, together with the existing narrow
+  Back test.
+
+The Save test in `manual-overrides.spec.ts` now compares Save's centre instead
+of its whole box. On Linux the press motion scaled the button around an
+unchanged centre, and the whole-box comparison failed on that.
+
 ## Open
 
+- With a correction applied, opening another Reference still reflows the
+  formatted bibliography panel while the suggestion renders (see "Back press
+  lost" above). The Linux flake "compares Reference and server Best match side
+  by side at narrow zoom in de" also clicks a narrow feed row below that panel
+  and may share this cause. This was not verified.
 - Before the review follow-up, one native `manual-overrides` (EN) run failed
   once: the Manual verdict combobox (now a RadioGroup) never appeared after
   "Judge manually". It did not recur in the follow-up's runs. The UI code was identical to

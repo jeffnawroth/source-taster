@@ -110,6 +110,14 @@ export function useBibliography(
           }
         : null,
     pending: response?.key !== key,
+    /**
+     * The formatted bibliography's export follows the rendering only through
+     * the applied corrections. With none applied it waits on nothing, so
+     * opening a Reference does not reflow the panel above the detail.
+     */
+    exportReady:
+      applied.length === 0 ||
+      (response?.key === key && response.contentKey === contentKey),
     failed: error === key,
     retry: () => retry((value) => value + 1),
     renderExport: async () => {
@@ -200,7 +208,7 @@ export function BibliographyActions({
   }
   // The export is rendered once the selected suggestions have been formatted.
   const exportAvailability =
-    !rendered.data || rendered.pending || exporting
+    !rendered.exportReady || exporting
       ? { isDisabled: true as const, disabledReason: m.correction_loading() }
       : { isDisabled: false as const };
   return (
@@ -212,7 +220,7 @@ export function BibliographyActions({
       <p>{m.correction_export_hint()}</p>
       <p>{m.bibliography_format_style({ style: styleLabel })}</p>
       <h4 className="font-semibold">{m.correction_selected_heading()}</h4>
-      {rendered.pending ? (
+      {!rendered.exportReady ? (
         <p>{m.correction_loading()}</p>
       ) : rendered.data?.entries.some((entry) => entry.applied) ? (
         <ul className="list-disc space-y-2 pl-5">

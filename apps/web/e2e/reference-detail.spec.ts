@@ -306,6 +306,101 @@ test("narrow Back restores the filter and focus after opening a filtered Referen
   await expect(grid.getByRole("row")).toBeFocused();
 });
 
+// On a narrow viewport the bibliography panel sits above the detail. Opening a
+// Reference renders its suggestion; with no correction selected the panel does
+// not depend on that rendering, so it must not change height and move Back
+// from under a press.
+test("narrow Back stays under the pointer while the opened Reference's suggestion loads", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 780 });
+  let release!: () => void;
+  let arrived!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const entered = new Promise<void>((resolve) => {
+    arrived = resolve;
+  });
+  let holding = false;
+  await page.route("**/bibliography", async (route) => {
+    const response = await route.fetch();
+    if (holding) {
+      holding = false;
+      arrived();
+      await gate;
+    }
+    await route.fulfill({ response });
+  });
+  // A single Reference opens its detail on its own; three keep the list.
+  const { grid, detail } = await start(
+    page,
+    `${correct}\n${unchecked}\n${deviating}`,
+  );
+  const summary = page.getByRole("region", { name: "Check summary" });
+  for (const name of ["Correct: 1", "Exists, with deviations: 1"])
+    await expect(
+      summary.getByRole("button", { name, exact: true }),
+    ).toBeVisible({ timeout: 15000 });
+  const panel = page.getByRole("region", {
+    name: "Formatted bibliography",
+    exact: true,
+  });
+  await expect(panel).toContainText(
+    "No corrections selected. The export uses the current fields.",
+  );
+  // Opening another Reference renders that Reference's suggestion.
+  holding = true;
+  const open = grid.getByRole("button", { name: /^Open reference 3:/u });
+  await open.click();
+  await expect(detail).toContainText(deviating);
+  await entered;
+  const back = page.getByRole("button", {
+    name: "Back to references",
+    exact: true,
+  });
+  // As a click lands when Back is already in view: the panel above shows
+  // through the top of the viewport and Back sits low.
+  await page.evaluate(() => {
+    const top = [...document.querySelectorAll("button")]
+      .find((b) => b.textContent?.trim() === "Back to references")!
+      .getBoundingClientRect().top;
+    scrollBy(0, top - (innerHeight - 220));
+  });
+  await expect(panel).toBeInViewport();
+  const before = (await back.boundingBox())!;
+  const centre = {
+    x: before.x + before.width / 2,
+    y: before.y + before.height / 2,
+  };
+  await page.mouse.move(centre.x, centre.y);
+  await page.mouse.down();
+  const delivered = page.waitForResponse((response) =>
+    /\/bibliography$/u.test(response.url()),
+  );
+  release();
+  await delivered;
+  await page.evaluate(
+    () =>
+      new Promise((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(resolve)),
+      ),
+  );
+  const pressed = (await back.boundingBox())!;
+  expect(
+    Math.abs(pressed.y + pressed.height / 2 - centre.y),
+    "Back did not move under the pointer",
+  ).toBeLessThanOrEqual(1);
+  await page.mouse.up();
+  await expect(grid).toBeVisible();
+  await expect(
+    grid.getByRole("row").filter({
+      has: page.getByRole("button", { name: /^Open reference 3:/u }),
+    }),
+  ).toBeFocused();
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+});
+
 test("an unsaved draft survives selecting another Reference, keyboard selection, a filter change and Escape", async ({
   page,
 }) => {
