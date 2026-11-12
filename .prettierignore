@@ -32,3 +32,6 @@ packages/core/src/data/nlm-journals.json
 # compare the regenerated records with these committed files.
 packages/brand/exports/manifest.json
 packages/brand/masters/gamut-mapping.json
+
+# Written by `pnpm --filter @source-taster/release-imagery imagery:capture -- --final`.
+packages/release-imagery/exports/manifest.json
