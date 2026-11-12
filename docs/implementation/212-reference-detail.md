@@ -519,10 +519,11 @@ for, so another rendering cannot take its place.
 - `reference-detail`, `corrections`, `revision-save-only`, `manual-overrides`,
   `workspace`, `exports` and `imports` in chromium: 55 of 55 pass.
 
-Not changed: `failed` still follows the opened Reference's rendering. If that
-rendering fails, the formatted bibliography panel shows its alert and Retry, and
-the "Export references" Download button is disabled in "With selected correction
-suggestions" mode, although `exportReady` and `corrections` are valid.
+`failed` still follows the opened Reference's rendering: if that rendering
+fails, the formatted bibliography panel shows its alert and Retry, which is true
+of the opened suggestion. The "Export references" Download in "With selected
+correction suggestions" mode no longer depends on it; it waits only on
+`exportReady`, because the corrections it sends are read for the applied set.
 
 The Linux flake "compares Reference and server Best match side by side at narrow
 zoom in de" clicks a narrow feed row below these panels and may share this

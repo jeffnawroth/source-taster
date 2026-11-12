@@ -145,8 +145,9 @@ export function ReferenceExports({
         className="rounded-lg border border-border-emphasis px-4 py-2 font-semibold disabled:bg-surface-sunken disabled:text-text-secondary"
         disabled={
           pending ||
-          (mode === "selected-corrections" &&
-            (!rendered.exportReady || rendered.failed))
+          // A failed rendering of the opened Reference does not invalidate the
+          // corrections read for the applied set; only their readiness counts.
+          (mode === "selected-corrections" && !rendered.exportReady)
         }
         onClick={() => {
           void download();
