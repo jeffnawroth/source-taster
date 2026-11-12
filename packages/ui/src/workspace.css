@@ -568,6 +568,12 @@ html:has(.check-workspace) {
   top: calc(var(--checking-topbar-height, 56px) + 16px);
 }
 .check-detail {
+  /* The detail scrolls, so it must also be the containing block of its
+     absolutely positioned descendants (the visually hidden diff labels).
+     Otherwise they escape the clip and add phantom overflow to the page,
+     whose scroll range then shifts as the detail lays out and scrolls and
+     swallows presses on narrow viewports. */
+  position: relative;
   max-height: calc(
     100dvh - var(--checking-topbar-height, 56px) -
       var(--checking-strip-height, 64px) - 48px
