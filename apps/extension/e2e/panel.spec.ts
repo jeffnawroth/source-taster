@@ -174,7 +174,7 @@ test("native panel renders a Correction suggestion and keeps export choices loca
         "function () { return this.textContent; }",
       ),
     ).toContain("Deleted: (2008).Inserted: (2009).");
-    await panel.click("checkbox", "Apply for export only");
+    await panel.clickChoice("checkbox", "Apply for export only");
     expect(
       await panel.call<boolean>(
         await panel.find("checkbox", "Apply for export only"),
@@ -236,7 +236,7 @@ test("native panel downloads both citation formats with export-only corrections"
         scores: [],
       });
       await panel.find("checkbox", "Apply for export only");
-      await panel.click("checkbox", "Apply for export only");
+      await panel.clickChoice("checkbox", "Apply for export only");
       await panel.select("combobox", "Export content", "selected-corrections");
       for (const [index, format] of ["csl-json", "bibtex"].entries()) {
         await panel.select("combobox", "Export format", format);
@@ -349,7 +349,7 @@ for (const language of ["en", "de"] as const)
               ? "Apply for export only"
               : "Nur für den Export übernehmen",
           );
-          await panel.click(
+          await panel.clickChoice(
             "checkbox",
             language === "en"
               ? "Apply for export only"

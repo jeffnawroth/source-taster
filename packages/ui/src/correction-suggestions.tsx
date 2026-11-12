@@ -9,12 +9,18 @@ import { bibliographyClient } from "@source-taster/contract-verification/bibliog
 import type { VerificationClientOptions } from "@source-taster/contract-verification/client-v2";
 import { m } from "@source-taster/i18n";
 import { Button } from "./primitives/actions.tsx";
+import { Checkbox } from "./primitives/selection.tsx";
+import { resultBinding } from "./reference-work.ts";
 import type { CitationStyle } from "./preferences.ts";
 const buttonClass =
   "rounded-lg border border-border-emphasis px-4 py-2 font-semibold disabled:bg-surface-sunken disabled:text-text-secondary";
-/** Outcome equality is not result identity: repeated runs may return identical data. */
-export function referenceBinding(checkId: string, reference: ReferenceSlot) {
-  return `${checkId}:${reference.slot}:${reference.revision}:${reference.results[0]?.id ?? "none"}:${JSON.stringify(reference.outcome)}`;
+/**
+ * What an export choice and its rendering are bound to: the same inputs as the
+ * server's result token (result id and outcome). Outcome equality alone is not
+ * result identity, as a re-check may return identical data under a new result.
+ */
+function exportBinding(checkId: string, reference: ReferenceSlot) {
+  return `${resultBinding(checkId, reference)}:${JSON.stringify(reference.outcome)}`;
 }
 export function useBibliography(
   check: Check,
@@ -30,7 +36,7 @@ export function useBibliography(
     check.references.some(
       (reference) =>
         reference.slot === choice.slot &&
-        referenceBinding(check.id, reference) === choice.binding,
+        exportBinding(check.id, reference) === choice.binding,
     ),
   );
   const applied = selected.map((choice) => choice.slot);
@@ -48,7 +54,7 @@ export function useBibliography(
   // terminal slots and source progress never regenerate the whole Check.
   const results = check.references
     .filter((reference) => slots.includes(reference.slot))
-    .map((reference) => referenceBinding(check.id, reference))
+    .map((reference) => exportBinding(check.id, reference))
     .join(",");
   const contentKey = `${check.id}:${style}:${results}`;
   const key = `${contentKey}:${applied.join(",")}:${attempt}`;
@@ -134,7 +140,7 @@ export function useBibliography(
               {
                 slot,
                 resultToken: entry.resultToken,
-                binding: referenceBinding(check.id, reference),
+                binding: exportBinding(check.id, reference),
               },
             ]
           : []),
@@ -311,23 +317,26 @@ export function CorrectionSuggestion({
   rendered,
   originalText,
   onApply,
-  unavailable,
+  unavailableReason,
+  busy,
 }: {
   slot: number;
   rendered: Rendered;
   originalText: string;
   onApply: () => void;
   /** Why Apply to fields cannot run now; null when it can. */
-  unavailable: string | null;
+  unavailableReason: string | null;
+  /** A save, re-check or verdict change runs, so there is no current result. */
+  busy: boolean;
 }) {
   const [notice, setNotice] = useState<"copied" | "failed" | null>(null);
   const entry = rendered.data?.entries.find((entry) => entry.slot === slot);
   if (!entry?.suggestion)
     return (
       <p className="my-4">
-        {rendered.data
-          ? m.correction_fields_unavailable()
-          : (unavailable ?? m.correction_loading())}
+        {rendered.data && !busy
+          ? m.correction_none_current()
+          : (unavailableReason ?? m.correction_loading())}
       </p>
     );
   const suggestion = entry.suggestion;
@@ -358,16 +367,15 @@ export function CorrectionSuggestion({
         <Button
           variant="secondary"
           onPress={onApply}
-          {...(unavailable
-            ? { isDisabled: true, disabledReason: unavailable }
+          {...(unavailableReason
+            ? { isDisabled: true, disabledReason: unavailableReason }
             : { isDisabled: false })}
         >
           {m.correction_fields_apply()}
         </Button>
-        <button
-          type="button"
-          className={buttonClass}
-          onClick={() => {
+        <Button
+          variant="ghost"
+          onPress={() => {
             void navigator.clipboard
               .writeText(suggestion.text)
               .then(() => setNotice("copied"))
@@ -375,15 +383,13 @@ export function CorrectionSuggestion({
           }}
         >
           {m.correction_copy()}
-        </button>
-        <label className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            checked={entry.applied}
-            onChange={(event) => rendered.apply(slot, event.target.checked)}
-          />
+        </Button>
+        <Checkbox
+          isSelected={entry.applied}
+          onChange={(selected) => rendered.apply(slot, selected)}
+        >
           {m.correction_apply()}
-        </label>
+        </Checkbox>
       </div>
       {notice && (
         <p role="status">

@@ -1,0 +1,424 @@
+{
+  "status": "final",
+  "releaseQualified": false,
+  "fixtureSha256": "ef7ba8f99a16418cdd5051b456bb7687728dbb8ee3007e6a1d3ded3d7c3e0eb3",
+  "commit": "f895aac",
+  "gate": {
+    "ok": true,
+    "reason": "b588c9c is an ancestor of HEAD"
+  },
+  "captures": [
+    {
+      "file": "captures/en-workspace.png",
+      "sha256": "00b49f39ce00f24168a760dc9917ccf64856f7be0c22419e2c02e48c3043ce89",
+      "language": "en",
+      "story": "workspace",
+      "devPreviewNoticeInViewport": true,
+      "verdictsRead": []
+    },
+    {
+      "file": "captures/en-overview.png",
+      "sha256": "98d986c740ffc800ac9edb9944b408f4f5cd4292d35fff627b4676ff97ce1e9c",
+      "language": "en",
+      "story": "overview",
+      "devPreviewNoticeInViewport": false,
+      "verdictsRead": [
+        "Correct",
+        "Exists, with deviations",
+        "DOI conflict"
+      ]
+    },
+    {
+      "file": "captures/en-evidence.png",
+      "sha256": "15d3a2fa257df9760041c897e114fa32890f9528092ca8726804e6b9a70d0ca1",
+      "language": "en",
+      "story": "evidence",
+      "devPreviewNoticeInViewport": false,
+      "verdictsRead": [
+        "Correct",
+        "Exists, with deviations",
+        "DOI conflict"
+      ]
+    },
+    {
+      "file": "captures/de-workspace.png",
+      "sha256": "51912954da029e749fbd5bbb4d468d37a1f3e515054de6d936907a1a99165d20",
+      "language": "de",
+      "story": "workspace",
+      "devPreviewNoticeInViewport": true,
+      "verdictsRead": []
+    },
+    {
+      "file": "captures/de-overview.png",
+      "sha256": "86cc81b0b908ef15fd435e8cfe97b0bd67c015d25e5490214f3103d74bea9ab0",
+      "language": "de",
+      "story": "overview",
+      "devPreviewNoticeInViewport": false,
+      "verdictsRead": [
+        "Korrekt",
+        "Existiert, mit Abweichungen",
+        "DOI-Konflikt"
+      ]
+    },
+    {
+      "file": "captures/de-evidence.png",
+      "sha256": "ba9415ef808340a0decc0b59aea598abf3eea4b0660f9f5aaa443e66f7a7158e",
+      "language": "de",
+      "story": "evidence",
+      "devPreviewNoticeInViewport": false,
+      "verdictsRead": [
+        "Korrekt",
+        "Existiert, mit Abweichungen",
+        "DOI-Konflikt"
+      ]
+    }
+  ],
+  "images": [
+    {
+      "file": "cws-en-1-workspace.png",
+      "role": "store-cws",
+      "width": 1280,
+      "height": 800,
+      "format": "png",
+      "sha256": "7a5dd0eb92d74c474b6d039299de3273a7eec6f27ba9df8b82af4158095f5185",
+      "claims": [
+        "side-panel",
+        "verdict-per-reference",
+        "german-and-english"
+      ],
+      "alt": {
+        "en": "A capture of the Source Taster side panel with three pasted References in the input field and the Check reference button below.",
+        "de": "Eine Aufnahme des Source-Taster-Seitenbereichs mit drei eingefügten Referenzen im Eingabefeld und der Schaltfläche Referenz prüfen darunter."
+      },
+      "sources": {
+        "captures": [
+          "captures/en-workspace.png"
+        ],
+        "compose": "scripts/compose.ts"
+      }
+    },
+    {
+      "file": "cws-en-2-overview.png",
+      "role": "store-cws",
+      "width": 1280,
+      "height": 800,
+      "format": "png",
+      "sha256": "42d7fd4e434c2fc4e4dfc15ae37833b0785f529715085dd6db0068f465892429",
+      "claims": [
+        "verdict-per-reference",
+        "summary-counts",
+        "doi-conflict"
+      ],
+      "alt": {
+        "en": "The Source Taster summary with one count for each Verdict, above a list of three References. They carry the Verdicts Correct, Exists, with deviations and DOI conflict, each with a symbol and a label.",
+        "de": "Die Source-Taster-Übersicht mit je einer Zahl pro Befund über einer Liste aus drei Referenzen. Sie tragen die Befunde Korrekt, Existiert, mit Abweichungen und DOI-Konflikt, jeweils mit Symbol und Beschriftung."
+      },
+      "sources": {
+        "captures": [
+          "captures/en-overview.png"
+        ],
+        "compose": "scripts/compose.ts"
+      }
+    },
+    {
+      "file": "cws-en-3-evidence.png",
+      "role": "store-cws",
+      "width": 1280,
+      "height": 800,
+      "format": "png",
+      "sha256": "408c8c983c8758e6fd1be71da92bc4110a5f7ad20b9cc6ee2c540db509377533",
+      "claims": [
+        "detail-leads-with-verdict",
+        "best-match-comparison"
+      ],
+      "alt": {
+        "en": "The detail of one Reference. It starts with the Verdict Exists, with deviations, shows the Original text and the Best match, and begins the comparison of the Reference with the Best match.",
+        "de": "Die Detailansicht einer Referenz. Sie beginnt mit dem Befund Existiert, mit Abweichungen, zeigt den Originaltext und den besten Treffer und beginnt den Vergleich der Referenz mit dem besten Treffer."
+      },
+      "sources": {
+        "captures": [
+          "captures/en-evidence.png"
+        ],
+        "compose": "scripts/compose.ts"
+      }
+    },
+    {
+      "file": "cws-de-1-workspace.png",
+      "role": "store-cws",
+      "width": 1280,
+      "height": 800,
+      "format": "png",
+      "sha256": "06e840fa840ffe05b558b22e759361da5e2d1b36812ac889a51e07bbb7dc93ae",
+      "claims": [
+        "side-panel",
+        "verdict-per-reference",
+        "german-and-english"
+      ],
+      "alt": {
+        "en": "A capture of the Source Taster side panel with three pasted References in the input field and the Check reference button below.",
+        "de": "Eine Aufnahme des Source-Taster-Seitenbereichs mit drei eingefügten Referenzen im Eingabefeld und der Schaltfläche Referenz prüfen darunter."
+      },
+      "sources": {
+        "captures": [
+          "captures/de-workspace.png"
+        ],
+        "compose": "scripts/compose.ts"
+      }
+    },
+    {
+      "file": "cws-de-2-overview.png",
+      "role": "store-cws",
+      "width": 1280,
+      "height": 800,
+      "format": "png",
+      "sha256": "1e21b20cefdc1a9d8becd5a51b4df2cb6918a4c26804d1331af0660e16ffc98b",
+      "claims": [
+        "verdict-per-reference",
+        "summary-counts",
+        "doi-conflict"
+      ],
+      "alt": {
+        "en": "The Source Taster summary with one count for each Verdict, above a list of three References. They carry the Verdicts Correct, Exists, with deviations and DOI conflict, each with a symbol and a label.",
+        "de": "Die Source-Taster-Übersicht mit je einer Zahl pro Befund über einer Liste aus drei Referenzen. Sie tragen die Befunde Korrekt, Existiert, mit Abweichungen und DOI-Konflikt, jeweils mit Symbol und Beschriftung."
+      },
+      "sources": {
+        "captures": [
+          "captures/de-overview.png"
+        ],
+        "compose": "scripts/compose.ts"
+      }
+    },
+    {
+      "file": "cws-de-3-evidence.png",
+      "role": "store-cws",
+      "width": 1280,
+      "height": 800,
+      "format": "png",
+      "sha256": "1bd90bf9142dc208d23235921e815212fe9d1480f6dcdf92cf992373d2c44c58",
+      "claims": [
+        "detail-leads-with-verdict",
+        "best-match-comparison"
+      ],
+      "alt": {
+        "en": "The detail of one Reference. It starts with the Verdict Exists, with deviations, shows the Original text and the Best match, and begins the comparison of the Reference with the Best match.",
+        "de": "Die Detailansicht einer Referenz. Sie beginnt mit dem Befund Existiert, mit Abweichungen, zeigt den Originaltext und den besten Treffer und beginnt den Vergleich der Referenz mit dem besten Treffer."
+      },
+      "sources": {
+        "captures": [
+          "captures/de-evidence.png"
+        ],
+        "compose": "scripts/compose.ts"
+      }
+    },
+    {
+      "file": "amo-en-1-workspace.png",
+      "role": "store-amo",
+      "width": 1280,
+      "height": 960,
+      "format": "png",
+      "sha256": "02cf420899716fa347cc9afa5142f319ef5f82b70bc4a3d16af24b8e2d4a837b",
+      "claims": [
+        "side-panel",
+        "verdict-per-reference",
+        "german-and-english"
+      ],
+      "alt": {
+        "en": "A capture of the Source Taster side panel with three pasted References in the input field and the Check reference button below.",
+        "de": "Eine Aufnahme des Source-Taster-Seitenbereichs mit drei eingefügten Referenzen im Eingabefeld und der Schaltfläche Referenz prüfen darunter."
+      },
+      "sources": {
+        "captures": [
+          "captures/en-workspace.png"
+        ],
+        "compose": "scripts/compose.ts"
+      }
+    },
+    {
+      "file": "amo-en-2-overview.png",
+      "role": "store-amo",
+      "width": 1280,
+      "height": 960,
+      "format": "png",
+      "sha256": "1376fe8f78dd85d9b40d0173ee4f6f7b414d42ca97c2d365b28037dcf3c94e48",
+      "claims": [
+        "verdict-per-reference",
+        "summary-counts",
+        "doi-conflict"
+      ],
+      "alt": {
+        "en": "The Source Taster summary with one count for each Verdict, above a list of three References. They carry the Verdicts Correct, Exists, with deviations and DOI conflict, each with a symbol and a label.",
+        "de": "Die Source-Taster-Übersicht mit je einer Zahl pro Befund über einer Liste aus drei Referenzen. Sie tragen die Befunde Korrekt, Existiert, mit Abweichungen und DOI-Konflikt, jeweils mit Symbol und Beschriftung."
+      },
+      "sources": {
+        "captures": [
+          "captures/en-overview.png"
+        ],
+        "compose": "scripts/compose.ts"
+      }
+    },
+    {
+      "file": "amo-en-3-evidence.png",
+      "role": "store-amo",
+      "width": 1280,
+      "height": 960,
+      "format": "png",
+      "sha256": "89bf097587e335bfa447720c86c2fe660ae8720a1a1a8b20a6ae55f3bad433e8",
+      "claims": [
+        "detail-leads-with-verdict",
+        "best-match-comparison"
+      ],
+      "alt": {
+        "en": "The detail of one Reference. It starts with the Verdict Exists, with deviations, shows the Original text and the Best match, and begins the comparison of the Reference with the Best match.",
+        "de": "Die Detailansicht einer Referenz. Sie beginnt mit dem Befund Existiert, mit Abweichungen, zeigt den Originaltext und den besten Treffer und beginnt den Vergleich der Referenz mit dem besten Treffer."
+      },
+      "sources": {
+        "captures": [
+          "captures/en-evidence.png"
+        ],
+        "compose": "scripts/compose.ts"
+      }
+    },
+    {
+      "file": "amo-de-1-workspace.png",
+      "role": "store-amo",
+      "width": 1280,
+      "height": 960,
+      "format": "png",
+      "sha256": "5e4c85e206404f836f073782e96f476abdc7f97fea3e24a1939e992762db692c",
+      "claims": [
+        "side-panel",
+        "verdict-per-reference",
+        "german-and-english"
+      ],
+      "alt": {
+        "en": "A capture of the Source Taster side panel with three pasted References in the input field and the Check reference button below.",
+        "de": "Eine Aufnahme des Source-Taster-Seitenbereichs mit drei eingefügten Referenzen im Eingabefeld und der Schaltfläche Referenz prüfen darunter."
+      },
+      "sources": {
+        "captures": [
+          "captures/de-workspace.png"
+        ],
+        "compose": "scripts/compose.ts"
+      }
+    },
+    {
+      "file": "amo-de-2-overview.png",
+      "role": "store-amo",
+      "width": 1280,
+      "height": 960,
+      "format": "png",
+      "sha256": "f573ae48a71cd9d8dfbdcf4f81f8bdaaca5198dc1b044d620c2c5b37fa17d869",
+      "claims": [
+        "verdict-per-reference",
+        "summary-counts",
+        "doi-conflict"
+      ],
+      "alt": {
+        "en": "The Source Taster summary with one count for each Verdict, above a list of three References. They carry the Verdicts Correct, Exists, with deviations and DOI conflict, each with a symbol and a label.",
+        "de": "Die Source-Taster-Übersicht mit je einer Zahl pro Befund über einer Liste aus drei Referenzen. Sie tragen die Befunde Korrekt, Existiert, mit Abweichungen und DOI-Konflikt, jeweils mit Symbol und Beschriftung."
+      },
+      "sources": {
+        "captures": [
+          "captures/de-overview.png"
+        ],
+        "compose": "scripts/compose.ts"
+      }
+    },
+    {
+      "file": "amo-de-3-evidence.png",
+      "role": "store-amo",
+      "width": 1280,
+      "height": 960,
+      "format": "png",
+      "sha256": "4d35c82869414b1b03f459903e00c60de3b7ce1ddd2a798256d9d6139ccbb0df",
+      "claims": [
+        "detail-leads-with-verdict",
+        "best-match-comparison"
+      ],
+      "alt": {
+        "en": "The detail of one Reference. It starts with the Verdict Exists, with deviations, shows the Original text and the Best match, and begins the comparison of the Reference with the Best match.",
+        "de": "Die Detailansicht einer Referenz. Sie beginnt mit dem Befund Existiert, mit Abweichungen, zeigt den Originaltext und den besten Treffer und beginnt den Vergleich der Referenz mit dem besten Treffer."
+      },
+      "sources": {
+        "captures": [
+          "captures/de-evidence.png"
+        ],
+        "compose": "scripts/compose.ts"
+      }
+    },
+    {
+      "file": "promo-small-440x280.png",
+      "role": "promo-small",
+      "width": 440,
+      "height": 280,
+      "format": "png",
+      "sha256": "133610334d4f1ed1e4f226211cd6bd2717d0585257779a408a7a701b6bcad7b9",
+      "claims": [],
+      "alt": {
+        "en": "The Source Taster mark, two overlapping drops, next to the product name on a plain light background.",
+        "de": "Das Source-Taster-Zeichen, zwei sich überlagernde Tropfen, neben dem Produktnamen auf schlichtem hellem Grund."
+      },
+      "sources": {
+        "captures": [],
+        "compose": "scripts/compose.ts"
+      }
+    },
+    {
+      "file": "promo-marquee-1400x560.png",
+      "role": "promo-marquee",
+      "width": 1400,
+      "height": 560,
+      "format": "png",
+      "sha256": "ec12f340f4b280318158c2d9bd1c96b4bd01bd1cdecba6aec557ec592cc8e26a",
+      "claims": [],
+      "alt": {
+        "en": "The Source Taster mark, two overlapping drops, next to the product name on a plain light background.",
+        "de": "Das Source-Taster-Zeichen, zwei sich überlagernde Tropfen, neben dem Produktnamen auf schlichtem hellem Grund."
+      },
+      "sources": {
+        "captures": [],
+        "compose": "scripts/compose.ts"
+      }
+    },
+    {
+      "file": "social-en-1200x630.png",
+      "role": "social",
+      "width": 1200,
+      "height": 630,
+      "format": "png",
+      "sha256": "8097a9516ea09caa0ec36fa9cfecd779f4a9ab51f8e360de32f5e6ab03a92f98",
+      "claims": [
+        "verdict-per-reference",
+        "detail-leads-with-verdict"
+      ],
+      "alt": {
+        "en": "Source Taster. Check References against sources. Source Taster compares each Reference with public sources and shows the evidence. The decision stays with you.",
+        "de": "Source Taster. Referenzen mit Quellen abgleichen. Source Taster gleicht jede Referenz mit öffentlichen Quellen ab und zeigt die Belege. Entscheiden Sie selbst."
+      },
+      "sources": {
+        "captures": [],
+        "compose": "scripts/compose.ts"
+      }
+    },
+    {
+      "file": "social-de-1200x630.png",
+      "role": "social",
+      "width": 1200,
+      "height": 630,
+      "format": "png",
+      "sha256": "2a165a671a3472dcd11cf0f508df214d80f00b24fa33b9a1104650ae38ccbc19",
+      "claims": [
+        "verdict-per-reference",
+        "detail-leads-with-verdict"
+      ],
+      "alt": {
+        "en": "Source Taster. Check References against sources. Source Taster compares each Reference with public sources and shows the evidence. The decision stays with you.",
+        "de": "Source Taster. Referenzen mit Quellen abgleichen. Source Taster gleicht jede Referenz mit öffentlichen Quellen ab und zeigt die Belege. Entscheiden Sie selbst."
+      },
+      "sources": {
+        "captures": [],
+        "compose": "scripts/compose.ts"
+      }
+    }
+  ]
+}

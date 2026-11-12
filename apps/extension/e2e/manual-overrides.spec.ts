@@ -47,11 +47,7 @@ for (const language of ["en", "de"] as const) {
         en ? "Manual verdict: Correct" : "Manueller Befund: Korrekt",
       );
       await panel.click("button", en ? "Judge manually" : "Manuell beurteilen");
-      await panel.select(
-        "combobox",
-        en ? "Manual verdict" : "Manueller Befund",
-        "not-found",
-      );
+      await panel.clickChoice("radio", en ? "Not found" : "Nicht gefunden");
       await panel.click(
         "button",
         en ? "Save manual verdict" : "Manuellen Befund speichern",

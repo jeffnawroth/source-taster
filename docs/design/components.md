@@ -311,7 +311,7 @@ All fields share one anatomy through **Form, Label, Description and FieldError**
 
 **DetailPane** (web, push drawer) and **DetailView** (360 px, full view) show the same content in the same order (ADR-0016):
 
-1. **VerdictHeader** — VerdictGlyph (24) + label as heading, the plain-language reason, ManualTag if set. Opaque (no tint). The **Pager** (previous / next Reference IconButtons with „3 von 10“) sits at its end; it follows the active filter. In DetailPane the header is `glass` and sticky; in DetailView a Back Button precedes it.
+1. **VerdictHeader** — VerdictGlyph (24) + label as heading, the plain-language reason, ManualTag if set. Opaque (no tint). In DetailPane the header is `glass` and sticky; in DetailView a Back Button precedes it.
 2. **OriginalInput** — the immutable original Reference, mono, `surface-sunken`, wraps; labelled as the original.
 3. **ComparisonTable** — Table of field, Reference value and Best match value side by side. A deviating row marks both values with ≠ and names them; an absent or unknown value is shown as such, never as agreement. Below 560 px each field becomes a stacked pair, still side by side in reading order.
 4. **SourceList** — the Sources searched and Candidates found, each with its Data source in mono and a Link.

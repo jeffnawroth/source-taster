@@ -500,6 +500,18 @@ importers:
         specifier: 4.5.5
         version: 4.5.5
 
+  packages/release-imagery:
+    devDependencies:
+      '@playwright/test':
+        specifier: 1.64.1
+        version: 1.64.1
+      '@types/pngjs':
+        specifier: 6.0.5
+        version: 6.0.5
+      pngjs:
+        specifier: 7.0.0
+        version: 7.0.0
+
   packages/ui:
     dependencies:
       '@source-taster/contract-service':

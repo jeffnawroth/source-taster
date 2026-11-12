@@ -229,6 +229,30 @@ export class Panel {
     await this.press(() => Promise.resolve(node));
   }
   /**
+   * A choice primitive visually hides its input, so a user presses the visible
+   * label that wraps it; the input stays the node found by role and name.
+   */
+  async clickChoice(role: string, name?: string | RegExp) {
+    await this.press(async () => {
+      const { object } = await this.send<{ object: { objectId: string } }>(
+        "DOM.resolveNode",
+        { backendNodeId: await this.find(role, name) },
+      );
+      const { result } = await this.send<{ result: { objectId: string } }>(
+        "Runtime.callFunctionOn",
+        {
+          objectId: object.objectId,
+          functionDeclaration: "function () { return this.closest('label'); }",
+        },
+      );
+      const { node } = await this.send<{ node: { backendNodeId: number } }>(
+        "DOM.describeNode",
+        { objectId: result.objectId },
+      );
+      return node.backendNodeId;
+    });
+  }
+  /**
    * Playwright-style actionability before a trusted press. The panel lays out
    * asynchronously (fetches and renders move controls for a while after they
    * first appear), so a centre measured once and pressed a few CDP round trips

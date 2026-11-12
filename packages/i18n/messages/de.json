@@ -580,7 +580,7 @@
   "shell_connected": "Laufende Aktualisierungen verbunden",
   "shell_selection_source": "Seitenauswahl",
   "correction_fields_apply": "In Felder übernehmen",
-  "correction_fields_unavailable": "In Felder übernehmen ist erst verfügbar, wenn belegte strukturierte Werte für das aktuelle Ergebnis vorliegen. Sie können weiterhin Felder bearbeiten, kopieren oder geeignete Vorschläge für den Export wählen.",
+  "correction_fields_unavailable": "In Felder übernehmen ist erst verfügbar, wenn belegte strukturierte Werte für das aktuelle Ergebnis vorliegen.",
   "correction_deleted": "Gelöscht",
   "correction_inserted": "Eingefügt",
   "correction_replace_title": "Ungespeicherten Entwurf ersetzen?",
@@ -589,11 +589,9 @@
   "correction_replace": "Entwurf ersetzen",
   "revision_stale_draft": "Dieser Entwurf gehört zu einer früheren Revision oder einem früheren Ergebnis. Er bleibt zur Einsicht erhalten. Verwerfen Sie ihn oder ersetzen Sie ihn ausdrücklich durch einen aktuellen Vorschlag, bevor Sie speichern.",
   "detail_status_evidence": "Für diesen Status liegen keine aktuellen geprüften Nachweise vor. Frühere Ergebnisse bleiben historisch.",
-  "detail_pager": "Referenznavigation",
-  "detail_previous": "Vorherige Referenz",
-  "detail_next": "Nächste Referenz",
-  "detail_position": "{current} von {total}",
   "revision_busy": "Warten Sie auf den laufenden Vorgang oder verwerfen Sie einen veralteten Entwurf, bevor Sie speichern.",
   "correction_fields_busy": "In Felder übernehmen ist nicht verfügbar, solange gespeichert, erneut geprüft oder ein Befund geändert wird.",
-  "correction_fields_loading": "In Felder übernehmen wird verfügbar, sobald der Vorschlag für das aktuelle Ergebnis geladen ist."
+  "correction_fields_loading": "In Felder übernehmen wird verfügbar, sobald der Vorschlag für das aktuelle Ergebnis geladen ist.",
+  "correction_fields_unchanged": "In Felder übernehmen ist nicht verfügbar, weil der Vorschlag keine belegten Werte enthält, die von den gespeicherten Feldern abweichen.",
+  "correction_none_current": "Für das aktuelle Ergebnis gibt es keinen Korrekturvorschlag mit belegten Werten. Sie können die Felder weiterhin bearbeiten."
 }

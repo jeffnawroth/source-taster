@@ -41,18 +41,14 @@ test("copies a Correction suggestion and applies it only to the formatted export
     expect(await page.evaluate(() => navigator.clipboard.readText())).toContain(
       "Aspelmeyer, M. (2009).",
     );
-  await suggestion
-    .getByRole("checkbox", { name: "Apply for export only" })
-    .check();
+  await suggestion.getByText("Apply for export only", { exact: true }).click();
   await expect(suggestion.getByRole("checkbox")).toBeChecked();
   await page
     .getByRole("grid", { name: "References", exact: true })
     .getByRole("button")
     .nth(1)
     .click();
-  await suggestion
-    .getByRole("checkbox", { name: "Apply for export only" })
-    .check();
+  await suggestion.getByText("Apply for export only", { exact: true }).click();
   const exportPreview = page.getByRole("region", {
     name: "Formatted bibliography",
     exact: true,
