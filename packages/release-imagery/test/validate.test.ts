@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { PNG } from "pngjs";
-import { readPngInfo, validateImages } from "../src/validate.ts";
+import { readPngInfo, validateImages, xCardProblems } from "../src/validate.ts";
 import type { Manifest } from "../src/manifest.ts";
 
 const sha = (bytes: Buffer) => createHash("sha256").update(bytes).digest("hex");
@@ -93,4 +93,34 @@ await test("wrong dimensions, alpha, a changed file, a missing file and an unlis
   } finally {
     await d.remove();
   }
+});
+
+await test("an X card must be 2:1, within X's size limits and under 5 MB", async () => {
+  const ok = png(1200, 600);
+  const askew = png(1200, 630);
+  const d = await directory({ "ok.png": ok, "askew.png": askew }, [
+    { ...entry("ok.png", ok, 1200, 600), role: "x-card" },
+    { ...entry("askew.png", askew, 1200, 630), role: "x-card" },
+  ]);
+  try {
+    const problems = (await validateImages(d.dir, d.manifest)).join("\n");
+    assert.doesNotMatch(problems, /ok\.png/);
+    assert.match(problems, /askew\.png: X card ratio must be 2:1/);
+  } finally {
+    await d.remove();
+  }
+  const info = (width: number, height: number) => ({
+    width,
+    height,
+    bitDepth: 8,
+    colorType: 2,
+  });
+  assert.deepEqual(xCardProblems("a", info(1200, 600), 1024), []);
+  assert.deepEqual(xCardProblems("a", info(4096, 2048), 1024), []);
+  assert.match(xCardProblems("a", info(298, 149), 1)[0] ?? "", /300x157/);
+  assert.match(xCardProblems("a", info(8192, 4096), 1)[0] ?? "", /4096x4096/);
+  assert.match(
+    xCardProblems("a", info(1200, 600), 5_000_000).join(),
+    /less than 5 MB/,
+  );
 });
