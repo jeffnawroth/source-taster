@@ -347,6 +347,83 @@ events after `scrollIntoViewIfNeeded` (the same pattern) and renders the same
 detail from `@source-taster/ui`; the side panel's document-versus-root height
 was not measured separately.
 
+## Save press lost again: window scroll anchoring inside the detail (#220)
+
+`manual-overrides.spec.ts` "a layout change in the detail during a Save press
+does not lose the press" still failed in about 1 of 5 isolated runs after the
+`position: relative` fix (5 of 30, 7 of 40 earlier; 3 of 20 on the unchanged test here, 5 of 25 and 6
+of 20 on the instrumented probe), at 360 x 780.
+
+**Cause (product bug).** The window runs scroll anchoring, and Chromium appears to
+pick its anchor node inside the detail's own scroller (inferred from the
+measurements below, not read from the engine). When 300 px appear above
+Save while the pointer is down, the pane compensates in its own scroller
+(`scrollTop` 3533 to 3833) and the window compensates as well, because the
+anchor node moved inside the pane. The window's compensation is clamped at its
+scroll maximum. So the outcome depends on where the page happened to come to
+rest after `scrollIntoViewIfNeeded`:
+
+- Resting at the maximum (scrollY 3136 of 3916; Save at y 463): there is no
+  room to scroll, nothing moves, the press lands.
+- Resting 142 px above it (scrollY 2994; Save at y 605; the detail runs past the
+  bottom edge): the window scrolls to the maximum (+142, a 300 px compensation
+  clamped), Save moves to y 463 under a pointer that is still down, and the
+  press is lost.
+
+The settle is not a late update of `--detail-header-height`, the topbar or
+strip variables, or of any scroll padding: the probe logged every root style
+change and scroll event, and the variables were constant (176.4 px, 54 px,
+54.8 px) in good and lost runs alike. Fonts and a 200 ms stability wait change
+nothing. A mouse user is exposed the same way, whenever content appears in the
+detail while they press and the page is not at its end.
+
+**Ruled out.** `overflow-anchor: none` on `.check-detail` itself loses 20 of 20:
+it removes the pane's own compensation, so the content under the pointer moves
+instead. `overflow-anchor: none` on the document root passes (0 of 20 lost) but
+also stops anchoring for the feed, so it was not used.
+
+**Fix.** `packages/ui/src/check-results.tsx` wraps the detail section in
+`.check-detail-slot`, and `workspace.css` sets `overflow-anchor: none` on the
+slot. Anchoring inside the slot is excluded for the window, while the pane
+(whose own `overflow-anchor` stays `auto`) keeps compensating in its scroller.
+The slot also took over the display rules that toggled `.check-detail`
+(single-pane open/closed). 0 of 25 probe runs lost against 6 of 20 without it.
+
+**Tests** (`apps/web/e2e/manual-overrides.spec.ts`). The test no longer
+depends on the page's resting position. It scrolls the window to 142 px below
+its maximum, asserts that state (the detail runs past the viewport, Save is
+fully in view, the window is not at its maximum), presses, inserts the block,
+and asserts that Save's bounding box is unchanged before releasing; the scrollY
+assertion stays as the direct window-anchoring signal.
+
+- Pristine product: 20 of 20 red ("Save did not move under the pointer").
+- Fix: 40 of 40 green with `--repeat-each 40`.
+- Fix, with `position: relative` removed from `.check-detail` (the state before
+  25bf241): 10 of 10 red, on the preconditions and on "does not extend the
+  page's scroll range" (document 6322 px against 3916 px).
+
+**Feed anchoring is intact.** `apps/web/e2e/workspace.spec.ts` has two new tests
+at 360 x 640 with eight references: content inserted above a visible row, in
+the page and in the list scroller, leaves the row's box unchanged. Negative
+controls (not committed): `html { overflow-anchor: none }` fails the page test
+only (3 of 3) and `.check-list { overflow-anchor: none }` fails the list test
+only (3 of 3). Both pass on the fix.
+
+**Linux CI flake "compares Reference and server Best match side by side at
+narrow zoom in de".** Not explained by this mechanism and not changed. The
+failing step clicks a feed row (no detail is open yet, so there is no detail
+scroller or insertion), and the test did not reproduce: 30 of 30 passed on the
+pristine product and 30 of 30 on the fix (`--repeat-each 30`, macOS). It stays
+open as a possible lost row click on Linux.
+
+**Validation** (macOS arm64, `--project chromium`): typecheck, lint,
+`pnpm i18n:check` clean; full web suite 172 of 172 (includes
+`reference-detail.spec.ts`); extension `manual-overrides` 2 of 2 and
+`revisions` en 1 of 1. Extension `revisions` de failed once in the first run
+("region Referenzdetails never contained Feldrevision 2") and in 2 of 15 repeats
+on the fix, and also in 2 of 15 repeats on the pristine product: the existing
+flake below, not caused by this change.
+
 ## Open
 
 - Before the review follow-up, one native `manual-overrides` (EN) run failed
