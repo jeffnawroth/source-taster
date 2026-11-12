@@ -215,6 +215,7 @@ function Examples() {
               </UI.Button>
               <UI.Button
                 data-testid="pending"
+                className="self-start"
                 isPending={pending}
                 onPress={() => {
                   setPending(true);
