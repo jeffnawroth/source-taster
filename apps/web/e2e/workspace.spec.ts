@@ -237,6 +237,97 @@ for (const language of ["en", "de"] as const)
     });
   });
 
+// A single Reference opens its detail on its own, so the Reference's suggestion
+// is rendered when the Check completes. On a narrow viewport the bibliography
+// panel sits above the feed; with nothing applied it must not change height
+// when that rendering settles, or a press on the feed row lands beside it. This
+// was the Linux CI flake of the narrow-zoom comparison test (#220): the row
+// moved by about 33 px between Playwright's stability check and the click.
+test("a narrow feed row stays under the pointer while the completed Reference's suggestion renders", async ({
+  page,
+}) => {
+  let release!: () => void;
+  let arrived!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const entered = new Promise<void>((resolve) => {
+    arrived = resolve;
+  });
+  // Only the rendering of the completed result carries a proven suggestion;
+  // the two renderings while the Check runs do not.
+  await page.route("**/bibliography", async (route) => {
+    const response = await route.fetch();
+    const body = (await response.json()) as {
+      data: { entries: { suggestion: unknown }[] };
+    };
+    if (body.data.entries.some((entry) => entry.suggestion)) {
+      arrived();
+      await gate;
+    }
+    await route.fulfill({ response });
+  });
+  await page.goto("/");
+  await page
+    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
+    .selectOption("en");
+  await page
+    .getByRole("textbox")
+    .fill(
+      "Aspelmeyer, M. (2008). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170",
+    );
+  await page
+    .getByRole("button", { name: "Check reference", exact: true })
+    .click();
+  const comparison = page.getByRole("table", {
+    name: "Reference and best match",
+    exact: true,
+  });
+  await expect(comparison).toBeVisible({ timeout: 15000 });
+  await entered;
+  await page.setViewportSize({ width: 320, height: 640 });
+  const row = page
+    .getByRole("grid", { name: "References", exact: true })
+    .getByRole("button");
+  // As a click finds it: the panel above shows through the top of the viewport
+  // and the row sits low.
+  await row.evaluate((element) => {
+    const top = element.getBoundingClientRect().top;
+    scrollBy(0, top - (innerHeight - 220));
+  });
+  const panel = page.getByRole("region", {
+    name: "Formatted bibliography",
+    exact: true,
+  });
+  await expect(panel).toBeInViewport();
+  const before = (await row.boundingBox())!;
+  const centre = {
+    x: before.x + before.width / 2,
+    y: before.y + before.height / 2,
+  };
+  await page.mouse.move(centre.x, centre.y);
+  await page.mouse.down();
+  const delivered = page.waitForResponse((response) =>
+    /\/bibliography$/u.test(response.url()),
+  );
+  release();
+  await delivered;
+  await page.evaluate(
+    () =>
+      new Promise((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(resolve)),
+      ),
+  );
+  const pressed = (await row.boundingBox())!;
+  expect(
+    Math.abs(pressed.y + pressed.height / 2 - centre.y),
+    "the feed row did not move under the pointer",
+  ).toBeLessThanOrEqual(1);
+  await page.mouse.up();
+  await expect(comparison).toBeVisible();
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+});
+
 for (const language of ["en", "de"] as const)
   test(`How the check works is directly reachable by keyboard in ${language}`, async ({
     page,
