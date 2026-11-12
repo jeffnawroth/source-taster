@@ -203,3 +203,28 @@ width with its original 0.05 px tolerance; label, spinner and availability
 assertions remain. The targeted WebKit case passes five consecutive runs. The
 parallel web suite was interrupted when this primitive suite failed, so its
 interrupted correction journey is not counted as an independent failure.
+
+## Merge of the remaining #219 commits into the #220 fix branch
+
+`fix/220-ci` merged `origin/feat/209-ui-primitives`, which carried two commits
+that were not yet in the integration branch: the WebKit-stable pending-layout
+test (`64377fb`) and the `rustix 1.1.6` pins in the compiler, native and Sätteri
+controlled Cargo locks (`e6a38b0`). The Rolldown lock pin was already integrated
+by #221.
+
+- `packages/ui/test/primitives.spec.ts`: both intents are kept. The pending
+  Button's computed widths are asserted per specimen and the painted width is
+  polled until the press-scale transition settles, with the original 0.05 px
+  tolerance. `packages/ui/examples/main.tsx` merged cleanly.
+- `apps/website/qualification/controlled/lock-changes.diff` was regenerated, not
+  hand-merged: it is the unified diff of each `upstream/<x>/Cargo.lock` against
+  `controlled/locks/<y>.Cargo.lock` (native, web, compiler, rolldown, Sätteri, in
+  that order). The regenerated ledger equals the incoming one (525 lines) and
+  patching the upstream locks with it reproduces all five controlled locks
+  byte for byte.
+- Verification: `pagefind:fetch`, `pagefind:build` and `pagefind:verify` pass;
+  the offline OSV/license gate reports zero blocking findings, 93 raw upstream
+  findings preserved and no license issues; the primitive suite passes 28/28 on
+  Chromium and WebKit (the pending-layout case 10 consecutive runs on each).
+  Local runs are macOS arm64; the Linux CI gate on the pushed head remains
+  authoritative.
