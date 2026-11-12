@@ -273,24 +273,17 @@ The machine-readable record, with commands, thresholds and measured values, is
 Not runnable here: the guest contract test, which needs
 `SOURCE_TASTER_SERVICE_WORKTREE`.
 
-**Open: lost presses on the merged tree.** Two e2e tests fail intermittently
-and are not fixed by this work.
+**Lost presses on the merged tree.** At the time of this run, two e2e tests failed intermittently.
 
 - `apps/web/e2e/manual-overrides.spec.ts` "a layout change in the detail during
   a Save press does not lose the press": failed in the full run (`Expected:
-  2994`, `Received: 3136`) and in 5 of 30 and 7 of 40 isolated repeats. The
-  outcome is bimodal and set before the press: when the page rests at its
-  scroll maximum (scrollY 3136 of 3916 with a 780 px viewport) the test
-  passes; when it rests 142 px above it (scrollY 2994, detail top at 171
-  instead of 29) inserting 300 px at the top of `.check-detail` moves the window
-  scroll to the maximum. The pointer is still down at that moment, so the press
-  can be lost. Waiting for fonts or for a stable scroll position does not
-  change this (the state is stable for 200 ms). Setting `overflow-anchor: none`
-  on the document before the insert keeps scrollY at 2994 and passed 12 of 12,
-  which points at window-level scroll anchoring choosing an anchor inside the
-  detail's own scroller. A product fix would change anchoring behaviour for the
-  streaming feed as well, so it was not made here; the experiment is not
-  committed.
+  2994`, `Received: 3136`) and in 5 of 30 and 7 of 40 isolated repeats.
+  **Resolved later in `0a0b6d9` (#212).** The cause was window-level scroll
+  anchoring choosing an anchor inside the detail's own scroller. The detail now
+  sits in `.check-detail-slot` with `overflow-anchor: none`, which leaves feed
+  anchoring untouched. With the fix the test passes 40 of 40, and on the
+  pristine product it fails 20 of 20. The cause and evidence are in
+  `212-reference-detail.md`.
 - `apps/extension/e2e/manual-overrides.spec.ts` (de): one failure in the full
   run ("No region named Historisches Ergebnis in the side panel"); 12 of 12
   passed on repeat. The `revisions` de flake (about 11% before the font wait,

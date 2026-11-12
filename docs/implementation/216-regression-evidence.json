@@ -101,7 +101,13 @@
       "failure": "Expected: 2994, Received: 3136 (scrollY)",
       "rates": { "fullRun": "1 failed", "isolated": ["5 of 30", "7 of 40"] },
       "finding": "bimodal by resting scroll position (3136 passes, 2994 fails); overflow-anchor: none on the document kept 2994 and passed 12 of 12; not committed, product decision",
-      "ruledOut": ["font settle wait", "200 ms scroll stability wait"]
+      "ruledOut": ["font settle wait", "200 ms scroll stability wait"],
+      "resolved": {
+        "commit": "0a0b6d9",
+        "cause": "window scroll anchoring chose an anchor inside the detail scroller",
+        "fix": ".check-detail-slot { overflow-anchor: none }",
+        "evidence": { "fixed": "40 of 40 passed", "pristine": "20 of 20 failed" }
+      }
     },
     {
       "test": "apps/extension/e2e/manual-overrides.spec.ts: native panel confirms, filters and resets a result-bound manual verdict in de",
