@@ -1,10 +1,17 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { spawnSync } from "node:child_process";
-import { rm, writeFile, readdir, readFile, mkdir } from "node:fs/promises";
+import {
+  copyFile,
+  rm,
+  writeFile,
+  readdir,
+  readFile,
+  mkdir,
+} from "node:fs/promises";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
-import { checkPublication, digest } from "./publication.ts";
+import { checkPublication, digest, websiteBrandFiles } from "./publication.ts";
 import "./content-check.ts";
 import { assertPreviewAllowed, languages } from "../src/metadata.ts";
 import type { NativeLoad } from "../../../scripts/website-evidence.ts";
@@ -150,6 +157,10 @@ const uiRequire = createRequire(resolve(project, "packages/ui/package.json"));
 const noticeInputs = [
   ["Source Taster UI provenance", resolve(project, "packages/ui/NOTICE.md")],
   [
+    "Source Taster brand artwork — DRAFT, not legally reviewed",
+    resolve(project, "packages/brand/NOTICE.md"),
+  ],
+  [
     "Adobe starter — Apache-2.0",
     resolve(project, "packages/ui/notices/react-spectrum-LICENSE"),
   ],
@@ -176,9 +187,16 @@ const notices = await Promise.all(
 await mkdir(resolve(output, "third-party/ui"), { recursive: true });
 await writeFile(
   resolve(output, "third-party/ui/NOTICE.txt"),
-  "Source Taster public interface — retained upstream notices.\nProject source: https://github.com/jeffnawroth/source-taster\nProject software: AGPL-3.0-or-later; upstream grants below retain their own scope.\nNo brand distribution or specialist legal clearance is asserted.\n\n" +
+  "Source Taster public interface — retained upstream notices.\nProject source: https://github.com/jeffnawroth/source-taster\nProject software: AGPL-3.0-or-later; upstream grants below retain their own scope.\nThe favicons are brand artwork under a draft notice that is not legally reviewed; no specialist legal clearance is asserted.\n\n" +
     notices.join("\n"),
 );
+// The chosen website favicons (#214), copied byte for byte from the committed
+// brand exports. Optional manifest/pinned-tab candidates stay unpublished.
+for (const file of await websiteBrandFiles(project))
+  await copyFile(
+    resolve(project, "packages/brand/exports", file),
+    resolve(output, file),
+  );
 const files: Record<string, string> = {};
 async function inventory(dir: string) {
   for (const entry of await readdir(resolve(output, dir), {

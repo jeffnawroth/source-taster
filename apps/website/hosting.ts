@@ -10,6 +10,8 @@ const mime: Record<string, string> = {
   ".wasm": "application/wasm",
   ".json": "application/json",
   ".svg": "image/svg+xml",
+  ".png": "image/png",
+  ".ico": "image/x-icon",
   ".txt": "text/plain; charset=utf-8",
   ".gz": "application/gzip",
   ".woff2": "font/woff2",

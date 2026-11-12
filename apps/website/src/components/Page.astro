@@ -42,6 +42,12 @@ const docsHref = pathFor(language, { id: 'index', section: 'docs' });
     <meta name="referrer" content="no-referrer" />
     {preview && <meta name="robots" content="noindex, nofollow" />}
     <title>{page.title} · Source Taster</title>
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" type="image/x-icon" />
+    <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
+    {[16, 32, 48, 96].map((size) => (
+      <link rel="icon" href={`/favicon-${size}.png`} sizes={`${size}x${size}`} type="image/png" />
+    ))}
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" type="image/png" />
     <link rel="alternate" hreflang={other} href={alternateHref ?? pathFor(other, page)} />
   </head>
   <body>

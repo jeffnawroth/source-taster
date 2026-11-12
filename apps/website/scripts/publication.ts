@@ -25,6 +25,21 @@ const valid = (value: unknown): value is string =>
   value.trim().length > 2 &&
   !/draft|pending|placeholder|example|localhost|todo|tbd|<|>/i.test(value);
 /** Bind every review to this exact content, toolchain, policy and deployment identity. */
+/**
+ * The website's favicon files (#214): the chosen, non-optional website group of
+ * the committed brand export manifest. Optional candidates stay unpublished.
+ */
+export async function websiteBrandFiles(project: string): Promise<string[]> {
+  const record = JSON.parse(
+    await readFile(
+      resolve(project, "packages/brand/exports/manifest.json"),
+      "utf8",
+    ),
+  ) as { exports: { file: string; group: string; basis: string }[] };
+  return record.exports
+    .filter((entry) => entry.group === "website" && entry.basis !== "optional")
+    .map((entry) => entry.file);
+}
 export async function reviewDigest(root: string): Promise<string> {
   const files: string[] = [];
   async function collect(dir: string) {
@@ -66,6 +81,12 @@ export async function reviewDigest(root: string): Promise<string> {
     "i18n/project.inlang/settings.json",
     "i18n/messages/de.json",
     "i18n/messages/en.json",
+    // Brand artwork and its draft notice are published as favicons (#214).
+    "brand/NOTICE.md",
+    "brand/exports/manifest.json",
+    ...(await websiteBrandFiles(resolve(root, "../.."))).map(
+      (file) => `brand/exports/${file}`,
+    ),
   ]) {
     const path = `../../packages/${file}`;
     inputs.push([path, digest(await readFile(resolve(root, path)))]);
