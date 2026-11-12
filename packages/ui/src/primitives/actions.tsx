@@ -15,11 +15,17 @@ type ButtonBase = Omit<Aria.ButtonProps, "isDisabled" | "render"> & {
   ref?: Ref<HTMLButtonElement>;
   variant?: "primary" | "secondary" | "ghost" | "danger";
   size?: "md" | "sm";
+  /** Leading Lucide icon. While pending the Spinner takes its place. */
+  icon?: ReactNode;
+  /** Where a disabled reason sits: under the control (default) or before it on the same row. */
+  reasonPlacement?: "below" | "start";
 };
 export type ButtonProps = ButtonBase & Availability;
 export function Button({
   variant,
   size,
+  icon,
+  reasonPlacement = "below",
   disabledReason,
   children,
   ...props
@@ -29,7 +35,11 @@ export function Button({
     <Aria.Button
       {...props}
       render={(domProps, state) => (
-        <button {...domProps} aria-busy={state.isPending || undefined} />
+        <button
+          {...domProps}
+          data-size={size ?? "md"}
+          aria-busy={state.isPending || undefined}
+        />
       )}
       aria-describedby={describedBy(
         props["aria-describedby"],
@@ -44,16 +54,24 @@ export function Button({
     >
       {Aria.composeRenderProps(children, (label, { isPending }) => (
         <>
-          <span className="st-loading-slot" aria-hidden="true">
-            {isPending && <Spinner size={size === "sm" ? 16 : 20} />}
-          </span>
-          {label}
+          {(icon || isPending) && (
+            <span
+              className={cx(
+                "st-loading-slot",
+                icon ? undefined : "st-loading-overlay",
+              )}
+              aria-hidden="true"
+            >
+              {isPending ? <Spinner size={size === "sm" ? 16 : 20} /> : icon}
+            </span>
+          )}
+          {icon ? label : <span className="st-button-label">{label}</span>}
         </>
       ))}
     </Aria.Button>
   );
   return disabledReason ? (
-    <span className="st-disabled-control">
+    <span className="st-disabled-control" data-placement={reasonPlacement}>
       {button}
       <span id={reasonId} className="text-xs text-text-secondary">
         {disabledReason}
