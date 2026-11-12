@@ -38,8 +38,8 @@ export const copy: Record<Story | "social", Entry> = {
       de: "Die Belege dahinter",
     },
     caption: {
-      en: "The detail starts with the Verdict, compares Reference and Best match, and marks a suggested correction.",
-      de: "Die Detailansicht beginnt mit dem Befund, vergleicht Referenz und besten Treffer und markiert den Korrekturvorschlag.",
+      en: "The detail starts with the Verdict and compares the Reference with the Best match.",
+      de: "Die Detailansicht beginnt mit dem Befund und vergleicht die Referenz mit dem besten Treffer.",
     },
   },
   social: {
@@ -57,11 +57,7 @@ export const copy: Record<Story | "social", Entry> = {
 const storyClaims: Record<Story, string[]> = {
   workspace: ["side-panel", "verdict-per-reference", "german-and-english"],
   overview: ["verdict-per-reference", "summary-counts", "doi-conflict"],
-  evidence: [
-    "detail-leads-with-verdict",
-    "best-match-comparison",
-    "suggestion-marked",
-  ],
+  evidence: ["detail-leads-with-verdict", "best-match-comparison"],
 };
 
 /** Claim ids an image pictures or states. The language-neutral promo tiles state none. */
@@ -74,16 +70,16 @@ export function imageClaims(spec: ImageSpec): string[] {
 
 const storyAlt: Record<Story, Text> = {
   workspace: {
-    en: "The Source Taster side panel next to a browser page, with three pasted References in the input field and the Check reference button below.",
-    de: "Der Source-Taster-Seitenbereich neben einer Browserseite, mit drei eingefügten Referenzen im Eingabefeld und der Schaltfläche Referenz prüfen darunter.",
+    en: "A capture of the Source Taster side panel with three pasted References in the input field and the Check reference button below.",
+    de: "Eine Aufnahme des Source-Taster-Seitenbereichs mit drei eingefügten Referenzen im Eingabefeld und der Schaltfläche Referenz prüfen darunter.",
   },
   overview: {
     en: "The Source Taster summary with one count for each Verdict, above a list of three References. They carry the Verdicts Correct, Exists, with deviations and DOI conflict, each with a symbol and a label.",
     de: "Die Source-Taster-Übersicht mit je einer Zahl pro Befund über einer Liste aus drei Referenzen. Sie tragen die Befunde Korrekt, Existiert, mit Abweichungen und DOI-Konflikt, jeweils mit Symbol und Beschriftung.",
   },
   evidence: {
-    en: "The detail of one Reference. It starts with the Verdict Exists, with deviations, compares the Reference with the Best match field by field, and shows a Correction suggestion with the changed words marked.",
-    de: "Die Detailansicht einer Referenz. Sie beginnt mit dem Befund Existiert, mit Abweichungen, vergleicht die Referenz Feld für Feld mit dem besten Treffer und zeigt einen Korrekturvorschlag mit markierten Änderungen.",
+    en: "The detail of one Reference. It starts with the Verdict Exists, with deviations, shows the Original text and the Best match, and begins the comparison of the Reference with the Best match.",
+    de: "Die Detailansicht einer Referenz. Sie beginnt mit dem Befund Existiert, mit Abweichungen, zeigt den Originaltext und den besten Treffer und beginnt den Vergleich der Referenz mit dem besten Treffer.",
   },
 };
 

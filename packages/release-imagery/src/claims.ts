@@ -112,20 +112,6 @@ export const claims: readonly Claim[] = [
     },
   },
   {
-    id: "suggestion-marked",
-    text: {
-      en: "A Correction suggestion marks what would change against the original text.",
-      de: "Ein Korrekturvorschlag markiert, was sich gegenüber dem Originaltext ändern würde.",
-    },
-    qualified: null,
-    evidence: {
-      doc: "docs/implementation/212-reference-detail.md",
-      spec: panel,
-      title:
-        "native panel renders a Correction suggestion and keeps export choices local",
-    },
-  },
-  {
     id: "german-and-english",
     text: {
       en: "The panel runs in German and English.",
