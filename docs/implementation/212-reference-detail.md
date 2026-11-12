@@ -155,9 +155,22 @@ Fixed on `fix/220-review`.
   formula (`height - 16 + 12`) still left 4 px, so the measured full height is
   used. A first test that walked focus with Shift+Tab passed without any fix
   and was replaced.
-- **A lost press was not exactly reproduced.** The review's report of a press
-  lost under the sticky header could not be reproduced as such; the overlap
-  above is the observable defect, and it is fixed and covered.
+- **The lost press on partly clipped detail buttons is the upstream fix.** The
+  review's finding is the cause fixed in "Manual-override journey: lost Save
+  press (#220 CI)" below: hidden diff labels escaped `.check-detail`'s clip and
+  added phantom page overflow. It is covered there by "the scrolling reference
+  detail does not extend the page's scroll range" and "a layout change in the
+  detail during a Save press does not lose the press"; nothing was duplicated
+  here. The sticky-header clearance above is a separate defect (controls
+  scrolled under the header), found by its own overlap test.
+- **`.check-list` checked, no change.** The feed also scrolls
+  (`overflow-y: auto`, `max-height: 70vh`), so it was probed at 360 x 780 with
+  15 checked rows: it contains no absolutely positioned descendant (the unsaved
+  draft marker is static, the visually hidden labels live only in the detail),
+  and the document height equals the app root (8420 against 8421 px). Nothing
+  reproduces, so no containing block was added; if feed content with
+  `position: absolute` is introduced, it needs `position: relative` on
+  `.check-list`.
 - **TrackedChange stays against the original.** Diffing against the current
   formatted citation would need a per-entry rendering in the committed style on
   the client, which the contract does not carry, and `components.md` §3.6 says
