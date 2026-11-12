@@ -19,7 +19,7 @@ test("reader opens a documentation deep link and switches to its counterpart", a
   await expect(
     page.getByText("A verdict is not proof of deception.", { exact: false }),
   ).toBeVisible();
-  await page.getByRole("link", { name: "Deutsch", exact: true }).click();
+  await page.getByRole("link", { name: "DE Deutsch", exact: true }).click();
   await expect(page).toHaveURL(/\/docs\/de\/how-the-check-works\/$/);
   await expect(page.locator("html")).toHaveAttribute("lang", "de");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
@@ -111,11 +111,10 @@ test("documentation search stays local, language-scoped and keyboard accessible"
     "No matching pages. Try another word.",
   );
   await query.press("Escape");
-  await page.getByRole("link", { name: "Deutsch", exact: true }).click();
+  await page.getByRole("link", { name: "DE Deutsch", exact: true }).click();
   await expect(
     page.getByRole("link", {
       name: "Wie wähle ich Sprache und Zitierstil?",
-      exact: true,
     }),
   ).toHaveAttribute("href", "/docs/de/preferences/");
   await openDocumentationSearch(page);
@@ -171,7 +170,7 @@ test("every information page has a translated counterpart and versioned legal dr
       const other = language === "en" ? "de" : "en";
       await expect(
         page.getByRole("link", {
-          name: other === "de" ? "Deutsch" : "English",
+          name: other === "de" ? "DE Deutsch" : "EN English",
           exact: true,
         }),
       ).toHaveAttribute("href", `/${other}/${route}`);
@@ -281,7 +280,7 @@ test("FAQ and documentation explain the same opt-in DOI limits without a release
     ],
   ] as const) {
     await page.goto(`/${language}/faq/`);
-    const article = page.locator("article");
+    const article = page.locator("main");
     for (const fact of limits) await expect(article).toContainText(fact);
     await expect(article).toContainText(human);
     // Search the actual local index and follow its result to the explanation.
@@ -315,7 +314,7 @@ test("retry help describes automatic progress reconnection in both languages", a
     "automatically reconnects",
   );
   await expect(page.locator("article")).toContainText("last received event");
-  await page.getByRole("link", { name: "Deutsch", exact: true }).click();
+  await page.getByRole("link", { name: "DE Deutsch", exact: true }).click();
   await expect(page.locator("article")).toContainText("automatisch erneut");
   await expect(page.locator("article")).toContainText(
     "zuletzt empfangenen Ereignis",
@@ -383,8 +382,8 @@ test("source-access pages follow footer language, switch counterparts and serve 
   request,
 }) => {
   for (const [language, title, other, counterpart] of [
-    ["de", "Suchlizenzen und Quellcode", "en", "English"],
-    ["en", "Search licenses and source", "de", "Deutsch"],
+    ["de", "Suchlizenzen und Quellcode", "en", "EN English"],
+    ["en", "Search licenses and source", "de", "DE Deutsch"],
   ] as const) {
     await page.goto(`/docs/${language}/`);
     await page.getByRole("link", { name: title, exact: true }).click();

@@ -20,13 +20,12 @@ test("every guide remains usable at 320px with JavaScript disabled", async ({
             language === "en"
               ? "What does a verdict tell me?"
               : "Was sagt ein Befund aus?",
-          exact: true,
         })
         .click();
       await expect(page).toHaveURL(
         new RegExp(`/docs/${language}/how-the-check-works/$`),
       );
-      const summary = page.locator("summary");
+      const summary = page.locator("details.chapter-disclosure > summary");
       await summary.focus();
       await summary.press("Enter");
       const chapters = page.getByRole("navigation", {
@@ -108,7 +107,7 @@ for (const language of ["de", "en"] as const)
       await expect(query).toBeFocused();
       await query.press("Shift+Tab");
       const close = dialog.getByRole("button", {
-        name: language === "en" ? "Close search Esc" : "Suche schließen Esc",
+        name: language === "en" ? "Close search" : "Suche schließen",
         exact: true,
       });
       await expect(close).toBeFocused();
