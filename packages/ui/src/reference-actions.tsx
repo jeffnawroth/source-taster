@@ -1,13 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { AiProvenance } from "./ai-provenance.tsx";
 import { ManualVerdictActions } from "./manual-verdict.tsx";
-import { CheckSelectionActions } from "./bibliography-selection.tsx";
 import { useMemo, useRef, useState } from "react";
 import type {
   Check,
   ReferenceSlot,
-  StructuredCsl,
-  EditReferenceListRequest,
 } from "@source-taster/contract-verification/v2";
 import {
   ApiError,
@@ -16,13 +13,13 @@ import {
 } from "@source-taster/contract-verification/client-v2";
 import { m } from "@source-taster/i18n";
 import { Button } from "./primitives/actions.tsx";
-import { Form, TextField } from "./primitives/fields.tsx";
-import { Checkbox } from "./primitives/selection.tsx";
+import { Form } from "./primitives/fields.tsx";
 import { AlertDialog, Modal } from "./primitives/overlays.tsx";
 import {
   CorrectionSuggestion,
   type Rendered,
 } from "./correction-suggestions.tsx";
+import { availability, Fields } from "./reference-fields.tsx";
 import { fieldLabels, ReferenceOutcomeView } from "./reference-outcome.tsx";
 import {
   committedDraft,
@@ -34,123 +31,6 @@ import {
   type SnapshotGate,
 } from "./reference-work.ts";
 
-const control =
-  "w-full min-w-0 rounded border border-border-emphasis bg-surface p-2 disabled:bg-surface-sunken";
-const action =
-  "rounded border border-border-emphasis px-3 py-2 disabled:opacity-50";
-function availability(disabled: boolean) {
-  return disabled
-    ? { isDisabled: true as const, disabledReason: m.revision_busy() }
-    : { isDisabled: false as const };
-}
-const authorLabels = {
-  family: "revision_family",
-  given: "revision_given",
-  literal: "revision_literal",
-  "non-dropping-particle": "revision_particle",
-} as const;
-/** Author names stay structured; users never need to edit transport JSON. */
-function Fields({
-  fields,
-  onChange,
-  disabled,
-  truncated,
-  onTruncated,
-}: {
-  fields: StructuredCsl;
-  onChange: (fields: StructuredCsl) => void;
-  disabled: boolean;
-  truncated: boolean;
-  onTruncated: (value: boolean) => void;
-}) {
-  function scalar(key: keyof StructuredCsl, value: string) {
-    const next = { ...fields };
-    if (!value.trim()) delete next[key];
-    else if (key === "issued") next.issued = { literal: value };
-    else Object.assign(next, { [key]: value });
-    onChange(next);
-  }
-  // A disabled draft is read-only: the native fieldset disables its inputs,
-  // and actions that cannot run are not offered.
-  return (
-    <fieldset disabled={disabled} className="min-w-0 space-y-3">
-      <legend className="font-semibold">{m.revision_fields()}</legend>
-      {(Object.keys(fieldLabels) as (keyof typeof fieldLabels)[])
-        .filter((key) => key !== "author")
-        .map((key) => (
-          <TextField
-            key={key}
-            label={m[fieldLabels[key]]()}
-            value={
-              key === "issued"
-                ? (fields.issued?.literal ?? "")
-                : (fields[key] ?? "")
-            }
-            onChange={(value) => scalar(key, value)}
-          />
-        ))}
-      <fieldset className="min-w-0 space-y-3">
-        <legend>{m.field_author()}</legend>
-        {(fields.author ?? []).map((author, index) => (
-          <fieldset
-            className="min-w-0 space-y-2 rounded border border-border-emphasis p-2"
-            key={index}
-          >
-            <legend>{m.revision_author_number({ number: index + 1 })}</legend>
-            {(Object.keys(authorLabels) as (keyof typeof authorLabels)[]).map(
-              (key) => (
-                <TextField
-                  key={key}
-                  label={m[authorLabels[key]]()}
-                  value={author[key] ?? ""}
-                  onChange={(value) => {
-                    const next = { ...author };
-                    if (value) next[key] = value;
-                    else delete next[key];
-                    onChange({
-                      ...fields,
-                      author: fields.author!.map((item, i) =>
-                        i === index ? next : item,
-                      ),
-                    });
-                  }}
-                />
-              ),
-            )}
-            {!disabled && (
-              <Button
-                onPress={() =>
-                  onChange({
-                    ...fields,
-                    author: fields.author!.filter((_, i) => i !== index),
-                  })
-                }
-              >
-                {m.revision_remove_author()}
-              </Button>
-            )}
-          </fieldset>
-        ))}
-        {!disabled && (
-          <Button
-            onPress={() =>
-              onChange({ ...fields, author: [...(fields.author ?? []), {}] })
-            }
-          >
-            {m.revision_add_author()}
-          </Button>
-        )}
-        <Checkbox
-          isSelected={truncated}
-          onChange={onTruncated}
-          {...availability(disabled)}
-        >
-          {m.revision_truncated()}
-        </Checkbox>
-      </fieldset>
-    </fieldset>
-  );
-}
 export function ReferenceActions({
   check,
   reference,
@@ -179,6 +59,9 @@ export function ReferenceActions({
   const running =
     reference.outcome.kind === "status" &&
     reference.outcome.status === "running";
+  // A save, re-check or verdict change is in flight, or the Reference itself
+  // is still running: there is no current result to act on.
+  const operationRunning = running || pending;
   const stale = !!draft && draft.binding !== binding;
   const dirty = !!draft && isDirty(draft);
   const entry = bibliography.data?.entries.find(
@@ -188,39 +71,40 @@ export function ReferenceActions({
     reference.outcome.kind === "verdict" &&
     reference.results[0]?.revision === reference.revision &&
     !!reference.results[0]?.id;
-  const suggested = entry?.suggestion
+  const suggestedFields = entry?.suggestion
     ? { ...reference.fields, ...structuredClone(entry.suggestion.csl) }
     : null;
-  const unavailableReason =
-    running || pending
-      ? m.correction_fields_busy()
-      : !hasCurrentResult || (bibliography.data && !entry?.suggestion)
-        ? m.correction_fields_unavailable()
-        : bibliography.pending || bibliography.failed || !entry?.resultToken
-          ? m.correction_fields_loading()
-          : // Empty or already committed values would make a no-op draft.
-            !suggested || sameValue(suggested, reference.fields)
-            ? m.correction_fields_unchanged()
-            : null;
-  function applySuggestion(expected: { binding: string; token: string }) {
+  const unavailableReason = operationRunning
+    ? m.correction_fields_busy()
+    : !hasCurrentResult || (bibliography.data && !entry?.suggestion)
+      ? m.correction_fields_unavailable()
+      : bibliography.pending || bibliography.failed || !entry?.resultToken
+        ? m.correction_fields_loading()
+        : // Empty or already committed values would make a no-op draft.
+          !suggestedFields || sameValue(suggestedFields, reference.fields)
+          ? m.correction_fields_unchanged()
+          : null;
+  /** Overlays the proven suggestion onto a local draft; nothing is sent. */
+  function applyToDraft(expected: { binding: string; token: string }) {
     if (
       unavailableReason ||
-      !suggested ||
+      !suggestedFields ||
       expected.binding !== binding ||
       expected.token !== entry?.resultToken
     )
       return;
     // Overlay only the proven suggestion values. Committed fields the
     // suggestion does not supply stay as committed; nothing is inferred.
-    work.setDraft(committedDraft(check.id, reference, suggested));
+    work.setDraft(committedDraft(check.id, reference, suggestedFields));
     setError(null);
     setReplacement(null);
   }
-  function apply() {
+  /** Applies at once, or asks first when it would replace an unsaved draft. */
+  function requestApplyToFields() {
     if (unavailableReason || !entry?.resultToken) return;
     const expected = { binding, token: entry.resultToken };
     if (dirty || stale) setReplacement(expected);
-    else applySuggestion(expected);
+    else applyToDraft(expected);
   }
   /** Shows an error only while it still concerns the result it was sent for. */
   function report(error: unknown, started: string) {
@@ -292,7 +176,7 @@ export function ReferenceActions({
           <AiProvenance
             extracted={reference.revisions.at(-1)?.provenance === "ai"}
             ai={reference.revisions.at(-1)!.reference.ai!}
-            {...availability(running || pending)}
+            {...availability(operationRunning)}
             onAdopt={async (field, value) => {
               if (running || !work.begin()) return;
               setError(null);
@@ -318,9 +202,9 @@ export function ReferenceActions({
         slot={reference.slot}
         rendered={bibliography}
         originalText={reference.originalText}
-        onApply={apply}
+        onApplyToFields={requestApplyToFields}
         unavailableReason={unavailableReason}
-        busy={running || pending}
+        operationRunning={operationRunning}
       />
       <Modal
         isOpen={replacement !== null}
@@ -333,7 +217,7 @@ export function ReferenceActions({
           cancelLabel={m.correction_keep()}
           actionLabel={m.correction_replace()}
           onAction={() => {
-            if (replacement) applySuggestion(replacement);
+            if (replacement) applyToDraft(replacement);
             setReplacement(null);
           }}
         >
@@ -345,7 +229,7 @@ export function ReferenceActions({
         <div className="flex flex-wrap gap-3">
           <Button
             ref={editButton}
-            {...availability(running || pending)}
+            {...availability(operationRunning)}
             onPress={() => {
               work.setDraft(committedDraft(check.id, reference));
               setError(null);
@@ -354,7 +238,7 @@ export function ReferenceActions({
             {m.revision_edit()}
           </Button>
           <Button
-            {...availability(running || pending)}
+            {...availability(operationRunning)}
             onPress={() => {
               void submit(true, false);
             }}
@@ -382,18 +266,18 @@ export function ReferenceActions({
             onTruncated={(authorsTruncated) =>
               work.setDraft((draft) => ({ ...draft, authorsTruncated }))
             }
-            disabled={running || pending || stale}
+            disabled={operationRunning || stale}
           />
           <div className="flex flex-wrap gap-3">
             <Button
               variant="primary"
               type="submit"
-              {...availability(running || pending || stale)}
+              {...availability(operationRunning || stale)}
             >
               {m.revision_save_recheck()}
             </Button>
             <Button
-              {...availability(running || pending || stale)}
+              {...availability(operationRunning || stale)}
               onPress={() => {
                 void submit(false, true);
               }}
@@ -497,217 +381,6 @@ export function ReferenceActions({
           </section>
         ))}
       </details>
-    </section>
-  );
-}
-export function ReferenceListActions({
-  check,
-  transport,
-  onSnapshot,
-}: {
-  check: Check;
-  transport: VerificationClientOptions;
-  onSnapshot: (check: Check) => void;
-}) {
-  const api = useMemo(() => verificationClient(transport), [transport]);
-  const [draft, setDraft] = useState<EditReferenceListRequest | null>(null);
-  const [text, setText] = useState("");
-  const [fields, setFields] = useState<StructuredCsl>({});
-  const [truncated, setTruncated] = useState(false);
-  const [preview, setPreview] = useState(false);
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const active = check.references.some(
-    (r) => r.outcome.kind === "status" && r.outcome.status === "running",
-  );
-  function close() {
-    setDraft(null);
-    setText("");
-    setFields({});
-    setPreview(false);
-    setError(null);
-    setTruncated(false);
-  }
-  const addition =
-    draft && text.trim()
-      ? [{ originalText: text, fields, authorsTruncated: truncated }]
-      : [];
-  async function apply() {
-    if (!draft) return;
-    setPending(true);
-    setError(null);
-    try {
-      onSnapshot(
-        await api.editReferenceList(check.id, { ...draft, add: addition }),
-      );
-      close();
-    } catch (error) {
-      if (error instanceof ApiError && error.status === 409) {
-        try {
-          onSnapshot(await api.getCheck(check.id));
-        } catch {
-          /* Keep the draft and original denial. */
-        }
-      }
-      setError(errorMessage(error));
-    } finally {
-      setPending(false);
-    }
-  }
-  return (
-    <section
-      aria-label={m.revision_list()}
-      className="my-4 rounded border-2 border-border-emphasis bg-surface-sunken p-3"
-    >
-      <button
-        type="button"
-        className={action}
-        disabled={active || pending}
-        onClick={() => {
-          setDraft({
-            expectedEventSeq: check.lastEventSeq,
-            add: [],
-            remove: [],
-          });
-          setPreview(false);
-        }}
-      >
-        {m.revision_list()}
-      </button>
-      <p className="mt-2">{m.revision_membership_note()}</p>
-      {error && <p role="alert">{error}</p>}
-      {draft && check.document && (
-        <CheckSelectionActions
-          key={`${check.id}:${draft.expectedEventSeq}`}
-          check={check}
-          transport={transport}
-          onSnapshot={onSnapshot}
-        />
-      )}
-      {draft && (
-        <form
-          className="mt-3 space-y-3"
-          onSubmit={(event) => {
-            event.preventDefault();
-            setPreview(true);
-          }}
-        >
-          {!preview ? (
-            <>
-              <fieldset disabled={active || pending}>
-                <legend>{m.revision_remove()}</legend>
-                {check.references.map((reference) => (
-                  <label key={reference.slot} className="block break-words">
-                    <input
-                      type="checkbox"
-                      checked={draft.remove.includes(reference.slot)}
-                      onChange={(event) =>
-                        setDraft({
-                          ...draft,
-                          remove: event.target.checked
-                            ? [...draft.remove, reference.slot]
-                            : draft.remove.filter(
-                                (slot) => slot !== reference.slot,
-                              ),
-                        })
-                      }
-                    />{" "}
-                    {reference.slot}.{" "}
-                    {reference.fields.title ?? reference.originalText}
-                  </label>
-                ))}
-              </fieldset>
-              <fieldset
-                disabled={active || pending}
-                className="min-w-0 space-y-3"
-              >
-                <legend className="font-semibold">{m.revision_add()}</legend>
-                <label className="block">
-                  {m.revision_original()}
-                  <textarea
-                    className={control}
-                    value={text}
-                    onChange={(event) => setText(event.target.value)}
-                  />
-                </label>
-                <Fields
-                  fields={fields}
-                  onChange={setFields}
-                  truncated={truncated}
-                  onTruncated={setTruncated}
-                  disabled={active || pending}
-                />
-              </fieldset>
-              <button
-                className={action}
-                type="submit"
-                disabled={
-                  active || pending || (!draft.remove.length && !text.trim())
-                }
-              >
-                {m.revision_preview()}
-              </button>
-            </>
-          ) : (
-            <section aria-label={m.revision_preview()} className="space-y-3">
-              <p>
-                {m.revision_preview_counts({
-                  added: addition.length,
-                  removed: draft.remove.length,
-                  total:
-                    check.references.length -
-                    draft.remove.length +
-                    addition.length,
-                  quota: addition.length,
-                })}
-              </p>
-              <ul>
-                {draft.remove.map((slot) => (
-                  <li key={slot}>
-                    {m.revision_remove()}: {slot}.{" "}
-                    {
-                      check.references.find((r) => r.slot === slot)
-                        ?.originalText
-                    }
-                  </li>
-                ))}
-                {addition.map((reference, i) => (
-                  <li key={i}>
-                    {m.revision_add()}: {reference.originalText}
-                  </li>
-                ))}
-              </ul>
-              <p>{m.revision_no_refund()}</p>
-              <button
-                className={`${action} bg-surface text-text`}
-                type="button"
-                disabled={active || pending}
-                onClick={() => {
-                  void apply();
-                }}
-              >
-                {m.revision_apply()}
-              </button>
-              <button
-                className={action}
-                type="button"
-                disabled={pending}
-                onClick={() => setPreview(false)}
-              >
-                {m.revision_back()}
-              </button>
-            </section>
-          )}
-          <button
-            className={action}
-            type="button"
-            disabled={pending}
-            onClick={close}
-          >
-            {m.revision_discard()}
-          </button>
-        </form>
-      )}
     </section>
   );
 }

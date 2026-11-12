@@ -75,3 +75,22 @@ test("bounded Toast shim pins stable RAC and fails when its stable exit becomes 
     );
   }
 });
+
+test("reference editing surfaces use the shared primitives, not raw controls or local control classes", async () => {
+  for (const name of [
+    "reference-actions.tsx",
+    "reference-list-actions.tsx",
+    "reference-fields.tsx",
+    "correction-suggestions.tsx",
+  ]) {
+    const source = await readFile(new URL(`src/${name}`, root), "utf8");
+    assert.ok(
+      !/<(?:button|input|textarea|select)\b/u.test(source),
+      `${name} renders a raw form control instead of Button, TextField, Checkbox or Form`,
+    );
+    assert.ok(
+      !/^const (?:control|action|buttonClass)\b/mu.test(source),
+      `${name} keeps a local control class`,
+    );
+  }
+});

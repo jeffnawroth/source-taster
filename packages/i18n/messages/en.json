@@ -593,5 +593,7 @@
   "correction_fields_busy": "Apply to fields is unavailable while a save, re-check or verdict change is running.",
   "correction_fields_loading": "Apply to fields becomes available once the suggestion for the current result has loaded.",
   "correction_fields_unchanged": "Apply to fields is unavailable because the suggestion has no proven values that differ from the committed fields.",
-  "correction_none_current": "There is no correction suggestion with proven values for the current result. You can still edit the fields."
+  "correction_none_current": "There is no correction suggestion with proven values for the current result. You can still edit the fields.",
+  "revision_list_busy": "Wait for the reference run to finish or for the pending change to be applied before editing the list.",
+  "revision_preview_empty": "Select a reference to remove or enter the original text of one to add."
 }

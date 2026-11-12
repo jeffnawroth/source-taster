@@ -593,5 +593,7 @@
   "correction_fields_busy": "In Felder übernehmen ist nicht verfügbar, solange gespeichert, erneut geprüft oder ein Befund geändert wird.",
   "correction_fields_loading": "In Felder übernehmen wird verfügbar, sobald der Vorschlag für das aktuelle Ergebnis geladen ist.",
   "correction_fields_unchanged": "In Felder übernehmen ist nicht verfügbar, weil der Vorschlag keine belegten Werte enthält, die von den gespeicherten Feldern abweichen.",
-  "correction_none_current": "Für das aktuelle Ergebnis gibt es keinen Korrekturvorschlag mit belegten Werten. Sie können die Felder weiterhin bearbeiten."
+  "correction_none_current": "Für das aktuelle Ergebnis gibt es keinen Korrekturvorschlag mit belegten Werten. Sie können die Felder weiterhin bearbeiten.",
+  "revision_list_busy": "Warten Sie, bis der Lauf abgeschlossen ist oder die ausstehende Änderung angewendet wurde, bevor Sie die Liste bearbeiten.",
+  "revision_preview_empty": "Wählen Sie eine Referenz zum Entfernen aus oder geben Sie den Originaltext einer neuen ein."
 }

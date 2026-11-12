@@ -136,9 +136,15 @@ for (const language of ["en", "de"] as const)
     });
     await expect(edit).toBeEnabled({ timeout: 15000 });
     await edit.click();
+    // The shared Checkbox hides its native input; people press its label.
+    const removal = page.getByRole("checkbox", {
+      name: /1\. Measured measurement/,
+    });
     await page
-      .getByRole("checkbox", { name: /1\. Measured measurement/ })
-      .check();
+      .locator("label")
+      .filter({ hasText: /1\. Measured measurement/ })
+      .click();
+    await expect(removal).toBeChecked();
     await page
       .getByRole("textbox", {
         name:

@@ -18,10 +18,8 @@ import { ReferenceExports } from "./reference-exports.tsx";
 import type { OwnerQuota } from "./quota.ts";
 import { ReportDownload } from "./report-download.tsx";
 import { m } from "@source-taster/i18n";
-import {
-  ReferenceActions,
-  ReferenceListActions,
-} from "./reference-actions.tsx";
+import { ReferenceActions } from "./reference-actions.tsx";
+import { ReferenceListActions } from "./reference-list-actions.tsx";
 import { GridList, GridListItem } from "./primitives/grid-list.tsx";
 import {
   CheckSummary,

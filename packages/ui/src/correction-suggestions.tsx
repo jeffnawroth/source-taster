@@ -12,8 +12,6 @@ import { Button } from "./primitives/actions.tsx";
 import { Checkbox } from "./primitives/selection.tsx";
 import { resultBinding } from "./reference-work.ts";
 import type { CitationStyle } from "./preferences.ts";
-const buttonClass =
-  "rounded-lg border border-border-emphasis px-4 py-2 font-semibold disabled:bg-surface-sunken disabled:text-text-secondary";
 /**
  * What an export choice and its rendering are bound to: the same inputs as the
  * server's result token (result id and outcome). Outcome equality alone is not
@@ -200,6 +198,11 @@ export function BibliographyActions({
       .catch(() => setNotice("failed"))
       .finally(() => setExporting(false));
   }
+  // The export is rendered once the selected suggestions have been formatted.
+  const exportAvailability =
+    !rendered.data || rendered.pending || exporting
+      ? { isDisabled: true as const, disabledReason: m.correction_loading() }
+      : { isDisabled: false as const };
   return (
     <section
       aria-label={m.bibliography_heading()}
@@ -228,33 +231,27 @@ export function BibliographyActions({
         <p>{m.correction_none_selected()}</p>
       )}
       <div className="flex flex-wrap gap-3">
-        <button
-          type="button"
-          className={buttonClass}
-          disabled={!rendered.data || rendered.pending || exporting}
-          onClick={() => exportBibliography("copy")}
+        <Button
+          variant="secondary"
+          {...exportAvailability}
+          onPress={() => exportBibliography("copy")}
         >
           {m.bibliography_copy()}
-        </button>
-        <button
-          type="button"
-          className={buttonClass}
-          disabled={!rendered.data || rendered.pending || exporting}
-          onClick={() => exportBibliography("download")}
+        </Button>
+        <Button
+          variant="secondary"
+          {...exportAvailability}
+          onPress={() => exportBibliography("download")}
         >
           {m.bibliography_download()}
-        </button>
+        </Button>
       </div>
       {rendered.failed && (
-        <div>
+        <div className="space-y-2">
           <p role="alert">{m.correction_unavailable()}</p>
-          <button
-            type="button"
-            className={buttonClass}
-            onClick={rendered.retry}
-          >
+          <Button variant="secondary" onPress={rendered.retry}>
             {m.correction_retry()}
-          </button>
+          </Button>
         </div>
       )}
       {notice && (
@@ -316,25 +313,25 @@ export function CorrectionSuggestion({
   slot,
   rendered,
   originalText,
-  onApply,
+  onApplyToFields,
   unavailableReason,
-  busy,
+  operationRunning,
 }: {
   slot: number;
   rendered: Rendered;
   originalText: string;
-  onApply: () => void;
+  onApplyToFields: () => void;
   /** Why Apply to fields cannot run now; null when it can. */
   unavailableReason: string | null;
   /** A save, re-check or verdict change runs, so there is no current result. */
-  busy: boolean;
+  operationRunning: boolean;
 }) {
   const [notice, setNotice] = useState<"copied" | "failed" | null>(null);
   const entry = rendered.data?.entries.find((entry) => entry.slot === slot);
   if (!entry?.suggestion)
     return (
       <p className="my-4">
-        {rendered.data && !busy
+        {rendered.data && !operationRunning
           ? m.correction_none_current()
           : (unavailableReason ?? m.correction_loading())}
       </p>
@@ -366,7 +363,7 @@ export function CorrectionSuggestion({
       <div className="flex flex-wrap items-center gap-3">
         <Button
           variant="secondary"
-          onPress={onApply}
+          onPress={onApplyToFields}
           {...(unavailableReason
             ? { isDisabled: true, disabledReason: unavailableReason }
             : { isDisabled: false })}
