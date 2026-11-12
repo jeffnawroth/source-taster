@@ -270,11 +270,19 @@ test("a layout change in the detail during a Save press does not lose the press"
     const detail = document.querySelector(".check-detail")!;
     detail.insertBefore(block, detail.firstElementChild);
   });
-  // The control stays under the pointer until the press ends.
+  // The control stays under the pointer until the press ends. Its centre is
+  // compared, because the press motion scales the box around that centre.
+  const pressed = (await save.boundingBox())!;
   expect(
-    await save.boundingBox(),
+    {
+      x: pressed.x + pressed.width / 2,
+      y: pressed.y + pressed.height / 2,
+    },
     "Save did not move under the pointer",
-  ).toEqual(before);
+  ).toEqual({
+    x: expect.closeTo(before.x + before.width / 2, 0),
+    y: expect.closeTo(before.y + before.height / 2, 0),
+  });
   await page.mouse.up();
   expect(
     await page.evaluate(() => scrollY),
