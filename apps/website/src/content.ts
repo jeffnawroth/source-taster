@@ -255,7 +255,7 @@ export const pages: Record<Language, Page[]> = {
       summary: "Answers for this preview.",
       paragraphs: [
         "Can I check my bibliography here? No. This is an information preview. In the local workspace, the uncalibrated DOI preview can resolve a supplied DOI through doi.org and compare Crossref metadata when explicitly enabled. Without that opt-in, references remain Not checked. This preview is not qualified for decisions or release.",
-        "A verdict is not proof of deception. A human makes the decision and must review the evidence.",
+        "Does a verdict establish misconduct? No. A verdict is not proof of deception. A human makes the decision and must review the evidence.",
         "Where does a documentation search go? It runs locally in your browser over a public index for the selected language. Do not enter private material into a public documentation search.",
         "Can I buy a plan or install the extension? Neither is available in this wave. The documentation states the actual limits.",
       ],
@@ -380,7 +380,7 @@ export const pages: Record<Language, Page[]> = {
       summary: "Antworten zu dieser Vorschau.",
       paragraphs: [
         "Kann ich hier mein Literaturverzeichnis prüfen? Nein. Dies ist eine Informationsvorschau. Im lokalen Arbeitsbereich kann die unkalibrierte DOI-Vorschau eine angegebene DOI über doi.org auflösen und Crossref-Metadaten vergleichen, wenn sie ausdrücklich aktiviert wurde. Ohne diese Aktivierung bleiben Referenzen Nicht geprüft. Diese Vorschau ist für Entscheidungen oder eine Veröffentlichung nicht qualifiziert.",
-        "Ein Befund ist kein Beweis für Täuschung. Die Entscheidung trifft ein Mensch und erfordert die Prüfung der Belege.",
+        "Belegt ein Befund wissenschaftliches Fehlverhalten? Nein. Ein Befund ist kein Beweis für Täuschung. Die Entscheidung trifft ein Mensch und erfordert die Prüfung der Belege.",
         "Wohin geht eine Dokumentationssuche? Sie läuft lokal in Ihrem Browser über einen öffentlichen Index der gewählten Sprache. Geben Sie keine privaten Inhalte in eine öffentliche Dokumentationssuche ein.",
         "Kann ich einen Plan kaufen oder die Erweiterung installieren? Beides ist in dieser Welle nicht verfügbar. Die Dokumentation nennt die tatsächlichen Grenzen.",
       ],
