@@ -176,6 +176,17 @@ Fixed on `fix/220-review`.
   the client, which the contract does not carry, and `components.md` §3.6 says
   "against the original". Left as documented above; changing it is a contract
   change, not a review fix.
+- **Review judgement calls (`fix/220-review-judgement`).** Checked on `ae017fc`;
+  two were already fixed and one needed a leftover removed. (1)
+  `apps/web/e2e/support/rendered.ts` already shares one in-page kit (`useKit`:
+  `decode`, `rgb`, `ratio`, with `luminance` defined once), so the duplicated
+  luminance/contrast and PNG decode no longer exist (7006aed); the only
+  remaining repeat was `paintedContrast` decoding the painted capture twice,
+  now one decode that also yields the width. (2) `account-api.ts` already builds
+  both access tokens from one `accessToken` claims builder (da6a337). (3)
+  `packages/release-imagery/src/gate.ts` no longer has `requiredCommit`: the
+  value is `reviewFixCommit`, the full SHA of the #212 review fix, with a test
+  that it is 40 hex digits (d9c1c89); the gate's behaviour is unchanged.
 
 ## Public seams and red/green evidence
 

@@ -184,12 +184,11 @@ export async function paintedContrast(
       const kit = window.__stKit!;
       const want = kit.rgb(color);
       const { coverageFloor, minimumSpan } = limits;
-      const { data: a } = await kit.decode(painted);
+      const { data: a, width } = await kit.decode(painted);
       const { data: b } = await kit.decode(behind);
       let min = Infinity;
       let count = 0;
       let worst: Painted["worst"] = null;
-      const { width } = await kit.decode(painted);
       for (let n = 0; n < a.length; n += 4) {
         const pixel = [a[n]!, a[n + 1]!, a[n + 2]!];
         const back = [b[n]!, b[n + 1]!, b[n + 2]!];
