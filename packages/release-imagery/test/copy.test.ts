@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { claims } from "../src/claims.ts";
+import { captureReferences } from "../src/fixtures.ts";
 import { copy, imageAlt, imageClaims } from "../src/copy.ts";
 import { imageSpecs } from "../src/specs.ts";
 
@@ -53,5 +54,27 @@ await test("headline and caption fit the layout budget", () => {
     for (const l of locales) {
       assert.ok(entry.headline[l].length <= 48, entry.headline[l]);
       assert.ok(entry.caption[l].length <= 120, entry.caption[l]);
+    }
+});
+
+await test("alt texts name Verdicts with their exact labels and follow the voice guide", () => {
+  const byId = Object.fromEntries(
+    captureReferences.map((r) => [r.id, r.verdict]),
+  );
+  const overview = imageSpecs.find((s) => s.story === "overview")!;
+  const evidence = imageSpecs.find((s) => s.story === "evidence")!;
+  for (const l of locales) {
+    for (const r of captureReferences)
+      assert.ok(imageAlt(overview)[l].includes(r.verdict[l]), `${l} ${r.id}`);
+    assert.ok(imageAlt(evidence)[l].includes(byId.deviating![l]));
+  }
+  for (const spec of imageSpecs)
+    for (const l of locales) {
+      const text = imageAlt(spec)[l];
+      assert.doesNotMatch(text, /!/u);
+      assert.doesNotMatch(
+        text,
+        /\b(AI-powered|instantly|smart|magic|KI-gestützt|sofort|magisch)\b/iu,
+      );
     }
 });

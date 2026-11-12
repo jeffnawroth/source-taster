@@ -8,6 +8,12 @@ import type { Locale } from "./specs.ts";
 export interface Claim {
   id: string;
   text: Record<Locale, string>;
+  /**
+   * Reference to a release qualification that covers this behaviour, or null.
+   * The behaviour is implemented and tested; none of it is qualified for release
+   * (the product itself says so in its development-preview notice).
+   */
+  qualified: string | null;
   evidence: {
     /** Implementation record, relative to the repository root. */
     doc: string;
@@ -29,6 +35,7 @@ export const claims: readonly Claim[] = [
       en: "The Check workspace opens in the browser's side panel.",
       de: "Der Prüfbereich öffnet sich im Seitenbereich des Browsers.",
     },
+    qualified: null,
     evidence: {
       doc: "docs/implementation/92-extension-skeleton.md",
       spec: panel,
@@ -42,6 +49,7 @@ export const claims: readonly Claim[] = [
       en: "Each pasted Reference receives its own Verdict, in input order.",
       de: "Jede eingefügte Referenz erhält einen eigenen Befund, in Eingabereihenfolge.",
     },
+    qualified: null,
     evidence: {
       doc: "docs/implementation/92-extension-skeleton.md",
       spec: panel,
@@ -55,6 +63,7 @@ export const claims: readonly Claim[] = [
       en: "The summary counts Verdicts separately from technical Statuses and filters the list.",
       de: "Die Übersicht zählt Befunde getrennt von technischen Status und filtert die Liste.",
     },
+    qualified: null,
     evidence: {
       doc: "docs/implementation/82-check-workspace.md",
       spec: workspace,
@@ -68,6 +77,7 @@ export const claims: readonly Claim[] = [
       en: "A DOI conflict has its own count and filter.",
       de: "Ein DOI-Konflikt hat eine eigene Zahl und einen eigenen Filter.",
     },
+    qualified: null,
     evidence: {
       doc: "docs/implementation/82-check-workspace.md",
       spec: workspace,
@@ -80,6 +90,7 @@ export const claims: readonly Claim[] = [
       en: "The Reference and the Best match are compared side by side.",
       de: "Referenz und bester Treffer werden nebeneinander verglichen.",
     },
+    qualified: null,
     evidence: {
       doc: "docs/implementation/82-check-workspace.md",
       spec: workspace,
@@ -92,6 +103,7 @@ export const claims: readonly Claim[] = [
       en: "The Reference detail leads with the Verdict and offers the evidence behind it.",
       de: "Die Detailansicht beginnt mit dem Befund und bietet die Belege dahinter.",
     },
+    qualified: null,
     evidence: {
       doc: "docs/implementation/212-reference-detail.md",
       spec: detail,
@@ -105,6 +117,7 @@ export const claims: readonly Claim[] = [
       en: "A Correction suggestion marks what would change against the original text.",
       de: "Ein Korrekturvorschlag markiert, was sich gegenüber dem Originaltext ändern würde.",
     },
+    qualified: null,
     evidence: {
       doc: "docs/implementation/212-reference-detail.md",
       spec: panel,
@@ -118,10 +131,12 @@ export const claims: readonly Claim[] = [
       en: "The panel runs in German and English.",
       de: "Der Seitenbereich läuft auf Deutsch und Englisch.",
     },
+    qualified: null,
     evidence: {
       doc: "docs/implementation/92-extension-skeleton.md",
       spec: panel,
-      title: "in DE and EN without axe violations",
+      title:
+        "native panel and web keep identical server outcomes for the synthetic witnesses in",
     },
   },
 ];

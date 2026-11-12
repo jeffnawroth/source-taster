@@ -13,9 +13,14 @@ await test("every pictured or written claim maps to a release evidence document 
     assert.match(claim.evidence.doc, /^docs\/implementation\/.+\.md$/u);
     await access(root + claim.evidence.doc);
     const spec = await readFile(root + claim.evidence.spec, "utf8");
-    assert.ok(
-      spec.includes(claim.evidence.title),
-      `${claim.id}: "${claim.evidence.title}" is not a test title in ${claim.evidence.spec}`,
+    const escaped = claim.evidence.title.replace(
+      /[.*+?^${}()|[\]\\]/gu,
+      "\\$&",
+    );
+    assert.match(
+      spec,
+      new RegExp(`test\\(\\s*[\`"']${escaped}`, "u"),
+      `${claim.id}: "${claim.evidence.title}" does not start a test( title in ${claim.evidence.spec}`,
     );
   }
 });
@@ -25,6 +30,10 @@ await test("claim ids are unique and each states the same fact in German and Eng
   for (const claim of claims) {
     assert.ok(claim.text.en.length > 10 && claim.text.de.length > 10);
   }
+});
+
+await test("no claim is presented as release-qualified while no qualification covers it", () => {
+  for (const claim of claims) assert.equal(claim.qualified, null, claim.id);
 });
 
 await test("no claim asserts something the release evidence cannot back", () => {

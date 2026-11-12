@@ -66,7 +66,8 @@ const storyClaims: Record<Story, string[]> = {
 
 /** Claim ids an image pictures or states. The language-neutral promo tiles state none. */
 export function imageClaims(spec: ImageSpec): string[] {
-  if (spec.role === "social") return ["verdict-per-reference"];
+  if (spec.role === "social")
+    return ["verdict-per-reference", "detail-leads-with-verdict"];
   if (spec.story) return storyClaims[spec.story];
   return [];
 }
@@ -77,12 +78,12 @@ const storyAlt: Record<Story, Text> = {
     de: "Der Source-Taster-Seitenbereich neben einer Browserseite, mit drei eingefügten Referenzen im Eingabefeld und der Schaltfläche Referenz prüfen darunter.",
   },
   overview: {
-    en: "The Source Taster summary with one count for each Verdict, above a list of three References. They carry the Verdicts Correct, Exists with deviations and DOI conflict, each with a symbol and a label.",
-    de: "Die Source-Taster-Übersicht mit je einer Zahl pro Befund über einer Liste aus drei Referenzen. Sie tragen die Befunde Korrekt, Existiert mit Abweichungen und DOI-Konflikt, jeweils mit Symbol und Beschriftung.",
+    en: "The Source Taster summary with one count for each Verdict, above a list of three References. They carry the Verdicts Correct, Exists, with deviations and DOI conflict, each with a symbol and a label.",
+    de: "Die Source-Taster-Übersicht mit je einer Zahl pro Befund über einer Liste aus drei Referenzen. Sie tragen die Befunde Korrekt, Existiert, mit Abweichungen und DOI-Konflikt, jeweils mit Symbol und Beschriftung.",
   },
   evidence: {
-    en: "The detail of one Reference. It starts with the Verdict Exists with deviations, compares the Reference with the Best match field by field, and shows a Correction suggestion with the changed words marked.",
-    de: "Die Detailansicht einer Referenz. Sie beginnt mit dem Befund Existiert mit Abweichungen, vergleicht die Referenz Feld für Feld mit dem besten Treffer und zeigt einen Korrekturvorschlag mit markierten Änderungen.",
+    en: "The detail of one Reference. It starts with the Verdict Exists, with deviations, compares the Reference with the Best match field by field, and shows a Correction suggestion with the changed words marked.",
+    de: "Die Detailansicht einer Referenz. Sie beginnt mit dem Befund Existiert, mit Abweichungen, vergleicht die Referenz Feld für Feld mit dem besten Treffer und zeigt einen Korrekturvorschlag mit markierten Änderungen.",
   },
 };
 

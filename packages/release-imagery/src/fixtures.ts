@@ -60,9 +60,9 @@ export const captureReferences: readonly CaptureReference[] = [
   },
   {
     id: "conflict",
-    doi: "10.5555/imagery-unmatched",
+    doi: "10.5555/imagery-conflict",
     input:
-      "Nordmark, E. K. (2020). An example that no source can match. Journal of Synthetic Examples, 11(1), 1–9. https://doi.org/10.5555/imagery-unmatched",
+      "Nordmark, E. K. (2020). A third example of controlled input. Journal of Synthetic Examples, 11(1), 1–9. https://doi.org/10.5555/imagery-conflict",
     verdict: { en: "DOI conflict", de: "DOI-Konflikt" },
   },
 ];
