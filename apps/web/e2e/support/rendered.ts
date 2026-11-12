@@ -254,8 +254,13 @@ export async function outlineContrast(locator: Locator): Promise<number> {
   );
 }
 
-/** Black-and-white mask of the painted glyph, as 0/1 flags on a fixed grid. */
-export async function greyscaleMask(
+/**
+ * Per-cell difference between the glyph painted and the backdrop behind it, on
+ * a fixed grid, in greyscale: the summed absolute channel difference, 0 (same)
+ * to 765 (black against white). Turning this into a silhouette is a separate
+ * step (`silhouette`) so that its threshold can be varied without new captures.
+ */
+export async function greyscaleDifference(
   page: Page,
   locator: Locator,
   size = 24,
@@ -286,15 +291,14 @@ export async function greyscaleMask(
         const kit = window.__stKit!;
         const { data: a } = await kit.decode(shot, size);
         const { data: b } = await kit.decode(behind, size);
-        const mask: number[] = [];
-        for (let n = 0; n < a.length; n += 4) {
-          const diff =
+        const difference: number[] = [];
+        for (let n = 0; n < a.length; n += 4)
+          difference.push(
             Math.abs(a[n]! - b[n]!) +
-            Math.abs(a[n + 1]! - b[n + 1]!) +
-            Math.abs(a[n + 2]! - b[n + 2]!);
-          mask.push(diff > 150 ? 1 : 0);
-        }
-        return mask;
+              Math.abs(a[n + 1]! - b[n + 1]!) +
+              Math.abs(a[n + 2]! - b[n + 2]!),
+          );
+        return difference;
       },
       { shot, behind, size },
     );
@@ -303,6 +307,21 @@ export async function greyscaleMask(
       document.getElementById("st-greyscale")?.remove(),
     );
   }
+}
+
+/**
+ * The silhouette: cells that differ from the backdrop by at least `fraction`
+ * of the strongest difference in the same glyph. Relative to the glyph's own
+ * strongest cell, so it holds in light and dark and for any glyph strength,
+ * instead of one absolute number that suits only one scheme. The half-maximum
+ * default is the usual edge criterion: an anti-aliased edge cell, which covers
+ * about half of its area, lands on the boundary.
+ */
+export function silhouette(difference: number[], fraction = 0.5): number[] {
+  const strongest = Math.max(0, ...difference);
+  return difference.map((d) =>
+    strongest > 0 && d >= strongest * fraction ? 1 : 0,
+  );
 }
 
 /** Intersection over union of two masks; 1 means the same silhouette. */

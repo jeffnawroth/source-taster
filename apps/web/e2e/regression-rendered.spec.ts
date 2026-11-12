@@ -8,11 +8,12 @@
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import {
-  greyscaleMask,
+  greyscaleDifference,
   outlineContrast,
   overlap,
   paintedContrast,
   ratioFloor,
+  silhouette,
 } from "./support/rendered.ts";
 
 type Language = "en" | "de";
@@ -36,6 +37,17 @@ const words = {
 const darwin = "Darwin, C. (1859). On the Origin of Species.";
 const aspelmeyer =
   "Aspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170";
+// Greyscale thresholds, set from measurements on this build (macOS, Chromium):
+// the strongest cell of each glyph differs from its backdrop by 333 to 642 of
+// 765 (summed over three channels), so 250 leaves about a quarter of margin
+// under the weakest; the most alike pair of silhouettes reaches an
+// intersection-over-union of 0.75 at the loosest silhouette threshold tried
+// (0.68 at the half-maximum), so 0.80 leaves 0.05 over the worst case, where
+// two identical glyphs score 1. A change of rendering engine can move these;
+// the manifest in docs/implementation/216-regression-evidence.json records the
+// observed values.
+const greyscaleVisible = 250;
+const greyscaleSameShape = 0.8;
 // Enough rows that a short viewport scrolls content under the sticky glass.
 const references = [
   aspelmeyer,
@@ -137,6 +149,102 @@ for (const language of ["en", "de"] as const)
       );
     });
 
+// The sticky glass verdict header of the open detail (two panes, from 768 px).
+// Its backdrop is the detail content scrolled underneath, not the feed.
+async function openStuckDetail(page: Page, language: Language, theme: Theme) {
+  const { feed } = await openChecked(page, language, theme);
+  await feed.getByRole("row").first().getByRole("button").click();
+  const header = page.locator(".detail-verdict-header");
+  await expect(header).toBeVisible();
+  expect(
+    await header.evaluate((el) => getComputedStyle(el).position),
+    "the header is sticky at this width",
+  ).toBe("sticky");
+  expect(
+    await header.evaluate((el) => getComputedStyle(el).backdropFilter),
+    "this run must exercise the real glass, not the opaque fallback",
+  ).not.toBe("none");
+  // Scroll the detail until its content really sits under the stuck header.
+  const under = await page.evaluate(() => {
+    const pane = document.querySelector<HTMLElement>(".check-detail")!;
+    const head = document.querySelector<HTMLElement>(".detail-verdict-header")!;
+    pane.scrollTop = 240;
+    const box = head.getBoundingClientRect();
+    const covered = [...pane.querySelectorAll<HTMLElement>("p, li, td")]
+      .filter((el) => !head.contains(el))
+      .filter((el) => {
+        const at = el.getBoundingClientRect();
+        return at.top < box.bottom && at.bottom > box.top;
+      });
+    return { scrolled: pane.scrollTop, covered: covered.length };
+  });
+  expect(under.scrolled, "the detail scrolled").toBeGreaterThan(0);
+  expect(
+    under.covered,
+    "detail content is behind the header, so the backdrop is not empty",
+  ).toBeGreaterThan(0);
+  return header;
+}
+
+for (const language of ["en", "de"] as const)
+  for (const theme of ["light", "dark"] as const)
+    test(`the sticky detail verdict header keeps text and glyph contrast over scrolled detail content (${language}, ${theme})`, async ({
+      page,
+    }) => {
+      test.setTimeout(120_000);
+      const header = await openStuckDetail(page, language, theme);
+      const labelText = await paintedContrast(
+        header.locator(".verdict-badge > span"),
+        "text",
+      );
+      expect(labelText.count, "Verdict label is painted").toBeGreaterThan(5);
+      expect(
+        labelText.min,
+        "Verdict label on the detail header",
+      ).toBeGreaterThanOrEqual(ratioFloor.text);
+      for (const reason of await header.locator("p").all()) {
+        const measured = await paintedContrast(reason, "text");
+        expect(measured.count, "reason text is painted").toBeGreaterThan(5);
+        expect(
+          measured.min,
+          "reason text on the detail header",
+        ).toBeGreaterThanOrEqual(ratioFloor.text);
+      }
+      const glyph = header.locator("svg[data-verdict]");
+      await expect(glyph).toHaveCount(1);
+      const shape = await paintedContrast(glyph, "shape");
+      expect(shape.count, "fully painted glyph pixels").toBeGreaterThan(20);
+      expect(
+        shape.min,
+        "Verdict glyph on the detail header",
+      ).toBeGreaterThanOrEqual(ratioFloor.nonText);
+    });
+
+test("negative control: the detail header measurement rejects faint text and a faint glyph", async ({
+  page,
+}) => {
+  test.setTimeout(120_000);
+  const header = await openStuckDetail(page, "en", "light");
+  const label = header.locator(".verdict-badge > span");
+  const glyph = header.locator("svg[data-verdict]");
+  expect(
+    (await paintedContrast(label, "text")).min,
+    "control: the real label passes",
+  ).toBeGreaterThanOrEqual(ratioFloor.text);
+  await label.evaluate((el) =>
+    el.style.setProperty("color", "rgb(226 228 234)", "important"),
+  );
+  const faint = await paintedContrast(label, "text");
+  expect(faint.count).toBeGreaterThan(5);
+  expect(faint.min).toBeLessThan(ratioFloor.text);
+  await glyph.evaluate((el) =>
+    el.style.setProperty("color", "rgb(226 228 234)", "important"),
+  );
+  const pale = await paintedContrast(glyph, "shape");
+  expect(pale.count).toBeGreaterThan(20);
+  expect(pale.min).toBeLessThan(ratioFloor.nonText);
+});
+
 test("negative control: the rendered measurer rejects text that is too faint", async ({
   page,
 }) => {
@@ -178,31 +286,49 @@ for (const theme of ["light", "dark"] as const)
     await expect(strip.locator("svg[data-verdict]")).toHaveCount(6);
     const glyphs = strip.locator("svg[data-verdict]");
     const names: string[] = [];
-    const masks: number[][] = [];
+    const differences: number[][] = [];
     for (let n = 0; n < 6; n++) {
       const glyph = glyphs.nth(n);
       names.push((await glyph.getAttribute("data-verdict"))!);
-      masks.push(await greyscaleMask(page, glyph));
+      differences.push(await greyscaleDifference(page, glyph));
     }
     expect(new Set(names).size, "six different Verdict identifiers").toBe(6);
-    const worst: string[] = [];
-    let highest = 0;
-    for (let a = 0; a < 6; a++) {
+    for (const [n, difference] of differences.entries())
       expect(
-        masks[a]!.reduce((sum, v) => sum + v, 0),
-        `${names[a]} paints a measurable silhouette`,
-      ).toBeGreaterThan(20);
-      for (let b = a + 1; b < 6; b++) {
-        const same = overlap(masks[a]!, masks[b]!);
-        worst.push(`${names[a]}/${names[b]}=${same.toFixed(2)}`);
-        highest = Math.max(highest, same);
+        Math.max(...difference),
+        `${names[n]} is clearly visible in greyscale (strongest cell difference, of 765)`,
+      ).toBeGreaterThanOrEqual(greyscaleVisible);
+    // Every silhouette threshold from a quarter to three quarters of the
+    // glyph's strongest cell must keep the six apart, so the result does not
+    // hang on one number. The half-maximum (the edge criterion) is the one
+    // reported.
+    const report: string[] = [];
+    for (const fraction of [0.25, 0.5, 0.75]) {
+      const masks = differences.map((d) => silhouette(d, fraction));
+      let highest = 0;
+      const pairs: string[] = [];
+      for (let a = 0; a < 6; a++) {
+        expect(
+          masks[a]!.reduce((sum, v) => sum + v, 0),
+          `${names[a]} paints a measurable silhouette at ${fraction}`,
+        ).toBeGreaterThan(20);
+        for (let b = a + 1; b < 6; b++) {
+          const same = overlap(masks[a]!, masks[b]!);
+          pairs.push(`${names[a]}/${names[b]}=${same.toFixed(2)}`);
+          highest = Math.max(highest, same);
+        }
       }
+      report.push(`${fraction}: ${highest.toFixed(2)}`);
+      expect(
+        highest,
+        `most alike pair at ${fraction}: ${pairs.join(" ")}`,
+      ).toBeLessThan(greyscaleSameShape);
     }
-    // Calibrated on this build: the most alike pair (circle and hexagon) scores
-    // about 0.74, an identical glyph scores exactly 1.
-    expect(highest, `most alike pair: ${worst.join(" ")}`).toBeLessThan(0.85);
     // Control: the measurer must call a glyph identical to itself.
-    expect(overlap(masks[0]!, masks[0]!)).toBe(1);
+    const own = silhouette(differences[0]!);
+    expect(overlap(own, own)).toBe(1);
+    // Control: it must also tell a glyph from a different one.
+    expect(overlap(own, silhouette(differences[1]!))).toBeLessThan(1);
   });
 
 // 1100 is the wide layout; 360 and 320 are the reflow widths; 640x360 and
@@ -431,18 +557,49 @@ for (const language of ["en", "de"] as const)
     const heard = await page.evaluate(
       () => (window as unknown as { __heard: string[] }).__heard,
     );
-    const progress = heard.filter((line) => /\d+\D+8/.test(line));
+    // The product's own wording (`check_progress` in the message catalogs), in
+    // the language of the page: a number, the total of 8, and what it counts.
+    const template =
+      language === "en"
+        ? /^(\d+) of 8 references finished$/u
+        : /^(\d+) von 8 Referenzen abgeschlossen$/u;
+    const wrongLanguage =
+      language === "en"
+        ? /\b(von|Referenzen|abgeschlossen)\b/u
+        : /\b(of|references|finished)\b/u;
+    expect(
+      heard.filter((line) => wrongLanguage.test(line)),
+      "every announcement is in the page language",
+    ).toEqual([]);
+    const progress = heard.filter((line) => template.test(line));
     // Updates are bounded (every third completion plus the end), not per event.
     expect(
       progress.length,
       `progress announcements: ${JSON.stringify(progress)}`,
     ).toBeLessThanOrEqual(6);
-    expect(progress.length).toBeGreaterThan(0);
-    const counts = progress.map((line) => Number(line.match(/\d+/)![0]));
+    expect(
+      progress.length,
+      "progress is announced more than once, so it is followed",
+    ).toBeGreaterThan(1);
+    const counts = progress.map((line) => Number(template.exec(line)![1]));
     expect(counts, "progress only moves forward").toEqual(
       [...counts].sort((x, y) => x - y),
     );
+    expect(new Set(counts).size, "no count is announced twice").toBe(
+      counts.length,
+    );
     expect(counts.at(-1), "the finished count is announced").toBe(8);
+    // Meaning, not just a count: the check is announced when it starts, and the
+    // finished count is the last of the progress lines, after the others.
+    expect(heard[0], "the recognised References are announced first").toMatch(
+      language === "en"
+        ? /^8 references recognized\./u
+        : /^8 Referenzen erkannt\./u,
+    );
+    expect(
+      heard.lastIndexOf(progress.at(-1)!),
+      "the finished count comes after every other progress line",
+    ).toBeGreaterThan(heard.lastIndexOf(progress.at(-2)!));
     expect(
       heard.filter((line) => line.length > 200),
       "no announcement dumps a whole region",
