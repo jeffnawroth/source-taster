@@ -8,6 +8,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { exportJobs } from "../src/exports.ts";
 import { brandMasters, gamutRecord } from "../src/masters.ts";
+import { webManifest } from "../src/web-head.ts";
 
 const root = new URL("../", import.meta.url);
 const mastersDir = new URL("masters/", root);
@@ -34,6 +35,13 @@ const written = new Map<string, Buffer>();
 try {
   for (const job of exportJobs) {
     if (job.entries) continue;
+    if (job.generated === "web-manifest") {
+      written.set(
+        job.file,
+        Buffer.from(`${JSON.stringify(webManifest(), null, 2)}\n`),
+      );
+      continue;
+    }
     const master = masters[job.master!]!;
     if (!job.size) {
       written.set(job.file, Buffer.from(master));
