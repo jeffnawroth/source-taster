@@ -2,8 +2,8 @@
 
 Public implementation completed on 12 November 2026 under the TDD workflow, on
 `implement/215-release-imagery`. The branch contains the integration tip
-`59f4f85` and the final-capture gate commit `b588c9c`. A fresh fetch before the
-report found `implement/design-remaining` at `aada5ed`, already contained, so
+`59f4f85` and the final-capture gate commit `b588c9c`. A second fetch, after the final capture and
+before the report, found `implement/design-remaining` at `aada5ed`, already contained, so
 no further merge was needed. Scope follows the owner's decision: public
 preparation only. Nothing was uploaded, published or registered, no domain was
 bought, and no rating, metric, price or certification appears in any image.
@@ -63,10 +63,14 @@ recommendations are kept apart on purpose.
 The opaque RGB PNG policy is this repository's own recommendation. No checked
 source states a no-alpha or 24-bit rule for the Chrome Web Store.
 
-The CWS recommendation to avoid text in promo images is met: the promo tiles
+Against the CWS promo recommendations: avoiding text is met: the promo tiles
 carry only the mark and the name "Source Taster". The store screenshots carry
 a headline and a caption beside the capture, which the CWS page does not
-forbid. The AMO page advises against text in images, so the AMO candidates are
+forbid. **Not met:** saturated colours, avoiding heavy white and light grey,
+assuming a light-grey store background, and filling the region with
+well-defined edges. The tiles use the calm `#f3f5f9` canvas and will fade
+into a light-grey background; this is a design-review item for #217, not a
+requirement. The AMO page advises against text in images, so the AMO candidates are
 a design question for #217.
 
 ## Copy and alt text
@@ -132,9 +136,10 @@ added. The mapping below is a proposal for later wiring, with no domain:
 
 Absolute `og:image` URLs need the production domain, which is not configured,
 so stable metadata URLs stay open until it is. Also set `og:image:width`
-1200, `og:image:height` 630 and `og:image:alt`.
+1200, `og:image:height` 630 and `og:image:alt`; ogp.me defines all three and
+says a page that specifies `og:image` should specify `og:image:alt`.
 
-## Tests (red first, then green)
+## Tests
 
 - `test/specs.test.ts`: the exact file list, sizes and PNG format per role.
 - `test/validate.test.ts`: IHDR reading; a wrong size, colour type, hash,
@@ -148,7 +153,9 @@ so stable metadata URLs stay open until it is. Also set `og:image:width`
 - `test/manifest.test.ts`: the builder lists the image set with claims, alt
   text and provenance; a final manifest needs an open gate and
   `releaseQualified: false`.
-- `test/exports.test.ts`: when `exports/manifest.json` exists, it is final and
+- `test/exports.test.ts` (no red run while no `exports/` existed; it was
+  checked afterwards by changing one recorded hash in `exports/manifest.json`,
+  which failed the test, and restoring the file): when `exports/manifest.json` exists, it is final and
   every PNG matches its recorded hash and size. It is skipped when no final
   capture is committed.
 
@@ -180,6 +187,10 @@ Run on 12 November 2026 on macOS (aarch64):
 - **#207:** the brand notice stays a draft that is not legally reviewed. It
   remains a hard gate before private consumption, brand distribution, store
   publication and launch.
+- **AMO takes one screenshot set** (Extension Workshop); the DE and EN sets
+  both exist, and which language the single set uses is still to be chosen.
+- **CWS promo recommendations** (saturated colour, no light grey, fill the
+  region) are not met by the calm tiles; design review in #217.
 - **X card guidance** is unresolved (see above).
 - **AMO `content-optimization` state** on production is unverified; the 4:3
   candidates are conditional.
