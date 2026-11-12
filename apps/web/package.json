@@ -14,7 +14,8 @@
     "test:e2e:cross-browser": "SOURCE_TASTER_E2E_CROSS_BROWSER=true pnpm test:e2e",
     "test:guest": "playwright test --config guest.playwright.config.ts",
     "test:quota": "playwright test --config quota.playwright.config.ts",
-    "test:history": "playwright test --config history.playwright.config.ts"
+    "test:history": "playwright test --config history.playwright.config.ts",
+    "fidelity": "node scripts/design-fidelity.ts"
   },
   "dependencies": {
     "@source-taster/contract-verification": "workspace:*",
