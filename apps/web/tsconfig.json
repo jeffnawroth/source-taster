@@ -12,6 +12,7 @@
     "e2e-history",
     "e2e-shell-hosted",
     "e2e",
+    "test",
     "*.ts",
     "guest.playwright.config.ts",
     "e2e-guest",

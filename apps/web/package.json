@@ -8,6 +8,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "typecheck": "tsc -p tsconfig.json",
+    "test": "node --test test/*.test.ts",
     "lint": "eslint .",
     "test:e2e": "playwright test && playwright test --config bibliographic.playwright.config.ts",
     "test:e2e:cross-browser": "SOURCE_TASTER_E2E_CROSS_BROWSER=true pnpm test:e2e",
