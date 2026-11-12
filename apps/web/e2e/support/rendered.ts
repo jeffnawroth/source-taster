@@ -62,7 +62,10 @@ export async function paintedContrast(
   return page.evaluate(
     async ({ painted, behind, color }) => {
       const decode = async (b64: string) => {
-        const blob = await (await fetch(`data:image/png;base64,${b64}`)).blob();
+        const blob = new Blob(
+          [Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))],
+          { type: "image/png" },
+        );
         const bitmap = await createImageBitmap(blob);
         const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
         const ctx = canvas.getContext("2d")!;
@@ -130,7 +133,10 @@ export async function outlineContrast(locator: Locator): Promise<number> {
   ).toString("base64");
   return page.evaluate(
     async ({ shot, color }) => {
-      const blob = await (await fetch(`data:image/png;base64,${shot}`)).blob();
+      const blob = new Blob(
+        [Uint8Array.from(atob(shot), (c) => c.charCodeAt(0))],
+        { type: "image/png" },
+      );
       const bitmap = await createImageBitmap(blob);
       const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
       const ctx = canvas.getContext("2d")!;
@@ -204,9 +210,10 @@ export async function greyscaleMask(
     return await page.evaluate(
       async ({ shot, behind, size }) => {
         const decode = async (b64: string) => {
-          const blob = await (
-            await fetch(`data:image/png;base64,${b64}`)
-          ).blob();
+          const blob = new Blob(
+            [Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))],
+            { type: "image/png" },
+          );
           const bitmap = await createImageBitmap(blob);
           const canvas = new OffscreenCanvas(size, size);
           const ctx = canvas.getContext("2d")!;
