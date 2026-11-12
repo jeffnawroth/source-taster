@@ -97,9 +97,9 @@ function site(path: string) {
 function states(structure: string, website: string): State[] {
   const list: State[] = [];
   const d = (stage: string, frame: Frame, theme: Theme, lang: Lang) =>
-    `${pathToFileURL(structure)}?variant=D&calm=1&strip=a&still=1&theme=${theme}&lang=${lang}&stage=${stage}${frame === "360" ? "&w=360" : ""}`;
+    `${pathToFileURL(structure).href}?variant=D&calm=1&strip=a&still=1&theme=${theme}&lang=${lang}&stage=${stage}${frame === "360" ? "&w=360" : ""}`;
   const s = (pageId: string, frame: Frame, theme: Theme, lang: Lang) =>
-    `${pathToFileURL(website)}?variant=S&page=${pageId}&theme=${theme}&lang=${lang}&frame=${frame}`;
+    `${pathToFileURL(website).href}?variant=S&page=${pageId}&theme=${theme}&lang=${lang}&frame=${frame}`;
   for (const frame of ["web", "360"] as const)
     for (const theme of ["light", "dark"] as const) {
       const lang: Lang = theme === "dark" ? "de" : "en";
