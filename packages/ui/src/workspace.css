@@ -93,6 +93,15 @@ body {
   color: var(--st-text-secondary);
   margin: 8px 0;
 }
+.feed-draft {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 0;
+  font-size: var(--st-text-sm);
+  font-weight: 600;
+  color: var(--st-text);
+}
 .feed-reason {
   font-size: var(--st-text-sm);
   color: var(--st-text);

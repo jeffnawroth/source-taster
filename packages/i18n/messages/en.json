@@ -595,5 +595,6 @@
   "correction_fields_unchanged": "Apply to fields is unavailable because the suggestion has no proven values that differ from the committed fields.",
   "correction_none_current": "There is no correction suggestion with proven values for the current result. You can still edit the fields.",
   "revision_list_busy": "Wait for the reference run to finish or for the pending change to be applied before editing the list.",
-  "revision_preview_empty": "Select a reference to remove or enter the original text of one to add."
+  "revision_preview_empty": "Select a reference to remove or enter the original text of one to add.",
+  "feed_unsaved_draft": "Unsaved draft"
 }

@@ -271,6 +271,7 @@ All fields share one anatomy through **Form, Label, Description and FieldError**
 - `surface`, `border`, `radius-xl`. Hover `shadow-lifted`; selected (its detail is open) a 2 px `accent` outline.
 - No verdict colour on the card itself.
 - The full title and reason are in the detail; the accessible name is the title plus the Verdict or Status.
+- A Reference with an unsaved, changed field draft shows „Entwurf nicht gespeichert“ with a pencil glyph below the EvidenceTrack, in `text` weight 600 and no colour. The same words end the accessible name. Opening the editor without changing anything, or discarding the draft, removes it.
 
 **Feed** — RAC `GridList` of FeedCards.
 - One tab stop. ↑/↓ move between cards; Enter opens the detail; → moves into a card's own actions (for example Retry), ← back out.

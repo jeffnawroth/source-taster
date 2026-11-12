@@ -38,6 +38,7 @@ const copy = {
       "There is no correction suggestion with proven values for the current result. You can still edit the fields.",
     deleted: "Deleted",
     inserted: "Inserted",
+    marker: "Unsaved draft",
   },
   de: {
     language: "de",
@@ -62,6 +63,7 @@ const copy = {
       "Für das aktuelle Ergebnis gibt es keinen Korrekturvorschlag mit belegten Werten. Sie können die Felder weiterhin bearbeiten.",
     deleted: "Gelöscht",
     inserted: "Eingefügt",
+    marker: "Entwurf nicht gespeichert",
   },
 } as const;
 
@@ -356,6 +358,45 @@ test("an unsaved draft survives selecting another Reference, keyboard selection,
     detail.getByRole("button", { name: "Save and re-check", exact: true }),
   ).toBeEnabled();
 });
+
+for (const language of ["en", "de"] as const)
+  test(`a feed row with an unsaved draft says so in text and in its accessible name in ${language}`, async ({
+    page,
+  }) => {
+    const t = copy[language];
+    const { grid, detail } = await start(
+      page,
+      `${deviating}\n${correct}`,
+      language,
+    );
+    await expect(grid.getByRole("row")).toHaveCount(2);
+    await expect(grid).toContainText(t.correct, { timeout: 15000 });
+    await expect(grid).toContainText(t.deviations, { timeout: 15000 });
+    const rows = grid.getByRole("row");
+    const first = rows.first();
+    const second = rows.nth(1);
+    await first.getByRole("button").click();
+    // Opening the editor without changing anything is not an unsaved draft.
+    await detail.getByRole("button", { name: t.edit, exact: true }).click();
+    await expect(first).not.toContainText(t.marker);
+    const title = detail.getByRole("textbox", {
+      name: language === "en" ? "Title" : "Titel",
+      exact: true,
+    });
+    await title.fill("Unsaved in the feed");
+    // The marker is text, not colour, and part of the row's accessible name.
+    await expect(first).toContainText(t.marker);
+    await expect(first).toHaveAccessibleName(new RegExp(t.marker, "u"));
+    await expect(second).not.toContainText(t.marker);
+    // It stays while another Reference is open.
+    await second.getByRole("button").click();
+    await expect(first).toContainText(t.marker);
+    // Discarding ends it.
+    await first.getByRole("button").click();
+    await detail.getByRole("button", { name: t.discard, exact: true }).click();
+    await expect(first).not.toContainText(t.marker);
+    await expect(first).not.toHaveAccessibleName(new RegExp(t.marker, "u"));
+  });
 
 test("an unbilled technical Status says no suggestion is available and offers no Apply to fields", async ({
   page,

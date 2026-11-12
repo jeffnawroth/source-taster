@@ -17,6 +17,7 @@ import {
 import { ReferenceExports } from "./reference-exports.tsx";
 import type { OwnerQuota } from "./quota.ts";
 import { ReportDownload } from "./report-download.tsx";
+import { PencilLine } from "lucide-react";
 import { m } from "@source-taster/i18n";
 import { ReferenceActions } from "./reference-actions.tsx";
 import { ReferenceListActions } from "./reference-list-actions.tsx";
@@ -32,7 +33,11 @@ import {
   ReferenceOutcomeView,
   sourceNames,
 } from "./reference-outcome.tsx";
-import { useReferenceWork, useSnapshotGate } from "./reference-work.ts";
+import {
+  isDirty,
+  useReferenceWork,
+  useSnapshotGate,
+} from "./reference-work.ts";
 
 function RunningStep({ reference }: { reference: ReferenceSlot }) {
   if (
@@ -222,61 +227,79 @@ export function CheckResults({
               }
             }}
           >
-            {visible.map((reference) => (
-              <GridListItem
-                key={reference.slot}
-                id={reference.slot}
-                onAction={() => open(reference.slot)}
-                textValue={reference.fields.title ?? reference.originalText}
-                ref={(element) => {
-                  if (element) buttons.current.set(reference.slot, element);
-                  else buttons.current.delete(reference.slot);
-                }}
-                aria-label={`${m.workspace_open({ slot: reference.slot, title: reference.fields.title ?? reference.originalText })} · ${reference.outcome.kind === "status" ? m[statusLabels[reference.outcome.status]]() : m[verdictLabels[effectiveVerdict(reference)!]]()}`}
-                className="feed-card"
-              >
-                <div className="feed-head">
-                  <span className="feed-slot" aria-hidden="true">
-                    {reference.slot}
-                  </span>
-                  <button
-                    type="button"
-                    aria-label={m.workspace_open({
-                      slot: reference.slot,
-                      title: reference.fields.title ?? reference.originalText,
-                    })}
-                    tabIndex={-1}
-                    aria-current={
-                      selectedSlot === reference.slot ? "true" : undefined
-                    }
-                    aria-controls="reference-detail"
-                    onClick={() => open(reference.slot)}
-                    className="w-full rounded text-left font-semibold underline decoration-border-emphasis underline-offset-4"
-                  >
-                    <span className="feed-title">
-                      {reference.fields.title ?? reference.originalText}
+            {visible.map((reference) => {
+              const draft = work(reference.slot).draft;
+              const unsaved = !!draft && isDirty(draft);
+              return (
+                <GridListItem
+                  key={reference.slot}
+                  id={reference.slot}
+                  onAction={() => open(reference.slot)}
+                  textValue={reference.fields.title ?? reference.originalText}
+                  ref={(element) => {
+                    if (element) buttons.current.set(reference.slot, element);
+                    else buttons.current.delete(reference.slot);
+                  }}
+                  aria-label={`${m.workspace_open({ slot: reference.slot, title: reference.fields.title ?? reference.originalText })} · ${reference.outcome.kind === "status" ? m[statusLabels[reference.outcome.status]]() : m[verdictLabels[effectiveVerdict(reference)!]]()}${unsaved ? ` · ${m.feed_unsaved_draft()}` : ""}`}
+                  className="feed-card"
+                >
+                  <div className="feed-head">
+                    <span className="feed-slot" aria-hidden="true">
+                      {reference.slot}
                     </span>
-                  </button>
-                </div>
-                <p className="feed-meta">
-                  {reference.fields.author
-                    ?.map(
-                      (author) =>
-                        author.literal ??
-                        [author.given, author.family].filter(Boolean).join(" "),
-                    )
-                    .join("; ")}
-                  {reference.fields.issued?.literal
-                    ? ` · ${reference.fields.issued.literal}`
-                    : ""}
-                </p>
-                <ReferenceOutcomeSummary
-                  outcome={reference.outcome}
-                  manualOverride={reference.manualOverride}
-                />
-                <RunningStep reference={reference} />
-              </GridListItem>
-            ))}
+                    <button
+                      type="button"
+                      aria-label={m.workspace_open({
+                        slot: reference.slot,
+                        title: reference.fields.title ?? reference.originalText,
+                      })}
+                      tabIndex={-1}
+                      aria-current={
+                        selectedSlot === reference.slot ? "true" : undefined
+                      }
+                      aria-controls="reference-detail"
+                      onClick={() => open(reference.slot)}
+                      className="w-full rounded text-left font-semibold underline decoration-border-emphasis underline-offset-4"
+                    >
+                      <span className="feed-title">
+                        {reference.fields.title ?? reference.originalText}
+                      </span>
+                    </button>
+                  </div>
+                  <p className="feed-meta">
+                    {reference.fields.author
+                      ?.map(
+                        (author) =>
+                          author.literal ??
+                          [author.given, author.family]
+                            .filter(Boolean)
+                            .join(" "),
+                      )
+                      .join("; ")}
+                    {reference.fields.issued?.literal
+                      ? ` · ${reference.fields.issued.literal}`
+                      : ""}
+                  </p>
+                  <ReferenceOutcomeSummary
+                    outcome={reference.outcome}
+                    manualOverride={reference.manualOverride}
+                  />
+                  <RunningStep reference={reference} />
+                  {unsaved && (
+                    // Text and a glyph, never colour alone: an unsaved draft
+                    // must be findable from the feed.
+                    <p className="feed-draft">
+                      <PencilLine
+                        aria-hidden="true"
+                        size={16}
+                        strokeWidth={1.75}
+                      />
+                      <span>{m.feed_unsaved_draft()}</span>
+                    </p>
+                  )}
+                </GridListItem>
+              );
+            })}
           </GridList>
           {!visible.length && (
             <p>
