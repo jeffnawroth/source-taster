@@ -196,6 +196,7 @@ test("the public Playwright and contract suites run in CI on local fakes, each i
     "abuse.playwright.config.ts",
     "shell.playwright.config.ts",
     "report.playwright.config.ts",
+    "regression.playwright.config.ts",
   ]);
   assert.ok(
     runs(web).includes(
