@@ -225,17 +225,17 @@ pnpm --filter @source-taster/extension exec playwright test panel.spec.ts revisi
 
 ### Review follow-up validation
 
-On `fix/212-review`, which contains the unchanged `implement/design-remaining`
-tip `ceb4161`. Default ports; the Web runs set `SOURCE_TASTER_DOCUMENT_IMAGE`
-as above.
+Final run on `fix/212-review` after merging `implement/design-remaining` tip
+`59f4f85` (#214), with Web/API ports 6174/6192 (bibliographic 6175/6193) and
+`SOURCE_TASTER_DOCUMENT_IMAGE` set as above.
 
 | Check | Observed result |
 | --- | --- |
 | `pnpm pagefind:fetch && pnpm pagefind:build && pnpm pagefind:verify` | Verified controlled Pagefind 1.5.2 |
-| `pnpm typecheck` | 22 tasks passed |
-| `pnpm lint` | Passed, including the repository Prettier check |
+| `pnpm typecheck` | 23 tasks passed |
+| `pnpm lint` | 23 tasks passed, including the repository Prettier check |
 | `pnpm i18n:check` | 595 paired DE/EN messages (4 Pager messages removed, 2 added); website content check passed |
-| Web Playwright suite (`playwright.config.ts`) | 121 passed in 23 files, including 20 `reference-detail` cases |
+| Web Playwright suite (`--project chromium`) | 122 passed, including 21 `reference-detail` cases |
 | Web bibliographic suite (`bibliographic.playwright.config.ts`) | 22 passed |
 | Web report suite (`report.playwright.config.ts`) | 2 passed |
 | Native Chromium panel `panel.spec.ts revisions.spec.ts manual-overrides.spec.ts` | 12 passed |
