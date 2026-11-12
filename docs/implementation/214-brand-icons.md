@@ -61,8 +61,9 @@ re-derived).
   - The publication review digest covers the brand notice, the export
     manifest and every published favicon. A changed icon therefore needs a
     new publication review.
-  - Optional files are not published: `web-app-*`, maskable, the Safari
-    pinned tab, the store and extension icons, and a web manifest.
+  - Extension, toolbar and store files are not published by the website.
+    The web-app and pinned-tab files and the web manifest are (see
+    "Web manifest and head wiring" below).
 - **Repository:**
   - `README.md` states that the brand artwork in `packages/brand` is outside
     the code licences, under a draft notice that is not legally reviewed.
@@ -70,6 +71,48 @@ re-derived).
     are copied favicons. `sharp` stays ignored.
   - The two generated JSON records are listed in `.prettierignore`, so their
     byte-exact comparison in the tests holds.
+
+## Web manifest and head wiring
+
+The owner decided to wire the optional web-app, pinned-tab and Edge files in.
+Delivered on `feat/214-web-manifest`:
+
+- **`manifest.webmanifest`** is a generated brand export (website group,
+  `chosen`) with the same integrity record as the favicons. It has the name
+  "Source Taster", `display: "browser"` (no service worker, no installable-app
+  behaviour, as `docs/design/brand-assets.md` requires) and the four web-app
+  icons with `purpose` `any` and `maskable`. `theme_color` and
+  `background_color` are the light `bg` token; no hex is repeated in the
+  source. The calm colour rule keeps the accent out of the browser chrome.
+- **One head source.** `packages/brand/src/web-head.ts` lists the icon links
+  and builds the manifest. The website's `Page.astro` renders it; the web app
+  injects it into its `index.html` through the `brandHead` Vite plugin
+  (`apps/web/brand-head.ts`). The links add
+  `<link rel="mask-icon" href="/safari-pinned-tab.svg" color="…">` (the light
+  `accent` token) and `<link rel="manifest" href="/manifest.webmanifest">`.
+- **Website publication.** `websiteBrandFiles` now selects the whole `website`
+  group, so one change feeds the build copy and the review digest. `basis`
+  still records the platform mandate: the web-app and pinned-tab files stay
+  `optional` in the export manifest even though the site publishes them. The
+  digest also covers `brand/src/web-head.ts`.
+- **Hosting.** The CSP gains `manifest-src 'self'` (`default-src 'none'`
+  otherwise blocks the manifest), and `.webmanifest` is served as
+  `application/manifest+json` under `nosniff`.
+- **Web app.** Production serves the icon files because the server mounts the
+  website behind the app (`SOURCE_TASTER_WEB_DIRECTORY` and a website
+  directory are configured together in production); a web app run without the
+  website would not resolve them. The Vite dev middleware forwards the linked
+  brand files to the website build, which must be built for them to resolve.
+- **Edge 300 is a store listing file, not website HTML.** Nothing in the code
+  collects store candidates (`release-imagery` covers only CWS and AMO
+  screenshots), so the `store` group of the export manifest is the candidate
+  set. `store-edge-300.png` stays there, `optional`, unpublished and outside
+  the extension packages and the website digest; the website tests assert that
+  it and the other store files return 404.
+- **Firefox `sidebar_action.default_icon`** uses the colour `toolbar-default`
+  cuts at 16–64 px. Chromium has no `sidebar_action` (it uses `side_panel`,
+  whose manifest has no icon key). `manifestIcons()` includes the sidebar icons
+  so the byte-equal packaging test tracks them.
 
 ## Tests (red first, then green)
 
@@ -100,16 +143,26 @@ re-derived).
   - the brand notice is packaged and marked not legally reviewed, and the
     font and UI notices are still present.
 - `apps/website/e2e/icons.spec.ts`:
-  - the head links in exact order on `/en/`, `/de/` and `/docs/en/`, with
-    no manifest or mask-icon link;
-  - each link is served with status 200, its content type and the exact
-    bytes;
-  - optional, store and extension artwork and `/manifest.json` return 404;
+  - the head links in exact order on `/en/`, `/de/` and `/docs/en/`,
+    including the mask icon and manifest;
+  - each linked and manifest-listed file is served with status 200, its
+    content type and the exact bytes;
+  - Chromium's `Page.getAppManifest` reports no errors and the expected
+    name and icons, which proves the CSP lets the manifest load;
+  - store and extension artwork and `/manifest.json` return 404;
   - the notice carries the draft brand notice beside the OFL, Apache and ISC
     grants.
 - `apps/website/e2e/publication-inputs.spec.ts`: changes to `favicon.ico`,
-  `apple-touch-icon.png` and the brand `NOTICE.md` change the publication
-  fingerprint.
+  `apple-touch-icon.png`, `manifest.webmanifest`, the web-app icons, the
+  pinned-tab SVG, `web-head.ts` and the brand `NOTICE.md` change the
+  publication fingerprint; changes to the Edge 300 and extension files do not.
+- `packages/brand/test/web-head.test.ts`: the manifest as a whole object
+  with literal colours, every manifest icon an exported PNG of its declared
+  size, the exact head link list and every link a website export.
+- `apps/web/test/brand-head.test.ts`: the injected head tags and the
+  dev-server forwarding pattern.
+- `apps/extension/manifest.test.ts`: the Firefox `sidebar_action` carries
+  the toolbar-default icons.
 
 ## Checks
 
@@ -143,8 +196,10 @@ recorded.
   vector antialiasing reaches about one pixel beyond the inset.
 - **Firefox `theme_icons`.** The keys name the theme, not the ink, so `dark`
   points to the on-light cut and `light` to the on-dark cut.
-- **No `sidebar_action.default_icon`.** Firefox falls back to the package
-  icons. Choosing a sidebar cut is left open, not guessed.
+- **`sidebar_action.default_icon` uses the colour toolbar cuts.** MDN
+  documents only `default_icon` for `sidebar_action`, not `theme_icons`, so
+  the Firefox sidebar gets `toolbar-default-*` (see "Web manifest and head
+  wiring").
 - **Website notice.** The draft brand notice is shipped wherever the artwork
   is distributed: the website `NOTICE.txt` and the extension packages.
 
@@ -157,9 +212,9 @@ recorded.
 - **#207 specialist review:** the brand notice stays a draft. Its placeholders
   are unfilled, and nothing here clears brand distribution, private-program
   use or launch.
-- **Not wired:** the optional web-app (any/maskable), Safari pinned-tab and
-  Edge 300 files are generated but not published; there is no web manifest
-  and no `sidebar_action` icon.
+- **Delivered later (#214, owner decision):** the web-app, Safari pinned-tab
+  and web manifest wiring and the Firefox `sidebar_action` icon; see "Web
+  manifest and head wiring". The Edge 300 file stays a store listing candidate.
 - **Publication digest inputs (noted in review, no change):** the digest
   (`apps/website/scripts/publication.ts`) deliberately covers `brand/NOTICE.md`,
   `brand/exports/manifest.json` and the published favicon files, so a change to
