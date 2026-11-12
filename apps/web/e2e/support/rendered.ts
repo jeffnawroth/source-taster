@@ -111,11 +111,32 @@ async function settle(locator: Locator): Promise<void> {
 }
 
 /**
+ * A pixel counts as touched by the element from this share of coverage. The
+ * contrast of each such pixel is the element's colour against the pixel behind
+ * it, which does not depend on the share, so a lower floor only examines more
+ * backdrop, never less. It is low because the number of pixels a thin stroke
+ * covers by a given share depends on the rasteriser: a "1" has 15 to 24 pixels
+ * at 60 % on macOS and 3 to 15 on Linux (Chromium 1.64.1 in the official
+ * image), but 17 to 31 at 20 % on both.
+ */
+export const coverageFloor = 0.2;
+
+/**
+ * Smallest squared distance, over the three channels, between the element's
+ * colour and the backdrop for which coverage can be located at all. Below it
+ * the colour is indistinguishable from the bar, nothing is "painted" and the
+ * measurement reports min 0. A pale grey (226 228 234) on the light bar
+ * (245 248 253) is 1 100 apart, well above it.
+ */
+export const minimumSpan = 300;
+
+/**
  * Screenshots the element with and without its own paint. Pixels the element
- * covers by at least 60 % (estimated from where the painted pixel lies between
- * the backdrop and the element's computed colour, so thin anti-aliased strokes
- * still count) are compared with the pixel behind them from the unpainted
- * capture, which on glass includes the blurred content scrolled underneath.
+ * covers by at least `coverageFloor` (estimated from where the painted pixel
+ * lies between the backdrop and the element's computed colour, so thin
+ * anti-aliased strokes still count) are compared with the pixel behind them
+ * from the unpainted capture, which on glass includes the blurred content
+ * scrolled underneath.
  */
 export async function paintedContrast(
   locator: Locator,
@@ -159,9 +180,10 @@ export async function paintedContrast(
   );
   await useKit(page);
   return page.evaluate(
-    async ({ painted, behind, color }) => {
+    async ({ painted, behind, color, limits }) => {
       const kit = window.__stKit!;
       const want = kit.rgb(color);
+      const { coverageFloor, minimumSpan } = limits;
       const { data: a } = await kit.decode(painted);
       const { data: b } = await kit.decode(behind);
       let min = Infinity;
@@ -172,19 +194,24 @@ export async function paintedContrast(
         const pixel = [a[n]!, a[n + 1]!, a[n + 2]!];
         const back = [b[n]!, b[n + 1]!, b[n + 2]!];
         // How much of this pixel the element covers: where the painted pixel
-        // lies between the backdrop and the element's own colour. Thin strokes
-        // at a fractional position never reach the full colour, so requiring
-        // exact-colour pixels would measure nothing on a small "1".
-        const channels = want
-          .map((w, i) => ({ w, i, span: w - back[i]! }))
-          .filter(({ span }) => Math.abs(span) > 24);
-        if (channels.length === 0) continue;
-        const coverage =
-          channels.reduce(
-            (sum, { i, span }) => sum + (pixel[i]! - back[i]!) / span,
-            0,
-          ) / channels.length;
-        if (coverage < 0.6) continue;
+        // lies between the backdrop and the element's own colour, projected
+        // over all three channels (so a colour that is close to the backdrop in
+        // each channel, such as a pale grey on an off-white bar, can still be
+        // located). Thin strokes at a fractional position never reach the full
+        // colour, so requiring exact-colour pixels would measure nothing on a
+        // small "1".
+        let span = 0;
+        let moved = 0;
+        for (let i = 0; i < 3; i += 1) {
+          const toward = want[i]! - back[i]!;
+          span += toward * toward;
+          moved += toward * (pixel[i]! - back[i]!);
+        }
+        // The element's colour is indistinguishable from the backdrop here:
+        // nothing can be located, which reads as unpainted (min 0).
+        if (span < minimumSpan) continue;
+        const coverage = moved / span;
+        if (coverage < coverageFloor) continue;
         count += 1;
         // Contrast of the element's colour against what lies behind the pixel.
         const ratio = kit.ratio(want, back);
@@ -200,7 +227,7 @@ export async function paintedContrast(
       }
       return { min: count === 0 ? 0 : min, count, worst };
     },
-    { painted, behind, color },
+    { painted, behind, color, limits: { coverageFloor, minimumSpan } },
   );
 }
 

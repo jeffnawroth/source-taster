@@ -264,6 +264,17 @@ test("negative control: the rendered measurer rejects text that is too faint", a
   const faint = await paintedContrast(heading, "text");
   expect(faint.count).toBeGreaterThan(5);
   expect(faint.min).toBeLessThan(ratioFloor.text);
+  // Text in the colour of the bar itself cannot be located: it reads as
+  // unpainted, not as a pass, and so fails a floor that needs painted pixels.
+  const backdrop = await heading.evaluate(
+    (el) => getComputedStyle(el.parentElement!).backgroundColor,
+  );
+  await heading.evaluate((el, color) => {
+    (el as HTMLElement).style.setProperty("color", color, "important");
+  }, backdrop);
+  const invisible = await paintedContrast(heading, "text");
+  expect(invisible.count, "text in the bar's own colour").toBe(0);
+  expect(invisible.min).toBe(0);
 });
 
 for (const theme of ["light", "dark"] as const)
