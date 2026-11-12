@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { claims } from "./claims.ts";
-import { imageAlt, imageClaims } from "./copy.ts";
+import { imageAlt, imageClaims, productNotice } from "./copy.ts";
 import { fixtureSha256 } from "./fixtures.ts";
 import type { Manifest } from "./manifest.ts";
 import { imageSpecs } from "./specs.ts";
@@ -116,6 +116,22 @@ export function manifestProblems(manifest: Manifest): string[] {
         problems.push(
           `${spec.file}: alt text (${locale}) is empty or differs from the copy module`,
         );
+    const notice = image.devPreviewNotice;
+    if (spec.role.startsWith("promo")) {
+      if (notice?.carried !== false || !notice.reason?.trim())
+        problems.push(
+          `${spec.file}: a tile without the notice must record the reason`,
+        );
+    } else if (notice?.carried !== true) {
+      problems.push(`${spec.file}: the development-preview notice is missing`);
+    } else if (
+      notice.locale !== spec.locale ||
+      notice.text !== productNotice(notice.locale)
+    ) {
+      problems.push(
+        `${spec.file}: notice text differs from the product's own notice`,
+      );
+    }
     for (const capture of image.sources.captures)
       if (!captured.has(capture))
         problems.push(`${spec.file}: capture ${capture} is not recorded`);

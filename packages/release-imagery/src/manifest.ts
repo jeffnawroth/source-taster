@@ -1,5 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { imageAlt, imageClaims } from "./copy.ts";
+import {
+  devPreviewNotice,
+  imageAlt,
+  imageClaims,
+  type DevPreviewNotice,
+} from "./copy.ts";
 import { fixtureSha256 } from "./fixtures.ts";
 import type { GateResult } from "./gate.ts";
 import {
@@ -32,6 +37,8 @@ export interface ManifestImage {
   claims: string[];
   /** Accessible description per language. */
   alt: Record<Locale, string>;
+  /** The product's development-preview notice on this image, or why it cannot carry one. */
+  devPreviewNotice: DevPreviewNotice;
   sources: {
     /** Raw captures this image is composed from. */
     captures: string[];
@@ -76,7 +83,8 @@ export function buildManifest(input: {
       format: "png",
       sha256: input.sha256(spec.file),
       claims: imageClaims(spec),
-      alt: imageAlt(spec),
+      alt: { ...imageAlt(spec) },
+      devPreviewNotice: devPreviewNotice(spec),
       sources: {
         captures:
           spec.story && spec.locale

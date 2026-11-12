@@ -10,7 +10,7 @@ import { pathToFileURL } from "node:url";
 import { chromium } from "@playwright/test";
 import { PNG } from "pngjs";
 import { composeCss } from "../src/compose-css.ts";
-import { copy } from "../src/copy.ts";
+import { copy, devPreviewNotice } from "../src/copy.ts";
 import {
   imageSpecs,
   type ImageSpec,
@@ -40,6 +40,12 @@ function page(width: number, height: number, body: string) {
   return `<!doctype html><meta charset="utf-8"><style>${css}</style><div class="canvas" style="width:${width}px;height:${height}px">${body}</div>`;
 }
 
+/** The product's own notice as text; promo tiles carry none and record why. */
+function notice(spec: ImageSpec) {
+  const record = devPreviewNotice(spec);
+  return record.carried ? `<p class="notice">${record.text}</p>` : "";
+}
+
 function store(spec: ImageSpec, markSvg: string) {
   const locale = spec.locale as Locale;
   const story = spec.story as Story;
@@ -56,6 +62,7 @@ function store(spec: ImageSpec, markSvg: string) {
      <div style="position:absolute;left:${margin}px;top:0;bottom:0;width:${textWidth}px;display:flex;flex-direction:column;justify-content:center;gap:20px">
        <h1 style="font-size:46px">${text.headline[locale]}</h1>
        <p style="font-size:22px">${text.caption[locale]}</p>
+       ${notice(spec)}
      </div>
      <div class="panel" style="left:${spec.width - margin - panelWidth}px;top:48px;width:${panelWidth}px;height:${panelHeight}px"><img src="${pathToFileURL(join(captureDir, `${locale}-${story}.png`)).href}"></div>`,
   );
@@ -78,9 +85,10 @@ function social(spec: ImageSpec, markSvg: string) {
     spec.width,
     spec.height,
     `<div style="position:absolute;left:80px;top:72px" class="brand">${markSvg.replace("<svg", '<svg width="64" height="64"')}<span style="font-size:36px">Source Taster</span></div>
-     <div style="position:absolute;left:80px;right:80px;bottom:88px;display:flex;flex-direction:column;gap:24px">
+     <div style="position:absolute;left:80px;right:80px;bottom:56px;display:flex;flex-direction:column;gap:24px">
        <h1 style="font-size:68px">${text.headline[locale]}</h1>
        <p style="font-size:30px;max-width:900px">${text.caption[locale]}</p>
+       <div style="max-width:900px">${notice(spec)}</div>
      </div>`,
   );
 }

@@ -3,6 +3,7 @@
 // follows docs/design/voice-and-tone.md: calm, evidence first, no hype words,
 // formal German, labels as in GLOSSARY.md. Every sentence states only what a
 // claim in claims.ts backs.
+import { readFileSync } from "node:fs";
 import type { ImageSpec, Locale, Story } from "./specs.ts";
 
 type Text = Record<Locale, string>;
@@ -38,8 +39,8 @@ export const copy: Record<Story | "social", Entry> = {
       de: "Die Belege dahinter",
     },
     caption: {
-      en: "The detail starts with the verdict and compares the reference with the best match.",
-      de: "Die Detailansicht beginnt mit dem Befund und vergleicht die Referenz mit dem besten Treffer.",
+      en: "The detail ends with the explanation and source evidence: the sources asked and the candidates they returned.",
+      de: "Die Detailansicht endet mit Erklärung und Quellenbelegen: den befragten Quellen und den Kandidaten, die sie lieferten.",
     },
   },
   social: {
@@ -57,7 +58,7 @@ export const copy: Record<Story | "social", Entry> = {
 const storyClaims: Record<Story, string[]> = {
   workspace: ["side-panel", "verdict-per-reference", "german-and-english"],
   overview: ["verdict-per-reference", "summary-counts", "doi-conflict"],
-  evidence: ["detail-leads-with-verdict", "best-match-comparison"],
+  evidence: ["best-match-comparison", "source-evidence-disclosure"],
 };
 
 /** Claim ids an image pictures or states. The language-neutral promo tiles state none. */
@@ -78,8 +79,8 @@ const storyAlt: Record<Story, Text> = {
     de: "Die Source-Taster-Übersicht mit je einer Zahl pro Befund über einer Liste aus drei Referenzen. Sie tragen die Befunde Korrekt, Existiert, mit Abweichungen und DOI-Konflikt, jeweils mit Symbol und Beschriftung.",
   },
   evidence: {
-    en: "The detail of one reference. It starts with the verdict Exists, with deviations, shows the original text and the best match, and begins the comparison of the reference with the best match.",
-    de: "Die Detailansicht einer Referenz. Sie beginnt mit dem Befund Existiert, mit Abweichungen, zeigt den Originaltext und den besten Treffer und beginnt den Vergleich der Referenz mit dem besten Treffer.",
+    en: "The detail of one reference, scrolled to its end. The last rows of the comparison with the best match are followed by the opened disclosure Explanation and source evidence: the scoring rules version, a DOI lookup that found the DOI, and a candidate retrieved from Crossref with its score.",
+    de: "Die Detailansicht einer Referenz, bis zu ihrem Ende gescrollt. Auf die letzten Zeilen des Vergleichs mit dem besten Treffer folgt die geöffnete Einblendung Erklärung und Quellenbelege: die Version der Bewertungsregeln, eine DOI-Abfrage, die die DOI gefunden hat, und ein von Crossref abgerufener Kandidat mit seiner Bewertung.",
   },
 };
 
@@ -97,4 +98,37 @@ export function imageAlt(spec: ImageSpec): Text {
     };
   const story = spec.story as Story;
   return storyAlt[story];
+}
+
+/** The product's own development-preview notice, verbatim from its catalogue. */
+export function productNotice(locale: Locale): string {
+  const messages = JSON.parse(
+    readFileSync(
+      new URL(`../../i18n/messages/${locale}.json`, import.meta.url),
+      "utf8",
+    ),
+  ) as Record<string, string>;
+  return messages.skeleton_notice as string;
+}
+
+export type DevPreviewNotice =
+  | { carried: true; locale: Locale; text: string }
+  | { carried: false; reason: string };
+
+/**
+ * The notice every image that pictures or states product behaviour carries.
+ * The panel scrolls past it in two of the three stories, so the composition
+ * sets the product's own text beside the capture instead of cropping or
+ * editing the capture. The promo tiles state no behaviour and show the mark
+ * and name only, so they record why they carry none.
+ */
+export function devPreviewNotice(spec: ImageSpec): DevPreviewNotice {
+  if (spec.role === "promo-small" || spec.role === "promo-marquee")
+    return {
+      carried: false,
+      reason:
+        "mark and name only: the tile pictures and states no product behaviour, the Chrome Web Store advises against text in promo tiles, and the four-sentence notice cannot be read at 440×280",
+    };
+  const locale = spec.locale as Locale;
+  return { carried: true, locale, text: productNotice(locale) };
 }

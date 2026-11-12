@@ -25,6 +25,7 @@ const entry = (file: string, bytes: Buffer, width: number, height: number) =>
     sha256: sha(bytes),
     claims: [],
     alt: { en: "alt", de: "alt" },
+    devPreviewNotice: { carried: false, reason: "test tile" },
     sources: { captures: [], compose: "x" },
   }) as Manifest["images"][number];
 async function directory(

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { imageAlt, imageClaims } from "../src/copy.ts";
 import { fixtureSha256 } from "../src/fixtures.ts";
@@ -75,4 +76,59 @@ await test("every store screenshot names the captures it is composed from", () =
     (i) => i.file === "promo-small-440x280.png",
   )!;
   assert.deepEqual(promo.sources.captures, []);
+});
+
+await test("every image that pictures or states product behaviour carries the development-preview notice, and the promo tiles say why they cannot", () => {
+  const manifest = build("dry-run");
+  // The catalogue is read independently of the code under test.
+  const catalogue = (locale: "en" | "de") =>
+    (
+      JSON.parse(
+        readFileSync(
+          new URL(`../../i18n/messages/${locale}.json`, import.meta.url),
+          "utf8",
+        ),
+      ) as Record<string, string>
+    ).skeleton_notice;
+  for (const image of manifest.images) {
+    const spec = imageSpecs.find((s) => s.file === image.file)!;
+    if (spec.role.startsWith("promo")) {
+      assert.equal(image.devPreviewNotice.carried, false, image.file);
+      assert.match(
+        (image.devPreviewNotice as { reason: string }).reason,
+        /mark and name only/u,
+        image.file,
+      );
+    } else {
+      assert.deepEqual(
+        image.devPreviewNotice,
+        {
+          carried: true,
+          locale: spec.locale,
+          text: catalogue(spec.locale as "en" | "de"),
+        },
+        image.file,
+      );
+    }
+  }
+});
+
+await test("a manifest that drops, rewrites or leaves unexplained the notice is reported", () => {
+  const manifest = build("dry-run");
+  const store = manifest.images.find(
+    (i) => i.file === "cws-en-2-overview.png",
+  )!;
+  store.devPreviewNotice = { carried: false, reason: "no room" };
+  const promo = manifest.images.find(
+    (i) => i.file === "promo-small-440x280.png",
+  )!;
+  promo.devPreviewNotice = { carried: false, reason: "" };
+  const social = manifest.images.find(
+    (i) => i.file === "social-de-1200x630.png",
+  )!;
+  social.devPreviewNotice = { carried: true, locale: "de", text: "edited" };
+  const problems = manifestProblems(manifest).join("\n");
+  assert.match(problems, /cws-en-2-overview\.png.*development-preview notice/u);
+  assert.match(problems, /promo-small-440x280\.png.*reason/u);
+  assert.match(problems, /social-de-1200x630\.png.*notice text/u);
 });

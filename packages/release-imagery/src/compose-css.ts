@@ -13,6 +13,7 @@ html, body { background: var(--st-bg); color: var(--st-text); font-family: "Atki
 .brand svg { flex: none; }
 h1 { font-weight: 700; letter-spacing: -0.02em; line-height: 1.12; }
 p { color: var(--st-text-secondary); line-height: 1.45; }
+.notice { border: 1px solid var(--st-border-strong); border-radius: var(--st-radius-lg); background: var(--st-surface-sunken); padding: 12px 16px; font-size: 16px; line-height: 1.4; color: var(--st-text); }
 .panel { position: absolute; border: 1px solid var(--st-border-strong); border-radius: 14px; box-shadow: var(--st-shadow-raised); background: var(--st-surface); }
 .panel img { display: block; width: 100%; height: 100%; border-radius: 13px; }
 `;

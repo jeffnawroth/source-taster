@@ -58,15 +58,21 @@ await test("headline and caption fit the layout budget", () => {
 });
 
 await test("alt texts name Verdicts with their exact labels and follow the voice guide", () => {
-  const byId = Object.fromEntries(
-    captureReferences.map((r) => [r.id, r.verdict]),
-  );
   const overview = imageSpecs.find((s) => s.story === "overview")!;
   const evidence = imageSpecs.find((s) => s.story === "evidence")!;
   for (const l of locales) {
     for (const r of captureReferences)
       assert.ok(imageAlt(overview)[l].includes(r.verdict[l]), `${l} ${r.id}`);
-    assert.ok(imageAlt(evidence)[l].includes(byId.deviating![l]));
+    // The evidence story pictures the opened disclosure, not the verdict, so
+    // its alt text names the disclosure by its exact label.
+    assert.ok(
+      imageAlt(evidence)[l].includes(
+        l === "en"
+          ? "Explanation and source evidence"
+          : "Erklärung und Quellenbelege",
+      ),
+      l,
+    );
   }
   for (const spec of imageSpecs)
     for (const l of locales) {

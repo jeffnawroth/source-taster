@@ -27,6 +27,7 @@ export interface Claim {
 const panel = "apps/extension/e2e/panel.spec.ts";
 const workspace = "apps/web/e2e/workspace.spec.ts";
 const detail = "apps/web/e2e/reference-detail.spec.ts";
+const doi = "apps/web/e2e/doi.spec.ts";
 
 export const claims: readonly Claim[] = [
   {
@@ -109,6 +110,20 @@ export const claims: readonly Claim[] = [
       spec: detail,
       title:
         "detail leads with the effective Verdict in the documented section order",
+    },
+  },
+  {
+    id: "source-evidence-disclosure",
+    text: {
+      en: "Each verdict comes with the sources asked and the candidates they returned.",
+      de: "Zu jedem Befund gehören die befragten Quellen und ihre Kandidaten.",
+    },
+    qualified: null,
+    evidence: {
+      doc: "docs/implementation/74-doi-tracer.md",
+      spec: doi,
+      title:
+        "shows the DOI Verdict with icon, text, field values and evidence in",
     },
   },
   {

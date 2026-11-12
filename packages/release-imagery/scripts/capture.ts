@@ -32,18 +32,31 @@ const messages = async (language: Locale) =>
     ),
   ) as Record<string, string>;
 
-/** Scrolls a region to the top of its scroller, below the sticky glass header. */
+/** Scrolls a region to the top of the working viewport. The stylesheet's scroll
+ *  padding keeps it below the sticky glass layers; nothing is nudged by hand. */
 async function scrollRegionIntoView(panel: Panel, name: string) {
   const node = await panel.find("region", name);
   await panel.call(
     node,
-    `function () {
-      this.scrollIntoView({ block: "start" });
-      let scroller = this.parentElement;
-      while (scroller && scroller.scrollHeight <= scroller.clientHeight + 1)
-        scroller = scroller.parentElement;
-      (scroller ?? document.scrollingElement).scrollBy(0, 54);
-    }`,
+    `function () { this.scrollIntoView({ block: "start" }); }`,
+  );
+}
+
+/**
+ * Pixels by which the target is covered by a sticky layer of the panel (the
+ * top bar, the summary strip), 0 when it is clear. A capture that shows
+ * content under those layers is refused rather than kept.
+ */
+async function stickyOverlap(panel: Panel, target: string) {
+  return panel.evaluate<number>(
+    `(() => {
+      const element = ${target};
+      if (!element) return Infinity;
+      const top = element.getBoundingClientRect().top;
+      const layers = [...document.querySelectorAll(".checking-topbar, .summary-container")]
+        .filter((layer) => layer !== element && !layer.contains(element));
+      return Math.max(0, ...layers.map((layer) => layer.getBoundingClientRect().bottom - top));
+    })()`,
   );
 }
 
@@ -172,6 +185,14 @@ export async function captureLanguage(
     );
     verdictsRead = captureReferences.map((r) => r.verdict[language]);
     await scrollRegionIntoView(panel, text.workspace_summary!);
+    const stripCovered = await stickyOverlap(
+      panel,
+      `document.querySelector(".feed-card")`,
+    );
+    if (stripCovered > 0)
+      throw new Error(
+        `The first reference sits ${stripCovered}px under a sticky layer in ${language}`,
+      );
     await shoot("overview");
 
     const [open] = await panel.query(
@@ -183,7 +204,53 @@ export async function captureLanguage(
     );
     await panel.clickNode(open!);
     await panel.find("region", l.detail);
-    await scrollRegionIntoView(panel, text.workspace_detail!);
+    // The story shows the disclosure the caption names: the explanation and
+    // source evidence, opened as a person opens it.
+    const disclosure = `[...document.querySelectorAll("#reference-detail details > summary")].find((n) => n.textContent?.trim() === ${JSON.stringify(text.evidence_details)})`;
+    await panel.evaluate(`${disclosure}?.click()`);
+    await until(
+      () => panel.evaluate<boolean>(`!!(${disclosure})?.parentElement?.open`),
+      "The evidence disclosure did not open",
+      5_000,
+    );
+    // The disclosure sits below the comparison, so the story is scrolled to the
+    // end of the comparison with the opened disclosure beneath it, clear of the
+    // sticky layers.
+    await panel.evaluate(
+      `(() => {
+        const summary = ${disclosure};
+        let scroller = summary.parentElement;
+        while (scroller && scroller.scrollHeight <= scroller.clientHeight + 1)
+          scroller = scroller.parentElement;
+        scroller ??= document.scrollingElement;
+        const layers = [...document.querySelectorAll(".checking-topbar, .summary-container")];
+        const clear = Math.max(...layers.map((layer) => layer.getBoundingClientRect().bottom));
+        scroller.scrollBy(0, summary.getBoundingClientRect().top - clear - 240);
+      })()`,
+    );
+    const covered = await stickyOverlap(panel, disclosure);
+    if (covered > 0)
+      throw new Error(
+        `The evidence disclosure sits ${covered}px under a sticky layer in ${language}`,
+      );
+    // The candidates the disclosure lists must be on the picture.
+    const candidate = `[...document.querySelectorAll("#reference-detail details[open] li, #reference-detail details[open] p")].find((n) => n.textContent?.includes(${JSON.stringify(text.evidence_candidate)}))`;
+    const place = await panel.evaluate<{
+      top: number;
+      bottom: number;
+      viewport: number;
+    } | null>(
+      `(() => {
+        const node = ${candidate};
+        if (!node) return null;
+        const r = node.getBoundingClientRect();
+        return { top: r.top, bottom: r.bottom, viewport: innerHeight };
+      })()`,
+    );
+    if (!place || place.top < 0 || place.bottom > place.viewport)
+      throw new Error(
+        `The candidate line of the evidence disclosure is not inside the viewport in ${language}: ${JSON.stringify(place)}`,
+      );
     await shoot("evidence");
   } finally {
     await browser.close();
