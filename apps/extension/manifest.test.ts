@@ -128,6 +128,9 @@ await test("the built Firefox manifest keeps its permissions and CSP and maps th
     sidebar_action: {
       default_title: "Source Taster",
       default_panel: "panel.html",
+      // MDN documents only default_icon for sidebar_action (no theme_icons),
+      // so the colour toolbar cuts serve every theme.
+      default_icon: sizes("toolbar-default", toolbarSizes),
       open_at_install: false,
     },
     background: { scripts: ["background.js"] },
@@ -218,9 +221,12 @@ await test("both packages carry exactly the referenced icons, byte-equal to the 
       default_icon: Record<string, string>;
       theme_icons?: { dark: string; light: string }[];
     };
+    const sidebar = manifest.sidebar_action as
+      { default_icon: Record<string, string> } | undefined;
     const referenced = new Set([
       ...Object.values(manifest.icons as Record<string, string>),
       ...Object.values(action.default_icon),
+      ...Object.values(sidebar?.default_icon ?? {}),
       ...(action.theme_icons ?? []).flatMap(({ dark, light }) => [dark, light]),
     ]);
     // No store, optional, maskable, website or Safari file enters a package,

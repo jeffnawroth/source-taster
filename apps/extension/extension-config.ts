@@ -144,10 +144,14 @@ export function manifestIcons(generated: ReturnType<typeof manifest>) {
     default_icon: Record<string, string>;
     theme_icons?: { dark: string; light: string }[];
   };
+  const sidebar = (
+    generated as { sidebar_action?: { default_icon: Record<string, string> } }
+  ).sidebar_action;
   return [
     ...new Set([
       ...Object.values(generated.icons),
       ...Object.values(action.default_icon),
+      ...Object.values(sidebar?.default_icon ?? {}),
       ...(action.theme_icons ?? []).flatMap(({ dark, light }) => [dark, light]),
     ]),
   ];
@@ -195,6 +199,9 @@ export function manifest(target: Target, config: ExtensionConfig) {
         sidebar_action: {
           default_title: "Source Taster",
           default_panel: "panel.html",
+          // MDN documents only default_icon for sidebar_action (no
+          // theme_icons), so the colour toolbar cuts serve every theme.
+          default_icon: toolbarIcons,
           open_at_install: false,
         },
         background: { scripts: ["background.js"] },
