@@ -273,6 +273,9 @@ kbd {
 .mobile-menu {
   display: none;
 }
+.mobile-menu summary.btn {
+  margin-left: -2px;
+}
 .mobile-menu summary {
   list-style: none;
   cursor: pointer;
@@ -281,16 +284,11 @@ kbd {
   display: none;
 }
 .mobile-nav {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 100%;
-  z-index: var(--st-z-topbar, 99);
+  flex: 1 0 100%;
   display: grid;
   gap: 6px;
-  padding: 12px 20px;
-  background: var(--st-surface);
-  border-block: 1px solid var(--st-border);
+  padding: 12px 0;
+  border-top: 1px solid var(--st-border);
 }
 .mobile-nav a {
   display: flex;
@@ -801,7 +799,13 @@ dialog[data-search] input {
     margin-left: auto;
   }
   .mobile-menu {
-    display: block;
+    display: contents;
+  }
+  .header-row {
+    flex-wrap: wrap;
+  }
+  .brand {
+    min-height: 76px;
   }
   .docs-A {
     grid-template-columns: 1fr;
@@ -830,6 +834,7 @@ dialog[data-search] input {
     min-height: 68px;
   }
   .brand {
+    min-height: 68px;
     font-size: 15px;
     gap: 6px;
   }
@@ -840,12 +845,17 @@ dialog[data-search] input {
   .utilities {
     gap: 1px;
   }
-  .utilities .btn {
+  .utilities .btn,
+  .mobile-menu summary.btn {
     padding: 4px 7px;
   }
   .utilities .icon,
-  .utilities .btn.icon {
+  .utilities .btn.icon,
+  .mobile-menu summary.btn.icon {
     width: 32px;
+  }
+  .mobile-menu summary.btn {
+    margin-left: -7px;
   }
   h1,
   .article h1,
