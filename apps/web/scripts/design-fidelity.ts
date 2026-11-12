@@ -39,9 +39,17 @@ export const pins = {
   },
 } as const;
 
+// Deterministic preview fixtures (docs/local-preview.md and
+// apps/server/test/support/preview-fixtures.ts) chosen to reach as many
+// verdict kinds as the standalone preview can produce.
 export const references = [
   "Aspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170",
+  "Aspelmeyer, M. (2011). Measured measurements. Nature Physics, 7, 13–15. https://doi.org/10.1038/nphys1170",
+  "Smith, A. (2021). Synthetic journal evidence. The Journal of biological chemistry, 1, 1–2. https://doi.org/10.5555/browser-journal",
+  "Jones, B. (2015). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.5555/browser-journal",
   "Doe, J. (2020). A reference whose DOI does not exist. Journal of Examples, 1, 1–2. https://doi.org/10.5555/workspace-nonexistent",
+  "Nobody, N. (2018). A title nobody has written anywhere. Journal of Nothing, 3, 5–6.",
+  "Poe, P. (2022). Invalid metadata. Journal of Examples, 3, 1–2. https://doi.org/10.5555/browser-invalid",
   "Roe, R. (2021). Unavailable resolver. Journal of Examples, 2, 3–4. https://doi.org/10.5555/browser-unavailable",
 ].join("\n");
 
@@ -55,6 +63,8 @@ interface State {
   lang: Lang;
   prototype: string;
   built: (page: Page) => Promise<void>;
+  /** Clicks in the prototype after its stage has rendered (menus, dialogs). */
+  prototypeAfter?: (page: Page) => Promise<void>;
   /** Expected, documented differences that are not fidelity defects. */
   note?: string;
 }
@@ -62,19 +72,74 @@ interface State {
 const standalone =
   "Standalone mode: no Guest, Account, Plan or Quota UI is expected (ADR-0003). Prototype fixture data and counts differ.";
 
-function app(stage: "intake" | "filled" | "done" | "detail") {
+type AppStage =
+  "intake" | "filled" | "running" | "done" | "detail" | "menu" | "export";
+
+// The held DOI never answers, so the Check stays running for the screenshot.
+const held =
+  "Held, H. (2023). A resolver that never answers. Journal of Examples, 4, 1–2. https://doi.org/10.5555/browser-held";
+
+/**
+ * Drives the built preview to a state. The selectors are the contract the
+ * rebuilt UI must keep (en and de): the primary "Check" button, the ⋯ trigger
+ * named like the prototype's "More actions", an "Export" menu item, and
+ * progress as a role=progressbar with aria-valuenow/max.
+ */
+function app(stage: AppStage) {
   return async (page: Page) => {
     await page.goto(`${url}/`);
     await page.waitForLoadState("networkidle");
     if (stage === "intake") return;
-    await page.getByRole("textbox").first().fill(references);
+    await page
+      .getByRole("textbox")
+      .first()
+      .fill(stage === "running" ? `${references}\n${held}` : references);
     if (stage === "filled") return;
     await page
       .getByRole("button", { name: /^Check\b|pr\u00fcfen$/ })
       .first()
       .click();
-    await page.waitForTimeout(6000);
+    if (stage === "running") {
+      await page.waitForTimeout(3000);
+      return;
+    }
+    // Wait for the Check to end rather than a fixed time.
+    await page.waitForTimeout(1500);
+    await page.waitForFunction(
+      () => {
+        const bars = [...document.querySelectorAll('[role="progressbar"]')];
+        const barsDone = bars.every(
+          (bar) =>
+            bar.getAttribute("aria-valuenow") ===
+            bar.getAttribute("aria-valuemax"),
+        );
+        const busy = [...document.querySelectorAll("body *")].some(
+          (node) =>
+            node.children.length === 0 &&
+            /^(Running|Läuft|Starting…|Wird gestartet …)$/.test(
+              node.textContent?.trim() ?? "",
+            ),
+        );
+        return barsDone && !busy;
+      },
+      undefined,
+      { timeout: 120_000, polling: 500 },
+    );
+    await page.waitForTimeout(800);
     if (stage === "done") return;
+    if (stage === "menu" || stage === "export") {
+      await page
+        .getByRole("button", { name: /^(More actions|Weitere Aktionen)$/ })
+        .first()
+        .click();
+      if (stage === "export")
+        await page
+          .getByRole("menuitem", { name: /^(Export|Exportieren)\b/ })
+          .first()
+          .click();
+      await page.waitForTimeout(800);
+      return;
+    }
     const open = page
       .getByRole("button", { name: /^Open\b|^\u00d6ffnen\b/ })
       .first();
@@ -86,6 +151,15 @@ function app(stage: "intake" | "filled" | "done" | "detail") {
     await page.waitForTimeout(1500);
   };
 }
+
+/** Prototype interactions after its `stage` param has rendered. */
+const prototypeAfter: Partial<Record<string, (page: Page) => Promise<void>>> = {
+  menu: (page) => page.click('[data-k="menubtn"]'),
+  export: async (page) => {
+    await page.click('[data-k="menubtn"]');
+    await page.click('[data-act="dlg:export"]');
+  },
+};
 
 function site(path: string) {
   return async (page: Page) => {
@@ -104,18 +178,22 @@ function states(structure: string, website: string): State[] {
     for (const theme of ["light", "dark"] as const) {
       const lang: Lang = theme === "dark" ? "de" : "en";
       const tag = `${frame}-${theme}`;
-      for (const [stage, built] of [
-        ["intake", "intake"],
-        ["counted", "filled"],
-        ["done", "done"],
-        ["detail", "detail"],
+      for (const [stage, built, prototypeStage] of [
+        ["intake", "intake", "intake"],
+        ["counted", "filled", "counted"],
+        ["running", "running", "running"],
+        ["done", "done", "done"],
+        ["detail", "detail", "detail"],
+        ["menu", "menu", "done"],
+        ["export", "export", "done"],
       ] as const)
         list.push({
           id: `app-${stage}-${tag}`,
           frame,
           theme,
           lang,
-          prototype: d(stage, frame, theme, lang),
+          prototype: d(prototypeStage, frame, theme, lang),
+          prototypeAfter: prototypeAfter[stage],
           built: app(built),
           note: standalone,
         });
@@ -163,6 +241,7 @@ try {
       width: state.frame === "360" ? 360 : 1280,
       height: 860,
     };
+    const failures: string[] = [];
     const shoot = async (
       name: string,
       go: (page: Page) => Promise<void>,
@@ -177,7 +256,11 @@ try {
         locale: state.lang === "de" ? "de-DE" : "en-US",
       });
       try {
-        await go(page);
+        await go(page).catch((error: unknown) => {
+          const message = String(error).split("\n")[0] ?? "";
+          failures.push(`${name}: ${message}`);
+          console.error(`${state.id} ${name}: ${message}`);
+        });
         if (prototype)
           await page.addStyleTag({
             content: "#switcher,#devbar{display:none!important}",
@@ -195,19 +278,23 @@ try {
       async (page) => {
         await page.goto(state.prototype);
         await page.waitForTimeout(1200);
+        if (state.prototypeAfter) {
+          await state.prototypeAfter(page);
+          await page.waitForTimeout(600);
+        }
       },
       true,
     );
     await shoot(`${state.id}.built.png`, state.built, false);
     rows.push(
-      `<section><h2>${state.id}</h2>${state.note ? `<p>${state.note}</p>` : ""}<div class="pair"><figure><figcaption>Accepted prototype</figcaption><img src="${state.id}.prototype.png"></figure><figure><figcaption>Built</figcaption><img src="${state.id}.built.png"></figure></div></section>`,
+      `<section><h2>${state.id}</h2>${state.note ? `<p>${state.note}</p>` : ""}${failures.length ? `<p class="fail">Driver did not reach this state: ${failures.join("; ").replaceAll("<", "&lt;")}</p>` : ""}<div class="pair"><figure><figcaption>Accepted prototype</figcaption><img src="${state.id}.prototype.png"></figure><figure><figcaption>Built</figcaption><img src="${state.id}.built.png"></figure></div></section>`,
     );
     console.log(state.id);
   }
   await browser.close();
   writeFileSync(
     join(out, "index.html"),
-    `<!doctype html><meta charset="utf-8"><title>Design fidelity</title><style>body{font:14px system-ui;margin:16px}section{margin:0 0 48px}.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}img{width:100%;border:1px solid #ccc}figure{margin:0}figcaption{font-weight:600;margin:4px 0}</style><h1>Design fidelity: accepted prototype vs built</h1><p>Prototype pins: structure ${pins.structure.commit}, website ${pins.website.commit}. Built: ${url}.</p>${rows.join("")}`,
+    `<!doctype html><meta charset="utf-8"><title>Design fidelity</title><style>body{font:14px system-ui;margin:16px}section{margin:0 0 48px}.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}img{width:100%;border:1px solid #ccc}figure{margin:0}figcaption{font-weight:600;margin:4px 0}.fail{color:#b00020;font-weight:600}</style><h1>Design fidelity: accepted prototype vs built</h1><p>Prototype pins: structure ${pins.structure.commit}, website ${pins.website.commit}. Built: ${url}.</p>${rows.join("")}`,
   );
   console.log(`Sheets: ${join(out, "index.html")}`);
 } finally {
