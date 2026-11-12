@@ -9,6 +9,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { chromium } from "@playwright/test";
 import { PNG } from "pngjs";
+import { composeCss } from "../src/compose-css.ts";
 import { copy } from "../src/copy.ts";
 import {
   imageSpecs,
@@ -21,18 +22,11 @@ import { panelViewport } from "./capture.ts";
 const root = new URL("../../../", import.meta.url).pathname;
 const fonts = pathToFileURL(join(root, "packages/ui/public/fonts/")).href;
 
-const css = `
-@font-face { font-family: "Atkinson Hyperlegible Next"; src: url("${fonts}atkinsonhyperlegiblenext/AtkinsonHyperlegibleNext[wght].ttf") format("truetype"); font-weight: 200 800; }
-* { box-sizing: border-box; margin: 0; }
-html, body { background: #f3f5f9; color: #14202f; font-family: "Atkinson Hyperlegible Next", system-ui, sans-serif; }
-.canvas { position: relative; overflow: hidden; background: #f3f5f9; }
-.brand { display: flex; align-items: center; gap: 14px; font-weight: 700; letter-spacing: -0.01em; }
-.brand svg { flex: none; }
-h1 { font-weight: 700; letter-spacing: -0.02em; line-height: 1.12; }
-p { color: #3b4a5c; line-height: 1.45; }
-.panel { position: absolute; border: 1px solid #c4ccd8; border-radius: 14px; box-shadow: 0 10px 30px rgb(20 32 47 / 0.14); background: #fff; }
-.panel img { display: block; width: 100%; height: 100%; border-radius: 13px; }
-`;
+const themeCss = await readFile(
+  join(root, "packages/design-tokens/theme.css"),
+  "utf8",
+);
+const css = composeCss(themeCss, fonts);
 
 async function mark() {
   const svg = await readFile(
