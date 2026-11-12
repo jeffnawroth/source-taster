@@ -23,7 +23,7 @@ for (const language of ["en", "de"] as const)
       );
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
@@ -46,7 +46,7 @@ for (const language of ["en", "de"] as const)
       .click();
     const link = result
       .getByRole("link", {
-        name: language === "en" ? "Open Source" : "Quelle öffnen",
+        name: language === "en" ? "Open source" : "Quelle öffnen",
         exact: true,
       })
       .first();
@@ -78,7 +78,7 @@ for (const language of ["en", "de"] as const)
       );
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
@@ -94,7 +94,7 @@ for (const language of ["en", "de"] as const)
     await expect(
       result.getByText(
         language === "en"
-          ? "The Best match is reported as retracted."
+          ? "The best match is reported as retracted."
           : "Der beste Treffer wird als zurückgezogen gemeldet.",
         { exact: true },
       ),
@@ -135,7 +135,7 @@ for (const language of ["en", "de"] as const)
       );
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
@@ -192,7 +192,7 @@ for (const language of ["en", "de"] as const)
       await page.getByRole("textbox").fill(text);
       await page
         .getByRole("button", {
-          name: language === "en" ? "Check Reference" : "Referenz prüfen",
+          name: language === "en" ? "Check reference" : "Referenz prüfen",
           exact: true,
         })
         .click();
@@ -223,11 +223,11 @@ for (const language of ["en", "de"] as const)
       await expect(filter).toHaveAttribute("aria-pressed", "true");
       await expect(
         page
-          .getByRole("list", {
+          .getByRole("grid", {
             name: language === "en" ? "References" : "Referenzen",
             exact: true,
           })
-          .getByRole("listitem"),
+          .getByRole("row"),
       ).toHaveCount(1);
       await result
         .getByText(
@@ -249,14 +249,14 @@ for (const language of ["en", "de"] as const)
       await expect(result).toContainText(
         scenario === "mixed"
           ? language === "en"
-            ? "different Sources"
+            ? "different sources"
             : "verschiedenen Quellen"
           : scenario === "missing"
             ? language === "en"
               ? "completed search"
               : "abgeschlossene Suche"
             : language === "en"
-              ? "unambiguous Source"
+              ? "unambiguous source"
               : "eindeutige Quelle",
       );
       expect(
@@ -282,7 +282,7 @@ for (const language of ["en", "de"] as const)
       );
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();

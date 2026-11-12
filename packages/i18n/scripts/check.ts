@@ -20,5 +20,12 @@ for (const key of keys) {
         `Missing or empty ${["en", "de"][index]} message: ${key}`,
       );
   }
+  const placeholders = catalogs.map((catalog) =>
+    [...(catalog[key] as string).matchAll(/\{(\w+)\}/gu)]
+      .map((match) => match[1])
+      .sort(),
+  );
+  if (JSON.stringify(placeholders[0]) !== JSON.stringify(placeholders[1]))
+    throw new Error(`DE/EN placeholder mismatch: ${key}`);
 }
 console.log(`Validated ${keys.size} messages in DE and EN`);

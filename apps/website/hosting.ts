@@ -9,9 +9,13 @@ const mime: Record<string, string> = {
   ".css": "text/css",
   ".wasm": "application/wasm",
   ".json": "application/json",
+  ".webmanifest": "application/manifest+json",
   ".svg": "image/svg+xml",
+  ".png": "image/png",
+  ".ico": "image/x-icon",
   ".txt": "text/plain; charset=utf-8",
   ".gz": "application/gzip",
+  ".woff2": "font/woff2",
 };
 /**
  * ADR-0020: the bare apex negotiates from Accept-Language on the server, so
@@ -75,7 +79,7 @@ export async function openWebsite(
       "Referrer-Policy": "no-referrer",
       "X-Content-Type-Options": "nosniff",
       "Content-Security-Policy":
-        "default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; connect-src 'self'; img-src 'self'; font-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'",
+        "default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; connect-src 'self'; img-src 'self'; manifest-src 'self'; font-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'",
     });
     if (!["GET", "HEAD"].includes(request.method))
       return new Response(null, { status: 405, headers });

@@ -284,6 +284,7 @@ async function withIntake(
 test("ordinary-page selection opens the native panel synchronously and stays local until Check", async () => {
   await withIntake(async ({ panel }) => {
     expect(await panel.query("region", "Reference detail")).toEqual([]);
+    expect(await panel.text("main")).toContain("Page selection");
   });
 });
 
@@ -319,7 +320,7 @@ test("empty native selection keeps the draft and explains copy and paste", async
     await panel.waitForText(
       "status",
       undefined,
-      "No selection was taken over – please copy and paste",
+      "Copy and paste the text. No selection was taken over.",
     );
     expect(
       await panel.call(
@@ -331,7 +332,7 @@ test("empty native selection keeps the draft and explains copy and paste", async
       [],
     );
     expect(await panel.text("main")).toContain(
-      "For pages with their own menus, canvas editors, password fields or private windows without extension permission, copy and paste the text.",
+      "Copy and paste the text if the page uses its own menus or canvas editors, the field is a password field, or a private window lacks extension permission.",
     );
   });
 });
@@ -358,7 +359,7 @@ test("selection replaces an imported draft and Undo restores its preview", async
         });
         await panel.waitForText(
           "region",
-          "Recognized References",
+          "Recognized references",
           "Old library title",
         );
         await select("New plain text draft");
@@ -370,14 +371,14 @@ test("selection replaces an imported draft and Undo restores its preview", async
             )) === "New plain text draft",
           "New selection did not arrive",
         );
-        expect(await panel.query("region", "Recognized References")).toEqual(
+        expect(await panel.query("region", "Recognized references")).toEqual(
           [],
         );
         expect(await panel.text("main")).not.toContain("references.bib");
         await panel.click("button", "Undo selection replacement");
         await panel.waitForText(
           "region",
-          "Recognized References",
+          "Recognized references",
           "Old library title",
         );
         expect(await panel.text("main")).toContain("references.bib");
@@ -408,7 +409,7 @@ test("German panel notices and Undo are localized", async () => {
       await panel.waitForText(
         "status",
         undefined,
-        "Keine Auswahl übernommen – bitte kopieren und einfügen",
+        "Kopieren und fügen Sie den Text ein. Es wurde keine Auswahl übernommen.",
       );
       await select("Neue Auswahl");
       await panel.click("button", "Auswahlübernahme rückgängig machen");
@@ -429,9 +430,9 @@ test("selection keeps the running Check reachable and its finished evidence inta
     await withIntake(
       async ({ panel, select }) => {
         await panel.fill("textbox", "Reference", physicsReference);
-        await panel.click("button", "Check Reference");
+        await panel.click("button", "Check reference");
         await held.arrived;
-        await panel.waitForText("list", "References", "Running");
+        await panel.waitForText("grid", "References", "Running");
         const create = () =>
           panel.requests.filter(
             (r) => r.method === "POST" && r.url.endsWith("/v2/checks"),
@@ -446,11 +447,11 @@ test("selection keeps the running Check reachable and its finished evidence inta
             )) === "Draft received while running",
           "Selection while running was lost",
         );
-        await panel.waitForText("list", "References", "Running");
-        expect(await panel.query("button", "Cancel Check")).toHaveLength(1);
+        await panel.waitForText("grid", "References", "Running");
+        expect(await panel.query("button", "Cancel check")).toHaveLength(1);
         held.release();
-        await panel.waitForText("list", "References", "Correct");
-        await panel.click("button", /^Open Reference 1:/);
+        await panel.waitForText("grid", "References", "Correct");
+        await panel.click("button", /^Open reference 1:/);
         const before = await panel.text("region", "Reference detail");
         await select("Draft received after completion");
         await until(
@@ -512,7 +513,7 @@ test("Firefox native selection opens the sidebar, warns at its cap and reads the
         (await firefox.tree()).some(
           (node) =>
             node.name ===
-            "The selection may have been shortened – paste the text or upload a file for longer lists",
+            "Paste the text or upload a file for longer lists. The selection may have been shortened.",
         ),
       "Firefox truncation notice was not shown",
     );
@@ -595,10 +596,10 @@ test("selection replaces a prepared bibliography draft and Undo restores its mov
         const second = "Roe, A. (2021). Careful systems. Example Press.";
         const original = `References\n${first}\n${second}`;
         await panel.fill("textbox", "Reference", original);
-        await panel.click("button", "Structure References");
+        await panel.click("button", "Structure references");
         await panel.waitForText(
           "region",
-          "Recognized References",
+          "Recognized references",
           "Signal maps",
         );
         await panel.fill(
@@ -618,7 +619,7 @@ test("selection replaces a prepared bibliography draft and Undo restores its mov
           );
         }, "Selection did not replace the prepared bibliography draft");
         expect(await panel.query("spinbutton", "Region 1 start")).toEqual([]);
-        expect(await panel.query("region", "Recognized References")).toEqual(
+        expect(await panel.query("region", "Recognized references")).toEqual(
           [],
         );
         await panel.click("button", "Undo selection replacement");

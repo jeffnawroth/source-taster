@@ -123,7 +123,7 @@ test("disabled browser storage still allows Preferences and a Check", async ({
     .getByRole("textbox")
     .fill("Darwin, C. (1859). On the Origin of Species.");
   await page
-    .getByRole("button", { name: "Check Reference", exact: true })
+    .getByRole("button", { name: "Check reference", exact: true })
     .click();
   await expect(checkStatus(page)).toContainText("Finished");
   await expect(

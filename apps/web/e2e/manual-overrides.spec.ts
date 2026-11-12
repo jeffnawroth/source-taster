@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { CheckResponse } from "@source-taster/contract-verification/v2";
 for (const language of ["en", "de"] as const) {
-  test(`manual Verdicts filter and reset while preserving historical evidence in ${language}`, async ({
+  test(`manual verdicts filter and reset while preserving historical evidence in ${language}`, async ({
     page,
   }) => {
     const en = language === "en";
@@ -19,11 +19,11 @@ for (const language of ["en", "de"] as const) {
       );
     await page
       .getByRole("button", {
-        name: en ? "Check Reference" : "Referenz prüfen",
+        name: en ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
-    const list = page.getByRole("list", {
+    const list = page.getByRole("grid", {
       name: en ? "References" : "Referenzen",
       exact: true,
     });
@@ -37,17 +37,17 @@ for (const language of ["en", "de"] as const) {
     });
     await detail
       .getByRole("button", {
-        name: en ? "Confirm Verdict" : "Urteil bestätigen",
+        name: en ? "Confirm verdict" : "Befund bestätigen",
         exact: true,
       })
       .click();
     await expect(detail).toContainText(
-      en ? "Manual Verdict: Correct" : "Manuelles Urteil: Korrekt",
+      en ? "Manual verdict: Correct" : "Manueller Befund: Korrekt",
     );
     await expect(detail).toContainText(
       en
-        ? "Original system Verdict: Correct"
-        : "Ursprüngliches Systemurteil: Korrekt",
+        ? "Original system verdict: Correct"
+        : "Ursprünglicher Systembefund: Korrekt",
     );
     await detail
       .getByRole("button", {
@@ -56,19 +56,20 @@ for (const language of ["en", "de"] as const) {
       })
       .click();
     await detail
-      .getByRole("combobox", {
-        name: en ? "Manual Verdict" : "Manuelles Urteil",
+      .getByRole("radiogroup", {
+        name: en ? "Manual verdict" : "Manueller Befund",
         exact: true,
       })
-      .selectOption("not-found");
+      .getByText(en ? "Not found" : "Nicht gefunden", { exact: true })
+      .click();
     await detail
       .getByRole("button", {
-        name: en ? "Save manual Verdict" : "Manuelles Urteil speichern",
+        name: en ? "Save manual verdict" : "Manuellen Befund speichern",
         exact: true,
       })
       .click();
     await expect(detail).toContainText(
-      en ? "Manual Verdict: Not found" : "Manuelles Urteil: Nicht gefunden",
+      en ? "Manual verdict: Not found" : "Manueller Befund: Nicht gefunden",
     );
     const summary = page.getByRole("region", {
       name: en ? "Check summary" : "Prüfungsübersicht",
@@ -81,39 +82,42 @@ for (const language of ["en", "de"] as const) {
     ).toContainText(en ? "Manual: 1" : "Manuell: 1");
     await detail
       .getByRole("button", {
-        name: en ? "Back to References" : "Zurück zu Referenzen",
+        name: en ? "Back to references" : "Zurück zu Referenzen",
         exact: true,
       })
       .click();
     await expect(list).toContainText(
-      en ? "Manual Verdict: Not found" : "Manuelles Urteil: Nicht gefunden",
+      en ? "Manual verdict: Not found" : "Manueller Befund: Nicht gefunden",
     );
     const filter = summary.getByRole("button", {
       name: en ? /^Not found: 1/ : /^Nicht gefunden: 1/,
     });
     await filter.click();
     await expect(filter).toHaveAttribute("aria-pressed", "true");
-    await expect(list.getByRole("listitem")).toHaveCount(1);
+    await expect(list.getByRole("row")).toHaveCount(1);
     await list.getByRole("button").click();
     // Return to all before Re-check so the running Status stays visible.
     await summary
       .getByRole("button", {
-        name: en ? /^All References:/ : /^Alle Referenzen:/,
+        name: en
+          ? "Remove filter: Not found"
+          : "Filter entfernen: Nicht gefunden",
+        exact: true,
       })
       .click();
     await list.getByRole("button").click();
     await detail
       .getByRole("button", {
-        name: en ? "Re-check this Reference" : "Diese Referenz erneut prüfen",
+        name: en ? "Re-check this reference" : "Diese Referenz erneut prüfen",
         exact: true,
       })
       .click();
     await expect(detail.getByRole("status")).toContainText(
-      en ? "reset by the Re-check" : "durch die erneute Prüfung zurückgesetzt",
+      en ? "reset by the re-check" : "durch die erneute Prüfung zurückgesetzt",
     );
     await expect(
       detail.getByRole("button", {
-        name: en ? "Confirm Verdict" : "Urteil bestätigen",
+        name: en ? "Confirm verdict" : "Befund bestätigen",
         exact: true,
       }),
     ).toBeVisible({ timeout: 15000 });
@@ -133,12 +137,12 @@ for (const language of ["en", "de"] as const) {
       exact: true,
     });
     await expect(history).toContainText(
-      en ? "Manual Verdict: Not found" : "Manuelles Urteil: Nicht gefunden",
+      en ? "Manual verdict: Not found" : "Manueller Befund: Nicht gefunden",
     );
     await expect(history).toContainText(
       en
-        ? "Original system Verdict: Correct"
-        : "Ursprüngliches Systemurteil: Korrekt",
+        ? "Original system verdict: Correct"
+        : "Ursprünglicher Systembefund: Korrekt",
     );
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     expect(
@@ -148,6 +152,144 @@ for (const language of ["en", "de"] as const) {
     ).toBe(true);
   });
 }
+// Visually hidden text (the correction diff's "Deleted:"/"Inserted:" labels) is
+// absolutely positioned. When the scrolling detail is not its containing block
+// it escapes the detail's clip and adds phantom scrollable overflow to the
+// page. Layout changes inside the detail then move the window scroll, and a
+// press that straddles such a change is lost (manual verdict "Save" on a narrow
+// viewport).
+async function openManualJudgment(page: Page) {
+  await page.setViewportSize({ width: 360, height: 780 });
+  await page.goto("/");
+  await page
+    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
+    .selectOption("en");
+  await page
+    .getByRole("textbox")
+    .fill(
+      "Aspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170",
+    );
+  await page
+    .getByRole("button", { name: "Check reference", exact: true })
+    .click();
+  const list = page.getByRole("grid", { name: "References", exact: true });
+  await expect(list).toContainText("Correct", { timeout: 15000 });
+  await list.getByRole("button").click();
+  const detail = page.getByRole("region", {
+    name: "Reference detail",
+    exact: true,
+  });
+  await detail
+    .getByRole("button", { name: "Confirm verdict", exact: true })
+    .click();
+  await expect(detail).toContainText("Manual verdict: Correct");
+  await detail
+    .getByRole("button", { name: "Judge manually", exact: true })
+    .click();
+  const group = detail.getByRole("radiogroup", {
+    name: "Manual verdict",
+    exact: true,
+  });
+  await expect(group).toBeVisible();
+  // The scenarios are only meaningful while the hidden diff labels are present.
+  await expect(detail.locator(".sr-only").first()).toBeAttached();
+  return { detail, group };
+}
+test("the scrolling reference detail does not extend the page's scroll range", async ({
+  page,
+}) => {
+  await openManualJudgment(page);
+  const range = () =>
+    page.evaluate(() => ({
+      document: document.documentElement.scrollHeight,
+      app: Math.ceil(
+        document.getElementById("root")!.getBoundingClientRect().bottom +
+          scrollY,
+      ),
+    }));
+  await expect
+    .poll(async () => (await range()).document)
+    .toBeLessThanOrEqual((await range()).app);
+});
+test("a layout change in the detail during a Save press does not lose the press", async ({
+  page,
+}) => {
+  const { detail, group } = await openManualJudgment(page);
+  await group.getByText("Not found", { exact: true }).click();
+  const save = detail.getByRole("button", {
+    name: "Save manual verdict",
+    exact: true,
+  });
+  await save.scrollIntoViewIfNeeded();
+  // The press must not depend on where the page happened to come to rest. Put
+  // the window where it only sometimes rests: Save fully in view, the detail
+  // running on past the bottom edge (a window-level scroll anchor could then
+  // sit inside the detail's own scroller).
+  await page.evaluate(() =>
+    scrollTo(0, document.documentElement.scrollHeight - innerHeight - 142),
+  );
+  const placement = await page.evaluate(() => {
+    const pane = document
+      .querySelector(".check-detail")!
+      .getBoundingClientRect();
+    const button = [...document.querySelectorAll(".check-detail button")]
+      .find((b) => b.textContent?.trim() === "Save manual verdict")!
+      .getBoundingClientRect();
+    return {
+      paneBottom: pane.bottom,
+      buttonTop: button.top,
+      buttonBottom: button.bottom,
+      viewport: innerHeight,
+      scrollMax: document.documentElement.scrollHeight - innerHeight,
+      scrollY,
+    };
+  });
+  expect(
+    placement.paneBottom,
+    "the detail runs past the viewport",
+  ).toBeGreaterThan(placement.viewport);
+  expect(placement.buttonTop, "Save is fully in view").toBeGreaterThan(0);
+  expect(placement.buttonBottom, "Save is fully in view").toBeLessThan(
+    placement.viewport,
+  );
+  expect(placement.scrollY, "the window is not at its maximum").toBeLessThan(
+    placement.scrollMax,
+  );
+  const before = (await save.boundingBox())!;
+  const scrollBefore = placement.scrollY;
+  await page.mouse.move(
+    before.x + before.width / 2,
+    before.y + before.height / 2,
+  );
+  await page.mouse.down();
+  // Late content above the pressed control, as when suggestions render while
+  // the pointer is down.
+  await page.evaluate(() => {
+    const block = document.createElement("div");
+    block.style.height = "300px";
+    const detail = document.querySelector(".check-detail")!;
+    detail.insertBefore(block, detail.firstElementChild);
+  });
+  // The control stays under the pointer until the press ends. Its centre is
+  // compared, because the press motion scales the box around that centre.
+  const pressed = (await save.boundingBox())!;
+  expect(
+    {
+      x: pressed.x + pressed.width / 2,
+      y: pressed.y + pressed.height / 2,
+    },
+    "Save did not move under the pointer",
+  ).toEqual({
+    x: expect.closeTo(before.x + before.width / 2, 0),
+    y: expect.closeTo(before.y + before.height / 2, 0),
+  });
+  await page.mouse.up();
+  expect(
+    await page.evaluate(() => scrollY),
+    "the window did not scroll during the press",
+  ).toBe(scrollBefore);
+  await expect(detail).toContainText("Manual verdict: Not found");
+});
 test("a manual draft cannot silently move to a newer same-revision result", async ({
   page,
 }) => {
@@ -171,9 +313,9 @@ test("a manual draft cannot silently move to a newer same-revision result", asyn
       "Aspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170",
     );
   await page
-    .getByRole("button", { name: "Check Reference", exact: true })
+    .getByRole("button", { name: "Check reference", exact: true })
     .click();
-  const list = page.getByRole("list", { name: "References", exact: true });
+  const list = page.getByRole("grid", { name: "References", exact: true });
   await expect(list).toContainText("Correct", { timeout: 15000 });
   await list.getByRole("button").click();
   const detail = page.getByRole("region", {
@@ -184,8 +326,9 @@ test("a manual draft cannot silently move to a newer same-revision result", asyn
     .getByRole("button", { name: "Judge manually", exact: true })
     .click();
   await detail
-    .getByRole("combobox", { name: "Manual Verdict", exact: true })
-    .selectOption("not-found");
+    .getByRole("radiogroup", { name: "Manual verdict", exact: true })
+    .getByText("Not found", { exact: true })
+    .click();
   const url = `http://127.0.0.1:${apiPort}/v2/checks/${checkId}`;
   // Another client runs the same field revision, producing a different immutable result ID.
   expect(
@@ -201,10 +344,10 @@ test("a manual draft cannot silently move to a newer same-revision result", asyn
     .poll(async () => (await snapshot()).references[0]!.results.length)
     .toBe(2);
   await detail
-    .getByRole("button", { name: "Save manual Verdict", exact: true })
+    .getByRole("button", { name: "Save manual verdict", exact: true })
     .click();
   await expect(detail.getByRole("alert")).toContainText("changed");
-  await expect(detail).not.toContainText("Manual Verdict: Not found");
+  await expect(detail).not.toContainText("Manual verdict: Not found");
   const [reference] = (await snapshot()).references;
   expect(reference!.manualOverride).toBeNull();
   expect(

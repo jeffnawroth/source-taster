@@ -41,7 +41,7 @@ export function StructuringResults({
       <p
         role="status"
         aria-label={m.structuring_summary_label()}
-        className="rounded-xl bg-teal-50 p-4 text-teal-950"
+        className="rounded-xl bg-surface-sunken p-4 text-text"
       >
         {("guidance" in result
           ? result.guidance
@@ -86,12 +86,14 @@ export function StructuringResults({
           <h2 id="structured-title" className="mb-4 text-2xl font-semibold">
             {m.structuring_heading()}
           </h2>
-          <p className="mb-4 text-slate-700">{m.structuring_exact_notice()}</p>
+          <p className="mb-4 text-text-secondary">
+            {m.structuring_exact_notice()}
+          </p>
           <ol className="space-y-6">
             {result.references.map((reference) => (
               <li
                 key={reference.span.start}
-                className="rounded-xl border border-slate-300 bg-white p-5"
+                className="rounded-xl border border-border-emphasis bg-surface p-5"
               >
                 {"ai" in reference && reference.ai && (
                   <AiProvenance ai={reference.ai} />
@@ -140,7 +142,7 @@ export function StructuringResults({
         </section>
       )}
       {result.rejected.length > 0 && (
-        <details className="rounded-xl border border-slate-300 bg-white p-5">
+        <details className="rounded-xl border border-border-emphasis bg-surface p-5">
           <summary className="cursor-pointer font-semibold">
             {m.structuring_rejected()}
           </summary>

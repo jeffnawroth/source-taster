@@ -87,7 +87,7 @@ test("the toolbar button opens the real Firefox sidebar, which checks a Referenc
       return false;
     }, "The evidence disclosure did not show the server Scores");
     expect(evidenced).toContain(l[witness.verdict]);
-    await firefox.find("pushbutton", "Back to References");
+    await firefox.find("pushbutton", "Back to references");
     await firefox.screenshot(evidence("firefox-sidebar-check.png"));
 
     // The same button closes the sidebar; reopening starts with empty input.

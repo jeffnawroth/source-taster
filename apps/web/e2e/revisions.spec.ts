@@ -15,11 +15,11 @@ for (const language of ["en", "de"] as const) {
     await page.getByRole("textbox").fill(original);
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
-    const list = page.getByRole("list", {
+    const list = page.getByRole("grid", {
       name: language === "en" ? "References" : "Referenzen",
       exact: true,
     });
@@ -64,6 +64,11 @@ for (const language of ["en", "de"] as const) {
       name: language === "en" ? "Reference detail" : "Referenzdetails",
       exact: true,
     });
+    await expect(detail).toContainText(
+      language === "en"
+        ? "Already debited reference slot: a re-check uses no additional quota."
+        : "Bereits abgerechneter Referenzplatz: Eine erneute Prüfung verbraucht kein weiteres Kontingent.",
+    );
     await expect(detail).toContainText(original);
     await expect(detail).toContainText(
       language === "en"
@@ -120,25 +125,31 @@ for (const language of ["en", "de"] as const)
       );
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
     const edit = page.getByRole("button", {
       name:
-        language === "en" ? "Edit Reference list" : "Referenzliste bearbeiten",
+        language === "en" ? "Edit reference list" : "Referenzliste bearbeiten",
       exact: true,
     });
     await expect(edit).toBeEnabled({ timeout: 15000 });
     await edit.click();
+    // The shared Checkbox hides its native input; people press its label.
+    const removal = page.getByRole("checkbox", {
+      name: /1\. Measured measurement/,
+    });
     await page
-      .getByRole("checkbox", { name: /1\. Measured measurement/ })
-      .check();
+      .locator("label")
+      .filter({ hasText: /1\. Measured measurement/ })
+      .click();
+    await expect(removal).toBeChecked();
     await page
       .getByRole("textbox", {
         name:
           language === "en"
-            ? "Original input for the new Reference"
+            ? "Original input for the new reference"
             : "Originaleingabe für die neue Referenz",
         exact: true,
       })
@@ -175,8 +186,8 @@ for (const language of ["en", "de"] as const)
     });
     await expect(preview).toContainText(
       language === "en"
-        ? "Add 1, remove 1. Resulting References: 1. Additional Quota on first Verdicts: 1."
-        : "Hinzufügen: 1, entfernen: 1. Verbleibende Referenzen: 1. Zusätzliches Kontingent bei ersten Urteilen: 1.",
+        ? "Add 1, remove 1. Resulting references: 1. Additional quota on first verdicts: 1."
+        : "Hinzufügen: 1, entfernen: 1. Verbleibende Referenzen: 1. Zusätzliches Kontingent bei ersten Befunden: 1.",
     );
     expect(changes).toEqual([]);
     expect(
@@ -195,15 +206,16 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
-    const list = page.getByRole("list", {
+    const list = page.getByRole("grid", {
       name: language === "en" ? "References" : "Referenzen",
       exact: true,
     });
-    await expect(list.getByRole("listitem")).toHaveCount(1);
-    await expect(list.getByRole("button")).toHaveText(
+    await expect(list.getByRole("row")).toHaveCount(1);
+    await expect(list.getByRole("button")).toHaveAccessibleName(
       language === "en"
-        ? "Open Reference 2: Added title"
+        ? "Open reference 2: Added title"
         : "Referenz 2 öffnen: Added title",
     );
+    await expect(list.getByRole("button")).toContainText("Added title");
     expect(changes).toHaveLength(1);
   });

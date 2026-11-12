@@ -1,10 +1,17 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { spawnSync } from "node:child_process";
-import { rm, writeFile, readdir, readFile } from "node:fs/promises";
+import {
+  copyFile,
+  rm,
+  writeFile,
+  readdir,
+  readFile,
+  mkdir,
+} from "node:fs/promises";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
-import { checkPublication, digest } from "./publication.ts";
+import { checkPublication, digest, websiteBrandFiles } from "./publication.ts";
 import "./content-check.ts";
 import { assertPreviewAllowed, languages } from "../src/metadata.ts";
 import type { NativeLoad } from "../../../scripts/website-evidence.ts";
@@ -24,6 +31,16 @@ const verify = spawnSync(
 );
 if (verify.status !== 0)
   throw new Error("A current controlled Pagefind source build is required");
+// ProductExample renders the real localized product at build time. A direct
+// website-only build must prepare its generated catalogs on a clean checkout,
+// as well as when Turbo has already built the workspace dependencies.
+const catalogs = spawnSync(
+  "pnpm",
+  ["--filter", "@source-taster/i18n", "generate"],
+  { cwd: project, stdio: "inherit" },
+);
+if (catalogs.status !== 0)
+  throw new Error("The public product catalogs could not be generated");
 const buildEnvironment = {
   ...process.env,
   ASTRO_TELEMETRY_DISABLED: "1",
@@ -111,6 +128,19 @@ for (const language of languages) {
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
+// The controlled source-delivery tool owns the actual archives/notices and
+// provides standalone fallback landings. This host supplies its own static
+// Astro landings, with the same public downloads in the common site shell.
+const landingPaths = [
+  "third-party/pagefind/index.html",
+  ...languages.map((language) => `third-party/pagefind/${language}/index.html`),
+];
+const sourceLandings = await Promise.all(
+  landingPaths.map(async (path) => ({
+    path,
+    html: await readFile(resolve(output, path)),
+  })),
+);
 const sourceDelivery = spawnSync(
   process.execPath,
   [resolve(project, "scripts/pagefind-delivery.ts"), resolve(output)],
@@ -118,6 +148,55 @@ const sourceDelivery = spawnSync(
 );
 if (sourceDelivery.status !== 0)
   throw new Error("Browser source/notice delivery failed");
+for (const { path, html } of sourceLandings)
+  await writeFile(resolve(output, path), html);
+// Retain the complete grants for the compiled static recipes and local fonts.
+// React renders the illustrative product markup only during this build; its
+// grant is also retained here, without shipping React to the browser.
+const uiRequire = createRequire(resolve(project, "packages/ui/package.json"));
+const noticeInputs = [
+  ["Source Taster UI provenance", resolve(project, "packages/ui/NOTICE.md")],
+  [
+    "Source Taster brand artwork — DRAFT, not legally reviewed",
+    resolve(project, "packages/brand/NOTICE.md"),
+  ],
+  [
+    "Adobe starter — Apache-2.0",
+    resolve(project, "packages/ui/notices/react-spectrum-LICENSE"),
+  ],
+  [
+    "Lucide / Feather — ISC and MIT",
+    resolve(project, "packages/ui/notices/lucide-LICENSE"),
+  ],
+  ...["tailwindcss", "tailwind-variants", "react", "react-dom"].map((name) => [
+    name,
+    resolve(uiRequire.resolve(`${name}/package.json`), "../LICENSE"),
+  ]),
+  [
+    "Atkinson Hyperlegible Next — OFL-1.1",
+    resolve("public/fonts/atkinsonhyperlegiblenext-OFL.txt"),
+  ],
+  ["IBM Plex Mono — OFL-1.1", resolve("public/fonts/ibmplexmono-OFL.txt")],
+];
+const notices = await Promise.all(
+  noticeInputs.map(
+    async ([name, path]) =>
+      `${name}\n${"=".repeat(72)}\n${await readFile(path!, "utf8")}\n`,
+  ),
+);
+await mkdir(resolve(output, "third-party/ui"), { recursive: true });
+await writeFile(
+  resolve(output, "third-party/ui/NOTICE.txt"),
+  "Source Taster public interface — retained upstream notices.\nProject source: https://github.com/jeffnawroth/source-taster\nProject software: AGPL-3.0-or-later; upstream grants below retain their own scope.\nThe favicons are brand artwork under a draft notice that is not legally reviewed; no specialist legal clearance is asserted.\n\n" +
+    notices.join("\n"),
+);
+// The chosen website favicons (#214), copied byte for byte from the committed
+// brand exports. Optional manifest/pinned-tab candidates stay unpublished.
+for (const file of await websiteBrandFiles(project))
+  await copyFile(
+    resolve(project, "packages/brand/exports", file),
+    resolve(output, file),
+  );
 const files: Record<string, string> = {};
 async function inventory(dir: string) {
   for (const entry of await readdir(resolve(output, dir), {

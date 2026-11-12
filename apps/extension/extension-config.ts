@@ -120,13 +120,51 @@ const dataCollectionPermissions = {
   optional: ["technicalAndInteraction"],
 };
 
+/** Packaged icons, copied unchanged from the committed brand exports
+ * (packages/brand). Package icons end in the Chrome Web Store 128 icon (96 px
+ * artwork, 16 px margins); toolbar cuts are separate, PNG for both browsers. */
+const icons = (prefix: string, sizes: number[]) =>
+  Object.fromEntries(
+    sizes.map((size) => [size, `icons/${prefix}-${size}.png`]),
+  );
+const toolbarSizes = [16, 24, 32, 48, 64];
+const packageIcons = icons("extension", [16, 24, 32, 48, 64, 96, 128]);
+const toolbarIcons = icons("toolbar-default", toolbarSizes);
+/** Firefox theme_icons keys name the theme's text colour: `dark` text means a
+ * light toolbar (on-light artwork), `light` text a dark one (on-dark). */
+const themeIcons = toolbarSizes.map((size) => ({
+  dark: `icons/toolbar-on-light-${size}.png`,
+  light: `icons/toolbar-on-dark-${size}.png`,
+  size,
+}));
+
+/** Every packaged icon path a manifest references. */
+export function manifestIcons(generated: ReturnType<typeof manifest>) {
+  const action = generated.action as {
+    default_icon: Record<string, string>;
+    theme_icons?: { dark: string; light: string }[];
+  };
+  const sidebar = (
+    generated as { sidebar_action?: { default_icon: Record<string, string> } }
+  ).sidebar_action;
+  return [
+    ...new Set([
+      ...Object.values(generated.icons),
+      ...Object.values(action.default_icon),
+      ...Object.values(sidebar?.default_icon ?? {}),
+      ...(action.theme_icons ?? []).flatMap(({ dark, light }) => [dark, light]),
+    ]),
+  ];
+}
+
 export function manifest(target: Target, config: ExtensionConfig) {
   const common = {
     manifest_version: 3,
     default_locale: "en",
     name: "Source Taster (development)",
     version: "0.0.0",
-    description: "Development build of the Source Taster Check workspace.",
+    description: "Development build of the Source Taster check workspace.",
+    icons: packageIcons,
     host_permissions: hostPermissions(target, config),
     content_security_policy: {
       extension_pages: "script-src 'self'; object-src 'self'",
@@ -136,7 +174,7 @@ export function manifest(target: Target, config: ExtensionConfig) {
     ? {
         ...common,
         minimum_chrome_version: "116",
-        action: { default_title: "Source Taster" },
+        action: { default_title: "Source Taster", default_icon: toolbarIcons },
         side_panel: { default_path: "panel.html" },
         background: { service_worker: "background.js" },
         permissions: ["sidePanel", "storage", "contextMenus"],
@@ -152,10 +190,18 @@ export function manifest(target: Target, config: ExtensionConfig) {
             data_collection_permissions: dataCollectionPermissions,
           },
         },
-        action: { default_title: "Source Taster", default_area: "navbar" },
+        action: {
+          default_title: "Source Taster",
+          default_area: "navbar",
+          default_icon: toolbarIcons,
+          theme_icons: themeIcons,
+        },
         sidebar_action: {
           default_title: "Source Taster",
           default_panel: "panel.html",
+          // MDN documents only default_icon for sidebar_action (no
+          // theme_icons), so the colour toolbar cuts serve every theme.
+          default_icon: toolbarIcons,
           open_at_install: false,
         },
         background: { scripts: ["background.js"] },

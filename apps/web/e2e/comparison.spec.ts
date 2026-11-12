@@ -36,7 +36,7 @@ for (const c of cases)
       (r) => r.url().endsWith("/v2/checks") && r.request().method() === "POST",
     );
     await page
-      .getByRole("button", { name: "Check Reference", exact: true })
+      .getByRole("button", { name: "Check reference", exact: true })
       .click();
     const created = CheckResponse.parse(await (await creation).json()).data;
     const result = page.getByRole("region", {
@@ -102,7 +102,7 @@ for (const language of ["en", "de"] as const)
       );
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();

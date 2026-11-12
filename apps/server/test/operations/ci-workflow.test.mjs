@@ -136,7 +136,7 @@ test("the end-to-end and native side-panel suites run in their own jobs", () => 
     assert.ok(indexOfRun(job, "pnpm build") >= 0);
     assert.ok(
       runs(job).includes(
-        "pnpm --filter @source-taster/web exec playwright install --with-deps chromium",
+        `pnpm --filter @source-taster/web exec playwright install --with-deps ${job === e2e ? "chromium firefox webkit" : "chromium"}`,
       ),
     );
     assert.ok(
@@ -194,7 +194,9 @@ test("the public Playwright and contract suites run in CI on local fakes, each i
   const web = workflow.jobs["web-suites"];
   assert.deepEqual(configsOf(web), [
     "abuse.playwright.config.ts",
+    "shell.playwright.config.ts",
     "report.playwright.config.ts",
+    "regression.playwright.config.ts",
   ]);
   assert.ok(
     runs(web).includes(

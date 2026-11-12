@@ -34,7 +34,19 @@ import { BibliographyEditor, validRegions } from "./bibliography-selection.tsx";
 import { m } from "@source-taster/i18n";
 import { GuestTokenError } from "@source-taster/contract-service/client";
 import { setLocale } from "@source-taster/i18n/runtime";
-import { Button, Label, Text, TextArea, TextField } from "./index.tsx";
+import {
+  Button,
+  DropZone,
+  FileTrigger,
+  type Availability,
+} from "./primitives/index.ts";
+import {
+  Label,
+  Description,
+  TextArea,
+  TextFieldRoot,
+} from "./primitives/fields.tsx";
+import { CheckingTopBar } from "./checking-top-bar.tsx";
 import {
   citationStyles,
   isCitationStyle,
@@ -50,6 +62,11 @@ import { StructuringResults } from "./structuring-results.tsx";
 import { CheckResults } from "./check-results.tsx";
 import { QuotaChoice, QuotaMeter, QuotaPending } from "./quota-panel.tsx";
 import { ownerQuota, planStart, type OwnerQuota } from "./quota.ts";
+function availability(disabled: boolean, reason: string): Availability {
+  return disabled
+    ? { isDisabled: true, disabledReason: reason }
+    : { isDisabled: false };
+}
 type MessageKey = Extract<keyof typeof m, `problem_${string}`>;
 const styleMessages = {
   apa: "citation_style_apa",
@@ -93,6 +110,8 @@ export function CheckWorkspace({
   transport,
   siteUrl,
   accountControls,
+  accountLabel,
+  accountNotice,
   onPreferencesChange,
   controlledPreferences,
   selectionIntake,
@@ -105,6 +124,8 @@ export function CheckWorkspace({
   preferenceStorage: PreferenceStorage;
   transport: VerificationClientOptions;
   siteUrl?: string;
+  accountLabel?: string;
+  accountNotice?: ReactNode;
   accountControls?: (
     language: "de" | "en",
     quota: OwnerQuota | null,
@@ -150,6 +171,9 @@ export function CheckWorkspace({
     controlledPreferences?.citationStyleReset ?? localStyleReset;
   const locale = preferences.language;
   const [text, setText] = useState("");
+  const [inputKind, setInputKind] = useState<"text" | "selection">("text");
+  const [filesOpen, setFilesOpen] = useState(false);
+  const languageInput = useRef<HTMLSelectElement>(null);
   const fileId = useId();
   const fileInput = useRef<HTMLInputElement>(null);
   const [library, setLibrary] = useState<LibraryInput | null>(null);
@@ -160,6 +184,7 @@ export function CheckWorkspace({
   >(null);
   const [selectionUndo, setSelectionUndo] = useState<{
     text: string;
+    inputKind: "text" | "selection";
     library: LibraryInput | null;
     preview: StructuringResult | ImportResult | null;
     fileName: string;
@@ -178,6 +203,7 @@ export function CheckWorkspace({
       setSelectionNotice(selection.possiblyShortened ? "shortened" : null);
       setSelectionUndo({
         text,
+        inputKind,
         library,
         preview,
         fileName,
@@ -195,6 +221,7 @@ export function CheckWorkspace({
         setPending(null);
       }
       setText(selection.text);
+      setInputKind("selection");
       setSourceDocument(null);
       setSelectionLimit(null);
       setLibrary(null);
@@ -215,6 +242,10 @@ export function CheckWorkspace({
   const [check, setCheck] = useState<Check | null>(null);
   const [accessStopped, setAccessStopped] = useState(false);
   const [streamFailure, setStreamFailure] = useState<unknown>(null);
+  const [connection, setConnection] = useState<
+    "connecting" | "connected" | "reconnecting"
+  >("connecting");
+  const [reconnecting, setReconnecting] = useState(false);
   const [streamError, setStreamError] = useState<MessageKey | null>(null);
   const controller = useRef<AbortController | null>(null);
   const generation = useRef(0);
@@ -498,6 +529,17 @@ export function CheckWorkspace({
         });
         return;
       }
+      if (plan.kind === "fits")
+        setQuotaNote({
+          required: plan.required,
+          remaining: plan.remainingAfter + plan.required,
+          after: plan.remainingAfter,
+          skipped: 0,
+        });
+      await new Promise<void>((resolve) =>
+        requestAnimationFrame(() => resolve()),
+      );
+      if (generation.current !== token) return;
       await launch(input, token, undefined, {
         required: plan.kind === "fits" ? plan.required : null,
         after: plan.kind === "fits" ? plan.remainingAfter : null,
@@ -651,8 +693,25 @@ export function CheckWorkspace({
       )
     )
       return;
+    let connected = false;
     void watchCheckEvents(created.id, {
       ...transport,
+      fetch: async (input, init) => {
+        const live = () => generation.current === token && !next.signal.aborted;
+        if (live()) setConnection(connected ? "reconnecting" : "connecting");
+        try {
+          const response = await (transport.fetch ?? globalThis.fetch)(
+            input,
+            init,
+          );
+          connected = true;
+          if (live() && response.ok) setConnection("connected");
+          return response;
+        } catch (error) {
+          if (live()) setConnection("reconnecting");
+          throw error;
+        }
+      },
       signal: next.signal,
       lastEventSeq: created.lastEventSeq,
       onEvent: (event) => {
@@ -689,7 +748,7 @@ export function CheckWorkspace({
                 : [
                     ...current.references,
                     event.reference as Check["references"][number],
-                  ].sort((a, b) => a.slot - b.slot),
+                  ],
           };
         });
       },
@@ -700,6 +759,26 @@ export function CheckWorkspace({
         setStreamError(problemKey(error, "problem_connection"));
       }
     });
+  }
+  async function reconnect() {
+    if (!check || reconnecting) return;
+    const token = generation.current;
+    const id = check.id;
+    setReconnecting(true);
+    try {
+      const snapshot = await api.getCheck(id);
+      if (generation.current !== token) return;
+      setStreamError(null);
+      setStreamFailure(null);
+      follow(snapshot);
+    } catch (error) {
+      if (generation.current === token) {
+        setStreamFailure(error);
+        setStreamError(problemKey(error, "problem_connection"));
+      }
+    } finally {
+      if (generation.current === token) setReconnecting(false);
+    }
   }
   async function cancel() {
     if (!check || cancelling) return;
@@ -734,6 +813,7 @@ export function CheckWorkspace({
     )
       void cancelDetached(check.id);
     setText("");
+    setInputKind("text");
     setSelectionUndo(null);
     setSelectionNotice(null);
     setFile(null);
@@ -753,6 +833,7 @@ export function CheckWorkspace({
     setRequestError(null);
     setStreamError(null);
     setCancelling(false);
+    setReconnecting(false);
     setCancelRequested(false);
     requestAnimationFrame(() => inputRef.current?.focus());
   }
@@ -799,15 +880,49 @@ export function CheckWorkspace({
   return (
     <main className="check-workspace mx-auto max-w-7xl px-6 py-10 sm:py-16">
       <MaintenanceNotice baseUrl={transport.baseUrl} language={locale} />
-      <header className="mb-10 flex flex-wrap items-start justify-between gap-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{m.app_title()}</h1>
-          <p className="mt-2 text-slate-600">{m.app_intro()}</p>
-        </div>
+      <CheckingTopBar
+        documentName={file?.name ?? (fileName || undefined)}
+        account={accountControls?.(locale, quota)}
+        accountLabel={accountLabel}
+        onInput={() => inputRef.current?.focus()}
+        onReset={reset}
+        onPreferences={() => languageInput.current?.focus()}
+        onStop={
+          running
+            ? () => {
+                void cancel();
+              }
+            : undefined
+        }
+        history={
+          accountHistory
+            ? (close) => (
+                <HistoryPanel
+                  api={api}
+                  busy={!!busy || !!quotaChoice}
+                  refreshKey={`${check?.id ?? ""}:${!!running}`}
+                  upgradeUrl={upgradeUrl}
+                  onCheck={(snapshot) => {
+                    reset();
+                    follow(snapshot);
+                    void refreshQuota();
+                    close();
+                  }}
+                  onDelete={(id) => {
+                    if (!id || check?.id === id) reset();
+                  }}
+                />
+              )
+            : undefined
+        }
+      />
+      {accountNotice}
+      <div className="workspace-preferences">
         <label className="flex flex-col gap-1 text-sm font-medium">
           {m.language_label()}
           <select
-            className="rounded-lg border border-slate-500 bg-white p-2"
+            className="rounded-lg border border-border-emphasis bg-surface p-2"
+            ref={languageInput}
             value={locale}
             onChange={(event) => {
               if (isInterfaceLanguage(event.target.value))
@@ -821,7 +936,7 @@ export function CheckWorkspace({
         <label className="flex flex-col gap-1 text-sm font-medium">
           {m.citation_style_label()}
           <select
-            className="rounded-lg border border-slate-500 bg-white p-2"
+            className="rounded-lg border border-border-emphasis bg-surface p-2"
             value={preferences.citationStyle}
             onChange={(event) => {
               if (isCitationStyle(event.target.value))
@@ -835,24 +950,7 @@ export function CheckWorkspace({
             ))}
           </select>
         </label>
-      </header>
-      {accountControls?.(locale, quota)}
-      {accountHistory && (
-        <HistoryPanel
-          api={api}
-          busy={!!busy || !!quotaChoice}
-          refreshKey={`${check?.id ?? ""}:${!!running}`}
-          upgradeUrl={upgradeUrl}
-          onCheck={(snapshot) => {
-            reset();
-            follow(snapshot);
-            void refreshQuota();
-          }}
-          onDelete={(id) => {
-            if (!id || check?.id === id) reset();
-          }}
-        />
-      )}
+      </div>
       {quota ? (
         <QuotaMeter quota={quota} upgradeUrl={upgradeUrl} />
       ) : (
@@ -861,103 +959,184 @@ export function CheckWorkspace({
       {styleReset && (
         <p
           role="status"
-          className="mb-6 rounded-xl border border-amber-400 bg-amber-50 p-4 text-amber-950"
+          className="mb-6 rounded-xl border border-border-emphasis bg-surface-sunken p-4 text-text"
         >
           {m.citation_style_reset()}
         </p>
       )}
-      <p className="mb-8 rounded-xl border border-amber-400 bg-amber-50 p-4 text-amber-950">
-        {m.skeleton_notice()}
-      </p>
       <form
-        className="rounded-2xl border border-slate-300 bg-white p-6 shadow-sm"
+        className="rounded-2xl border border-border-emphasis bg-surface p-6 shadow-sm"
         onSubmit={(event) => {
           event.preventDefault();
           if ((text.trim() || (library && preview?.references.length)) && !busy)
             void start("create");
         }}
       >
-        <fieldset className="mb-6 flex min-w-0 flex-col gap-3" disabled={busy}>
-          <label htmlFor="document-file" className="text-lg font-semibold">
-            {m.document_upload_label()}
+        <div className="intake-command">
+          {!sourceDocument && (
+            <TextFieldRoot
+              value={text}
+              onChange={(value) => {
+                setText(value);
+                setInputKind("text");
+                setSelectionUndo(null);
+                setLibrary(null);
+                setFileName("");
+                setFileError(null);
+                if (fileInput.current) fileInput.current.value = "";
+                setPreview(null);
+                setDocumentNotice(false);
+              }}
+              isDisabled={!!busy}
+              className="intake-text"
+            >
+              <Label>{m.input_label()}</Label>
+              <Description>
+                {m.input_hint()}
+                {busy && ` · ${m.shell_busy()}`}
+              </Description>
+              <TextArea
+                ref={inputRef}
+                placeholder={m.input_example()}
+                className="intake-textarea"
+                rows={2}
+              />
+            </TextFieldRoot>
+          )}
+          <DropZone
+            aria-label={m.shell_drop()}
+            isDisabled={!!busy}
+            onDrop={(event) => {
+              const token = generation.current;
+              void (async () => {
+                const item = event.items.find((item) => item.kind === "file");
+                if (item?.kind === "file") {
+                  const dropped = await item.getFile();
+                  if (generation.current !== token) return;
+                  setFilesOpen(true);
+                  if (/\.(bib|bibtex|ris)$/iu.test(dropped.name))
+                    void loadLibrary(dropped);
+                  else {
+                    setFile(dropped);
+                    setRequestError(null);
+                  }
+                }
+              })().catch((error: unknown) => {
+                if (generation.current === token) setRequestError(error);
+              });
+            }}
+          >
+            <p>{m.shell_drop()}</p>
+            <FileTrigger
+              acceptedFileTypes={[".pdf", ".docx", ".bib", ".bibtex", ".ris"]}
+              onSelect={(files) => {
+                const selected = files?.[0];
+                if (!selected) return;
+                setFilesOpen(true);
+                if (/\.(bib|bibtex|ris)$/iu.test(selected.name))
+                  void loadLibrary(selected);
+                else {
+                  setFile(selected);
+                  setRequestError(null);
+                }
+              }}
+            >
+              <Button
+                type="button"
+                variant="ghost"
+                {...availability(!!busy, m.shell_busy())}
+              >
+                {m.shell_choose_file()}
+              </Button>
+            </FileTrigger>
+          </DropZone>
+        </div>
+        {(text.trim() || fileName || file) && (
+          <p className="intake-source">
+            {fileName || file
+              ? m.shell_file_source({ name: fileName || file!.name })
+              : inputKind === "selection"
+                ? m.shell_selection_source()
+                : m.shell_text_source()}
+          </p>
+        )}
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          aria-expanded={filesOpen}
+          aria-controls="intake-files"
+          onPress={() => setFilesOpen(!filesOpen)}
+        >
+          {m.shell_files()}
+        </Button>
+        <div id="intake-files" hidden={!filesOpen}>
+          <fieldset
+            className="mb-6 flex min-w-0 flex-col gap-3"
+            disabled={busy}
+          >
+            <label htmlFor="document-file" className="text-lg font-semibold">
+              {m.document_upload_label()}
+            </label>
+            <p id="document-hint" className="text-sm text-text-secondary">
+              {m.document_upload_hint()}
+            </p>
+            <input
+              ref={documentFileInput}
+              id="document-file"
+              type="file"
+              accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              aria-describedby="document-hint"
+              onChange={(event) => {
+                setFilesOpen(true);
+                setFile(event.target.files?.[0] ?? null);
+                setRequestError(null);
+              }}
+              className="max-w-full rounded-lg border border-border-emphasis p-3"
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              {...availability(
+                !file || !!busy,
+                busy ? m.shell_busy() : m.shell_empty_input(),
+              )}
+              onPress={() => {
+                void upload();
+              }}
+              className="mt-3"
+            >
+              {pending === "document"
+                ? m.document_upload_pending()
+                : m.document_upload_action()}
+            </Button>
+          </fieldset>
+          <label htmlFor={fileId} className="mb-2 block font-semibold">
+            {m.library_import_label()}
           </label>
-          <p id="document-hint" className="text-sm text-slate-600">
-            {m.document_upload_hint()}
+          <p id={`${fileId}-hint`} className="mb-2 text-sm">
+            {m.library_import_hint()}
           </p>
           <input
-            ref={documentFileInput}
-            id="document-file"
+            ref={fileInput}
+            id={fileId}
             type="file"
-            accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            aria-describedby="document-hint"
+            accept=".bib,.bibtex,.ris"
+            disabled={busy}
+            aria-describedby={`${fileId}-hint`}
+            className="mb-5 block max-w-full"
             onChange={(event) => {
-              setFile(event.target.files?.[0] ?? null);
-              setRequestError(null);
+              const file = event.target.files?.[0];
+              if (file) {
+                setFilesOpen(true);
+                void loadLibrary(file);
+              }
             }}
-            className="max-w-full rounded-lg border border-slate-500 p-3"
           />
-          <Button
-            type="button"
-            isDisabled={!file || busy}
-            onPress={() => {
-              void upload();
-            }}
-            className="self-start rounded-xl bg-teal-800 px-5 py-3 font-semibold text-white hover:bg-teal-900 disabled:bg-slate-200 disabled:text-slate-600"
-          >
-            {pending === "document"
-              ? m.document_upload_pending()
-              : m.document_upload_action()}
-          </Button>
-        </fieldset>
-        <label htmlFor={fileId} className="mb-2 block font-semibold">
-          {m.library_import_label()}
-        </label>
-        <p id={`${fileId}-hint`} className="mb-2 text-sm">
-          {m.library_import_hint()}
-        </p>
-        <input
-          ref={fileInput}
-          id={fileId}
-          type="file"
-          accept=".bib,.bibtex,.ris"
-          disabled={busy}
-          aria-describedby={`${fileId}-hint`}
-          className="mb-5 block max-w-full"
-          onChange={(event) => {
-            const file = event.target.files?.[0];
-            if (file) void loadLibrary(file);
-          }}
-        />
-        {fileName && (
-          <p className="mb-4">{m.library_selected({ name: fileName })}</p>
-        )}
-        {!sourceDocument && (
-          <TextField
-            value={text}
-            onChange={(value) => {
-              setText(value);
-              setSelectionUndo(null);
-              setLibrary(null);
-              setFileName("");
-              setFileError(null);
-              if (fileInput.current) fileInput.current.value = "";
-              setPreview(null);
-              setDocumentNotice(false);
-            }}
-            isDisabled={busy}
-            className="flex flex-col gap-3"
-          >
-            <Label className="text-lg font-semibold">{m.input_label()}</Label>
-            <Text slot="description" className="text-sm text-slate-600">
-              {m.input_hint()}
-            </Text>
-            <TextArea
-              ref={inputRef}
-              className="min-h-40 resize-y rounded-xl border border-slate-500 p-4 leading-relaxed placeholder:text-slate-500 disabled:bg-slate-100"
-              placeholder={m.input_example()}
-            />
-          </TextField>
-        )}
+          {fileName && (
+            <p className="mb-4">{m.library_selected({ name: fileName })}</p>
+          )}
+        </div>
         {sourceDocument && (
           <BibliographyEditor
             document={sourceDocument}
@@ -977,14 +1156,14 @@ export function CheckWorkspace({
           <p role="alert">{m.selection_limit({ limit: selectionLimit })}</p>
         )}
         {selectionIntake && (
-          <p className="mt-3 text-sm text-slate-600">
+          <p className="mt-3 text-sm text-text-secondary">
             {m.selection_intake_help()}
           </p>
         )}
         {selectionNotice && (
           <p
             role="status"
-            className="mt-3 rounded-xl border border-amber-400 bg-amber-50 p-4"
+            className="mt-3 rounded-xl border border-border-emphasis bg-surface-sunken p-4"
           >
             {selectionNotice === "empty"
               ? m.selection_empty()
@@ -997,6 +1176,7 @@ export function CheckWorkspace({
             onPress={() => {
               setSelectionNotice(null);
               setText(selectionUndo.text);
+              setInputKind(selectionUndo.inputKind);
               setSourceDocument(selectionUndo.sourceDocument);
               setSelectionLimit(selectionUndo.selectionLimit);
               setLibrary(selectionUndo.library);
@@ -1012,18 +1192,26 @@ export function CheckWorkspace({
               setDocumentNotice(selectionUndo.documentNotice);
               setSelectionUndo(null);
             }}
-            className="mt-3 rounded-xl border border-slate-600 px-5 py-3 font-semibold"
+            className="mt-3 rounded-xl border border-border-emphasis px-5 py-3 font-semibold"
           >
             {m.selection_undo()}
           </Button>
         )}
         <Button
           type="button"
-          isDisabled={(!text.trim() && !library) || busy || selectionBlocked}
+          variant="secondary"
+          {...availability(
+            (!text.trim() && !library) || !!busy || selectionBlocked,
+            busy
+              ? m.shell_busy()
+              : selectionBlocked
+                ? m.shell_selection_blocked()
+                : m.shell_empty_input(),
+          )}
           onPress={() => {
             void start("structure");
           }}
-          className="mt-5 mr-3 rounded-xl bg-teal-800 px-5 py-3 font-semibold text-white hover:bg-teal-900 disabled:bg-slate-200 disabled:text-slate-600"
+          className="mt-3"
         >
           {pending === "structure"
             ? m.structuring_pending()
@@ -1031,23 +1219,32 @@ export function CheckWorkspace({
         </Button>
         <Button
           type="submit"
-          isDisabled={
+          variant="primary"
+          {...availability(
             (!text.trim() && !(library && preview?.references.length)) ||
-            busy ||
-            selectionBlocked
-          }
-          className="mt-5 rounded-xl bg-teal-800 px-5 py-3 font-semibold text-white hover:bg-teal-900 disabled:bg-slate-200 disabled:text-slate-600"
+              !!busy ||
+              selectionBlocked,
+            busy
+              ? m.shell_busy()
+              : selectionBlocked
+                ? m.shell_selection_blocked()
+                : m.shell_empty_input(),
+          )}
+          className="mt-3"
         >
           {pending === "create" ? m.check_starting() : m.check_action()}
         </Button>
         <Button
           type="button"
           onPress={reset}
-          className="mt-5 ml-3 rounded-xl border border-slate-600 px-5 py-3 font-semibold"
+          className="mt-5 ml-3 rounded-xl border border-border-emphasis px-5 py-3 font-semibold"
         >
           {m.check_reset()}
         </Button>
       </form>
+      <p className="mb-8 rounded-xl border border-border-emphasis bg-surface-sunken p-4 text-text">
+        {m.skeleton_notice()}
+      </p>
       {quotaChoice && (
         <QuotaChoice
           required={quotaChoice.required}
@@ -1061,7 +1258,7 @@ export function CheckWorkspace({
         <p
           role="status"
           data-testid="quota-note"
-          className="mt-6 rounded-xl border border-slate-300 bg-white p-4"
+          className="mt-6 rounded-xl border border-border-emphasis bg-surface p-4"
         >
           {quotaNote.skipped > 0
             ? m.quota_started({
@@ -1079,7 +1276,7 @@ export function CheckWorkspace({
       {cleanupPending && (
         <p
           role="alert"
-          className="mt-6 rounded-xl border border-amber-400 bg-amber-50 p-4 text-amber-950"
+          className="mt-6 rounded-xl border border-border-emphasis bg-surface-sunken p-4 text-text"
         >
           {m.check_cleanup_pending()}
         </p>
@@ -1087,7 +1284,7 @@ export function CheckWorkspace({
       {errorKey && (
         <p
           role="alert"
-          className="mt-6 rounded-xl border border-red-400 bg-red-50 p-4 text-red-900"
+          className="mt-6 rounded-xl border border-border-emphasis bg-surface-sunken p-4 text-text"
         >
           {m[errorKey]({
             limit:
@@ -1109,10 +1306,20 @@ export function CheckWorkspace({
           />
         </p>
       )}
+      {streamError && check && (
+        <Button
+          onPress={() => {
+            void reconnect();
+          }}
+          {...availability(reconnecting, m.shell_reconnecting())}
+        >
+          {reconnecting ? m.shell_reconnecting() : m.shell_reconnect()}
+        </Button>
+      )}
       {documentNotice && (
         <p
           role="status"
-          className="mt-6 rounded-xl border border-amber-400 bg-amber-50 p-4"
+          className="mt-6 rounded-xl border border-border-emphasis bg-surface-sunken p-4"
         >
           {m.document_partial_no_text()}
         </p>
@@ -1134,9 +1341,9 @@ export function CheckWorkspace({
             aria-labelledby="results-title"
             aria-live="off"
             aria-atomic="true"
-            className="check-status rounded-2xl border border-slate-300 bg-white p-6"
+            className="check-status rounded-2xl border border-border-emphasis bg-surface p-6"
           >
-            <div aria-live="polite" aria-atomic="true">
+            <div>
               <p className="mb-4 font-semibold">
                 {running ? m.check_running() : m.check_ended()}
               </p>
@@ -1147,17 +1354,36 @@ export function CheckWorkspace({
                 })}
               </p>
             </div>
+            <p className="sr-only" aria-live="polite" aria-atomic="true">
+              {m.check_progress({
+                completed: String(
+                  completed === check.references.length
+                    ? completed
+                    : Math.floor(completed / 3) * 3,
+                ),
+                total: String(check.references.length),
+              })}
+            </p>
+            {running && !accessStopped && (
+              <p role="status">
+                {connection === "connected"
+                  ? m.shell_connected()
+                  : connection === "reconnecting"
+                    ? m.shell_reconnecting()
+                    : m.shell_connecting()}
+              </p>
+            )}
             {check.endReason === "lease-expired" && (
               <p>{m.check_lease_expired()}</p>
             )}
             {running && (
               <Button
                 type="button"
-                isDisabled={cancelling}
+                {...availability(cancelling, m.check_cancelling())}
                 onPress={() => {
                   void cancel();
                 }}
-                className="mb-4 rounded-xl border border-slate-600 px-5 py-3 font-semibold"
+                className="mb-4 rounded-xl border border-border-emphasis px-5 py-3 font-semibold"
               >
                 {cancelling ? m.check_cancelling() : m.check_cancel()}
               </Button>

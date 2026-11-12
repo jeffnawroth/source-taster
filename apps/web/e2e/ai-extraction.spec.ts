@@ -56,7 +56,7 @@ for (const language of ["en", "de"] as const) {
       .getByRole("button", {
         name:
           language === "en"
-            ? "Structure References"
+            ? "Structure references"
             : "Referenzen strukturieren",
         exact: true,
       })
@@ -104,13 +104,13 @@ for (const language of ["en", "de"] as const)
     await page.getByRole("textbox").fill("Doe (2020). Exact maps.");
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
     await page
       .getByRole("button", {
-        name: language === "en" ? /^Open Reference 1:/ : /^Referenz 1 öffnen:/,
+        name: language === "en" ? /^Open reference 1:/ : /^Referenz 1 öffnen:/,
       })
       .click();
     await page
@@ -169,7 +169,7 @@ for (const language of ["en", "de"] as const)
     await page.getByRole("textbox").fill("Doe (2020). Exact maps.");
     const action = page.getByRole("button", {
       name:
-        language === "en" ? "Structure References" : "Referenzen strukturieren",
+        language === "en" ? "Structure references" : "Referenzen strukturieren",
       exact: true,
     });
     for (const reason of [
@@ -190,7 +190,7 @@ for (const language of ["en", "de"] as const)
       );
       if (reason !== "configuration-unavailable")
         await expect(page.getByTestId("ai-unavailable")).toContainText(
-          language === "en" ? "paid Plan" : "kostenpflichtiger Plan",
+          language === "en" ? "paid plan" : "kostenpflichtiger Plan",
         );
     }
     witness.structuring.ai = {

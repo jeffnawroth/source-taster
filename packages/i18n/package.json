@@ -12,6 +12,7 @@
     "generate": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --emit-ts-declarations --strategy globalVariable baseLocale",
     "build": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --emit-ts-declarations --strategy globalVariable baseLocale",
     "i18n:check": "node scripts/check.ts",
+    "test": "node --test scripts/catalogs.test.ts",
     "lint": "eslint scripts",
     "typecheck": "tsc -p tsconfig.json"
   },

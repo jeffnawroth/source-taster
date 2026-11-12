@@ -1,32 +1,44 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { effectiveVerdict } from "./effective-verdict.ts";
-import { useRef, useState } from "react";
+import { verdictLabels, statusLabels } from "./outcome-badges.tsx";
+import { Button } from "./primitives/actions.tsx";
+import { GlassSurface } from "./primitives/overlays.tsx";
+import { useRef, useState, type ReactNode } from "react";
+import { useStickySize } from "./sticky-layout.ts";
 import type {
   Check,
   ReferenceSlot,
-  Verdict,
 } from "@source-taster/contract-verification/v2";
 import type { VerificationClientOptions } from "@source-taster/contract-verification/client-v2";
 import type { CitationStyle } from "./preferences.ts";
 import {
   useBibliography,
   BibliographyActions,
-  CorrectionSuggestion,
 } from "./correction-suggestions.tsx";
 import { ReferenceExports } from "./reference-exports.tsx";
 import type { OwnerQuota } from "./quota.ts";
 import { ReportDownload } from "./report-download.tsx";
+import { PencilLine } from "lucide-react";
 import { m } from "@source-taster/i18n";
+import { ReferenceActions } from "./reference-actions.tsx";
+import { ReferenceListActions } from "./reference-list-actions.tsx";
+import { GridList, GridListItem } from "./primitives/grid-list.tsx";
 import {
-  ReferenceActions,
-  ReferenceListActions,
-} from "./reference-actions.tsx";
-import { CheckSummary } from "./check-summary.tsx";
+  CheckSummary,
+  matchesFilter,
+  type OutcomeFilter,
+} from "./check-summary.tsx";
 import {
+  ReferenceOutcomeHeader,
   ReferenceOutcomeSummary,
   ReferenceOutcomeView,
   sourceNames,
 } from "./reference-outcome.tsx";
+import {
+  isDirty,
+  useReferenceWork,
+  useSnapshotGate,
+} from "./reference-work.ts";
 
 function RunningStep({ reference }: { reference: ReferenceSlot }) {
   if (
@@ -35,16 +47,33 @@ function RunningStep({ reference }: { reference: ReferenceSlot }) {
   )
     return null;
   return (
-    <p>
-      {reference.progress === "queued"
-        ? m.reference_queued()
-        : Object.hasOwn(sourceNames, reference.progress)
-          ? m.reference_source({
-              source:
-                sourceNames[reference.progress as keyof typeof sourceNames],
-            })
-          : m.reference_checking()}
-    </p>
+    <ol className="evidence-track">
+      <li>
+        <span aria-hidden="true">◌</span>
+        {reference.progress === "queued"
+          ? m.reference_queued()
+          : Object.hasOwn(sourceNames, reference.progress)
+            ? m.reference_source({
+                source:
+                  sourceNames[reference.progress as keyof typeof sourceNames],
+              })
+            : m.reference_checking()}
+      </li>
+    </ol>
+  );
+}
+/** The sticky verdict header reports its height, so that scrolling a control
+ *  into view clears it instead of leaving the control half underneath. */
+function DetailHeader({ children }: { children: ReactNode }) {
+  const header = useStickySize("--detail-header-height");
+  return (
+    <GlassSurface
+      ref={header}
+      layer="detail-header"
+      className="detail-verdict-header"
+    >
+      {children}
+    </GlassSurface>
   );
 }
 /** Selection is a stable slot, never an outcome, array index or sorted result. */
@@ -78,7 +107,7 @@ export function CheckResults({
       ? firstFormat
       : undefined;
   const [helpOpen, setHelpOpen] = useState(false);
-  const [filter, setFilter] = useState<Verdict | null>(null);
+  const [filter, setFilter] = useState<OutcomeFilter>(null);
   const [selectedSlot, selectSlot] = useState(check.references[0]?.slot);
   const bibliography = useBibliography(
     check,
@@ -86,13 +115,23 @@ export function CheckResults({
     transport,
     selectedSlot,
   );
-  const [detailOpen, setDetailOpen] = useState(false);
+  // "auto" leaves the layout to the stylesheet, the single breakpoint source:
+  // two panes show the detail beside the list, a single pane shows the list.
+  // An explicit open or Back holds across the breakpoint without a transient
+  // state that hides focus.
+  const [detailOpen, setDetailOpen] = useState<"auto" | "open" | "closed">(
+    "auto",
+  );
+  // Drafts and in-flight requests outlive the keyed detail, so navigation
+  // never silently drops unsaved work.
+  const work = useReferenceWork();
+  const gate = useSnapshotGate(check, onSnapshot);
   const list = useRef<HTMLDivElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
-  const buttons = useRef(new Map<number, HTMLButtonElement>());
+  const buttons = useRef(new Map<number, HTMLDivElement>());
   const position = useRef({ list: 0, page: 0 });
-  const visible = check.references.filter(
-    (reference) => !filter || effectiveVerdict(reference) === filter,
+  const visible = check.references.filter((reference) =>
+    matchesFilter(reference, filter),
   );
   const selected = visible.find((reference) => reference.slot === selectedSlot);
   function open(slot: number) {
@@ -101,13 +140,13 @@ export function CheckResults({
       page: window.scrollY,
     };
     selectSlot(slot);
-    setDetailOpen(true);
+    setDetailOpen("open");
     requestAnimationFrame(() => heading.current?.focus());
   }
   function back() {
-    setDetailOpen(false);
+    setDetailOpen("closed");
     requestAnimationFrame(() => {
-      if (selectedSlot)
+      if (selectedSlot !== undefined)
         buttons.current.get(selectedSlot)?.focus({ preventScroll: true });
       if (list.current) list.current.scrollTop = position.current.list;
       window.scrollTo({ top: position.current.page });
@@ -117,7 +156,7 @@ export function CheckResults({
     <>
       <button
         type="button"
-        className="my-3 rounded border border-slate-500 p-3 underline"
+        className="my-3 rounded border border-border-emphasis p-3 underline"
         aria-expanded={helpOpen}
         aria-controls="check-explanation"
         onClick={() => setHelpOpen((value) => !value)}
@@ -128,7 +167,7 @@ export function CheckResults({
         id="check-explanation"
         aria-label={m.workspace_help()}
         hidden={!helpOpen}
-        className="my-3 space-y-3 rounded border border-slate-300 bg-teal-50 p-4"
+        className="my-3 space-y-3 rounded border border-border-emphasis bg-surface-sunken p-4"
       >
         <h2 className="font-semibold">{m.workspace_help()}</h2>
         <p>{m.workspace_human()}</p>
@@ -136,15 +175,6 @@ export function CheckResults({
         <p>{m.workspace_limits()}</p>
         <p>{m.doi_uncalibrated()}</p>
       </section>
-      <CheckSummary
-        check={check}
-        completed={completed}
-        filter={filter}
-        onFilter={(value) => {
-          setFilter(value);
-          setDetailOpen(false);
-        }}
-      />
       <ReferenceExports
         checkId={check.id}
         importedFormat={importedFormat}
@@ -169,84 +199,186 @@ export function CheckResults({
         rendered={bibliography}
         styleLabel={citationStyleLabel}
       />
-      <div className="check-panes" data-detail-open={detailOpen && !!selected}>
+      <CheckSummary
+        check={check}
+        completed={completed}
+        filter={filter}
+        onFilter={(value) => {
+          setFilter(value);
+          // An explicit open returns to the stylesheet layout: two panes keep
+          // the detail while its slot remains in the filtered feed, a single
+          // pane returns to the filtered list.
+          setDetailOpen((open) => (open === "open" ? "auto" : open));
+        }}
+      />
+      <div
+        className="check-panes"
+        data-detail-open={selected ? detailOpen : "closed"}
+      >
         <div ref={list} className="check-list">
-          <ol aria-label={m.workspace_references()} className="space-y-4">
-            {visible.map((reference) => (
-              <li key={reference.slot} className="rounded-xl bg-slate-100 p-4">
-                <button
-                  type="button"
+          <p className="feed-sentence">
+            {check.references.some(
+              (r) =>
+                r.outcome.kind === "status" && r.outcome.status === "running",
+            )
+              ? `${m.check_running()} · ${m.check_progress({ completed: String(completed), total: String(check.references.length) })}`
+              : m.shell_feed_done({
+                  correct: check.references.filter(
+                    (r) => effectiveVerdict(r) === "correct",
+                  ).length,
+                  total: check.references.length,
+                })}
+          </p>
+          <GridList
+            aria-label={m.workspace_references()}
+            className="space-y-4"
+            selectionMode="single"
+            selectionBehavior="replace"
+            selectedKeys={selectedSlot === undefined ? [] : [selectedSlot]}
+            onSelectionChange={(keys) => {
+              if (keys !== "all") {
+                const key = [...keys][0];
+                if (key !== undefined) selectSlot(Number(key));
+              }
+            }}
+          >
+            {visible.map((reference) => {
+              const draft = work(reference.slot).draft;
+              const unsaved = !!draft && isDirty(draft);
+              return (
+                <GridListItem
+                  key={reference.slot}
+                  id={reference.slot}
+                  onAction={() => open(reference.slot)}
+                  textValue={reference.fields.title ?? reference.originalText}
                   ref={(element) => {
                     if (element) buttons.current.set(reference.slot, element);
                     else buttons.current.delete(reference.slot);
                   }}
-                  aria-current={
-                    selectedSlot === reference.slot ? "true" : undefined
-                  }
-                  aria-controls="reference-detail"
-                  onClick={() => open(reference.slot)}
-                  className="w-full rounded text-left font-semibold underline decoration-teal-700 underline-offset-4"
+                  aria-label={`${m.workspace_open({ slot: reference.slot, title: reference.fields.title ?? reference.originalText })} · ${reference.outcome.kind === "status" ? m[statusLabels[reference.outcome.status]]() : m[verdictLabels[effectiveVerdict(reference)!]]()}${unsaved ? ` · ${m.feed_unsaved_draft()}` : ""}`}
+                  className="feed-card"
                 >
-                  {m.workspace_open({
-                    slot: reference.slot,
-                    title: reference.fields.title ?? reference.originalText,
-                  })}
-                </button>
-                <ReferenceOutcomeSummary
-                  outcome={reference.outcome}
-                  manualOverride={reference.manualOverride}
-                />
-                <RunningStep reference={reference} />
-              </li>
-            ))}
-          </ol>
-          {!visible.length && <p>{m.workspace_empty()}</p>}
-        </div>
-        <section
-          id="reference-detail"
-          aria-labelledby="reference-detail-title"
-          className="check-detail min-w-0 rounded-xl border border-slate-300 p-4"
-        >
-          <button
-            type="button"
-            className="check-back mb-4 rounded border border-slate-500 p-3"
-            onClick={back}
-          >
-            {m.workspace_back()}
-          </button>
-          <h2
-            id="reference-detail-title"
-            ref={heading}
-            tabIndex={-1}
-            className="text-xl font-semibold"
-          >
-            {m.workspace_detail()}
-          </h2>
-          {selected ? (
-            <>
-              <RunningStep reference={selected} />
-              <ReferenceActions
-                key={selected.slot}
-                check={check}
-                reference={selected}
-                transport={transport}
-                onSnapshot={onSnapshot}
-              />
-              <CorrectionSuggestion
-                key={`${selected.slot}:${citationStyle}`}
-                slot={selected.slot}
-                rendered={bibliography}
-              />
-              <ReferenceOutcomeView
-                outcome={selected.outcome}
-                manualOverride={selected.manualOverride}
-                originalText={selected.originalText}
-              />
-            </>
-          ) : (
-            <p>{m.workspace_select()}</p>
+                  <div className="feed-head">
+                    <span className="feed-slot" aria-hidden="true">
+                      {reference.slot}
+                    </span>
+                    <button
+                      type="button"
+                      aria-label={m.workspace_open({
+                        slot: reference.slot,
+                        title: reference.fields.title ?? reference.originalText,
+                      })}
+                      tabIndex={-1}
+                      aria-current={
+                        selectedSlot === reference.slot ? "true" : undefined
+                      }
+                      aria-controls="reference-detail"
+                      onClick={() => open(reference.slot)}
+                      className="w-full rounded text-left font-semibold underline decoration-border-emphasis underline-offset-4"
+                    >
+                      <span className="feed-title">
+                        {reference.fields.title ?? reference.originalText}
+                      </span>
+                    </button>
+                  </div>
+                  <p className="feed-meta">
+                    {reference.fields.author
+                      ?.map(
+                        (author) =>
+                          author.literal ??
+                          [author.given, author.family]
+                            .filter(Boolean)
+                            .join(" "),
+                      )
+                      .join("; ")}
+                    {reference.fields.issued?.literal
+                      ? ` · ${reference.fields.issued.literal}`
+                      : ""}
+                  </p>
+                  <ReferenceOutcomeSummary
+                    outcome={reference.outcome}
+                    manualOverride={reference.manualOverride}
+                  />
+                  <RunningStep reference={reference} />
+                  {unsaved && (
+                    // Text and a glyph, never colour alone: an unsaved draft
+                    // must be findable from the feed.
+                    <p className="feed-draft">
+                      <PencilLine
+                        aria-hidden="true"
+                        size={16}
+                        strokeWidth={1.75}
+                      />
+                      <span>{m.feed_unsaved_draft()}</span>
+                    </p>
+                  )}
+                </GridListItem>
+              );
+            })}
+          </GridList>
+          {!visible.length && (
+            <p>
+              <span>{m.workspace_empty()}</span>{" "}
+              <button type="button" onClick={() => setFilter(null)}>
+                {m.workspace_all()}
+              </button>
+            </p>
           )}
-        </section>
+        </div>
+        <div className="check-detail-slot">
+          <section
+            id="reference-detail"
+            aria-labelledby="reference-detail-title"
+            onKeyDown={(event) => {
+              if (event.key === "Escape" && !event.defaultPrevented) {
+                event.preventDefault();
+                back();
+              }
+            }}
+            className="check-detail min-w-0 rounded-xl border border-border-emphasis p-4"
+          >
+            <Button className="check-back mb-3" onPress={back}>
+              {m.workspace_back()}
+            </Button>
+            <h2
+              id="reference-detail-title"
+              ref={heading}
+              tabIndex={-1}
+              className="text-xl font-semibold"
+            >
+              {m.workspace_detail()}
+            </h2>
+            {selected ? (
+              <>
+                <RunningStep reference={selected} />
+                <ReferenceOutcomeView
+                  header={
+                    <DetailHeader>
+                      <ReferenceOutcomeHeader
+                        outcome={selected.outcome}
+                        manualOverride={selected.manualOverride}
+                      />
+                    </DetailHeader>
+                  }
+                  outcome={selected.outcome}
+                  manualOverride={selected.manualOverride}
+                  originalText={selected.originalText}
+                />
+                <ReferenceActions
+                  key={selected.slot}
+                  check={check}
+                  reference={selected}
+                  bibliography={bibliography}
+                  transport={transport}
+                  work={work(selected.slot)}
+                  gate={gate}
+                />
+              </>
+            ) : (
+              <p>{m.workspace_select()}</p>
+            )}
+          </section>
+        </div>
       </div>
     </>
   );

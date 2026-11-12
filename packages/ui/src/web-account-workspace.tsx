@@ -10,6 +10,7 @@ import {
 } from "@source-taster/contract-service/client";
 import type { AccountSession } from "@source-taster/contract-service";
 import { m } from "@source-taster/i18n";
+import { Meter, Button } from "./primitives/index.ts";
 import type { VerificationClientOptions } from "@source-taster/contract-verification/client";
 import { CheckWorkspace, type SelectionIntake } from "./check-workspace.tsx";
 import {
@@ -63,8 +64,7 @@ export function AccountControls({
    * lacks consent to send Preferences to the service. */
   sendPreferences?: () => boolean;
 }) {
-  const [open, setOpen] = useState(false),
-    [email, setEmail] = useState(""),
+  const [email, setEmail] = useState(""),
     [code, setCode] = useState("");
   const [challenge, setChallenge] = useState<{
     challengeId: string;
@@ -138,21 +138,21 @@ export function AccountControls({
   return (
     <section
       aria-label={m.auth_sign_in()}
-      className="mb-8 rounded-xl border border-slate-400 bg-white p-4"
+      className="mb-8 rounded-xl border border-border-emphasis bg-surface p-4"
     >
       {account ? (
         <>
           <p>{account.email}</p>
           <div className="mt-3 flex flex-wrap gap-3">
             <button
-              className="rounded border border-slate-500 px-3 py-2"
+              className="rounded border border-border-emphasis px-3 py-2"
               disabled={pending}
               onClick={() => void logout(false)}
             >
               {m.auth_here()}
             </button>
             <button
-              className="rounded border border-slate-500 px-3 py-2"
+              className="rounded border border-border-emphasis px-3 py-2"
               disabled={pending}
               onClick={() => void logout(true)}
             >
@@ -174,95 +174,91 @@ export function AccountControls({
       ) : (
         <>
           <p>{m.auth_guest_notice()}</p>
-          {!open ? (
+          <form
+            className="mt-4 flex max-w-md flex-col gap-3"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void (challenge ? confirm() : send());
+            }}
+          >
+            <label>
+              {m.auth_email()}
+              <input
+                className="block w-full rounded border border-border-emphasis p-2"
+                type="email"
+                autoComplete="email"
+                required
+                maxLength={254}
+                value={email}
+                disabled={pending || !!challenge}
+                onChange={(event) => setEmail(event.target.value)}
+              />
+            </label>
+            {challenge && (
+              <>
+                <p role="status">{m.auth_code_sent()}</p>
+                <label>
+                  {m.auth_code()}
+                  <input
+                    className="block w-full rounded border border-border-emphasis p-2"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    pattern="[0-9]{6}"
+                    minLength={6}
+                    maxLength={6}
+                    required
+                    autoFocus
+                    value={code}
+                    onChange={(event) => setCode(event.target.value)}
+                    disabled={pending}
+                  />
+                </label>
+              </>
+            )}
             <button
-              className="mt-3 rounded border border-slate-500 px-3 py-2"
-              onClick={() => setOpen(true)}
+              className="rounded bg-surface px-3 py-2 text-text"
+              disabled={pending}
             >
-              {m.auth_sign_in()}
+              {pending
+                ? m.auth_pending()
+                : challenge
+                  ? m.auth_confirm()
+                  : m.auth_send_code()}
             </button>
-          ) : (
-            <form
-              className="mt-4 flex max-w-md flex-col gap-3"
-              onSubmit={(event) => {
-                event.preventDefault();
-                void (challenge ? confirm() : send());
-              }}
-            >
-              <label>
-                {m.auth_email()}
-                <input
-                  className="block w-full rounded border border-slate-500 p-2"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  maxLength={254}
-                  value={email}
-                  disabled={pending || !!challenge}
-                  onChange={(event) => setEmail(event.target.value)}
-                />
-              </label>
-              {challenge && (
-                <>
-                  <p role="status">{m.auth_code_sent()}</p>
-                  <label>
-                    {m.auth_code()}
-                    <input
-                      className="block w-full rounded border border-slate-500 p-2"
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      pattern="[0-9]{6}"
-                      minLength={6}
-                      maxLength={6}
-                      required
-                      autoFocus
-                      value={code}
-                      onChange={(event) => setCode(event.target.value)}
-                      disabled={pending}
-                    />
-                  </label>
-                </>
-              )}
-              <button
-                className="rounded bg-blue-700 px-3 py-2 text-white"
-                disabled={pending}
-              >
-                {pending
-                  ? m.auth_pending()
-                  : challenge
-                    ? m.auth_confirm()
-                    : m.auth_send_code()}
-              </button>
-              {challenge && (
-                <button
-                  type="button"
-                  className="rounded border border-slate-500 px-3 py-2"
-                  disabled={pending || now < challenge.resendAt}
-                  onClick={() => void send()}
-                >
-                  {m.auth_resend()}
-                </button>
-              )}
+            {challenge && (
               <button
                 type="button"
-                className="rounded border border-slate-500 px-3 py-2"
-                disabled={pending}
-                onClick={() => {
-                  setOpen(false);
-                  setChallenge(null);
-                  setCode("");
-                  setError(null);
-                }}
+                className="rounded border border-border-emphasis px-3 py-2"
+                disabled={pending || now < challenge.resendAt}
+                onClick={() => void send()}
               >
-                {m.auth_cancel()}
+                {m.auth_resend()}
               </button>
-            </form>
-          )}
+            )}
+            <Button
+              type="button"
+              className="rounded border border-border-emphasis px-3 py-2"
+              slot="close"
+              {...(pending
+                ? {
+                    isDisabled: true as const,
+                    disabledReason: m.auth_pending(),
+                  }
+                : { isDisabled: false as const })}
+              onPress={() => {
+                setChallenge(null);
+                setCode("");
+                setError(null);
+              }}
+            >
+              {m.auth_cancel()}
+            </Button>
+          </form>
         </>
       )}
       {error && (
-        <p role="alert" className="mt-3 text-red-800">
+        <p role="alert" className="mt-3 text-text">
           {error}
         </p>
       )}
@@ -282,7 +278,7 @@ function PreferenceSyncControl({
   return (
     <section
       aria-label={m.preferences_sync_title()}
-      className="mb-8 rounded-xl border border-slate-400 bg-white p-4"
+      className="mb-8 rounded-xl border border-border-emphasis bg-surface p-4"
     >
       {granted ? (
         <p role="status">{m.preferences_sync_on()}</p>
@@ -290,7 +286,7 @@ function PreferenceSyncControl({
         <>
           <p>{m.preferences_sync_off()}</p>
           <button
-            className="mt-3 rounded border border-slate-500 px-3 py-2"
+            className="mt-3 rounded border border-border-emphasis px-3 py-2"
             onClick={() => {
               void consent.request().then((answer) => setDeclined(!answer));
             }}
@@ -510,6 +506,20 @@ export function AccountWorkspace({
     <CheckWorkspace
       key={generation}
       accountHistory={!!session && !credentialFailure}
+      accountLabel={session && !credentialFailure ? session.email : undefined}
+      accountNotice={
+        <>
+          {accountPreferences.failure && (
+            <p role="alert">
+              {m.preferences_unavailable()}{" "}
+              <button onClick={() => void accountPreferences.refresh()}>
+                {m.auth_retry()}
+              </button>
+            </p>
+          )}
+          {credentialFailure && <p role="alert">{m.auth_expired()}</p>}
+        </>
+      }
       initial={{ ...initial, preferences }}
       controlledPreferences={accountPreferences}
       preferenceStorage={preferenceStorage}
@@ -518,8 +528,27 @@ export function AccountWorkspace({
       selectionIntake={selectionIntake}
       upgradeUrl={localizedUpgradeUrl}
       onPreferencesChange={accountPreferences.change}
-      accountControls={(language) => (
+      accountControls={(language, quota) => (
         <>
+          {quota && (
+            <Meter
+              label={m.quota_meter_summary({
+                remaining: String(quota.remaining),
+                granted: String(quota.granted),
+                consumed: String(quota.consumed),
+              })}
+              warning={
+                quota.warning === "none"
+                  ? undefined
+                  : quota.warning === "exhausted"
+                    ? m.quota_warning_exhausted()
+                    : m.quota_warning_eighty()
+              }
+              value={quota.remaining}
+              maxValue={Math.max(1, quota.granted)}
+            />
+          )}
+
           {upgradeUrl && (
             <a
               href={localizedUpgradeUrl}
@@ -536,15 +565,6 @@ export function AccountWorkspace({
               language={language}
             />
           )}
-          {accountPreferences.failure && (
-            <p role="alert">
-              {m.preferences_unavailable()}{" "}
-              <button onClick={() => void accountPreferences.refresh()}>
-                {m.auth_retry()}
-              </button>
-            </p>
-          )}
-          {credentialFailure && <p role="alert">{m.auth_expired()}</p>}
           {preferenceSync.requiresGrant && session && !credentialFailure && (
             <PreferenceSyncControl consent={preferenceSync} />
           )}

@@ -35,7 +35,7 @@ for (const language of ["en", "de"] as const)
       );
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
@@ -54,7 +54,7 @@ for (const language of ["en", "de"] as const)
     await expect(
       result
         .getByRole("link", {
-          name: language === "en" ? "Open Source" : "Quelle öffnen",
+          name: language === "en" ? "Open source" : "Quelle öffnen",
           exact: true,
         })
         .first(),
@@ -73,7 +73,7 @@ for (const language of ["en", "de"] as const)
     await expect(
       result.getByText(
         language === "en"
-          ? "The original URL and title identify the archived Source."
+          ? "The original URL and title identify the archived source."
           : "Die ursprüngliche URL und der Titel identifizieren die archivierte Quelle.",
         { exact: false },
       ),

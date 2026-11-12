@@ -65,7 +65,7 @@ export function ReferenceExports({
   return (
     <section
       aria-label={m.export_references_heading()}
-      className="my-4 space-y-3 rounded border border-slate-300 p-4"
+      className="my-4 space-y-3 rounded border border-border-emphasis p-4"
     >
       <h3 className="font-semibold">{m.export_references_heading()}</h3>
       <p>{m.export_references_hint()}</p>
@@ -73,7 +73,7 @@ export function ReferenceExports({
         <label className="flex flex-col gap-1">
           {m.export_format()}
           <select
-            className="rounded border border-slate-500 bg-white p-2"
+            className="rounded border border-border-emphasis bg-surface p-2"
             value={selectedFormat}
             onChange={(event) => {
               const value = ExportFormat.safeParse(event.target.value);
@@ -94,7 +94,7 @@ export function ReferenceExports({
         <label className="flex flex-col gap-1">
           {m.export_content()}
           <select
-            className="rounded border border-slate-500 bg-white p-2"
+            className="rounded border border-border-emphasis bg-surface p-2"
             value={mode}
             onChange={(event) =>
               setMode(
@@ -130,9 +130,9 @@ export function ReferenceExports({
               {m.correction_selected_item({
                 slot: String(choice.slot),
                 text:
-                  rendered.data?.entries.find(
+                  rendered.appliedSuggestions.find(
                     (entry) => entry.slot === choice.slot,
-                  )?.suggestion?.text ?? "",
+                  )?.text ?? "",
               })}
             </li>
           ))}
@@ -142,11 +142,12 @@ export function ReferenceExports({
       )}
       <button
         type="button"
-        className="rounded-lg border border-slate-600 px-4 py-2 font-semibold disabled:bg-slate-100 disabled:text-slate-500"
+        className="rounded-lg border border-border-emphasis px-4 py-2 font-semibold disabled:bg-surface-sunken disabled:text-text-secondary"
         disabled={
           pending ||
-          (mode === "selected-corrections" &&
-            (rendered.pending || rendered.failed))
+          // A failed rendering of the opened Reference does not invalidate the
+          // corrections read for the applied set; only their readiness counts.
+          (mode === "selected-corrections" && !rendered.exportReady)
         }
         onClick={() => {
           void download();

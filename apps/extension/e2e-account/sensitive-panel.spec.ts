@@ -1,3 +1,4 @@
+import { panelAccountName } from "../e2e/support/account-entry.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // #102 public phase, extension panel. Real extension build and Chromium; the
 // private Account service exists only as an HTTP-edge fixture, so this proves
@@ -162,7 +163,7 @@ async function withPanel(
     await browser.setStorage({ [guestKey]: guestId, [sessionKey]: secret });
     const panel = await browser.openPanel();
     try {
-      await panel.waitForText("main", undefined, account.email);
+      await panel.find("button", panelAccountName(account.email));
       await run({
         panel,
         fake,
@@ -188,7 +189,7 @@ async function withPanel(
 test("Account management links to private web without sending the extension credential", async () => {
   await withPanel({ sensitive: true }, async ({ panel, requests }) => {
     await panel.find("link", "Account security");
-    expect(await panel.query("button", "Delete Account")).toEqual([]);
+    expect(await panel.query("button", "Delete account")).toEqual([]);
     expect(await panel.query("button", "Change email address")).toEqual([]);
     expect(requests.some((r) => r.path.includes("/account/"))).toBe(false);
   });

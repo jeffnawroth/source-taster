@@ -24,6 +24,7 @@ for (const language of ["en", "de"] as const)
           "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         buffer: Buffer.from(await docx(text.split("\n"))),
       });
+    const uploaded = page.waitForResponse("**/v2/document-structurings");
     await page
       .getByRole("button", {
         name:
@@ -33,6 +34,7 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
+    expect((await uploaded).ok()).toBe(true);
     const selection = page.getByRole("region", {
       name: language === "en" ? "Bibliography selection" : "Literaturauswahl",
       exact: true,
@@ -48,7 +50,7 @@ for (const language of ["en", "de"] as const)
       .getByRole("button", {
         name:
           language === "en"
-            ? "Structure References"
+            ? "Structure references"
             : "Referenzen strukturieren",
         exact: true,
       })
@@ -56,17 +58,17 @@ for (const language of ["en", "de"] as const)
     await expect(
       page.getByRole("region", {
         name:
-          language === "en" ? "Recognized References" : "Erkannte Referenzen",
+          language === "en" ? "Recognized references" : "Erkannte Referenzen",
       }),
     ).not.toContainText("Careful systems");
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
     await expect(
-      page.getByRole("list", {
+      page.getByRole("grid", {
         name: language === "en" ? "References" : "Referenzen",
         exact: true,
       }),
@@ -75,7 +77,7 @@ for (const language of ["en", "de"] as const)
       page.getByRole("button", {
         name:
           language === "en"
-            ? "Edit Reference list"
+            ? "Edit reference list"
             : "Referenzliste bearbeiten",
         exact: true,
       }),
@@ -84,7 +86,7 @@ for (const language of ["en", "de"] as const)
       .getByRole("button", {
         name:
           language === "en"
-            ? "Edit Reference list"
+            ? "Edit reference list"
             : "Referenzliste bearbeiten",
         exact: true,
       })
@@ -92,7 +94,7 @@ for (const language of ["en", "de"] as const)
     const editor = page.getByRole("region", {
       name:
         language === "en"
-          ? "Change Bibliography selection"
+          ? "Change bibliography selection"
           : "Literaturauswahl ändern",
       exact: true,
     });
@@ -113,8 +115,8 @@ for (const language of ["en", "de"] as const)
       .click();
     await expect(editor).toContainText(
       language === "en"
-        ? "Additional Quota on first Verdicts:"
-        : "Zusätzliches Kontingent bei ersten Urteilen:",
+        ? "Additional quota on first verdicts:"
+        : "Zusätzliches Kontingent bei ersten Befunden:",
     );
     await expect(
       editor
@@ -158,7 +160,7 @@ test("an undetected document requires a manual region and never checks surroundi
   });
   await expect(selection).toContainText("No bibliography detected or selected");
   const check = page.getByRole("button", {
-    name: "Check Reference",
+    name: "Check reference",
     exact: true,
   });
   await expect(check).toBeDisabled();
@@ -183,7 +185,7 @@ test("an undetected document requires a manual region and never checks surroundi
     ).violations,
   ).toEqual([]);
   await check.click();
-  const list = page.getByRole("list", { name: "References", exact: true });
+  const list = page.getByRole("grid", { name: "References", exact: true });
   await expect(list).toContainText("Signal maps");
   await expect(list).not.toContainText("Running text");
   await expect(list).not.toContainText("Outside");

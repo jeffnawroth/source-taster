@@ -3,6 +3,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
+import { openDocumentationSearch } from "./search.ts";
 
 const artifact = JSON.parse(
   readFileSync(
@@ -74,6 +75,7 @@ test("search results, empty and failure states are accessible", async ({
     ["de", "Zitierstil", "Dokumentation durchsuchen"],
   ] as const) {
     await page.goto(`/docs/${language}/`);
+    await openDocumentationSearch(page);
     const searchbox = page.getByRole("searchbox", { name: label, exact: true });
     await searchbox.fill(query);
     await searchbox.press("Enter");
@@ -86,9 +88,12 @@ test("search results, empty and failure states are accessible", async ({
   }
   await page.route("**/pagefind/**", (route) => route.abort());
   await page.goto("/docs/en/");
+  await openDocumentationSearch(page);
   await page.getByRole("searchbox").fill("citation");
   await page.getByRole("searchbox").press("Enter");
-  await expect(page.getByRole("status")).toHaveText(/./);
+  await expect(page.getByRole("status")).toHaveText(
+    /^Try again or use the documentation links\./,
+  );
   await expect(page.locator("#search-results li")).toHaveCount(0);
   await expectAccessible(page, "failure");
 });

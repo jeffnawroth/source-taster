@@ -65,14 +65,14 @@ for (const language of ["en", "de"] as const) {
       .getByRole("button", {
         name:
           language === "en"
-            ? "Structure References"
+            ? "Structure references"
             : "Referenzen strukturieren",
         exact: true,
       })
       .click();
     const alert = page.getByRole("alert");
     await expect(alert).toContainText(
-      language === "en" ? "Too many requests" : "Zu viele Anfragen",
+      language === "en" ? "too many requests" : "zu viele Anfragen",
     );
     await expect(alert.locator("time")).toHaveAttribute(
       "datetime",
@@ -104,12 +104,12 @@ for (const language of ["en", "de"] as const) {
       await panel.fill("textbox", undefined, "Doe, J. (2020). A study.");
       await panel.click(
         "button",
-        language === "en" ? "Structure References" : "Referenzen strukturieren",
+        language === "en" ? "Structure references" : "Referenzen strukturieren",
       );
       await panel.waitForText(
         "alert",
         undefined,
-        language === "en" ? "Too many requests" : "Zu viele Anfragen",
+        language === "en" ? "too many requests" : "zu viele Anfragen",
       );
       expect(
         await panel.evaluate<string>(

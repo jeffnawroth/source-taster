@@ -12,7 +12,7 @@ for (const language of ["en", "de"] as const) {
       .selectOption(language);
     const action = page.getByRole("button", {
       name:
-        language === "en" ? "Structure References" : "Referenzen strukturieren",
+        language === "en" ? "Structure references" : "Referenzen strukturieren",
       exact: true,
     });
     await expect(action).toBeDisabled();
@@ -23,7 +23,7 @@ for (const language of ["en", "de"] as const) {
       );
     await action.click();
     const results = page.getByRole("region", {
-      name: language === "en" ? "Recognized References" : "Erkannte Referenzen",
+      name: language === "en" ? "Recognized references" : "Erkannte Referenzen",
     });
     await expect(results).toContainText("A careful title");
     await expect(results).toContainText("Doe, J. (2020).");
@@ -34,7 +34,7 @@ for (const language of ["en", "de"] as const) {
     await page
       .getByText(
         language === "en"
-          ? "Not recognized as a Reference"
+          ? "Not recognized as a reference"
           : "Nicht als Referenz erkannt",
         { exact: true },
       )
@@ -53,7 +53,7 @@ for (const language of ["en", "de"] as const) {
     await action.click();
     await expect(page.getByRole("status")).toContainText(
       language === "en"
-        ? "No References recognized"
+        ? "No references recognized"
         : "Keine Referenzen erkannt",
     );
     await expect(page.getByRole("status")).toContainText(
@@ -89,10 +89,10 @@ test("Check and Structuring show a safe localized Problem for a non-JSON server 
   );
   await page.goto("/");
   await page.getByRole("textbox").fill("Doe, J. (2020). A study.");
-  for (const name of ["Structure References", "Check Reference"]) {
+  for (const name of ["Structure references", "Check reference"]) {
     await page.getByRole("button", { name, exact: true }).click();
     await expect(page.getByRole("alert")).toContainText(
-      "Something went wrong. Please try again.",
+      "Try again. A technical error occurred on our side. A technical status uses no quota; completed verdicts remain debited.",
     );
   }
 });

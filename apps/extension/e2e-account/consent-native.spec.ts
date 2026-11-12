@@ -1,3 +1,4 @@
+import { openFirefoxAccount } from "../e2e/support/account-entry.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Native Firefox: the real sidebar, the real optional data collection prompt
 // and the browser's own permission store. Only the private session service is
@@ -35,6 +36,7 @@ async function signedInFirefox() {
     await firefox.click(await firefox.find("entry", "Six-digit code"));
     await firefox.type("123456");
     await firefox.click(await firefox.find("pushbutton", "Confirm code"));
+    await openFirefoxAccount(firefox);
     await firefox.find("pushbutton", "Sign out here");
   } catch (error) {
     await firefox.close();
@@ -64,7 +66,7 @@ const sees = (firefox: NativeFirefox, text: RegExp) =>
   );
 
 const allow = (firefox: NativeFirefox) =>
-  firefox.find("pushbutton", "Allow Preferences sync");
+  firefox.find("pushbutton", "Allow preferences sync");
 
 test("a fresh profile keeps Preferences local, and the visible control opens the real prompt", async () => {
   const { firefox, service, close } = await signedInFirefox();
@@ -107,6 +109,7 @@ test("allowing the prompt starts sync, and withdrawing the grant in Firefox's pe
     const sent = service.requests.length;
     await firefox.clickToolbarButton();
     await firefox.clickToolbarButton();
+    await openFirefoxAccount(firefox);
     await allow(firefox);
     expect(
       service.requests

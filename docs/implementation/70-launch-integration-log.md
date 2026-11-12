@@ -1445,6 +1445,8 @@ no new entry; no major bump was considered.
 2. Linux amd64 evidence for the current recipe is still pending (see `evidence/README.md`).
 3. Decide whether Dependabot should ignore `apps/website/qualification/upstream/**`.
 
+All three are tracked in #225.
+
 #### Verification
 
 The baseline had no dependency changes, so verification confirms the tree is unchanged and

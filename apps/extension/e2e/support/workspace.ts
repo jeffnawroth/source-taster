@@ -8,13 +8,13 @@ export type Language = "en" | "de";
 export const labels = {
   en: {
     input: "Reference",
-    check: "Check Reference",
-    open: /^Open Reference 1:/,
+    check: "Check reference",
+    open: /^Open reference 1:/,
     detail: "Reference detail",
     evidence: "Explanation and source evidence",
     correct: "Correct",
     exists: "Exists, with deviations",
-    best: "Best match by Score",
+    best: "Best match by score",
     library: "Import BibTeX or RIS",
   },
   de: {
@@ -82,10 +82,16 @@ export const witnesses: Witness[] = [
   },
 ];
 
+/**
+ * A Verdict label as a whole word: "Korrekt" must not match
+ * "Korrekturvorschlag". The labels are plain words, commas and spaces.
+ */
+const hasLabel = (text: string, label: string) =>
+  new RegExp(`(?<!\\p{L})${label}(?!\\p{L})`, "u").test(text);
 const detailReady = (language: Language, marker: string) => (text: string) =>
   text.includes(marker) &&
   [labels[language].correct, labels[language].exists].some((v) =>
-    text.includes(v),
+    hasLabel(text, v),
   );
 /** The rendered detail and each evidenced Candidate block, read the same way on both hosts. */
 const outcome = `(() => {

@@ -25,6 +25,25 @@ const valid = (value: unknown): value is string =>
   value.trim().length > 2 &&
   !/draft|pending|placeholder|example|localhost|todo|tbd|<|>/i.test(value);
 /** Bind every review to this exact content, toolchain, policy and deployment identity. */
+/**
+ * Every file of the website group of the committed brand export manifest
+ * (#214): favicons, touch icon, web app manifest and its icons, and the Safari
+ * pinned-tab mask. `basis` records the platform mandate, not publication, so
+ * the "optional" web-app and pinned-tab files are published and digested too.
+ * Extension, toolbar and store files belong to other groups and are never
+ * published by the website.
+ */
+export async function websiteBrandFiles(project: string): Promise<string[]> {
+  const record = JSON.parse(
+    await readFile(
+      resolve(project, "packages/brand/exports/manifest.json"),
+      "utf8",
+    ),
+  ) as { exports: { file: string; group: string }[] };
+  return record.exports
+    .filter((entry) => entry.group === "website")
+    .map((entry) => entry.file);
+}
 export async function reviewDigest(root: string): Promise<string> {
   const files: string[] = [];
   async function collect(dir: string) {
@@ -36,7 +55,7 @@ export async function reviewDigest(root: string): Promise<string> {
       else files.push(path);
     }
   }
-  for (const dir of ["src", "content", "scripts", "qualification"])
+  for (const dir of ["src", "content", "scripts", "qualification", "public"])
     await collect(dir);
   files.push(
     "astro.config.mjs",
@@ -48,6 +67,36 @@ export async function reviewDigest(root: string): Promise<string> {
   const inputs: [string, string][] = Object.entries(
     await websiteRecipe(resolve(root, "../..")),
   );
+  // Shared static recipes, typography roles and build-rendered product markup
+  // now contribute to the distributed site. A review of an earlier version of
+  // any of these inputs must not approve changed output implicitly.
+  for (const file of [
+    "design-tokens/theme.css",
+    "design-tokens/package.json",
+    "ui/package.json",
+    "ui/src/recipes.ts",
+    "ui/src/reference-outcome.tsx",
+    "ui/src/outcome-badges.tsx",
+    "ui/src/journal-abbreviation.tsx",
+    "ui/NOTICE.md",
+    "ui/notices/react-spectrum-LICENSE",
+    "ui/notices/lucide-LICENSE",
+    "i18n/package.json",
+    "i18n/project.inlang/settings.json",
+    "i18n/messages/de.json",
+    "i18n/messages/en.json",
+    // Brand artwork and its draft notice are published as favicons (#214).
+    "brand/NOTICE.md",
+    "brand/exports/manifest.json",
+    // The head links and manifest colours Page.astro renders.
+    "brand/src/web-head.ts",
+    ...(await websiteBrandFiles(resolve(root, "../.."))).map(
+      (file) => `brand/exports/${file}`,
+    ),
+  ]) {
+    const path = `../../packages/${file}`;
+    inputs.push([path, digest(await readFile(resolve(root, path)))]);
+  }
   for (const file of files.sort()) {
     if (file === "publication.json") {
       const config = JSON.parse(

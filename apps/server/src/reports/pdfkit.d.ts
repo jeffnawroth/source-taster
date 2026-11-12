@@ -62,6 +62,26 @@ declare module "pdfkit" {
     text(text: string, x: number, y: number, options?: TextOptions): this;
     circle(x: number, y: number, radius: number): this;
     fill(color?: string): this;
+    save(): this;
+    restore(): this;
+    translate(x: number, y: number): this;
+    scale(value: number): this;
+    lineCap(value: string): this;
+    lineJoin(value: string): this;
+    lineWidth(value: number): this;
+    path(value: string): this;
+    moveTo(x: number, y: number): this;
+    lineTo(x: number, y: number): this;
+    roundedRect(
+      x: number,
+      y: number,
+      w: number,
+      h: number,
+      radius: number,
+    ): this;
+    stroke(color?: string): this;
+    dash(length: number, options?: { space: number }): this;
+    undash(): this;
     /** PDFKit's annotation entry point; `Contents` is the alternate description. */
     link(
       x: number,

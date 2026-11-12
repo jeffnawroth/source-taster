@@ -65,7 +65,7 @@ describe("POST /v1/checks", () => {
 });
 
 // #71/#72: Check creation must enforce the same configured intake bound.
-it("rejects 1001 Check References with a limit Problem before enqueueing", async () => {
+it("rejects 1001 Check references with a limit Problem before enqueueing", async () => {
   const response = await postCheck({
     text: Array(1001).fill("Doe, J. (2020). A study.").join("\n"),
   });

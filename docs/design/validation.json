@@ -1,0 +1,46 @@
+{
+  "task": 206,
+  "status": "Accepted by the owner on 10 November 2026; production redesign not started.",
+  "sourceDate": "2026-11-10",
+  "documents": {
+    "markdownFiles": 22,
+    "localLinks": 90,
+    "missingLocalLinks": [],
+    "acceptedStatus": "verified",
+    "sourcePrecedence": "verified",
+    "publicPrivateDocuments": "separate",
+    "pinnedInputRefs": "verified",
+    "status": "passed"
+  },
+  "backlog": {
+    "newIssues": 15,
+    "publicIssues": 11,
+    "privateIssues": 4,
+    "reusedPdf": 105,
+    "acceptanceGate": 206,
+    "verifiedNativeBlockingEdges": 46,
+    "labels": "verified",
+    "cycles": 0,
+    "status": "passed"
+  },
+  "numericalContrast": {
+    "tool": "Culori 4.0.2",
+    "gatedPairs": 158,
+    "failures": 0,
+    "informationalRows": 8,
+    "tightestPair": "light border-emphasis on glass-overlay composite, 3.26:1 (required 3:1)",
+    "evidence": "tokens-check/contrast-evidence.md",
+    "reproducibleGateComparison": "passed"
+  },
+  "notClaimed": [
+    "FA-UEB-23 review",
+    "production implementation, browser/accessibility/medium qualification or publication"
+  ],
+  "publicPrivateBoundary": "Full private surface/email specifications and implementation handoff remain in the private repository.",
+  "acceptance": {
+    "date": "2026-11-10",
+    "resolution": "https://github.com/jeffnawroth/source-taster/issues/206#issuecomment-6770556807",
+    "adr": "0027",
+    "status": "accepted"
+  }
+}

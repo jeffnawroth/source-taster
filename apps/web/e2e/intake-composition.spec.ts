@@ -21,7 +21,7 @@ test("switches between library and document input without checking stale Referen
     exact: true,
   });
   const start = page.getByRole("button", {
-    name: "Check Reference",
+    name: "Check reference",
     exact: true,
   });
   const reset = page.getByRole("button", { name: "Reset", exact: true });
@@ -32,7 +32,7 @@ test("switches between library and document input without checking stale Referen
     buffer: Buffer.from(library),
   });
   await expect(
-    page.getByRole("region", { name: "Recognized References" }),
+    page.getByRole("region", { name: "Recognized references" }),
   ).toContainText("Library witness");
   await documentInput.setInputFiles({
     name: "references.docx",
@@ -70,7 +70,7 @@ test("switches between library and document input without checking stale Referen
     buffer: Buffer.from(library),
   });
   await expect(
-    page.getByRole("region", { name: "Recognized References" }),
+    page.getByRole("region", { name: "Recognized references" }),
   ).toContainText("Library witness");
   await expect(documentInput).toHaveValue("");
   await expect(upload).toBeDisabled();

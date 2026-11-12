@@ -47,6 +47,8 @@ Standalone is an **explicit** `SOURCE_TASTER_MODE=standalone` choice. It supplie
 
 The schemas, OpenAPI route declarations, generated `openapi.json` and fetch SSE client are the published seam. See [the contract README](packages/contract-verification/README.md) for the commit-pinned **git dependency**, with no registry publishing and no service-side vendored source. Contract build artifacts are intentionally committed so Node can import JavaScript directly after a git install. All other code is AGPL-3.0-or-later.
 
+The two-drop brand artwork in `packages/brand` (SVG masters and the icon, favicon and store exports) is outside the code licences. It carries a [draft brand notice](packages/brand/NOTICE.md) that is not legally reviewed (#207); the generator code there is AGPL-3.0-or-later.
+
 A Check and its per-Reference jobs commit together. Immutable result content and ordered event commit together, with per-Check locking and retry-safe updates. LISTEN/NOTIFY wakes each web process; streams read the durable log and use sequence IDs for replay. Disconnecting a stream does not cancel its Check. The full snapshot is `GET /v1/checks/{id}`; reconnect with `Last-Event-ID` at `/events`. Queue payloads and operational logs contain no Reference content. Adapter requests send only identifiers and, for a bounded foreign-DOI probe, bibliographic fields to their responsible source. Search evidence and Candidates remain Check content. The browser holds Check content only in memory; only the selected interface language is stored locally.
 
 ## Structuring preview

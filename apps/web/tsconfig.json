@@ -10,7 +10,9 @@
   "include": [
     "src",
     "e2e-history",
+    "e2e-shell-hosted",
     "e2e",
+    "test",
     "*.ts",
     "guest.playwright.config.ts",
     "e2e-guest",
@@ -22,6 +24,7 @@
     "e2e-abuse",
     "e2e-report",
     "e2e-dpa",
-    "e2e-rights"
+    "e2e-rights",
+    "e2e-regression"
   ]
 }

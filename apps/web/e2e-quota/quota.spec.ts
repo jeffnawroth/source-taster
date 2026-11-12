@@ -87,7 +87,7 @@ const guestTokens = (page: Page) => {
   return seen;
 };
 const check = (page: Page) =>
-  page.getByRole("button", { name: "Check Reference", exact: true }).click();
+  page.getByRole("button", { name: "Check reference", exact: true }).click();
 
 test("the Guest sees count and consumption before the start and the balance afterwards", async ({
   page,
@@ -96,7 +96,7 @@ test("the Guest sees count and consumption before the start and the balance afte
   await page.getByRole("textbox").fill(references(2));
   await check(page);
   await expect(page.getByTestId("quota-note")).toContainText(
-    "2 References will use 2 of your 20 remaining checks. 18 will be left.",
+    "2 references will use 2 of your 20 remaining checks. 18 will be left.",
   );
   await expect(page.getByTestId("quota-meter")).toBeVisible();
   await expect(page.locator("#results-title")).toBeVisible();
@@ -121,7 +121,7 @@ test("a start beyond the balance asks: first N in input order, or upgrade; warni
   await page.getByRole("textbox").fill(references(23));
   await check(page);
   const choice = page.getByTestId("quota-choice");
-  await expect(choice).toContainText("You entered 23 References");
+  await expect(choice).toContainText("You entered 23 references");
   await expect(choice).toContainText("20 checks left");
   // Nothing was reserved by merely asking.
   await expect(page.getByTestId("quota-summary")).toContainText(
@@ -136,7 +136,7 @@ test("a start beyond the balance asks: first N in input order, or upgrade; warni
   ).toEqual([]);
   await choice.getByRole("button", { name: "Check first 20" }).click();
   await expect(page.getByTestId("quota-note")).toContainText(
-    "Started 20 of 23 References; 3 were not checked.",
+    "Started 20 of 23 references; 3 were not checked.",
   );
   await expect(page.getByTestId("quota-warning-exhausted")).toBeVisible({
     timeout: 45000,
@@ -294,7 +294,7 @@ test("an unreachable service shows sign-in as unavailable and never falls back t
   try {
     await page.goto(url);
     await expect(page.getByRole("alert")).toHaveText(
-      "Sign-in is temporarily unavailable. Try again shortly.",
+      "Try again shortly. Sign-in is temporarily unavailable.",
     );
     await expect(page.getByTestId("quota-summary")).toHaveCount(0);
     expect(minted).toEqual([]);

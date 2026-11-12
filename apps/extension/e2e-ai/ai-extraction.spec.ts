@@ -72,7 +72,7 @@ for (const language of ["en", "de"] as const)
       );
       await panel.click(
         "button",
-        language === "en" ? "Structure References" : "Referenzen strukturieren",
+        language === "en" ? "Structure references" : "Referenzen strukturieren",
       );
       await panel.waitForText(
         "main",
@@ -89,11 +89,11 @@ for (const language of ["en", "de"] as const)
       );
       await panel.click(
         "button",
-        language === "en" ? "Check Reference" : "Referenz prüfen",
+        language === "en" ? "Check reference" : "Referenz prüfen",
       );
       await panel.click(
         "button",
-        language === "en" ? /^Open Reference 1:/ : /^Referenz 1 öffnen:/,
+        language === "en" ? /^Open reference 1:/ : /^Referenz 1 öffnen:/,
       );
       await panel.click(
         "button",
@@ -154,7 +154,7 @@ for (const language of ["en", "de"] as const)
         await panel.click(
           "button",
           language === "en"
-            ? "Structure References"
+            ? "Structure references"
             : "Referenzen strukturieren",
         );
         await panel.waitForText(
@@ -166,7 +166,7 @@ for (const language of ["en", "de"] as const)
         );
         if (reason !== "configuration-unavailable")
           expect(await panel.text("main")).toContain(
-            language === "en" ? "paid Plan" : "kostenpflichtiger Plan",
+            language === "en" ? "paid plan" : "kostenpflichtiger Plan",
           );
       }
       witness.structuring.ai = {
@@ -176,7 +176,7 @@ for (const language of ["en", "de"] as const)
       };
       await panel.click(
         "button",
-        language === "en" ? "Structure References" : "Referenzen strukturieren",
+        language === "en" ? "Structure references" : "Referenzen strukturieren",
       );
       await panel.waitForText(
         "main",

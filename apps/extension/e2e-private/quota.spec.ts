@@ -22,7 +22,7 @@ test("native panel shows real Guest Quota and persisted consumption after reopen
     let panel = await browser.openPanel();
     await panel.waitForText("main", undefined, "20 of 20 checks left");
     await panel.fill("textbox", /^(Reference|Referenz)$/, physicsReference);
-    await panel.click("button", "Check Reference");
+    await panel.click("button", "Check reference");
     await panel.waitForText("main", undefined, "19 of 20 checks left", 30000);
     const guestId = (await browser.storage())["source-taster-guest-id-v1"];
     expect(guestId).toBeTruthy();

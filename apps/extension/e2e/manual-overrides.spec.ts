@@ -14,7 +14,7 @@ test.afterAll(async () => {
   await build?.remove();
 });
 for (const language of ["en", "de"] as const) {
-  test(`native panel confirms, filters and resets a result-bound manual Verdict in ${language}`, async () => {
+  test(`native panel confirms, filters and resets a result-bound manual verdict in ${language}`, async () => {
     const en = language === "en";
     const directory = await mkdtemp(join(tmpdir(), "st84-panel-"));
     const browser = await launchChromium(
@@ -30,80 +30,75 @@ for (const language of ["en", "de"] as const) {
         en ? "Reference" : "Referenz",
         "Aspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170",
       );
-      await panel.click("button", en ? "Check Reference" : "Referenz prüfen");
+      await panel.click("button", en ? "Check reference" : "Referenz prüfen");
       await panel.waitForText(
-        "list",
+        "grid",
         en ? "References" : "Referenzen",
         en ? "Correct" : "Korrekt",
       );
       await panel.click(
         "button",
-        en ? /^Open Reference 1:/ : /^Referenz 1 öffnen:/,
+        en ? /^Open reference 1:/ : /^Referenz 1 öffnen:/,
       );
-      await panel.click("button", en ? "Confirm Verdict" : "Urteil bestätigen");
+      await panel.click("button", en ? "Confirm verdict" : "Befund bestätigen");
       await panel.waitForText(
         "region",
         en ? "Reference detail" : "Referenzdetails",
-        en ? "Manual Verdict: Correct" : "Manuelles Urteil: Korrekt",
+        en ? "Manual verdict: Correct" : "Manueller Befund: Korrekt",
       );
       await panel.click("button", en ? "Judge manually" : "Manuell beurteilen");
-      await panel.select(
-        "combobox",
-        en ? "Manual Verdict" : "Manuelles Urteil",
-        "not-found",
-      );
+      await panel.clickChoice("radio", en ? "Not found" : "Nicht gefunden");
       await panel.click(
         "button",
-        en ? "Save manual Verdict" : "Manuelles Urteil speichern",
+        en ? "Save manual verdict" : "Manuellen Befund speichern",
       );
       await panel.waitForText(
         "region",
         en ? "Reference detail" : "Referenzdetails",
-        en ? "Manual Verdict: Not found" : "Manuelles Urteil: Nicht gefunden",
+        en ? "Manual verdict: Not found" : "Manueller Befund: Nicht gefunden",
       );
       expect(
         await panel.text("region", en ? "Reference detail" : "Referenzdetails"),
       ).toContain(
         en
-          ? "Original system Verdict: Correct"
-          : "Ursprüngliches Systemurteil: Korrekt",
+          ? "Original system verdict: Correct"
+          : "Ursprünglicher Systembefund: Korrekt",
       );
       await panel.click(
         "button",
-        en ? "Back to References" : "Zurück zu Referenzen",
+        en ? "Back to references" : "Zurück zu Referenzen",
       );
       await panel.waitForText(
-        "list",
+        "grid",
         en ? "References" : "Referenzen",
-        en ? "Manual Verdict: Not found" : "Manuelles Urteil: Nicht gefunden",
+        en ? "Manual verdict: Not found" : "Manueller Befund: Nicht gefunden",
       );
       await panel.click("button", en ? /^Not found: 1/ : /^Nicht gefunden: 1/);
-      await panel.waitForText(
-        "region",
-        en ? "Check summary" : "Prüfungsübersicht",
-        en ? "Manual: 1" : "Manuell: 1",
+      await panel.find(
+        "button",
+        en ? /^Not found: 1 · Manual: 1/ : /^Nicht gefunden: 1 · Manuell: 1/,
       );
       await panel.click(
         "button",
-        en ? /^Open Reference 1:/ : /^Referenz 1 öffnen:/,
+        en ? /^Open reference 1:/ : /^Referenz 1 öffnen:/,
       );
       await panel.click(
         "button",
-        en ? /^All References:/ : /^Alle Referenzen:/,
+        en ? "Remove filter: Not found" : "Filter entfernen: Nicht gefunden",
       );
       await panel.click(
         "button",
-        en ? /^Open Reference 1:/ : /^Referenz 1 öffnen:/,
+        en ? /^Open reference 1:/ : /^Referenz 1 öffnen:/,
       );
       await panel.click(
         "button",
-        en ? "Re-check this Reference" : "Diese Referenz erneut prüfen",
+        en ? "Re-check this reference" : "Diese Referenz erneut prüfen",
       );
       await panel.waitForText(
         "region",
         en ? "Reference detail" : "Referenzdetails",
         en
-          ? "reset by the Re-check"
+          ? "reset by the re-check"
           : "durch die erneute Prüfung zurückgesetzt",
       );
       await until(
@@ -111,26 +106,26 @@ for (const language of ["en", "de"] as const) {
           (
             await panel.query(
               "button",
-              en ? "Confirm Verdict" : "Urteil bestätigen",
+              en ? "Confirm verdict" : "Befund bestätigen",
             )
           )[0],
         "Re-check did not finish",
       );
       await panel.click(
         "button",
-        en ? "Back to References" : "Zurück zu Referenzen",
+        en ? "Back to references" : "Zurück zu Referenzen",
       );
       await panel.waitForText(
-        "list",
+        "grid",
         en ? "References" : "Referenzen",
         en ? "Correct" : "Korrekt",
       );
       expect(
-        await panel.text("list", en ? "References" : "Referenzen"),
-      ).not.toContain(en ? "Manual Verdict:" : "Manuelles Urteil:");
+        await panel.text("grid", en ? "References" : "Referenzen"),
+      ).not.toContain(en ? "Manual verdict:" : "Manueller Befund:");
       await panel.click(
         "button",
-        en ? /^Open Reference 1:/ : /^Referenz 1 öffnen:/,
+        en ? /^Open reference 1:/ : /^Referenz 1 öffnen:/,
       );
       await panel.evaluate(
         `Array.from(document.querySelectorAll('summary')).find(e => e.textContent.includes(${JSON.stringify(en ? "Previous results (historical)" : "Frühere Ergebnisse (historisch)")})).click()`,
@@ -138,7 +133,7 @@ for (const language of ["en", "de"] as const) {
       await panel.waitForText(
         "region",
         en ? "Historical result" : "Historisches Ergebnis",
-        en ? "Manual Verdict: Not found" : "Manuelles Urteil: Nicht gefunden",
+        en ? "Manual verdict: Not found" : "Manueller Befund: Nicht gefunden",
       );
       expect(await panel.axe()).toEqual([]);
       expect(

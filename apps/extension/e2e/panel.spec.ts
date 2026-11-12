@@ -53,7 +53,7 @@ test("the toolbar action opens the real native side panel with the shared Check 
       }),
     );
     await panel.find("textbox", "Reference");
-    await panel.find("button", "Check Reference");
+    await panel.find("button", "Check reference");
     expect(
       await panel.evaluate<number>("window.innerWidth"),
     ).toBeLessThanOrEqual(480);
@@ -147,7 +147,7 @@ test("closing, reopening and reloading the native panel keeps only validated Pre
     await panel.find("button", "Referenz prüfen");
     expect(await panel.query("region", "Referenzdetails")).toEqual([]);
     await panel.select("combobox", "Sprache", "en");
-    await panel.find("button", "Check Reference");
+    await panel.find("button", "Check reference");
     const english = witnesses[0]!;
     expectWitness(await checkInPanel(panel, "en", english), "en", english);
     expect(await panel.axe()).toEqual([]);
@@ -171,10 +171,10 @@ test("native panel renders a Correction suggestion and keeps export choices loca
     expect(
       await panel.call<string>(
         region,
-        "function () { return this.innerText; }",
+        "function () { return this.textContent; }",
       ),
-    ).toContain("Aspelmeyer, M. (2009).");
-    await panel.click("checkbox", "Apply for export only");
+    ).toContain("Deleted: (2008).Inserted: (2009).");
+    await panel.clickChoice("checkbox", "Apply for export only");
     expect(
       await panel.call<boolean>(
         await panel.find("checkbox", "Apply for export only"),
@@ -185,10 +185,15 @@ test("native panel renders a Correction suggestion and keeps export choices loca
     await until(async () => {
       const [suggestion] = await panel.query("region", "Correction suggestion");
       if (!suggestion) return false;
+      // The tracked change's kept and inserted parts read as the suggestion.
       return (
         await panel.call<string>(
           suggestion,
-          "function () { return this.innerText; }",
+          `function () {
+            const clone = this.cloneNode(true);
+            for (const node of clone.querySelectorAll("del, .sr-only")) node.remove();
+            return clone.textContent;
+          }`,
         )
       ).includes("M. Aspelmeyer");
     }, "The panel did not re-render the IEEE suggestion");
@@ -231,19 +236,19 @@ test("native panel downloads both citation formats with export-only corrections"
         scores: [],
       });
       await panel.find("checkbox", "Apply for export only");
-      await panel.click("checkbox", "Apply for export only");
+      await panel.clickChoice("checkbox", "Apply for export only");
       await panel.select("combobox", "Export content", "selected-corrections");
       for (const [index, format] of ["csl-json", "bibtex"].entries()) {
         await panel.select("combobox", "Export format", format);
         await until(
           async () =>
             !(await panel.call<boolean>(
-              await panel.find("button", "Download References"),
+              await panel.find("button", "Download references"),
               "function () { return this.disabled; }",
             )),
           "Export is not ready",
         );
-        await panel.click("button", "Download References");
+        await panel.click("button", "Download references");
         const download = await until(() => {
           const value = started[index];
           return value && completed.has(value.guid) ? value : false;
@@ -344,7 +349,7 @@ for (const language of ["en", "de"] as const)
               ? "Apply for export only"
               : "Nur für den Export übernehmen",
           );
-          await panel.click(
+          await panel.clickChoice(
             "checkbox",
             language === "en"
               ? "Apply for export only"
@@ -367,7 +372,7 @@ for (const language of ["en", "de"] as const)
                   await panel.find(
                     "button",
                     language === "en"
-                      ? "Download References"
+                      ? "Download references"
                       : "Referenzen herunterladen",
                   ),
                   "function () { return this.disabled; }",
@@ -378,7 +383,7 @@ for (const language of ["en", "de"] as const)
             await panel.click(
               "button",
               language === "en"
-                ? "Download References"
+                ? "Download references"
                 : "Referenzen herunterladen",
             );
             const download = await until(() => {

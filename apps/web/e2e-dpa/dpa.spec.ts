@@ -172,7 +172,7 @@ for (const language of ["en", "de"] as const)
           .getByLabel(
             de
               ? "Ich nutze den Dienst geschäftlich und bin zum Abschluss für diese Vertragspartei bevollmächtigt."
-              : "I use the service for business and am authorized to conclude for this Contracting party.",
+              : "I use the service for business and am authorized to conclude for this contracting party.",
           )
           .check();
         await page

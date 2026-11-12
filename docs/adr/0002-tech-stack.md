@@ -91,3 +91,7 @@ The concrete choice of PDF/DOCX extraction, BibTeX/RIS import and export, and CS
   System architecture, [Hosting and operations](https://github.com/jeffnawroth/source-taster/issues/22) and the release process must plan them.
 - **PDF library.** The library for accessible, tagged PDF Verification reports (FA-ERG-20) is not yet chosen.
 - **License review.** Every dependency remains subject to the AGPL compatibility check and the legal review required by section 14.6 and FA-UEB-23.
+
+## Accepted bounded Toast refinement — ADR-0027
+
+Accepted by the owner on 10 November 2026 in [#206](https://github.com/jeffnawroth/source-taster/issues/206#issuecomment-6770556807). This bounded exception is effective under ADR-0027. Keep the stable RAC 1.x/Tailwind 4 foundation. Only `UNSTABLE_Toast` and `UNSTABLE_ToastRegion` may be consumed behind one project-owned wrapper with an exact-pinned stable RAC release, upgrade/keyboard/live-region checks and removal of the shim when stable exports are available. No other unstable export, prerelease package or pre-1.0 core dependency is admitted. See [ADR-0027](0027-design-system.md).

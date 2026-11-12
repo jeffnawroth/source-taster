@@ -17,7 +17,7 @@ for (const language of ["en", "de"] as const)
       );
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
@@ -26,9 +26,17 @@ for (const language of ["en", "de"] as const)
       exact: true,
     });
     await expect(suggestion).toContainText("2009", { timeout: 15000 });
-    await suggestion.getByRole("checkbox").check();
+    await suggestion
+      .getByText(
+        language === "en"
+          ? "Apply for export only"
+          : "Nur für den Export übernehmen",
+        { exact: true },
+      )
+      .click();
+    await expect(suggestion.getByRole("checkbox")).toBeChecked();
     const exports = page.getByRole("region", {
-      name: language === "en" ? "Export References" : "Referenzen exportieren",
+      name: language === "en" ? "Export references" : "Referenzen exportieren",
       exact: true,
     });
     const format = exports.getByRole("combobox", {
@@ -48,7 +56,7 @@ for (const language of ["en", "de"] as const)
           .getByRole("button", {
             name:
               language === "en"
-                ? "Download References"
+                ? "Download references"
                 : "Referenzen herunterladen",
             exact: true,
           })

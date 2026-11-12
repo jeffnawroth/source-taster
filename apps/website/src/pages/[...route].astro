@@ -1,10 +1,11 @@
 ---
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import Page from '../components/Page.astro';
-import Search from '../components/Search.astro';
 import publication from '../../publication.json';
 import { legalDocuments, legalPage } from '../legal';
 import { languages, pages, pathFor } from '../content';
+import { sourceAccess } from '../source-access';
+import { linkRecipe } from '@source-taster/ui/recipes';
 export async function getStaticPaths() {
   const information = languages.flatMap(language => pages[language].map(page => ({
     params: { route: pathFor(language, page).replace(/^\//, '').replace(/\/$/, '') },
@@ -29,10 +30,31 @@ export async function getStaticPaths() {
     };
     return [...(current ? [currentRoute] : []), versionRoute];
   });
-  return [...information, ...legal];
+  const sourcePages = languages.flatMap(language => {
+    const t = sourceAccess[language];
+    const props = {
+      language,
+      page: { id: 'source-access', section: 'site' as const, title: t.title, summary: t.description, paragraphs: [t.summary] },
+      sourceLanding: true,
+      alternateHref: `/third-party/pagefind/${language === 'de' ? 'en' : 'de'}/`,
+    };
+    return [
+      { params: { route: `third-party/pagefind/${language}` }, props },
+      ...(language === 'en' ? [{ params: { route: 'third-party/pagefind' }, props }] : []),
+    ];
+  });
+  return [...information, ...legal, ...sourcePages];
 }
-const { language, page, legal } = Astro.props;
+const { language, page, legal, sourceLanding, alternateHref } = Astro.props;
+const sourceText = sourceAccess[language];
+const downloads = [
+  ['corresponding-source.tar.gz', sourceText.source],
+  ['GPL-3.0.txt', sourceText.gpl],
+  ['NOTICE.txt', sourceText.notice],
+  ['RUST-COPYRIGHT-library.txt', sourceText.rust],
+  ['manifest.json', sourceText.manifest],
+];
 ---
-<Page language={language} page={page} legal={legal}>
-  {page.section === "docs" && <Search language={language} />}
+<Page language={language} page={page} legal={legal} alternateHref={alternateHref}>
+  {sourceLanding && <ul class="source-downloads">{downloads.map(([file,label]) => <li><a class={linkRecipe()} href={`/third-party/pagefind/${file}`}>{label}</a></li>)}</ul>}
 </Page>

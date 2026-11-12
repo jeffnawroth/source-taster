@@ -62,10 +62,10 @@ for (const language of ["en", "de"] as const)
       );
       await panel.click(
         "button",
-        language === "en" ? "Structure References" : "Referenzen strukturieren",
+        language === "en" ? "Structure references" : "Referenzen strukturieren",
       );
       const recognized =
-        language === "en" ? "Recognized References" : "Erkannte Referenzen";
+        language === "en" ? "Recognized references" : "Erkannte Referenzen";
       await panel.waitForText("region", recognized, second);
       expect(await panel.text("region", recognized)).not.toContain(
         "Signal maps",
@@ -78,10 +78,10 @@ for (const language of ["en", "de"] as const)
       expect(await panel.axe()).toEqual([]);
       await panel.click(
         "button",
-        language === "en" ? "Check Reference" : "Referenz prüfen",
+        language === "en" ? "Check reference" : "Referenz prüfen",
       );
       const list = await panel.text(
-        "list",
+        "grid",
         language === "en" ? "References" : "Referenzen",
       );
       expect(list).toContain("Careful systems");

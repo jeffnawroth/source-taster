@@ -303,7 +303,7 @@ async function download(checkId: string, body: unknown) {
   return { bytes, pdf: await inspectPdf(bytes) };
 }
 
-it("writes a German report in reading order with overview first, one numbered section per Reference, and the manual judgment beside the unchanged system Verdict", async () => {
+it("writes a German report in reading order with overview first, one numbered section per Reference, and the manual judgment beside the unchanged system verdict", async () => {
   const check = await checkedWith([
     { originalText: originalText, fields },
     {
@@ -345,11 +345,11 @@ it("writes a German report in reading order with overview first, one numbered se
   expect(order).toEqual([...order].sort((a, b) => a - b));
   // Diacritics survive the Unicode mapping, so they are extractable.
   expect(text).toContain("Zweite Referenz: Größe & Maß (2010)");
-  expect(text).toContain("Manuelles Urteil: Korrekt");
+  expect(text).toContain("Manueller Befund: Korrekt");
   expect(text).toContain(
-    `Ursprüngliches Systemurteil: ${second.outcome.kind === "verdict" ? "Existiert, mit Abweichungen" : "?"}`,
+    `Ursprünglicher Systembefund: ${second.outcome.kind === "verdict" ? "Existiert, mit Abweichungen" : "?"}`,
   );
-  expect(text).toContain("Version der Bewertungsregeln");
+  expect(text.replace(/\s+/gu, " ")).toContain("Version der Bewertungsregeln");
   // A long version identifier may wrap; its characters must all be there.
   const outcome = check.references[0]!.outcome;
   if (outcome.kind !== "verdict") throw new Error("expected a Verdict");

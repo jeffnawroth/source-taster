@@ -1,3 +1,9 @@
+import {
+  openPanelAccount,
+  openFirefoxAccount,
+  openWebAccount,
+  panelAccountName,
+} from "../e2e/support/account-entry.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { test, expect } from "@playwright/test";
 import {
@@ -347,7 +353,7 @@ async function signIn(panel: Panel) {
   await panel.click("button", "Send code");
   await panel.fill("textbox", "Six-digit code", "123456");
   await panel.click("button", "Confirm code");
-  await panel.waitForText("main", undefined, account.email);
+  await panel.find("button", panelAccountName(account.email));
 }
 
 test("native sign-in persists only the opaque extension credential, clears Guest input and survives panel reload", async () => {
@@ -368,10 +374,11 @@ test("native sign-in persists only the opaque extension credential, clears Guest
       await panel.evaluate("localStorage.length + sessionStorage.length"),
     ).toBe(0);
     await panel.reload();
-    await panel.waitForText("main", undefined, account.email);
+    await panel.find("button", panelAccountName(account.email));
     expect(requests.find((r) => r.path === "/v1/extension/session")?.auth).toBe(
       `Bearer ${credential}`,
     );
+    await openPanelAccount(panel);
     await panel.click("button", "Sign out here");
     await panel.find("button", "Sign in");
     expect(await browser.storage()).toEqual({
@@ -392,7 +399,7 @@ test("Account verification uses an in-memory access token; sign-out everywhere d
   await withPanel(async ({ panel, browser, requests }) => {
     await signIn(panel);
     await panel.fill("textbox", "Reference", "Account private input");
-    await panel.click("button", "Check Reference");
+    await panel.click("button", "Check reference");
     await panel.waitForText("alert", undefined, /./);
     const verification = panel.requests.find((r) =>
       r.url.endsWith("/v2/structurings"),
@@ -411,6 +418,7 @@ test("Account verification uses an in-memory access token; sign-out everywhere d
       [guestKey]: guestId,
       [key]: credential,
     });
+    await openPanelAccount(panel);
     await panel.click("button", "Sign out everywhere");
     await panel.find("button", "Sign in");
     expect(
@@ -468,11 +476,11 @@ test("an expired Account access token never reaches verification, including afte
     const mark = requests.length;
     state.expiredToken = true;
     await panel.fill("textbox", "Reference", "Expired token input");
-    await panel.click("button", "Check Reference");
+    await panel.click("button", "Check reference");
     await panel.waitForText("alert", undefined, /./);
     await panel.click("button", "Reset");
     await panel.fill("textbox", "Reference", "Retry expired token");
-    await panel.click("button", "Check Reference");
+    await panel.click("button", "Check reference");
     await panel.waitForText("alert", undefined, /./);
     expect(
       requests
@@ -498,7 +506,7 @@ test("revoked Account renewal stays denied after Reset and never changes into Gu
     await panel.waitForText(
       "main",
       undefined,
-      "Your session has expired or was revoked. Sign in again to continue.",
+      "Sign in again to continue. Your session has expired or was revoked.",
     );
     await panel.click("button", "Reset");
     await panel.fill(
@@ -506,7 +514,7 @@ test("revoked Account renewal stays denied after Reset and never changes into Gu
       "Reference",
       "Reset cannot revive Account access",
     );
-    await panel.click("button", "Check Reference");
+    await panel.click("button", "Check reference");
     await panel.waitForText("alert", undefined, /./);
     expect(
       requests.filter((r) => r.path === "/v1/extension/account-tokens"),
@@ -540,7 +548,7 @@ for (const failure of [true, "missing"] as const)
       await panel.waitForText(
         "alert",
         undefined,
-        "Sign-in is temporarily unavailable. Try again shortly.",
+        "Try again shortly. Sign-in is temporarily unavailable.",
       );
       expect(await browser.storage()).toEqual({ [guestKey]: guestId });
       expect(requests.some((r) => r.path.endsWith("/confirm"))).toBe(false);
@@ -584,12 +592,13 @@ test("German native email-code controls support keyboard confirmation and scoped
       code: "Enter",
       windowsVirtualKeyCode: 13,
     });
-    await panel.waitForText("main", undefined, account.email);
+    await panel.find("button", panelAccountName(account.email));
     expect(requests.find((r) => r.path.endsWith("/challenges"))?.body).toEqual({
       email: account.email,
       language: "de",
     });
     expect(await panel.axe()).toEqual([]);
+    await openPanelAccount(panel, "de");
     await panel.click("button", "Hier abmelden");
     await panel.find("button", "Anmelden");
   });
@@ -626,9 +635,11 @@ test("Firefox's native sidebar uses the same cookie-free session transport witho
       await firefox.click(await firefox.find("entry", "Six-digit code"));
       await firefox.type("123456");
       await firefox.click(await firefox.find("pushbutton", "Confirm code"));
+      await openFirefoxAccount(firefox);
       await firefox.find("pushbutton", "Sign out here");
       await firefox.clickToolbarButton();
       await firefox.clickToolbarButton();
+      await openFirefoxAccount(firefox);
       await firefox.find("pushbutton", "Sign out here");
       expect(
         requests.find((r) => r.path === "/v1/extension/session")?.auth,
@@ -654,7 +665,7 @@ test("Account streams reconnect with memory tokens and generic permission cannot
       "Reference",
       "Doe, J. (2020). Signal maps. Example Press.",
     );
-    await panel.click("button", "Check Reference");
+    await panel.click("button", "Check reference");
     const creation = await until(
       () =>
         panel.responses.find(
@@ -664,7 +675,7 @@ test("Account streams reconnect with memory tokens and generic permission cannot
       "Check creation did not answer",
     );
     expect(creation.status).toBe(201);
-    await panel.waitForText("list", "References", /Queued|Running/);
+    await panel.waitForText("grid", "References", /Queued|Running/);
     const created = panel.requests.find(
       (r) =>
         r.url === `http://127.0.0.1:${apiPort}/v2/checks` &&
@@ -719,7 +730,7 @@ test("Account streams reconnect with memory tokens and generic permission cannot
       [key]: credential,
     });
     await panel.click("button", "Reset");
-    expect(await panel.query("list", "References")).toEqual([]);
+    expect(await panel.query("grid", "References")).toEqual([]);
   });
 });
 
@@ -770,15 +781,18 @@ test("the actual web UI keeps #97 cookie transport while the native extension si
       await page
         .getByRole("textbox", { name: "Six-digit code" })
         .press("Enter");
+      await openWebAccount(page);
       await expect(
         page.getByRole("button", { name: "Sign out here", exact: true }),
       ).toBeVisible();
       // A web cookie never automatically authenticates the extension.
       await panel.find("button", "Sign in");
       await signIn(panel);
+      await openPanelAccount(panel);
       await panel.click("button", "Sign out here");
       await panel.find("button", "Sign in");
       await page.reload();
+      await openWebAccount(page);
       await expect(
         page.getByRole("button", { name: "Sign out here", exact: true }),
       ).toBeVisible();
@@ -831,7 +845,7 @@ test("full extension-local storage cannot turn confirmation into successful sign
     await panel.waitForText(
       "alert",
       undefined,
-      "Sign-in is temporarily unavailable. Try again shortly.",
+      "Try again shortly. Sign-in is temporarily unavailable.",
     );
     expect((await browser.storage())[key]).toBeUndefined();
     expect((await browser.storage())[guestKey]).toBe(guestId);
@@ -851,7 +865,7 @@ test("browser restart restores only the extension session and never restores Che
       "Never persist this Account input",
     );
     const restored = await restart();
-    await restored.panel.waitForText("main", undefined, account.email);
+    await restored.panel.find("button", panelAccountName(account.email));
     expect(
       await restored.panel.call(
         await restored.panel.find("textbox", "Reference"),
@@ -867,7 +881,8 @@ test("browser restart restores only the extension session and never restores Che
 
 test("purchasing and Plan entries open the private web Plan management page without sending an extension credential", async () => {
   await withPanel(async ({ panel, requests }) => {
-    const link = await panel.find("link", "Plans and Check packs on the web");
+    await panel.click("button", "Sign in");
+    const link = await panel.find("link", "Plans and check packs on the web");
     expect(
       await panel.call(
         link,
@@ -878,7 +893,7 @@ test("purchasing and Plan entries open the private web Plan management page with
       target: "_blank",
       rel: "noopener noreferrer",
     });
-    await panel.click("link", "Plans and Check packs on the web");
+    await panel.click("link", "Plans and check packs on the web");
     await until(
       () => requests.some((r) => r.path === "/plan?language=en"),
       "web Plan management page was not opened",
@@ -895,6 +910,7 @@ test("purchasing and Plan entries open the private web Plan management page with
 test("native Account invoice access uses current extension credentials without web forwarding", async () => {
   await withPanel(async ({ panel, browser, requests }) => {
     await signIn(panel);
+    await openPanelAccount(panel);
     await panel.click("button", "Load invoices");
     await panel.find("button", "Download PDF");
     await panel.click("button", "Download PDF");

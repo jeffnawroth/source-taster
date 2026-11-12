@@ -1,3 +1,4 @@
+import { openPanelAccount } from "../e2e/support/account-entry.ts";
 import {
   AccountSessionResponse,
   ExtensionCredential,
@@ -76,6 +77,7 @@ for (const language of ["en", "de"] as const)
           code,
         );
         await panel.click("button", de ? "Code bestätigen" : "Confirm code");
+        await openPanelAccount(panel);
         await panel.find("button", de ? "Hier abmelden" : "Sign out here");
         if (paid) {
           const credential = ExtensionCredential.parse(
@@ -122,7 +124,7 @@ for (const language of ["en", "de"] as const)
           "checkbox",
           de
             ? "Ich nutze den Dienst geschäftlich und bin zum Abschluss für diese Vertragspartei bevollmächtigt."
-            : "I use the service for business and am authorized to conclude for this Contracting party.",
+            : "I use the service for business and am authorized to conclude for this contracting party.",
         );
         const before = (await b.mail()).length;
         await panel.click(
@@ -182,6 +184,7 @@ for (const language of ["en", "de"] as const)
           de ? "de-DE" : "en-GB",
         );
         panel = await browser.openPanel();
+        await openPanelAccount(panel);
         await panel.find("button", de ? "Hier abmelden" : "Sign out here");
         await panel.click(
           "button",

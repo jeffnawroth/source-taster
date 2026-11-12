@@ -1,3 +1,4 @@
+import { openPanelAccount } from "../e2e/support/account-entry.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { test, expect } from "@playwright/test";
 import { mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
@@ -48,11 +49,12 @@ test("signed-in native panel opens actual web Plan management without forwarding
     );
     await panel.fill("textbox", "Six-digit code", code);
     await panel.click("button", "Confirm code");
+    await openPanelAccount(panel);
     await panel.find("button", "Sign out here");
     expect(
       (await browser.storage())["source-taster-extension-session-v1"],
     ).toBeTruthy();
-    const label = "Plans and Check packs on the web";
+    const label = "Plans and check packs on the web";
     const link = await panel.find("link", label);
     expect(
       await panel.call(

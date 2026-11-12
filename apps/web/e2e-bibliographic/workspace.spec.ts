@@ -20,7 +20,7 @@ for (const language of ["en", "de"] as const) {
         );
       await page
         .getByRole("button", {
-          name: language === "en" ? "Check Reference" : "Referenz prüfen",
+          name: language === "en" ? "Check reference" : "Referenz prüfen",
           exact: true,
         })
         .click();
@@ -31,7 +31,7 @@ for (const language of ["en", "de"] as const) {
       const comparison = detail.getByRole("region", {
         name:
           language === "en"
-            ? "Reference and Best match"
+            ? "Reference and best match"
             : "Referenz und bester Treffer",
         exact: true,
       });
@@ -66,12 +66,12 @@ for (const language of ["en", "de"] as const) {
         );
         await expect(candidates.nth(0)).not.toContainText(
           language === "en"
-            ? "Best match by Score"
+            ? "Best match by score"
             : "Bester Treffer nach Score",
         );
         await expect(candidates.nth(1)).toContainText(
           language === "en"
-            ? "Best match by Score"
+            ? "Best match by score"
             : "Bester Treffer nach Score",
         );
         await expect(candidates.nth(0)).toContainText("100.00 %");
@@ -131,7 +131,7 @@ for (const language of ["en", "de"] as const)
       );
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
@@ -147,7 +147,7 @@ for (const language of ["en", "de"] as const)
     const fields = detail.getByRole("table", {
       name:
         language === "en"
-          ? "Reference and Best match"
+          ? "Reference and best match"
           : "Referenz und bester Treffer",
       exact: true,
     });
@@ -167,7 +167,7 @@ for (const language of ["en", "de"] as const)
     );
     await expect(detail).toContainText(
       language === "en"
-        ? "No Best match is available."
+        ? "No best match is available."
         : "Kein bester Treffer verfügbar.",
     );
     await expect(detail.getByRole("link")).toHaveCount(0);

@@ -1,3 +1,4 @@
+import { openFirefoxAccount } from "../e2e/support/account-entry.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { createServer } from "node:http";
 import { once } from "node:events";
@@ -273,6 +274,7 @@ test("native Firefox real mail with one observed dynamic origin; deployment qual
     await browser.type(await code(b));
     await browser.click(await browser.find("pushbutton", "Confirm code"));
     try {
+      await openFirefoxAccount(browser);
       await browser.find("pushbutton", "Sign out here");
     } catch (error) {
       console.error(
@@ -293,6 +295,7 @@ test("native Firefox real mail with one observed dynamic origin; deployment qual
     );
     await browser.clickToolbarButton();
     try {
+      await openFirefoxAccount(browser);
       await browser.find("pushbutton", "Sign out here");
     } catch (error) {
       console.error("Observed HTTP", observed);
@@ -305,6 +308,7 @@ test("native Firefox real mail with one observed dynamic origin; deployment qual
       );
       throw error;
     }
+    await openFirefoxAccount(browser);
     await browser.click(await browser.find("pushbutton", "Sign out here"));
     await browser.find("pushbutton", "Sign in");
   } finally {

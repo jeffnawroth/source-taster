@@ -9,7 +9,8 @@ import {
   verificationClient,
   type VerificationClientOptions,
 } from "@source-taster/contract-verification/client-v2";
-const action = "rounded border border-amber-900 px-3 py-2 disabled:opacity-50";
+const action =
+  "rounded border border-border-emphasis px-3 py-2 disabled:opacity-50";
 type Span = { start: number; end: number };
 export function validRegions(text: string, regions: Span[]) {
   const sorted = [...regions].sort((a, b) => a.start - b.start);
@@ -41,10 +42,7 @@ export function BibliographyEditor({
     const before = document.text.slice(ordered[i - 1]?.end ?? 0, region.start);
     return [
       before,
-      <mark
-        key={i}
-        className="bg-amber-200 text-slate-950 underline decoration-2"
-      >
+      <mark key={i} className="bg-accent-tint text-text underline decoration-2">
         {document.text.slice(region.start, region.end)}
       </mark>,
     ];
@@ -55,7 +53,7 @@ export function BibliographyEditor({
   return (
     <section
       aria-label={m.selection_heading()}
-      className="my-4 min-w-0 space-y-3 rounded border-2 border-amber-700 bg-amber-50 p-3"
+      className="my-4 min-w-0 space-y-3 rounded border-2 border-border-emphasis bg-surface-sunken p-3"
     >
       <h3 className="font-semibold">{m.selection_heading()}</h3>
       <p>{m.selection_help()}</p>
@@ -79,7 +77,7 @@ export function BibliographyEditor({
               event.currentTarget;
             setMarked(end > start ? { start, end } : null);
           }}
-          className="mt-2 min-h-40 w-full min-w-0 rounded border border-slate-600 bg-white p-3"
+          className="mt-2 min-h-40 w-full min-w-0 rounded border border-border-emphasis bg-surface p-3"
         />
       </label>
       <fieldset disabled={disabled} className="min-w-0 space-y-3">
@@ -98,7 +96,7 @@ export function BibliographyEditor({
                   step={1}
                   value={region[key]}
                   onChange={(event) => move(i, key, event.target.valueAsNumber)}
-                  className="w-28 max-w-full rounded border border-slate-600 bg-white p-2"
+                  className="w-28 max-w-full rounded border border-border-emphasis bg-surface p-2"
                 />
               </label>
             ))}

@@ -2,10 +2,14 @@
 import { defineConfig } from "vite";
 import { openWebsite } from "@source-taster/website/hosting";
 import { fileURLToPath } from "node:url";
+import { fontNotices } from "../../packages/ui/font-assets.ts";
+import { brandHead, websitePaths } from "./brand-head.ts";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [
+    fontNotices(),
+    brandHead(),
     react(),
     tailwindcss(),
     {
@@ -17,8 +21,7 @@ export default defineConfig({
           "preview",
         );
         server.middlewares.use((req, res, next) => {
-          if (!/^\/(?:docs|de|en|pagefind|_astro)(?:\/|$)/.test(req.url ?? ""))
-            return next();
+          if (!websitePaths.test(req.url ?? "")) return next();
           void serveInformation(
             new Request(`http://localhost${req.url}`, { method: req.method }),
           )

@@ -18,8 +18,9 @@ overrides:
 minimumReleaseAgeExclude:
   - "@tanstack/query-core@5.105.0"
   - "@tanstack/react-query@5.105.0"
-# The static website has no raster images; Astro's optional sharp/libvips
-# (LGPL-3.0 native) image service stays out of the graph (#115).
+# The static website processes no raster images: its only PNG/ICO files are
+# the committed brand favicons, copied byte for byte (#214). Astro's optional
+# sharp/libvips (LGPL-3.0 native) image service stays out of the graph (#115).
 ignoredOptionalDependencies:
   - sharp
   - fsevents

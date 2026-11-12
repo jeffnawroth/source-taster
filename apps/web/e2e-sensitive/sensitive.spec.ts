@@ -141,7 +141,7 @@ for (const language of ["en", "de"] as const) {
     );
     await expect(link).toHaveAttribute("rel", "noopener noreferrer");
     await expect(
-      page.getByRole("button", { name: "Delete Account", exact: true }),
+      page.getByRole("button", { name: "Delete account", exact: true }),
     ).toHaveCount(0);
     await expect(
       page.getByRole("button", { name: "Change email address", exact: true }),

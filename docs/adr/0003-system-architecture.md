@@ -18,7 +18,7 @@ This ADR fixes mechanisms and seams only. The meaning of cancellation, failure a
 - **Data.** Each program has its own PostgreSQL schema, its own database role and its own pg-boss queues. There is no cross-schema access, query or foreign key; the only link is the opaque Owner ID. Whether both schemas share one managed instance or use two is decided by [Hosting and operations](https://github.com/jeffnawroth/source-taster/issues/22), and switching is a configuration change.
 - **Internal communication.** Endpoints between the programs live under `/internal`, separate from `/v1`. They are described by a separate internal contract package. Calls carry signed service tokens: each program has its own key pair, the other knows only its public key, and keys rotate without a shared secret.
 - **Contract packages.** The verification contract, the service contract and the internal contract live in the open repository, under `AGPL-3.0-or-later OR MIT`. In the implementation hand-off for [#70](https://github.com/jeffnawroth/source-taster/issues/70), the client refined distribution on 26 October 2026: the private service consumes them as Git subdirectory dependencies pinned to a full reviewed commit SHA, with no registry publication or service-side vendored copy. This supersedes the original public-npm distribution choice. Packages carry committed JavaScript, declarations and generated OpenAPI artifacts; CI rebuilds and checks those artifacts. Only the transport package and its dual-licensed shared transport code may enter the dependency, never AGPL-only implementation. The service selects the MIT license branch; the exception's scope remains ADR-0001's transport boundary.
-- **Private UI.** The account, checkout and Operator web pages form a separate, small private UI on the same third-party libraries (React Aria, Tailwind). They use the payment provider's hosted checkout and customer portal as far as possible. ADR-0001's contract exception is not widened to UI code.
+- **Private UI.** The account, checkout and Operator web pages form a separate, small private UI on the same third-party libraries (React Aria, Tailwind). They use the payment provider's hosted checkout and customer portal as far as possible. UI components remain outside ADR-0001's sharing exception; ADR-0027 adds only the explicitly bounded design-token values/CSS/constants.
 
 ### Open repository layout
 
@@ -121,3 +121,11 @@ Both programs write structured JSON logs, OpenTelemetry traces and metrics. Only
   - [Hosting and operations](https://github.com/jeffnawroth/source-taster/issues/22): physical database placement and correlated-failure boundaries; backup lifetime of content; reconciliation of Quota, payment webhooks and e-mail after a restore; the observability tool; the release checklist in the release process.
   - [Reference test set and release quality gate](https://github.com/jeffnawroth/source-taster/issues/15): the 50-Reference parity set for FA-GLE-03.
 - **Legal review.** The concrete program communication and contract packages remain subject to the review required by FA-UEB-23 (ADR-0001).
+
+## Accepted design-system refinement — ADR-0027
+
+Accepted by the owner on 10 November 2026 in [#206](https://github.com/jeffnawroth/source-taster/issues/206#issuecomment-6770556807). This addition is effective as the narrow refinement specified in ADR-0027. The exact wording was agreed in #189.
+
+**Addition to “Contract packages”:** The design-token package is distributed the same way, pinned to the same reviewed commit SHA as the contracts. The service selects the MIT licence branch.
+
+This exception is limited to the value-only package described in [ADR-0027](0027-design-system.md). Private components remain independent; no `@source-taster/ui` or `@source-taster/i18n` implementation crosses repositories. The existing program/API/content and legal-review boundaries remain.

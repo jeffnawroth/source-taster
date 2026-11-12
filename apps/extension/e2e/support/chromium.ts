@@ -63,6 +63,10 @@ export class Panel {
     number,
     { resolve(value: unknown): void; reject(error: Error): void }
   >();
+  private readonly events = new Map<
+    string,
+    ((params: Record<string, unknown>) => void)[]
+  >();
   private readonly listener: (event: {
     sessionId: string;
     message: string;
@@ -86,10 +90,13 @@ export class Panel {
       const message = JSON.parse(event.message) as {
         id?: number;
         method?: string;
-        params?: Record<string, never>;
+        params?: Record<string, unknown>;
         result?: unknown;
         error?: { message: string };
       };
+      if (message.method)
+        for (const handler of this.events.get(message.method) ?? [])
+          handler(message.params ?? {});
       if (message.id !== undefined) {
         const call = this.pending.get(message.id);
         this.pending.delete(message.id);
@@ -115,6 +122,12 @@ export class Panel {
     const panel = new Panel(browser, sessionId, targetId, url);
     await panel.send("Network.enable");
     await panel.send("Runtime.enable");
+    // A stress knob: a slower page lets late responses land between the
+    // measurement of a press target and the press itself.
+    if (process.env.SOURCE_TASTER_E2E_CPU_THROTTLE)
+      await panel.send("Emulation.setCPUThrottlingRate", {
+        rate: Number(process.env.SOURCE_TASTER_E2E_CPU_THROTTLE),
+      });
     return panel;
   }
   send<T = unknown>(method: string, params: object = {}): Promise<T> {
@@ -221,12 +234,107 @@ export class Panel {
       timeout,
     );
   }
+  /**
+   * Pauses POST requests whose URL matches until `release()`; every other
+   * request, and any request after the release, passes straight through. This
+   * makes the moment a response settles the page a step of the test.
+   */
+  async holdRequests(match: RegExp) {
+    const held: string[] = [];
+    let released = false;
+    const handlers = this.events.get("Fetch.requestPaused") ?? [];
+    this.events.set("Fetch.requestPaused", handlers);
+    const resume = (requestId: string) =>
+      this.send("Fetch.continueRequest", { requestId });
+    handlers.push((params) => {
+      const { requestId, request } = params as unknown as {
+        requestId: string;
+        request: { url: string; method: string };
+      };
+      if (!released && request.method === "POST" && match.test(request.url))
+        held.push(requestId);
+      else void resume(requestId);
+    });
+    await this.send("Fetch.enable", {
+      patterns: [{ urlPattern: "*", requestStage: "Request" }],
+    });
+    return {
+      held: () => held.length,
+      release: async () => {
+        released = true;
+        await Promise.all(held.splice(0).map((requestId) => resume(requestId)));
+      },
+    };
+  }
   /** A trusted pointer click at the element's rendered centre. */
   async click(role: string, name?: string | RegExp) {
     await this.press(() => this.find(role, name));
   }
+  /**
+   * Presses the pointer down on the element and leaves it down, so a test can
+   * change the page between pointer down and up as a late response does.
+   */
+  async pressDown(role: string, name?: string | RegExp) {
+    const point = await this.settledPoint(() => this.find(role, name));
+    await this.send("Input.dispatchMouseEvent", {
+      type: "mouseMoved",
+      ...point,
+    });
+    await this.send("Input.dispatchMouseEvent", {
+      type: "mousePressed",
+      ...point,
+      button: "left",
+      clickCount: 1,
+    });
+    return {
+      point,
+      release: () =>
+        this.send("Input.dispatchMouseEvent", {
+          type: "mouseReleased",
+          ...point,
+          button: "left",
+          clickCount: 1,
+        }),
+    };
+  }
+  /** Rendered centre of the element, once layout has held still for a frame. */
+  async centreOf(role: string, name?: string | RegExp) {
+    const node = await this.find(role, name);
+    await this.frames();
+    return this.centre(node);
+  }
+  /** Two animation frames, bounded so a hidden panel cannot stall the test. */
+  private frames() {
+    return this.evaluate(
+      `new Promise((done) => { const t = setTimeout(done, 300); Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 250))]).then(() => requestAnimationFrame(() => requestAnimationFrame(() => { clearTimeout(t); done(0); }))); })`,
+    );
+  }
   async clickNode(node: number) {
     await this.press(() => Promise.resolve(node));
+  }
+  /**
+   * A choice primitive visually hides its input, so a user presses the visible
+   * label that wraps it; the input stays the node found by role and name.
+   */
+  async clickChoice(role: string, name?: string | RegExp) {
+    await this.press(async () => {
+      const { object } = await this.send<{ object: { objectId: string } }>(
+        "DOM.resolveNode",
+        { backendNodeId: await this.find(role, name) },
+      );
+      const { result } = await this.send<{ result: { objectId: string } }>(
+        "Runtime.callFunctionOn",
+        {
+          objectId: object.objectId,
+          functionDeclaration: "function () { return this.closest('label'); }",
+        },
+      );
+      const { node } = await this.send<{ node: { backendNodeId: number } }>(
+        "DOM.describeNode",
+        { objectId: result.objectId },
+      );
+      return node.backendNodeId;
+    });
   }
   /**
    * Playwright-style actionability before a trusted press. The panel lays out
@@ -237,17 +345,28 @@ export class Panel {
    * hits the node itself; the press is then sent exactly once.
    */
   private async press(resolve: () => Promise<number>) {
-    const { x, y } = await until(async () => {
+    const { x, y } = await this.settledPoint(resolve);
+    await this.send("Input.dispatchMouseEvent", { type: "mouseMoved", x, y });
+    for (const type of ["mousePressed", "mouseReleased"])
+      await this.send("Input.dispatchMouseEvent", {
+        type,
+        x,
+        y,
+        button: "left",
+        clickCount: 1,
+      });
+  }
+  private async settledPoint(resolve: () => Promise<number>) {
+    return until(async () => {
       const node = await resolve();
       await this.send("DOM.scrollIntoViewIfNeeded", { backendNodeId: node });
       const before = await this.centre(node);
       // A hidden panel never paints; the timeout keeps this bounded.
-      await this.evaluate(
-        `new Promise((done) => { const t = setTimeout(done, 300); requestAnimationFrame(() => requestAnimationFrame(() => { clearTimeout(t); done(0); })); })`,
-      );
+      await this.frames();
       const after = await this.centre(node);
-      if (!before || !after || before.x !== after.x || before.y !== after.y)
+      if (!before || !after || before.x !== after.x || before.y !== after.y) {
         return false;
+      }
       const hit = await this.call<boolean>(
         node,
         `function (x, y) {
@@ -258,15 +377,6 @@ export class Panel {
       );
       return hit && after;
     }, "The pointer target never held still where it can be clicked");
-    await this.send("Input.dispatchMouseEvent", { type: "mouseMoved", x, y });
-    for (const type of ["mousePressed", "mouseReleased"])
-      await this.send("Input.dispatchMouseEvent", {
-        type,
-        x,
-        y,
-        button: "left",
-        clickCount: 1,
-      });
   }
   /** Rendered centre of the node's first box, or undefined while it has none. */
   private async centre(node: number) {

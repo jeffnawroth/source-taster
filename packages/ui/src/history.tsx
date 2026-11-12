@@ -7,6 +7,13 @@ import {
 } from "@source-taster/contract-verification/client-v2";
 import type { Check } from "@source-taster/contract-verification/v2";
 import { ownerQuota, planStart } from "./quota.ts";
+import {
+  Button,
+  Modal,
+  Dialog,
+  DialogHeading,
+  type Availability,
+} from "./primitives/index.ts";
 import { QuotaChoice } from "./quota-panel.tsx";
 type Api = ReturnType<typeof verificationClient>;
 type HistoryData = Awaited<ReturnType<Api["getHistory"]>>;
@@ -94,10 +101,13 @@ export function HistoryPanel({
     }
   }
   const disabled = busy || pending;
+  const whileBusy: Availability = busy
+    ? { isDisabled: true, disabledReason: m.shell_busy() }
+    : { isDisabled: false };
   return (
     <section
       aria-labelledby={`${id}-heading`}
-      className="my-6 rounded-xl border border-slate-400 bg-white p-4"
+      className="my-6 rounded-xl border border-border-emphasis bg-surface p-4"
     >
       <h2 id={`${id}-heading`} className="text-xl font-semibold">
         {m.history_heading()}
@@ -105,38 +115,40 @@ export function HistoryPanel({
       <p>{m.history_policy()}</p>
       {error && <p role="alert">{m.history_unavailable()}</p>}
       <div className="my-3 flex flex-wrap gap-3">
-        <button
-          className="rounded border border-slate-500 px-3 py-2"
-          disabled={pending}
-          onClick={() =>
+        <Button
+          className="rounded border border-border-emphasis px-3 py-2"
+          isPending={pending}
+          onPress={() =>
             void run(async () => {
               setData(await api.getHistory());
             })
           }
         >
           {m.history_refresh()}
-        </button>
+        </Button>
         {data &&
           (data.enabled ? (
-            <button
-              className="rounded border border-slate-500 px-3 py-2"
-              disabled={disabled}
-              onClick={() => setChoice({ kind: "revoke" })}
+            <Button
+              className="rounded border border-border-emphasis px-3 py-2"
+              isPending={pending}
+              {...whileBusy}
+              onPress={() => setChoice({ kind: "revoke" })}
             >
               {m.history_revoke()}
-            </button>
+            </Button>
           ) : (
-            <button
-              className="rounded border border-slate-500 px-3 py-2"
-              disabled={disabled}
-              onClick={() =>
+            <Button
+              className="rounded border border-border-emphasis px-3 py-2"
+              isPending={pending}
+              {...whileBusy}
+              onPress={() =>
                 void run(async () => {
                   setData(await api.setHistory(true));
                 })
               }
             >
               {m.history_enable()}
-            </button>
+            </Button>
           ))}
       </div>
       {data?.enabled && (
@@ -147,7 +159,7 @@ export function HistoryPanel({
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="my-2 block w-full max-w-md rounded border border-slate-500 p-2"
+            className="my-2 block w-full max-w-md rounded border border-border-emphasis p-2"
           />
           {!data.entries.length && <p>{m.history_empty()}</p>}
           <ul className="space-y-4">
@@ -160,7 +172,7 @@ export function HistoryPanel({
               .map((entry) => (
                 <li
                   key={entry.id}
-                  className="rounded border border-slate-300 p-3"
+                  className="rounded border border-border-emphasis p-3"
                 >
                   {entry.label && <p>{entry.label}</p>}
                   <p>
@@ -178,7 +190,7 @@ export function HistoryPanel({
                   )}
                   <div className="flex flex-wrap gap-3">
                     <button
-                      className="rounded border border-slate-500 px-3 py-2"
+                      className="rounded border border-border-emphasis px-3 py-2"
                       disabled={disabled || entry.locked}
                       onClick={() =>
                         void run(async () => {
@@ -189,7 +201,7 @@ export function HistoryPanel({
                       {m.history_open()}
                     </button>
                     <button
-                      className="rounded border border-slate-500 px-3 py-2"
+                      className="rounded border border-border-emphasis px-3 py-2"
                       disabled={
                         disabled || entry.locked || entry.referenceCount === 0
                       }
@@ -201,7 +213,7 @@ export function HistoryPanel({
                       {m.history_restart()}
                     </button>
                     <button
-                      className="rounded border border-slate-500 px-3 py-2"
+                      className="rounded border border-border-emphasis px-3 py-2"
                       disabled={disabled}
                       onClick={() => setChoice({ kind: "delete", entry })}
                     >
@@ -214,52 +226,78 @@ export function HistoryPanel({
         </>
       )}
       {choice && (
-        <div
-          role="group"
-          aria-labelledby={`${id}-confirm`}
-          className="my-4 rounded border border-amber-600 p-3"
+        <Modal
+          isOpen
+          isDismissable={!pending}
+          isKeyboardDismissDisabled={pending}
+          onOpenChange={(open) => {
+            if (!open && !pending) setChoice(null);
+          }}
         >
-          <p id={`${id}-confirm`}>
-            {choice.kind === "restart"
-              ? m.history_billable({
-                  count: String(choice.entry.referenceCount),
-                })
-              : choice.kind === "revoke"
-                ? m.history_revoke_warning()
-                : m.history_delete_warning()}
-          </p>
-          <button
-            className="rounded border border-slate-500 px-3 py-2"
-            disabled={disabled}
-            onClick={() =>
-              void run(async () => {
-                if (choice.kind === "restart") await restart(choice.entry);
-                else if (choice.kind === "delete") {
-                  setData(await api.deleteHistory(choice.entry.id));
-                  onDelete(choice.entry.id);
-                  setChoice(null);
-                } else {
-                  setData(await api.setHistory(false));
-                  onDelete();
-                  setChoice(null);
-                }
-              })
-            }
-          >
-            {choice.kind === "restart"
-              ? m.history_restart_confirm()
-              : choice.kind === "revoke"
-                ? m.history_revoke_confirm()
-                : m.history_delete_confirm()}
-          </button>
-          <button
-            className="rounded border border-slate-500 px-3 py-2"
-            disabled={pending}
-            onClick={() => setChoice(null)}
-          >
-            {m.history_back()}
-          </button>
-        </div>
+          <Dialog role="alertdialog" aria-describedby={`${id}-confirm`}>
+            <DialogHeading>
+              {choice.kind === "restart"
+                ? m.history_restart()
+                : choice.kind === "revoke"
+                  ? m.history_revoke()
+                  : m.history_delete()}
+            </DialogHeading>
+            <p id={`${id}-confirm`}>
+              {choice.kind === "restart"
+                ? m.history_billable({
+                    count: String(choice.entry.referenceCount),
+                  })
+                : choice.kind === "revoke"
+                  ? m.history_revoke_warning()
+                  : m.history_delete_warning()}
+            </p>
+            {error && <p role="alert">{m.history_unavailable()}</p>}
+            <div className="st-actions">
+              <Button
+                autoFocus
+                {...(pending
+                  ? {
+                      isDisabled: true as const,
+                      disabledReason: m.shell_busy(),
+                    }
+                  : { isDisabled: false as const })}
+                onPress={() => setChoice(null)}
+              >
+                {m.history_back()}
+              </Button>
+              <Button
+                variant={choice.kind === "restart" ? "primary" : "danger"}
+                isPending={pending}
+                {...(disabled
+                  ? {
+                      isDisabled: true as const,
+                      disabledReason: m.shell_busy(),
+                    }
+                  : { isDisabled: false as const })}
+                onPress={() => {
+                  void run(async () => {
+                    if (choice.kind === "restart") await restart(choice.entry);
+                    else if (choice.kind === "delete") {
+                      setData(await api.deleteHistory(choice.entry.id));
+                      onDelete(choice.entry.id);
+                      setChoice(null);
+                    } else {
+                      setData(await api.setHistory(false));
+                      onDelete();
+                      setChoice(null);
+                    }
+                  });
+                }}
+              >
+                {choice.kind === "restart"
+                  ? m.history_restart_confirm()
+                  : choice.kind === "revoke"
+                    ? m.history_revoke_confirm()
+                    : m.history_delete_confirm()}
+              </Button>
+            </div>
+          </Dialog>
+        </Modal>
       )}
       {partial && (
         <QuotaChoice

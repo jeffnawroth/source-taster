@@ -33,16 +33,24 @@ for (const language of ["en", "de"] as const)
       );
       await panel.click(
         "button",
-        language === "en" ? "Check Reference" : "Referenz prüfen",
+        language === "en" ? "Check reference" : "Referenz prüfen",
       );
       await panel.waitForText(
-        "list",
+        "grid",
         language === "en" ? "References" : "Referenzen",
         language === "en" ? "Correct" : "Korrekt",
       );
       await panel.click(
         "button",
-        language === "en" ? /^Open Reference 1:/ : /^Referenz 1 öffnen:/,
+        language === "en" ? /^Open reference 1:/ : /^Referenz 1 öffnen:/,
+      );
+      // The Correction suggestion renders above the Edit fields row when its
+      // response arrives. A press measured before that lands on the suggestion
+      // text and never opens the editor, so the page settles first.
+      await panel.waitForText(
+        "region",
+        language === "en" ? "Reference detail" : "Referenzdetails",
+        language === "en" ? "Correction suggestion" : "Korrekturvorschlag",
       );
       await panel.click(
         "button",
@@ -76,7 +84,7 @@ for (const language of ["en", "de"] as const)
       await panel.click(
         "button",
         language === "en"
-          ? "Re-check this Reference"
+          ? "Re-check this reference"
           : "Diese Referenz erneut prüfen",
       );
       await panel.waitForText(
@@ -116,17 +124,19 @@ for (const language of ["en", "de"] as const)
       ).toBe(true);
       await panel.click(
         "button",
-        language === "en" ? "Back to References" : "Zurück zu Referenzen",
+        language === "en" ? "Back to references" : "Zurück zu Referenzen",
       );
       await panel.click(
         "button",
-        language === "en" ? "Edit Reference list" : "Referenzliste bearbeiten",
+        language === "en" ? "Edit reference list" : "Referenzliste bearbeiten",
       );
-      await panel.click("checkbox", /^1\. Measured measurment/);
+      // The membership row is a choice primitive: its input is visually hidden,
+      // so a person presses the label that wraps it.
+      await panel.clickChoice("checkbox", /^1\. Measured measurment/);
       await panel.fill(
         "textbox",
         language === "en"
-          ? "Original input for the new Reference"
+          ? "Original input for the new reference"
           : "Originaleingabe für die neue Referenz",
         "A manually added Reference",
       );
@@ -151,8 +161,8 @@ for (const language of ["en", "de"] as const)
         ),
       ).toContain(
         language === "en"
-          ? "Additional Quota on first Verdicts: 1."
-          : "Zusätzliches Kontingent bei ersten Urteilen: 1.",
+          ? "Additional quota on first verdicts: 1."
+          : "Zusätzliches Kontingent bei ersten Befunden: 1.",
       );
       expect(await panel.axe()).toEqual([]);
       await panel.click(
@@ -162,11 +172,80 @@ for (const language of ["en", "de"] as const)
       await panel.find(
         "button",
         language === "en"
-          ? /^Open Reference 2: New slot/
+          ? /^Open reference 2: New slot/
           : /^Referenz 2 öffnen: New slot/,
       );
       const stored = await browser.storage();
       expect(JSON.stringify(stored)).not.toContain("Measured measurment");
+    } finally {
+      await browser.close();
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+// The Correction suggestion for the selected Reference is requested as soon as
+// the results show, and it renders above the Edit fields row whenever its
+// response arrives. A response that settles between a press and its release
+// would move the pressed button away and lose the press, so the panel waits
+// for the release. The test holds the response, presses down, lets the
+// response arrive, and checks that the button did not move before the pointer
+// goes up.
+for (const language of ["en", "de"] as const)
+  test(`native Edit fields press survives a late suggestion in ${language}`, async () => {
+    const en = language === "en";
+    const directory = await mkdtemp(join(tmpdir(), "st220-panel-"));
+    const browser = await launchChromium(
+      build.outDir,
+      directory,
+      en ? "en-GB" : "de-DE",
+    );
+    try {
+      const panel = await browser.openPanel();
+      await panel.select("combobox", /^(Language|Sprache)$/, language);
+      await panel.fill(
+        "textbox",
+        en ? "Reference" : "Referenz",
+        "Aspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170",
+      );
+      const suggestion = await panel.holdRequests(/\/bibliography$/);
+      await panel.click("button", en ? "Check reference" : "Referenz prüfen");
+      await panel.waitForText(
+        "grid",
+        en ? "References" : "Referenzen",
+        en ? "Correct" : "Korrekt",
+      );
+      await until(
+        () => suggestion.held() > 0,
+        "The suggestion request was never sent",
+      );
+      await panel.click(
+        "button",
+        en ? /^Open reference 1:/ : /^Referenz 1 öffnen:/,
+      );
+      const edit = en ? "Edit fields" : "Felder bearbeiten";
+      const press = await panel.pressDown("button", edit);
+      await suggestion.release();
+      await until(
+        () =>
+          panel.evaluate<boolean>(
+            `performance.getEntriesByType("resource").some((e) => e.name.endsWith("/bibliography") && e.responseEnd > 0)`,
+          ),
+        "The suggestion response never arrived",
+      );
+      // The response is complete; give the page ample frames to render it.
+      await panel.evaluate(
+        `(async () => { for (let i = 0; i < 30; i++) await new Promise((r) => requestAnimationFrame(r)); })()`,
+      );
+      const centre = await panel.centreOf("button", edit);
+      expect(centre?.y).toBeCloseTo(press.point.y, 0);
+      await press.release();
+      // The press reached the button, and the suggestion renders afterwards.
+      await panel.find("textbox", en ? "Title" : "Titel");
+      await panel.waitForText(
+        "region",
+        en ? "Reference detail" : "Referenzdetails",
+        en ? "Correction suggestion" : "Korrekturvorschlag",
+      );
     } finally {
       await browser.close();
       await rm(directory, { recursive: true, force: true });

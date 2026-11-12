@@ -159,7 +159,7 @@ export function ReportDownload({
   return (
     <section
       aria-label={m.report_ui_heading()}
-      className="my-4 space-y-3 rounded border border-slate-300 p-4"
+      className="my-4 space-y-3 rounded border border-border-emphasis p-4"
     >
       <h3 className="font-semibold">{m.report_ui_heading()}</h3>
       {!entitled ? (
@@ -175,7 +175,7 @@ export function ReportDownload({
             <label className="flex flex-col gap-1">
               {m.report_ui_language()}
               <select
-                className="rounded border border-slate-500 bg-white p-2"
+                className="rounded border border-border-emphasis bg-surface p-2"
                 value={language}
                 onChange={(event) =>
                   setLanguage(event.target.value === "de" ? "de" : "en")
@@ -188,7 +188,7 @@ export function ReportDownload({
             <label className="flex flex-col gap-1">
               {m.report_ui_document()}
               <input
-                className="rounded border border-slate-500 bg-white p-2"
+                className="rounded border border-border-emphasis bg-surface p-2"
                 value={documentName}
                 maxLength={200}
                 onChange={(event) => setDocumentName(event.target.value)}
@@ -198,7 +198,7 @@ export function ReportDownload({
           <div className="flex flex-wrap gap-3">
             <button
               type="button"
-              className="rounded-lg border border-slate-600 px-4 py-2 font-semibold disabled:bg-slate-100 disabled:text-slate-500"
+              className="rounded-lg border border-border-emphasis px-4 py-2 font-semibold disabled:bg-surface-sunken disabled:text-text-secondary"
               disabled={phase.kind === "working"}
               onClick={() => void create()}
             >
@@ -207,7 +207,7 @@ export function ReportDownload({
             {phase.kind === "working" && (
               <button
                 type="button"
-                className="rounded-lg border border-slate-600 px-4 py-2 font-semibold"
+                className="rounded-lg border border-border-emphasis px-4 py-2 font-semibold"
                 onClick={() => void cancel()}
               >
                 {m.report_ui_cancel()}
@@ -216,7 +216,7 @@ export function ReportDownload({
             {phase.kind === "ready" && (
               <button
                 type="button"
-                className="rounded-lg border border-slate-600 px-4 py-2 font-semibold"
+                className="rounded-lg border border-border-emphasis px-4 py-2 font-semibold"
                 onClick={() => void download()}
               >
                 {m.report_ui_download()}

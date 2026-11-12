@@ -24,13 +24,13 @@ test("copies a Correction suggestion and applies it only to the formatted export
       "Aspelmeyer, M. (2008). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170\nAspelmeyer, M. (2007). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170",
     );
   await page
-    .getByRole("button", { name: "Check Reference", exact: true })
+    .getByRole("button", { name: "Check reference", exact: true })
     .click();
   const suggestion = page.getByRole("region", {
     name: "Correction suggestion",
     exact: true,
   });
-  await expect(suggestion).toContainText("Aspelmeyer, M. (2009).", {
+  await expect(suggestion.locator("ins").first()).toContainText("(2009).", {
     timeout: 15000,
   });
   await suggestion
@@ -41,18 +41,14 @@ test("copies a Correction suggestion and applies it only to the formatted export
     expect(await page.evaluate(() => navigator.clipboard.readText())).toContain(
       "Aspelmeyer, M. (2009).",
     );
-  await suggestion
-    .getByRole("checkbox", { name: "Apply for export only" })
-    .check();
+  await suggestion.getByText("Apply for export only", { exact: true }).click();
   await expect(suggestion.getByRole("checkbox")).toBeChecked();
   await page
-    .getByRole("list", { name: "References", exact: true })
+    .getByRole("grid", { name: "References", exact: true })
     .getByRole("button")
     .nth(1)
     .click();
-  await suggestion
-    .getByRole("checkbox", { name: "Apply for export only" })
-    .check();
+  await suggestion.getByText("Apply for export only", { exact: true }).click();
   const exportPreview = page.getByRole("region", {
     name: "Formatted bibliography",
     exact: true,
@@ -104,7 +100,7 @@ for (const language of ["en", "de"] as const)
       );
     await page
       .getByRole("button", {
-        name: language === "en" ? "Check Reference" : "Referenz prüfen",
+        name: language === "en" ? "Check reference" : "Referenz prüfen",
         exact: true,
       })
       .click();
@@ -112,7 +108,8 @@ for (const language of ["en", "de"] as const)
       name: language === "en" ? "Correction suggestion" : "Korrekturvorschlag",
       exact: true,
     });
-    await expect(suggestion).toContainText("Aspelmeyer, M. (2009).", {
+    // The reference is correct; the proven record only adds the issue.
+    await expect(suggestion.locator("ins").first()).toContainText("5(1),", {
       timeout: 15000,
     });
     await page
@@ -124,22 +121,37 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .selectOption("ieee");
-    await expect(suggestion).toContainText("M. Aspelmeyer");
-    await expect(suggestion).not.toContainText("[1]");
-    const formatted = await suggestion.locator("p").first().textContent();
+    // The tracked change previews the IEEE rendering; its kept and
+    // inserted parts, without the localised labels, read as the suggestion.
+    const proposed = (region: typeof suggestion) =>
+      region
+        .locator("p")
+        .first()
+        .evaluate((element) => {
+          const clone = element.cloneNode(true) as HTMLElement;
+          for (const node of clone.querySelectorAll("del, .sr-only"))
+            node.remove();
+          return clone.textContent;
+        });
+    await expect.poll(() => proposed(suggestion)).toContain("M. Aspelmeyer");
+    const formatted = await proposed(suggestion);
+    expect(formatted).not.toContain("[1]");
     await page
       .getByRole("combobox", { name: /^(Language|Sprache)$/u })
       .selectOption(language === "en" ? "de" : "en");
-    await expect(
-      page
-        .getByRole("region", {
-          name:
-            language === "en" ? "Korrekturvorschlag" : "Correction suggestion",
-          exact: true,
-        })
-        .locator("p")
-        .first(),
-    ).toHaveText(formatted!);
+    await expect
+      .poll(() =>
+        proposed(
+          page.getByRole("region", {
+            name:
+              language === "en"
+                ? "Korrekturvorschlag"
+                : "Correction suggestion",
+            exact: true,
+          }),
+        ),
+      )
+      .toBe(formatted);
     await page
       .getByRole("button", {
         name:

@@ -67,19 +67,19 @@ for (const language of ["en", "de"] as const)
     const page = await context.newPage();
     try {
       await page.goto(url);
-      await expect(
-        page.getByText(
-          language === "de"
-            ? "Gast-Prüfungen und Gast-Kontingent werden bei der Registrierung nicht übertragen."
-            : "Guest Checks and Guest Quota are not transferred when you register.",
-        ),
-      ).toBeVisible();
       await page
         .getByRole("button", {
           name: language === "de" ? "Anmelden" : "Sign in",
           exact: true,
         })
         .click();
+      await expect(
+        page.getByText(
+          language === "de"
+            ? "Gast-Prüfungen und Gast-Kontingent werden bei der Registrierung nicht übertragen."
+            : "Guest checks and guest quota are not transferred when you register.",
+        ),
+      ).toBeVisible();
       await page
         .getByLabel(language === "de" ? "E-Mail-Adresse" : "Email address", {
           exact: true,
@@ -106,10 +106,26 @@ for (const language of ["en", "de"] as const)
       await page.getByLabel(label).fill(code);
       await page.getByLabel(label).press("Enter");
       await expect(
-        page.getByText(
-          `browser-${language}-${testInfo.repeatEachIndex}@example.invalid`,
-          { exact: true },
-        ),
+        page.getByRole("button", {
+          name: language === "de" ? "Verlauf" : "History",
+          exact: true,
+        }),
+      ).toBeVisible();
+      await page
+        .getByRole("button", {
+          name: language === "de" ? /^Konto:/ : /^Account:/,
+        })
+        .click();
+      await expect(
+        page
+          .getByRole("dialog", {
+            name: language === "de" ? "Konto" : "Account",
+            exact: true,
+          })
+          .getByText(
+            `browser-${language}-${testInfo.repeatEachIndex}@example.invalid`,
+            { exact: true },
+          ),
       ).toBeVisible();
       const states = await context.storageState();
       expect(JSON.stringify(states.origins)).not.toMatch(
@@ -119,12 +135,23 @@ for (const language of ["en", "de"] as const)
         states.cookies.find((c) => c.name === "__Host-st-session"),
       ).toMatchObject({ secure: true, httpOnly: true, sameSite: "Strict" });
       await page.reload();
+      await page
+        .getByRole("button", {
+          name: language === "de" ? /^Konto:/ : /^Account:/,
+        })
+        .click();
       await expect(
-        page.getByText(
-          `browser-${language}-${testInfo.repeatEachIndex}@example.invalid`,
-          { exact: true },
-        ),
+        page
+          .getByRole("dialog", {
+            name: language === "de" ? "Konto" : "Account",
+            exact: true,
+          })
+          .getByText(
+            `browser-${language}-${testInfo.repeatEachIndex}@example.invalid`,
+            { exact: true },
+          ),
       ).toBeVisible();
+      await page.keyboard.press("Escape");
       const tokens: string[] = [];
       page.on("request", (request) => {
         const value = request.headers()["authorization"];
@@ -133,7 +160,7 @@ for (const language of ["en", "de"] as const)
       await page.locator("textarea").fill(physicsReference);
       await page
         .getByRole("button", {
-          name: language === "de" ? "Referenz prüfen" : "Check Reference",
+          name: language === "de" ? "Referenz prüfen" : "Check reference",
           exact: true,
         })
         .click();
@@ -157,8 +184,24 @@ for (const language of ["en", "de"] as const)
       ).toEqual([]);
       await page
         .getByRole("button", {
+          name: language === "de" ? /^Konto:/ : /^Account:/,
+        })
+        .click();
+      await page
+        .getByRole("button", {
           name: language === "de" ? "Überall abmelden" : "Sign out everywhere",
           exact: true,
+        })
+        .click();
+      await expect(
+        page.getByRole("button", {
+          name: language === "de" ? "Verlauf" : "History",
+          exact: true,
+        }),
+      ).toHaveCount(0);
+      await page
+        .getByRole("button", {
+          name: language === "de" ? /^Konto:/ : /^Account:/,
         })
         .click();
       await expect(
