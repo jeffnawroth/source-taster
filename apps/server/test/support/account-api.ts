@@ -156,44 +156,40 @@ export async function startAccountApi(
     const message = `${b64({ alg: "EdDSA", typ, kid })}.${b64(claims)}`;
     return `${message}.${sign(null, Buffer.from(message), key).toString("base64url")}`;
   };
+  /** An access token: the shared timing, issuer and audience, plus what differs per purpose. */
+  const accessToken = (
+    purpose: "account-access" | "guest-access",
+    identity: Record<string, unknown>,
+  ) =>
+    signed(
+      {
+        iat: Math.floor(now / 1000),
+        nbf: Math.floor(now / 1000),
+        exp: Math.floor(now / 1000) + 300,
+        iss: issuer,
+        aud: audience,
+        purpose,
+        ...identity,
+        jti: randomUUID(),
+      },
+      "at+jwt",
+      access.privateKey,
+      "st102-access",
+    );
   const tokenFor = (account: AccountIdentity) =>
-    signed(
-      {
-        iat: Math.floor(now / 1000),
-        nbf: Math.floor(now / 1000),
-        exp: Math.floor(now / 1000) + 300,
-        iss: issuer,
-        aud: audience,
-        purpose: "account-access",
-        sub: account.accountId,
-        ownerId: account.ownerId,
-        sessionId: account.sessionId,
-        jti: randomUUID(),
-      },
-      "at+jwt",
-      access.privateKey,
-      "st102-access",
-    );
+    accessToken("account-access", {
+      sub: account.accountId,
+      ownerId: account.ownerId,
+      sessionId: account.sessionId,
+    });
   const guestTokenFor = (guest: GuestIdentity) =>
-    signed(
-      {
-        iat: Math.floor(now / 1000),
-        nbf: Math.floor(now / 1000),
-        exp: Math.floor(now / 1000) + 300,
-        iss: issuer,
-        aud: audience,
-        purpose: "guest-access",
-        sub: guest.sub,
-        ownerId: guest.ownerId,
-        guestContextId: guest.guestContextId,
-        guestId: guest.guestId,
-        client: guest.client ?? "web",
-        jti: randomUUID(),
-      },
-      "at+jwt",
-      access.privateKey,
-      "st102-access",
-    );
+    accessToken("guest-access", {
+      sub: guest.sub,
+      ownerId: guest.ownerId,
+      guestContextId: guest.guestContextId,
+      guestId: guest.guestId,
+      client: guest.client ?? "web",
+    });
   const service: Server = createServer((req, res) => {
     void (async () => {
       let text = "";
