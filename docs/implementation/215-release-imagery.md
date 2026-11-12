@@ -47,6 +47,24 @@ bought, and no rating, metric, price or certification appears in any image.
 The store story is workspace → overview → evidence. All files are opaque
 8-bit RGB PNG.
 
+### Development-preview notice on every image
+
+The product's own notice (`skeleton_notice` in `packages/i18n/messages/*.json`,
+read by `productNotice(locale)` in `src/copy.ts`, never retyped) is composed
+verbatim, in the image's language, below the copy of every store screenshot
+and every social preview. A single panel capture cannot show the notice (it
+sits at the top of the workspace) and a scrolled detail at once, so the
+overview and evidence images carry it as composed text rather than as part of
+the capture. The manifest records it per image in `devPreviewNotice`
+(`carried`, `locale`, `text`); `manifestProblems` fails when the text differs
+from the product's own string.
+
+The two promo tiles do not carry it. The recorded reason (also in the
+manifest): "mark and name only: the tile pictures and states no product
+behaviour, the Chrome Web Store advises against text in promo tiles, and the
+four-sentence notice cannot be read at 440×280". The check requires a
+non-empty reason for every promo tile.
+
 ## Requirements versus recommendations
 
 Re-checked on 12 November 2026 from primary sources. Requirements and
@@ -84,7 +102,7 @@ alt text in both languages in `manifest.json`.
 | --------------------- | ---------------------------------------------------------------------------------------------------- |
 | `*-1-workspace`       | A capture of the Source Taster side panel with three pasted References in the input field …          |
 | `*-2-overview`        | The Source Taster summary with one count for each Verdict … Correct, Exists, with deviations and DOI conflict … |
-| `*-3-evidence`        | The detail of one Reference. It starts with the Verdict Exists, with deviations …                    |
+| `*-3-evidence`        | The detail of one reference, scrolled to its end. The last rows of the comparison with the best match are followed by the opened disclosure Explanation and source evidence … |
 | `social-en`           | Source Taster. Check References against sources. …                                                   |
 
 ## Claim evidence
@@ -104,6 +122,14 @@ notice says so, and the workspace capture keeps that notice in view.
 | `best-match-comparison`    | 82-check-workspace.md       | `apps/web/e2e/workspace.spec.ts`   | compares Reference and server Best match side by side                             |
 | `detail-leads-with-verdict`| 212-reference-detail.md     | `apps/web/e2e/reference-detail.spec.ts` | detail leads with the effective Verdict in the documented section order      |
 | `german-and-english`       | 92-extension-skeleton.md    | `apps/extension/e2e/panel.spec.ts` | native panel and web keep identical server outcomes for the synthetic witnesses in … |
+| `source-evidence-disclosure` | 74-doi-tracer.md          | `apps/web/e2e/doi.spec.ts`         | shows the DOI Verdict with icon, text, field values and evidence in … |
+
+The evidence story pictures the opened disclosure "Explanation and source
+evidence" with the sources asked and the candidates they returned, not the
+verdict (the overview image shows that). The capture fails closed unless the
+disclosure is open, a candidate line is inside the viewport and neither is
+covered by a sticky layer of the panel (`stickyOverlap`). The overview capture
+runs the same overlap check for its first reference.
 
 Deliberately not pictured: a Correction suggestion (the evidence capture does
 not show one) and local apply. Both claims were removed.
@@ -151,7 +177,7 @@ says a page that specifies `og:image` should specify `og:image:alt`.
 - `test/copy.test.ts`: exact Verdict labels with the comma; no exclamation
   mark; alt text for every image; every claim of an image exists.
 - `test/manifest.test.ts`: the builder lists the image set with claims, alt
-  text and provenance; a final manifest needs an open gate and
+  text, the per-image notice record and provenance; a final manifest needs an open gate and
   `releaseQualified: false`.
 - `test/exports.test.ts` (no red run while no `exports/` existed; it was
   checked afterwards by changing one recorded hash in `exports/manifest.json`,
@@ -165,7 +191,7 @@ Run on 12 November 2026 on macOS (aarch64):
 
 | Check                                                      | Result                  |
 | ---------------------------------------------------------- | ----------------------- |
-| `pnpm --filter @source-taster/release-imagery test`        | 22 / 22 passed          |
+| `pnpm --filter @source-taster/release-imagery test`        | 27 / 27 passed          |
 | `node scripts/run.ts --final` (ports 7192 / 7174)          | exit 0; 16 images, manifest valid |
 | `pnpm --filter @source-taster/release-imagery typecheck`   | passed                  |
 | `pnpm --filter @source-taster/release-imagery lint`        | passed                  |
@@ -197,5 +223,9 @@ Run on 12 November 2026 on macOS (aarch64):
 - **Promo tiles** show the mark and name only; the composition is a design
   review item.
 - **Stable metadata URLs** wait for the domain and the website wiring.
-- The sticky header and tab bar of the panel partly overlap the scrolled
-  content in the overview and evidence captures, as in the real product.
+- The panel's sticky top bar still overlays content that scrolls underneath
+  it, as in the real product; the captures are scrolled so the pictured
+  content itself is clear of every sticky layer (checked, fail-closed).
+- **Claims `qualified: null`** stay `null` for every claim until a release
+  qualification covers the pictured behaviour; `releaseQualified` stays
+  `false` in the manifest and in the validator.

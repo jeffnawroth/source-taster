@@ -135,6 +135,35 @@ otherwise revert.
 - **Manual judgment selection** (the chosen radio before Save) stays local to
   the mounted detail; it is one click to restore and no text is lost.
 
+## Review follow-up (review of `ceb4161...03502f1`)
+
+Fixed on `fix/220-review`.
+
+- **Unsaved-draft marker in the feed.** A row whose slot has a dirty draft
+  shows "Unsaved draft" / "Entwurf nicht gespeichert" as text with an icon and
+  adds the same phrase to the row's accessible name, so the state is not
+  colour-only and a person who navigated away can find the draft again.
+  Covered in EN and DE by "a feed row with an unsaved draft says so in text and
+  in its accessible name"; it was red until the message and the row existed.
+- **Sticky verdict header no longer hides a focused or scrolled-to control.**
+  The two-pane detail scrolls under its sticky glass header. The header's
+  height is now measured (`--detail-header-height`, via `useStickySize`) and
+  `scroll-padding-block-start` on `.check-detail` is that height plus 12 px,
+  so `scrollIntoView` and focus scrolling leave the control clear of the
+  header. Covered by "a control scrolled into view from under the sticky
+  verdict header ends up clear of it": red with a 23 px overlap, and a first
+  formula (`height - 16 + 12`) still left 4 px, so the measured full height is
+  used. A first test that walked focus with Shift+Tab passed without any fix
+  and was replaced.
+- **A lost press was not exactly reproduced.** The review's report of a press
+  lost under the sticky header could not be reproduced as such; the overlap
+  above is the observable defect, and it is fixed and covered.
+- **TrackedChange stays against the original.** Diffing against the current
+  formatted citation would need a per-entry rendering in the committed style on
+  the client, which the contract does not carry, and `components.md` §3.6 says
+  "against the original". Left as documented above; changing it is a contract
+  change, not a review fix.
+
 ## Public seams and red/green evidence
 
 Real Web and native-panel journeys run over the existing verification API, the
