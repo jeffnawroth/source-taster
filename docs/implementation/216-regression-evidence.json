@@ -47,6 +47,10 @@
       "SOURCE_TASTER_E2E_API_PORT": "7192",
       "SOURCE_TASTER_TEST_API_PORT": "7650",
       "SOURCE_TASTER_TEST_SERVICE_PORT": "7651",
+      "SOURCE_TASTER_DOCUMENT_IMAGE": "id of the locally built document image, as in docs/implementation/211-checking-shell.md",
+      "SOURCE_TASTER_REGRESSION_WEB_PORT": "7474",
+      "SOURCE_TASTER_WEBSITE_E2E_PORT": "7670",
+      "perSuitePorts": "web default 7174/7192, bibliographic 7274/7292, report 7374/7392, shell 7574/7592, extension panel 7774/7792, selection 7874/7892, report 7974/7992",
       "DATABASE_ADMIN_URL": "postgres://postgres:postgres@localhost:5433/postgres",
       "DATABASE_TEST_URL": "postgres://verification_test:fixture@localhost:5433/owned"
     },

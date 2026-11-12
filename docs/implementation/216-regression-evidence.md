@@ -198,9 +198,11 @@ Automated Chromium cannot show these. They stay open and belong to #217.
 
 ## 7. Reproducing the evidence
 
-Run from the repository root on a clean tree. Pick free ports in 8100-8299;
-other agents may run Playwright at the same time. The values below are the ones
-used for the recorded run.
+Run from the repository root on a clean tree. Pick free ports; other
+agents may run Playwright at the same time. The values below are examples. The
+recorded run used 7174/7192 (web default), 7274/7292 (bibliographic), 7374/7392
+(report), 7474 (hosted regression), 7574/7592 (shell), 7670 (website), 7650/7651
+(test API and service) and 7774/7792, 7874/7892, 7974/7992 (extension suites).
 
 ```sh
 pnpm install --frozen-lockfile
@@ -232,12 +234,11 @@ rendered spec was also run against a Linux Chromium served by the Playwright
 image of the same version:
 
 ```sh
-docker run -d --name pw-linux -p 9333:9333 --init mcr.microsoft.com/playwright:v1.64.1-noble \
-  npx -y playwright@1.64.1 run-server --port 9333 --host 0.0.0.0
-# a throw-away config that spreads apps/web/playwright.config.ts and adds
+# In the image, run `playwright run-server` on port 9333 and publish that port
+# to the host. (The exact docker invocation of the recorded run was not kept.)
+# A throw-away config spreads apps/web/playwright.config.ts and adds
 #   use.connectOptions = { wsEndpoint: "ws://127.0.0.1:9333/", exposeNetwork: "<loopback>" }
 (cd apps/web && pnpm exec playwright test --config <that config> e2e/regression-rendered.spec.ts)
-docker rm -f pw-linux
 ```
 
 The image is aarch64 on the author's machine; CI is x86_64, so this checks the
