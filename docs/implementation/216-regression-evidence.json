@@ -115,9 +115,18 @@
       "rates": { "fullRun": "1 failed", "repeat": "12 of 12 passed" }
     },
     {
-      "test": "apps/web/e2e/regression-rendered.spec.ts: negative control: the detail header measurement rejects faint text and a faint glyph (Linux)",
+      "test": "apps/web/e2e/regression-rendered.spec.ts: negative control: the detail header measurement rejects faint text and a faint glyph (Linux container)",
       "failure": "one cold-start failure, message not captured",
-      "rates": { "repeat": ["25 of 25 passed", "16 of 16 passed"] }
+      "rates": { "repeat": ["25 of 25 passed", "16 of 16 passed"] },
+      "resolved": {
+        "commit": "84ede55",
+        "cause": "the e2e service's 1.5 s client lease, renewed every 500 ms, lapsed when a renewal was answered in about 0.8 s under load, so the Check ended Cancelled and the header had no verdict badge; reproduced on macOS under CPU stress (1 of 15), the original Linux cold-start message was never captured",
+        "fix": "e2eClientLeaseMs = 6000 in apps/server/test/support/e2e-lease.ts, shared by e2e-serve.ts and the lifecycle test that waits for a lapse",
+        "evidence": {
+          "fixed": "lifecycle.spec.ts a Check keeps running while every lease renewal is answered slowly: 10 of 10 passed; this test under CPU stress: 15 of 15 passed",
+          "pristine": "the same lifecycle test: 5 of 5 failed; this test under CPU stress: 1 of 15 failed"
+        }
+      }
     }
   ],
   "limits": [

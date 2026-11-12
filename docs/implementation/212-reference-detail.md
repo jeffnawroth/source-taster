@@ -410,11 +410,29 @@ only (3 of 3) and `.check-list { overflow-anchor: none }` fails the list test
 only (3 of 3). Both pass on the fix.
 
 **Linux CI flake "compares Reference and server Best match side by side at
-narrow zoom in de".** Not explained by this mechanism and not changed. The
-failing step clicks a feed row (no detail is open yet, so there is no detail
-scroller or insertion), and the test did not reproduce: 30 of 30 passed on the
-pristine product and 30 of 30 on the fix (`--repeat-each 30`, macOS). It stays
-open as a possible lost row click on Linux.
+narrow zoom in de" (#220).** An earlier version of this section said no detail
+is open when the test clicks the feed row, so the "Back press lost" mechanism
+could not apply. That was wrong: a single Reference opens its detail on its own
+at two-pane widths, and the comparison table is already visible before the test
+resizes to 320 px. The cause is the one above, on the feed: the failing CI trace
+(attempt 1 of run 43195612637, on `53a08db`) shows the suggestion rendering
+(`POST /v2/checks/:id/bibliography`) issued at 4674 ms and answered at about
+5138 ms, the click landing at 5141 ms, and the row about 33 px higher in the
+frame than where Playwright had judged it stable. The "Formatted bibliography"
+panel sits above the feed on a narrow viewport and showed "Formatting…" with its
+disabled reasons while that response was pending, then shrank when it arrived.
+`ae017fc` made the panel stop waiting for the rendering when no correction is
+applied, which removes the reflow for this journey.
+
+The new test "a narrow feed row stays under the pointer while the completed
+Reference's suggestion renders" holds the suggestion response, scrolls the row
+low in a 320 px viewport, presses on it, releases the response, and checks that
+the row's centre has not moved before releasing the press.
+
+- Pristine product (`correction-suggestions.tsx` as of `ae017fc^`): 6 of 6 red
+  (the row moved 43.5 px).
+- Fix: 20 of 20 green with `--repeat-each 20`; the original flaky test passes 20
+  of 20 (`--repeat-each 10`, en and de).
 
 **Validation** (macOS arm64, `--project chromium`): typecheck, lint,
 `pnpm i18n:check` clean; full web suite 172 of 172 (includes
@@ -467,11 +485,10 @@ unchanged centre, and the whole-box comparison failed on that.
 
 ## Open
 
-- With a correction applied, opening another Reference still reflows the
-  formatted bibliography panel while the suggestion renders (see "Back press
-  lost" above). The Linux flake "compares Reference and server Best match side
-  by side at narrow zoom in de" also clicks a narrow feed row below that panel
-  and may share this cause. This was not verified.
+- With a correction applied, opening another Reference, or pressing a feed row,
+  still reflows the formatted bibliography panel while the suggestion renders
+  (see "Back press lost" above and the narrow-zoom flake). The fix removes the
+  reflow only while nothing is applied.
 - Before the review follow-up, one native `manual-overrides` (EN) run failed
   once: the Manual verdict combobox (now a RadioGroup) never appeared after
   "Judge manually". It did not recur in the follow-up's runs. The UI code was identical to
@@ -482,10 +499,23 @@ unchanged centre, and the whole-box comparison failed on that.
   Discard → Edit fields focus handling remains. `.check-list` also scrolls; whether
   it holds absolutely positioned hidden content was not checked, and it would
   need the same containing block if it does.
-- Under the same full-core CPU stress a Check occasionally ends "Cancelled" (or
-  stays "Running") before any verdict appears. It is a separate, stress-only
-  outcome unrelated to this fix, seen once in 60 and once in 40 stressed runs,
-  and was not investigated; it could still appear in CI.
+- A Check could end "Cancelled" before any verdict (#220). Cause: the e2e
+  service granted a 1.5 s client lease, renewed every 500 ms, while a renewal
+  answered in 0.8 s on a loaded machine (seen in a trace: 759 and 802 ms). The
+  harness shrinks the lease 50-fold against production's 75 s, but request
+  latency does not shrink, so a late renewal let the lease lapse. The lease is
+  now `e2eClientLeaseMs` (6 s, renewed every 2 s), shared by `e2e-serve.ts` and
+  the one test that waits for a lapse. "a Check keeps running while every lease
+  renewal is answered slowly" holds each renewal for 1.1 s at the route: 5 of 5
+  red at 1.5 s, 10 of 10 green at 6 s.
+- A failed lease renewal still ends the workspace's connection for good. In a
+  local trace one renewal returned 500 (the shared test Postgres was at its
+  connection limit, error `53300`); the client stopped renewing, aborted the
+  event stream and showed the alert, and the feed stayed "Running · Waiting to
+  start" while the server would have let the Check lapse. This was seen once,
+  with an overloaded shared database, not under CPU stress alone. Whether one
+  failed renewal should be fatal, and whether the feed may stay at Running
+  after the workspace gives up, are product decisions and are not changed here.
 - The integrated state regression (`regression.playwright.config.ts`) needs the
   owned PostgreSQL on port 5433 and was not run locally; the rest of the web
   suite ran on the merged head. All local runs are macOS arm64; the Linux CI

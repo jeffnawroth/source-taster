@@ -290,9 +290,22 @@ Not runnable here: the guest contract test, which needs
   30 of 30 afterwards) is of the same class. A common cause is not proven.
 
 **Linux control.** `negative control: the detail header measurement rejects
-faint text and a faint glyph` failed once on the Linux Chromium in one cold
-start and passed 25 of 25 and 16 of 16 on repeats; the message of the single
-failure was not captured, so the cause is unknown.
+faint text and a faint glyph` failed once on a Linux Chromium (an aarch64
+container, run locally, not CI) in one cold start and passed 25 of 25 and 16 of
+16 on repeats; the message of that failure was not captured.
+
+**Resolved in #220, as a likely cause, not a proven one.** The failure was
+reproduced on macOS under full-core CPU stress (1 of 15 runs): the test timed
+out waiting for `.verdict-badge > span`, and the page showed the Check
+"Cancelled" with "The connection was not renewed in time". The e2e service's
+1.5 s client lease had lapsed, because lease renewals were answered in 0.8 s
+(759 and 802 ms in the trace) against a 500 ms renewal interval. Without a
+running reference there is no verdict badge to measure. That the original Linux
+cold-start failure had the same cause is consistent with this and was never
+confirmed. The lease is now 6 s (`e2eClientLeaseMs`); evidence is in
+`212-reference-detail.md` ("Open"): 5 of 5 red at 1.5 s and 10 of 10 green at
+6 s with each renewal held for 1.1 s, and this test 15 of 15 under the same
+stress at 6 s.
 
 ## 9. Limits of this evidence
 
