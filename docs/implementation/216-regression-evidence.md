@@ -326,6 +326,16 @@ job. The test now edits a temporary copy of the review inputs and passes
 `--root` to `publication-check.ts`; it first asserts that the copy has the same
 digest as the checkout, so a missing input cannot pass silently.
 
+**WebKit modal exit, tracked in #228.** In CI run 43255724083 (`e8b8323`) the
+WebKit run of `packages/ui/test/primitives.spec.ts` "modal and sheet trap
+focus, Escape returns it, destructive confirmation starts safely" failed. After
+Escape the dialog had `data-exiting` and still had it 5 s later. Escape came
+about 460 ms into the 500 ms entry transition. The likely mechanism is that
+react-aria's exit wait swallows a cancelled animation's rejected `finished`
+promise. This was not reproduced locally: 30 of 30 runs, 30 of 30 under
+full-core CPU stress, and 62 targeted runs that pressed Escape during entry,
+with and without the tooltip open.
+
 ## 9. Limits of this evidence
 
 - Chromium only. Pixel measurements depend on the engine's text rendering. They
