@@ -319,7 +319,7 @@ All fields share one anatomy through **Form, Label, Description and FieldError**
 5. **EvidenceTrail** — the EvidenceTrack for this result inside a Disclosure, collapsed by default once finished.
 6. **TrackedChange** and **CorrectionActions** — see 3.6.
 7. **FieldEditor** — the editable fields as TextFields in a Form, with "Speichern und erneut prüfen" as the primary Button. Saving appends a Re-check result; the earlier result stays as history.
-8. **ManualOverride** — a RadioGroup of the six Verdicts (glyph + label each), preset to the current Verdict, with a note field and Save. Confirming the same Verdict is a Manual override too. A Re-check resets it visibly.
+8. **ManualOverride** — a RadioGroup of the six Verdicts (glyph + label each), preset to the current Verdict, and Save. There is no note field. Confirming the same Verdict is a Manual override too. A Re-check resets it visibly.
 
 Esc closes DetailPane and returns focus to the card; Back does the same for DetailView.
 

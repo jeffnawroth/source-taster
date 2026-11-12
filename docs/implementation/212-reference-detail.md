@@ -115,9 +115,10 @@ otherwise revert.
   "against the original"). Formatting differences can read as insertions. The
   client has no same-style rendering of the committed fields per entry (only
   `suggestion` and an optional whole bibliography), so no change was made.
-- **Manual verdict note field omitted:** `components.md` item 8 names one, but
-  `SetManualOverrideRequest` has no note, and adding one is a contract change
-  outside #212.
+- **Manual verdict note field omitted:** `components.md` item 8 named one, but
+  `SetManualOverrideRequest` has no note. The owner removed the note field from
+  the spec on 12 November 2026 instead of changing the contract
+  (`reconciliations.md`).
 - **Standards:** the lower-case "status" in `detail_status_evidence`;
   `correction_fields_unavailable` is now only a disabled reason and the empty
   state has its own `correction_none_current`; new
@@ -493,9 +494,6 @@ unchanged centre, and the whole-box comparison failed on that.
 - The Quota-journal suite needs the private service worktree and was not run.
   Billing copy is covered by the debited/unbilled journeys and by "no request
   on Apply". No server or billing code changed.
-- `components.md` §3.5 item 8 still names a note field for Manual judgment;
-  it needs a contract change and stays out of #212. The Pager was removed from
-  §3.5 item 1 together with the code.
 - Human screen-reader, Safari/Firefox, native Firefox and release acceptance
   remain separate gates.
 
