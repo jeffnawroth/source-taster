@@ -50,6 +50,23 @@ export function newAccount(): AccountIdentity {
   };
 }
 
+/** A Guest the way the private service binds one: context, Guest id and Owner. */
+export interface GuestIdentity {
+  sub: string;
+  ownerId: string;
+  guestContextId: string;
+  guestId: string;
+  client?: "web" | "extension";
+}
+export function newGuest(guestId: string = randomUUID()): GuestIdentity {
+  return {
+    sub: randomUUID(),
+    ownerId: randomUUID(),
+    guestContextId: randomUUID(),
+    guestId,
+  };
+}
+
 export interface ServiceRequest {
   method: string;
   url: string;
@@ -69,7 +86,10 @@ export async function startAccountApi(
     /** Extra private-service behavior at the HTTP edge; consulted before the built-ins. */
     service?: (
       request: ServiceRequest,
-      api: { token(account: AccountIdentity): string },
+      api: {
+        token(account: AccountIdentity): string;
+        guestToken(guest: GuestIdentity): string;
+      },
     ) => Promise<ServiceReply | undefined> | ServiceReply | undefined;
   } = {},
 ) {
@@ -154,6 +174,26 @@ export async function startAccountApi(
       access.privateKey,
       "st102-access",
     );
+  const guestTokenFor = (guest: GuestIdentity) =>
+    signed(
+      {
+        iat: Math.floor(now / 1000),
+        nbf: Math.floor(now / 1000),
+        exp: Math.floor(now / 1000) + 300,
+        iss: issuer,
+        aud: audience,
+        purpose: "guest-access",
+        sub: guest.sub,
+        ownerId: guest.ownerId,
+        guestContextId: guest.guestContextId,
+        guestId: guest.guestId,
+        client: guest.client ?? "web",
+        jti: randomUUID(),
+      },
+      "at+jwt",
+      access.privateKey,
+      "st102-access",
+    );
   const service: Server = createServer((req, res) => {
     void (async () => {
       let text = "";
@@ -166,7 +206,10 @@ export async function startAccountApi(
           headers: req.headers,
           body,
         },
-        { token: (account) => tokenFor(account) },
+        {
+          token: (account) => tokenFor(account),
+          guestToken: (guest) => guestTokenFor(guest),
+        },
       );
       if (extra) {
         for (const [name, value] of Object.entries(extra.headers ?? {}))
@@ -363,6 +406,8 @@ export async function startAccountApi(
     fixtures,
     /** A five-minute Account access token the way the private service issues it. */
     token: tokenFor,
+    /** A five-minute Guest access token the way the private service issues it. */
+    guestToken: guestTokenFor,
     /** The private service's signed `DELETE /internal/owners/{id}` assertion. */
     deleteOwner: (
       ownerId: string,

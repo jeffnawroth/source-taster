@@ -313,6 +313,11 @@ jobs:
         run: pnpm --filter @source-taster/web exec playwright test --config shell.playwright.config.ts
       - name: Web Verification report suite (fake Quota grant)
         run: pnpm --filter @source-taster/web exec playwright test --config report.playwright.config.ts
+      - name: Integrated state regression (Guest and Account against the real verification API)
+        env:
+          DATABASE_ADMIN_URL: postgres://postgres:postgres@localhost:5433/postgres
+          DATABASE_TEST_URL: postgres://verification_test:fixture@localhost:5433/owned
+        run: pnpm --filter @source-taster/web exec playwright test --config regression.playwright.config.ts
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         if: failure()
         with:
@@ -320,6 +325,7 @@ jobs:
           path: |
             apps/web/test-results-shell-hosted
             apps/web/test-results-report
+            apps/web/test-results-regression
             .tmp/100/browser-artifacts
           include-hidden-files: true
           retention-days: 7
