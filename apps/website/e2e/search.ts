@@ -6,5 +6,6 @@ export async function openDocumentationSearch(page: Page) {
     .getByRole("button", {
       name: /^(Search documentation|Dokumentation durchsuchen)$/,
     })
+    .first()
     .click();
 }
