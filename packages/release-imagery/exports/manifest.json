@@ -2,7 +2,7 @@
   "status": "final",
   "releaseQualified": false,
   "fixtureSha256": "ef7ba8f99a16418cdd5051b456bb7687728dbb8ee3007e6a1d3ded3d7c3e0eb3",
-  "commit": "9603bbf",
+  "commit": "f90512f",
   "gate": {
     "ok": true,
     "reason": "b588c9c847401fb3be49231f58680188694e5ed0 is an ancestor of HEAD"
@@ -10,7 +10,7 @@
   "captures": [
     {
       "file": "captures/en-workspace.png",
-      "sha256": "e3173c04b88da5c104bf9e48993f0df18b15bf11b536991e5423492fd5ffe0c5",
+      "sha256": "00b49f39ce00f24168a760dc9917ccf64856f7be0c22419e2c02e48c3043ce89",
       "language": "en",
       "story": "workspace",
       "devPreviewNoticeInViewport": true,
@@ -18,7 +18,7 @@
     },
     {
       "file": "captures/en-overview.png",
-      "sha256": "ed2057a0205447aa3bae1d03636136ff323a219657a7c35662c1437790a0f306",
+      "sha256": "d62b32596d216047cc78d55e1a0c215ec7b4dbefb76a4519abdf7cc4345e4743",
       "language": "en",
       "story": "overview",
       "devPreviewNoticeInViewport": false,
@@ -30,7 +30,7 @@
     },
     {
       "file": "captures/en-evidence.png",
-      "sha256": "8f991a1d716a6e1c3c44d7c6731c44b14d40eb80c7770965090bd70cab213bdf",
+      "sha256": "10a4120db9462a07e1f88329eb54c259d3e81150537d3f12753573a25b48cc67",
       "language": "en",
       "story": "evidence",
       "devPreviewNoticeInViewport": false,
@@ -42,7 +42,7 @@
     },
     {
       "file": "captures/de-workspace.png",
-      "sha256": "51912954da029e749fbd5bbb4d468d37a1f3e515054de6d936907a1a99165d20",
+      "sha256": "4191c1dc5b1cadd3e3f68db73ffad70da3780e4217dc7c13198015c05fa0d19d",
       "language": "de",
       "story": "workspace",
       "devPreviewNoticeInViewport": true,
@@ -50,7 +50,7 @@
     },
     {
       "file": "captures/de-overview.png",
-      "sha256": "e7aff186237604fd957a0798993037347868ce28b08eb2910cf47720461b0607",
+      "sha256": "c0e09421fa4b5e011cc0f1da53e19133a070f5e6456d3d1e1d47f7e33d2aed9f",
       "language": "de",
       "story": "overview",
       "devPreviewNoticeInViewport": false,
@@ -62,7 +62,7 @@
     },
     {
       "file": "captures/de-evidence.png",
-      "sha256": "4aeceea3c9e8fae0757e3b4b1393792aaf87b42bd04cf4d97b929e198aa13b35",
+      "sha256": "906462d5ea368191ea17cabb4614f30ce209cfc15752e7fef9137a9e0234db1a",
       "language": "de",
       "story": "evidence",
       "devPreviewNoticeInViewport": false,
@@ -80,7 +80,7 @@
       "width": 1280,
       "height": 800,
       "format": "png",
-      "sha256": "8d86ee52579edf5ac2a28e21ae448e5b7253712d9e5199ab6f8dd93181a62c57",
+      "sha256": "aad4e9f5f39f17e896cf1288de3273a6bccaccb4729c8e78a959d670877c32ee",
       "claims": [
         "side-panel",
         "verdict-per-reference",
@@ -108,7 +108,7 @@
       "width": 1280,
       "height": 800,
       "format": "png",
-      "sha256": "3624c6b4292955c1a9c25ee1251cfb9657889e1ff257c3b853783c611f02edd1",
+      "sha256": "bb668f4c595765b73b03e9d5cb97f52d267c2bbba447233500ea166221a5629c",
       "claims": [
         "verdict-per-reference",
         "summary-counts",
@@ -136,7 +136,7 @@
       "width": 1280,
       "height": 800,
       "format": "png",
-      "sha256": "39e1cbfd8a2e767bfaf3365f06fe2080bff02b88a3792b67c902341f724a5d7b",
+      "sha256": "28cf2ffab982d32233be4d0ead119a25de93c906a497c4008f04d7bb62746c22",
       "claims": [
         "best-match-comparison",
         "source-evidence-disclosure"
@@ -163,7 +163,7 @@
       "width": 1280,
       "height": 800,
       "format": "png",
-      "sha256": "8158306b10645f9188888690a3b42c6189eafac3acf5c4e248c6f38d73abb36e",
+      "sha256": "47a3569ae125c74cfb17f1a7f02aa610db82a9a84c513b6f7ffd958c3bec0cfc",
       "claims": [
         "side-panel",
         "verdict-per-reference",
@@ -191,7 +191,7 @@
       "width": 1280,
       "height": 800,
       "format": "png",
-      "sha256": "187ef23ce44140458a5218e7f7937e141a60f81b05c470f081143681a78af47f",
+      "sha256": "155d86b49a6f21e7bad63ec4256e0d9c75d4b0fdbb40735eb600984527ce5136",
       "claims": [
         "verdict-per-reference",
         "summary-counts",
@@ -219,7 +219,7 @@
       "width": 1280,
       "height": 800,
       "format": "png",
-      "sha256": "54013988f226b6c049e89ccab3b1b3b7fc3207f1ff1b543e405a334c2fcad9d0",
+      "sha256": "44ed5945b29a4f75b4156f6601a576ea8f7a76fda082e9843d23f6fc535d238a",
       "claims": [
         "best-match-comparison",
         "source-evidence-disclosure"
@@ -246,7 +246,8 @@
       "width": 1280,
       "height": 960,
       "format": "png",
-      "sha256": "02581767d1437c517caa976fab0e437d1c95ca524a42b394ecd196d18b5575c7",
+      "sha256": "8d643840909f11d2c3830d712e59ed229a8ce1a2811b39d77428f0be26d2efb9",
+      "amoUpload": true,
       "claims": [
         "side-panel",
         "verdict-per-reference",
@@ -274,7 +275,8 @@
       "width": 1280,
       "height": 960,
       "format": "png",
-      "sha256": "789778ad919af3705ba8811046bede43f423b8ba1d97bdc48dce0278fea6c2ae",
+      "sha256": "62524d21366d0b278f0240a3c00b9b4e7a38528e47914995a98139efad0249cc",
+      "amoUpload": true,
       "claims": [
         "verdict-per-reference",
         "summary-counts",
@@ -302,7 +304,8 @@
       "width": 1280,
       "height": 960,
       "format": "png",
-      "sha256": "71f32395c66fcf0cc34ab7aefe01f8de0c846a3c015e08bb2d9d932f07e52f71",
+      "sha256": "57be25ef07757f20622c4d1821528c3d9d2bada213718fecfac18ac3a6122727",
+      "amoUpload": true,
       "claims": [
         "best-match-comparison",
         "source-evidence-disclosure"
@@ -329,7 +332,8 @@
       "width": 1280,
       "height": 960,
       "format": "png",
-      "sha256": "869615a5904d1064f93300835f1f0b116145932878f75f51936f8f9bcc128a7f",
+      "sha256": "fdbbbd6db2e3aab9375b85a9e35d28773424e81f188f2196f4fe17bd29a824e2",
+      "amoUpload": false,
       "claims": [
         "side-panel",
         "verdict-per-reference",
@@ -357,7 +361,8 @@
       "width": 1280,
       "height": 960,
       "format": "png",
-      "sha256": "8201f09ed0c18b21568bc079e03c106491818aa3ab8d75b032f0bba3f446c977",
+      "sha256": "611297fb099278fff955d7631d082c146d2363b48f99da20f8e94bee4c93b0ea",
+      "amoUpload": false,
       "claims": [
         "verdict-per-reference",
         "summary-counts",
@@ -385,7 +390,8 @@
       "width": 1280,
       "height": 960,
       "format": "png",
-      "sha256": "ab4662831006d76fbc7eb8e8ca28e1aa5e4661c57c652dcdc9bb770f4347d718",
+      "sha256": "11b0b1e9cd63f5663d1c6ac4dafaf5bbbb74954eef4601c39e2a3b3f734fe73f",
+      "amoUpload": false,
       "claims": [
         "best-match-comparison",
         "source-evidence-disclosure"
@@ -480,6 +486,56 @@
       "height": 630,
       "format": "png",
       "sha256": "aafdefcb2dd917009b62280bf1bd40ca9f0475d67c66caf4a7935c5d46cecd03",
+      "claims": [
+        "verdict-per-reference",
+        "detail-leads-with-verdict"
+      ],
+      "alt": {
+        "en": "Source Taster. Check references against sources. Source Taster compares each reference with public sources and shows the evidence. The decision stays with you.",
+        "de": "Source Taster. Referenzen mit Quellen abgleichen. Source Taster gleicht jede Referenz mit öffentlichen Quellen ab und zeigt die Belege. Entscheiden Sie selbst."
+      },
+      "devPreviewNotice": {
+        "carried": true,
+        "locale": "de",
+        "text": "Entwicklungsvorschau mit nicht kalibrierten Vergleichsregeln. Artikelsuchen können bei Aktivierung OpenAlex und Crossref nutzen. Einige Quellentypen sind noch nicht vollständig prüfbar. Kein öffentlicher Dienst verfügbar."
+      },
+      "sources": {
+        "captures": [],
+        "compose": "scripts/compose.ts"
+      }
+    },
+    {
+      "file": "x-en-1200x600.png",
+      "role": "x-card",
+      "width": 1200,
+      "height": 600,
+      "format": "png",
+      "sha256": "d48be2137d974992aa81b0ff9326521dc644570cda4711c62119b551b81784b1",
+      "claims": [
+        "verdict-per-reference",
+        "detail-leads-with-verdict"
+      ],
+      "alt": {
+        "en": "Source Taster. Check references against sources. Source Taster compares each reference with public sources and shows the evidence. The decision stays with you.",
+        "de": "Source Taster. Referenzen mit Quellen abgleichen. Source Taster gleicht jede Referenz mit öffentlichen Quellen ab und zeigt die Belege. Entscheiden Sie selbst."
+      },
+      "devPreviewNotice": {
+        "carried": true,
+        "locale": "en",
+        "text": "Development preview with uncalibrated comparison rules. Article searches may use OpenAlex and Crossref when enabled. Some source types cannot yet be fully checked. No public service is available."
+      },
+      "sources": {
+        "captures": [],
+        "compose": "scripts/compose.ts"
+      }
+    },
+    {
+      "file": "x-de-1200x600.png",
+      "role": "x-card",
+      "width": 1200,
+      "height": 600,
+      "format": "png",
+      "sha256": "96618aa1c8370296e1f03c4da8178582d8782a4ba27b681db1e456695561ca2c",
       "claims": [
         "verdict-per-reference",
         "detail-leads-with-verdict"

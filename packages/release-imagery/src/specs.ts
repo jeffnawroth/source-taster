@@ -4,7 +4,12 @@
 // identifiers the manifest, the claims and the later store forms refer to.
 export type Locale = "en" | "de";
 export type ImageRole =
-  "store-cws" | "store-amo" | "promo-small" | "promo-marquee" | "social";
+  | "store-cws"
+  | "store-amo"
+  | "promo-small"
+  | "promo-marquee"
+  | "social"
+  | "x-card";
 export type Story = "workspace" | "overview" | "evidence";
 
 export interface ImageSpec {
@@ -16,10 +21,19 @@ export interface ImageSpec {
   locale?: Locale;
   /** The three-story series position for store screenshots. */
   story?: Story;
+  /**
+   * AMO takes one screenshot set (Extension Workshop). Present only on
+   * `store-amo` images: true for the set to upload, false for the set that
+   * stays in the repository and is not uploaded to AMO.
+   */
+  amoUpload?: boolean;
 }
 
 const stories: readonly Story[] = ["workspace", "overview", "evidence"];
 const locales: readonly Locale[] = ["en", "de"];
+
+/** The language of the one AMO screenshot set (owner decision, 12 November 2026). */
+export const amoUploadLocale: Locale = "en";
 
 const store = (
   role: "store-cws" | "store-amo",
@@ -35,6 +49,9 @@ const store = (
       height,
       locale,
       story,
+      ...(role === "store-amo"
+        ? { amoUpload: locale === amoUploadLocale }
+        : {}),
     })),
   );
 
@@ -58,6 +75,15 @@ export const imageSpecs: readonly ImageSpec[] = [
     role: "social" as const,
     width: 1200,
     height: 630,
+    locale,
+  })),
+  // X documents an aspect ratio of 2:1 for the large-image Summary card, so the
+  // 1.91:1 Open Graph files above are not reused for it.
+  ...locales.map((locale) => ({
+    file: `x-${locale}-1200x600.png`,
+    role: "x-card" as const,
+    width: 1200,
+    height: 600,
     locale,
   })),
 ];

@@ -63,7 +63,7 @@ const storyClaims: Record<Story, string[]> = {
 
 /** Claim ids an image pictures or states. The language-neutral promo tiles state none. */
 export function imageClaims(spec: ImageSpec): string[] {
-  if (spec.role === "social")
+  if (spec.role === "social" || spec.role === "x-card")
     return ["verdict-per-reference", "detail-leads-with-verdict"];
   if (spec.story) return storyClaims[spec.story];
   return [];
@@ -91,7 +91,7 @@ export function imageAlt(spec: ImageSpec): Text {
       en: "The Source Taster mark, two overlapping drops, next to the product name on a plain light background.",
       de: "Das Source-Taster-Zeichen, zwei sich überlagernde Tropfen, neben dem Produktnamen auf schlichtem hellem Grund.",
     };
-  if (spec.role === "social")
+  if (spec.role === "social" || spec.role === "x-card")
     return {
       en: `Source Taster. ${copy.social.headline.en}. ${copy.social.caption.en}`,
       de: `Source Taster. ${copy.social.headline.de}. ${copy.social.caption.de}`,

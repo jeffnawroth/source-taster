@@ -105,7 +105,7 @@ export async function composeAll(outDir: string) {
   try {
     for (const spec of imageSpecs) {
       const html =
-        spec.role === "social"
+        spec.role === "social" || spec.role === "x-card"
           ? social(spec, markSvg)
           : spec.role.startsWith("promo")
             ? promo(spec, markSvg)

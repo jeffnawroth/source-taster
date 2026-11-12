@@ -61,7 +61,7 @@ await test("final status needs an open gate and each tampering is reported", () 
   const problems = manifestProblems(manifest).join("\n");
   assert.match(problems, /invented-claim/u);
   assert.match(problems, /alt/u);
-  assert.match(problems, /social-de-1200x630\.png.*missing/u);
+  assert.match(problems, /x-de-1200x600\.png.*missing/u);
   assert.match(problems, /fixtureSha256/u);
   assert.match(problems, /releaseQualified/u);
 });
@@ -131,4 +131,37 @@ await test("a manifest that drops, rewrites or leaves unexplained the notice is 
   assert.match(problems, /cws-en-2-overview\.png.*development-preview notice/u);
   assert.match(problems, /promo-small-440x280\.png.*reason/u);
   assert.match(problems, /social-de-1200x630\.png.*notice text/u);
+});
+
+await test("an X card carries the notice like the social files, and the manifest names the one AMO set to upload", () => {
+  const manifest = build("dry-run");
+  const x = manifest.images.find((i) => i.file === "x-en-1200x600.png")!;
+  assert.equal(x.role, "x-card");
+  assert.equal(x.devPreviewNotice.carried, true);
+  assert.deepEqual(
+    manifest.images
+      .filter((i) => i.role === "store-amo")
+      .map((i) => [i.file, i.amoUpload]),
+    [
+      ["amo-en-1-workspace.png", true],
+      ["amo-en-2-overview.png", true],
+      ["amo-en-3-evidence.png", true],
+      ["amo-de-1-workspace.png", false],
+      ["amo-de-2-overview.png", false],
+      ["amo-de-3-evidence.png", false],
+    ],
+  );
+  assert.ok(
+    manifest.images
+      .filter((i) => i.role !== "store-amo")
+      .every((i) => !("amoUpload" in i)),
+  );
+  const tampered = build("dry-run");
+  tampered.images.find((i) => i.file === "amo-de-1-workspace.png")!.amoUpload =
+    true;
+  delete tampered.images.find((i) => i.file === "amo-en-1-workspace.png")!
+    .amoUpload;
+  const problems = manifestProblems(tampered).join("\n");
+  assert.match(problems, /amo-de-1-workspace\.png: amoUpload is true/);
+  assert.match(problems, /amo-en-1-workspace\.png: amoUpload is undefined/);
 });

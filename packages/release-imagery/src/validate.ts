@@ -34,6 +34,30 @@ export function readPngInfo(bytes: Buffer): PngInfo {
 }
 
 /**
+ * What X documents for the large-image Summary card (developer.x.com, Wayback
+ * snapshot 2026-02-04): aspect ratio 2:1, at least 300x157, at most 4096x4096,
+ * less than 5MB (read as 5,000,000 bytes); JPG, PNG, WEBP and GIF.
+ */
+export function xCardProblems(
+  file: string,
+  info: PngInfo,
+  byteLength: number,
+): string[] {
+  const problems: string[] = [];
+  if (info.width !== 2 * info.height)
+    problems.push(
+      `${file}: X card ratio must be 2:1, found ${info.width}x${info.height}`,
+    );
+  if (info.width < 300 || info.height < 157)
+    problems.push(`${file}: X card is below the 300x157 minimum`);
+  if (info.width > 4096 || info.height > 4096)
+    problems.push(`${file}: X card is above the 4096x4096 maximum`);
+  if (byteLength >= 5_000_000)
+    problems.push(`${file}: X card must be less than 5 MB`);
+  return problems;
+}
+
+/**
  * Checks every manifest image against the files in `dir`: exact size, opaque
  * 8-bit RGB (the chosen policy, a recommendation rather than a store
  * requirement), the recorded hash, and no unlisted PNG next to them.
@@ -68,6 +92,8 @@ export async function validateImages(
       problems.push(
         `${image.file}: expected opaque RGB 8-bit PNG, found colour type ${info.colorType} at ${info.bitDepth} bit`,
       );
+    if (image.role === "x-card")
+      problems.push(...xCardProblems(image.file, info, bytes.length));
     const hash = createHash("sha256").update(bytes).digest("hex");
     if (hash !== image.sha256)
       problems.push(`${image.file}: sha256 differs from the manifest`);
@@ -105,6 +131,10 @@ export function manifestProblems(manifest: Manifest): string[] {
     )
       problems.push(
         `${spec.file}: manifest size or role differs from the spec`,
+      );
+    if (image.amoUpload !== spec.amoUpload)
+      problems.push(
+        `${spec.file}: amoUpload is ${String(image.amoUpload)}, the spec says ${String(spec.amoUpload)}`,
       );
     for (const id of image.claims)
       if (!known.has(id)) problems.push(`${spec.file}: unknown claim ${id}`);

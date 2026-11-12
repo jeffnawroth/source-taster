@@ -8,6 +8,7 @@ import { createHash } from "node:crypto";
 import { mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { PNG } from "pngjs";
 import { buildExtension } from "../../../apps/extension/e2e/support/build.ts";
 import {
   launchChromium,
@@ -18,6 +19,7 @@ import { labels } from "../../../apps/extension/e2e/support/workspace.ts";
 import { captureInput, captureReferences } from "../src/fixtures.ts";
 import type { CaptureRecord } from "../src/manifest.ts";
 import type { Locale, Story } from "../src/specs.ts";
+import { isTiledCapture } from "../src/tiling.ts";
 import { startCaptureService } from "./capture-serve.ts";
 
 /** CSS size of the captured panel; exported so composition lays it out at 1:1. */
@@ -126,10 +128,29 @@ export async function captureLanguage(
           return r.top >= 0 && r.bottom <= innerHeight;
         })()`,
       );
+      // Right after the viewport override and a scroll the compositor may not
+      // have produced a frame at the new size yet; a screenshot then comes back
+      // as a tiled copy of the panel. Two frames settle it.
+      const settle = () =>
+        panel.evaluate(
+          `new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(() => done(true))))`,
+        );
       const file = `captures/${language}-${story}.png`;
       await mkdir(join(outDir, "captures"), { recursive: true });
-      await panel.screenshot(join(outDir, file));
-      const bytes = await readFile(join(outDir, file));
+      // It can still happen; a tiled picture is never kept. The shot is taken
+      // again after a further settle, and the capture fails if it stays tiled.
+      let bytes: Buffer | undefined;
+      for (let attempt = 1; attempt <= 5 && bytes === undefined; attempt++) {
+        await settle();
+        await new Promise((done) => setTimeout(done, 250 * attempt));
+        await panel.screenshot(join(outDir, file));
+        const shot = await readFile(join(outDir, file));
+        if (!isTiledCapture(PNG.sync.read(shot))) bytes = shot;
+      }
+      if (bytes === undefined)
+        throw new Error(
+          `${file} came back as a tiled copy of the panel five times in a row`,
+        );
       records.push({
         file,
         sha256: createHash("sha256").update(bytes).digest("hex"),

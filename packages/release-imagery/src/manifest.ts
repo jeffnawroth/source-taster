@@ -33,6 +33,11 @@ export interface ManifestImage {
   height: number;
   format: "png";
   sha256: string;
+  /**
+   * `store-amo` images only. AMO takes one screenshot set: true for the set to
+   * upload (English), false for the set that is not uploaded to AMO.
+   */
+  amoUpload?: boolean;
   /** Claim ids pictured or written in this image (see claims.ts). */
   claims: string[];
   /** Accessible description per language. */
@@ -82,6 +87,7 @@ export function buildManifest(input: {
       height: spec.height,
       format: "png",
       sha256: input.sha256(spec.file),
+      ...(spec.amoUpload === undefined ? {} : { amoUpload: spec.amoUpload }),
       claims: imageClaims(spec),
       alt: { ...imageAlt(spec) },
       devPreviewNotice: devPreviewNotice(spec),

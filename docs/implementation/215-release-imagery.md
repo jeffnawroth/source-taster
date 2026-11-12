@@ -8,10 +8,16 @@ no further merge was needed. Scope follows the owner's decision: public
 preparation only. Nothing was uploaded, published or registered, no domain was
 bought, and no rating, metric, price or certification appears in any image.
 
+Amended on 12 November 2026 on `feat/215-x-card-amo-en` after two owner decisions:
+dedicated 2:1 X card files (the X ratio is now resolved from a primary source)
+and English as the one AMO screenshot set. Both are described where they apply
+below. The final set was captured again from code commit `f90512f` (the manifest's
+`commit` field), which adds the tiled-capture check described under Checks.
+
 ## Delivered
 
 - **`packages/release-imagery`** (`@source-taster/release-imagery`, private):
-  - `src/specs.ts`: the 16-file image set (see below).
+  - `src/specs.ts`: the 18-file image set (see below).
   - `src/fixtures.ts`: three invented References and `fixtureSha256`, the hash
     of exactly the input the capture pastes.
   - `src/claims.ts`: every claim the images picture or state, each tied to an
@@ -20,7 +26,8 @@ bought, and no rating, metric, price or certification appears in any image.
     image.
   - `src/manifest.ts`, `src/validate.ts`: manifest builder, an IHDR reader and
     structural checks (exact size, 8-bit RGB PNG, hashes, no missing or
-    unlisted file).
+    unlisted file; for X cards also ratio 2:1, the 300×157 and 4096×4096 limits
+    and less than 5 MB; the `amoUpload` mark of every AMO image against the spec).
   - `src/gate.ts`: `finalCaptureGate`. `--final` is refused unless `b588c9c`
     is an ancestor of `HEAD`; a git error closes the gate.
   - `scripts/capture.ts`: drives the real native Chromium side panel through
@@ -40,19 +47,30 @@ bought, and no rating, metric, price or certification appears in any image.
 | Files                                              | Size       | Notes                               |
 | -------------------------------------------------- | ---------- | ----------------------------------- |
 | `cws-{en,de}-{1-workspace,2-overview,3-evidence}`  | 1280×800   | Chrome Web Store screenshots        |
-| `amo-{en,de}-{1-workspace,2-overview,3-evidence}`  | 1280×960   | AMO 4:3 candidates (conditional)    |
+| `amo-{en,de}-{1-workspace,2-overview,3-evidence}`  | 1280×960   | AMO 4:3 candidates (conditional); `amo-en-*` is the set to upload, `amo-de-*` is not uploaded to AMO |
 | `promo-small-440x280`, `promo-marquee-1400x560`    | as named   | language-neutral, mark and name only |
-| `social-{en,de}-1200x630`                          | 1200×630   | typographic, no product capture     |
+| `social-{en,de}-1200x630`                          | 1200×630   | Open Graph (1.91:1), typographic, no product capture |
+| `x-{en,de}-1200x600`                               | 1200×600   | X card (2:1), same typographic design as `social-*`, no product capture |
 
 The store story is workspace → overview → evidence. All files are opaque
 8-bit RGB PNG.
+
+The `x-*` files share the `social-*` composition and copy and differ only in
+height (600 instead of 630); the 1200×630 files stay for Open Graph. Both carry
+the notice and the same claims and alt text.
+
+The manifest field `amoUpload` is present on the `amo-*` images only: `true` for
+`amo-en-*`, `false` for `amo-de-*`. The value comes from `amoUploadLocale` in
+`src/specs.ts`, and `manifestProblems` fails when an image differs from it.
+`amo-de-*` stays in the repository, because regenerating it costs nothing and
+the mark keeps it from being uploaded by mistake; it is not a second AMO set.
 
 ### Development-preview notice on every image
 
 The product's own notice (`skeleton_notice` in `packages/i18n/messages/*.json`,
 read by `productNotice(locale)` in `src/copy.ts`, never retyped) is composed
 verbatim, in the image's language, below the copy of every store screenshot
-and every social preview. A single panel capture cannot show the notice (it
+and every social and X preview. A single panel capture cannot show the notice (it
 sits at the top of the workspace) and a scrolled detail at once, so the
 overview and evidence images carry it as composed text rather than as part of
 the capture. The manifest records it per image in `devPreviewNotice`
@@ -76,7 +94,7 @@ recommendations are kept apart on purpose.
 | AMO, Extension Workshop "Create an appealing listing"                 | Nothing mandatory is stated                                                  | Capture at 1280×800; other sizes at 1.6:1; no practical limit on count; one screenshot set only, descriptions can be localized; avoid text inside images. |
 | AMO, addons-server `master` `efa5ee3` (implementation evidence)       | Only when the `content-optimization` waffle switch is on: minimum 1000×750, ratio 4:3 | The switch state on production is **unverified**. The 4:3 files are candidates that satisfy it if it is on; the CWS 1280×800 set also satisfies the 1.6:1 recommendation. |
 | Meta sharing docs `developers.facebook.com/docs/sharing/webmasters/images` | Minimum image dimension 200×200; file at most 8 MB                      | At least 1200×630 for high-resolution; at least 600×315 for large link posts; ratio close to 1.91:1; `og:image:width`/`height`. Formats and `og:image:alt` are **not covered** by that page. |
-| X cards                                                               | **Unresolved.** `developer.x.com` answered 402 and `docs.x.com` 404 for the large-image card page. | The 1200×630 social files are 1.91:1, the commonly cited large-image ratio, but that is not confirmed from a primary source. |
+| X cards, `developer.x.com` "Summary card with large image" (Wayback snapshot 2026-02-04, `https://web.archive.org/web/20260204074639/https://developer.x.com/en/docs/x-for-websites/cards/overview/summary-card-with-large-image`) | "Images for this Card support an aspect ratio of 2:1 with minimum dimensions of 300x157 or maximum of 4096x4096 pixels. Images must be less than 5MB in size. JPG, PNG, WEBP and GIF formats are supported. Only the first frame of an animated GIF will be used. SVG is not supported." | The live page now answers 402 and `docs.x.com` has no cards page, so the snapshot is the source. The `x-*` files are 2:1 at 1200×600; the 1200×630 Open Graph files are not used for X. |
 
 The opaque RGB PNG policy is this repository's own recommendation. No checked
 source states a no-alpha or 24-bit rule for the Chrome Web Store.
@@ -103,7 +121,7 @@ alt text in both languages in `manifest.json`.
 | `*-1-workspace`       | A capture of the Source Taster side panel with three pasted References in the input field …          |
 | `*-2-overview`        | The Source Taster summary with one count for each Verdict … Correct, Exists, with deviations and DOI conflict … |
 | `*-3-evidence`        | The detail of one reference, scrolled to its end. The last rows of the comparison with the best match are followed by the opened disclosure Explanation and source evidence … |
-| `social-en`           | Source Taster. Check References against sources. …                                                   |
+| `social-en`, `x-en`   | Source Taster. Check References against sources. …                                                   |
 
 ## Claim evidence
 
@@ -160,6 +178,10 @@ added. The mapping below is a proposal for later wiring, with no domain:
 | `/en/`        | `social-en-1200x630.png`         | `images[].alt.en`                 |
 | `/de/`        | `social-de-1200x630.png`         | `images[].alt.de`                 |
 
+For X, the proposal is `x-en-1200x600.png` and `x-de-1200x600.png` with the same
+alt text. The quoted card page covers the image, not the markup names, so the
+tags stay unspecified here.
+
 Absolute `og:image` URLs need the production domain, which is not configured,
 so stable metadata URLs stay open until it is. Also set `og:image:width`
 1200, `og:image:height` 630 and `og:image:alt`; ogp.me defines all three and
@@ -167,9 +189,12 @@ says a page that specifies `og:image` should specify `og:image:alt`.
 
 ## Tests
 
-- `test/specs.test.ts`: the exact file list, sizes and PNG format per role.
+- `test/specs.test.ts`: the exact file list, sizes and PNG format per role; X
+  cards are 2:1 within X's limits, the Open Graph files stay 1200×630; only the
+  English AMO set is marked for upload.
 - `test/validate.test.ts`: IHDR reading; a wrong size, colour type, hash,
-  missing or unlisted file is reported.
+  missing or unlisted file is reported; an X card that is not 2:1, is outside
+  300×157 to 4096×4096 or reaches 5 MB is reported.
 - `test/gate.test.ts`: the gate opens only on an ancestor, closes on false and
   on a git error; no live git check runs in `pnpm test`.
 - `test/claims.test.ts`: every claim names an existing doc and spec and a
@@ -178,7 +203,10 @@ says a page that specifies `og:image` should specify `og:image:alt`.
   mark; alt text for every image; every claim of an image exists.
 - `test/manifest.test.ts`: the builder lists the image set with claims, alt
   text, the per-image notice record and provenance; a final manifest needs an open gate and
-  `releaseQualified: false`.
+  `releaseQualified: false`; the X cards carry the notice; an `amoUpload` that
+  differs from the spec is reported.
+- `test/tiling.test.ts`: a panel repeated as a grid at the glitch's period is
+  detected as tiled; a clean panel is not.
 - `test/exports.test.ts` (no red run while no `exports/` existed; it was
   checked afterwards by changing one recorded hash in `exports/manifest.json`,
   which failed the test, and restoring the file): when `exports/manifest.json` exists, it is final and
@@ -191,13 +219,47 @@ Run on 12 November 2026 on macOS (aarch64):
 
 | Check                                                      | Result                  |
 | ---------------------------------------------------------- | ----------------------- |
-| `pnpm --filter @source-taster/release-imagery test`        | 27 / 27 passed          |
-| `node scripts/run.ts --final` (ports 7192 / 7174)          | exit 0; 16 images, manifest valid |
+| `pnpm --filter @source-taster/release-imagery test`        | 33 / 33 passed          |
+| `node scripts/run.ts --final` (ports 7892 / 7874)          | exit 0; 18 images, manifest valid, X cards 2:1, opaque RGB, well under 5 MB |
 | `pnpm --filter @source-taster/release-imagery typecheck`   | passed                  |
 | `pnpm --filter @source-taster/release-imagery lint`        | passed                  |
 | `prettier --check packages/release-imagery`                | clean                   |
 | `pnpm typecheck` (workspace)                               | 24 / 24 tasks           |
 | `pnpm lint` (ESLint, turbo lint, `prettier --check .`)     | 24 / 24 tasks; Prettier clean |
+
+The two `x-*` PNGs were also opened and inspected: 2:1, nothing clipped, the
+notice complete in both languages. The `x-de` headline wraps to two lines and
+stays clear of the brand row. Nothing was uploaded.
+
+The capture ran in a fresh worktree, which needed `pnpm install`, `pnpm generate`
+in `apps/server` (the git-ignored Prisma client) and a turbo build of the
+server's dependencies first. The workspace `typecheck` and `lint` also needed the
+controlled Pagefind source build (`pnpm pagefind:fetch && pnpm pagefind:build`)
+that the website build requires on a clean checkout.
+
+**Tiled panel capture.** While re-capturing, the raw `*-workspace` panel capture
+intermittently came back as a repeating grid of the panel (a period of 3/8 of the
+width) instead of one panel. The six workspace images committed before this
+amendment showed it: the raw `captures/en-workspace.png` and
+`captures/de-workspace.png` (the new check flags both at the previous HEAD) and the
+store images composed from them, `cws-en-1`, `cws-de-1`, `amo-en-1` and
+`amo-de-1` (seen tiled by eye earlier in this work, not re-run through the check). The overview and evidence captures were not inspected for a prior
+defect. The cause was not diagnosed beyond the screenshot being taken right after
+the viewport override and a scroll. `scripts/capture.ts` now waits two animation
+frames and a growing delay before each shot, and keeps a shot only if
+`src/tiling.ts` finds that its top-left strip does not repeat at that period;
+otherwise it shoots again, up to five times, and then fails. A wait of two frames
+alone was not enough (one of six test captures was still tiled), which is why the
+check exists. In the final run all six raw captures pass it, and the four
+workspace store images and both X cards were opened and inspected.
+
+Every store image and raw capture was regenerated, so their bytes differ from the
+earlier commit; the two promo tiles and the two Open Graph files are composed
+without a capture and keep their pictures. One existing behaviour was noticed and
+not changed: the last line of `cws-de-3-evidence` is cut by the panel frame.
+
+The X-card size limit is read as "less than 5 MB" = fewer than 5,000,000 bytes,
+the stricter of the two readings of MB.
 
 ## Open
 
@@ -213,11 +275,16 @@ Run on 12 November 2026 on macOS (aarch64):
 - **#207:** the brand notice stays a draft that is not legally reviewed. It
   remains a hard gate before private consumption, brand distribution, store
   publication and launch.
-- **AMO takes one screenshot set** (Extension Workshop); the DE and EN sets
-  both exist, and which language the single set uses is still to be chosen.
+- **AMO screenshot set (owner decision, 12 November 2026):** AMO takes one
+  screenshot set (Extension Workshop), and the owner chose English. `amo-en-*`
+  is the set to upload; `amo-de-*` is not uploaded to AMO. The manifest records
+  this per image in `amoUpload`. The `amo-de-*` files are kept rather than
+  deleted: the capture and composition regenerate them at no cost, the manifest
+  marks them `amoUpload: false`, and they stay available if the owner later
+  wants a German AMO set. German is still used on the product, the
+  Chrome Web Store sets and the listing text, which AMO can localise.
 - **CWS promo recommendations** (saturated colour, no light grey, fill the
   region) are not met by the calm tiles; design review in #217.
-- **X card guidance** is unresolved (see above).
 - **AMO `content-optimization` state** on production is unverified; the 4:3
   candidates are conditional.
 - **Promo tiles** show the mark and name only; the composition is a design
