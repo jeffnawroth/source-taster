@@ -428,3 +428,77 @@ test("selected detail stays on its Reference while streaming completes other slo
     "true",
   );
 });
+
+// Scroll anchoring is what keeps a feed row under the reader while rows above
+// it grow (streaming results, a wrapping header). The reference detail opts the
+// window out of anchoring inside itself; the feed must keep both of its
+// anchors: the page's and the list scroller's own.
+for (const anchor of ["page", "list"] as const)
+  test(`the feed keeps a visible row in place when content is inserted above it at 360 px (${anchor} anchor)`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 360, height: 640 });
+    await page.goto("/");
+    await page
+      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
+      .selectOption("en");
+    await page
+      .getByRole("textbox")
+      .fill(
+        Array.from(
+          { length: 8 },
+          (_, index) =>
+            `Darwin, C. (${1859 + index}). On the Origin of Species, volume ${index}. John Murray.`,
+        ).join("\n"),
+      );
+    await page
+      .getByRole("button", { name: "Check reference", exact: true })
+      .click();
+    const rows = page
+      .getByRole("grid", { name: "References", exact: true })
+      .getByRole("row");
+    await expect(rows).toHaveCount(8);
+    const target = rows.nth(3);
+    await target.scrollIntoViewIfNeeded();
+    // Rest both scrollers away from their start and end, so that each one can
+    // really move in both directions.
+    const rest = await page.evaluate(() => {
+      const list = document.querySelector<HTMLElement>(".check-list")!;
+      list.scrollTop = Math.min(120, list.scrollHeight - list.clientHeight);
+      const room = document.documentElement.scrollHeight - innerHeight;
+      scrollTo(0, Math.max(0, Math.min(scrollY, room - 80)));
+      return {
+        listRoom: list.scrollHeight - list.clientHeight,
+        listTop: list.scrollTop,
+        pageRoom: room,
+        pageTop: scrollY,
+      };
+    });
+    expect(rest.listRoom, "the feed list scrolls").toBeGreaterThan(200);
+    expect(rest.listTop, "the feed list is mid-scroll").toBeGreaterThan(0);
+    expect(rest.pageTop, "the page is mid-scroll").toBeGreaterThan(0);
+    expect(rest.pageTop, "the page can still scroll").toBeLessThan(
+      rest.pageRoom,
+    );
+    await target.scrollIntoViewIfNeeded();
+    const before = (await target.boundingBox())!;
+    expect(before.y, "the row is in view").toBeGreaterThan(0);
+    expect(before.y + before.height, "the row is in view").toBeLessThan(640);
+    await page.evaluate((where) => {
+      const block = document.createElement("div");
+      block.style.height = "120px";
+      const parent =
+        where === "list"
+          ? document.querySelector(".check-list")!
+          : document.querySelector(".check-panes")!.parentElement!;
+      const reference =
+        where === "list"
+          ? parent.firstElementChild
+          : document.querySelector(".check-panes");
+      parent.insertBefore(block, reference);
+    }, anchor);
+    expect(
+      await target.boundingBox(),
+      "the row did not move when content appeared above it",
+    ).toEqual(before);
+  });

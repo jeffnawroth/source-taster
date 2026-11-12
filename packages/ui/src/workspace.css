@@ -314,13 +314,13 @@ body {
   .check-panes {
     display: block;
   }
-  .check-panes .check-detail {
+  .check-panes .check-detail-slot {
     display: none;
   }
   .check-panes[data-detail-open="open"] .check-list {
     display: none;
   }
-  .check-panes[data-detail-open="open"] .check-detail {
+  .check-panes[data-detail-open="open"] .check-detail-slot {
     display: block;
   }
   .check-back {
@@ -576,6 +576,15 @@ html:has(.check-workspace) {
 .summary-container {
   top: calc(var(--checking-topbar-height, 56px) + 16px);
 }
+/* The detail pane keeps its own scroll anchoring, but the window must not
+   anchor on content inside it. Both would otherwise compensate for the same
+   late insertion, once in the pane and once in the window, and the window
+   scroll would move a control out from under a pointer that is still down
+   (a lost press). The window scrolls the pane as a whole; the feed keeps
+   anchoring in its own scroller and in the page. */
+.check-detail-slot {
+  overflow-anchor: none;
+}
 .check-detail {
   /* The detail scrolls, so it must also be the containing block of its
      absolutely positioned descendants (the visually hidden diff labels).
@@ -623,7 +632,7 @@ html:has(.check-workspace) {
   .check-panes[data-detail-open="closed"] {
     grid-template-columns: minmax(0, 1fr);
   }
-  .check-panes[data-detail-open="closed"] .check-detail {
+  .check-panes[data-detail-open="closed"] .check-detail-slot {
     display: none;
   }
   .check-back {

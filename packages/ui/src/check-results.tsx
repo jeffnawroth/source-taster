@@ -325,58 +325,60 @@ export function CheckResults({
             </p>
           )}
         </div>
-        <section
-          id="reference-detail"
-          aria-labelledby="reference-detail-title"
-          onKeyDown={(event) => {
-            if (event.key === "Escape" && !event.defaultPrevented) {
-              event.preventDefault();
-              back();
-            }
-          }}
-          className="check-detail min-w-0 rounded-xl border border-border-emphasis p-4"
-        >
-          <Button className="check-back mb-3" onPress={back}>
-            {m.workspace_back()}
-          </Button>
-          <h2
-            id="reference-detail-title"
-            ref={heading}
-            tabIndex={-1}
-            className="text-xl font-semibold"
+        <div className="check-detail-slot">
+          <section
+            id="reference-detail"
+            aria-labelledby="reference-detail-title"
+            onKeyDown={(event) => {
+              if (event.key === "Escape" && !event.defaultPrevented) {
+                event.preventDefault();
+                back();
+              }
+            }}
+            className="check-detail min-w-0 rounded-xl border border-border-emphasis p-4"
           >
-            {m.workspace_detail()}
-          </h2>
-          {selected ? (
-            <>
-              <RunningStep reference={selected} />
-              <ReferenceOutcomeView
-                header={
-                  <DetailHeader>
-                    <ReferenceOutcomeHeader
-                      outcome={selected.outcome}
-                      manualOverride={selected.manualOverride}
-                    />
-                  </DetailHeader>
-                }
-                outcome={selected.outcome}
-                manualOverride={selected.manualOverride}
-                originalText={selected.originalText}
-              />
-              <ReferenceActions
-                key={selected.slot}
-                check={check}
-                reference={selected}
-                bibliography={bibliography}
-                transport={transport}
-                work={work(selected.slot)}
-                gate={gate}
-              />
-            </>
-          ) : (
-            <p>{m.workspace_select()}</p>
-          )}
-        </section>
+            <Button className="check-back mb-3" onPress={back}>
+              {m.workspace_back()}
+            </Button>
+            <h2
+              id="reference-detail-title"
+              ref={heading}
+              tabIndex={-1}
+              className="text-xl font-semibold"
+            >
+              {m.workspace_detail()}
+            </h2>
+            {selected ? (
+              <>
+                <RunningStep reference={selected} />
+                <ReferenceOutcomeView
+                  header={
+                    <DetailHeader>
+                      <ReferenceOutcomeHeader
+                        outcome={selected.outcome}
+                        manualOverride={selected.manualOverride}
+                      />
+                    </DetailHeader>
+                  }
+                  outcome={selected.outcome}
+                  manualOverride={selected.manualOverride}
+                  originalText={selected.originalText}
+                />
+                <ReferenceActions
+                  key={selected.slot}
+                  check={check}
+                  reference={selected}
+                  bibliography={bibliography}
+                  transport={transport}
+                  work={work(selected.slot)}
+                  gate={gate}
+                />
+              </>
+            ) : (
+              <p>{m.workspace_select()}</p>
+            )}
+          </section>
+        </div>
       </div>
     </>
   );

@@ -221,9 +221,46 @@ test("a layout change in the detail during a Save press does not lose the press"
     exact: true,
   });
   await save.scrollIntoViewIfNeeded();
-  const box = (await save.boundingBox())!;
-  const scrollBefore = await page.evaluate(() => scrollY);
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  // The press must not depend on where the page happened to come to rest. Put
+  // the window where it only sometimes rests: Save fully in view, the detail
+  // running on past the bottom edge (a window-level scroll anchor could then
+  // sit inside the detail's own scroller).
+  await page.evaluate(() =>
+    scrollTo(0, document.documentElement.scrollHeight - innerHeight - 142),
+  );
+  const placement = await page.evaluate(() => {
+    const pane = document
+      .querySelector(".check-detail")!
+      .getBoundingClientRect();
+    const button = [...document.querySelectorAll(".check-detail button")]
+      .find((b) => b.textContent?.trim() === "Save manual verdict")!
+      .getBoundingClientRect();
+    return {
+      paneBottom: pane.bottom,
+      buttonTop: button.top,
+      buttonBottom: button.bottom,
+      viewport: innerHeight,
+      scrollMax: document.documentElement.scrollHeight - innerHeight,
+      scrollY,
+    };
+  });
+  expect(
+    placement.paneBottom,
+    "the detail runs past the viewport",
+  ).toBeGreaterThan(placement.viewport);
+  expect(placement.buttonTop, "Save is fully in view").toBeGreaterThan(0);
+  expect(placement.buttonBottom, "Save is fully in view").toBeLessThan(
+    placement.viewport,
+  );
+  expect(placement.scrollY, "the window is not at its maximum").toBeLessThan(
+    placement.scrollMax,
+  );
+  const before = (await save.boundingBox())!;
+  const scrollBefore = placement.scrollY;
+  await page.mouse.move(
+    before.x + before.width / 2,
+    before.y + before.height / 2,
+  );
   await page.mouse.down();
   // Late content above the pressed control, as when suggestions render while
   // the pointer is down.
@@ -233,8 +270,16 @@ test("a layout change in the detail during a Save press does not lose the press"
     const detail = document.querySelector(".check-detail")!;
     detail.insertBefore(block, detail.firstElementChild);
   });
+  // The control stays under the pointer until the press ends.
+  expect(
+    await save.boundingBox(),
+    "Save did not move under the pointer",
+  ).toEqual(before);
   await page.mouse.up();
-  expect(await page.evaluate(() => scrollY)).toBe(scrollBefore);
+  expect(
+    await page.evaluate(() => scrollY),
+    "the window did not scroll during the press",
+  ).toBe(scrollBefore);
   await expect(detail).toContainText("Manual verdict: Not found");
 });
 test("a manual draft cannot silently move to a newer same-revision result", async ({
