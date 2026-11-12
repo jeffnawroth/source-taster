@@ -296,8 +296,8 @@ the pristine stylesheet and green with the fix:
   scroll must not move and the verdict must save (red: scroll 3153 to 3453).
 
 **Evidence.** Instrumented repro, 60 repeats under full-core CPU load: 2 failed
-before the fix (one of them this press loss; the other a check that stayed
-"Running" under load), 60/60 passed after it. At the original rate of about 1 in
+before the fix (one of them this press loss; the other a check that ended
+"Cancelled" under load before any verdict appeared), 60/60 passed after it. At the original rate of about 1 in
 30-60 that alone is weak evidence; the deterministic tests carry the causal
 claim. Full web suite (`--project chromium`): 123/123. Native panel, revisions
 and manual-overrides suites: 12/12. The native journey presses with real mouse
@@ -317,6 +317,14 @@ was not measured separately.
   Discard → Edit fields focus handling remains. `.check-list` also scrolls; whether
   it holds absolutely positioned hidden content was not checked, and it would
   need the same containing block if it does.
+- Under the same full-core CPU stress a Check occasionally ends "Cancelled" (or
+  stays "Running") before any verdict appears. It is a separate, stress-only
+  outcome unrelated to this fix, seen once in 60 and once in 40 stressed runs,
+  and was not investigated; it could still appear in CI.
+- The integrated state regression (`regression.playwright.config.ts`) needs the
+  owned PostgreSQL on port 5433 and was not run locally; the rest of the web
+  suite ran on the merged head. All local runs are macOS arm64; the Linux CI
+  run on the pushed head remains authoritative.
 - The Quota-journal suite needs the private service worktree and was not run.
   Billing copy is covered by the debited/unbilled journeys and by "no request
   on Apply". No server or billing code changed.
