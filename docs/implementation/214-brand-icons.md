@@ -160,5 +160,10 @@ recorded.
 - **Not wired:** the optional web-app (any/maskable), Safari pinned-tab and
   Edge 300 files are generated but not published; there is no web manifest
   and no `sidebar_action` icon.
+- **Publication digest inputs (noted in review, no change):** the digest
+  (`apps/website/scripts/publication.ts`) deliberately covers `brand/NOTICE.md`,
+  `brand/exports/manifest.json` and the published favicon files, so a change to
+  any of them needs a new publication review. `README.md` is not a digest
+  input; its brand sentence is repository text only.
 - **No store upload or publication.** The `store-*` files are listing
   candidates only.
