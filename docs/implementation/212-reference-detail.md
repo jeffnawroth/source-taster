@@ -561,6 +561,9 @@ applied, this fix covers it too.
   Discard → Edit fields focus handling remains. `.check-list` also scrolls; whether
   it holds absolutely positioned hidden content was not checked, and it would
   need the same containing block if it does.
+
+## Resolved in #220
+
 - A Check could end "Cancelled" before any verdict (#220). Cause: the e2e
   service granted a 1.5 s client lease, renewed every 500 ms, while a renewal
   answered in 0.8 s on a loaded machine (seen in a trace: 759 and 802 ms). The
@@ -570,22 +573,25 @@ applied, this fix covers it too.
   the one test that waits for a lapse. "a Check keeps running while every lease
   renewal is answered slowly" holds each renewal for 1.1 s at the route: 5 of 5
   red at 1.5 s, 10 of 10 green at 6 s.
-- A failed lease renewal still ends the workspace's connection for good. In a
-  local trace one renewal returned 500 (the shared test Postgres was at its
-  connection limit, error `53300`); the client stopped renewing, aborted the
-  event stream and showed the alert, and the feed stayed "Running · Waiting to
-  start" while the server would have let the Check lapse. This was seen once,
-  with an overloaded shared database, not under CPU stress alone. Whether one
-  failed renewal should be fatal, and whether the feed may stay at Running
-  after the workspace gives up, are product decisions and are not changed here.
+
+## Tracked
+
+- A failed lease renewal still ends the workspace's connection for good, and the
+  feed can stay at "Running" after the workspace gives up: #224. In a local
+  trace one renewal returned 500 (the shared test Postgres was at its connection
+  limit, error `53300`); the client stopped renewing, aborted the event stream
+  and showed the alert, while the server would have let the Check lapse. Seen
+  once, with an overloaded shared database. Whether one failed renewal should be
+  fatal is a product decision taken in #224, not here.
+- Human screen-reader, Safari/Firefox, native Firefox and release acceptance:
+  #217.
+
+## Limits of this evidence
+
 - The integrated state regression (`regression.playwright.config.ts`) needs the
-  owned PostgreSQL on port 5433 and was not run locally; the rest of the web
-  suite ran on the merged head. All local runs are macOS arm64; the Linux CI
-  run on the pushed head remains authoritative.
+  owned PostgreSQL on port 5433 and was not run locally; CI's `web-suites` job
+  runs it on every push. All local runs are macOS arm64; the Linux CI run on the
+  pushed head is authoritative.
 - The Quota-journal suite needs the private service worktree and was not run.
   Billing copy is covered by the debited/unbilled journeys and by "no request
   on Apply". No server or billing code changed.
-- Human screen-reader, Safari/Firefox, native Firefox and release acceptance
-  remain separate gates.
-
-No push, PR or issue closure is part of this implementation.
