@@ -14,6 +14,8 @@ export interface ExportJob {
   master?: string;
   /** ICO only: the PNG favicon sizes it contains. */
   entries?: number[];
+  /** Written from the design tokens by the generator, not rendered from a master. */
+  generated?: "web-manifest";
 }
 
 /** 16–32 px use the optical cut; 48 px and above the full artwork. */
@@ -57,7 +59,9 @@ export const exportJobs: readonly ExportJob[] = [
     size: 180,
     master: "apple-touch-icon.svg",
   },
-  // Optional manifest candidates; they select no PWA behaviour.
+  // The 192/512 icons the manifest lists stay `optional`: basis records the
+  // platform mandate, not publication. Chrome's install-promotion criteria are
+  // not a universal requirement.
   ...rasters("web-app-any", [192, 512], "website", "optional", tile),
   ...rasters(
     "web-app-maskable",
@@ -71,6 +75,14 @@ export const exportJobs: readonly ExportJob[] = [
     group: "website",
     basis: "optional",
     master: "safari-pinned-tab.svg",
+  },
+  // The web app manifest lists the web-app icons above. It names the product
+  // and selects no PWA behaviour (display "browser", no service worker).
+  {
+    file: "manifest.webmanifest",
+    group: "website",
+    basis: "chosen",
+    generated: "web-manifest",
   },
   // Browser package icons; the 128 PNG is the Chrome Web Store package icon.
   ...rasters(

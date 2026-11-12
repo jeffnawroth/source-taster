@@ -80,6 +80,8 @@ await test("the export set is the accepted #199 icon family, each file marked ma
       basis: "optional",
     }),
     { file: "safari-pinned-tab.svg", group: "website", basis: "optional" },
+    // The web app manifest is a chosen file (#214); it selects no PWA behaviour.
+    { file: "manifest.webmanifest", group: "website", basis: "chosen" },
     ...sizes("extension", [16, 24, 32, 48, 64, 96], {
       group: "extension",
       basis: "chosen",

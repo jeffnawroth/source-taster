@@ -124,6 +124,13 @@
       "sha256": "0be65b534f9d7ddab2a87bfff9ab871e787d4d907fb8474ea2c9692585cee730"
     },
     {
+      "file": "manifest.webmanifest",
+      "group": "website",
+      "basis": "chosen",
+      "generated": "web-manifest",
+      "sha256": "75113d8292afb3f7045502d1be5ad2a0e28195b8d1eec49a9734c7408bc41711"
+    },
+    {
       "file": "extension-16.png",
       "group": "extension",
       "basis": "chosen",
