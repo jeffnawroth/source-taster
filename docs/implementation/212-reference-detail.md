@@ -10,12 +10,15 @@ change was made.
 
 ## Delivered behavior
 
-- The detail leads with the effective Verdict in a sticky glass header that
-  also holds the Pager. Then come Original text, the comparison table, the
-  Evidence disclosure (Candidates live inside it), the Correction suggestion
-  with its actions, the field editor and Manual judgment. The Pager pages
-  within the active filter ("n of m"). Escape and narrow Back restore feed
-  focus, scroll and the filter.
+- The detail leads with the effective Verdict in a sticky glass header. Then
+  come Original text, the comparison table, the Evidence disclosure (Candidates
+  live inside it), the Correction suggestion with its actions, the field editor
+  and Manual judgment. Escape and narrow Back restore feed focus, scroll and the
+  filter. There is no Pager (see Review follow-up).
+- An unsaved draft belongs to its slot, not to the mounted detail. Selecting
+  another Reference (pointer or keyboard), changing the filter, Escape and Back
+  keep it; reopening the Reference shows it again. Only Discard, a successful
+  save or Replace in the Apply confirmation ends it.
 - The Correction suggestion is a TrackedChange preview against the Original
   text. It is a word-level diff where deletions precede insertions: a neutral
   strike for deletions, a 2 px underline for insertions and sr-only
@@ -34,17 +37,23 @@ change was made.
     re-check and resets a current Manual override, which stays on the
     historical result.
 - Apply is unavailable, with an explanation, while a save, re-check or verdict
-  change runs, until the current result's suggestion has loaded, and for
-  results without a proven suggestion. An unbilled technical Status explains
-  the quota consequence and offers no Apply.
+  change runs, until the current result's suggestion has loaded, for results
+  without a proven suggestion, and when the suggestion has no value that differs
+  from the committed fields (so it never creates a no-op draft). A Reference
+  without a suggestion shows an empty-state sentence instead of a disabled
+  reason. An unbilled technical Status explains the quota consequence and
+  offers no Apply.
+- Manual judgment is a RadioGroup of the six Verdicts (glyph and label each),
+  preset to the current Verdict.
 - Exports (CSL-JSON/BibTeX original), the formatted bibliography (RTF) and the
   PDF report use committed fields only, never an Apply draft.
 - On two panes the detail opens beside the list by default. A filter keeps the
   open detail only while its Reference still matches. A single pane returns to
-  the filtered list. The pane state is `default`, `true` (opened) or `false`
-  (Back). The stylesheet resolves `default` per breakpoint, so resizing never
-  passes through a state that hides the focused feed row. An explicitly opened
-  detail stays open on a single pane.
+  the filtered list. The pane state is `auto`, `open` or `closed` (Back). The
+  stylesheet is the only breakpoint source and resolves `auto`, so resizing
+  never passes through a state that hides the focused feed row. An explicitly
+  opened detail stays open on a single pane; a filter change returns `open` to
+  `auto`, without reading `matchMedia`.
 
 ## Decisions
 
@@ -64,6 +73,68 @@ change was made.
   browser lease ends as Cancelled. The stale-draft journey therefore uses the
   in-browser Re-check.
 
+## Review follow-up (review of `136748f...ceb4161`)
+
+Fixed on `fix/212-review`. The owner decided the dirty-draft guard, the Pager
+removal and the primitive migration; the rest follows the review's rule: keep
+what ADR-0027, `components.md` or the styleguide specify or a spec rule needs,
+otherwise revert.
+
+- **Dirty-draft guard: keep the draft.** The feed is a GridList whose keyboard
+  selection follows focus, so a confirmation on every arrow key is not
+  workable. Drafts and in-flight requests therefore live in a per-slot store
+  (`useReferenceWork`, `packages/ui/src/reference-work.ts`) above the keyed
+  detail. The store sits inside `CheckResults`, which is keyed by Check, so a
+  draft never crosses Checks.
+- **Pager removed** with its counter and the `detail_pager`, `detail_previous`,
+  `detail_next` and `detail_position` messages. `components.md` §3.5 item 1
+  item 1 described it; the owner decided to remove it, so the design doc was
+  updated in the same change.
+- **Primitive migration finished** where raw controls sat beside primitives:
+  author inputs (TextField), the truncated-authors and export-choice Checkbox,
+  Copy (ghost Button), the manual verdict (Buttons, RadioGroup). Buttons use
+  variants (`primary` for the commit, `ghost` for Discard, Cancel and Copy), no
+  className overrides. `.st-choice` gained `position: relative` so the visually
+  hidden input stays inside its label. `ReferenceListActions` predates #212 and
+  keeps its raw controls.
+- **Kept by spec:** sticky glass header (ADR-0027 L16; `components.md` L44,
+  L314), OriginalInput reskin (L315), ≠ glyph (L316), manual-verdict hardening
+  (the stale and concurrent reply rule), now through the shared snapshot gate.
+- **Export choice binding kept:** the choice is bound to the result id plus the
+  outcome. Those are exactly the inputs of the server's result token
+  (`suggestionToken`). Outcome alone, as before #212, keeps a choice across a
+  re-check with identical data whose token the server then rejects; the
+  same-revision Re-check journey asserts the choice is dropped.
+- **Drafts bind to identity:** `resultBinding` is Check, slot, revision and
+  result id, never the outcome JSON, so an update that re-serializes the same
+  result does not make a draft stale.
+- **Summary counts:** `effectiveVerdict` returns no Verdict for a Status, so a
+  re-checking slot is never counted; covered by "while a saved Apply draft
+  re-checks, the earlier Verdict is not counted as current".
+- **TrackedChange against the original, by spec** (`components.md` §3.6:
+  "against the original"). Formatting differences can read as insertions. The
+  client has no same-style rendering of the committed fields per entry (only
+  `suggestion` and an optional whole bibliography), so no change was made.
+- **Manual verdict note field omitted:** `components.md` item 8 names one, but
+  `SetManualOverrideRequest` has no note, and adding one is a contract change
+  outside #212.
+- **Standards:** the lower-case "status" in `detail_status_evidence`;
+  `correction_fields_unavailable` is now only a disabled reason and the empty
+  state has its own `correction_none_current`; new
+  `correction_fields_unchanged`.
+- **Judgement calls done:** one breakpoint source (stylesheet), one draft
+  object (`FieldDraft`), the `auto | open | closed` union, the names
+  `unavailableReason`, `hasCurrentResult` and `bibliography`, and one shared
+  busy and snapshot gate (`useReferenceWork`, `useSnapshotGate`) plus a shared
+  `errorMessage`.
+- **Skipped:** the `availability()` helper stays (two call sites, it carries
+  the one busy reason); splitting `reference-actions.tsx` is a refactor without
+  behavior change, outside this fix; the `.detail-verdict-header` `top: -16px`
+  stays coupled to the detail's `p-4`, as no spacing variable exists to tie
+  them.
+- **Manual judgment selection** (the chosen radio before Save) stays local to
+  the mounted detail; it is one click to restore and no text is lost.
+
 ## Public seams and red/green evidence
 
 Real Web and native-panel journeys run over the existing verification API, the
@@ -82,6 +153,26 @@ Observed red before green:
   still lost feed focus for one frame. All three pass with the stylesheet-resolved
   pane state, and the new two-pane filter journey covers the kept detail.
 
+Review follow-up, observed at `ceb4161` (UI sources and catalogs of the base,
+new specs) and green after the fix:
+
+- "an unsaved draft survives selecting another Reference, keyboard selection,
+  a filter change and Escape" failed at base: the draft was gone after the
+  first navigation.
+- "once the committed fields carry the suggestion, Apply to fields is not
+  offered as a no-op" failed at base: Apply was enabled.
+- "an update that keeps the same result leaves an Apply draft current" and "a
+  previously unbilled slot shows its first debit once the first Verdict
+  arrives" passed at base. They are coverage for the binding change and for
+  the unbilled journey the review found not visibly covered.
+- The Pager test became "narrow Back restores the filter and focus after
+  opening a filtered Reference".
+
+Primitive Checkbox and Radio hide their input, so Playwright reports the label
+as intercepting a press on it. Web journeys press the visible label
+(`getByText`) and native journeys use `clickChoice`, which presses the label of
+the input found by role and name.
+
 Existing assertions changed only where the plain suggestion text became a
 TrackedChange (`corrections`, `report`, native `panel`). Each still asserts the
 proven insertion and the IEEE rendering through the visible suggestion. No
@@ -91,12 +182,13 @@ proven insertion and the IEEE rendering through the visible suggestion. No
 
 | Issue validation | Journey |
 | --- | --- |
-| Current, dirty and stale revision | Apply/Discard/Keep/Replace/Save at 320 px (EN/DE); overlay keeps Publisher; 409 retains the draft; same-revision Re-check invalidates draft and export choice |
+| Current, dirty and stale revision | Apply/Discard/Keep/Replace/Save at 320 px (EN/DE); overlay keeps Publisher; 409 retains the draft; same-revision Re-check invalidates draft and export choice; a same-result update keeps the draft current; no no-op Apply after the suggestion is committed |
+| Navigation with a draft | The draft survives row and keyboard selection, a filter change and Escape |
 | Cancellation and failure | Cancel with an open draft keeps it unsaved; pending Save sends once, failure retains the draft, Reset fences a late reply; late suggestion cannot attach to a newer style |
-| Previously unbilled slot | Unbilled technical Status explains why Apply is unavailable (EN/DE) |
+| Previously unbilled slot | Unbilled technical Status shows the quota consequence and no Apply (EN/DE); a DOI save turns it into its first debited Verdict |
 | Manual reset | Save and re-check after Apply resets the current Manual override and keeps it historical; a re-checking draft does not count the earlier Verdict as current |
 | Export/report snapshot | CSL-JSON/BibTeX original and RTF bibliography exclude the draft; `e2e-report/report.spec.ts` PDF excludes it |
-| Keyboard/focus | Detail order and Escape focus; Escape in the replacement dialog; Pager within the filter and narrow Back; focus returns to Edit after Discard |
+| Keyboard/focus | Detail order and Escape focus; Escape in the replacement dialog; narrow Back restores filter and focus; focus returns to Edit after Discard |
 | 320 px reflow | No horizontal scroll and axe clean at 320 px (EN/DE) |
 | Two-pane filter | A filter keeps the open detail only while its Reference matches |
 
@@ -131,15 +223,37 @@ pnpm --filter @source-taster/web exec playwright test --config report.playwright
 pnpm --filter @source-taster/extension exec playwright test panel.spec.ts revisions.spec.ts manual-overrides.spec.ts
 ```
 
+### Review follow-up validation
+
+Final run on `fix/212-review` after merging `implement/design-remaining` tip
+`59f4f85` (#214), with Web/API ports 6174/6192 (bibliographic 6175/6193) and
+`SOURCE_TASTER_DOCUMENT_IMAGE` set as above.
+
+| Check | Observed result |
+| --- | --- |
+| `pnpm pagefind:fetch && pnpm pagefind:build && pnpm pagefind:verify` | Verified controlled Pagefind 1.5.2 |
+| `pnpm typecheck` | 23 tasks passed |
+| `pnpm lint` | 23 tasks passed, including the repository Prettier check |
+| `pnpm i18n:check` | 595 paired DE/EN messages (4 Pager messages removed, 2 added); website content check passed |
+| Web Playwright suite (`--project chromium`) | 122 passed, including 21 `reference-detail` cases |
+| Web bibliographic suite (`bibliographic.playwright.config.ts`) | 22 passed |
+| Web report suite (`report.playwright.config.ts`) | 2 passed |
+| Native Chromium panel `panel.spec.ts revisions.spec.ts manual-overrides.spec.ts` | 12 passed |
+| Native `manual-overrides.spec.ts` alone, repeated | 2 passed, three runs out of three (the first inside the full native run) |
+
+The first native run failed the DE parity journey deterministically (3/3
+reruns) and passed at `ceb4161`. Cause: the native readiness check matched the
+Verdict label as a substring, and the new empty-state sentence
+(`correction_none_current`, "Korrekturvorschlag") contains "Korrekt" while the
+Reference is still running. The check now matches whole words; the parity
+journey then passed 2/2 runs in EN and DE, and the full native run passed
+12/12.
+
 ## Open
 
-- Selecting another Reference, by feed row or by the new Pager, discards an
-  unsaved draft without confirmation. The remount on selection predates #212,
-  but the Pager adds a one-click route from the detail itself. ADR-0027's
-  confirmation covers Apply replacing a draft, not navigation; extending it is
-  an owner decision and was not added.
-- One native `manual-overrides` (EN) run failed once: the Manual verdict
-  combobox never appeared after "Judge manually". The UI code was identical to
+- Before the review follow-up, one native `manual-overrides` (EN) run failed
+  once: the Manual verdict combobox (now a RadioGroup) never appeared after
+  "Judge manually". It did not recur in the follow-up's runs. The UI code was identical to
   the passing runs before and after it (the merge changed only lock files and
   docs). The cause was not reproduced. It matches the diagnosed lost-press
   mechanism: native focus scrolls the nested detail scroller mid-press. That
@@ -148,6 +262,9 @@ pnpm --filter @source-taster/extension exec playwright test panel.spec.ts revisi
 - The Quota-journal suite needs the private service worktree and was not run.
   Billing copy is covered by the debited/unbilled journeys and by "no request
   on Apply". No server or billing code changed.
+- `components.md` §3.5 item 8 still names a note field for Manual judgment;
+  it needs a contract change and stays out of #212. The Pager was removed from
+  §3.5 item 1 together with the code.
 - Human screen-reader, Safari/Firefox, native Firefox and release acceptance
   remain separate gates.
 

@@ -68,9 +68,7 @@ for (const language of ["en", "de"] as const)
     await expect(suggestion.locator("ins").first()).toContainText("(2009).", {
       timeout: 20_000,
     });
-    await suggestion
-      .getByRole("checkbox", { name: t.exportChoice, exact: true })
-      .check();
+    await suggestion.getByText(t.exportChoice, { exact: true }).click();
     // Apply to fields only builds a local draft; the report keeps committed fields.
     await suggestion
       .getByRole("button", { name: t.apply, exact: true })

@@ -56,11 +56,12 @@ for (const language of ["en", "de"] as const) {
       })
       .click();
     await detail
-      .getByRole("combobox", {
+      .getByRole("radiogroup", {
         name: en ? "Manual verdict" : "Manueller Befund",
         exact: true,
       })
-      .selectOption("not-found");
+      .getByText(en ? "Not found" : "Nicht gefunden", { exact: true })
+      .click();
     await detail
       .getByRole("button", {
         name: en ? "Save manual verdict" : "Manuellen Befund speichern",
@@ -187,8 +188,9 @@ test("a manual draft cannot silently move to a newer same-revision result", asyn
     .getByRole("button", { name: "Judge manually", exact: true })
     .click();
   await detail
-    .getByRole("combobox", { name: "Manual verdict", exact: true })
-    .selectOption("not-found");
+    .getByRole("radiogroup", { name: "Manual verdict", exact: true })
+    .getByText("Not found", { exact: true })
+    .click();
   const url = `http://127.0.0.1:${apiPort}/v2/checks/${checkId}`;
   // Another client runs the same field revision, producing a different immutable result ID.
   expect(

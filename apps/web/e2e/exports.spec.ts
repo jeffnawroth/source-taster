@@ -26,7 +26,15 @@ for (const language of ["en", "de"] as const)
       exact: true,
     });
     await expect(suggestion).toContainText("2009", { timeout: 15000 });
-    await suggestion.getByRole("checkbox").check();
+    await suggestion
+      .getByText(
+        language === "en"
+          ? "Apply for export only"
+          : "Nur für den Export übernehmen",
+        { exact: true },
+      )
+      .click();
+    await expect(suggestion.getByRole("checkbox")).toBeChecked();
     const exports = page.getByRole("region", {
       name: language === "en" ? "Export references" : "Referenzen exportieren",
       exact: true,

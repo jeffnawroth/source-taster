@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { abuseMessage } from "./abuse-message.tsx";
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import type {
   Check,
   ReferenceSlot,
@@ -13,43 +12,42 @@ import {
   type VerificationClientOptions,
 } from "@source-taster/contract-verification/client-v2";
 import { m } from "@source-taster/i18n";
-import { verdictLabels } from "./check-summary.tsx";
-const action =
-  "rounded border border-border-emphasis px-3 py-2 disabled:opacity-50";
+import { verdictLabels, VerdictGlyph } from "./outcome-badges.tsx";
+import { Button } from "./primitives/actions.tsx";
+import { Form } from "./primitives/fields.tsx";
+import { Radio, RadioGroup } from "./primitives/selection.tsx";
+import {
+  errorMessage,
+  type SlotWork,
+  type SnapshotGate,
+} from "./reference-work.ts";
+
 export function ManualVerdictActions({
   check,
   reference,
   transport,
-  onSnapshot,
-  disabled = false,
+  work,
+  gate,
 }: {
-  disabled?: boolean;
   check: Check;
   reference: ReferenceSlot;
   transport: VerificationClientOptions;
-  onSnapshot: (check: Check) => void;
+  /** Shared with the field actions: one request per slot at a time. */
+  work: SlotWork;
+  gate: SnapshotGate;
 }) {
   const api = useMemo(() => verificationClient(transport), [transport]);
   const [draft, setDraft] = useState<SetManualOverrideRequest | null>(null);
-  const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedResultId, setSavedResultId] = useState<string | null>(null);
   const result = reference.results[0];
-  const busy = useRef(false);
-  const live = useRef<Check | null>(null);
-  useLayoutEffect(() => {
-    live.current = check;
-    return () => {
-      live.current = null;
-    };
-  }, [check]);
-  function accept(snapshot: Check) {
-    if (
-      live.current?.id === snapshot.id &&
-      live.current.lastEventSeq <= snapshot.lastEventSeq
-    )
-      onSnapshot(snapshot);
-  }
+  const running =
+    reference.outcome.kind === "status" &&
+    reference.outcome.status === "running";
+  const blocked = running || work.pending;
+  const busy = blocked
+    ? { isDisabled: true as const, disabledReason: m.revision_busy() }
+    : { isDisabled: false as const };
   const available =
     reference.outcome.kind === "verdict" &&
     result?.revision === reference.revision;
@@ -65,40 +63,28 @@ export function ManualVerdictActions({
       : null;
   }
   async function save(request: SetManualOverrideRequest) {
-    if (busy.current || disabled) return;
-    busy.current = true;
-    setPending(true);
+    if (blocked || !work.begin()) return;
     setError(null);
     setSavedResultId(null);
     try {
-      accept(await api.setManualOverride(check.id, reference.slot, request));
-      if (live.current) {
+      gate.accept(
+        await api.setManualOverride(check.id, reference.slot, request),
+      );
+      if (gate.current()) {
         setDraft(null);
         setSavedResultId(request.resultId);
       }
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
         try {
-          accept(await api.getCheck(check.id));
+          gate.accept(await api.getCheck(check.id));
         } catch {
           /* Retain original denial and draft. */
         }
       }
-      const key =
-        error instanceof ApiError ? error.problem?.i18nKey : undefined;
-      setError(
-        abuseMessage(error) ??
-          (error instanceof ApiError && error.status === 409
-            ? m.problem_reference_conflict()
-            : error instanceof ApiError && error.status === 410
-              ? m.problem_check_expired()
-              : key && key in m
-                ? (m[key as keyof typeof m] as () => string)()
-                : m.problem_connection()),
-      );
+      setError(errorMessage(error));
     } finally {
-      busy.current = false;
-      if (live.current) setPending(false);
+      work.end();
     }
   }
   return (
@@ -118,11 +104,9 @@ export function ManualVerdictActions({
           <p>{m.override_note()}</p>
           {!draft ? (
             <div className="flex flex-wrap gap-3">
-              <button
-                type="button"
-                className={action}
-                disabled={pending || disabled}
-                onClick={() => {
+              <Button
+                {...busy}
+                onPress={() => {
                   const request = currentRequest();
                   if (request && reference.outcome.kind === "verdict")
                     void save({
@@ -132,68 +116,58 @@ export function ManualVerdictActions({
                 }}
               >
                 {m.override_confirm()}
-              </button>
-              <button
-                type="button"
-                className={action}
-                disabled={pending || disabled}
-                onClick={() => {
+              </Button>
+              <Button
+                {...busy}
+                onPress={() => {
                   setDraft(currentRequest());
                   setError(null);
                 }}
               >
                 {m.override_judge()}
-              </button>
+              </Button>
             </div>
           ) : (
-            <form
+            <Form
               className="space-y-3"
               onSubmit={(event) => {
                 event.preventDefault();
                 void save(draft);
               }}
             >
-              <label className="block">
-                {m.override_label()}
-                <select
-                  className="block w-full min-w-0 rounded border border-border-emphasis bg-surface p-2"
-                  disabled={pending || disabled}
-                  value={draft.verdict}
-                  onChange={(event) =>
-                    setDraft({
-                      ...draft,
-                      verdict: event.target.value as Verdict,
-                    })
-                  }
-                >
-                  {(Object.keys(verdictLabels) as Verdict[]).map((verdict) => (
-                    <option key={verdict} value={verdict}>
+              <RadioGroup
+                label={m.override_label()}
+                value={draft.verdict}
+                isDisabled={blocked}
+                onChange={(verdict) =>
+                  setDraft({ ...draft, verdict: verdict as Verdict })
+                }
+              >
+                {(Object.keys(verdictLabels) as Verdict[]).map((verdict) => (
+                  <Radio key={verdict} value={verdict}>
+                    <span className="inline-flex items-start gap-2">
+                      <VerdictGlyph verdict={verdict} />
                       {m[verdictLabels[verdict]]()}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                    </span>
+                  </Radio>
+                ))}
+              </RadioGroup>
               <div className="flex flex-wrap gap-3">
-                <button
-                  className={action}
-                  disabled={pending || disabled}
-                  type="submit"
-                >
+                <Button variant="primary" type="submit" {...busy}>
                   {m.override_save()}
-                </button>
-                <button
-                  className={action}
-                  disabled={pending || disabled}
-                  type="button"
-                  onClick={() => {
+                </Button>
+                <Button
+                  variant="ghost"
+                  {...busy}
+                  onPress={() => {
                     setDraft(null);
                     setError(null);
                   }}
                 >
                   {m.override_cancel()}
-                </button>
+                </Button>
               </div>
-            </form>
+            </Form>
           )}
         </>
       )}
