@@ -205,16 +205,17 @@ recorded.
 
 ## Open
 
-- **Manual acceptance (#217):** native toolbar icon rendering, including
+- **Manual acceptance ([#217](https://github.com/jeffnawroth/source-taster/issues/217)):** native toolbar icon rendering, including
   Firefox light/dark theme switching and Chromium's toolbar and extensions
   page; favicon behaviour in browser tabs, bookmarks and iOS home screens;
   visual review of the store icons.
-- **#207 specialist review:** the brand notice stays a draft. Its placeholders
+- **[#207](https://github.com/jeffnawroth/source-taster/issues/207) specialist review:** the brand notice stays a draft. Its placeholders
   are unfilled, and nothing here clears brand distribution, private-program
   use or launch.
 - **Delivered later (#214, owner decision):** the web-app, Safari pinned-tab
   and web manifest wiring and the Firefox `sidebar_action` icon; see "Web
-  manifest and head wiring". The Edge 300 file stays a store listing candidate.
+  manifest and head wiring". The Edge 300 file stays a store listing candidate;
+  its upload belongs to the store publication in #223.
 - **Publication digest inputs (noted in review, no change):** the digest
   (`apps/website/scripts/publication.ts`) deliberately covers `brand/NOTICE.md`,
   `brand/exports/manifest.json` and the published favicon files, so a change to

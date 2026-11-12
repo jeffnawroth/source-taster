@@ -105,9 +105,9 @@ a headline and a caption beside the capture, which the CWS page does not
 forbid. **Not met:** saturated colours, avoiding heavy white and light grey,
 assuming a light-grey store background, and filling the region with
 well-defined edges. The tiles use the calm `#f3f5f9` canvas and will fade
-into a light-grey background; this is a design-review item for #217, not a
+into a light-grey background; this is a design-review item tracked in #223, not a
 requirement. The AMO page advises against text in images, so the AMO candidates are
-a design question for #217.
+a design question tracked in #223.
 
 ## Copy and alt text
 
@@ -261,20 +261,8 @@ not changed: the last line of `cws-de-3-evidence` is cut by the panel frame.
 The X-card size limit is read as "less than 5 MB" = fewer than 5,000,000 bytes,
 the stricter of the two readings of MB.
 
-## Open
+## Decided
 
-- **Manual acceptance (#217):** full-size and thumbnail inspection of every
-  image, the half-size check for the promo tiles, and the AMO text-in-image
-  question. The author only looked at a sample by eye.
-- **Development-preview notice:** the product still shows "development preview
-  with uncalibrated comparison rules". It is kept visible in the workspace
-  capture. This is a release blocker; every capture must be redone once the
-  notice is gone.
-- **Nothing is release-qualified**, and nothing was uploaded or published.
-  Publication readiness is explicitly not claimed.
-- **#207:** the brand notice stays a draft that is not legally reviewed. It
-  remains a hard gate before private consumption, brand distribution, store
-  publication and launch.
 - **AMO screenshot set (owner decision, 12 November 2026):** AMO takes one
   screenshot set (Extension Workshop), and the owner chose English. `amo-en-*`
   is the set to upload; `amo-de-*` is not uploaded to AMO. The manifest records
@@ -283,16 +271,31 @@ the stricter of the two readings of MB.
   marks them `amoUpload: false`, and they stay available if the owner later
   wants a German AMO set. German is still used on the product, the
   Chrome Web Store sets and the listing text, which AMO can localise.
-- **CWS promo recommendations** (saturated colour, no light grey, fill the
-  region) are not met by the calm tiles; design review in #217.
-- **AMO `content-optimization` state** on production is unverified; the 4:3
-  candidates are conditional.
-- **Promo tiles** show the mark and name only; the composition is a design
-  review item.
-- **Stable metadata URLs** wait for the domain and the website wiring.
+- **X card (12 November 2026):** `x-{en,de}-1200x600` meet the 2:1 large-image
+  card from the primary source in the requirements table.
 - The panel's sticky top bar still overlays content that scrolls underneath
   it, as in the real product; the captures are scrolled so the pictured
   content itself is clear of every sticky layer (checked, fail-closed).
-- **Claims `qualified: null`** stay `null` for every claim until a release
-  qualification covers the pictured behaviour; `releaseQualified` stays
-  `false` in the manifest and in the validator.
+
+## Tracked gates
+
+Nothing is release-qualified, and nothing was uploaded or published.
+Publication readiness is explicitly not claimed. Every remaining point is
+tracked in an issue:
+
+- [#223](https://github.com/jeffnawroth/source-taster/issues/223), publication
+  of this imagery: recapture once the notice is gone, claims and
+  `releaseQualified`, stable metadata URLs and the website's Open Graph and
+  X card markup, the AMO `content-optimization` check at upload, the design
+  review of the CWS promo tiles (saturated colour, no light grey, fill the
+  region; mark and name only) and of text in the AMO images, the tiled-capture
+  root cause and the framing of the scrolled captures.
+- [#222](https://github.com/jeffnawroth/source-taster/issues/222), the
+  development-preview notice: it stays on every image until the rules it
+  describes are qualified; every capture is redone afterwards.
+- [#217](https://github.com/jeffnawroth/source-taster/issues/217), manual
+  acceptance: full-size and thumbnail inspection of every image and the
+  half-size check of the promo tiles. The author only looked at a sample.
+- [#207](https://github.com/jeffnawroth/source-taster/issues/207), the brand
+  notice: it stays a draft that is not legally reviewed, a hard gate before
+  private consumption, brand distribution, store publication and launch.
