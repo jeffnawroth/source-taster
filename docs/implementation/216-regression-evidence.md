@@ -307,6 +307,17 @@ confirmed. The lease is now 6 s (`e2eClientLeaseMs`); evidence is in
 6 s with each renewal held for 1.1 s, and this test 15 of 15 under the same
 stress at 6 s.
 
+**Cross-suite reload, resolved in #220.** In CI run 43242466663 the web
+`comparison.spec.ts` ("replays exact stored and displayed comparison case 3")
+lost its page mid-test: the trace shows "[vite] server connection lost. Polling
+for restart..." and a reload back to the empty intake. The website suite's
+`publication-inputs.spec.ts` appended a newline to real sources, among them
+`packages/brand/src/web-head.ts`, which the web app's Vite config imports (the
+#214 manifest plugin), so Vite restarted while the web suite ran in the same
+job. The test now edits a temporary copy of the review inputs and passes
+`--root` to `publication-check.ts`; it first asserts that the copy has the same
+digest as the checkout, so a missing input cannot pass silently.
+
 ## 9. Limits of this evidence
 
 - Chromium only. Pixel measurements depend on the engine's text rendering. They
