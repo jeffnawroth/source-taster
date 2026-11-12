@@ -398,6 +398,48 @@ for (const language of ["en", "de"] as const)
     await expect(first).not.toHaveAccessibleName(new RegExp(t.marker, "u"));
   });
 
+test("a control scrolled into view from under the sticky verdict header ends up clear of it", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 520 });
+  const t = copy.en;
+  const { detail } = await openDeviating(page);
+  await detail.getByRole("button", { name: t.apply, exact: true }).click();
+  await expect(detail.locator(".detail-verdict-header")).toBeVisible();
+  const covered = await page.evaluate(() => {
+    const pane = document.querySelector<HTMLElement>(".check-detail")!;
+    const head = document.querySelector<HTMLElement>(".detail-verdict-header")!;
+    const controls = [
+      ...pane.querySelectorAll<HTMLElement>(
+        "button:not([disabled]), input:not([type=hidden]), textarea, summary",
+      ),
+    ].filter(
+      (control) =>
+        !head.contains(control) &&
+        control.getBoundingClientRect().top >=
+          head.getBoundingClientRect().top - 1,
+    );
+    const found: string[] = [];
+    for (const control of controls) {
+      // Park the control half under the stuck header, as a scrolled page does.
+      const parked = control.getBoundingClientRect();
+      pane.scrollTop +=
+        parked.top - head.getBoundingClientRect().bottom + parked.height / 2;
+      if (pane.scrollTop === 0) continue;
+      // What a press-and-scroll-into-view does: the nearest edge.
+      control.scrollIntoView({ block: "nearest" });
+      const box = control.getBoundingClientRect();
+      const overlap = head.getBoundingClientRect().bottom - box.top;
+      if (overlap > 0)
+        found.push(
+          `${(control.getAttribute("aria-label") ?? control.textContent ?? control.tagName).trim().slice(0, 40)}: ${Math.round(overlap)}px`,
+        );
+    }
+    return found;
+  });
+  expect(covered).toEqual([]);
+});
+
 test("an unbilled technical Status says no suggestion is available and offers no Apply to fields", async ({
   page,
 }) => {

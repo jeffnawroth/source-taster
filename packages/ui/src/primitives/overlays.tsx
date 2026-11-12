@@ -5,7 +5,7 @@ import {
   useContext,
   useEffect,
   useRef,
-  type HTMLAttributes,
+  type ComponentPropsWithRef,
   type ReactNode,
 } from "react";
 import * as Aria from "react-aria-components";
@@ -223,7 +223,7 @@ export type GlassLayer =
 export function GlassSurface({
   layer,
   ...props
-}: HTMLAttributes<HTMLDivElement> & { layer: GlassLayer }) {
+}: ComponentPropsWithRef<"div"> & { layer: GlassLayer }) {
   return (
     <div
       {...props}

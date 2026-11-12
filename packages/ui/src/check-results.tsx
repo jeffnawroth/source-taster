@@ -3,7 +3,8 @@ import { effectiveVerdict } from "./effective-verdict.ts";
 import { verdictLabels, statusLabels } from "./outcome-badges.tsx";
 import { Button } from "./primitives/actions.tsx";
 import { GlassSurface } from "./primitives/overlays.tsx";
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
+import { useStickySize } from "./sticky-layout.ts";
 import type {
   Check,
   ReferenceSlot,
@@ -59,6 +60,20 @@ function RunningStep({ reference }: { reference: ReferenceSlot }) {
             : m.reference_checking()}
       </li>
     </ol>
+  );
+}
+/** The sticky verdict header reports its height, so that scrolling a control
+ *  into view clears it instead of leaving the control half underneath. */
+function DetailHeader({ children }: { children: ReactNode }) {
+  const header = useStickySize("--detail-header-height");
+  return (
+    <GlassSurface
+      ref={header}
+      layer="detail-header"
+      className="detail-verdict-header"
+    >
+      {children}
+    </GlassSurface>
   );
 }
 /** Selection is a stable slot, never an outcome, array index or sorted result. */
@@ -337,15 +352,12 @@ export function CheckResults({
               <RunningStep reference={selected} />
               <ReferenceOutcomeView
                 header={
-                  <GlassSurface
-                    layer="detail-header"
-                    className="detail-verdict-header"
-                  >
+                  <DetailHeader>
                     <ReferenceOutcomeHeader
                       outcome={selected.outcome}
                       manualOverride={selected.manualOverride}
                     />
-                  </GlassSurface>
+                  </DetailHeader>
                 }
                 outcome={selected.outcome}
                 manualOverride={selected.manualOverride}

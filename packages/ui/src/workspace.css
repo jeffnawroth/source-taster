@@ -628,6 +628,11 @@ html:has(.check-workspace) {
     top: -16px;
     z-index: 1;
   }
+  /* The stuck header covers the top of the scrollport, measured at its own
+     height (see DetailHeader); a control scrolled into view clears it. */
+  .check-detail {
+    scroll-padding-block-start: calc(var(--detail-header-height, 0px) + 12px);
+  }
 }
 .detail-verdict-header {
   padding: 12px;

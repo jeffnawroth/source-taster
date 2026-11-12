@@ -2,9 +2,12 @@
 import { useLayoutEffect, useRef } from "react";
 /** Keep the working viewport below the actual wrapped sticky layers. */
 export function useStickySize(
-  property: "--checking-topbar-height" | "--checking-strip-height",
+  property:
+    | "--checking-topbar-height"
+    | "--checking-strip-height"
+    | "--detail-header-height",
 ) {
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     const element = ref.current;
     if (!element) return;
