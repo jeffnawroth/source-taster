@@ -2,7 +2,10 @@
 // The final-capture gate. The #212 review fix changes the Reference detail the
 // evidence story pictures, so final images may only be produced from a tree
 // that contains it. The git check is injected so the gate is testable.
-export const requiredCommit = "b588c9c";
+//
+// The commit is named by its full SHA: an abbreviation can become ambiguous as
+// the history grows, and this one gates what may be written as final.
+export const reviewFixCommit = "b588c9c847401fb3be49231f58680188694e5ed0";
 
 export interface GateResult {
   ok: boolean;
@@ -13,16 +16,16 @@ export async function finalCaptureGate(
   isAncestorOfHead: (commit: string) => Promise<boolean>,
 ): Promise<GateResult> {
   try {
-    if (await isAncestorOfHead(requiredCommit))
-      return { ok: true, reason: `${requiredCommit} is an ancestor of HEAD` };
+    if (await isAncestorOfHead(reviewFixCommit))
+      return { ok: true, reason: `${reviewFixCommit} is an ancestor of HEAD` };
     return {
       ok: false,
-      reason: `${requiredCommit} (the #212 review fix) is not an ancestor of HEAD; final images must not be produced`,
+      reason: `${reviewFixCommit} (the #212 review fix) is not an ancestor of HEAD; final images must not be produced`,
     };
   } catch (error) {
     return {
       ok: false,
-      reason: `${requiredCommit} could not be checked: ${error instanceof Error ? error.message : String(error)}`,
+      reason: `${reviewFixCommit} could not be checked: ${error instanceof Error ? error.message : String(error)}`,
     };
   }
 }
