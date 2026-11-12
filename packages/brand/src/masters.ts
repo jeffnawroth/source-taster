@@ -2,6 +2,8 @@
 // Generator code for the accepted #199 two-drop mark. The code is AGPL; the
 // artwork it produces is brand artwork outside the code licences (NOTICE.md).
 
+import { colors } from "@source-taster/design-tokens";
+
 type Oklch = readonly [l: number, c: number, h: number];
 
 /** The accepted mark's gradient stops, in their #191/#194 OKLCH source form. */
@@ -97,11 +99,19 @@ const white = "#ffffff";
 const colour = Object.fromEntries(
   gamutMapping().map(({ stop, hex }) => [stop, hex]),
 ) as Record<ColourMapping["stop"], string>;
-/** Chosen flat ink for the monochrome toolbar cuts and the maskable field. */
+/**
+ * Flat ink for the monochrome toolbar cuts and the maskable field. These are
+ * the design tokens' text (light, dark) and accent colours (ADR-0027), so the
+ * mark's flat cuts follow the product palette. The tokens package is value-only
+ * and AGPL-3.0-or-later OR MIT, which this AGPL generator may use; the artwork
+ * it produces keeps the separate brand scope (NOTICE.md). A token change that
+ * alters these values changes the exports and their manifest hashes, which the
+ * exports test reports.
+ */
 export const ink = {
-  onLight: "#0e1626",
-  onDark: "#f4f5f8",
-  maskableField: "#2456d3",
+  onLight: colors.light.text.color,
+  onDark: colors.dark.text.color,
+  maskableField: colors.light.accent.color,
 } as const;
 
 const gradients = {
