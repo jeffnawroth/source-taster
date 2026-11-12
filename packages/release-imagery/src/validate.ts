@@ -2,7 +2,11 @@
 import { createHash } from "node:crypto";
 import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
+import { claims } from "./claims.ts";
+import { imageAlt, imageClaims } from "./copy.ts";
+import { fixtureSha256 } from "./fixtures.ts";
 import type { Manifest } from "./manifest.ts";
+import { imageSpecs } from "./specs.ts";
 
 export interface PngInfo {
   width: number;
@@ -72,5 +76,49 @@ export async function validateImages(
   for (const name of await readdir(dir))
     if (name.endsWith(".png") && !listed.has(name))
       problems.push(`${name}: PNG is not listed in the manifest`);
+  return problems;
+}
+
+/** Structural checks that need no files: the manifest against the specs, claims and copy. */
+export function manifestProblems(manifest: Manifest): string[] {
+  const problems: string[] = [];
+  const known = new Set(claims.map((claim) => claim.id));
+  if (manifest.status === "final" && !manifest.gate.ok)
+    problems.push("status is final but the capture gate is not open");
+  if (manifest.releaseQualified !== false)
+    problems.push(
+      "releaseQualified must be false: no qualification covers the pictured behaviour",
+    );
+  if (manifest.fixtureSha256 !== fixtureSha256)
+    problems.push("fixtureSha256 differs from the current fixture definition");
+  const captured = new Set(manifest.captures.map((c) => c.file));
+  for (const spec of imageSpecs) {
+    const image = manifest.images.find((i) => i.file === spec.file);
+    if (!image) {
+      problems.push(`${spec.file}: image is missing from the manifest`);
+      continue;
+    }
+    if (
+      image.width !== spec.width ||
+      image.height !== spec.height ||
+      image.role !== spec.role
+    )
+      problems.push(
+        `${spec.file}: manifest size or role differs from the spec`,
+      );
+    for (const id of image.claims)
+      if (!known.has(id)) problems.push(`${spec.file}: unknown claim ${id}`);
+    if (image.claims.join() !== imageClaims(spec).join())
+      problems.push(`${spec.file}: claims differ from the copy module`);
+    const alt = imageAlt(spec);
+    for (const locale of ["en", "de"] as const)
+      if (!image.alt[locale] || image.alt[locale] !== alt[locale])
+        problems.push(
+          `${spec.file}: alt text (${locale}) is empty or differs from the copy module`,
+        );
+    for (const capture of image.sources.captures)
+      if (!captured.has(capture))
+        problems.push(`${spec.file}: capture ${capture} is not recorded`);
+  }
   return problems;
 }
