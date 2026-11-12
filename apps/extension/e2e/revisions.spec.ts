@@ -122,7 +122,9 @@ for (const language of ["en", "de"] as const)
         "button",
         language === "en" ? "Edit reference list" : "Referenzliste bearbeiten",
       );
-      await panel.click("checkbox", /^1\. Measured measurment/);
+      // The membership row is a choice primitive: its input is visually hidden,
+      // so a person presses the label that wraps it.
+      await panel.clickChoice("checkbox", /^1\. Measured measurment/);
       await panel.fill(
         "textbox",
         language === "en"
