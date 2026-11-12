@@ -14,21 +14,21 @@ interface Entry {
 export const copy: Record<Story | "social", Entry> = {
   workspace: {
     headline: {
-      en: "Paste References. Check them.",
+      en: "Paste references. Check them.",
       de: "Referenzen einfügen und prüfen",
     },
     caption: {
-      en: "Paste your reference list into the side panel. Each Reference is checked on its own.",
+      en: "Paste your reference list into the side panel. Each reference is checked on its own.",
       de: "Fügen Sie Ihre Literaturliste in den Seitenbereich ein. Jede Referenz wird einzeln geprüft.",
     },
   },
   overview: {
     headline: {
-      en: "One Verdict per Reference",
+      en: "One verdict per reference",
       de: "Ein Befund pro Referenz",
     },
     caption: {
-      en: "The summary counts Verdicts apart from technical Statuses, so a failed lookup is not read as a finding.",
+      en: "The summary counts verdicts apart from technical statuses, so a failed lookup is not read as a finding.",
       de: "Die Übersicht zählt Befunde getrennt von technischen Status. Ein Ausfall gilt nicht als Befund.",
     },
   },
@@ -38,17 +38,17 @@ export const copy: Record<Story | "social", Entry> = {
       de: "Die Belege dahinter",
     },
     caption: {
-      en: "The detail starts with the Verdict and compares the Reference with the Best match.",
+      en: "The detail starts with the verdict and compares the reference with the best match.",
       de: "Die Detailansicht beginnt mit dem Befund und vergleicht die Referenz mit dem besten Treffer.",
     },
   },
   social: {
     headline: {
-      en: "Check References against sources",
+      en: "Check references against sources",
       de: "Referenzen mit Quellen abgleichen",
     },
     caption: {
-      en: "Source Taster compares each Reference with public sources and shows the evidence. The decision stays with you.",
+      en: "Source Taster compares each reference with public sources and shows the evidence. The decision stays with you.",
       de: "Source Taster gleicht jede Referenz mit öffentlichen Quellen ab und zeigt die Belege. Entscheiden Sie selbst.",
     },
   },
@@ -70,15 +70,15 @@ export function imageClaims(spec: ImageSpec): string[] {
 
 const storyAlt: Record<Story, Text> = {
   workspace: {
-    en: "A capture of the Source Taster side panel with three pasted References in the input field and the Check reference button below.",
+    en: "A capture of the Source Taster side panel with three pasted references in the input field and the Check reference button below.",
     de: "Eine Aufnahme des Source-Taster-Seitenbereichs mit drei eingefügten Referenzen im Eingabefeld und der Schaltfläche Referenz prüfen darunter.",
   },
   overview: {
-    en: "The Source Taster summary with one count for each Verdict, above a list of three References. They carry the Verdicts Correct, Exists, with deviations and DOI conflict, each with a symbol and a label.",
+    en: "The Source Taster summary with one count for each verdict, above a list of three references. They carry the verdicts Correct, Exists, with deviations and DOI conflict, each with a symbol and a label.",
     de: "Die Source-Taster-Übersicht mit je einer Zahl pro Befund über einer Liste aus drei Referenzen. Sie tragen die Befunde Korrekt, Existiert, mit Abweichungen und DOI-Konflikt, jeweils mit Symbol und Beschriftung.",
   },
   evidence: {
-    en: "The detail of one Reference. It starts with the Verdict Exists, with deviations, shows the Original text and the Best match, and begins the comparison of the Reference with the Best match.",
+    en: "The detail of one reference. It starts with the verdict Exists, with deviations, shows the original text and the best match, and begins the comparison of the reference with the best match.",
     de: "Die Detailansicht einer Referenz. Sie beginnt mit dem Befund Existiert, mit Abweichungen, zeigt den Originaltext und den besten Treffer und beginnt den Vergleich der Referenz mit dem besten Treffer.",
   },
 };

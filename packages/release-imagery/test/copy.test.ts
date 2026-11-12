@@ -78,3 +78,29 @@ await test("alt texts name Verdicts with their exact labels and follow the voice
       );
     }
 });
+
+await test("English copy, alt text and claims use sentence case: domain nouns are lower case mid-sentence, labels stay exact (voice-and-tone Terminology 5)", () => {
+  // Verdict labels and the button label are shown as labels and stay exact.
+  const labels = [
+    ...captureReferences.map((r) => r.verdict.en),
+    "Mixed citation",
+    "Not found",
+    "Not verifiable",
+    "Check reference",
+  ];
+  const nouns =
+    /\b(References?|Verdicts?|Statuses|Status|Best match|Original text|Checks?|Evidence|Candidates?)\b/u;
+  const strings = [
+    ...Object.values(copy).flatMap((e) => [e.headline.en, e.caption.en]),
+    ...imageSpecs.map((s) => imageAlt(s).en),
+    ...claims.map((c) => c.text.en),
+  ];
+  for (const raw of strings) {
+    let text = raw;
+    for (const label of labels) text = text.split(label).join("§");
+    for (const sentence of text.split(/(?<=[.!?])\s+/u)) {
+      const rest = sentence.replace(/^\S+\s*/u, "");
+      assert.doesNotMatch(rest, nouns, raw);
+    }
+  }
+});

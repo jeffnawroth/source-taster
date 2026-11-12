@@ -32,7 +32,7 @@ export const claims: readonly Claim[] = [
   {
     id: "side-panel",
     text: {
-      en: "The Check workspace opens in the browser's side panel.",
+      en: "The check workspace opens in the browser's side panel.",
       de: "Der Prüfbereich öffnet sich im Seitenbereich des Browsers.",
     },
     qualified: null,
@@ -46,7 +46,7 @@ export const claims: readonly Claim[] = [
   {
     id: "verdict-per-reference",
     text: {
-      en: "Each pasted Reference receives its own Verdict, in input order.",
+      en: "Each pasted reference receives its own verdict, in input order.",
       de: "Jede eingefügte Referenz erhält einen eigenen Befund, in Eingabereihenfolge.",
     },
     qualified: null,
@@ -60,7 +60,7 @@ export const claims: readonly Claim[] = [
   {
     id: "summary-counts",
     text: {
-      en: "The summary counts Verdicts separately from technical Statuses and filters the list.",
+      en: "The summary counts verdicts separately from technical statuses and filters the list.",
       de: "Die Übersicht zählt Befunde getrennt von technischen Status und filtert die Liste.",
     },
     qualified: null,
@@ -87,7 +87,7 @@ export const claims: readonly Claim[] = [
   {
     id: "best-match-comparison",
     text: {
-      en: "The Reference and the Best match are compared side by side.",
+      en: "The reference and the best match are compared side by side.",
       de: "Referenz und bester Treffer werden nebeneinander verglichen.",
     },
     qualified: null,
@@ -100,7 +100,7 @@ export const claims: readonly Claim[] = [
   {
     id: "detail-leads-with-verdict",
     text: {
-      en: "The Reference detail leads with the Verdict and offers the evidence behind it.",
+      en: "The reference detail leads with the verdict and offers the evidence behind it.",
       de: "Die Detailansicht beginnt mit dem Befund und bietet die Belege dahinter.",
     },
     qualified: null,
