@@ -2,7 +2,7 @@
 // Real browser, real shared UI and real server with fixture sources. The
 // structured suggestion comes from the server's proven candidate record.
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import { CheckResponse } from "@source-taster/contract-verification/v2";
 
@@ -306,14 +306,11 @@ test("narrow Back restores the filter and focus after opening a filtered Referen
   await expect(grid.getByRole("row")).toBeFocused();
 });
 
-// On a narrow viewport the bibliography panel sits above the detail. Opening a
-// Reference renders its suggestion; with no correction selected the panel does
-// not depend on that rendering, so it must not change height and move Back
-// from under a press.
-test("narrow Back stays under the pointer while the opened Reference's suggestion loads", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 360, height: 780 });
+/**
+ * Holds the response of the next suggestion rendering that includes the given
+ * Reference until `release` is called; other renderings pass.
+ */
+async function holdNextBibliography(page: Page) {
   let release!: () => void;
   let arrived!: () => void;
   const gate = new Promise<void>((resolve) => {
@@ -322,39 +319,38 @@ test("narrow Back stays under the pointer while the opened Reference's suggestio
   const entered = new Promise<void>((resolve) => {
     arrived = resolve;
   });
-  let holding = false;
+  let holding: number | null = null;
   await page.route("**/bibliography", async (route) => {
     const response = await route.fetch();
-    if (holding) {
-      holding = false;
+    const body = route.request().postDataJSON() as {
+      suggestionSlots: number[];
+    };
+    if (holding !== null && body.suggestionSlots.includes(holding)) {
+      holding = null;
       arrived();
       await gate;
     }
     await route.fulfill({ response });
   });
-  // A single Reference opens its detail on its own; three keep the list.
-  const { grid, detail } = await start(
-    page,
-    `${correct}\n${unchecked}\n${deviating}`,
-  );
-  const summary = page.getByRole("region", { name: "Check summary" });
-  for (const name of ["Correct: 1", "Exists, with deviations: 1"])
-    await expect(
-      summary.getByRole("button", { name, exact: true }),
-    ).toBeVisible({ timeout: 15000 });
-  const panel = page.getByRole("region", {
-    name: "Formatted bibliography",
-    exact: true,
-  });
-  await expect(panel).toContainText(
-    "No corrections selected. The export uses the current fields.",
-  );
-  // Opening another Reference renders that Reference's suggestion.
-  holding = true;
-  const open = grid.getByRole("button", { name: /^Open reference 3:/u });
-  await open.click();
-  await expect(detail).toContainText(deviating);
-  await entered;
+  return {
+    /** Arms the hold for the rendering of this Reference's suggestion. */
+    arm: (slot: number) => {
+      holding = slot;
+    },
+    entered,
+    release,
+  };
+}
+
+/**
+ * Presses Back as a click finds it, with the held response released between
+ * press and release, and asserts that Back did not move under the pointer.
+ */
+async function pressBackAcrossHeldResponse(
+  page: Page,
+  panel: Locator,
+  release: () => void,
+) {
   const back = page.getByRole("button", {
     name: "Back to references",
     exact: true,
@@ -392,10 +388,122 @@ test("narrow Back stays under the pointer while the opened Reference's suggestio
     "Back did not move under the pointer",
   ).toBeLessThanOrEqual(1);
   await page.mouse.up();
+}
+
+// On a narrow viewport the bibliography panel sits above the detail. Opening a
+// Reference renders its suggestion; with no correction selected the panel does
+// not depend on that rendering, so it must not change height and move Back
+// from under a press.
+test("narrow Back stays under the pointer while the opened Reference's suggestion loads", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 780 });
+  const hold = await holdNextBibliography(page);
+  // A single Reference opens its detail on its own; three keep the list.
+  const { grid, detail } = await start(
+    page,
+    `${correct}\n${unchecked}\n${deviating}`,
+  );
+  const summary = page.getByRole("region", { name: "Check summary" });
+  for (const name of ["Correct: 1", "Exists, with deviations: 1"])
+    await expect(
+      summary.getByRole("button", { name, exact: true }),
+    ).toBeVisible({ timeout: 15000 });
+  const panel = page.getByRole("region", {
+    name: "Formatted bibliography",
+    exact: true,
+  });
+  await expect(panel).toContainText(
+    "No corrections selected. The export uses the current fields.",
+  );
+  // Opening another Reference renders that Reference's suggestion.
+  hold.arm(3);
+  const open = grid.getByRole("button", { name: /^Open reference 3:/u });
+  await open.click();
+  await expect(detail).toContainText(deviating);
+  await hold.entered;
+  await pressBackAcrossHeldResponse(page, panel, hold.release);
   await expect(grid).toBeVisible();
   await expect(
     grid.getByRole("row").filter({
       has: page.getByRole("button", { name: /^Open reference 3:/u }),
+    }),
+  ).toBeFocused();
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+});
+
+// With a correction applied the export panels list it. Opening another
+// Reference changes only the suggestion that is rendered, so neither panel may
+// blank, show Formatting… or change height while that rendering is pending.
+test("narrow Back stays under the pointer while another Reference's suggestion loads with a correction applied", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 780 });
+  const hold = await holdNextBibliography(page);
+  const { grid, detail } = await start(
+    page,
+    `${correct}\n${unchecked}\n${deviating}`,
+  );
+  const summary = page.getByRole("region", { name: "Check summary" });
+  for (const name of ["Correct: 1", "Exists, with deviations: 1"])
+    await expect(
+      summary.getByRole("button", { name, exact: true }),
+    ).toBeVisible({ timeout: 15000 });
+  const panel = page.getByRole("region", {
+    name: "Formatted bibliography",
+    exact: true,
+  });
+  const exports = page.getByRole("region", {
+    name: "Export references",
+    exact: true,
+  });
+  await exports
+    .getByRole("combobox", { name: "Export content", exact: true })
+    .selectOption("selected-corrections");
+  // Apply the deviating Reference's suggestion to the export.
+  await grid.getByRole("button", { name: /^Open reference 3:/u }).click();
+  await expect(detail).toContainText(deviating);
+  await detail
+    .getByRole("region", { name: "Correction suggestion", exact: true })
+    .getByText("Apply for export only", { exact: true })
+    .click();
+  for (const region of [panel, exports])
+    await expect(region.getByRole("listitem")).toHaveCount(1);
+  await expect(panel.getByRole("button", { name: /^Copy/u })).toBeEnabled();
+  await page
+    .getByRole("button", { name: "Back to references", exact: true })
+    .click();
+  await expect(grid).toBeVisible();
+  await expect(panel.getByRole("listitem")).toHaveCount(1);
+  const heights = async () => [
+    (await panel.boundingBox())!.height,
+    (await exports.boundingBox())!.height,
+  ];
+  const settled = await heights();
+  // Opening another Reference renders that Reference's suggestion.
+  hold.arm(1);
+  await grid.getByRole("button", { name: /^Open reference 1:/u }).click();
+  await expect(detail).toContainText(correct);
+  await hold.entered;
+  // Soft, so a failure shows every panel that changed.
+  for (const region of [exports, panel])
+    await expect.soft(region.getByRole("listitem")).toHaveCount(1);
+  await expect.soft(panel).not.toContainText("Formatting");
+  await expect
+    .soft(panel.getByRole("button", { name: /^Copy/u }))
+    .toBeEnabled();
+  await expect
+    .soft(panel.getByRole("button", { name: /^Download/u }))
+    .toBeEnabled();
+  await expect
+    .soft(exports.getByRole("button", { name: "Download references" }))
+    .toBeEnabled();
+  expect.soft(await heights(), "the panels kept their height").toEqual(settled);
+  await pressBackAcrossHeldResponse(page, panel, hold.release);
+  await expect(grid).toBeVisible();
+  await expect(
+    grid.getByRole("row").filter({
+      has: page.getByRole("button", { name: /^Open reference 1:/u }),
     }),
   ).toBeFocused();
   await page.unrouteAll({ behavior: "ignoreErrors" });

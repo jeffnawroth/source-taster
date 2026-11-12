@@ -477,13 +477,59 @@ The Save test in `manual-overrides.spec.ts` now compares Save's centre instead
 of its whole box. On Linux the press motion scaled the button around an
 unchanged centre, and the whole-box comparison failed on that.
 
+**With a correction applied.** The first fix left the case where a correction
+is applied. The suggestion rendering is requested again whenever its `key`
+changes, and that key includes the opened Reference. While the request was
+pending, the formatted bibliography panel showed "Formatting…" with disabled
+Copy and Download, and the "Export references" panel, in "With selected
+correction suggestions" mode, lost its list: both read `corrections` and the
+suggestion texts only from a rendering whose `contentKey` matched the current
+one. Opening another Reference changes `contentKey`, so both panels changed
+height under a Back press.
+
+`useBibliography` now stores an `exportKey` on each response. It covers only
+what the exports depend on: Check id, style, retry attempt and each applied
+choice (slot and result binding). It does not include the opened
+Reference. `corrections` is read from the current response when its
+`contentKey` or its `exportKey` matches, so it is never smaller than before.
+`exportReady` is true with nothing applied, otherwise when the response's
+`exportKey` matches. Every state that was ready before is still ready, and
+nothing becomes ready that does not have its corrections. A re-check or a
+different result binding, a style change, a retry, and applying or removing a
+correction all change the `exportKey`, so the panels still wait for a fresh
+rendering then. `appliedSuggestions` gives both panels the suggestion text from
+the same response as `corrections`. The "Export references" Download button
+waits on `exportReady` instead of the pending state of the opened Reference's
+rendering. The per-entry suggestion in the detail and `apply` keep the
+`contentKey` and `key` behaviour.
+
+**Evidence.** The new test "narrow Back stays under the pointer while another
+Reference's suggestion loads with a correction applied" applies the deviating
+Reference's suggestion, selects "With selected correction suggestions", opens
+another Reference with only that Reference's rendering held, checks that both
+panels keep their list item, their enabled buttons and their height, and then
+runs the same press as above. The hold matches the request by the slots it asks
+for, so another rendering cannot take its place.
+
+- Pristine product: 3 of 3 red. In the held window the "Export references" list
+  was empty, the formatted bibliography showed "Formatting…" with disabled Copy
+  and Download, and the panel heights changed.
+- Fix: 20 of 20 green with `--repeat-each 10` for the new test together with
+  the existing narrow Back test.
+- `reference-detail`, `corrections`, `revision-save-only`, `manual-overrides`,
+  `workspace`, `exports` and `imports` in chromium: 55 of 55 pass.
+
+Not changed: `failed` still follows the opened Reference's rendering. If that
+rendering fails, the formatted bibliography panel shows its alert and Retry, and
+the "Export references" Download button is disabled in "With selected correction
+suggestions" mode, although `exportReady` and `corrections` are valid.
+
+The Linux flake "compares Reference and server Best match side by side at narrow
+zoom in de" clicks a narrow feed row below these panels and may share this
+cause. This was not verified.
+
 ## Open
 
-- With a correction applied, opening another Reference still reflows the
-  formatted bibliography panel while the suggestion renders (see "Back press
-  lost" above). The Linux flake "compares Reference and server Best match side
-  by side at narrow zoom in de" also clicks a narrow feed row below that panel
-  and may share this cause. This was not verified.
 - Before the review follow-up, one native `manual-overrides` (EN) run failed
   once: the Manual verdict combobox (now a RadioGroup) never appeared after
   "Judge manually". It did not recur in the follow-up's runs. The UI code was identical to
