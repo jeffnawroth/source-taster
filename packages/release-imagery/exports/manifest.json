@@ -2,15 +2,15 @@
   "status": "final",
   "releaseQualified": false,
   "fixtureSha256": "ef7ba8f99a16418cdd5051b456bb7687728dbb8ee3007e6a1d3ded3d7c3e0eb3",
-  "commit": "f895aac",
+  "commit": "9603bbf",
   "gate": {
     "ok": true,
-    "reason": "b588c9c is an ancestor of HEAD"
+    "reason": "b588c9c847401fb3be49231f58680188694e5ed0 is an ancestor of HEAD"
   },
   "captures": [
     {
       "file": "captures/en-workspace.png",
-      "sha256": "00b49f39ce00f24168a760dc9917ccf64856f7be0c22419e2c02e48c3043ce89",
+      "sha256": "e3173c04b88da5c104bf9e48993f0df18b15bf11b536991e5423492fd5ffe0c5",
       "language": "en",
       "story": "workspace",
       "devPreviewNoticeInViewport": true,
@@ -18,7 +18,7 @@
     },
     {
       "file": "captures/en-overview.png",
-      "sha256": "98d986c740ffc800ac9edb9944b408f4f5cd4292d35fff627b4676ff97ce1e9c",
+      "sha256": "ed2057a0205447aa3bae1d03636136ff323a219657a7c35662c1437790a0f306",
       "language": "en",
       "story": "overview",
       "devPreviewNoticeInViewport": false,
@@ -30,7 +30,7 @@
     },
     {
       "file": "captures/en-evidence.png",
-      "sha256": "15d3a2fa257df9760041c897e114fa32890f9528092ca8726804e6b9a70d0ca1",
+      "sha256": "8f991a1d716a6e1c3c44d7c6731c44b14d40eb80c7770965090bd70cab213bdf",
       "language": "en",
       "story": "evidence",
       "devPreviewNoticeInViewport": false,
@@ -50,7 +50,7 @@
     },
     {
       "file": "captures/de-overview.png",
-      "sha256": "86cc81b0b908ef15fd435e8cfe97b0bd67c015d25e5490214f3103d74bea9ab0",
+      "sha256": "e7aff186237604fd957a0798993037347868ce28b08eb2910cf47720461b0607",
       "language": "de",
       "story": "overview",
       "devPreviewNoticeInViewport": false,
@@ -62,7 +62,7 @@
     },
     {
       "file": "captures/de-evidence.png",
-      "sha256": "ba9415ef808340a0decc0b59aea598abf3eea4b0660f9f5aaa443e66f7a7158e",
+      "sha256": "4aeceea3c9e8fae0757e3b4b1393792aaf87b42bd04cf4d97b929e198aa13b35",
       "language": "de",
       "story": "evidence",
       "devPreviewNoticeInViewport": false,
@@ -80,15 +80,20 @@
       "width": 1280,
       "height": 800,
       "format": "png",
-      "sha256": "7a5dd0eb92d74c474b6d039299de3273a7eec6f27ba9df8b82af4158095f5185",
+      "sha256": "8d86ee52579edf5ac2a28e21ae448e5b7253712d9e5199ab6f8dd93181a62c57",
       "claims": [
         "side-panel",
         "verdict-per-reference",
         "german-and-english"
       ],
       "alt": {
-        "en": "A capture of the Source Taster side panel with three pasted References in the input field and the Check reference button below.",
+        "en": "A capture of the Source Taster side panel with three pasted references in the input field and the Check reference button below.",
         "de": "Eine Aufnahme des Source-Taster-Seitenbereichs mit drei eingefügten Referenzen im Eingabefeld und der Schaltfläche Referenz prüfen darunter."
+      },
+      "devPreviewNotice": {
+        "carried": true,
+        "locale": "en",
+        "text": "Development preview with uncalibrated comparison rules. Article searches may use OpenAlex and Crossref when enabled. Some source types cannot yet be fully checked. No public service is available."
       },
       "sources": {
         "captures": [
@@ -103,15 +108,20 @@
       "width": 1280,
       "height": 800,
       "format": "png",
-      "sha256": "42d7fd4e434c2fc4e4dfc15ae37833b0785f529715085dd6db0068f465892429",
+      "sha256": "3624c6b4292955c1a9c25ee1251cfb9657889e1ff257c3b853783c611f02edd1",
       "claims": [
         "verdict-per-reference",
         "summary-counts",
         "doi-conflict"
       ],
       "alt": {
-        "en": "The Source Taster summary with one count for each Verdict, above a list of three References. They carry the Verdicts Correct, Exists, with deviations and DOI conflict, each with a symbol and a label.",
+        "en": "The Source Taster summary with one count for each verdict, above a list of three references. They carry the verdicts Correct, Exists, with deviations and DOI conflict, each with a symbol and a label.",
         "de": "Die Source-Taster-Übersicht mit je einer Zahl pro Befund über einer Liste aus drei Referenzen. Sie tragen die Befunde Korrekt, Existiert, mit Abweichungen und DOI-Konflikt, jeweils mit Symbol und Beschriftung."
+      },
+      "devPreviewNotice": {
+        "carried": true,
+        "locale": "en",
+        "text": "Development preview with uncalibrated comparison rules. Article searches may use OpenAlex and Crossref when enabled. Some source types cannot yet be fully checked. No public service is available."
       },
       "sources": {
         "captures": [
@@ -126,14 +136,19 @@
       "width": 1280,
       "height": 800,
       "format": "png",
-      "sha256": "408c8c983c8758e6fd1be71da92bc4110a5f7ad20b9cc6ee2c540db509377533",
+      "sha256": "39e1cbfd8a2e767bfaf3365f06fe2080bff02b88a3792b67c902341f724a5d7b",
       "claims": [
-        "detail-leads-with-verdict",
-        "best-match-comparison"
+        "best-match-comparison",
+        "source-evidence-disclosure"
       ],
       "alt": {
-        "en": "The detail of one Reference. It starts with the Verdict Exists, with deviations, shows the Original text and the Best match, and begins the comparison of the Reference with the Best match.",
-        "de": "Die Detailansicht einer Referenz. Sie beginnt mit dem Befund Existiert, mit Abweichungen, zeigt den Originaltext und den besten Treffer und beginnt den Vergleich der Referenz mit dem besten Treffer."
+        "en": "The detail of one reference, scrolled to its end. The last rows of the comparison with the best match are followed by the opened disclosure Explanation and source evidence: the scoring rules version, a DOI lookup that found the DOI, and a candidate retrieved from Crossref with its score.",
+        "de": "Die Detailansicht einer Referenz, bis zu ihrem Ende gescrollt. Auf die letzten Zeilen des Vergleichs mit dem besten Treffer folgt die geöffnete Einblendung Erklärung und Quellenbelege: die Version der Bewertungsregeln, eine DOI-Abfrage, die die DOI gefunden hat, und ein von Crossref abgerufener Kandidat mit seiner Bewertung."
+      },
+      "devPreviewNotice": {
+        "carried": true,
+        "locale": "en",
+        "text": "Development preview with uncalibrated comparison rules. Article searches may use OpenAlex and Crossref when enabled. Some source types cannot yet be fully checked. No public service is available."
       },
       "sources": {
         "captures": [
@@ -148,15 +163,20 @@
       "width": 1280,
       "height": 800,
       "format": "png",
-      "sha256": "06e840fa840ffe05b558b22e759361da5e2d1b36812ac889a51e07bbb7dc93ae",
+      "sha256": "8158306b10645f9188888690a3b42c6189eafac3acf5c4e248c6f38d73abb36e",
       "claims": [
         "side-panel",
         "verdict-per-reference",
         "german-and-english"
       ],
       "alt": {
-        "en": "A capture of the Source Taster side panel with three pasted References in the input field and the Check reference button below.",
+        "en": "A capture of the Source Taster side panel with three pasted references in the input field and the Check reference button below.",
         "de": "Eine Aufnahme des Source-Taster-Seitenbereichs mit drei eingefügten Referenzen im Eingabefeld und der Schaltfläche Referenz prüfen darunter."
+      },
+      "devPreviewNotice": {
+        "carried": true,
+        "locale": "de",
+        "text": "Entwicklungsvorschau mit nicht kalibrierten Vergleichsregeln. Artikelsuchen können bei Aktivierung OpenAlex und Crossref nutzen. Einige Quellentypen sind noch nicht vollständig prüfbar. Kein öffentlicher Dienst verfügbar."
       },
       "sources": {
         "captures": [
@@ -171,15 +191,20 @@
       "width": 1280,
       "height": 800,
       "format": "png",
-      "sha256": "1e21b20cefdc1a9d8becd5a51b4df2cb6918a4c26804d1331af0660e16ffc98b",
+      "sha256": "187ef23ce44140458a5218e7f7937e141a60f81b05c470f081143681a78af47f",
       "claims": [
         "verdict-per-reference",
         "summary-counts",
         "doi-conflict"
       ],
       "alt": {
-        "en": "The Source Taster summary with one count for each Verdict, above a list of three References. They carry the Verdicts Correct, Exists, with deviations and DOI conflict, each with a symbol and a label.",
+        "en": "The Source Taster summary with one count for each verdict, above a list of three references. They carry the verdicts Correct, Exists, with deviations and DOI conflict, each with a symbol and a label.",
         "de": "Die Source-Taster-Übersicht mit je einer Zahl pro Befund über einer Liste aus drei Referenzen. Sie tragen die Befunde Korrekt, Existiert, mit Abweichungen und DOI-Konflikt, jeweils mit Symbol und Beschriftung."
+      },
+      "devPreviewNotice": {
+        "carried": true,
+        "locale": "de",
+        "text": "Entwicklungsvorschau mit nicht kalibrierten Vergleichsregeln. Artikelsuchen können bei Aktivierung OpenAlex und Crossref nutzen. Einige Quellentypen sind noch nicht vollständig prüfbar. Kein öffentlicher Dienst verfügbar."
       },
       "sources": {
         "captures": [
@@ -194,14 +219,19 @@
       "width": 1280,
       "height": 800,
       "format": "png",
-      "sha256": "1bd90bf9142dc208d23235921e815212fe9d1480f6dcdf92cf992373d2c44c58",
+      "sha256": "54013988f226b6c049e89ccab3b1b3b7fc3207f1ff1b543e405a334c2fcad9d0",
       "claims": [
-        "detail-leads-with-verdict",
-        "best-match-comparison"
+        "best-match-comparison",
+        "source-evidence-disclosure"
       ],
       "alt": {
-        "en": "The detail of one Reference. It starts with the Verdict Exists, with deviations, shows the Original text and the Best match, and begins the comparison of the Reference with the Best match.",
-        "de": "Die Detailansicht einer Referenz. Sie beginnt mit dem Befund Existiert, mit Abweichungen, zeigt den Originaltext und den besten Treffer und beginnt den Vergleich der Referenz mit dem besten Treffer."
+        "en": "The detail of one reference, scrolled to its end. The last rows of the comparison with the best match are followed by the opened disclosure Explanation and source evidence: the scoring rules version, a DOI lookup that found the DOI, and a candidate retrieved from Crossref with its score.",
+        "de": "Die Detailansicht einer Referenz, bis zu ihrem Ende gescrollt. Auf die letzten Zeilen des Vergleichs mit dem besten Treffer folgt die geöffnete Einblendung Erklärung und Quellenbelege: die Version der Bewertungsregeln, eine DOI-Abfrage, die die DOI gefunden hat, und ein von Crossref abgerufener Kandidat mit seiner Bewertung."
+      },
+      "devPreviewNotice": {
+        "carried": true,
+        "locale": "de",
+        "text": "Entwicklungsvorschau mit nicht kalibrierten Vergleichsregeln. Artikelsuchen können bei Aktivierung OpenAlex und Crossref nutzen. Einige Quellentypen sind noch nicht vollständig prüfbar. Kein öffentlicher Dienst verfügbar."
       },
       "sources": {
         "captures": [
@@ -216,15 +246,20 @@
       "width": 1280,
       "height": 960,
       "format": "png",
-      "sha256": "02cf420899716fa347cc9afa5142f319ef5f82b70bc4a3d16af24b8e2d4a837b",
+      "sha256": "02581767d1437c517caa976fab0e437d1c95ca524a42b394ecd196d18b5575c7",
       "claims": [
         "side-panel",
         "verdict-per-reference",
         "german-and-english"
       ],
       "alt": {
-        "en": "A capture of the Source Taster side panel with three pasted References in the input field and the Check reference button below.",
+        "en": "A capture of the Source Taster side panel with three pasted references in the input field and the Check reference button below.",
         "de": "Eine Aufnahme des Source-Taster-Seitenbereichs mit drei eingefügten Referenzen im Eingabefeld und der Schaltfläche Referenz prüfen darunter."
+      },
+      "devPreviewNotice": {
+        "carried": true,
+        "locale": "en",
+        "text": "Development preview with uncalibrated comparison rules. Article searches may use OpenAlex and Crossref when enabled. Some source types cannot yet be fully checked. No public service is available."
       },
       "sources": {
         "captures": [
@@ -239,15 +274,20 @@
       "width": 1280,
       "height": 960,
       "format": "png",
-      "sha256": "1376fe8f78dd85d9b40d0173ee4f6f7b414d42ca97c2d365b28037dcf3c94e48",
+      "sha256": "789778ad919af3705ba8811046bede43f423b8ba1d97bdc48dce0278fea6c2ae",
       "claims": [
         "verdict-per-reference",
         "summary-counts",
         "doi-conflict"
       ],
       "alt": {
-        "en": "The Source Taster summary with one count for each Verdict, above a list of three References. They carry the Verdicts Correct, Exists, with deviations and DOI conflict, each with a symbol and a label.",
+        "en": "The Source Taster summary with one count for each verdict, above a list of three references. They carry the verdicts Correct, Exists, with deviations and DOI conflict, each with a symbol and a label.",
         "de": "Die Source-Taster-Übersicht mit je einer Zahl pro Befund über einer Liste aus drei Referenzen. Sie tragen die Befunde Korrekt, Existiert, mit Abweichungen und DOI-Konflikt, jeweils mit Symbol und Beschriftung."
+      },
+      "devPreviewNotice": {
+        "carried": true,
+        "locale": "en",
+        "text": "Development preview with uncalibrated comparison rules. Article searches may use OpenAlex and Crossref when enabled. Some source types cannot yet be fully checked. No public service is available."
       },
       "sources": {
         "captures": [
@@ -262,14 +302,19 @@
       "width": 1280,
       "height": 960,
       "format": "png",
-      "sha256": "89bf097587e335bfa447720c86c2fe660ae8720a1a1a8b20a6ae55f3bad433e8",
+      "sha256": "71f32395c66fcf0cc34ab7aefe01f8de0c846a3c015e08bb2d9d932f07e52f71",
       "claims": [
-        "detail-leads-with-verdict",
-        "best-match-comparison"
+        "best-match-comparison",
+        "source-evidence-disclosure"
       ],
       "alt": {
-        "en": "The detail of one Reference. It starts with the Verdict Exists, with deviations, shows the Original text and the Best match, and begins the comparison of the Reference with the Best match.",
-        "de": "Die Detailansicht einer Referenz. Sie beginnt mit dem Befund Existiert, mit Abweichungen, zeigt den Originaltext und den besten Treffer und beginnt den Vergleich der Referenz mit dem besten Treffer."
+        "en": "The detail of one reference, scrolled to its end. The last rows of the comparison with the best match are followed by the opened disclosure Explanation and source evidence: the scoring rules version, a DOI lookup that found the DOI, and a candidate retrieved from Crossref with its score.",
+        "de": "Die Detailansicht einer Referenz, bis zu ihrem Ende gescrollt. Auf die letzten Zeilen des Vergleichs mit dem besten Treffer folgt die geöffnete Einblendung Erklärung und Quellenbelege: die Version der Bewertungsregeln, eine DOI-Abfrage, die die DOI gefunden hat, und ein von Crossref abgerufener Kandidat mit seiner Bewertung."
+      },
+      "devPreviewNotice": {
+        "carried": true,
+        "locale": "en",
+        "text": "Development preview with uncalibrated comparison rules. Article searches may use OpenAlex and Crossref when enabled. Some source types cannot yet be fully checked. No public service is available."
       },
       "sources": {
         "captures": [
@@ -284,15 +329,20 @@
       "width": 1280,
       "height": 960,
       "format": "png",
-      "sha256": "5e4c85e206404f836f073782e96f476abdc7f97fea3e24a1939e992762db692c",
+      "sha256": "869615a5904d1064f93300835f1f0b116145932878f75f51936f8f9bcc128a7f",
       "claims": [
         "side-panel",
         "verdict-per-reference",
         "german-and-english"
       ],
       "alt": {
-        "en": "A capture of the Source Taster side panel with three pasted References in the input field and the Check reference button below.",
+        "en": "A capture of the Source Taster side panel with three pasted references in the input field and the Check reference button below.",
         "de": "Eine Aufnahme des Source-Taster-Seitenbereichs mit drei eingefügten Referenzen im Eingabefeld und der Schaltfläche Referenz prüfen darunter."
+      },
+      "devPreviewNotice": {
+        "carried": true,
+        "locale": "de",
+        "text": "Entwicklungsvorschau mit nicht kalibrierten Vergleichsregeln. Artikelsuchen können bei Aktivierung OpenAlex und Crossref nutzen. Einige Quellentypen sind noch nicht vollständig prüfbar. Kein öffentlicher Dienst verfügbar."
       },
       "sources": {
         "captures": [
@@ -307,15 +357,20 @@
       "width": 1280,
       "height": 960,
       "format": "png",
-      "sha256": "f573ae48a71cd9d8dfbdcf4f81f8bdaaca5198dc1b044d620c2c5b37fa17d869",
+      "sha256": "8201f09ed0c18b21568bc079e03c106491818aa3ab8d75b032f0bba3f446c977",
       "claims": [
         "verdict-per-reference",
         "summary-counts",
         "doi-conflict"
       ],
       "alt": {
-        "en": "The Source Taster summary with one count for each Verdict, above a list of three References. They carry the Verdicts Correct, Exists, with deviations and DOI conflict, each with a symbol and a label.",
+        "en": "The Source Taster summary with one count for each verdict, above a list of three references. They carry the verdicts Correct, Exists, with deviations and DOI conflict, each with a symbol and a label.",
         "de": "Die Source-Taster-Übersicht mit je einer Zahl pro Befund über einer Liste aus drei Referenzen. Sie tragen die Befunde Korrekt, Existiert, mit Abweichungen und DOI-Konflikt, jeweils mit Symbol und Beschriftung."
+      },
+      "devPreviewNotice": {
+        "carried": true,
+        "locale": "de",
+        "text": "Entwicklungsvorschau mit nicht kalibrierten Vergleichsregeln. Artikelsuchen können bei Aktivierung OpenAlex und Crossref nutzen. Einige Quellentypen sind noch nicht vollständig prüfbar. Kein öffentlicher Dienst verfügbar."
       },
       "sources": {
         "captures": [
@@ -330,14 +385,19 @@
       "width": 1280,
       "height": 960,
       "format": "png",
-      "sha256": "4d35c82869414b1b03f459903e00c60de3b7ce1ddd2a798256d9d6139ccbb0df",
+      "sha256": "ab4662831006d76fbc7eb8e8ca28e1aa5e4661c57c652dcdc9bb770f4347d718",
       "claims": [
-        "detail-leads-with-verdict",
-        "best-match-comparison"
+        "best-match-comparison",
+        "source-evidence-disclosure"
       ],
       "alt": {
-        "en": "The detail of one Reference. It starts with the Verdict Exists, with deviations, shows the Original text and the Best match, and begins the comparison of the Reference with the Best match.",
-        "de": "Die Detailansicht einer Referenz. Sie beginnt mit dem Befund Existiert, mit Abweichungen, zeigt den Originaltext und den besten Treffer und beginnt den Vergleich der Referenz mit dem besten Treffer."
+        "en": "The detail of one reference, scrolled to its end. The last rows of the comparison with the best match are followed by the opened disclosure Explanation and source evidence: the scoring rules version, a DOI lookup that found the DOI, and a candidate retrieved from Crossref with its score.",
+        "de": "Die Detailansicht einer Referenz, bis zu ihrem Ende gescrollt. Auf die letzten Zeilen des Vergleichs mit dem besten Treffer folgt die geöffnete Einblendung Erklärung und Quellenbelege: die Version der Bewertungsregeln, eine DOI-Abfrage, die die DOI gefunden hat, und ein von Crossref abgerufener Kandidat mit seiner Bewertung."
+      },
+      "devPreviewNotice": {
+        "carried": true,
+        "locale": "de",
+        "text": "Entwicklungsvorschau mit nicht kalibrierten Vergleichsregeln. Artikelsuchen können bei Aktivierung OpenAlex und Crossref nutzen. Einige Quellentypen sind noch nicht vollständig prüfbar. Kein öffentlicher Dienst verfügbar."
       },
       "sources": {
         "captures": [
@@ -352,11 +412,15 @@
       "width": 440,
       "height": 280,
       "format": "png",
-      "sha256": "133610334d4f1ed1e4f226211cd6bd2717d0585257779a408a7a701b6bcad7b9",
+      "sha256": "8c31cfe88f001f2cef9df6a44eaaac734babdb59144dce2485de79df57666df3",
       "claims": [],
       "alt": {
         "en": "The Source Taster mark, two overlapping drops, next to the product name on a plain light background.",
         "de": "Das Source-Taster-Zeichen, zwei sich überlagernde Tropfen, neben dem Produktnamen auf schlichtem hellem Grund."
+      },
+      "devPreviewNotice": {
+        "carried": false,
+        "reason": "mark and name only: the tile pictures and states no product behaviour, the Chrome Web Store advises against text in promo tiles, and the four-sentence notice cannot be read at 440×280"
       },
       "sources": {
         "captures": [],
@@ -369,11 +433,15 @@
       "width": 1400,
       "height": 560,
       "format": "png",
-      "sha256": "ec12f340f4b280318158c2d9bd1c96b4bd01bd1cdecba6aec557ec592cc8e26a",
+      "sha256": "1851e48bad24fad5454848235db1c138cdd978cf1afac0e410c04e6832a400c2",
       "claims": [],
       "alt": {
         "en": "The Source Taster mark, two overlapping drops, next to the product name on a plain light background.",
         "de": "Das Source-Taster-Zeichen, zwei sich überlagernde Tropfen, neben dem Produktnamen auf schlichtem hellem Grund."
+      },
+      "devPreviewNotice": {
+        "carried": false,
+        "reason": "mark and name only: the tile pictures and states no product behaviour, the Chrome Web Store advises against text in promo tiles, and the four-sentence notice cannot be read at 440×280"
       },
       "sources": {
         "captures": [],
@@ -386,14 +454,19 @@
       "width": 1200,
       "height": 630,
       "format": "png",
-      "sha256": "8097a9516ea09caa0ec36fa9cfecd779f4a9ab51f8e360de32f5e6ab03a92f98",
+      "sha256": "b2a11e184b7db5d5cafa3bb321307d56bb718eb432ae819deabc7546c73db7ad",
       "claims": [
         "verdict-per-reference",
         "detail-leads-with-verdict"
       ],
       "alt": {
-        "en": "Source Taster. Check References against sources. Source Taster compares each Reference with public sources and shows the evidence. The decision stays with you.",
+        "en": "Source Taster. Check references against sources. Source Taster compares each reference with public sources and shows the evidence. The decision stays with you.",
         "de": "Source Taster. Referenzen mit Quellen abgleichen. Source Taster gleicht jede Referenz mit öffentlichen Quellen ab und zeigt die Belege. Entscheiden Sie selbst."
+      },
+      "devPreviewNotice": {
+        "carried": true,
+        "locale": "en",
+        "text": "Development preview with uncalibrated comparison rules. Article searches may use OpenAlex and Crossref when enabled. Some source types cannot yet be fully checked. No public service is available."
       },
       "sources": {
         "captures": [],
@@ -406,14 +479,19 @@
       "width": 1200,
       "height": 630,
       "format": "png",
-      "sha256": "2a165a671a3472dcd11cf0f508df214d80f00b24fa33b9a1104650ae38ccbc19",
+      "sha256": "aafdefcb2dd917009b62280bf1bd40ca9f0475d67c66caf4a7935c5d46cecd03",
       "claims": [
         "verdict-per-reference",
         "detail-leads-with-verdict"
       ],
       "alt": {
-        "en": "Source Taster. Check References against sources. Source Taster compares each Reference with public sources and shows the evidence. The decision stays with you.",
+        "en": "Source Taster. Check references against sources. Source Taster compares each reference with public sources and shows the evidence. The decision stays with you.",
         "de": "Source Taster. Referenzen mit Quellen abgleichen. Source Taster gleicht jede Referenz mit öffentlichen Quellen ab und zeigt die Belege. Entscheiden Sie selbst."
+      },
+      "devPreviewNotice": {
+        "carried": true,
+        "locale": "de",
+        "text": "Entwicklungsvorschau mit nicht kalibrierten Vergleichsregeln. Artikelsuchen können bei Aktivierung OpenAlex und Crossref nutzen. Einige Quellentypen sind noch nicht vollständig prüfbar. Kein öffentlicher Dienst verfügbar."
       },
       "sources": {
         "captures": [],
