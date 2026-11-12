@@ -268,7 +268,7 @@ extractor, as in #211. Without it, the six document upload journeys
 (`bibliography-selection`, `documents`, `intake-composition`) fail at upload.
 Those journeys passed 10/10 in a separate run with the image set. The native
 suites passed 12/12 before the merge and in the final run. One run in between
-failed once (see Open).
+failed once (#227, see Tracked).
 
 ```sh
 SOURCE_TASTER_DOCUMENT_IMAGE=$(cat /tmp/source-taster-design-document-image-id) \
@@ -452,7 +452,7 @@ the row's centre has not moved before releasing the press.
 `revisions` en 1 of 1. Extension `revisions` de failed once in the first run
 ("region Referenzdetails never contained Feldrevision 2") and in 2 of 15 repeats
 on the fix, and also in 2 of 15 repeats on the pristine product: the existing
-flake below, not caused by this change.
+flake. #220 fixed a different lost press in that test, and the Save-stage failure itself was not reproduced; see "Edit fields press lost" below.
 
 ## Back press lost: the bibliography panel reflows above the detail (#220)
 
@@ -549,18 +549,69 @@ by "a narrow feed row stays under the pointer while the completed Reference's
 suggestion renders" in `workspace.spec.ts`). With a correction
 applied, this fix covers it too.
 
-## Open
+## Edit fields press lost: the suggestion renders above the action rows (#220)
 
-- Before the review follow-up, one native `manual-overrides` (EN) run failed
-  once: the Manual verdict combobox (now a RadioGroup) never appeared after
-  "Judge manually". It did not recur in the follow-up's runs. The UI code was identical to
-  the passing runs before and after it (the merge changed only lock files and
-  docs). The cause was not reproduced then. It is likely the same mechanism as
-  above (page scroll range moving mid-press), but this is not verified in the
-  side panel; the phantom overflow itself is fixed in the stylesheet. The earlier
-  Discard → Edit fields focus handling remains. `.check-list` also scrolls; whether
-  it holds absolutely positioned hidden content was not checked, and it would
-  need the same containing block if it does.
+The native `revisions` test failed intermittently in de. The recorded first
+failure is "region Referenzdetails never contained Feldrevision 2", a message
+from the wait after the Save press; the later 2 of 15 repeats (on the tree with
+`0a0b6d9`) do not record how they failed. That Save-stage failure was **not
+reproduced** in #220: no run showed it, in more than 60 throttled and more than
+100 unthrottled runs, and a Save press under a held suggestion does not move.
+Its cause is unknown (#227). #220 found a different lost press in the same
+test, on **Edit fields**. It fails earlier, with "No textbox named Titel" (the
+field editor never opened): 5 of 30 runs on the pristine product under a 6x CPU
+throttle, 10 of 30 with only the product change below, and 0 in more than 100
+unthrottled runs.
+
+**Cause.** `useBibliography` requests the selected Reference's suggestion as
+soon as the results mount and renders it above the Edit fields, Re-check and
+Manual verdict rows. While it loads, the detail shows one line ("Loading…"); the
+response then inserts the "Correction suggestion" section, 235 px tall in the
+test, above those rows, whenever it arrives. Chrome's scroll anchoring does not
+compensate: its anchor is the first visible node of the detail scroller, which
+sits above the insertion (`scrollTop` stays 3121 while `scrollHeight` grows by
+235 px). With the scroller already at its end, as for Confirm verdict, anchoring
+does keep the control still, so those presses are not affected. The documented
+order (suggestion above the field editor and Manual judgment) rules out moving
+the section below the rows. There are two ways to lose the press:
+
+1. **The section arrives between pointer down and up.** A pointer that is down
+   on Edit fields ends up over the tracked-change paragraph. Rare for a person,
+   deterministic with a held response.
+2. **The section arrives between the test's measurement and the press.** The
+   test measured Edit fields and sent the press a few CDP calls later; the
+   response landed in between and pointer down, up and click all hit the
+   paragraph at the old position (an event log of 12 throttled runs showed this
+   in all 5 losses). This is the natural flake. Nothing can know a press is
+   coming, so `afterPress` cannot cover it, and a person who presses Edit fields
+   as the suggestion lands loses the press the same way. Avoiding that needs a
+   design decision (reserve the section's space while it loads, or change the
+   order), #226. The test waits for the page to settle.
+
+**Fix.**
+
+- Product, for (1): `useBibliography` applies a settled response through
+  `afterPress` (`packages/ui/src/after-press.ts`): at once when no primary
+  pointer is down, otherwise right after the press is released or cancelled (or
+  the window loses focus). Keyboard use is unaffected.
+- Test, for (2): the `revisions` test waits for the "Correction suggestion" to
+  render before pressing Edit fields.
+- `SOURCE_TASTER_E2E_CPU_THROTTLE` is a stress knob of the panel driver, which
+  slows the page down so such races show up; it is how (2) was reproduced.
+
+**Evidence.**
+
+- (1) The new test "native Edit fields press survives a late suggestion" holds
+  the suggestion request, opens the Reference, presses down on Edit fields,
+  releases the request, waits until the response is complete and 30 frames have
+  rendered, and checks that the button's centre has not moved before it
+  releases the press. It then expects the Title textbox and the suggestion.
+  Pristine product: 16 of 16 red (the button moved 235 px: 507.8 to 742.8 in de,
+  508.2 to 743.2 in en). With `afterPress`: 10 of 10 green with `--repeat-each 5`.
+- (2) `revisions` "corrects one slot and keeps original evidence in de" at
+  `SOURCE_TASTER_E2E_CPU_THROTTLE=6`, `--repeat-each 30`: pristine 25 of 30
+  (5 "No textbox named Titel"), product change only 20 of 30 (10 the same),
+  with the wait in the test 30 of 30.
 
 ## Resolved in #220
 
@@ -576,6 +627,25 @@ applied, this fix covers it too.
 
 ## Tracked
 
+- A visible control still moves when the Correction suggestion lands after the
+  pointer has been aimed but before it is down (mechanism 2 of "Edit fields
+  press lost"). Fixing it needs a design decision, either reserving the
+  section's space while it loads or changing the documented order of the
+  detail: #226. The same issue covers an audit of the web suite's presses that
+  follow an Open without waiting for the suggestion; the extension `revisions`
+  test now waits, and the extension suite's other such presses follow a wait or
+  sit at the end of the scroller.
+- Three native side-panel failures that #220 did not reproduce, with what was
+  ruled out for each: #227. They are the `revisions` de "Feldrevision 2" failure
+  after the Save press, the `manual-overrides` de "No region named Historisches
+  Ergebnis", and one `manual-overrides` (EN) run before the review follow-up in
+  which the Manual verdict control (now a RadioGroup) never appeared after
+  "Judge manually". For the last one, a late suggestion does not move Confirm
+  verdict or Judge manually (the scroller is at its end and anchoring
+  compensates), and Confirm verdict sends no new suggestion request. The
+  earlier Discard → Edit fields focus handling remains; whether `.check-list`
+  holds absolutely positioned hidden content was not checked.
+
 - A failed lease renewal still ends the workspace's connection for good, and the
   feed can stay at "Running" after the workspace gives up: #224. In a local
   trace one renewal returned 500 (the shared test Postgres was at its connection
@@ -587,7 +657,6 @@ applied, this fix covers it too.
   #217.
 
 ## Limits of this evidence
-
 - The integrated state regression (`regression.playwright.config.ts`) needs the
   owned PostgreSQL on port 5433 and was not run locally; CI's `web-suites` job
   runs it on every push. All local runs are macOS arm64; the Linux CI run on the

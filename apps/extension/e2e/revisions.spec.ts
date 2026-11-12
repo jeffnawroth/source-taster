@@ -44,6 +44,14 @@ for (const language of ["en", "de"] as const)
         "button",
         language === "en" ? /^Open reference 1:/ : /^Referenz 1 öffnen:/,
       );
+      // The Correction suggestion renders above the Edit fields row when its
+      // response arrives. A press measured before that lands on the suggestion
+      // text and never opens the editor, so the page settles first.
+      await panel.waitForText(
+        "region",
+        language === "en" ? "Reference detail" : "Referenzdetails",
+        language === "en" ? "Correction suggestion" : "Korrekturvorschlag",
+      );
       await panel.click(
         "button",
         language === "en" ? "Edit fields" : "Felder bearbeiten",
@@ -169,6 +177,75 @@ for (const language of ["en", "de"] as const)
       );
       const stored = await browser.storage();
       expect(JSON.stringify(stored)).not.toContain("Measured measurment");
+    } finally {
+      await browser.close();
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+// The Correction suggestion for the selected Reference is requested as soon as
+// the results show, and it renders above the Edit fields row whenever its
+// response arrives. A response that settles between a press and its release
+// would move the pressed button away and lose the press, so the panel waits
+// for the release. The test holds the response, presses down, lets the
+// response arrive, and checks that the button did not move before the pointer
+// goes up.
+for (const language of ["en", "de"] as const)
+  test(`native Edit fields press survives a late suggestion in ${language}`, async () => {
+    const en = language === "en";
+    const directory = await mkdtemp(join(tmpdir(), "st220-panel-"));
+    const browser = await launchChromium(
+      build.outDir,
+      directory,
+      en ? "en-GB" : "de-DE",
+    );
+    try {
+      const panel = await browser.openPanel();
+      await panel.select("combobox", /^(Language|Sprache)$/, language);
+      await panel.fill(
+        "textbox",
+        en ? "Reference" : "Referenz",
+        "Aspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170",
+      );
+      const suggestion = await panel.holdRequests(/\/bibliography$/);
+      await panel.click("button", en ? "Check reference" : "Referenz prüfen");
+      await panel.waitForText(
+        "grid",
+        en ? "References" : "Referenzen",
+        en ? "Correct" : "Korrekt",
+      );
+      await until(
+        () => suggestion.held() > 0,
+        "The suggestion request was never sent",
+      );
+      await panel.click(
+        "button",
+        en ? /^Open reference 1:/ : /^Referenz 1 öffnen:/,
+      );
+      const edit = en ? "Edit fields" : "Felder bearbeiten";
+      const press = await panel.pressDown("button", edit);
+      await suggestion.release();
+      await until(
+        () =>
+          panel.evaluate<boolean>(
+            `performance.getEntriesByType("resource").some((e) => e.name.endsWith("/bibliography") && e.responseEnd > 0)`,
+          ),
+        "The suggestion response never arrived",
+      );
+      // The response is complete; give the page ample frames to render it.
+      await panel.evaluate(
+        `(async () => { for (let i = 0; i < 30; i++) await new Promise((r) => requestAnimationFrame(r)); })()`,
+      );
+      const centre = await panel.centreOf("button", edit);
+      expect(centre?.y).toBeCloseTo(press.point.y, 0);
+      await press.release();
+      // The press reached the button, and the suggestion renders afterwards.
+      await panel.find("textbox", en ? "Title" : "Titel");
+      await panel.waitForText(
+        "region",
+        en ? "Reference detail" : "Referenzdetails",
+        en ? "Correction suggestion" : "Korrekturvorschlag",
+      );
     } finally {
       await browser.close();
       await rm(directory, { recursive: true, force: true });

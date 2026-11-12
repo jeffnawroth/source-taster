@@ -8,6 +8,7 @@ import type { Bibliography } from "@source-taster/contract-verification/bibliogr
 import { bibliographyClient } from "@source-taster/contract-verification/bibliography-client";
 import type { VerificationClientOptions } from "@source-taster/contract-verification/client-v2";
 import { m } from "@source-taster/i18n";
+import { afterPress } from "./after-press.ts";
 import { Button } from "./primitives/actions.tsx";
 import { Checkbox } from "./primitives/selection.tsx";
 import { resultBinding } from "./reference-work.ts";
@@ -70,6 +71,7 @@ export function useBibliography(
   ].join("|");
   useEffect(() => {
     let current = true;
+    let cancel = () => {};
     const applied = appliedKey ? appliedKey.split(",").map(Number) : [];
     const suggestionSlots = [
       ...new Set([...applied, ...(selectedSlot ? [selectedSlot] : [])]),
@@ -81,16 +83,21 @@ export function useBibliography(
       includeBibliography: false,
     })
       .then((data) => {
-        if (current) {
-          setResponse({ key, contentKey, exportKey, data });
-          setError(null);
-        }
+        // The suggestion renders above the field editor and the verdict
+        // controls, so a response that settles while a pointer is down on one
+        // of them would move it away and lose the press.
+        if (current)
+          cancel = afterPress(() => {
+            setResponse({ key, contentKey, exportKey, data });
+            setError(null);
+          });
       })
       .catch(() => {
-        if (current) setError(key);
+        if (current) cancel = afterPress(() => setError(key));
       });
     return () => {
       current = false;
+      cancel();
     };
   }, [
     request,
