@@ -1,0 +1,120 @@
+{
+  "issue": 216,
+  "codeTree": "3eb7c624689865718831565bbfb001397acc5d43",
+  "branch": "fix/220-review",
+  "upstream": "implement/design-remaining@2f858a2",
+  "claims": "No WCAG, EN 301 549 or BFSG conformance claim. Automated evidence only.",
+  "tools": {
+    "node": "24.14.0",
+    "pnpm": "12.15.0",
+    "playwright": "1.64.1",
+    "browser": "chromium",
+    "host": "macOS arm64",
+    "linux": "mcr.microsoft.com/playwright:v1.64.1-noble (aarch64, via run-server)",
+    "postgres": "localhost:5433"
+  },
+  "measurement": {
+    "coverage": "projection of the pixel onto the backdrop-to-element colour line, all three channels",
+    "coverageFloor": 0.2,
+    "minimumSpanSquared": 300,
+    "ratioFloor": { "text": 4.5, "nonText": 3 },
+    "countFloors": { "text": 5, "glyph": 20 },
+    "linuxCiRun": 43171277516,
+    "linuxCiCause": "coverage >= 0.6 counted 3 to 5 pixels of the thin digit 1 on the ubuntu rasteriser (macOS 15 to 24), below the more-than-five floor; at 0.2 it counts 17 to 31 on both"
+  },
+  "greyscale": {
+    "visibleMin": 250,
+    "sameShapeBelow": 0.8,
+    "fractions": [0.25, 0.5, 0.75],
+    "observedMacOS": {
+      "strongestCellOf765": [333, 642],
+      "highestOverlapLoosest": 0.75,
+      "highestOverlapHalfMaximum": 0.68
+    },
+    "observedLinux": "not recorded; passes the same thresholds"
+  },
+  "negativeControls": [
+    "web: pale text on the top bar measures below 4.5 with count above 5",
+    "web: text in the bar's own colour gives count 0 and min 0",
+    "web: sticky detail header, pale label below 4.5 and pale glyph below 3",
+    "website: pale heading measures below 4.5",
+    "reduced motion: shipped spinner is seen running when motion is allowed",
+    "greyscale: a glyph overlaps itself at 1 and a different glyph below 1"
+  ],
+  "commands": {
+    "env": {
+      "SOURCE_TASTER_E2E_WEB_PORT": "7174",
+      "SOURCE_TASTER_E2E_API_PORT": "7192",
+      "SOURCE_TASTER_TEST_API_PORT": "7650",
+      "SOURCE_TASTER_TEST_SERVICE_PORT": "7651",
+      "DATABASE_ADMIN_URL": "postgres://postgres:postgres@localhost:5433/postgres",
+      "DATABASE_TEST_URL": "postgres://verification_test:fixture@localhost:5433/owned"
+    },
+    "static": [
+      "pnpm install --frozen-lockfile",
+      "pnpm pagefind:fetch && pnpm pagefind:build && pnpm pagefind:verify",
+      "pnpm typecheck",
+      "pnpm lint",
+      "pnpm exec prettier --check .",
+      "pnpm i18n:check",
+      "pnpm audit:licenses",
+      "node --test apps/server/test/operations/ci-workflow.test.mjs",
+      "pnpm --filter @source-taster/ui test",
+      "pnpm --filter @source-taster/release-imagery test",
+      "pnpm --filter @source-taster/brand test"
+    ],
+    "e2e": "pnpm exec playwright test [--config <name>] --workers=1 in apps/web, apps/website and apps/extension"
+  },
+  "static": {
+    "install": "pass",
+    "pagefind": "pass",
+    "typecheck": "24 of 24 tasks",
+    "lint": "24 of 24 tasks",
+    "prettier": "pass",
+    "i18n": "2 of 2 tasks",
+    "licenses": "570 licences reviewed, 108 runtime packages",
+    "ciWorkflow": { "pass": 13, "fail": 0 },
+    "ui": { "pass": 3, "fail": 0 },
+    "releaseImagery": { "pass": 27, "fail": 0 },
+    "brand": { "pass": 12, "fail": 0 }
+  },
+  "e2e": {
+    "regressionRenderedMacOS": { "passed": 43, "failed": 0 },
+    "regressionRenderedLinux": { "passed": 43, "failed": 0 },
+    "webDefault": { "passed": 169, "failed": 1, "seconds": 761 },
+    "webBibliographic": { "passed": 22, "failed": 0 },
+    "webReport": { "passed": 2, "failed": 0 },
+    "webShell": { "passed": 8, "failed": 0 },
+    "webRegressionStates": { "passed": 10, "failed": 0 },
+    "website": { "passed": 134, "failed": 0 },
+    "extensionPanel": { "passed": 17, "failed": 1, "seconds": 312 },
+    "extensionSelection": { "passed": 14, "failed": 0 },
+    "extensionReport": { "passed": 2, "failed": 0 }
+  },
+  "open": [
+    {
+      "test": "apps/web/e2e/manual-overrides.spec.ts: a layout change in the detail during a Save press does not lose the press",
+      "failure": "Expected: 2994, Received: 3136 (scrollY)",
+      "rates": { "fullRun": "1 failed", "isolated": ["5 of 30", "7 of 40"] },
+      "finding": "bimodal by resting scroll position (3136 passes, 2994 fails); overflow-anchor: none on the document kept 2994 and passed 12 of 12; not committed, product decision",
+      "ruledOut": ["font settle wait", "200 ms scroll stability wait"]
+    },
+    {
+      "test": "apps/extension/e2e/manual-overrides.spec.ts: native panel confirms, filters and resets a result-bound manual verdict in de",
+      "failure": "region Historisches Ergebnis never contained Manueller Befund: Nicht gefunden: No region named Historisches Ergebnis in the side panel",
+      "rates": { "fullRun": "1 failed", "repeat": "12 of 12 passed" }
+    },
+    {
+      "test": "apps/web/e2e/regression-rendered.spec.ts: negative control: the detail header measurement rejects faint text and a faint glyph (Linux)",
+      "failure": "one cold-start failure, message not captured",
+      "rates": { "repeat": ["25 of 25 passed", "16 of 16 passed"] }
+    }
+  ],
+  "limits": [
+    "Chromium only",
+    "x86_64 Linux rasteriser is covered by CI only",
+    "guest contract test needs SOURCE_TASTER_SERVICE_WORKTREE and was not run",
+    "drift check stays open (source-taster-service#29)",
+    "manual and native gates stay with #217"
+  ]
+}

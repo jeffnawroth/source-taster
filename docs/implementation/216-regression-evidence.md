@@ -1,9 +1,9 @@
 # #216 — Integrated visual and accessibility regression evidence
 
 Public implementation on `implement/216-regression-evidence`, built under the
-TDD workflow. The tree under test contains `59f4f85`, the #212 review fix
-`b588c9c` and the `implement/design-remaining` tip `d472612` (merge commit
-`7ba3545`). Sources: ADR-0027, `docs/design/{styleguide,components,tokens}.md`,
+TDD workflow, and reviewed and hardened on `fix/220-review`. The recorded code
+tree is `3eb7c62`, which contains the #212 review fix `b588c9c` and the
+`implement/design-remaining` tip `2f858a2` (section 8). Sources: ADR-0027, `docs/design/{styleguide,components,tokens}.md`,
 `packages/design-tokens` (`validation.json`), and the existing suites listed in
 the coverage map. This manifest records what the automated evidence shows and
 what it does not. **It makes no claim of WCAG, EN 301 549, BFSG or any other
@@ -14,7 +14,7 @@ and native gates in section 6.
 
 | Item                                       | State                                                                                                |
 | ------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| Rendered web regression suite              | Delivered, passing on the merged tree (section 3).                                                   |
+| Rendered web regression suite              | Delivered, passing on macOS and Linux Chromium (sections 2, 3, 8). Two other e2e tests flake (8).    |
 | Hosted Guest and Account state suite       | Delivered, passing against the real verification API, worker and PostgreSQL.                         |
 | Website regression suite                   | Delivered, passing.                                                                                  |
 | CI wiring                                  | Delivered: new `web-suites` step; `apps/server/test/operations/ci-workflow.test.mjs` asserts it.     |
@@ -40,25 +40,60 @@ fallback. `apps/web/e2e/support/rendered.ts` therefore measures pixels:
    real backdrop, including blurred content scrolled under a glass surface.
 3. Decode both PNGs inside the page (`createImageBitmap`, no `fetch`, so it
    works under the website's strict `connect-src`).
-4. Pixels equal to the element's computed colour (tolerance 8) and different
-   from the backdrop pixel (more than 2 per channel) are the fully painted
-   ones; anti-aliased edges are not claimed. The lowest WCAG ratio of those
-   pixels against the backdrop is the result.
+4. Per pixel, the coverage is the projection of the observed colour onto the
+   line from the backdrop pixel to the element's computed colour, over all
+   three channels: `((pixel - back) . (want - back)) / |want - back|^2`. A
+   pixel counts as painted when `|want - back|^2` is at least 300 (the colour
+   can be told from its backdrop at all) and its coverage is at least 0.2. The
+   lowest WCAG ratio of the counted pixels against the backdrop is the result.
+   Pixels that do not count are not claimed, so a measurement over fewer than
+   a handful of pixels fails its own `count` floor instead of passing.
 5. Thresholds: text at least 4.5:1, non-text (glyphs, focus outline) at least
    3:1.
 
-**Negative controls.** The measurement is only evidence if it can fail. Two
-tests deliberately paint `rgb(226 228 234)` text over a light surface (web) or
-the website heading and require the measurement to fall below 4.5. A third
-control injects the shipped `.st-spinner` and proves the reduced-motion probe
-sees it running when motion is allowed.
+**Why coverage 0.2 (the Linux CI failure).** The first version of step 4 asked
+for coverage of at least 0.6 per pixel and a per-channel span filter. On the
+ubuntu CI rasteriser the thin stroke of the digit "1" in the Verdict count
+reached that coverage on only 3 to 5 pixels (macOS: 15 to 24), below the
+"more than five painted pixels" floor, so six rendered cases failed in run
+43171277516. The glyph was fine; the measurement leaned on an
+engine-specific anti-aliasing profile. At coverage 0.2 the same stroke yields
+17 to 31 pixels on both platforms. The contrast of a partly covered pixel is
+not diluted by this: the ratio is taken between the element colour and the
+backdrop, and only pixels that moved towards the element colour are counted.
+The three-channel projection also fixed a second flaw in the same step: with
+the per-channel filter, a faint colour such as `rgb(226 228 234)` on a pale
+bar was dropped channel by channel and the website control measured nothing.
 
-**Greyscale.** `html { filter: grayscale(1) }` is applied, each of the six
-Verdict glyphs is captured against its own backdrop and reduced to a 24x24
-mask. Pairwise intersection-over-union must stay below 0.85, so the six
-silhouettes remain distinguishable without colour. Visible labels stay neutral
-text; the label assertion is the accessible-name and text check in the same
-test.
+**Negative controls.** The measurement is only evidence if it can fail.
+
+- Web and website: `rgb(226 228 234)` text over a light surface must measure
+  below 4.5 with a count above five.
+- Web, same test: text in the colour of its own background must give a count
+  of 0 and a minimum of 0, i.e. it reads as unpainted and fails a floor that
+  needs painted pixels. It is never taken for a pass.
+- Web: on the sticky detail header, the same pale colour on the Verdict label
+  (below 4.5) and on the Verdict glyph (below 3, more than 20 pixels) must be
+  detected.
+- A control injects the shipped `.st-spinner` and proves the reduced-motion
+  probe sees it running when motion is allowed.
+- Greyscale: a glyph overlaps itself at exactly 1 and a different glyph at
+  below 1.
+
+**Greyscale.** `html { filter: grayscale(1) }` is applied and each of the six
+Verdict glyphs is captured against its own backdrop as a 24x24 map of
+backdrop differences (summed over three channels, at most 765).
+
+- Visible: the strongest cell of every glyph differs from the backdrop by at
+  least 250. Measured on macOS: 333 to 642.
+- Distinct: silhouettes are the cells at 0.25, 0.5 and 0.75 of the glyph's
+  strongest cell, so the result does not hang on one threshold. At each, the
+  most alike pair has an intersection-over-union below 0.80. Measured on
+  macOS: highest 0.75 at the loosest threshold tried, 0.68 at the
+  half-maximum; two identical glyphs score 1.
+
+Visible labels stay neutral text; the label assertion is the accessible-name
+and text check in the same test.
 
 ## 3. Coverage map
 
@@ -68,13 +103,14 @@ it. "Existing" suites predate #216 and are cited rather than duplicated.
 | Criterion                                                                         | Evidence                                                                                                                                                                                                                                                                                  |
 | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Rendered contrast beyond the numerical gate, opaque and glass, text and non-text  | `apps/web/e2e/regression-rendered.spec.ts`: sticky Summary strip and top bar text and Verdict glyphs over scrolled content, English and German, light and dark, `backdrop-filter` asserted active; reduced-transparency opaque fallback (4); focus outline (2); forced colours (en, de). |
-| Greyscale Verdict shape and label distinction                                     | Same spec: six silhouettes, light and dark.                                                                                                                                                                                                                                               |
+| Greyscale Verdict shape and label distinction                                     | Same spec: six silhouettes at three threshold fractions, light and dark; thresholds and measured values in section 2.                                                                                                                                                                     |
 | German and English                                                                | Every rendered, reflow, forced-colour, announcement and website test runs in both languages.                                                                                                                                                                                              |
 | Light and dark                                                                    | Rendered contrast, greyscale and website contrast run in both schemes.                                                                                                                                                                                                                    |
 | Wide, 360 px and 320 px reflow                                                    | Reflow matrix in the rendered spec (20 cases: wide 1100, 360, 320, 640x360 and 320x256 viewports x language x scheme; no horizontal overflow, axe clean). Website: existing `accessibility.spec.ts` axe plus `scrollWidth` at 320 and 1280 for every built route.                                          |
 | 200% zoom and enlarged text                                                       | Web: reflow matrix at the viewport widths that 200% and 400% produce. Website: `regression.spec.ts`, root font size 200% at 640 and 320 px, asserted computed 32 px, no horizontal scroll, search reachable and inside the viewport.                                                      |
 | Keyboard operation and focus return                                               | Web: existing `lifecycle.spec.ts` (Cancel by Enter), `checking-shell.spec.ts`, plus the focus outline contrast test. Website: existing `design.spec.ts` search focus return; `regression.spec.ts` forced-colour Escape returns focus to the trigger.                                         |
-| Announcements are bounded                                                         | Rendered spec: live-region log during an 8-Reference check, deduplicated per leaf region: at most six progress announcements, counts only move forward, the finished count (8) is announced, no announcement dumps a whole region; English and German. Existing `packages/ui` Toast contract tests.                                                                                                                        |
+| Announcements are bounded                                                         | Rendered spec: live-region log during an 8-Reference check, deduplicated per leaf region. Progress lines must match the product's own wording exactly (`N of 8 references finished` / `N von 8 Referenzen abgeschlossen`), none in the other language; two to six of them, counts strictly increasing and never repeated, the finished count (8) is announced last, the first announcement is "8 references recognized." (`8 Referenzen erkannt.`), and none exceeds 200 characters; English and German. Existing `packages/ui` Toast contract tests. |
+| Sticky detail verdict header (glass, two panes)                                   | Rendered spec: the detail is scrolled until content sits under the header (asserted), then the Verdict label, each reason line and the Verdict glyph are measured (4: en/de x light/dark), with the real glass asserted active. Negative control on the same header (pale label and pale glyph are detected).                                                                                       |
 | Forced colours                                                                    | Rendered spec (painted text and shapes under `forced-colors: active`, English and German); website focus indicator and dialog edge.                                                                                                                                                       |
 | Reduced motion and reduced transparency                                           | Rendered spec: pending spinner becomes a pulse, no `st-spin`, with an animating control; opaque `surface` under reduced transparency. Website: no running animation with `prefers-reduced-motion`.                                                                                        |
 | Pending, failure, retry and expiry against the real API; Guest and authenticated  | `apps/web/e2e-regression/states.spec.ts` (section 4).                                                                                                                                                                                                                                     |
@@ -191,36 +227,91 @@ CI runs the same commands on `ubuntu-24.04`: the rendered spec in the `e2e`
 job, the hosted suite in `web-suites`, the website suite in `e2e` through
 turbo.
 
+**Linux check without CI.** The host `node_modules` are macOS-native, so the
+rendered spec was also run against a Linux Chromium served by the Playwright
+image of the same version:
+
+```sh
+docker run -d --name pw-linux -p 9333:9333 --init mcr.microsoft.com/playwright:v1.64.1-noble \
+  npx -y playwright@1.64.1 run-server --port 9333 --host 0.0.0.0
+# a throw-away config that spreads apps/web/playwright.config.ts and adds
+#   use.connectOptions = { wsEndpoint: "ws://127.0.0.1:9333/", exposeNetwork: "<loopback>" }
+(cd apps/web && pnpm exec playwright test --config <that config> e2e/regression-rendered.spec.ts)
+docker rm -f pw-linux
+```
+
+The image is aarch64 on the author's machine; CI is x86_64, so this checks the
+Linux font stack and rasteriser, not the CPU architecture. The throw-away
+config is not committed.
+
 ## 8. Results of the recorded run
 
-Tree under test: merge `7ba3545` (parent `d283592` and `implement/design-remaining`
-tip `d472612`). `git merge-base --is-ancestor b588c9c HEAD` succeeded before
-the run. Ports 8140/8141, 8150/8151, 8160 and 8170.
+Code under test: `3eb7c62` (`fix/220-review`, which contains the merged
+`implement/design-remaining` tip `2f858a2`). Later commits on the branch only
+change documentation. `git merge-base --is-ancestor b588c9c HEAD` succeeds.
+The machine-readable record, with commands, thresholds and measured values, is
+`216-regression-evidence.json`. One worker per suite; distinct ports.
 
-| Check                                                            | Result                      |
-| ---------------------------------------------------------------- | --------------------------- |
-| `pagefind:fetch`, `pagefind:build`, `pagefind:verify`            | passed                      |
-| `pnpm typecheck` (24 packages)                                   | passed                      |
-| `pnpm lint` (24 packages)                                        | passed                      |
-| `prettier --check .`                                             | passed                      |
-| `ci-workflow.test.mjs`                                           | 13 of 13 passed             |
-| Web default config (includes `regression-rendered.spec.ts`, 38) | 160 passed, 0 failed (11.9m) |
-| Hosted regression config (`states.spec.ts`)                      | 10 passed, 0 failed (33.6s) |
-| Website suite (includes `regression.spec.ts`, 15)                | 134 passed, 0 failed (1.0m) |
+| Check                                                              | Result                                                  |
+| ------------------------------------------------------------------ | ------------------------------------------------------- |
+| `pnpm install --frozen-lockfile`                                   | passed                                                  |
+| `pagefind:fetch`, `pagefind:build`, `pagefind:verify`              | passed                                                  |
+| `pnpm typecheck`, `pnpm lint` (24 packages each)                   | passed                                                  |
+| `prettier --check .`, `pnpm i18n:check`, `pnpm audit:licenses`     | passed (570 licences reviewed, 108 runtime packages)    |
+| `ci-workflow.test.mjs`                                             | 13 of 13 passed                                         |
+| `packages/ui`, `release-imagery`, `brand` tests                    | 3 of 3, 27 of 27, 12 of 12 passed                       |
+| `regression-rendered.spec.ts`, macOS Chromium                      | 43 of 43 passed                                         |
+| `regression-rendered.spec.ts`, Linux Chromium (Docker, see above)  | 43 of 43 passed                                         |
+| Web default config (includes the rendered spec)                    | 169 passed, **1 failed** (12.7m), see below             |
+| Web `bibliographic`, `report`, hosted `shell` configs              | 22, 2 and 8 passed                                      |
+| Hosted regression config (`states.spec.ts`)                        | 10 passed                                               |
+| Website suite (includes `regression.spec.ts`, 15)                  | 134 passed                                              |
+| Extension panel config                                             | 17 passed, **1 failed** (5.2m), see below               |
+| Extension `selection` and `report` configs                         | 14 and 2 passed                                         |
 
-Not rerun for this manifest: the web `bibliographic` and `report` configs and
-the hosted shell suite (they are untouched by #216 and run in CI), and the
-extension suites under `apps/extension/e2e*`.
+Not runnable here: the guest contract test, which needs
+`SOURCE_TASTER_SERVICE_WORKTREE`.
+
+**Open: lost presses on the merged tree.** Two e2e tests fail intermittently
+and are not fixed by this work.
+
+- `apps/web/e2e/manual-overrides.spec.ts` "a layout change in the detail during
+  a Save press does not lose the press": failed in the full run (`Expected:
+  2994`, `Received: 3136`) and in 5 of 30 and 7 of 40 isolated repeats. The
+  outcome is bimodal and set before the press: when the page rests at its
+  scroll maximum (scrollY 3136 of 3916 with a 780 px viewport) the test
+  passes; when it rests 142 px above it (scrollY 2994, detail top at 171
+  instead of 29) inserting 300 px at the top of `.check-detail` moves the window
+  scroll to the maximum. The pointer is still down at that moment, so the press
+  can be lost. Waiting for fonts or for a stable scroll position does not
+  change this (the state is stable for 200 ms). Setting `overflow-anchor: none`
+  on the document before the insert keeps scrollY at 2994 and passed 12 of 12,
+  which points at window-level scroll anchoring choosing an anchor inside the
+  detail's own scroller. A product fix would change anchoring behaviour for the
+  streaming feed as well, so it was not made here; the experiment is not
+  committed.
+- `apps/extension/e2e/manual-overrides.spec.ts` (de): one failure in the full
+  run ("No region named Historisches Ergebnis in the side panel"); 12 of 12
+  passed on repeat. The `revisions` de flake (about 11% before the font wait,
+  30 of 30 afterwards) is of the same class. A common cause is not proven.
+
+**Linux control.** `negative control: the detail header measurement rejects
+faint text and a faint glyph` failed once on the Linux Chromium in one cold
+start and passed 25 of 25 and 16 of 16 on repeats; the message of the single
+failure was not captured, so the cause is unknown.
 
 ## 9. Limits of this evidence
 
-- Chromium only. Pixel measurements depend on the engine's text rendering and
-  were taken on macOS; Linux CI renders glyph edges differently, which is why
-  only fully painted pixels are claimed and thresholds sit at the WCAG floors,
-  not above them.
-- Only fully painted pixels are measured. Thin, heavily anti-aliased strokes
-  can contribute few or no pixels; each measured element must yield more than
-  five painted pixels or the test fails.
+- Chromium only. Pixel measurements depend on the engine's text rendering. They
+  were taken on macOS and on a Linux Chromium (aarch64 container); an x86_64
+  Linux rasteriser is covered only by CI. Only pixels that moved at least 20%
+  towards the element colour are claimed, and thresholds sit at the WCAG
+  floors, not above them.
+- Only painted pixels are measured. Thin, heavily anti-aliased strokes can
+  contribute few pixels; each measured element must yield more than five
+  (glyphs: more than twenty) or the test fails.
+- The greyscale values in section 2 were observed on macOS. The Linux run
+  passes the same thresholds; its observed values were not recorded.
 - Glass is measured over the content the tests scroll beneath it, not over every
   possible page.
 - Emulated media features and zoom are not the same as the operating system's.
