@@ -267,7 +267,7 @@ export class Panel {
       const before = await this.centre(node);
       // A hidden panel never paints; the timeout keeps this bounded.
       await this.evaluate(
-        `new Promise((done) => { const t = setTimeout(done, 300); requestAnimationFrame(() => requestAnimationFrame(() => { clearTimeout(t); done(0); })); })`,
+        `new Promise((done) => { const t = setTimeout(done, 300); Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 250))]).then(() => requestAnimationFrame(() => requestAnimationFrame(() => { clearTimeout(t); done(0); }))); })`,
       );
       const after = await this.centre(node);
       if (!before || !after || before.x !== after.x || before.y !== after.y)
