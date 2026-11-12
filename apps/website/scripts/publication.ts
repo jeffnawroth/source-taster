@@ -26,8 +26,12 @@ const valid = (value: unknown): value is string =>
   !/draft|pending|placeholder|example|localhost|todo|tbd|<|>/i.test(value);
 /** Bind every review to this exact content, toolchain, policy and deployment identity. */
 /**
- * The website's favicon files (#214): the chosen, non-optional website group of
- * the committed brand export manifest. Optional candidates stay unpublished.
+ * Every file of the website group of the committed brand export manifest
+ * (#214): favicons, touch icon, web app manifest and its icons, and the Safari
+ * pinned-tab mask. `basis` records the platform mandate, not publication, so
+ * the "optional" web-app and pinned-tab files are published and digested too.
+ * Extension, toolbar and store files belong to other groups and are never
+ * published by the website.
  */
 export async function websiteBrandFiles(project: string): Promise<string[]> {
   const record = JSON.parse(
@@ -35,9 +39,9 @@ export async function websiteBrandFiles(project: string): Promise<string[]> {
       resolve(project, "packages/brand/exports/manifest.json"),
       "utf8",
     ),
-  ) as { exports: { file: string; group: string; basis: string }[] };
+  ) as { exports: { file: string; group: string }[] };
   return record.exports
-    .filter((entry) => entry.group === "website" && entry.basis !== "optional")
+    .filter((entry) => entry.group === "website")
     .map((entry) => entry.file);
 }
 export async function reviewDigest(root: string): Promise<string> {
@@ -84,6 +88,8 @@ export async function reviewDigest(root: string): Promise<string> {
     // Brand artwork and its draft notice are published as favicons (#214).
     "brand/NOTICE.md",
     "brand/exports/manifest.json",
+    // The head links and manifest colours Page.astro renders.
+    "brand/src/web-head.ts",
     ...(await websiteBrandFiles(resolve(root, "../.."))).map(
       (file) => `brand/exports/${file}`,
     ),
