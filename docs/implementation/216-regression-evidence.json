@@ -112,7 +112,13 @@
     {
       "test": "apps/extension/e2e/manual-overrides.spec.ts: native panel confirms, filters and resets a result-bound manual verdict in de",
       "failure": "region Historisches Ergebnis never contained Manueller Befund: Nicht gefunden: No region named Historisches Ergebnis in the side panel",
-      "rates": { "fullRun": "1 failed", "repeat": "12 of 12 passed" }
+      "rates": { "fullRun": "1 failed", "repeat": "12 of 12 passed" },
+      "investigated": "#220: not reproduced, cause not found",
+      "ruledOut": [
+        "late suggestion moving Confirm verdict or Judge manually",
+        "suggestion request after Back and Open",
+        "history details closing after a held suggestion response"
+      ]
     },
     {
       "test": "apps/web/e2e/regression-rendered.spec.ts: negative control: the detail header measurement rejects faint text and a faint glyph (Linux)",

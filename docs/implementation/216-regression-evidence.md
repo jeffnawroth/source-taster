@@ -287,7 +287,15 @@ Not runnable here: the guest contract test, which needs
 - `apps/extension/e2e/manual-overrides.spec.ts` (de): one failure in the full
   run ("No region named Historisches Ergebnis in the side panel"); 12 of 12
   passed on repeat. The `revisions` de flake (about 11% before the font wait,
-  30 of 30 afterwards) is of the same class. A common cause is not proven.
+  30 of 30 afterwards) was of the same class. #220 found and fixed a lost Edit fields press in that test
+  (the late Correction suggestion moved it under the pointer; see "Edit fields
+  press lost" in `212-reference-detail.md`), but not the "Feldrevision 2"
+  Save-stage failure itself. For this
+  `manual-overrides` failure, #220 did not find a cause. Ruled out: a late
+  suggestion moving Confirm verdict or Judge manually (the press does not move),
+  a suggestion request after Back and Open (none is sent), and the scripted
+  history summary click closing again after a held suggestion response (the
+  details stay open). It stays open with the symptom unchanged.
 
 **Linux control.** `negative control: the detail header measurement rejects
 faint text and a faint glyph` failed once on the Linux Chromium in one cold
