@@ -23,13 +23,20 @@ export function ReferenceListActions({
   check,
   transport,
   onSnapshot,
+  autoStart = false,
 }: {
   check: Check;
   transport: VerificationClientOptions;
   onSnapshot: (check: Check) => void;
+  /** Opened from the ⋯ menu: the draft is the reason the panel exists. */
+  autoStart?: boolean;
 }) {
   const api = useMemo(() => verificationClient(transport), [transport]);
-  const [draft, setDraft] = useState<EditReferenceListRequest | null>(null);
+  const [draft, setDraft] = useState<EditReferenceListRequest | null>(() =>
+    autoStart
+      ? { expectedEventSeq: check.lastEventSeq, add: [], remove: [] }
+      : null,
+  );
   const [text, setText] = useState("");
   const [fields, setFields] = useState<StructuredCsl>({});
   const [truncated, setTruncated] = useState(false);
@@ -77,8 +84,10 @@ export function ReferenceListActions({
   return (
     <section
       aria-label={m.revision_list()}
-      className="my-4 rounded border-2 border-border-emphasis bg-surface-sunken p-3"
+      className="workspace-panel"
     >
+      {autoStart && <h3>{m.revision_list()}</h3>}
+      {(!autoStart || !draft) && (
       <Button
         {...availability(listBusy, m.revision_list_busy)}
         onPress={() => {
@@ -92,7 +101,8 @@ export function ReferenceListActions({
       >
         {m.revision_list()}
       </Button>
-      <p className="mt-2">{m.revision_membership_note()}</p>
+      )}
+      <p>{m.revision_membership_note()}</p>
       {error && <p role="alert">{error}</p>}
       {draft && check.document && (
         <CheckSelectionActions

@@ -306,7 +306,11 @@ export function WebAccountWorkspace({
   serviceUrl,
   siteUrl,
   sensitiveActions = false,
+  brandMark,
 }: {
+  /** The host's brand mark URL for the top bar; the hosts ship it already. */
+  brandMark?: string;
+
   initial: { preferences: Preferences; citationStyleReset: boolean };
   preferenceStorage: PreferenceStorage;
   serviceUrl: string;
@@ -348,6 +352,7 @@ export function WebAccountWorkspace({
       client={client}
       guest={guest}
       siteUrl={siteUrl}
+      brandMark={brandMark}
       accountUrl={
         sensitiveActions
           ? `${serviceUrl.replace(/\/$/, "")}/account`
@@ -369,7 +374,11 @@ export function AccountWorkspace({
   upgradeUrl,
   accountUrl,
   preferenceSync = alwaysGranted,
+  brandMark,
 }: {
+  /** The host's brand mark URL for the top bar; the hosts ship it already. */
+  brandMark?: string;
+
   initial: { preferences: Preferences; citationStyleReset: boolean };
   preferenceStorage: PreferenceStorage;
   client: SessionClient;
@@ -525,6 +534,7 @@ export function AccountWorkspace({
       preferenceStorage={preferenceStorage}
       transport={transport}
       siteUrl={siteUrl}
+      brandMark={brandMark}
       selectionIntake={selectionIntake}
       upgradeUrl={localizedUpgradeUrl}
       onPreferencesChange={accountPreferences.change}

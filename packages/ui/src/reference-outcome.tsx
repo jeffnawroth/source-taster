@@ -8,11 +8,14 @@ import type {
   Score,
   SourceEvidence,
 } from "@source-taster/contract-verification/v2";
+import type { Verdict } from "@source-taster/contract-verification/v2";
+import { Check, PencilLine } from "lucide-react";
 import {
-  VerdictBadge,
   VerdictGlyph,
-  StatusBadge,
+  StatusIcon,
+  statusLabels,
   verdictLabels,
+  type Status,
 } from "./outcome-badges.tsx";
 import { m } from "@source-taster/i18n";
 import { JournalAbbreviationExplanation } from "./journal-abbreviation.tsx";
@@ -201,6 +204,39 @@ function failureCause(
     .find(Boolean);
   return (cause ?? m.failure_error)();
 }
+
+/** Reasons as one sentence, for the feed card and the verdict block. */
+export function outcomeReasons(outcome: ReferenceOutcome) {
+  return outcome.kind === "verdict"
+    ? outcome.reasons.map((reason) => m[reasons[reason]]())
+    : [];
+}
+export function VerdictChip({
+  verdict,
+  size,
+}: {
+  verdict: Verdict;
+  size?: "lg";
+}) {
+  return (
+    <span
+      className={size ? `verdict-chip ${size}` : "verdict-chip"}
+      data-verdict={verdict}
+    >
+      <VerdictGlyph verdict={verdict} />
+      <span>{m[verdictLabels[verdict]]()}</span>
+    </span>
+  );
+}
+export function StatusChip({ status }: { status: Status }) {
+  return (
+    <span className="status-chip" data-status={status}>
+      <StatusIcon status={status} />
+      <span>{m[statusLabels[status]]()}</span>
+    </span>
+  );
+}
+/** The card's result: the effective Verdict chip and, if set, the manual tag. */
 export function ReferenceOutcomeSummary({
   outcome,
   manualOverride,
@@ -208,94 +244,108 @@ export function ReferenceOutcomeSummary({
   outcome: ReferenceOutcome;
   manualOverride?: ManualOverride | null;
 }) {
-  if (outcome.kind === "status") {
-    return <StatusBadge status={outcome.status} />;
-  }
-  const key = verdictLabels[outcome.verdict];
+  if (outcome.kind === "status") return <StatusChip status={outcome.status} />;
   return (
     <>
+      <VerdictChip verdict={manualOverride?.verdict ?? outcome.verdict} />
       {manualOverride && <ManualVerdictLabel manualOverride={manualOverride} />}
-      <p className="feed-reason">
-        <VerdictBadge verdict={manualOverride?.verdict ?? outcome.verdict} />
-        {manualOverride && (
-          <span className="manual-system">
-            {m.override_system({ verdict: m[key]() })}
-          </span>
-        )}
-        {" · "}
-        {outcome.reasons.map((reason) => m[reasons[reason]]()).join(" ")}
-      </p>
     </>
   );
 }
-export function ReferenceOutcomeHeader({
+/** D's verdict card: the large chip, the manual tag and the plain reasons. */
+export function VerdictBlock({
   outcome,
   manualOverride,
+  children,
 }: {
   outcome: ReferenceOutcome;
   manualOverride?: ManualOverride | null;
+  children?: ReactNode;
 }) {
+  const verdict =
+    outcome.kind === "verdict"
+      ? (manualOverride?.verdict ?? outcome.verdict)
+      : undefined;
   return (
-    <>
-      <h3 className="text-lg font-semibold">
+    <div className="detail-verdict" data-verdict={verdict}>
+      <h3 className="detail-verdict-row">
         {outcome.kind === "verdict" ? (
-          <VerdictBadge verdict={manualOverride?.verdict ?? outcome.verdict} />
+          <VerdictChip verdict={verdict!} size="lg" />
         ) : (
-          <StatusBadge status={outcome.status} />
+          <StatusChip status={outcome.status} />
+        )}
+        {outcome.kind === "verdict" && manualOverride && (
+          <ManualVerdictLabel manualOverride={manualOverride} />
         )}
       </h3>
-      {outcome.kind === "verdict" && (
-        <>
-          {manualOverride && (
-            <>
-              <ManualVerdictLabel manualOverride={manualOverride} />
-              <p className="manual-system">
-                {m.override_system({
-                  verdict: m[verdictLabels[outcome.verdict]](),
-                })}
-              </p>
-            </>
-          )}
-          {outcome.reasons.map((reason) => (
-            <p key={reason}>{m[reasons[reason]]()}</p>
-          ))}
-        </>
+      {outcome.kind === "verdict" && manualOverride && (
+        <p className="detail-system">
+          <VerdictGlyph verdict={outcome.verdict} />
+          <span>
+            {m.override_system({
+              verdict: m[verdictLabels[outcome.verdict]](),
+            })}
+          </span>
+        </p>
       )}
-    </>
+      {outcomeReasons(outcome).map((reason) => (
+        <p key={reason} className="detail-reason">
+          {reason}
+        </p>
+      ))}
+      {outcome.kind === "status" && outcome.status !== "running" && (
+        <p className="detail-reason">{m.detail_status_evidence()}</p>
+      )}
+      {children}
+    </div>
   );
 }
-export function ReferenceOutcomeView({
-  outcome,
-  originalText,
-  manualOverride,
-  contextLabel,
-  header,
-}: {
-  header?: ReactNode;
+/** Kept for historical results and callers that render a whole outcome. */
+export function ReferenceOutcomeHeader(props: {
   outcome: ReferenceOutcome;
-  contextLabel?: string;
-  originalText?: string;
   manualOverride?: ManualOverride | null;
 }) {
-  if (outcome.kind === "status") {
-    return (
-      <div className="space-y-3">
-        {header ?? <ReferenceOutcomeHeader outcome={outcome} />}
-        {originalText !== undefined && <OriginalInput text={originalText} />}
-        <p>{m.detail_status_evidence()}</p>
-      </div>
-    );
-  }
+  return <VerdictBlock {...props} />;
+}
+export function DetailSection({
+  title,
+  action,
+  label,
+  children,
+}: {
+  title: string;
+  action?: ReactNode;
+  label?: string;
+  children: ReactNode;
+}) {
   return (
-    <div className="space-y-3">
-      {header ?? (
-        <ReferenceOutcomeHeader
-          outcome={outcome}
-          manualOverride={manualOverride}
-        />
-      )}
-      {originalText !== undefined && <OriginalInput text={originalText} />}
-      <BestMatchComparison outcome={outcome} contextLabel={contextLabel} />
+    <section className="detail-section" aria-label={label}>
+      <div className="detail-section-head">
+        <h3 className="detail-eyebrow">{title}</h3>
+        {action}
+      </div>
+      {children}
+    </section>
+  );
+}
+export function OriginalInput({ text }: { text: string }) {
+  return (
+    <DetailSection title={m.shell_original_input()}>
+      <p className="detail-original">{text}</p>
+    </DetailSection>
+  );
+}
+/** Evidence a reader may want after the comparison: limits, sources, Candidates. */
+export function EvidenceDetails({
+  outcome,
+  contextLabel,
+}: {
+  outcome: ReferenceOutcome;
+  contextLabel?: string;
+}) {
+  if (outcome.kind === "status") return null;
+  return (
+    <div className="detail-evidence">
       {outcome.retraction === "retracted" && (
         <div className="border-l-4 border-border-emphasis bg-surface-sunken p-3 text-text">
           <p className="font-semibold">{m.retraction_reported()}</p>
@@ -524,62 +574,108 @@ export function ReferenceOutcomeView({
     </div>
   );
 }
-
-function OriginalInput({ text }: { text: string }) {
+export function ReferenceOutcomeView({
+  outcome,
+  originalText,
+  manualOverride,
+  contextLabel,
+  header,
+}: {
+  header?: ReactNode;
+  outcome: ReferenceOutcome;
+  contextLabel?: string;
+  originalText?: string;
+  manualOverride?: ManualOverride | null;
+}) {
   return (
-    <div className="my-4 rounded-lg bg-surface-sunken p-3 font-mono">
-      <h3 className="font-semibold">{m.structuring_original()}</h3>
-      <p className="whitespace-pre-wrap break-words">{text}</p>
+    <div className="detail-stack">
+      {header ?? (
+        <VerdictBlock outcome={outcome} manualOverride={manualOverride} />
+      )}
+      {originalText !== undefined && <OriginalInput text={originalText} />}
+      {outcome.kind === "verdict" && (
+        <BestMatchComparison outcome={outcome} contextLabel={contextLabel} />
+      )}
+      <EvidenceDetails outcome={outcome} contextLabel={contextLabel} />
     </div>
   );
 }
-/** Find the recorded Best match by ID. A tied, evidenced representative may be displayed later. */
-function BestMatchComparison({
+function fieldState(comparison: VerdictResult["candidates"][number]["fields"][number] | undefined) {
+  const deviates =
+    (comparison?.score && !comparison.score.fullAgreement) ||
+    comparison?.agreement === false;
+  const agrees =
+    !deviates &&
+    (comparison?.score?.fullAgreement || comparison?.agreement === true);
+  const reason = comparison?.score
+    ? percent(comparison.score)
+    : comparison?.reason === "missing-reference"
+      ? m.field_missing_reference()
+      : comparison?.reason === "missing-candidate"
+        ? m.field_missing_candidate()
+        : comparison?.reason === "not-determinable"
+          ? m.field_not_determinable()
+          : comparison?.reason === "resource-limit"
+            ? m.field_resource_limit()
+            : comparison?.reason === "unweighted"
+              ? m.field_unweighted()
+              : m.workspace_not_compared();
+  const scored = !!comparison?.score || comparison?.agreement !== undefined;
+  return {
+    deviates: !!deviates,
+    agrees: !!agrees,
+    note: scored ? reason : `${m.field_excluded()} · ${reason}`,
+  };
+}
+/** D's field table: one row per field, your value beside the Best match.
+ *  Find the recorded Best match by ID; a tied representative may show later. */
+export function BestMatchComparison({
   outcome,
   contextLabel,
+  action,
+  children,
 }: {
   outcome: VerdictResult;
   contextLabel?: string;
+  action?: ReactNode;
+  children?: ReactNode;
 }) {
   const best = outcome.candidates.find(
     (candidate) => candidate.id === outcome.bestMatchId,
   );
+  const link = best && sourceLink(best);
   return (
-    <section
-      aria-label={[m.workspace_comparison(), contextLabel]
-        .filter(Boolean)
-        .join(" · ")}
+    <DetailSection
+      title={m.shell_field_by_field()}
+      action={action}
+      label={[m.workspace_comparison(), contextLabel].filter(Boolean).join(" · ")}
     >
       {best ? (
-        <>
-          <p className="font-semibold">{m.best_match_label()}</p>
-          <p className="break-words">
+        <p className="detail-best">
+          <span>
+            {m.best_match_label()} · {sourceNames[best.source]}
+          </span>
+          <span className="detail-record">
             {m.candidate_record()}: {best.id}
-          </p>
-        </>
+          </span>
+          {link && (
+            <a target="_blank" rel="noopener noreferrer" href={link}>
+              {m.source_open()}
+            </a>
+          )}
+        </p>
       ) : (
-        <p>{m.workspace_no_best()}</p>
+        <p className="detail-note">{m.workspace_no_best()}</p>
       )}
       {outcome.identity.kind === "unresolved" && (
-        <p>{m.identity_unresolved()}</p>
+        <p className="detail-note">{m.identity_unresolved()}</p>
       )}
-      {best && sourceLink(best) && (
-        <a
-          className="inline-block py-2 underline"
-          target="_blank"
-          rel="noopener noreferrer"
-          href={sourceLink(best)!}
-        >
-          {m.source_open()}
-        </a>
-      )}
-      <table className="check-comparison">
-        <caption className="text-left font-semibold">
-          {m.workspace_comparison()}
-        </caption>
+      <table className="detail-compare">
+        <caption className="sr-only">{m.workspace_comparison()}</caption>
         <thead>
           <tr>
-            <th scope="col">{m.reference_label()}</th>
+            <th scope="col">{m.shell_field()}</th>
+            <th scope="col">{m.shell_your_reference()}</th>
             <th scope="col">{m.workspace_best()}</th>
           </tr>
         </thead>
@@ -588,53 +684,65 @@ function BestMatchComparison({
             const comparison = best?.fields.find(
               (value) => value.field === field,
             );
-            const deviates =
-              (comparison?.score && !comparison.score.fullAgreement) ||
-              comparison?.agreement === false;
+            const state = fieldState(comparison);
+            const yours = raw(
+              comparison ? comparison.reference : outcome.reference.csl[field],
+            );
+            const theirs = raw(
+              comparison ? comparison.candidate : best?.csl[field],
+            );
+            // A field neither side has and nothing compared tells nothing.
+            if (
+              !comparison &&
+              yours === m.workspace_unknown() &&
+              theirs === m.workspace_unknown()
+            )
+              return null;
             return (
-              <tbody key={field} data-deviates={!!deviates}>
+              <tbody key={field} data-deviates={state.deviates}>
                 <tr>
-                  <th scope="rowgroup" colSpan={2}>
-                    {m[fieldLabels[field]]()}:{" "}
-                    <span className="font-normal">
-                      {comparison?.score
-                        ? comparison.score.fullAgreement
-                          ? m.field_agrees()
-                          : m.field_differs()
-                        : comparison?.agreement !== undefined
-                          ? comparison.agreement
-                            ? m.field_agrees()
-                            : m.field_differs()
-                          : m.field_excluded()}{" "}
-                      ·{" "}
-                      {comparison?.score
-                        ? percent(comparison.score)
-                        : comparison?.reason === "missing-reference"
-                          ? m.field_missing_reference()
-                          : comparison?.reason === "missing-candidate"
-                            ? m.field_missing_candidate()
-                            : comparison?.reason === "not-determinable"
-                              ? m.field_not_determinable()
-                              : comparison?.reason === "resource-limit"
-                                ? m.field_resource_limit()
-                                : comparison?.reason === "unweighted"
-                                  ? m.field_unweighted()
-                                  : m.workspace_not_compared()}
-                    </span>
-                  </th>
-                </tr>
-                <tr>
+                  <th scope="row">{m[fieldLabels[field]]()}</th>
                   <td>
-                    {deviates && <span aria-hidden="true">≠ </span>}
-                    {raw(
-                      comparison
-                        ? comparison.reference
-                        : outcome.reference.csl[field],
-                    )}
+                    <span className="compare-label" aria-hidden="true">
+                      {m.shell_your_reference()}
+                    </span>
+                    <span
+                      className={
+                        yours === m.workspace_unknown()
+                          ? "compare-unknown"
+                          : state.deviates
+                            ? "compare-deviating"
+                            : undefined
+                      }
+                    >
+                      {yours}
+                    </span>
+                    {state.deviates ? (
+                      <span className="compare-differs">
+                        <VerdictGlyph verdict="exists-with-deviations" />
+                        {m.field_differs()}
+                      </span>
+                    ) : state.agrees ? (
+                      <span className="compare-agrees">
+                        <Check aria-hidden="true" size={14} />
+                        <span className="sr-only">{m.field_agrees()}</span>
+                      </span>
+                    ) : null}
                   </td>
                   <td>
-                    {deviates && <span aria-hidden="true">≠ </span>}
-                    {raw(comparison ? comparison.candidate : best?.csl[field])}
+                    <span className="compare-label" aria-hidden="true">
+                      {m.workspace_best()}
+                    </span>
+                    <span
+                      className={
+                        theirs === m.workspace_unknown()
+                          ? "compare-unknown"
+                          : undefined
+                      }
+                    >
+                      {theirs}
+                    </span>
+                    <small className="compare-note">{state.note}</small>
                   </td>
                 </tr>
               </tbody>
@@ -642,20 +750,21 @@ function BestMatchComparison({
           },
         )}
       </table>
-    </section>
+      {children}
+    </DetailSection>
   );
 }
 
-function ManualVerdictLabel({
+export function ManualVerdictLabel({
   manualOverride,
 }: {
   manualOverride: ManualOverride;
 }) {
   const key = verdictLabels[manualOverride.verdict];
   return (
-    <p className="manual-tag mt-2 font-semibold">
-      <VerdictGlyph verdict={manualOverride.verdict} />
+    <span className="manual-tag">
+      <PencilLine aria-hidden="true" size={13} />
       {m.override_manual({ verdict: m[key]() })}
-    </p>
+    </span>
   );
 }

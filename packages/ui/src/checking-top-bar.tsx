@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Command, History, UserRound, X } from "lucide-react";
+import { History, Search, Settings, UserRound, X } from "lucide-react";
 import { m } from "@source-taster/i18n";
 import { useStickySize } from "./sticky-layout.ts";
 import {
@@ -8,6 +8,7 @@ import {
   useFilter,
   Button,
   IconButton,
+  Kbd,
   Dialog,
   DialogHeading,
   DialogTrigger,
@@ -19,7 +20,11 @@ import {
   Menu,
   MenuItem,
 } from "./primitives/index.ts";
+const apple =
+  typeof navigator !== "undefined" &&
+  /Mac|iPhone|iPad/u.test(navigator.platform);
 export function CheckingTopBar({
+  brandMark,
   documentName,
   account,
   accountLabel,
@@ -29,6 +34,7 @@ export function CheckingTopBar({
   onPreferences,
   onStop,
 }: {
+  brandMark?: string;
   documentName?: string;
   account?: ReactNode;
   accountLabel?: string;
@@ -97,8 +103,13 @@ export function CheckingTopBar({
           </DialogTrigger>
         )}
         <div className="checking-brand">
-          <h1>{m.app_title()}</h1>
-          {documentName && <p title={documentName}>{documentName}</p>}
+          {brandMark && (
+            <img src={brandMark} alt="" width={28} height={28} />
+          )}
+          <div className="checking-brand-text">
+            <h1>{m.app_title()}</h1>
+            {documentName && <p title={documentName}>{documentName}</p>}
+          </div>
         </div>
         <DialogTrigger isOpen={commands} onOpenChange={setCommands}>
           <Button
@@ -110,9 +121,14 @@ export function CheckingTopBar({
               setCommands(true);
             }}
             className="command-trigger"
+            icon={<Search aria-hidden="true" size={16} />}
           >
-            <Command aria-hidden="true" size={20} />
-            <span>{m.shell_commands()}</span>
+            <span className="command-trigger-label">
+              {m.shell_command_hint()}
+            </span>
+            <Kbd modifier={apple ? "apple" : "other"} aria-hidden="true">
+              K
+            </Kbd>
           </Button>
           <Modal material="command-palette">
             <Dialog aria-label={m.shell_commands()}>
@@ -153,6 +169,11 @@ export function CheckingTopBar({
             </Dialog>
           </Modal>
         </DialogTrigger>
+        {!account && (
+          <IconButton label={m.shell_preferences()} onPress={onPreferences}>
+            <Settings aria-hidden="true" size={20} />
+          </IconButton>
+        )}
         {account && (
           <DialogTrigger>
             <Button
