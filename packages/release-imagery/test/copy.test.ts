@@ -63,16 +63,12 @@ await test("alt texts name Verdicts with their exact labels and follow the voice
   for (const l of locales) {
     for (const r of captureReferences)
       assert.ok(imageAlt(overview)[l].includes(r.verdict[l]), `${l} ${r.id}`);
-    // The evidence story pictures the opened disclosure, not the verdict, so
-    // its alt text names the disclosure by its exact label.
-    assert.ok(
-      imageAlt(evidence)[l].includes(
-        l === "en"
-          ? "Explanation and source evidence"
-          : "Erklärung und Quellenbelege",
-      ),
-      l,
-    );
+    // The evidence story pictures the sources and the opened candidate list,
+    // not the verdict, so its alt text names both by their exact labels.
+    for (const label of l === "en"
+      ? ["Data sources queried", "All candidates"]
+      : ["Abgefragte Datenquellen", "Alle Kandidaten"])
+      assert.ok(imageAlt(evidence)[l].includes(label), `${l} ${label}`);
   }
   for (const spec of imageSpecs)
     for (const l of locales) {

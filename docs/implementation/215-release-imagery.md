@@ -28,8 +28,9 @@ below. The final set was captured again from code commit `f90512f` (the manifest
     structural checks (exact size, 8-bit RGB PNG, hashes, no missing or
     unlisted file; for X cards also ratio 2:1, the 300×157 and 4096×4096 limits
     and less than 5 MB; the `amoUpload` mark of every AMO image against the spec).
-  - `src/gate.ts`: `finalCaptureGate`. `--final` is refused unless `b588c9c`
-    is an ancestor of `HEAD`; a git error closes the gate.
+  - `src/gate.ts`: `finalCaptureGate`. `--final` is refused unless `0a1c6ac`
+    (the D Reference detail, #243; before the D rebuild `b588c9c`) is an
+    ancestor of `HEAD`; a git error closes the gate.
   - `scripts/capture.ts`: drives the real native Chromium side panel through
     the repository's CDP `Panel` driver against the real server and worker.
   - `scripts/compose.ts`: lays out the store, promo and social images in
@@ -120,7 +121,7 @@ alt text in both languages in `manifest.json`.
 | --------------------- | ---------------------------------------------------------------------------------------------------- |
 | `*-1-workspace`       | A capture of the Source Taster side panel with three pasted References in the input field …          |
 | `*-2-overview`        | The Source Taster summary with one count for each Verdict … Correct, Exists, with deviations and DOI conflict … |
-| `*-3-evidence`        | The detail of one reference, scrolled to its end. The last rows of the comparison with the best match are followed by the opened disclosure Explanation and source evidence … |
+| `*-3-evidence`        | The detail of one reference, scrolled to its sources. The section Data sources queried lists each source asked with its outcome … the opened list All candidates shows each candidate with its source, score and title. |
 | `social-en`, `x-en`   | Source Taster. Check References against sources. …                                                   |
 
 ## Claim evidence
@@ -137,16 +138,17 @@ notice says so, and the workspace capture keeps that notice in view.
 | `verdict-per-reference`    | 92-extension-skeleton.md    | `apps/extension/e2e/panel.spec.ts` | native panel and web keep identical server outcomes for the synthetic witnesses   |
 | `summary-counts`           | 82-check-workspace.md       | `apps/web/e2e/workspace.spec.ts`   | summary filters current Verdicts separately from technical Statuses               |
 | `doi-conflict`             | 82-check-workspace.md       | `apps/web/e2e/workspace.spec.ts`   | DOI conflict has its own current count and filter                                 |
-| `best-match-comparison`    | 82-check-workspace.md       | `apps/web/e2e/workspace.spec.ts`   | compares Reference and server Best match side by side                             |
 | `detail-leads-with-verdict`| 212-reference-detail.md     | `apps/web/e2e/reference-detail.spec.ts` | detail leads with the effective Verdict in the documented section order      |
 | `german-and-english`       | 92-extension-skeleton.md    | `apps/extension/e2e/panel.spec.ts` | native panel and web keep identical server outcomes for the synthetic witnesses in … |
 | `source-evidence-disclosure` | 74-doi-tracer.md          | `apps/web/e2e/doi.spec.ts`         | shows the DOI Verdict with icon, text, field values and evidence in … |
 
-The evidence story pictures the opened disclosure "Explanation and source
-evidence" with the sources asked and the candidates they returned, not the
-verdict (the overview image shows that). The capture fails closed unless the
-disclosure is open, a candidate line is inside the viewport and neither is
-covered by a sticky layer of the panel (`stickyOverlap`). The overview capture
+The evidence story pictures the section "Data sources queried" and the
+opened list "All candidates" of the reference detail: the sources asked and the
+candidates they returned, not the verdict (the overview image shows that). The
+capture fails closed unless the candidate list is open, the source that
+retrieved a candidate and the first candidate are both inside the viewport, and
+the sources section is not covered by a sticky layer of the panel (the top bar,
+the summary strip or the detail head; `stickyOverlap`). The overview capture
 runs the same overlap check for its first reference.
 
 Deliberately not pictured: a Correction suggestion (the evidence capture does

@@ -44,6 +44,9 @@ async function scrollRegionIntoView(panel: Panel, name: string) {
   );
 }
 
+/** The panel's sticky glass layers: the top bar, the summary strip and the detail head. */
+const stickyLayers = ".checking-topbar, .summary-container, .detail-head";
+
 /**
  * Pixels by which the target is covered by a sticky layer of the panel (the
  * top bar, the summary strip), 0 when it is clear. A capture that shows
@@ -52,10 +55,11 @@ async function scrollRegionIntoView(panel: Panel, name: string) {
 async function stickyOverlap(panel: Panel, target: string) {
   return panel.evaluate<number>(
     `(() => {
+      const stickyLayers = ${JSON.stringify(stickyLayers)};
       const element = ${target};
       if (!element) return Infinity;
       const top = element.getBoundingClientRect().top;
-      const layers = [...document.querySelectorAll(".checking-topbar, .summary-container")]
+      const layers = [...document.querySelectorAll(stickyLayers)]
         .filter((layer) => layer !== element && !layer.contains(element));
       return Math.max(0, ...layers.map((layer) => layer.getBoundingClientRect().bottom - top));
     })()`,
@@ -225,52 +229,61 @@ export async function captureLanguage(
     );
     await panel.clickNode(open!);
     await panel.find("region", l.detail);
-    // The story shows the disclosure the caption names: the explanation and
-    // source evidence, opened as a person opens it.
-    const disclosure = `[...document.querySelectorAll("#reference-detail details > summary")].find((n) => n.textContent?.trim() === ${JSON.stringify(text.evidence_details)})`;
-    await panel.evaluate(`${disclosure}?.click()`);
+    // The story shows what the caption names: the Data sources queried and
+    // the Candidates they returned, the candidate list opened as a person
+    // opens it.
+    const candidates = `document.querySelector("#reference-detail details.detail-candidates")`;
+    await panel.evaluate(`${candidates}?.querySelector(":scope > summary")?.click()`);
     await until(
-      () => panel.evaluate<boolean>(`!!(${disclosure})?.parentElement?.open`),
-      "The evidence disclosure did not open",
+      () => panel.evaluate<boolean>(`!!${candidates}?.open`),
+      "The candidate list did not open",
       5_000,
     );
-    // The disclosure sits below the comparison, so the story is scrolled to the
-    // end of the comparison with the opened disclosure beneath it, clear of the
-    // sticky layers.
+    // The story starts at the Data sources queried, placed just below the
+    // sticky layers, with the opened candidate list beneath it.
+    const sources = `[...document.querySelectorAll("#reference-detail section.detail-section")].find((n) => n.querySelector("h3")?.textContent?.trim() === ${JSON.stringify(text.shell_sources_queried)})`;
     await panel.evaluate(
       `(() => {
-        const summary = ${disclosure};
-        let scroller = summary.parentElement;
+        const section = ${sources};
+        let scroller = section.parentElement;
         while (scroller && scroller.scrollHeight <= scroller.clientHeight + 1)
           scroller = scroller.parentElement;
         scroller ??= document.scrollingElement;
-        const layers = [...document.querySelectorAll(".checking-topbar, .summary-container")];
+        const layers = [...document.querySelectorAll(${JSON.stringify(stickyLayers)})];
         const clear = Math.max(...layers.map((layer) => layer.getBoundingClientRect().bottom));
-        scroller.scrollBy(0, summary.getBoundingClientRect().top - clear - 240);
+        scroller.scrollBy(0, section.getBoundingClientRect().top - clear - 16);
       })()`,
     );
-    const covered = await stickyOverlap(panel, disclosure);
+    const covered = await stickyOverlap(panel, sources);
     if (covered > 0)
       throw new Error(
-        `The evidence disclosure sits ${covered}px under a sticky layer in ${language}`,
+        `The Data sources queried sit ${covered}px under a sticky layer in ${language}`,
       );
-    // The candidates the disclosure lists must be on the picture.
-    const candidate = `[...document.querySelectorAll("#reference-detail details[open] li, #reference-detail details[open] p")].find((n) => n.textContent?.includes(${JSON.stringify(text.evidence_candidate)}))`;
+    // A source that returned a candidate and the candidate itself must both be
+    // on the picture.
     const place = await panel.evaluate<{
-      top: number;
-      bottom: number;
+      source: { top: number; bottom: number } | null;
+      candidate: { top: number; bottom: number } | null;
       viewport: number;
-    } | null>(
+    }>(
       `(() => {
-        const node = ${candidate};
-        if (!node) return null;
-        const r = node.getBoundingClientRect();
-        return { top: r.top, bottom: r.bottom, viewport: innerHeight };
+        const box = (node) => {
+          if (!node) return null;
+          const r = node.getBoundingClientRect();
+          return { top: r.top, bottom: r.bottom };
+        };
+        return {
+          source: box([...document.querySelectorAll("#reference-detail li.detail-src")].find((n) => n.textContent?.includes(${JSON.stringify(text.evidence_candidate)}))),
+          candidate: box(document.querySelector("#reference-detail details.detail-candidates[open] li.detail-cand")),
+          viewport: innerHeight,
+        };
       })()`,
     );
-    if (!place || place.top < 0 || place.bottom > place.viewport)
+    const inside = (box: { top: number; bottom: number } | null) =>
+      !!box && box.top >= 0 && box.bottom <= place.viewport;
+    if (!inside(place.source) || !inside(place.candidate))
       throw new Error(
-        `The candidate line of the evidence disclosure is not inside the viewport in ${language}: ${JSON.stringify(place)}`,
+        `The candidate source and the candidate are not both inside the viewport in ${language}: ${JSON.stringify(place)}`,
       );
     await shoot("evidence");
   } finally {

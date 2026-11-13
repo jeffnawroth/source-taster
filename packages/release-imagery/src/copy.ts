@@ -39,8 +39,8 @@ export const copy: Record<Story | "social", Entry> = {
       de: "Die Belege dahinter",
     },
     caption: {
-      en: "The detail ends with the explanation and source evidence: the sources asked and the candidates they returned.",
-      de: "Die Detailansicht endet mit Erklärung und Quellenbelegen: den befragten Quellen und den Kandidaten, die sie lieferten.",
+      en: "The detail lists the data sources queried and the candidates they returned, each with its score.",
+      de: "Die Detailansicht nennt die abgefragten Datenquellen und die Kandidaten, die sie lieferten, jeweils mit Score.",
     },
   },
   social: {
@@ -58,7 +58,7 @@ export const copy: Record<Story | "social", Entry> = {
 const storyClaims: Record<Story, string[]> = {
   workspace: ["side-panel", "verdict-per-reference", "german-and-english"],
   overview: ["verdict-per-reference", "summary-counts", "doi-conflict"],
-  evidence: ["best-match-comparison", "source-evidence-disclosure"],
+  evidence: ["source-evidence-disclosure"],
 };
 
 /** Claim ids an image pictures or states. The language-neutral promo tiles state none. */
@@ -79,8 +79,8 @@ const storyAlt: Record<Story, Text> = {
     de: "Die Source-Taster-Übersicht mit je einer Zahl pro Befund über einer Liste aus drei Referenzen. Sie tragen die Befunde Korrekt, Existiert, mit Abweichungen und DOI-Konflikt, jeweils mit Symbol und Beschriftung.",
   },
   evidence: {
-    en: "The detail of one reference, scrolled to its end. The last rows of the comparison with the best match are followed by the opened disclosure Explanation and source evidence: the scoring rules version, a DOI lookup that found the DOI, and a candidate retrieved from Crossref with its score.",
-    de: "Die Detailansicht einer Referenz, bis zu ihrem Ende gescrollt. Auf die letzten Zeilen des Vergleichs mit dem besten Treffer folgt die geöffnete Einblendung Erklärung und Quellenbelege: die Version der Bewertungsregeln, eine DOI-Abfrage, die die DOI gefunden hat, und ein von Crossref abgerufener Kandidat mit seiner Bewertung.",
+    en: "The detail of one reference, scrolled to its sources. The section Data sources queried lists each source asked with its outcome, among them a candidate retrieved from Crossref. Below it the opened list All candidates shows each candidate with its source, score and title.",
+    de: "Die Detailansicht einer Referenz, zu ihren Quellen gescrollt. Der Abschnitt Abgefragte Datenquellen nennt jede befragte Quelle mit ihrem Ergebnis, darunter einen von Crossref abgerufenen Kandidaten. Darunter zeigt die geöffnete Liste Alle Kandidaten jeden Kandidaten mit Quelle, Score und Titel.",
   },
 };
 

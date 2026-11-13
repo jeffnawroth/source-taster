@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { finalCaptureGate, reviewFixCommit } from "../src/gate.ts";
+import { finalCaptureGate, detailCommit } from "../src/gate.ts";
 
-const full = "b588c9c847401fb3be49231f58680188694e5ed0";
+const full = "0a1c6ac5cd13abb3f8c9fe818ea8fa708e17cf44";
 
-await test("the final capture requires the #212 review fix, named by its full SHA", () => {
-  assert.equal(reviewFixCommit, full);
-  assert.match(reviewFixCommit, /^[0-9a-f]{40}$/u);
+await test("the final capture requires the D Reference detail, named by its full SHA", () => {
+  assert.equal(detailCommit, full);
+  assert.match(detailCommit, /^[0-9a-f]{40}$/u);
 });
 
 await test("final output is refused unless the required commit is an ancestor of HEAD", async () => {
@@ -17,7 +17,7 @@ await test("final output is refused unless the required commit is an ancestor of
     return Promise.resolve(false);
   });
   assert.equal(refused.ok, false);
-  assert.match(refused.reason, /b588c9c8/);
+  assert.match(refused.reason, /0a1c6ac5/);
   assert.deepEqual(asked, [full]);
   assert.deepEqual(await finalCaptureGate(() => Promise.resolve(true)), {
     ok: true,
