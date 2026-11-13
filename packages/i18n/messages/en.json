@@ -634,7 +634,6 @@
   "shell_field_by_field": "Field by field",
   "shell_field": "Field",
   "shell_your_reference": "Your reference",
-  "shell_step_of": "Step {step} of {total}",
   "shell_evidence_steps": "{count} steps",
   "shell_evidence_track": "Evidence trail: {done}/{total}",
   "shell_back": "Back",
