@@ -34,7 +34,7 @@
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.2.1",
     "tailwindcss": "4.3.4",
-    "vite": "8.3.5",
+    "vite": "8.3.7",
     "@source-taster/website": "workspace:*"
   }
 }
