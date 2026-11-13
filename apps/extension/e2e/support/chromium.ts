@@ -517,7 +517,7 @@ export class Panel {
     await this.evaluate(`${await axeSource};0`);
     return this.evaluate<{ id: string; nodes: string[] }[]>(
       `axe.run(document, { runOnly: { type: "tag", values: ${JSON.stringify(tags)} } })
-        .then((r) => r.violations.map((v) => ({ id: v.id, nodes: v.nodes.map((n) => String(n.target)) })))`,
+        .then((r) => r.violations.map((v) => ({ id: v.id, nodes: v.nodes.map((n) => String(n.target) + " — " + n.failureSummary) })))`,
     );
   }
   async screenshot(path: string) {

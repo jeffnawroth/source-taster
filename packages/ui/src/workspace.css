@@ -1460,8 +1460,13 @@ body {
   height: 32px;
   border-radius: var(--st-radius-full);
 }
+/* Every grid in the detail takes one shrinkable column. A grid item's
+   automatic minimum is its min-content width, so one unbreakable string
+   (a rules version or a URL) would otherwise widen the whole detail past a
+   360 px panel. */
 .detail-body {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 18px;
   padding: 16px 16px 120px;
 }
@@ -1485,6 +1490,7 @@ body {
 }
 .detail-verdict {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
   padding: 12px;
   border-radius: var(--st-radius-lg);
@@ -1519,6 +1525,7 @@ body {
 }
 .detail-section {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
 }
 .detail-section-head {
@@ -1691,7 +1698,11 @@ body {
 .detail-evidence,
 .detail-stack {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
+}
+.detail-evidence {
+  overflow-wrap: anywhere;
 }
 .detail-row {
   display: flex;
@@ -1701,6 +1712,7 @@ body {
 }
 .detail-draft {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
 }
 html:has(.check-workspace) {
