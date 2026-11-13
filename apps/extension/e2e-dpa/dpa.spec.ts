@@ -59,7 +59,7 @@ for (const language of ["en", "de"] as const)
           eventsEnabled: true,
         });
         let panel = await browser.openPanel();
-        if (de) await panel.select("combobox", "Language", "de");
+        if (de) await panel.preferences({ language: "de" });
         await panel.click("button", de ? "Anmelden" : "Sign in");
         await panel.fill(
           "textbox",

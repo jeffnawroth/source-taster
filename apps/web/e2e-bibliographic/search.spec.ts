@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import AxeBuilder from "@axe-core/playwright";
 import { test, expect } from "@playwright/test";
+import { choosePreferences, openReference } from "../e2e/support/workspace.ts";
 for (const language of ["en", "de"] as const)
   test(`opens a Candidate without DOI at its provider record in ${language}`, async ({
     page,
@@ -13,9 +14,7 @@ for (const language of ["en", "de"] as const)
       }),
     );
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/u })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page
       .getByRole("textbox")
       .fill(
@@ -27,6 +26,7 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
+    await openReference(page, 1);
     const result = page.getByRole("region", {
       name: /^(Reference detail|Referenzdetails)$/,
       exact: true,
@@ -68,9 +68,7 @@ for (const language of ["en", "de"] as const)
     page,
   }) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/u })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page
       .getByRole("textbox")
       .fill(
@@ -82,6 +80,7 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
+    await openReference(page, 1);
     const result = page.getByRole("region", {
       name: /^(Reference detail|Referenzdetails)$/,
       exact: true,
@@ -125,9 +124,7 @@ for (const language of ["en", "de"] as const)
     page,
   }) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/u })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page
       .getByRole("textbox")
       .fill(
@@ -139,6 +136,7 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
+    await openReference(page, 1);
     const result = page.getByRole("region", {
       name: /^(Reference detail|Referenzdetails)$/,
       exact: true,
@@ -180,9 +178,7 @@ for (const language of ["en", "de"] as const)
       page,
     }) => {
       await page.goto("/");
-      await page
-        .getByRole("combobox", { name: /^(Language|Sprache)$/u })
-        .selectOption(language);
+      await choosePreferences(page, { language: language });
       const text =
         scenario === "mixed"
           ? "Beta, B. (2009). Measured measurement. Nature Physics, 5, 11–12."
@@ -196,6 +192,7 @@ for (const language of ["en", "de"] as const)
           exact: true,
         })
         .click();
+      await openReference(page, 1);
       const result = page.getByRole("region", {
         name: /^(Reference detail|Referenzdetails)$/,
         exact: true,
@@ -272,9 +269,7 @@ for (const language of ["en", "de"] as const)
     page,
   }) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/u })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page
       .getByRole("textbox")
       .fill(
@@ -286,6 +281,7 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
+    await openReference(page, 1);
     const result = page.getByRole("region", {
       name: /^(Reference detail|Referenzdetails)$/,
       exact: true,

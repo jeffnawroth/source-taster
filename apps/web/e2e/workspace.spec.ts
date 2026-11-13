@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { choosePreferences } from "./support/workspace.ts";
 
 test("summary filters current Verdicts separately from technical Statuses", async ({
   page,
 }) => {
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   await page
     .getByRole("textbox")
     .fill(
@@ -81,9 +80,7 @@ test("streaming keeps input order and focused selection; narrow Back restores li
   page,
 }) => {
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   await page
     .getByRole("textbox")
     .fill(
@@ -134,9 +131,7 @@ for (const language of ["en", "de"] as const)
     page,
   }, testInfo) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     const original =
       "Aspelmeyer, M. (2008). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170";
     await page.getByRole("textbox").fill(original);
@@ -268,9 +263,7 @@ test("a narrow feed row stays under the pointer while the completed Reference's 
     await route.fulfill({ response });
   });
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   await page
     .getByRole("textbox")
     .fill(
@@ -333,9 +326,7 @@ for (const language of ["en", "de"] as const)
     page,
   }) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page
       .getByRole("textbox")
       .fill("Darwin, C. (1859). On the Origin of Species.");
@@ -393,9 +384,7 @@ for (const language of ["en", "de"] as const)
   }) => {
     await page.setViewportSize({ width: 360, height: 640 });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     const reference =
       "Aspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170";
     await page.getByRole("textbox").fill(Array(12).fill(reference).join("\n"));
@@ -452,9 +441,7 @@ for (const language of ["en", "de"] as const)
 
 test("DOI conflict has its own current count and filter", async ({ page }) => {
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   await page
     .getByRole("textbox")
     .fill(
@@ -483,9 +470,7 @@ test("selected detail stays on its Reference while streaming completes other slo
   page,
 }) => {
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   await page
     .getByRole("textbox")
     .fill(
@@ -530,9 +515,7 @@ for (const anchor of ["page", "list"] as const)
   }) => {
     await page.setViewportSize({ width: 360, height: 640 });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption("en");
+    await choosePreferences(page, { language: "en" });
     await page
       .getByRole("textbox")
       .fill(

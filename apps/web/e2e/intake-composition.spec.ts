@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { expect, test } from "@playwright/test";
+import { choosePreferences, newCheck } from "./support/workspace.ts";
 import { CheckResponse } from "@source-taster/contract-verification/v2";
 import { docx } from "../../server/test/support/documents.ts";
 
@@ -9,9 +10,7 @@ test("switches between library and document input without checking stale Referen
   const library = "@patent{Library,title={Library witness},year={2024}}\n";
   const document = "Doe, J. (2020). Document witness. Example Press.";
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   const libraryInput = page.getByLabel("Import BibTeX or RIS", { exact: true });
   const documentInput = page.getByLabel("PDF or Word document", {
     exact: true,
@@ -24,7 +23,6 @@ test("switches between library and document input without checking stale Referen
     name: "Check reference",
     exact: true,
   });
-  const reset = page.getByRole("button", { name: "Reset", exact: true });
 
   await libraryInput.setInputFiles({
     name: "library.bib",
@@ -54,7 +52,7 @@ test("switches between library and document input without checking stale Referen
   expect(
     documentCheck.references.map((reference) => reference.originalText),
   ).toEqual([document]);
-  await reset.click();
+  await newCheck(page);
 
   await documentInput.setInputFiles({
     name: "references.docx",

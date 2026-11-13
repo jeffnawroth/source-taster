@@ -24,12 +24,15 @@ export function ReferenceListActions({
   transport,
   onSnapshot,
   autoStart = false,
+  onDone,
 }: {
   check: Check;
   transport: VerificationClientOptions;
   onSnapshot: (check: Check) => void;
   /** Opened from the ⋯ menu: the draft is the reason the panel exists. */
   autoStart?: boolean;
+  /** The applied or cancelled draft ends the task; its Dialog closes. */
+  onDone?: () => void;
 }) {
   const api = useMemo(() => verificationClient(transport), [transport]);
   const [draft, setDraft] = useState<EditReferenceListRequest | null>(() =>
@@ -54,6 +57,7 @@ export function ReferenceListActions({
     setPreview(false);
     setError(null);
     setTruncated(false);
+    onDone?.();
   }
   const addition =
     draft && text.trim()

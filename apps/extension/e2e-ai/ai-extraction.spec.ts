@@ -64,16 +64,13 @@ for (const language of ["en", "de"] as const)
     );
     try {
       const panel = await browser.openPanel();
-      await panel.select("combobox", /^(Language|Sprache)$/, language);
+      await panel.preferences({ language: language });
       await panel.fill(
         "textbox",
         /^(Reference|Referenz)$/,
         "Doe (2020). Exact maps.",
       );
-      await panel.click(
-        "button",
-        language === "en" ? "Structure references" : "Referenzen strukturieren",
-      );
+      await panel.structure();
       await panel.waitForText(
         "main",
         undefined,
@@ -135,7 +132,7 @@ for (const language of ["en", "de"] as const)
     );
     try {
       const panel = await browser.openPanel();
-      await panel.select("combobox", /^(Language|Sprache)$/, language);
+      await panel.preferences({ language: language });
       await panel.fill(
         "textbox",
         /^(Reference|Referenz)$/,
@@ -151,12 +148,7 @@ for (const language of ["en", "de"] as const)
           upgrade: reason !== "configuration-unavailable",
           fallbacks: [],
         };
-        await panel.click(
-          "button",
-          language === "en"
-            ? "Structure references"
-            : "Referenzen strukturieren",
-        );
+        await panel.structure();
         await panel.waitForText(
           "main",
           undefined,
@@ -164,20 +156,17 @@ for (const language of ["en", "de"] as const)
             ? "The parser was used"
             : "Der Parser wurde verwendet",
         );
-        if (reason !== "configuration-unavailable")
-          expect(await panel.text("main")).toContain(
-            language === "en" ? "paid plan" : "kostenpflichtiger Plan",
-          );
+        // The standalone build sells no plan, so no upgrade offer (#194 D).
+        expect(await panel.text("main")).not.toContain(
+          language === "en" ? "paid plan" : "kostenpflichtiger Plan",
+        );
       }
       witness.structuring.ai = {
         reason: null,
         upgrade: false,
         fallbacks: [{ span: { start: 0, end: 23 }, reason: "timeout" }],
       };
-      await panel.click(
-        "button",
-        language === "en" ? "Structure references" : "Referenzen strukturieren",
-      );
+      await panel.structure();
       await panel.waitForText(
         "main",
         undefined,

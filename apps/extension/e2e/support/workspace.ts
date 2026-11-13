@@ -30,6 +30,78 @@ export const labels = {
   },
 } as const;
 
+/** Runs a launcher command on the web page by its accessible name. */
+export async function runCommandOnWeb(page: Page, name: string | RegExp) {
+  const launcher = /^(Commands|Aktionen): /u;
+  await page.getByRole("button", { name: launcher }).click();
+  const palette = page.getByRole("dialog", { name: /^(Commands|Aktionen)$/u });
+  await palette
+    .getByRole("menuitem", {
+      name,
+      ...(typeof name === "string" ? { exact: true } : {}),
+    })
+    .click();
+  await expect(palette).toBeHidden();
+}
+
+/**
+ * Language and citation style on the web workspace, set in the Preferences
+ * Dialog that the launcher opens (#194 D, ADR-0023).
+ */
+export async function choosePreferencesOnWeb(
+  page: Page,
+  choice: { language?: string; citationStyle?: string },
+) {
+  const launcher = /^(Commands|Aktionen): /u;
+  await page.getByRole("button", { name: launcher }).click();
+  await page
+    .getByRole("dialog", { name: /^(Commands|Aktionen)$/u })
+    .getByRole("menuitem", { name: /^(Preferences|Einstellungen)$/u })
+    .click();
+  const dialog = page.getByRole("dialog", {
+    name: /^(Preferences|Einstellungen)$/u,
+  });
+  if (choice.language)
+    await dialog
+      .getByRole("combobox", { name: /^(Language|Sprache)$/u })
+      .selectOption(choice.language);
+  if (choice.citationStyle)
+    await dialog
+      .getByRole("combobox", {
+        name: /^(Preferred citation style|Bevorzugter Zitierstil)$/u,
+      })
+      .selectOption(choice.citationStyle);
+  await dialog.getByRole("button", { name: /^(Close|Schließen)$/u }).click();
+  await expect(dialog).toBeHidden();
+}
+
+/**
+ * Asserts the displayed Preferences: opens the Dialog, waits for each value,
+ * and closes it again so the page behind is usable.
+ */
+export async function expectPreferencesOnWeb(
+  page: Page,
+  expected: { language?: string; citationStyle?: string },
+) {
+  await runCommandOnWeb(page, /^(Preferences|Einstellungen)$/u);
+  const dialog = page.getByRole("dialog", {
+    name: /^(Preferences|Einstellungen)$/u,
+  });
+  await expect(dialog).toBeVisible();
+  if (expected.language)
+    await expect(
+      dialog.getByRole("combobox", { name: /^(Language|Sprache)$/u }),
+    ).toHaveValue(expected.language);
+  if (expected.citationStyle)
+    await expect(
+      dialog.getByRole("combobox", {
+        name: /^(Preferred citation style|Bevorzugter Zitierstil)$/u,
+      }),
+    ).toHaveValue(expected.citationStyle);
+  await dialog.getByRole("button", { name: /^(Close|Schließen)$/u }).click();
+  await expect(dialog).toBeHidden();
+}
+
 export interface Witness {
   name: string;
   text: string;
@@ -119,6 +191,9 @@ export async function checkInPanel(
   witness: Witness,
 ): Promise<Outcome> {
   const l = labels[language];
+  // Results replace the intake (#194 D): a later witness starts a new Check.
+  if ((await panel.query("textbox", l.input)).length === 0)
+    await panel.newCheck();
   await panel.fill("textbox", l.input, witness.text);
   await panel.click("button", l.check);
   const ready = detailReady(language, witness.marker);
@@ -160,6 +235,9 @@ export async function checkInWeb(
   witness: Witness,
 ): Promise<Outcome> {
   const l = labels[language];
+  // Results replace the intake (#194 D): a later witness starts a new Check.
+  if (!(await page.getByRole("textbox").isVisible()))
+    await runCommandOnWeb(page, /^(New check|Neue Prüfung)$/u);
   await page.getByRole("textbox").fill(witness.text);
   await page.getByRole("button", { name: l.check, exact: true }).click();
   const detail = page.getByRole("region", { name: l.detail, exact: true });

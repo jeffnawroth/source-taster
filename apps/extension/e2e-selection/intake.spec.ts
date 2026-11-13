@@ -240,7 +240,7 @@ async function withIntake(
       [true],
     );
     if (language === "de")
-      await panel.select("combobox", /^(Language|Sprache)$/, "de");
+      await panel.preferences({ language: "de" });
     await run({
       panel,
       browser,
@@ -596,7 +596,7 @@ test("selection replaces a prepared bibliography draft and Undo restores its mov
         const second = "Roe, A. (2021). Careful systems. Example Press.";
         const original = `References\n${first}\n${second}`;
         await panel.fill("textbox", "Reference", original);
-        await panel.click("button", "Structure references");
+        await panel.structure();
         await panel.waitForText(
           "region",
           "Recognized references",

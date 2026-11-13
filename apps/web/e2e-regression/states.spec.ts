@@ -7,6 +7,7 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { once } from "node:events";
 import { expect, test, type Page } from "@playwright/test";
+import { newCheck } from "../e2e/support/workspace.ts";
 import {
   newAccount,
   newGuest,
@@ -489,7 +490,7 @@ for (const kind of ["guest", "account"] as const) {
     expect(first).toBe(1);
     await api.advance(301_000);
     await page.clock.fastForward(301_000);
-    await page.getByRole("button", { name: "Reset", exact: true }).click();
+    await newCheck(page);
     await input.fill(aspelmeyer);
     await start(page).click();
     await expect(correct(page)).toBeVisible({ timeout: 20000 });

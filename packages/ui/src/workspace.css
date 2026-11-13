@@ -407,6 +407,16 @@ body {
   flex-wrap: wrap;
   gap: 10px;
 }
+.intake-count {
+  margin-inline-end: auto;
+  font-family: var(--st-font-mono);
+  font-size: var(--st-text-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--st-text-on-glass-secondary);
+}
+.intake-count + .intake-kbd {
+  margin-inline-end: 0;
+}
 .intake-kbd {
   margin-inline-end: auto;
   font-size: var(--st-text-xs);
@@ -532,6 +542,36 @@ body {
 .workspace-dialog .st-actions {
   justify-content: flex-end;
 }
+/* Content reached from the ⋯ Menu brings its own section: inside a Dialog the
+   Dialog is the card, so the section drops its frame and its h3 is the title. */
+.workspace-dialog > section {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+}
+.workspace-dialog > section > h3:first-child {
+  font-size: var(--st-text-lg);
+  font-weight: 800;
+  color: var(--st-text);
+}
+.reference-exports {
+  display: grid;
+  gap: 14px;
+}
+.reference-exports .workspace-select {
+  color: var(--st-text);
+}
+.export-subheading {
+  font-weight: 700;
+}
+.export-note {
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
+}
+.reference-exports .st-actions {
+  margin-top: 4px;
+}
 .workspace-dialog-steps {
   list-style: decimal;
   padding-left: 20px;
@@ -549,9 +589,22 @@ body {
   font-weight: 700;
   color: var(--st-text-secondary);
 }
+/* Native selects in the dialogs read as fields, like the Input primitive. */
 .workspace-select select {
   width: 100%;
+  min-height: 36px;
+  padding: 4px 12px;
+  border: 1px solid var(--st-border-emphasis);
+  border-radius: var(--st-radius-md);
+  background-color: var(--st-surface);
+  color: var(--st-text);
+  font: inherit;
   font-weight: 400;
+  font-size: var(--st-text-base);
+}
+.workspace-select select:focus-visible {
+  outline: var(--st-focus-width) solid var(--st-focus-ring);
+  outline-offset: 1px;
 }
 .workspace-panel {
   display: grid;
@@ -626,6 +679,10 @@ body {
 .summary-sentence {
   font-size: var(--st-text-sm);
   color: var(--st-text-on-glass-secondary);
+}
+.summary-checked {
+  font-family: var(--st-font-mono);
+  font-variant-numeric: tabular-nums;
 }
 .summary-sentence {
   flex: 1 1 220px;
@@ -860,6 +917,16 @@ body {
 .active-filter.compact {
   min-height: 28px;
 }
+/* Below the 360 px panel the six counters, the status and ⋯ still fit
+   one row at 320 px (WCAG 1.4.10): the tiles narrow to 30 px, still
+   above the 24 px target size. */
+@container app (width < 360px) {
+  .summary-counter.compact {
+    min-width: 30px;
+    gap: 2px;
+    padding: 0 2px;
+  }
+}
 @container app (width < 700px) {
   .summary-container {
     padding-top: 6px;
@@ -897,6 +964,11 @@ body {
 }
 .feed-echo b {
   overflow-wrap: anywhere;
+}
+.feed-echo-count {
+  font-family: var(--st-font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--st-text-muted);
 }
 .feed-note {
   font-size: var(--st-text-sm);
@@ -1250,14 +1322,24 @@ body {
     width: 0;
   }
 }
+/* Narrow: the detail is a push view that replaces the feed, not an overlay
+   above it. The feed keeps its state and scroll position is restored on Back. */
+.check-stage[data-narrow="true"][data-detail-open="true"] .check-main {
+  display: none;
+}
 .check-stage[data-narrow="true"] .check-detail {
-  position: fixed;
-  inset: var(--checking-topbar-height, 54px) 0 0 0;
-  z-index: calc(var(--st-z-topbar) - 1);
+  position: static;
+  flex: 1;
   width: auto;
   height: auto;
+  min-height: calc(100dvh - var(--checking-topbar-height, 54px));
+  overflow: visible;
   border-left: 0;
+  box-shadow: none;
   animation-name: detail-slide;
+}
+.check-stage[data-narrow="true"] .detail-head {
+  top: var(--checking-topbar-height, 54px);
 }
 @keyframes detail-slide {
   from {
@@ -1286,10 +1368,15 @@ body {
   color: var(--st-text-on-glass-secondary);
   font-variant-numeric: tabular-nums;
 }
-/* Balance the back button so the position stays centred. */
-.detail-head::after {
-  content: "";
-  flex: 0 1 72px;
+.detail-pager {
+  display: flex;
+  gap: 6px;
+}
+.detail-pager .st-icon-button,
+.detail-pager-gap {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--st-radius-full);
 }
 .detail-body {
   display: grid;
@@ -1403,7 +1490,9 @@ body {
   padding: 8px 5px;
   vertical-align: top;
   text-align: start;
-  overflow-wrap: anywhere;
+  /* Break long values, but hyphenate whole words such as field names. */
+  overflow-wrap: break-word;
+  hyphens: auto;
   white-space: pre-wrap;
   font-size: var(--st-text-sm);
   font-weight: 400;

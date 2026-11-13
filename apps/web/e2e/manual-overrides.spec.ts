@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { expect, test, type Page } from "@playwright/test";
+import { choosePreferences, openReference } from "./support/workspace.ts";
 import AxeBuilder from "@axe-core/playwright";
 import { CheckResponse } from "@source-taster/contract-verification/v2";
 for (const language of ["en", "de"] as const) {
@@ -9,9 +10,7 @@ for (const language of ["en", "de"] as const) {
     const en = language === "en";
     await page.setViewportSize({ width: 360, height: 780 });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page
       .getByRole("textbox")
       .fill(
@@ -31,6 +30,7 @@ for (const language of ["en", "de"] as const) {
       timeout: 15000,
     });
     await list.getByRole("button").click();
+    await openReference(page, 1);
     const detail = page.getByRole("region", {
       name: en ? "Reference detail" : "Referenzdetails",
       exact: true,
@@ -161,9 +161,7 @@ for (const language of ["en", "de"] as const) {
 async function openManualJudgment(page: Page) {
   await page.setViewportSize({ width: 360, height: 780 });
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   await page
     .getByRole("textbox")
     .fill(
@@ -175,6 +173,7 @@ async function openManualJudgment(page: Page) {
   const list = page.getByRole("grid", { name: "References", exact: true });
   await expect(list).toContainText("Correct", { timeout: 15000 });
   await list.getByRole("button").click();
+  await openReference(page, 1);
   const detail = page.getByRole("region", {
     name: "Reference detail",
     exact: true,
@@ -294,9 +293,7 @@ test("a manual draft cannot silently move to a newer same-revision result", asyn
   page,
 }) => {
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   const apiPort = process.env.SOURCE_TASTER_E2E_API_PORT ?? "3102";
   let checkId = "";
   page.on("response", async (response) => {
@@ -318,6 +315,7 @@ test("a manual draft cannot silently move to a newer same-revision result", asyn
   const list = page.getByRole("grid", { name: "References", exact: true });
   await expect(list).toContainText("Correct", { timeout: 15000 });
   await list.getByRole("button").click();
+  await openReference(page, 1);
   const detail = page.getByRole("region", {
     name: "Reference detail",
     exact: true,

@@ -66,6 +66,10 @@
     visibility: hidden;
   }
 
+  /* A control without a disabled reason: the wrapper adds no box. */
+  .st-reason-slot {
+    display: contents;
+  }
   .st-disabled-control {
     display: inline-flex;
     max-width: 100%;

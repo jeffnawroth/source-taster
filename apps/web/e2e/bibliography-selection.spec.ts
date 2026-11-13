@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { choosePreferences, structureReferences } from "./support/workspace.ts";
 import { docx } from "../../server/test/support/documents.ts";
 for (const language of ["en", "de"] as const)
   test(`adjusts detected regions, checks only selected text and preserves slots in ${language}`, async ({
     page,
   }) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     const first = "Doe, J. (2020). Signal maps. Example Press.";
     const second = "Roe, A. (2021). Careful systems. Example Press.";
     const text = `Introduction\nRunning text (2018).\nReferences\n${first}\nChapter 2\nOutside (2019).\nBibliography\n${second}`;
@@ -46,15 +45,7 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
-    await page
-      .getByRole("button", {
-        name:
-          language === "en"
-            ? "Structure references"
-            : "Referenzen strukturieren",
-        exact: true,
-      })
-      .click();
+    await structureReferences(page);
     await expect(
       page.getByRole("region", {
         name:

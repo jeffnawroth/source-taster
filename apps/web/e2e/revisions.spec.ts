@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { expect, test } from "@playwright/test";
+import { choosePreferences, openReference } from "./support/workspace.ts";
 import AxeBuilder from "@axe-core/playwright";
 for (const language of ["en", "de"] as const) {
   test(`field drafts, slot-only Re-check and historical evidence remain distinct in ${language}`, async ({
@@ -7,9 +8,7 @@ for (const language of ["en", "de"] as const) {
   }) => {
     await page.setViewportSize({ width: 360, height: 720 });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     const original =
       "Aspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170";
     await page.getByRole("textbox").fill(original);
@@ -60,6 +59,7 @@ for (const language of ["en", "de"] as const) {
         { exact: true },
       ),
     ).toBeVisible();
+    await openReference(page, 1);
     const detail = page.getByRole("region", {
       name: language === "en" ? "Reference detail" : "Referenzdetails",
       exact: true,
@@ -115,9 +115,7 @@ for (const language of ["en", "de"] as const)
   }) => {
     await page.setViewportSize({ width: 360, height: 720 });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page
       .getByRole("textbox")
       .fill(

@@ -2,6 +2,11 @@
 import { CheckResponse } from "@source-taster/contract-verification";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import {
+  choosePreferences,
+  newCheck,
+  structureReferences,
+} from "./support/workspace.ts";
 import { e2eClientLeaseMs } from "../../server/test/support/e2e-lease.ts";
 import { checkStatus } from "./check-status.ts";
 for (const language of ["en", "de"] as const) {
@@ -9,9 +14,7 @@ for (const language of ["en", "de"] as const) {
     page,
   }) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page
       .getByRole("textbox")
       .fill(
@@ -67,12 +70,8 @@ for (const language of ["en", "de"] as const) {
           .analyze()
       ).violations,
     ).toEqual([]);
-    const reset = page.getByRole("button", {
-      name: language === "en" ? "Reset" : "Zurücksetzen",
-      exact: true,
-    });
-    await reset.focus();
-    await page.keyboard.press("Enter");
+    // One-action Reset is the launcher's "New check" (#194 D).
+    await newCheck(page);
     await expect(page.getByRole("textbox")).toHaveValue("");
     await expect(page.getByRole("textbox")).toBeFocused();
     await expect(page.locator("#results-title")).toHaveCount(0);
@@ -115,21 +114,17 @@ for (const operation of ["checks", "structurings"] as const) {
       await route.fulfill({ response });
     });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption("en");
+    await choosePreferences(page, { language: "en" });
     await page
       .getByRole("textbox")
       .fill("Darwin, C. (1859). On the Origin of Species.");
-    await page
-      .getByRole("button", {
-        name:
-          operation === "checks" ? "Check reference" : "Structure references",
-        exact: true,
-      })
-      .click();
+    if (operation === "checks")
+      await page
+        .getByRole("button", { name: "Check reference", exact: true })
+        .click();
+    else await structureReferences(page);
     await arrived;
-    await page.getByRole("button", { name: "Reset", exact: true }).click();
+    await newCheck(page);
     release();
     await expect(page.getByRole("textbox")).toHaveValue("");
     await expect(page.locator("#results-title")).toHaveCount(0);
@@ -180,9 +175,7 @@ test("late stream frames after Reset cannot replace a newer Check", async ({
     delivered();
   });
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   await page
     .getByRole("textbox")
     .fill("Darwin, C. (1859). On the Origin of Species.");
@@ -190,7 +183,7 @@ test("late stream frames after Reset cannot replace a newer Check", async ({
     .getByRole("button", { name: "Check reference", exact: true })
     .click();
   await arrived;
-  await page.getByRole("button", { name: "Reset", exact: true }).click();
+  await newCheck(page);
   await page.getByRole("textbox").fill("Doe, J. (2020). A newer Reference.");
   await page
     .getByRole("button", { name: "Check reference", exact: true })
@@ -221,9 +214,7 @@ test("a Check keeps running while every lease renewal is answered slowly", async
     if (++answered === 3) third();
   });
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   await page
     .getByRole("textbox")
     .fill("Doe, J. (2020). Held Reference. doi:10.5555/browser-held");
@@ -253,9 +244,7 @@ test("an unconfirmed Cancel reports uncertainty and stops this workspace renewin
     route.fulfill({ status: 503, contentType: "application/json", body: "{}" }),
   );
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   await page
     .getByRole("textbox")
     .fill("Doe, J. (2020). Held Reference. doi:10.5555/browser-held");

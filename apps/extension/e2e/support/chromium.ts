@@ -413,6 +413,64 @@ export class Panel {
       [value],
     );
   }
+  /** Waits, bounded, until no element has this role and name. */
+  async gone(role: string, name?: string | RegExp) {
+    await until(
+      async () => (await this.query(role, name)).length === 0,
+      `The ${role} named ${String(name)} never closed`,
+    );
+  }
+  /** Opens the launcher and runs the command with this accessible name (#194 D). */
+  async command(name: string | RegExp) {
+    const launcher = /^(Commands|Aktionen): /u;
+    await this.click("button", launcher);
+    await this.click("menuitem", name);
+    await this.gone("dialog", /^(Commands|Aktionen)$/u);
+  }
+  /** Opens the Preferences Dialog (ADR-0023) from the launcher. */
+  async openPreferences() {
+    await this.command(/^(Preferences|Einstellungen)$/u);
+    await this.find("dialog", /^(Preferences|Einstellungen)$/u);
+  }
+  async closePreferences() {
+    await this.click("button", /^(Close|Schließen)$/u);
+    await this.gone("dialog", /^(Preferences|Einstellungen)$/u);
+  }
+  /** Language and citation style, set in the Preferences Dialog. */
+  async preferences(choice: { language?: string; citationStyle?: string }) {
+    await this.openPreferences();
+    if (choice.language)
+      await this.select("combobox", /^(Language|Sprache)$/u, choice.language);
+    if (choice.citationStyle)
+      await this.select(
+        "combobox",
+        /^(Preferred citation style|Bevorzugter Zitierstil)$/u,
+        choice.citationStyle,
+      );
+    await this.closePreferences();
+  }
+  /** Structuring without a Check: a launcher command while the intake can run it. */
+  async structure() {
+    await this.command(/^(Structure references|Referenzen strukturieren)$/u);
+  }
+  /** One-action Reset: the launcher's "New check". */
+  async newCheck() {
+    await this.command(/^(New check|Neue Prüfung)$/u);
+  }
+  /** Runs a check-level action from the ⋯ Menu. */
+  async moreAction(name: string | RegExp) {
+    await this.click("button", /^(More actions|Weitere Aktionen)$/u);
+    await this.click("menuitem", name);
+  }
+  /** Opens the Export Dialog from the ⋯ Menu (#194 D). */
+  async openExport() {
+    await this.moreAction(/^(Export|Exportieren)$/u);
+    await this.find("dialog", /^(Export references|Referenzen exportieren)$/u);
+  }
+  async closeExport() {
+    await this.click("button", /^(Cancel|Abbrechen)$/u);
+    await this.gone("dialog", /^(Export references|Referenzen exportieren)$/u);
+  }
   async waitForText(
     role: string,
     name: string | RegExp | undefined,

@@ -4,6 +4,7 @@ import { writeFile } from "node:fs/promises";
 import { once } from "node:events";
 import { join } from "node:path";
 import { chromium, expect, test } from "@playwright/test";
+import { choosePreferences, structureReferences } from "../e2e/support/workspace.ts";
 import AxeBuilder from "@axe-core/playwright";
 import {
   bothPrograms,
@@ -119,9 +120,7 @@ test("web Guest identity survives a real browser restart, with token and Check c
     await expect(page.getByRole("textbox")).toHaveValue("");
     await expect(page.locator("#results-title")).toHaveCount(0);
     await page.getByRole("textbox").fill(physicsReference);
-    await page
-      .getByRole("button", { name: "Structure references", exact: true })
-      .click();
+    await structureReferences(page);
     await expect(
       page.getByText("Measured measurement", { exact: true }),
     ).toBeVisible();
@@ -146,9 +145,7 @@ for (const language of ["en", "de"] as const)
     page,
   }) => {
     await page.goto(url);
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page.getByRole("textbox").fill(physicsReference);
     await page
       .getByRole("button", {
@@ -233,12 +230,8 @@ test("concurrent origin tabs share one Guest while an independent browser contex
   for (const tab of [page, other])
     await tab.getByRole("textbox").fill(physicsReference);
   await Promise.all([
-    page
-      .getByRole("button", { name: "Structure references", exact: true })
-      .click(),
-    other
-      .getByRole("button", { name: "Structure references", exact: true })
-      .click(),
+    structureReferences(page),
+    structureReferences(other),
   ]);
   for (const tab of [page, other])
     await expect(
@@ -250,9 +243,7 @@ test("concurrent origin tabs share one Guest while an independent browser contex
     const foreign = await separate.newPage();
     await foreign.goto(url);
     await foreign.getByRole("textbox").fill(physicsReference);
-    await foreign
-      .getByRole("button", { name: "Structure references", exact: true })
-      .click();
+    await structureReferences(foreign);
     await expect(
       foreign.getByText("Measured measurement", { exact: true }),
     ).toBeVisible();

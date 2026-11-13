@@ -266,7 +266,16 @@ try {
             content: "#switcher,#devbar{display:none!important}",
           });
         await page.waitForTimeout(800);
-        await page.screenshot({ path: join(out, name), fullPage: true });
+        // The ⋯ menu is a non-modal popover (components.md). It closes when
+        // it loses focus, and Chromium's capture beyond the viewport blurs it,
+        // so a full-page shot never shows it. An ordinary window resize keeps
+        // it open. Both sides of the menu state are therefore shot at viewport
+        // size; the prototype is a 100dvh app, so its frame is unchanged, and
+        // the content below the fold is covered by the done state.
+        await page.screenshot({
+          path: join(out, name),
+          fullPage: !state.id.startsWith("app-menu-"),
+        });
       } catch (error) {
         console.error(`${state.id} ${name}: ${String(error)}`);
       } finally {

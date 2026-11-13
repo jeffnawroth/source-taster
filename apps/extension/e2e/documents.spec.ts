@@ -29,7 +29,7 @@ for (const language of ["en", "de"] as const) {
       const scan = join(directory, "scan.pdf");
       await writeFile(scan, pdf([[]]));
       const panel = await browser.openPanel();
-      await panel.select("combobox", /^(Language|Sprache)$/, language);
+      await panel.preferences({ language: language });
       const input = await panel.locate(
         'document.querySelector("#document-file")',
       );

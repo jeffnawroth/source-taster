@@ -88,14 +88,8 @@ for (const language of ["en", "de"] as const)
               everywhere: "Sign out everywhere",
               reference: "Reference",
             };
-      if (language === "de") await panel.select("combobox", "Language", "de");
-      await panel.select(
-        "combobox",
-        language === "de"
-          ? "Bevorzugter Zitierstil"
-          : "Preferred citation style",
-        "ieee",
-      );
+      if (language === "de") await panel.preferences({ language: "de" });
+      await panel.preferences({ citationStyle: "ieee" });
       const email = `native-${language}@example.invalid`;
       await panel.click("button", labels.signin);
       await panel.fill("textbox", labels.email, email);
@@ -151,18 +145,21 @@ for (const language of ["en", "de"] as const)
         ).status,
       ).toBe(200);
       await panel.evaluate('window.dispatchEvent(new Event("focus"))');
+      // The citation style lives in the Preferences Dialog (ADR-0023).
+      await panel.openPreferences();
+      const style = language === "de"
+        ? "Bevorzugter Zitierstil"
+        : "Preferred citation style";
       await expect
-        .poll(() =>
-          panel.evaluate('document.querySelectorAll("select")[1].value'),
+        .poll(async () =>
+          panel.call(
+            await panel.find("combobox", style),
+            "function () { return this.value; }",
+          ),
         )
         .toBe("oxford");
-      await panel.select(
-        "combobox",
-        language === "de"
-          ? "Bevorzugter Zitierstil"
-          : "Preferred citation style",
-        "vancouver",
-      );
+      await panel.select("combobox", style, "vancouver");
+      await panel.closePreferences();
       await expect
         .poll(readPreferences)
         .toEqual({ language, citationStyle: "vancouver" });

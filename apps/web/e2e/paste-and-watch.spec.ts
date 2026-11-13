@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { choosePreferences, closePreferences, openPreferences } from "./support/workspace.ts";
 import { checkStatus } from "./check-status.ts";
 
 for (const language of ["en", "de"] as const) {
@@ -8,9 +9,7 @@ for (const language of ["en", "de"] as const) {
     page,
   }) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     const button = page.getByRole("button", {
       name: language === "en" ? "Check reference" : "Referenz prüfen",
       exact: true,
@@ -34,24 +33,20 @@ for (const language of ["en", "de"] as const) {
     await expect(checkStatus(page, language)).toContainText(
       language === "en" ? "Running" : "Läuft",
     );
-    await page
-      .getByRole("combobox", {
-        name: /^(Preferred citation style|Bevorzugter Zitierstil)$/,
-      })
-      .selectOption("ieee");
+    await choosePreferences(page, { citationStyle: "ieee" });
     // Switching language while the stream is open keeps the current Check.
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language === "en" ? "de" : "en");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, {
+      language: language === "en" ? "de" : "en",
+    });
+    await choosePreferences(page, { language: language });
     await expect(page.locator("html")).toHaveAttribute("lang", language);
+    const preferences = await openPreferences(page);
     await expect(
-      page.getByRole("combobox", {
+      preferences.getByRole("combobox", {
         name: /^(Preferred citation style|Bevorzugter Zitierstil)$/,
       }),
     ).toHaveValue("ieee");
+    await closePreferences(page);
     await expect(checkStatus(page, language)).toContainText(
       language === "en" ? "Not checked" : "Nicht geprüft",
     );
@@ -104,9 +99,7 @@ test("resumes a prematurely closed event stream without losing Reference Status 
     await route.fulfill({ response, body: `${firstEvent}\n\n` });
   });
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   await page
     .getByRole("textbox")
     .fill(

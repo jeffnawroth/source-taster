@@ -70,15 +70,45 @@ export function Button({
       ))}
     </Aria.Button>
   );
-  return disabledReason ? (
-    <span className="st-disabled-control" data-placement={reasonPlacement}>
+  return (
+    <DisabledControl
+      reason={disabledReason}
+      reasonId={reasonId}
+      placement={reasonPlacement}
+    >
       {button}
-      <span id={reasonId} className="text-xs text-text-secondary">
-        {disabledReason}
-      </span>
+    </DisabledControl>
+  );
+}
+/**
+ * One wrapper whether or not a reason shows, so the control keeps its place
+ * in the tree: toggling the reason must not remount the button, lose focus,
+ * or leave its pending announcement pointing at a stale id. Without a reason
+ * the wrapper is `display: contents`.
+ */
+function DisabledControl({
+  reason,
+  reasonId,
+  placement,
+  children,
+}: {
+  reason: string | undefined;
+  reasonId: string;
+  placement?: "below" | "start";
+  children: ReactNode;
+}) {
+  return (
+    <span
+      className={reason ? "st-disabled-control" : "st-reason-slot"}
+      data-placement={reason ? placement : undefined}
+    >
+      {children}
+      {reason && (
+        <span id={reasonId} className="text-xs text-text-secondary">
+          {reason}
+        </span>
+      )}
     </span>
-  ) : (
-    button
   );
 }
 export type IconButtonProps = Omit<
@@ -135,15 +165,10 @@ export function ToggleButton({
       )}
     />
   );
-  return disabledReason ? (
-    <span className="st-disabled-control">
+  return (
+    <DisabledControl reason={disabledReason} reasonId={reasonId}>
       {button}
-      <span id={reasonId} className="text-xs text-text-secondary">
-        {disabledReason}
-      </span>
-    </span>
-  ) : (
-    button
+    </DisabledControl>
   );
 }
 export type LinkProps = Aria.LinkProps & { newTabLabel?: string };

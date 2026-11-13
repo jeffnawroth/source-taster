@@ -60,15 +60,21 @@ export function StructuringResults({
             "feature-unavailable": m.ai_feature_unavailable,
             "configuration-unavailable": m.ai_configuration_unavailable,
           }[result.ai.reason]()}
+          {/* A plan to upgrade to exists only where the service sells one;
+              standalone builds pass no upgrade link (#194 D). */}
           {result.ai.upgrade && upgradeUrl && (
-            <a
-              className="ml-2 underline"
-              href={upgradeUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {m.quota_upgrade()}
-            </a>
+            <>
+              {" "}
+              {m.ai_upgrade_hint()}
+              <a
+                className="ml-2 underline"
+                href={upgradeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {m.quota_upgrade()}
+              </a>
+            </>
           )}
         </p>
       )}

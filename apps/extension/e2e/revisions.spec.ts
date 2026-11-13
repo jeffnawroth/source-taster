@@ -23,7 +23,7 @@ for (const language of ["en", "de"] as const)
     );
     try {
       const panel = await browser.openPanel();
-      await panel.select("combobox", /^(Language|Sprache)$/, language);
+      await panel.preferences({ language: language });
       const original =
         "Aspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170";
       await panel.fill(
@@ -126,8 +126,8 @@ for (const language of ["en", "de"] as const)
         "button",
         language === "en" ? "Back to references" : "Zurück zu Referenzen",
       );
-      await panel.click(
-        "button",
+      // The list editor is a Dialog from the ⋯ Menu (#194 D).
+      await panel.moreAction(
         language === "en" ? "Edit reference list" : "Referenzliste bearbeiten",
       );
       // The membership row is a choice primitive: its input is visually hidden,
@@ -201,7 +201,7 @@ for (const language of ["en", "de"] as const)
     );
     try {
       const panel = await browser.openPanel();
-      await panel.select("combobox", /^(Language|Sprache)$/, language);
+      await panel.preferences({ language: language });
       await panel.fill(
         "textbox",
         en ? "Reference" : "Referenz",

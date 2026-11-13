@@ -3,6 +3,7 @@
 // structured suggestion comes from the server's proven candidate record.
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { choosePreferences, newCheck } from "./support/workspace.ts";
 import { readFile } from "node:fs/promises";
 import { CheckResponse } from "@source-taster/contract-verification/v2";
 
@@ -71,9 +72,7 @@ const copy = {
 async function start(page: Page, text: string, language: "en" | "de" = "en") {
   const t = copy[language];
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/u })
-    .selectOption(t.language);
+  await choosePreferences(page, { language: t.language });
   const creation = page.waitForResponse(
     (response) =>
       /\/v2\/checks$/u.test(response.url()) &&
@@ -986,12 +985,8 @@ test("late suggestion responses cannot attach to a newer citation style", async 
     await route.fulfill({ response });
   });
   const { detail } = await openDeviating(page);
-  const style = page.getByRole("combobox", {
-    name: "Preferred citation style",
-    exact: true,
-  });
   holding = true;
-  await style.selectOption("ieee");
+  await choosePreferences(page, { citationStyle: "ieee" });
   await entered;
   await expect(
     detail.getByRole("button", { name: "Apply to fields", exact: true }),
@@ -1000,7 +995,7 @@ test("late suggestion responses cannot attach to a newer citation style", async 
     "Apply to fields becomes available once the suggestion for the current result has loaded.",
   );
   holding = false;
-  await style.selectOption("apa");
+  await choosePreferences(page, { citationStyle: "apa" });
   await expect(
     detail.getByRole("button", { name: "Apply to fields", exact: true }),
   ).toBeEnabled();
@@ -1065,7 +1060,7 @@ test("pending Save sends once, failures retain the draft and a late reply cannot
     detail.getByRole("button", { name: "Save fields only", exact: true }),
   ).toBeDisabled();
   expect(count).toBe(1);
-  await page.getByRole("button", { name: "Reset", exact: true }).click();
+  await newCheck(page);
   release();
   await expect(
     page.getByRole("textbox", { name: "Reference", exact: true }),

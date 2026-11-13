@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { effectiveVerdict } from "./effective-verdict.ts";
 import { verdictLabels, statusLabels, VerdictGlyph } from "./outcome-badges.tsx";
-import { Button } from "./primitives/actions.tsx";
+import { Button, IconButton } from "./primitives/actions.tsx";
 import {
   AlertDialog,
   Dialog,
@@ -33,9 +33,10 @@ import { ReferenceExports } from "./reference-exports.tsx";
 import type { OwnerQuota } from "./quota.ts";
 import { ReportDownload } from "./report-download.tsx";
 import {
-  ArrowLeft,
   BookOpenText,
   Check as CheckIcon,
+  ChevronLeft,
+  ChevronRight,
   CircleHelp,
   Download,
   FileDown,
@@ -46,6 +47,7 @@ import {
   PanelRight,
   PencilLine,
   RotateCcw,
+  Shield,
   Square,
   TriangleAlert,
   X,
@@ -249,11 +251,14 @@ function ActionDialog({
   label,
   isOpen,
   onClose,
+  ownActions,
   children,
 }: {
   label: string;
   isOpen: boolean;
   onClose: () => void;
+  /** The content renders its own Cancel and primary action. */
+  ownActions?: boolean;
   children: ReactNode;
 }) {
   return (
@@ -267,11 +272,13 @@ function ActionDialog({
         {({ close }) => (
           <>
             {children}
-            <div className="st-actions">
-              <Button variant="ghost" onPress={close}>
-                {m.shell_close()}
-              </Button>
-            </div>
+            {!ownActions && (
+              <div className="st-actions">
+                <Button variant="ghost" onPress={close}>
+                  {m.shell_close()}
+                </Button>
+              </div>
+            )}
           </>
         )}
       </Dialog>
@@ -360,7 +367,11 @@ export function CheckResults({
     if (!showDetail) position.current = window.scrollY;
     selectSlot(slot);
     setDetailOpen(true);
-    requestAnimationFrame(() => heading.current?.focus());
+    requestAnimationFrame(() => {
+      // Narrow: the detail replaces the feed in the document flow.
+      if (narrow) window.scrollTo({ top: 0 });
+      heading.current?.focus({ preventScroll: narrow });
+    });
   }
   function back() {
     setDetailOpen(false);
@@ -449,8 +460,11 @@ export function CheckResults({
           <p className="feed-echo">
             <SourceIcon aria-hidden="true" size={16} />
             <b>{sourceLabel}</b>
-            <span>
-              · {m.workspace_recognized({ count: check.references.length })}
+            <span className="feed-echo-count">
+              ·{" "}
+              {check.references.length === 1
+                ? m.workspace_recognized_one()
+                : m.workspace_recognized({ count: check.references.length })}
             </span>
           </p>
           {running && <p className="feed-note">{m.shell_order_note()}</p>}
@@ -553,9 +567,9 @@ export function CheckResults({
           <footer className="feed-foot">
             {footer}
             <p className="feed-foot-row">
-              <CircleHelp aria-hidden="true" size={16} />
+              <Shield aria-hidden="true" size={16} />
               <span>
-                {m.workspace_human()}{" "}
+                {m.shell_feed_disclaimer()}{" "}
                 <button
                   type="button"
                   className="feed-link"
@@ -587,7 +601,7 @@ export function CheckResults({
               className="check-back"
               icon={
                 narrow ? (
-                  <ArrowLeft aria-hidden="true" size={16} />
+                  <ChevronLeft aria-hidden="true" size={16} />
                 ) : (
                   <X aria-hidden="true" size={16} />
                 )
@@ -603,6 +617,35 @@ export function CheckResults({
                 total: String(visible.length),
               })}
             </span>
+            {/* At either end the arrow gives way to a same-size gap rather
+                than a disabled control: the position already says why, and
+                every page change moves focus to the title. */}
+            <div className="detail-pager">
+              {selectedIndex > 0 ? (
+                <IconButton
+                  size="sm"
+                  variant="secondary"
+                  label={m.shell_previous_reference()}
+                  onPress={() => open(visible[selectedIndex - 1]!.slot)}
+                >
+                  <ChevronLeft aria-hidden="true" size={16} />
+                </IconButton>
+              ) : (
+                <span className="detail-pager-gap" />
+              )}
+              {selectedIndex < visible.length - 1 ? (
+                <IconButton
+                  size="sm"
+                  variant="secondary"
+                  label={m.shell_next_reference()}
+                  onPress={() => open(visible[selectedIndex + 1]!.slot)}
+                >
+                  <ChevronRight aria-hidden="true" size={16} />
+                </IconButton>
+              ) : (
+                <span className="detail-pager-gap" />
+              )}
+            </div>
           </DetailHeader>
           <div className="detail-body">
             <div>
@@ -662,8 +705,10 @@ export function CheckResults({
         label={m.export_references_heading()}
         isOpen={dialog === "export"}
         onClose={() => setDialog(null)}
+        ownActions
       >
         <ReferenceExports
+          onCancel={() => setDialog(null)}
           checkId={check.id}
           importedFormat={importedFormat}
           transport={transport}
@@ -705,6 +750,7 @@ export function CheckResults({
           transport={transport}
           onSnapshot={onSnapshot}
           autoStart
+          onDone={() => setDialog(null)}
         />
       </ActionDialog>
       <Modal

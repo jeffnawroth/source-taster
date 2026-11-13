@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { choosePreferences, openReference } from "../e2e/support/workspace.ts";
 
 for (const language of ["en", "de"] as const) {
   for (const scenario of ["tied", "ranked"] as const)
@@ -8,9 +9,7 @@ for (const language of ["en", "de"] as const) {
       page,
     }) => {
       await page.goto("/");
-      await page
-        .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-        .selectOption(language);
+      await choosePreferences(page, { language: language });
       await page
         .getByRole("textbox")
         .fill(
@@ -24,6 +23,7 @@ for (const language of ["en", "de"] as const) {
           exact: true,
         })
         .click();
+      await openReference(page, 1);
       const detail = page.getByRole("region", {
         name: language === "en" ? "Reference detail" : "Referenzdetails",
         exact: true,
@@ -121,9 +121,7 @@ for (const language of ["en", "de"] as const)
     page,
   }) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page
       .getByRole("textbox")
       .fill(
@@ -135,6 +133,7 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
+    await openReference(page, 1);
     const detail = page.getByRole("region", {
       name: language === "en" ? "Reference detail" : "Referenzdetails",
       exact: true,

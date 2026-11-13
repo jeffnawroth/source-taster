@@ -6,6 +6,7 @@ import { spawn, type ChildProcess } from "node:child_process";
 import { once } from "node:events";
 import { CheckResponse } from "@source-taster/contract-verification/v2";
 import { expect, test } from "@playwright/test";
+import { newCheck } from "../e2e/support/workspace.ts";
 import AxeBuilder from "@axe-core/playwright";
 import {
   startAccountApi,
@@ -362,9 +363,7 @@ for (const locale of ["en", "de"] as const)
         : "1 Referenzen verbrauchen 1 Ihrer 20 verbleibenden Prüfungen",
     );
     await page.unroute("**/v2/checks");
-    await page
-      .getByRole("button", { name: en ? "Reset" : "Zurücksetzen", exact: true })
-      .click();
+    await newCheck(page);
     await input.fill(
       Array(20)
         .fill(reference)

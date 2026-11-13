@@ -5,6 +5,7 @@ import { spawn, type ChildProcess } from "node:child_process";
 import { writeFile } from "node:fs/promises";
 import { once } from "node:events";
 import { expect, test, type Page } from "@playwright/test";
+import { newCheck } from "../e2e/support/workspace.ts";
 import AxeBuilder from "@axe-core/playwright";
 import {
   bothPrograms,
@@ -146,7 +147,7 @@ test("a start beyond the balance asks: first N in input order, or upgrade; warni
     { timeout: 45000 },
   );
   // A new start finds nothing left: only upgrade or cancel.
-  await page.getByRole("button", { name: "Reset", exact: true }).click();
+  await newCheck(page);
   await page.getByRole("textbox").fill(references(1));
   await check(page);
   await expect(page.getByTestId("quota-choice")).toContainText(

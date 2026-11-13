@@ -6,6 +6,7 @@
 // conformance claim and does not replace the native/human gates in
 // docs/implementation/216-regression-evidence.md.
 import { expect, test, type Page } from "@playwright/test";
+import { choosePreferences } from "./support/workspace.ts";
 import AxeBuilder from "@axe-core/playwright";
 import {
   greyscaleDifference,
@@ -71,9 +72,7 @@ async function openChecked(
     });
   }
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption(language);
+  await choosePreferences(page, { language: language });
   const w = words[language];
   await page
     .getByRole("textbox", { name: w.input, exact: true })
@@ -465,12 +464,16 @@ for (const theme of ["light", "dark"] as const)
       await outlineContrast(row),
       "row focus outline",
     ).toBeGreaterThanOrEqual(ratioFloor.nonText);
-    const reset = page.getByRole("button", { name: "Reset", exact: true });
+    // Reset moved into the ⋯ Menu (#194 D); its trigger is the button here.
+    const more = page.getByRole("button", {
+      name: "More actions",
+      exact: true,
+    });
     await page.keyboard.press("Tab");
-    await reset.focus();
-    await expect(reset).toBeFocused();
+    await more.focus();
+    await expect(more).toBeFocused();
     expect(
-      await outlineContrast(reset),
+      await outlineContrast(more),
       "button focus outline",
     ).toBeGreaterThanOrEqual(ratioFloor.nonText);
   });

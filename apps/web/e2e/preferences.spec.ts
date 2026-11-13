@@ -1,5 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { expect, test } from "@playwright/test";
+import {
+  choosePreferences,
+  closePreferences,
+  openPreferences,
+} from "./support/workspace.ts";
 import { checkStatus } from "./check-status.ts";
 import AxeBuilder from "@axe-core/playwright";
 
@@ -7,32 +12,49 @@ test("Guest language and citation style persist independently without losing inp
   page,
 }) => {
   await page.goto("/");
-  await page
+  let dialog = await openPreferences(page);
+  await dialog
     .getByRole("combobox", { name: "Language", exact: true })
     .selectOption("en");
-  const style = page.getByRole("combobox", {
+  const style = dialog.getByRole("combobox", {
     name: "Preferred citation style",
     exact: true,
   });
   await expect(style).toHaveValue("apa");
   await expect(style.getByRole("option")).toHaveCount(11);
   await style.selectOption("ieee");
+  await closePreferences(page);
   await page.getByRole("textbox").fill("My unfinished bibliography");
-  await page
-    .getByRole("combobox", { name: "Language", exact: true })
-    .selectOption("de");
+  await choosePreferences(page, { language: "de" });
   await expect(page.locator("html")).toHaveAttribute("lang", "de");
   await expect(page.getByRole("textbox")).toHaveValue(
     "My unfinished bibliography",
   );
+  dialog = await openPreferences(page);
   await expect(
-    page.getByRole("combobox", { name: "Bevorzugter Zitierstil", exact: true }),
+    dialog.getByRole("combobox", {
+      name: "Bevorzugter Zitierstil",
+      exact: true,
+    }),
   ).toHaveValue("ieee");
+  await closePreferences(page);
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("lang", "de");
+  dialog = await openPreferences(page);
   await expect(
-    page.getByRole("combobox", { name: "Bevorzugter Zitierstil", exact: true }),
+    dialog.getByRole("combobox", {
+      name: "Bevorzugter Zitierstil",
+      exact: true,
+    }),
   ).toHaveValue("ieee");
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
+  await closePreferences(page);
   expect(
     (
       await new AxeBuilder({ page })
@@ -56,12 +78,13 @@ for (const { languages, expected } of [
     }, languages);
     await page.goto("/");
     await expect(page.locator("html")).toHaveAttribute("lang", expected);
+    const dialog = await openPreferences(page);
     await expect(
-      page.getByRole("combobox", { name: /^(Language|Sprache)$/ }),
+      dialog.getByRole("combobox", { name: /^(Language|Sprache)$/u }),
     ).toHaveValue(expected);
     await expect(
-      page.getByRole("combobox", {
-        name: /^(Preferred citation style|Bevorzugter Zitierstil)$/,
+      dialog.getByRole("combobox", {
+        name: /^(Preferred citation style|Bevorzugter Zitierstil)$/u,
       }),
     ).toHaveValue("apa");
   });
@@ -81,24 +104,24 @@ test("a removed stored style falls back to APA with a translated notice", async 
     );
   });
   await page.goto("/");
+  await expect(page.getByRole("status")).toContainText(
+    "Your saved citation style is no longer available.",
+  );
+  const dialog = await openPreferences(page);
   await expect(
-    page.getByRole("combobox", {
+    dialog.getByRole("combobox", {
       name: "Preferred citation style",
       exact: true,
     }),
   ).toHaveValue("apa");
-  await expect(page.getByRole("status")).toContainText(
-    "Your saved citation style is no longer available.",
-  );
-  await page
+  await dialog
     .getByRole("combobox", { name: "Language", exact: true })
     .selectOption("de");
+  await closePreferences(page);
   await expect(page.getByRole("status")).toContainText(
     "Ihr gespeicherter Zitierstil ist nicht mehr verfügbar.",
   );
-  await page
-    .getByRole("combobox", { name: "Bevorzugter Zitierstil", exact: true })
-    .selectOption("vancouver");
+  await choosePreferences(page, { citationStyle: "vancouver" });
   await expect(page.getByRole("status")).toHaveCount(0);
 });
 
@@ -113,12 +136,7 @@ test("disabled browser storage still allows Preferences and a Check", async ({
     });
   });
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
-  await page
-    .getByRole("combobox", { name: "Preferred citation style", exact: true })
-    .selectOption("oxford");
+  await choosePreferences(page, { language: "en", citationStyle: "oxford" });
   await page
     .getByRole("textbox")
     .fill("Darwin, C. (1859). On the Origin of Species.");
@@ -126,8 +144,9 @@ test("disabled browser storage still allows Preferences and a Check", async ({
     .getByRole("button", { name: "Check reference", exact: true })
     .click();
   await expect(checkStatus(page)).toContainText("Finished");
+  const dialog = await openPreferences(page);
   await expect(
-    page.getByRole("combobox", {
+    dialog.getByRole("combobox", {
       name: "Preferred citation style",
       exact: true,
     }),

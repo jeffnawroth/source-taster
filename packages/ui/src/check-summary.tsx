@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import * as Aria from "react-aria-components";
 import { useStickySize } from "./sticky-layout.ts";
-import { Check as CheckIcon, Ellipsis, Square, X } from "lucide-react";
+import { Check as CheckIcon, Ellipsis, Square, Tags, X } from "lucide-react";
 import type { Check, Verdict } from "@source-taster/contract-verification/v2";
 import { effectiveVerdict } from "./effective-verdict.ts";
 import { m } from "@source-taster/i18n";
@@ -160,9 +160,23 @@ export function CheckSummary({
   const { verdicts, statuses } = counts(check);
   const total = check.references.length;
   const statusCount = statuses.reduce((sum, s) => sum + s.count, 0);
+  // "Show all labels" lays the narrow strip out like the wide one.
+  const [labelled, setLabelled] = useState(false);
+  const narrow = compact && !labelled;
+  const menu: StripAction[] = compact
+    ? [
+        ...actions,
+        {
+          id: "labels",
+          label: labelled ? m.shell_compact_labels() : m.shell_show_labels(),
+          icon: <Tags aria-hidden="true" size={16} />,
+          onAction: () => setLabelled((value) => !value),
+        },
+      ]
+    : actions;
   const filterRow = filter && (
-    <div className={compact ? "active-filter compact" : "active-filter"}>
-      {compact ? (
+    <div className={narrow ? "active-filter compact" : "active-filter"}>
+      {narrow ? (
         filter.startsWith("status:") ? (
           <StatusIcon status={filter.slice(7) as Status} />
         ) : (
@@ -170,7 +184,7 @@ export function CheckSummary({
         )
       ) : null}
       <span>
-        {compact
+        {narrow
           ? filterLabel(filter)
           : m.shell_active_filter({ filter: filterLabel(filter) })}
       </span>
@@ -188,12 +202,17 @@ export function CheckSummary({
       <section
         aria-label={m.workspace_summary()}
         className="summary-section"
-        data-compact={compact}
+        data-compact={narrow}
       >
         <GlassSurface layer="summary-strip" className="summary-strip">
-          {compact ? (
+          {narrow ? (
             <>
-              <div className="summary-row">
+              {/* One keyboard stop: arrow keys move between the counters,
+                  the status filter and the ⋯ Menu. */}
+              <Aria.Toolbar
+                aria-label={m.workspace_summary()}
+                className="summary-row"
+              >
                 <div
                   role="group"
                   aria-label={m.shell_verdicts()}
@@ -247,8 +266,8 @@ export function CheckSummary({
                     </Popover>
                   </MenuTrigger>
                 )}
-                <MoreActions actions={actions} />
-              </div>
+                <MoreActions actions={menu} />
+              </Aria.Toolbar>
               {filterRow}
               {running && (
                 <Progress
@@ -295,9 +314,12 @@ export function CheckSummary({
                     <span className="summary-spacer" />
                   </>
                 )}
-                <MoreActions actions={actions} />
+                <MoreActions actions={menu} />
               </div>
-              <div className="summary-counts">
+              <Aria.Toolbar
+                aria-label={m.shell_outcome_filters()}
+                className="summary-counts"
+              >
                 <div
                   role="group"
                   aria-label={m.shell_verdicts()}
@@ -316,8 +338,13 @@ export function CheckSummary({
                       data-verdict={verdict}
                     >
                       <VerdictGlyph verdict={verdict} />
-                      <span className="summary-count">{count}</span>
-                      <span className="summary-label">
+                      {/* The name carries the full Verdict and its count; the
+                          tile shows the short label, whose words it contains
+                          (WCAG 2.5.3), as the compact tile does. */}
+                      <span className="summary-count" aria-hidden="true">
+                        {count}
+                      </span>
+                      <span className="summary-label" aria-hidden="true">
                         {m[shortVerdictLabels[verdict]]()}
                         {manual > 0 &&
                           ` · ${m.override_count({ count: manual })}`}
@@ -349,13 +376,15 @@ export function CheckSummary({
                         className="summary-status"
                       >
                         <StatusIcon status={status} />
-                        <b>{count}</b>
-                        {m[statusLabels[status]]()}
+                        <b aria-hidden="true">{count}</b>
+                        <span aria-hidden="true">
+                          {m[statusLabels[status]]()}
+                        </span>
                       </Aria.ToggleButton>
                     ))}
                   </div>
                 )}
-              </div>
+              </Aria.Toolbar>
               {filterRow}
             </>
           )}

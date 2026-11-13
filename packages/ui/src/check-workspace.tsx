@@ -5,6 +5,7 @@ import { ContinuationTime } from "./abuse-message.tsx";
 import type { AiStructuringResult as StructuringResult } from "@source-taster/contract-verification/ai";
 import type { ReactNode } from "react";
 import {
+  useDeferredValue,
   useEffect,
   useEffectEvent,
   useId,
@@ -65,6 +66,7 @@ import {
   TextFieldRoot,
 } from "./primitives/fields.tsx";
 import { CheckingTopBar } from "./checking-top-bar.tsx";
+import { recognizedCount } from "./recognized-count.ts";
 import {
   citationStyles,
   isCitationStyle,
@@ -290,6 +292,13 @@ export function CheckWorkspace({
   const [cleanupPending, setCleanupPending] = useState(false);
   // Hosted clients carry credentials; only they have an Owner Quota to show.
   const hostedQuota = transport.credentials !== undefined;
+  // Standalone structures with the same deterministic parser, so the intake
+  // can count locally. Hosted may structure with AI and shows no count (#229).
+  const deferredText = useDeferredValue(text);
+  const recognized = useMemo(
+    () => (hostedQuota ? null : recognizedCount(deferredText)),
+    [hostedQuota, deferredText],
+  );
   const [quota, setQuota] = useState<OwnerQuota | null>(null);
   const [quotaState, setQuotaState] = useState<
     "loading" | "ready" | "unavailable"
@@ -1182,6 +1191,34 @@ export function CheckWorkspace({
         onInput={() => inputRef.current?.focus()}
         onReset={reset}
         onPreferences={() => setPreferencesOpen(true)}
+        commands={[
+          // Structuring is offered only while it can run: its unavailability
+          // is the Check's reason, which the intake already states once.
+          ...(!check &&
+          (!!text.trim() || !!library) &&
+          !selectionBlocked &&
+          !busy
+            ? [
+                {
+                  id: "structure",
+                  label: m.structuring_action(),
+                  onAction: () => {
+                    structureRequested.current = true;
+                    void start("structure");
+                  },
+                },
+              ]
+            : []),
+          ...(!check && preview && !previewOpen
+            ? [
+                {
+                  id: "structuring-preview",
+                  label: m.shell_structuring_preview(),
+                  onAction: () => setPreviewOpen(true),
+                },
+              ]
+            : []),
+        ]}
         onStop={
           running
             ? () => {
@@ -1338,6 +1375,19 @@ export function CheckWorkspace({
               </TextFieldRoot>
             )}
             <div className="intake-submit">
+              {intakeSource === "text" &&
+                !library &&
+                (pending === "structure" ? (
+                  <span className="intake-count">{m.structuring_pending()}</span>
+                ) : (
+                  !!recognized && (
+                    <span className="intake-count">
+                      {recognized === 1
+                        ? m.workspace_recognized_one()
+                        : m.workspace_recognized({ count: recognized })}
+                    </span>
+                  )
+                ))}
               {canCheck && (
                 <span className="intake-kbd" aria-hidden="true">
                   <Kbd modifier={apple ? "apple" : "other"}>↵</Kbd>{" "}
@@ -1398,36 +1448,6 @@ export function CheckWorkspace({
               )}
             </Aria.ToggleButtonGroup>
             <span className="intake-spacer" />
-            {preview && !previewOpen && (
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                onPress={() => setPreviewOpen(true)}
-              >
-                {m.shell_structuring_preview()}
-              </Button>
-            )}
-            {/* Offered only while it can run: its unavailability is the
-                Check's reason, which is already stated once. */}
-            {(!!text.trim() || !!library) &&
-              !selectionBlocked &&
-              (!busy || pending === "structure") && (
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  isPending={pending === "structure"}
-                  onPress={() => {
-                    structureRequested.current = true;
-                    void start("structure");
-                  }}
-                >
-                  {pending === "structure"
-                    ? m.structuring_pending()
-                    : m.structuring_action()}
-                </Button>
-              )}
             {intakeSource !== "file" && !filesOpen && (
               <Button
                 type="button"
@@ -1573,18 +1593,28 @@ export function CheckWorkspace({
               source={intakeSource}
               sourceLabel={sourceLabel}
               notices={
-                <div className="workspace-banners">
-                  {running && !accessStopped && (
-                    <p role="status" className="feed-note">
-                      {connection === "connected"
+                <>
+                  {/* A healthy stream is announced, not shown; only a lost
+                      one earns a Banner (D). */}
+                  <p role="status" className="sr-only">
+                    {running &&
+                      !accessStopped &&
+                      connection !== "reconnecting" &&
+                      (connection === "connected"
                         ? m.shell_connected()
-                        : connection === "reconnecting"
-                          ? m.shell_reconnecting()
-                          : m.shell_connecting()}
-                    </p>
-                  )}
-                  {notices}
-                </div>
+                        : m.shell_connecting())}
+                  </p>
+                  <div className="workspace-banners">
+                    {running &&
+                      !accessStopped &&
+                      connection === "reconnecting" && (
+                        <Banner tone="warning">
+                          {m.shell_reconnecting()}
+                        </Banner>
+                      )}
+                    {notices}
+                  </div>
+                </>
               }
               footer={notes}
               onSnapshot={(snapshot) => {

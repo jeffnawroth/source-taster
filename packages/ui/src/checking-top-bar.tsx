@@ -33,6 +33,7 @@ export function CheckingTopBar({
   onReset,
   onPreferences,
   onStop,
+  commands: extraCommands = [],
 }: {
   brandMark?: string;
   documentName?: string;
@@ -43,6 +44,8 @@ export function CheckingTopBar({
   onReset: () => void;
   onPreferences: () => void;
   onStop?: () => void;
+  /** Commands of the current view, such as structuring in the intake. */
+  commands?: { id: string; label: string; onAction: () => void }[];
 }) {
   const [commands, setCommands] = useState(false);
   const topbar = useStickySize("--checking-topbar-height");
@@ -115,7 +118,8 @@ export function CheckingTopBar({
           <Button
             ref={launcher}
             variant="ghost"
-            aria-label={m.shell_commands()}
+            // The name keeps the visible hint (WCAG 2.5.3) after "Commands".
+            aria-label={`${m.shell_commands()}: ${m.shell_command_hint().replace(/\s*…$/u, "")}`}
             onPress={() => {
               setQuery("");
               setCommands(true);
@@ -159,6 +163,15 @@ export function CheckingTopBar({
                   >
                     {m.shell_preferences()}
                   </MenuItem>
+                  {extraCommands.map((command) => (
+                    <MenuItem
+                      key={command.id}
+                      id={command.id}
+                      onAction={() => run(command.onAction)}
+                    >
+                      {command.label}
+                    </MenuItem>
+                  ))}
                   {onStop && (
                     <MenuItem id="stop" onAction={() => run(onStop)}>
                       {m.check_cancel()}

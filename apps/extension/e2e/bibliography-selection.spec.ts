@@ -26,7 +26,7 @@ for (const language of ["en", "de"] as const)
       const file = join(directory, "chapters.docx");
       await writeFile(file, await docx(text.split("\n")));
       const panel = await browser.openPanel();
-      await panel.select("combobox", /^(Language|Sprache)$/, language);
+      await panel.preferences({ language: language });
       await panel.send("DOM.setFileInputFiles", {
         backendNodeId: await panel.locate(
           'document.querySelector("#document-file")',
@@ -60,10 +60,7 @@ for (const language of ["en", "de"] as const)
         language === "en" ? "Region 1 start" : "Bereich 1 Anfang",
         String(text.indexOf(second)),
       );
-      await panel.click(
-        "button",
-        language === "en" ? "Structure references" : "Referenzen strukturieren",
-      );
+      await panel.structure();
       const recognized =
         language === "en" ? "Recognized references" : "Erkannte Referenzen";
       await panel.waitForText("region", recognized, second);
