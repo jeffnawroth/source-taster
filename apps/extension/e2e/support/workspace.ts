@@ -11,7 +11,7 @@ export const labels = {
     check: "Check reference",
     open: /^Open reference 1:/,
     detail: "Reference detail",
-    evidence: "Explanation and source evidence",
+    candidates: /^All candidates \(\d+\)$/,
     correct: "Correct",
     exists: "Exists, with deviations",
     best: "Best match by score",
@@ -22,7 +22,7 @@ export const labels = {
     check: "Referenz prüfen",
     open: /^Referenz 1 öffnen:/,
     detail: "Referenzdetails",
-    evidence: "Erklärung und Quellenbelege",
+    candidates: /^Alle Kandidaten \(\d+\)$/,
     correct: "Korrekt",
     exists: "Existiert, mit Abweichungen",
     best: "Bester Treffer nach Score",
@@ -170,17 +170,21 @@ const outcome = `(() => {
   const detail = document.getElementById("reference-detail");
   return {
     text: detail.innerText,
-    candidates: [...detail.querySelectorAll("details h3")].map((h) => h.parentElement.innerText),
+    candidates: [...detail.querySelectorAll("li.detail-cand")].map((c) => c.innerText),
   };
+})()`;
+/** Opens the Candidates toggle and every Disclosure in the detail, nested ones included. */
+const openDisclosures = `(() => {
+  for (const d of document.querySelectorAll("#reference-detail details")) d.open = true;
 })()`;
 export type Outcome = { text: string; candidates: string[] };
 /** Two Checks differ only in server observation times; everything else must match. */
 export function comparable(value: Outcome): Outcome {
   const stamp = (text: string) =>
-    text.replaceAll(
-      /\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z/g,
-      "<observed-at>",
-    );
+    text
+      .replaceAll(/\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z/g, "<observed-at>")
+      // The evidence trail shows each observation as a local time of day.
+      .replaceAll(/\b\d{1,2}:\d\d:\d\d(?:\s?[AP]M)?/g, "<observed-at>");
   return { text: stamp(value.text), candidates: value.candidates.map(stamp) };
 }
 
@@ -214,18 +218,8 @@ export async function checkInPanel(
     `${witness.name} never showed its outcome in the side panel`,
     20_000,
   );
-  // Field revisions are also a disclosure; open the evidence one by its label.
-  const evidence = `[...document.querySelectorAll("#reference-detail details > summary")].find((s) => s.textContent.includes(${JSON.stringify(l.evidence)}))`;
-  const summary = await panel
-    .locate(
-      `(${evidence})?.parentElement.open ? undefined : ${evidence}`,
-      1_000,
-    )
-    .catch(() => undefined);
-  if (summary) await panel.clickNode(summary);
-  await panel.locate(
-    `${evidence}?.parentElement.open ? ${evidence} : undefined`,
-  );
+  // The Candidates toggle and every Disclosure start closed; read them open.
+  await panel.evaluate(openDisclosures);
   return panel.evaluate<Outcome>(outcome);
 }
 
@@ -254,12 +248,8 @@ export async function checkInWeb(
       { timeout: 20_000, intervals: [100] },
     )
     .toBe(true);
-  const details = detail
-    .locator("details")
-    .filter({ has: page.locator("summary", { hasText: l.evidence }) });
-  if (!(await details.evaluate((d: HTMLDetailsElement) => d.open)))
-    await details.locator("summary").click();
-  await expect(details).toHaveAttribute("open", "");
+  await page.evaluate(openDisclosures);
+  await expect(detail.locator("details:not([open])")).toHaveCount(0);
   return page.evaluate<Outcome>(outcome);
 }
 

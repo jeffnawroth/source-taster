@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import AxeBuilder from "@axe-core/playwright";
 import { test, expect } from "@playwright/test";
-import { choosePreferences, openReference } from "./support/workspace.ts";
+import {
+  choosePreferences,
+  openEvidence,
+  openReference,
+} from "./support/workspace.ts";
 const reference =
   "Aspelmeyer, M. (2008). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170";
 for (const language of ["en", "de"] as const) {
@@ -51,14 +55,7 @@ for (const language of ["en", "de"] as const) {
         .locator("..")
         .locator('svg[data-verdict="exists-with-deviations"]'),
     ).toBeVisible();
-    await result
-      .getByText(
-        language === "en"
-          ? "Explanation and source evidence"
-          : "Erklärung und Quellenbelege",
-        { exact: true },
-      )
-      .click();
+    await openEvidence(result);
     await expect(result).toContainText("uncalibrated");
     await expect(result).toContainText("doi.org");
     await expect(result).toContainText("crossref");
@@ -121,14 +118,7 @@ for (const language of ["en", "de"] as const)
           { exact: true },
         ),
       ).toBeVisible({ timeout: 15000 });
-      await result
-        .getByText(
-          language === "en"
-            ? "Explanation and source evidence"
-            : "Erklärung und Quellenbelege",
-          { exact: true },
-        )
-        .click();
+      await openEvidence(result);
       await expect(
         result.getByText(
           language === "en"

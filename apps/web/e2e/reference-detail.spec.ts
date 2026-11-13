@@ -240,8 +240,11 @@ test("detail leads with the effective Verdict in the documented section order an
     detail.getByRole("table", { name: "Reference and best match" }),
     detail.getByRole("region", { name: "Correction suggestion", exact: true }),
     detail.getByRole("region", { name: "Manual judgment", exact: true }),
-    // #194 D: the explanation leads in the verdict block; the source evidence
-    // (Data sources, Candidates, evidence trail) closes the detail.
+    // #194 D: the source evidence closes the detail — Data sources queried,
+    // the Candidates toggle, the evidence trail — then the rules provenance.
+    detail.getByRole("heading", { name: "Data sources queried", exact: true }),
+    detail.getByRole("heading", { name: "Candidates", exact: true }),
+    detail.getByRole("heading", { name: "Evidence trail", exact: true }),
     detail.getByText("Explanation and source evidence", { exact: true }),
   ];
   await expect(order[0]!).toHaveText("Exists, with deviations");

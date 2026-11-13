@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import AxeBuilder from "@axe-core/playwright";
 import { test, expect } from "@playwright/test";
-import { choosePreferences, openReference } from "../e2e/support/workspace.ts";
+import {
+  choosePreferences,
+  openEvidence,
+  openReference,
+} from "../e2e/support/workspace.ts";
 for (const language of ["en", "de"] as const)
   test(`explains a dead original URL and archive provenance in ${language}`, async ({
     page,
@@ -62,14 +66,7 @@ for (const language of ["en", "de"] as const)
       "href",
       "https://web.archive.org/web/20260102030405id_/https://example.com/web80-dead",
     );
-    await result
-      .getByText(
-        language === "en"
-          ? "Explanation and source evidence"
-          : "Erklärung und Quellenbelege",
-        { exact: true },
-      )
-      .click();
+    await openEvidence(result);
     await expect(
       result.getByText(
         language === "en"

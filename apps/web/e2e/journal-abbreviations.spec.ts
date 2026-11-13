@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import AxeBuilder from "@axe-core/playwright";
 import { test, expect } from "@playwright/test";
-import { choosePreferences, openReference } from "./support/workspace.ts";
+import {
+  choosePreferences,
+  openEvidence,
+  openReference,
+} from "./support/workspace.ts";
 for (const language of ["en", "de"] as const) {
   for (const abbreviation of ["J Biol Chem", "Unattested J Med"]) {
     test(`explains ${abbreviation} with NLM attribution accessibly in ${language}`, async ({
@@ -25,14 +29,7 @@ for (const language of ["en", "de"] as const) {
         name: /^(Reference detail|Referenzdetails)$/u,
         exact: true,
       });
-      await result
-        .getByText(
-          language === "en"
-            ? "Explanation and source evidence"
-            : "Erklärung und Quellenbelege",
-          { exact: true },
-        )
-        .click({ timeout: 15000 });
+      await openEvidence(result);
       await expect(result).toContainText(
         abbreviation === "J Biol Chem"
           ? language === "en"

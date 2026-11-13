@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { choosePreferences, openReference } from "../e2e/support/workspace.ts";
+import {
+  choosePreferences,
+  openEvidence,
+  openReference,
+} from "../e2e/support/workspace.ts";
 
 for (const language of ["en", "de"] as const) {
   for (const scenario of ["tied", "ranked"] as const)
@@ -44,18 +48,8 @@ for (const language of ["en", "de"] as const) {
       await expect(comparison.getByRole("table")).toContainText(
         scenario === "tied" ? "WorkspaceTie" : "WorkspaceRanked",
       );
-      await detail
-        .getByText(
-          language === "en"
-            ? "Explanation and source evidence"
-            : "Erklärung und Quellenbelege",
-          { exact: true },
-        )
-        .click();
-      const candidates = detail
-        .locator("details")
-        .getByRole("heading", { level: 3 })
-        .locator("..");
+      await openEvidence(detail);
+      const candidates = detail.locator("li.detail-cand");
       await expect(candidates).toHaveCount(scenario === "tied" ? 2 : 3);
       if (scenario === "tied") {
         await expect(candidates.nth(0)).toContainText(

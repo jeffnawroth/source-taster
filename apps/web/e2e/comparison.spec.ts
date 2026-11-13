@@ -2,7 +2,11 @@
 import AxeBuilder from "@axe-core/playwright";
 import { readFile } from "node:fs/promises";
 import { test, expect } from "@playwright/test";
-import { choosePreferences, openReference } from "./support/workspace.ts";
+import {
+  choosePreferences,
+  openEvidence,
+  openReference,
+} from "./support/workspace.ts";
 import { CheckResponse } from "@source-taster/contract-verification";
 const cases = JSON.parse(
   await readFile(
@@ -50,10 +54,8 @@ for (const c of cases)
         { exact: true },
       ),
     ).toBeVisible({ timeout: 15000 });
-    await result
-      .getByText("Explanation and source evidence", { exact: true })
-      .click();
-    await expect(result).toContainText(`Score: ${c.scoreDisplay}`);
+    await openEvidence(result);
+    await expect(result).toContainText(`Score ${c.scoreDisplay}`);
     const term = result.getByRole("term").filter({
       hasText:
         c.field === "title"
@@ -117,14 +119,7 @@ for (const language of ["en", "de"] as const)
         { exact: true },
       ),
     ).toBeVisible({ timeout: 15000 });
-    await result
-      .getByText(
-        language === "en"
-          ? "Explanation and source evidence"
-          : "Erklärung und Quellenbelege",
-        { exact: true },
-      )
-      .click();
+    await openEvidence(result);
     await expect(result).toContainText("76.19 %");
     const author = result
       .getByRole("term")

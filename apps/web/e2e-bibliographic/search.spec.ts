@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import AxeBuilder from "@axe-core/playwright";
 import { test, expect } from "@playwright/test";
-import { choosePreferences, openReference } from "../e2e/support/workspace.ts";
+import {
+  choosePreferences,
+  openEvidence,
+  openReference,
+} from "../e2e/support/workspace.ts";
 for (const language of ["en", "de"] as const)
   test(`opens a Candidate without DOI at its provider record in ${language}`, async ({
     page,
@@ -36,14 +40,7 @@ for (const language of ["en", "de"] as const)
         exact: true,
       }),
     ).toBeVisible({ timeout: 15000 });
-    await result
-      .getByText(
-        language === "en"
-          ? "Explanation and source evidence"
-          : "Erklärung und Quellenbelege",
-        { exact: true },
-      )
-      .click();
+    await openEvidence(result);
     const link = result
       .getByRole("link", {
         name: language === "en" ? "Open source" : "Quelle öffnen",
@@ -98,14 +95,7 @@ for (const language of ["en", "de"] as const)
         { exact: true },
       ),
     ).toBeVisible({ timeout: 5000 });
-    await result
-      .getByText(
-        language === "en"
-          ? "Explanation and source evidence"
-          : "Erklärung und Quellenbelege",
-        { exact: true },
-      )
-      .click();
+    await openEvidence(result);
     await expect(
       result.getByText(
         /(?:Retraction report from|Rücknahmemeldung von) OpenAlex:/u,
@@ -146,14 +136,7 @@ for (const language of ["en", "de"] as const)
         exact: true,
       }),
     ).toBeVisible({ timeout: 15000 });
-    await result
-      .getByText(
-        language === "en"
-          ? "Explanation and source evidence"
-          : "Erklärung und Quellenbelege",
-        { exact: true },
-      )
-      .click();
+    await openEvidence(result);
     await expect(result).toContainText("openalex");
     await expect(result).toContainText("100.00 %");
     await expect(result).toContainText(
@@ -226,18 +209,9 @@ for (const language of ["en", "de"] as const)
           })
           .getByRole("row"),
       ).toHaveCount(1);
-      await result
-        .getByText(
-          language === "en"
-            ? "Explanation and source evidence"
-            : "Erklärung und Quellenbelege",
-          { exact: true },
-        )
-        .click();
+      await openEvidence(result);
       if (scenario !== "missing") {
-        await expect(
-          result.locator("details").getByRole("heading", { level: 3 }),
-        ).toHaveCount(2);
+        await expect(result.locator("li.detail-cand")).toHaveCount(2);
         await expect(result).toContainText("openalex");
         await expect(result).toContainText(
           language === "en" ? "Title" : "Titel",

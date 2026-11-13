@@ -67,16 +67,16 @@ test("the toolbar button opens the real Firefox sidebar, which checks a Referenc
       30_000,
     );
     expect(detail).toContain(witness.marker);
-    // Scores sit in the evidence disclosure, opened as a user would. The click
+    // Scores sit behind the Candidates toggle, opened as a user would. The click
     // goes to screen coordinates, so a layout shift between lookup and click
-    // can miss the summary; a closed disclosure is clicked again, at fresh
+    // can miss the summary; a closed toggle is clicked again, at fresh
     // coordinates and never sooner than 2 s after the last click, so an open
     // one is not toggled shut.
     const openEvidence = async () => {
       const summary = (await firefox.tree()).find(
-        (n) => n.name === l.evidence && n.role !== "text leaf",
+        (n) => l.candidates.test(n.name) && n.role !== "text leaf",
       )!;
-      await firefox.click(await firefox.find(summary.role, l.evidence));
+      await firefox.click(await firefox.find(summary.role, summary.name));
       return Date.now();
     };
     let clicked = await openEvidence();
@@ -85,7 +85,7 @@ test("the toolbar button opens the real Firefox sidebar, which checks a Referenc
       if (witness.scores.every((score) => text.includes(score))) return text;
       if (Date.now() - clicked > 2_000) clicked = await openEvidence();
       return false;
-    }, "The evidence disclosure did not show the server Scores");
+    }, "The Candidates toggle did not show the server Scores");
     expect(evidenced).toContain(l[witness.verdict]);
     await firefox.find("pushbutton", "Back to references");
     await firefox.screenshot(evidence("firefox-sidebar-check.png"));

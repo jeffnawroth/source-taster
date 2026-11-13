@@ -24,7 +24,6 @@ import { useStickySize } from "./sticky-layout.ts";
 import type {
   Check,
   ReferenceSlot,
-  SourceEvidence,
   Verdict,
 } from "@source-taster/contract-verification/v2";
 import type { VerificationClientOptions } from "@source-taster/contract-verification/client-v2";
@@ -38,7 +37,6 @@ import type { OwnerQuota } from "./quota.ts";
 import { ReportDownload } from "./report-download.tsx";
 import {
   BookOpenText,
-  Check as CheckIcon,
   ChevronLeft,
   ChevronRight,
   CircleHelp,
@@ -47,16 +45,21 @@ import {
   FileText,
   List,
   ListPlus,
-  Minus,
   PanelRight,
   PencilLine,
   RotateCcw,
   Shield,
   Square,
-  TriangleAlert,
   X,
 } from "lucide-react";
 import { m } from "@source-taster/i18n";
+import {
+  evidenceLabel,
+  evidenceStep,
+  queriedSources,
+  StepIcon,
+  type StepState,
+} from "./evidence-steps.tsx";
 import { ReferenceActions } from "./reference-actions.tsx";
 import { ReferenceListActions } from "./reference-list-actions.tsx";
 import { GridList, GridListItem } from "./primitives/grid-list.tsx";
@@ -72,6 +75,7 @@ import {
   BestMatchComparison,
   DetailSection,
   EvidenceDetails,
+  suggestionProvenance,
   OriginalInput,
   outcomeReasons,
   ReferenceOutcomeSummary,
@@ -100,7 +104,6 @@ function useNarrow(ref: RefObject<HTMLElement | null>) {
   return narrow;
 }
 
-type StepState = "ok" | "diff" | "bad" | "warn" | "none" | "pend" | "cur";
 const verdictStep: Record<Verdict, StepState> = {
   correct: "ok",
   "exists-with-deviations": "diff",
@@ -109,29 +112,6 @@ const verdictStep: Record<Verdict, StepState> = {
   "not-found": "none",
   "not-verifiable": "warn",
 };
-const evidenceStep: Partial<Record<SourceEvidence["outcome"], StepState>> = {
-  exists: "ok",
-  redirect: "ok",
-  candidate: "ok",
-  nonexistent: "bad",
-  unavailable: "warn",
-  "no-record": "none",
-};
-const stepRank: StepState[] = ["ok", "bad", "warn", "none"];
-function evidenceLabel(outcome: SourceEvidence["outcome"]) {
-  return m[
-    `evidence_${outcome.replaceAll("-", "_")}` as
-      | "evidence_redirect"
-      | "evidence_exists"
-      | "evidence_nonexistent"
-      | "evidence_candidate"
-      | "evidence_no_record"
-      | "evidence_unavailable"
-      | "evidence_disabled"
-      | "evidence_skipped"
-      | "evidence_unsupported"
-  ]();
-}
 function runningText(reference: ReferenceSlot) {
   return reference.progress === "queued"
     ? m.reference_queued()
@@ -140,21 +120,6 @@ function runningText(reference: ReferenceSlot) {
           source: sourceNames[reference.progress as keyof typeof sourceNames],
         })
       : m.reference_checking();
-}
-function StepIcon({ state }: { state: StepState }) {
-  const props = { "aria-hidden": true, size: 14, strokeWidth: 2.25 } as const;
-  switch (state) {
-    case "ok":
-      return <CheckIcon {...props} />;
-    case "bad":
-      return <X {...props} />;
-    case "warn":
-      return <TriangleAlert {...props} />;
-    case "none":
-      return <Minus {...props} />;
-    default:
-      return null;
-  }
 }
 /** The card's evidence trail: one node per consulted Data source, then the Verdict. */
 function EvidenceTrack({ reference }: { reference: ReferenceSlot }) {
@@ -171,18 +136,7 @@ function EvidenceTrack({ reference }: { reference: ReferenceSlot }) {
       </div>
     );
   }
-  const bySource = new Map<string, SourceEvidence>();
-  for (const evidence of outcome.evidence) {
-    const state = evidenceStep[evidence.outcome];
-    if (!state) continue;
-    const known = bySource.get(evidence.source);
-    if (
-      !known ||
-      stepRank.indexOf(state) < stepRank.indexOf(evidenceStep[known.outcome]!)
-    )
-      bySource.set(evidence.source, evidence);
-  }
-  const steps = [...bySource.values()];
+  const steps = queriedSources(outcome.evidence);
   const verdict = reference.manualOverride?.verdict ?? outcome.verdict;
   const total = steps.length + 1;
   return (
@@ -698,8 +652,12 @@ export function CheckResults({
                     </DetailSection>
                   )
                 }
+                evidence={<EvidenceDetails outcome={selected.outcome} />}
+                provenance={suggestionProvenance(
+                  selected.outcome,
+                  citationStyleLabel,
+                )}
               />
-              <EvidenceDetails outcome={selected.outcome} />
             </div>
           </section>
         </div>

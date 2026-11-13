@@ -2,7 +2,7 @@
 import { AiProvenance } from "./ai-provenance.tsx";
 import { ManualVerdictActions } from "./manual-verdict.tsx";
 import { useMemo, useRef, useState, type ReactNode } from "react";
-import { PencilLine, RotateCcw } from "lucide-react";
+import { ChevronRight, PencilLine, RotateCcw } from "lucide-react";
 import type {
   Check,
   ReferenceSlot,
@@ -44,9 +44,15 @@ export function ReferenceActions({
   work,
   gate,
   comparison,
+  evidence,
+  provenance,
 }: {
   /** Renders the field table with this slot's Edit fields action and draft editor. */
   comparison: (action: ReactNode, editor: ReactNode) => ReactNode;
+  /** D's Data sources, Candidates and evidence trail, after Manual judgment. */
+  evidence?: ReactNode;
+  /** The style and source line under the Correction suggestion. */
+  provenance?: string;
   bibliography: Rendered;
   check: Check;
   reference: ReferenceSlot;
@@ -268,6 +274,7 @@ export function ReferenceActions({
         onApplyToFields={requestApplyToFields}
         unavailableReason={unavailableReason}
         operationRunning={operationRunning}
+        provenance={provenance}
       />
       <Modal
         isOpen={replacement !== null}
@@ -315,9 +322,11 @@ export function ReferenceActions({
         work={work}
         gate={gate}
       />
+      {evidence}
       {!!previous.length && (
-        <details>
-          <summary className="cursor-pointer py-2 font-semibold">
+        <details className="detail-disclosure">
+          <summary>
+            <ChevronRight aria-hidden="true" size={16} />
             {m.revision_history()}
           </summary>
           {previous.map((result) => (
@@ -327,7 +336,7 @@ export function ReferenceActions({
                   ? m.revision_historical()
                   : `${m.revision_historical()} · ${m.override_run({ run: result.generation + 1 })}`
               }
-              className="my-3 rounded border border-border-emphasis bg-surface-sunken p-3"
+              className="detail-history"
               key={result.id}
             >
               <p>
@@ -344,12 +353,13 @@ export function ReferenceActions({
           ))}
         </details>
       )}
-      <details>
-        <summary className="cursor-pointer py-2">
+      <details className="detail-disclosure">
+        <summary>
+          <ChevronRight aria-hidden="true" size={16} />
           {m.revision_field_history()}
         </summary>
         {reference.revisions.map((revision) => (
-          <section className="my-3 break-words" key={revision.revision}>
+          <section className="detail-history" key={revision.revision}>
             <p>
               {m.revision_number({ revision: revision.revision })} ·{" "}
               {revision.provenance === "user"

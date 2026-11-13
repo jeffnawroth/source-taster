@@ -14,6 +14,8 @@ import {
 import { m } from "@source-taster/i18n";
 import { verdictLabels, VerdictGlyph } from "./outcome-badges.tsx";
 import { Button } from "./primitives/actions.tsx";
+import { Check as CheckIcon, PencilLine } from "lucide-react";
+import { DetailSection } from "./reference-outcome.tsx";
 import { Form } from "./primitives/fields.tsx";
 import { Radio, RadioGroup } from "./primitives/selection.tsx";
 import {
@@ -88,10 +90,7 @@ export function ManualVerdictActions({
     }
   }
   return (
-    <section
-      aria-label={m.override_actions()}
-      className="my-4 min-w-0 space-y-3 rounded border border-border bg-surface p-3"
-    >
+    <DetailSection title={m.override_actions()} label={m.override_actions()}>
       {reference.manualOverrideReset && (
         <p role="status">{m.override_reset()}</p>
       )}
@@ -101,10 +100,12 @@ export function ManualVerdictActions({
       )}
       {available && (
         <>
-          <p>{m.override_note()}</p>
+          <p className="detail-note">{m.override_note()}</p>
           {!draft ? (
-            <div className="flex flex-wrap gap-3">
+            <div className="detail-row">
               <Button
+                size="sm"
+                icon={<CheckIcon aria-hidden="true" size={16} />}
                 {...busy}
                 onPress={() => {
                   const request = currentRequest();
@@ -118,6 +119,8 @@ export function ManualVerdictActions({
                 {m.override_confirm()}
               </Button>
               <Button
+                size="sm"
+                icon={<PencilLine aria-hidden="true" size={16} />}
                 {...busy}
                 onPress={() => {
                   setDraft(currentRequest());
@@ -171,6 +174,6 @@ export function ManualVerdictActions({
           )}
         </>
       )}
-    </section>
+    </DetailSection>
   );
 }

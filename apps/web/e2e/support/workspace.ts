@@ -222,3 +222,15 @@ export async function closeDialog(page: Page, name: RegExp) {
   await dialog.getByRole("button", { name: /^(Close|Schließen)$/u }).click();
   await expect(dialog).toBeHidden();
 }
+
+/**
+ * Opens the Candidates toggle and every Disclosure in this part of the
+ * Reference detail, nested ones as they appear, as a reader would.
+ */
+export async function openEvidence(scope: Locator) {
+  const closed = scope.locator("details:not([open]) > summary:visible");
+  await expect(scope.locator("details").first()).toBeAttached({
+    timeout: 15_000,
+  });
+  while ((await closed.count()) > 0) await closed.first().click();
+}

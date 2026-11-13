@@ -9,7 +9,13 @@ import type {
   SourceEvidence,
 } from "@source-taster/contract-verification/v2";
 import type { Verdict } from "@source-taster/contract-verification/v2";
-import { Check, PencilLine } from "lucide-react";
+import { Check, ChevronRight, Info, PencilLine, Plus, X } from "lucide-react";
+import {
+  evidenceLabel,
+  evidenceStep,
+  queriedSources,
+  StepIcon,
+} from "./evidence-steps.tsx";
 import {
   VerdictGlyph,
   StatusIcon,
@@ -18,6 +24,7 @@ import {
   type Status,
 } from "./outcome-badges.tsx";
 import { m } from "@source-taster/i18n";
+import { getLocale } from "@source-taster/i18n/runtime";
 import { JournalAbbreviationExplanation } from "./journal-abbreviation.tsx";
 const reasons = {
   "url-unavailable": "reason_url_unavailable",
@@ -206,6 +213,19 @@ function failureCause(
 }
 
 /** Reasons as one sentence, for the feed card and the verdict block. */
+/** D's mono line under a Correction suggestion: the style, then the source it was rebuilt from. */
+export function suggestionProvenance(
+  outcome: ReferenceOutcome,
+  styleLabel: string,
+) {
+  const best =
+    outcome.kind === "verdict"
+      ? outcome.candidates.find((c) => c.id === outcome.bestMatchId)
+      : undefined;
+  return [styleLabel, best && sourceNames[best.source]]
+    .filter(Boolean)
+    .join(" · ");
+}
 export function outcomeReasons(outcome: ReferenceOutcome) {
   return outcome.kind === "verdict"
     ? outcome.reasons.map((reason) => m[reasons[reason]]())
@@ -335,7 +355,126 @@ export function OriginalInput({ text }: { text: string }) {
     </DetailSection>
   );
 }
-/** Evidence a reader may want after the comparison: limits, sources, Candidates. */
+const identityMessages = {
+  unresolved: "identity_unresolved",
+  "supplied-doi": "identity_doi",
+  "supplied-identifier": "identity_identifier",
+  "web-url": "identity_web_url",
+  "web-archive": "identity_web_archive",
+} as const;
+function fieldVerdict(field: Candidate["fields"][number]) {
+  if (field.score)
+    return field.score.fullAgreement ? m.field_agrees() : m.field_differs();
+  if (field.agreement !== undefined)
+    return field.agreement ? m.field_agrees() : m.field_differs();
+  return field.reason === "unweighted"
+    ? m.field_unweighted()
+    : m.field_excluded();
+}
+function fieldScore(field: Candidate["fields"][number]) {
+  if (field.score) return percent(field.score);
+  switch (field.reason) {
+    case "resource-limit":
+      return m.field_resource_limit();
+    case "not-determinable":
+      return m.field_not_determinable();
+    case "missing-reference":
+      return m.field_missing_reference();
+    case "missing-candidate":
+      return m.field_missing_candidate();
+    default:
+      return m.field_unweighted();
+  }
+}
+function CandidateEntry({
+  candidate,
+  best,
+}: {
+  candidate: Candidate;
+  best: boolean;
+}) {
+  const link = sourceLink(candidate);
+  const year = candidate.csl.issued?.literal;
+  return (
+    <li className="detail-cand">
+      <p className="detail-cand-meta">
+        {sourceNames[candidate.source]} · {m.score_label()}{" "}
+        {candidate.score ? percent(candidate.score) : m.evidence_missing()}
+      </p>
+      <h3 className="detail-cand-title">
+        {candidate.csl.title ?? candidate.id}
+        {year && ` (${year})`}
+      </h3>
+      {best && <p className="detail-note">{m.best_match_label()}</p>}
+      <details className="detail-disclosure">
+        <summary>
+          <ChevronRight aria-hidden="true" size={16} />
+          {m.shell_candidate_fields()}
+        </summary>
+        <div className="detail-disclosure-body">
+          <p className="detail-note">
+            {m.candidate_origin()}: {m[origins[candidate.origin]]()} ·{" "}
+            {m.candidate_slot({ slot: candidate.slot })}
+          </p>
+          <p className="detail-note">
+            {m.candidate_record()}: {candidate.id}
+          </p>
+          {!!candidate.identifiers?.length && (
+            <p className="detail-note">
+              {m.candidate_identifiers()}: {candidate.identifiers.join(", ")}
+            </p>
+          )}
+          {link && (
+            <a
+              className="detail-link"
+              target="_blank"
+              rel="noopener noreferrer"
+              href={link}
+            >
+              {m.source_open()}
+            </a>
+          )}
+          <dl className="detail-fields">
+            {candidate.fields.map((field) => (
+              <div
+                key={field.field}
+                data-deviates={
+                  (field.score && !field.score.fullAgreement) ||
+                  field.agreement === false ||
+                  undefined
+                }
+              >
+                <dt>
+                  {field.field in fieldLabels
+                    ? m[fieldLabels[field.field as keyof typeof fieldLabels]]()
+                    : field.field}
+                  : {fieldVerdict(field)}
+                </dt>
+                <dd>
+                  {m.reference_label()}: {raw(field.reference)}
+                </dd>
+                <dd>
+                  {m.candidate_label()}: {raw(field.candidate)}
+                </dd>
+                <dd>{fieldScore(field)}</dd>
+                {field.journalAbbreviation && (
+                  <JournalAbbreviationExplanation
+                    evidence={field.journalAbbreviation}
+                  />
+                )}
+              </div>
+            ))}
+          </dl>
+        </div>
+      </details>
+    </li>
+  );
+}
+/**
+ * D's lower detail: the Data sources queried, the Candidates behind a toggle
+ * and the evidence trail, then the rules and identity provenance behind a
+ * quiet Disclosure.
+ */
 export function EvidenceDetails({
   outcome,
   contextLabel,
@@ -344,232 +483,202 @@ export function EvidenceDetails({
   contextLabel?: string;
 }) {
   if (outcome.kind === "status") return null;
+  const sources = queriedSources(outcome.evidence);
   return (
     <div className="detail-evidence">
       {outcome.retraction === "retracted" && (
-        <div className="border-l-4 border-border-emphasis bg-surface-sunken p-3 text-text">
+        <div className="detail-callout">
           <p className="font-semibold">{m.retraction_reported()}</p>
           <p>{m.retraction_independent()}</p>
         </div>
       )}
-      <p className="text-sm font-semibold">{m.doi_uncalibrated()}</p>
+      <p className="detail-nrow">
+        <Info aria-hidden="true" size={16} />
+        <span>{m.doi_uncalibrated()}</span>
+      </p>
       {outcome.reasons.some((r) =>
         ["web-original-unavailable", "url-unavailable"].includes(r),
       ) && (
-        <p className="break-words">
+        <p className="detail-note">
           {m.web_original_url()}: {outcome.reference.csl.URL}
         </p>
       )}
-      {!!outcome.failedSources.length && (
-        <section
-          aria-label={[m.failed_sources_heading(), contextLabel]
-            .filter(Boolean)
-            .join(" · ")}
-        >
-          <p className="font-semibold">{m.failed_sources_heading()}</p>
-          <ul className="list-disc pl-6">
-            {outcome.failedSources.map((source) => (
-              <li key={source}>
-                {sourceNames[source]}: {failureCause(outcome, source)}
+      {!!sources.length && (
+        <DetailSection title={m.shell_sources_queried()}>
+          <ul className="detail-list">
+            {sources.map((evidence) => (
+              <li
+                key={evidence.source}
+                className="detail-src"
+                data-state={evidenceStep[evidence.outcome]}
+              >
+                <span className="detail-mark">
+                  <StepIcon state={evidenceStep[evidence.outcome]!} />
+                </span>
+                <span className="detail-src-name">
+                  {sourceNames[evidence.source]}
+                </span>
+                <span className="detail-src-text">
+                  {evidenceLabel(evidence.outcome)}
+                </span>
               </li>
             ))}
           </ul>
-        </section>
+        </DetailSection>
       )}
-      <details>
-        <summary className="cursor-pointer py-2 font-semibold">
+      {!!outcome.failedSources.length && (
+        <DetailSection
+          title={m.failed_sources_heading()}
+          label={[m.failed_sources_heading(), contextLabel]
+            .filter(Boolean)
+            .join(" · ")}
+        >
+          <ul className="detail-list">
+            {outcome.failedSources.map((source) => (
+              <li key={source} className="detail-src" data-state="warn">
+                <span className="detail-mark">
+                  <StepIcon state="warn" />
+                </span>
+                <span className="detail-src-name">{sourceNames[source]}</span>
+                <span className="sr-only">: </span>
+                <span className="detail-src-text">
+                  {failureCause(outcome, source)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </DetailSection>
+      )}
+      {/* /v2 supplies descending internal Scores and stable ties. Display rounding never orders Candidates. */}
+      {!!outcome.candidates.length && (
+        <DetailSection title={m.shell_candidates_heading()}>
+          <details className="detail-candidates">
+            <summary className="detail-toggle">
+              <Plus aria-hidden="true" size={16} className="when-closed" />
+              <X aria-hidden="true" size={16} className="when-open" />
+              {m.shell_candidates_toggle({
+                count: String(outcome.candidates.length),
+              })}
+            </summary>
+            <ul className="detail-list">
+              {outcome.candidates.map((candidate) => (
+                <CandidateEntry
+                  key={candidate.id}
+                  candidate={candidate}
+                  best={candidate.id === outcome.bestMatchId}
+                />
+              ))}
+            </ul>
+          </details>
+        </DetailSection>
+      )}
+      {!!outcome.evidence.length && (
+        <DetailSection title={m.shell_evidence_trail()}>
+          <ol className="detail-list">
+            {outcome.evidence.map((e, i) => (
+              <li
+                className="detail-trail"
+                data-state={evidenceStep[e.outcome] ?? "none"}
+                key={i}
+              >
+                <span className="detail-mark">
+                  <StepIcon state={evidenceStep[e.outcome] ?? "none"} />
+                </span>
+                <div className="detail-trail-body">
+                  <p>
+                    <span className="detail-src-name">
+                      {sourceNames[e.source]}
+                    </span>{" "}
+                    · {m[origins[e.operation]]()}{" "}
+                    <span className="detail-muted">
+                      · {evidenceLabel(e.outcome)}
+                    </span>
+                  </p>
+                  {e.web && (
+                    <dl className="detail-web">
+                      <dt>{m.web_original_url()}</dt>
+                      <dd>{e.web.originalUrl}</dd>
+                      <dt>{m.web_observed_url()}</dt>
+                      <dd>{e.web.finalUrl}</dd>
+                      <dt>HTTP</dt>
+                      <dd>{e.web.status}</dd>
+                      {e.web.title && (
+                        <>
+                          <dt>{m.web_observed_title()}</dt>
+                          <dd>{e.web.title}</dd>
+                        </>
+                      )}
+                      {e.web.redirectTarget && (
+                        <>
+                          <dt>{m.web_redirect_target()}</dt>
+                          <dd>{e.web.redirectTarget}</dd>
+                        </>
+                      )}
+                      {e.web.timestamp && (
+                        <>
+                          <dt>{m.web_archive_capture()}</dt>
+                          <dd>{e.web.timestamp}</dd>
+                        </>
+                      )}
+                    </dl>
+                  )}
+                  {e.reason &&
+                    limitation(e.reason) !== evidenceLabel(e.outcome) && (
+                      <p className="detail-note">
+                        {m.evidence_limitation()}: {limitation(e.reason)}
+                      </p>
+                    )}
+                </div>
+                <time
+                  className="detail-trail-time"
+                  dateTime={e.observedAt}
+                  title={e.observedAt}
+                >
+                  {new Intl.DateTimeFormat(getLocale(), {
+                    timeStyle: "medium",
+                  }).format(new Date(e.observedAt))}
+                </time>
+              </li>
+            ))}
+          </ol>
+        </DetailSection>
+      )}
+      <details className="detail-disclosure">
+        <summary>
+          <ChevronRight aria-hidden="true" size={16} />
           {m.evidence_details()}
         </summary>
-        <p className="break-words text-sm">
-          {m.scoring_rules_label()}: {outcome.scoringRules.version}
-        </p>
-        <p className="break-words text-sm">
-          {m.search_strategy_label()}: {outcome.searchStrategyVersion}
-        </p>
-        {outcome.retractionEvidence?.map((evidence) => (
-          <p
-            className="break-words text-sm"
-            key={`${evidence.source}:${evidence.candidateId}`}
-          >
-            {m.retraction_provenance({
-              source: sourceNames[evidence.source],
-              candidateId: evidence.candidateId,
-              observedAt: evidence.observedAt,
-            })}
+        <div className="detail-disclosure-body">
+          <p>
+            {m.scoring_rules_label()}: {outcome.scoringRules.version}
           </p>
-        ))}
-        <p className="text-sm">
-          Unicode {outcome.scoringRules.unicode} / ICU{" "}
-          {outcome.scoringRules.icu}
-        </p>
-        <p className="text-sm">
-          {m.identity_label()}:{" "}
-          {outcome.identity.kind === "unresolved"
-            ? m.identity_unresolved()
-            : outcome.identity.kind === "supplied-doi"
-              ? m.identity_doi()
-              : outcome.identity.kind === "supplied-identifier"
-                ? m.identity_identifier()
-                : outcome.identity.kind === "web-url"
-                  ? m.identity_web_url()
-                  : outcome.identity.kind === "web-archive"
-                    ? m.identity_web_archive()
-                    : m.identity_bibliography()}
-        </p>
-        <ul>
-          {outcome.evidence.map((e, i) => (
-            <li className="my-3 break-words" key={i}>
-              <strong>{sourceNames[e.source]}</strong> ·{" "}
-              {m[origins[e.operation]]()}:{" "}
-              {m[
-                `evidence_${e.outcome.replaceAll("-", "_")}` as
-                  | "evidence_redirect"
-                  | "evidence_exists"
-                  | "evidence_nonexistent"
-                  | "evidence_candidate"
-                  | "evidence_no_record"
-                  | "evidence_unavailable"
-                  | "evidence_disabled"
-                  | "evidence_skipped"
-                  | "evidence_unsupported"
-              ]()}{" "}
-              ({e.observedAt})
-              {e.web && (
-                <dl>
-                  <dt>{m.web_original_url()}</dt>
-                  <dd>{e.web.originalUrl}</dd>
-                  <dt>{m.web_observed_url()}</dt>
-                  <dd>{e.web.finalUrl}</dd>
-                  <dt>HTTP</dt>
-                  <dd>{e.web.status}</dd>
-                  {e.web.title && (
-                    <>
-                      <dt>{m.web_observed_title()}</dt>
-                      <dd>{e.web.title}</dd>
-                    </>
-                  )}
-                  {e.web.redirectTarget && (
-                    <>
-                      <dt>{m.web_redirect_target()}</dt>
-                      <dd>{e.web.redirectTarget}</dd>
-                    </>
-                  )}
-                  {e.web.timestamp && (
-                    <>
-                      <dt>{m.web_archive_capture()}</dt>
-                      <dd>{e.web.timestamp}</dd>
-                    </>
-                  )}
-                </dl>
-              )}
-              {e.reason && (
-                <p>
-                  {m.evidence_limitation()}: {limitation(e.reason)}
-                </p>
-              )}
-            </li>
+          <p>
+            {m.search_strategy_label()}: {outcome.searchStrategyVersion}
+          </p>
+          {outcome.retractionEvidence?.map((evidence) => (
+            <p key={`${evidence.source}:${evidence.candidateId}`}>
+              {m.retraction_provenance({
+                source: sourceNames[evidence.source],
+                candidateId: evidence.candidateId,
+                observedAt: evidence.observedAt,
+              })}
+            </p>
           ))}
-        </ul>
-        {/* /v2 supplies descending internal Scores and stable ties. Display rounding never orders Candidates. */}
-        {outcome.candidates.map((candidate) => (
-          <section
-            key={candidate.id}
-            className="mt-5 border-t border-border-emphasis pt-4"
-          >
-            <h3 className="font-semibold">
-              {m.candidate_label()}: {candidate.csl.title ?? candidate.id} (
-              {sourceNames[candidate.source]})
-            </h3>
-            <p>
-              {m.candidate_origin()}: {m[origins[candidate.origin]]()} ·{" "}
-              {m.candidate_slot({ slot: candidate.slot })}
-            </p>
-            <p className="break-words">
-              {m.candidate_record()}: {candidate.id}
-            </p>
-            {!!candidate.identifiers?.length && (
-              <p className="break-words">
-                {m.candidate_identifiers()}: {candidate.identifiers.join(", ")}
-              </p>
-            )}
-            <p>
-              {m.score_label()}:{" "}
-              {candidate.score
-                ? percent(candidate.score)
-                : m.evidence_missing()}
-            </p>
-            {candidate.id === outcome.bestMatchId && (
-              <p>{m.best_match_label()}</p>
-            )}
-            {sourceLink(candidate) && (
-              <a
-                className="inline-block py-2 underline"
-                target="_blank"
-                rel="noopener noreferrer"
-                href={sourceLink(candidate)!}
-              >
-                {m.source_open()}
-              </a>
-            )}
-            <dl className="space-y-3">
-              {candidate.fields.map((field) => (
-                <div
-                  key={field.field}
-                  className={
-                    (field.score && !field.score.fullAgreement) ||
-                    field.agreement === false
-                      ? "rounded border-l-4 border-border-emphasis pl-3"
-                      : ""
-                  }
-                >
-                  <dt className="font-semibold">
-                    {field.field in fieldLabels
-                      ? m[
-                          fieldLabels[field.field as keyof typeof fieldLabels]
-                        ]()
-                      : field.field}
-                    :{" "}
-                    {field.score
-                      ? field.score.fullAgreement
-                        ? m.field_agrees()
-                        : m.field_differs()
-                      : field.agreement !== undefined
-                        ? field.agreement
-                          ? m.field_agrees()
-                          : m.field_differs()
-                        : field.reason === "unweighted"
-                          ? m.field_unweighted()
-                          : m.field_excluded()}
-                  </dt>
-                  <dd className="break-words">
-                    {m.reference_label()}: {raw(field.reference)}
-                  </dd>
-                  <dd className="break-words">
-                    {m.candidate_label()}: {raw(field.candidate)}
-                  </dd>
-                  <dd>
-                    {field.score
-                      ? percent(field.score)
-                      : field.reason === "resource-limit"
-                        ? m.field_resource_limit()
-                        : field.reason === "not-determinable"
-                          ? m.field_not_determinable()
-                          : field.reason === "missing-reference"
-                            ? m.field_missing_reference()
-                            : field.reason === "missing-candidate"
-                              ? m.field_missing_candidate()
-                              : m.field_unweighted()}
-                  </dd>
-                  {field.journalAbbreviation && (
-                    <JournalAbbreviationExplanation
-                      evidence={field.journalAbbreviation}
-                    />
-                  )}
-                </div>
-              ))}
-            </dl>
-          </section>
-        ))}
+          <p>
+            Unicode {outcome.scoringRules.unicode} / ICU{" "}
+            {outcome.scoringRules.icu}
+          </p>
+          <p>
+            {m.identity_label()}:{" "}
+            {outcome.identity.kind in identityMessages
+              ? m[
+                  identityMessages[
+                    outcome.identity.kind as keyof typeof identityMessages
+                  ]
+                ]()
+              : m.identity_bibliography()}
+          </p>
+        </div>
       </details>
     </div>
   );
