@@ -239,20 +239,16 @@ test("a layout change in the detail during a Save press does not lose the press"
   // the window where it only sometimes rests: Save fully in view, the detail
   // running on past the bottom edge.
   // D (#194): at 360 px the detail is no scroller of its own; the window is
-  // the only one, so it anchors inside the detail. What follows the detail on
-  // the page changed height, so the spot is taken from the detail itself,
-  // 40 px of it below the bottom edge, rather than as a fixed 142 px above the
-  // window's maximum.
-  await page.evaluate(() =>
-    scrollTo(
-      0,
-      scrollY +
-        document.querySelector(".check-detail")!.getBoundingClientRect()
-          .bottom -
-        innerHeight -
-        40,
-    ),
-  );
+  // the only one, so it anchors inside the detail. D's lower detail (sources,
+  // Candidates, trail) runs on well past Save, so Save is centred in the
+  // window; anchoring on the detail's end would push Save under the sticky
+  // detail head.
+  await page.evaluate(() => {
+    const save = [...document.querySelectorAll(".check-detail button")]
+      .find((b) => b.textContent?.trim() === "Save manual verdict")!
+      .getBoundingClientRect();
+    scrollTo(0, scrollY + save.top + save.height / 2 - innerHeight / 2);
+  });
   const placement = await page.evaluate(() => {
     const pane = document
       .querySelector(".check-detail")!
@@ -260,7 +256,14 @@ test("a layout change in the detail during a Save press does not lose the press"
     const button = [...document.querySelectorAll(".check-detail button")]
       .find((b) => b.textContent?.trim() === "Save manual verdict")!
       .getBoundingClientRect();
+    const hit = document.elementFromPoint(
+      (button.left + button.right) / 2,
+      (button.top + button.bottom) / 2,
+    );
     return {
+      clear: !!hit
+        ?.closest("button")
+        ?.textContent?.includes("Save manual verdict"),
       paneBottom: pane.bottom,
       buttonTop: button.top,
       buttonBottom: button.bottom,
@@ -274,6 +277,7 @@ test("a layout change in the detail during a Save press does not lose the press"
     "the detail runs past the viewport",
   ).toBeGreaterThan(placement.viewport);
   expect(placement.buttonTop, "Save is fully in view").toBeGreaterThan(0);
+  expect(placement.clear, "nothing sticky covers Save").toBe(true);
   expect(placement.buttonBottom, "Save is fully in view").toBeLessThan(
     placement.viewport,
   );
