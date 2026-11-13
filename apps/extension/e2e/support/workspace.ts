@@ -12,6 +12,8 @@ export const labels = {
     open: /^Open reference 1:/,
     detail: "Reference detail",
     candidates: /^All candidates \(\d+\)$/,
+    suggestionLoading:
+      "Apply to fields becomes available once the suggestion for the current result has loaded.",
     correct: "Correct",
     exists: "Exists, with deviations",
     best: "Best match by score",
@@ -23,6 +25,8 @@ export const labels = {
     open: /^Referenz 1 öffnen:/,
     detail: "Referenzdetails",
     candidates: /^Alle Kandidaten \(\d+\)$/,
+    suggestionLoading:
+      "In Felder übernehmen wird verfügbar, sobald der Vorschlag für das aktuelle Ergebnis geladen ist.",
     correct: "Korrekt",
     exists: "Existiert, mit Abweichungen",
     best: "Bester Treffer nach Score",
@@ -160,8 +164,11 @@ export const witnesses: Witness[] = [
  */
 const hasLabel = (text: string, label: string) =>
   new RegExp(`(?<!\\p{L})${label}(?!\\p{L})`, "u").test(text);
+// The detail is read once its Correction suggestion has settled, so both
+// hosts are compared in the same state.
 const detailReady = (language: Language, marker: string) => (text: string) =>
   text.includes(marker) &&
+  !text.includes(labels[language].suggestionLoading) &&
   [labels[language].correct, labels[language].exists].some((v) =>
     hasLabel(text, v),
   );
