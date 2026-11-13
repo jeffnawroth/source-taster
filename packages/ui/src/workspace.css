@@ -1840,7 +1840,8 @@ body {
   gap: 4px;
 }
 .detail-cand-meta {
-  font-family: var(--st-font-mono);
+  font: 400 var(--st-text-sm) / 1.5 var(--st-font-mono);
+  color: var(--st-text-secondary);
 }
 .detail-cand-title {
   font-size: var(--st-text-sm);
@@ -1857,12 +1858,10 @@ body {
   gap: 8px;
   padding-top: 4px;
 }
-.detail-fields > div {
-  padding-left: 10px;
-  border-left: 3px solid var(--st-border);
-}
-.detail-fields > div[data-deviates] {
-  border-left-color: var(--st-verdict-deviations-mark);
+/* D marks a deviating field with an amber ≠, as in the field table. */
+.detail-fields > div[data-deviates] dt::before {
+  content: "≠ " / "";
+  color: var(--st-verdict-deviations-mark);
 }
 .detail-fields dt {
   font-weight: 600;

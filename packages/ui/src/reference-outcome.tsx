@@ -589,9 +589,8 @@ export function EvidenceDetails({
                     <span className="detail-src-name">
                       {sourceNames[e.source]}
                     </span>{" "}
-                    · {m[origins[e.operation]]()}{" "}
                     <span className="detail-muted">
-                      · {evidenceLabel(e.outcome)}
+                      · {m[origins[e.operation]]()} · {evidenceLabel(e.outcome)}
                     </span>
                   </p>
                   {e.web && (
