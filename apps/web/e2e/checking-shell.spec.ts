@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { expect, test } from "@playwright/test";
+import { chooseFileSource, choosePreferences } from "./support/workspace.ts";
 
 test("streamed feed has one keyboard entry, keeps slot order and returns focus from detail", async ({
   page,
 }) => {
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   await page
     .getByRole("textbox", { name: "Reference", exact: true })
     .fill(
@@ -60,9 +59,7 @@ for (const language of ["en", "de"] as const)
     await page.setViewportSize({ width: 320, height: 700 });
     await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     const en = language === "en";
     await page
       .getByRole("textbox", {
@@ -107,9 +104,18 @@ for (const language of ["en", "de"] as const)
       .locator("svg[data-verdict] > :first-child")
       .evaluateAll((elements) => elements.map((element) => element.outerHTML));
     expect(new Set(shapes).size).toBe(6);
+    // Arrow keys skip the disabled zero counters to the next live control.
+    const status = toolbar.getByRole("button", {
+      name: en
+        ? "Technical status: 1 Not checked"
+        : "Technischer Status: 1 Nicht geprüft",
+      exact: true,
+    });
     await correct.focus();
     await page.keyboard.press("ArrowRight");
-    await expect(controls.nth(1)).toBeFocused();
+    await expect(status).toBeFocused();
+    await page.keyboard.press("ArrowLeft");
+    await expect(correct).toBeFocused();
     await correct.click();
     await expect(
       summary.getByRole("button", {
@@ -129,12 +135,12 @@ for (const language of ["en", "de"] as const)
       })
       .click();
     await expect(feed.getByRole("row")).toHaveCount(2);
-    await toolbar
-      .getByRole("button", {
-        name: en ? "Summary options" : "Übersichtsoptionen",
-        exact: true,
-      })
-      .click();
+    // "Show all labels" moved into the ⋯ Menu (#194 D).
+    const more = summary.getByRole("button", {
+      name: en ? "More actions" : "Weitere Aktionen",
+      exact: true,
+    });
+    await more.click();
     await page
       .getByRole("menuitem", {
         name: en ? "Show all labels" : "Alle Labels zeigen",
@@ -142,34 +148,26 @@ for (const language of ["en", "de"] as const)
       })
       .click();
     await expect(
-      toolbar.getByText(
-        en ? "Exists, with deviations:" : "Existiert, mit Abweichungen:",
-        { exact: true },
-      ),
+      summary
+        .getByRole("toolbar", {
+          name: en ? "Outcome filters" : "Ergebnisfilter",
+          exact: true,
+        })
+        .getByText(en ? "Deviations" : "Abweichungen", { exact: true }),
     ).toBeVisible();
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= window.innerWidth,
       ),
     ).toBe(true);
-    await toolbar
-      .getByRole("button", {
-        name: en ? "Summary options" : "Übersichtsoptionen",
-        exact: true,
-      })
-      .click();
+    await more.click();
     await page
       .getByRole("menuitem", {
         name: en ? "Compact labels" : "Kompakte Labels",
         exact: true,
       })
       .click();
-    await toolbar
-      .getByRole("button", {
-        name: en ? "Statuses: 1" : "Status: 1",
-        exact: true,
-      })
-      .click();
+    await status.click();
     await page
       .getByRole("menuitem", {
         name: en ? "Not checked: 1" : "Nicht geprüft: 1",
@@ -186,12 +184,10 @@ for (const language of ["en", "de"] as const)
   }) => {
     await page.setViewportSize({ width: 360, height: 740 });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     const en = language === "en";
     const launcher = page.getByRole("button", {
-      name: en ? "Commands" : "Aktionen",
+      name: en ? "Search or command …" : "Suchen oder Befehl …",
       exact: true,
     });
     await launcher.focus();
@@ -237,12 +233,7 @@ for (const language of ["en", "de"] as const)
         exact: true,
       }),
     ).toHaveCount(0);
-    await page
-      .getByRole("button", {
-        name: en ? "Files and selection" : "Dateien und Auswahl",
-        exact: true,
-      })
-      .click();
+    await chooseFileSource(page);
     await expect(
       page.getByLabel(
         en ? "Import BibTeX or RIS" : "BibTeX oder RIS importieren",
@@ -309,9 +300,7 @@ for (const language of ["en", "de"] as const)
       }),
     );
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page
       .getByRole("textbox", {
         name: en ? "Reference" : "Referenz",
@@ -370,9 +359,7 @@ for (const language of ["en", "de"] as const)
       ],
     });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     const en = language === "en";
     await page
       .getByRole("textbox", {

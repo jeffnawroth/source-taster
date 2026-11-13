@@ -1,21 +1,20 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import {
+  chooseFileSource,
+  choosePreferences,
+  closeStructuringPreview,
+  newCheck,
+} from "./support/workspace.ts";
 import { docx, pdf } from "../../server/test/support/documents.ts";
 for (const language of ["en", "de"] as const) {
   test(`uploads and structures a DOCX, reports PDF no-text, and resets accessibly in ${language}`, async ({
     page,
   }) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
-    await page
-      .getByRole("button", {
-        name: language === "en" ? "Files and selection" : "Dateien und Auswahl",
-        exact: true,
-      })
-      .click();
+    await choosePreferences(page, { language: language });
+    await chooseFileSource(page);
     const input = page.getByLabel(
       language === "en" ? "PDF or Word document" : "PDF- oder Word-Dokument",
       { exact: true },
@@ -44,6 +43,8 @@ for (const language of ["en", "de"] as const) {
       }),
     ).toContainText("Signal maps");
     await expect(page.getByRole("textbox")).toHaveValue(reference);
+    // The Structuring preview is a modal Dialog over the intake (#194 D).
+    await closeStructuringPreview(page);
     await input.setInputFiles({
       name: "scan.pdf",
       mimeType: "application/pdf",
@@ -74,12 +75,8 @@ for (const language of ["en", "de"] as const) {
           .analyze()
       ).violations,
     ).toEqual([]);
-    await page
-      .getByRole("button", {
-        name: language === "en" ? "Reset" : "Zurücksetzen",
-        exact: true,
-      })
-      .click();
+    await closeStructuringPreview(page);
+    await newCheck(page);
     await expect(page.getByRole("textbox")).toHaveValue("");
     await expect(input).toHaveValue("");
     await expect(
@@ -101,9 +98,7 @@ for (const language of ["en", "de"] as const) {
       await route.fulfill({ status: 503, body: "unavailable" });
     });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page
       .getByLabel(
         language === "en" ? "PDF or Word document" : "PDF- oder Word-Dokument",
@@ -141,9 +136,7 @@ for (const language of ["en", "de"] as const) {
       await route.fulfill({ status: 503, body: "unavailable" });
     });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page
       .getByLabel(
         language === "en" ? "PDF or Word document" : "PDF- oder Word-Dokument",

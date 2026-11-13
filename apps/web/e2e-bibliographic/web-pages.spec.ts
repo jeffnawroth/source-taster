@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import AxeBuilder from "@axe-core/playwright";
 import { test, expect } from "@playwright/test";
+import { choosePreferences, openReference } from "../e2e/support/workspace.ts";
 for (const language of ["en", "de"] as const)
   test(`explains a dead original URL and archive provenance in ${language}`, async ({
     page,
@@ -25,9 +26,7 @@ for (const language of ["en", "de"] as const)
       });
     });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/u })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page
       .getByRole("textbox")
       .fill(
@@ -39,6 +38,7 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
+    await openReference(page, 1);
     const result = page.getByRole("region", {
       name: /^(Reference detail|Referenzdetails)$/u,
       exact: true,

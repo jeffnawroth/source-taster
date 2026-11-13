@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { choosePreferences, openReference } from "./support/workspace.ts";
 
 test("summary filters current Verdicts separately from technical Statuses", async ({
   page,
 }) => {
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   await page
     .getByRole("textbox")
     .fill(
@@ -18,12 +17,20 @@ test("summary filters current Verdicts separately from technical Statuses", asyn
     .getByRole("button", { name: "Check reference", exact: true })
     .click();
   const summary = page.getByRole("region", { name: "Check summary" });
-  await expect(summary).toContainText("Recognized references: 2");
+  // D (#194): the recognised count is the feed's echo of the input, and the
+  // strip's progress bar shows only while running; a finished Check states
+  // "Check complete" and how many of all References check out instead.
+  await expect(
+    page.getByRole("region", { name: "Your check", exact: true }),
+  ).toContainText("2 references recognized");
   await expect(
     summary.getByRole("button", { name: "Correct: 1", exact: true }),
   ).toBeVisible();
-  await expect(summary).toContainText("Not checked: 1");
-  await expect(summary.getByRole("progressbar")).toHaveAttribute("value", "2");
+  await expect(
+    summary.getByRole("button", { name: "Not checked: 1", exact: true }),
+  ).toBeVisible();
+  await expect(summary).toContainText("Check complete");
+  await expect(summary).toContainText("1 of 2 references check out.");
   for (const verdict of [
     "Correct",
     "Exists, with deviations",
@@ -71,8 +78,9 @@ test("summary filters current Verdicts separately from technical Statuses", asyn
       { exact: true },
     ),
   ).toBeVisible();
-  await summary
-    .getByRole("button", { name: "All references: 2", exact: true })
+  // D: the empty filter state offers "All references" in the feed.
+  await page
+    .getByRole("button", { name: "All references", exact: true })
     .click();
   await expect(list.getByRole("row")).toHaveCount(2);
 });
@@ -81,9 +89,7 @@ test("streaming keeps input order and focused selection; narrow Back restores li
   page,
 }) => {
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   await page
     .getByRole("textbox")
     .fill(
@@ -118,8 +124,12 @@ test("streaming keeps input order and focused selection; narrow Back restores li
   await expect(list).toBeVisible();
   await page.setViewportSize({ width: 360, height: 640 });
   await expect(list).toBeHidden();
+  // D: focus lands on the detail's title heading (the Reference's title).
   await expect(
-    detail.getByRole("heading", { name: "Reference detail", exact: true }),
+    detail.getByRole("heading", {
+      name: "On the Origin of Species",
+      exact: true,
+    }),
   ).toBeFocused();
   await page
     .getByRole("button", { name: "Back to references", exact: true })
@@ -134,9 +144,7 @@ for (const language of ["en", "de"] as const)
     page,
   }, testInfo) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     const original =
       "Aspelmeyer, M. (2008). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170";
     await page.getByRole("textbox").fill(original);
@@ -146,6 +154,8 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
+    // D: the detail opens only on a press, never on its own (#194).
+    await openReference(page, 1);
     const comparison = page.getByRole("table", {
       name:
         language === "en"
@@ -156,8 +166,9 @@ for (const language of ["en", "de"] as const)
     await expect(comparison).toBeVisible({ timeout: 15000 });
     const year = comparison.getByRole("rowgroup").filter({
       has: page.getByRole("rowheader", {
-        name:
-          language === "en" ? /^Publication date:/ : /^Veröffentlichungsdatum:/,
+        // #194 D: the row header is the bare field name.
+        name: language === "en" ? "Publication date" : "Veröffentlichungsdatum",
+        exact: true,
       }),
     });
     await expect(year).toContainText("2008");
@@ -166,21 +177,31 @@ for (const language of ["en", "de"] as const)
     await expect(year).toContainText(
       language === "en" ? "Differs" : "Weicht ab",
     );
-    const missing = comparison
-      .getByRole("rowgroup")
-      .filter({ has: page.getByRole("rowheader", { name: /^PMID:/ }) });
+    // #194 D drops a row that neither side supplies (PMID here), so the field
+    // the Reference leaves out while the Best match has it carries the check:
+    // shown as not supplied, never scored as 0.00 %.
+    await expect(
+      comparison.getByRole("rowheader", { name: "PMID", exact: true }),
+    ).toHaveCount(0);
+    const missing = comparison.getByRole("rowgroup").filter({
+      has: page.getByRole("rowheader", {
+        name: language === "en" ? "Issue" : "Ausgabe",
+        exact: true,
+      }),
+    });
     await expect(missing).toContainText(
       language === "en" ? "not supplied" : "nicht angegeben",
     );
     await expect(missing).not.toContainText("0.00 %");
     await page.setViewportSize({ width: 320, height: 640 });
-    await page
-      .getByRole("grid", {
+    // D (#194): the open detail stays open across the resize and replaces the
+    // feed at this width, so no second press reopens it.
+    await expect(
+      page.getByRole("grid", {
         name: language === "en" ? "References" : "Referenzen",
         exact: true,
-      })
-      .getByRole("button")
-      .click();
+      }),
+    ).toBeHidden();
     // 200% zoom: a 640 CSS-pixel viewport reduced to 320 CSS pixels, plus text enlargement.
     await page.addStyleTag({ content: "html { font-size: 200%; }" });
     await expect(comparison).toBeVisible();
@@ -237,12 +258,13 @@ for (const language of ["en", "de"] as const)
     });
   });
 
-// A single Reference opens its detail on its own, so the Reference's suggestion
-// is rendered when the Check completes. On a narrow viewport the bibliography
-// panel sits above the feed; with nothing applied it must not change height
-// when that rendering settles, or a press on the feed row lands beside it. This
-// was the Linux CI flake of the narrow-zoom comparison test (#220): the row
-// moved by about 33 px between Playwright's stability check and the click.
+// The first Reference is selected by default, so its suggestion is rendered
+// when the Check completes. That rendering must not move anything above the
+// feed row when it settles, or a press on the row lands beside it. This was
+// the Linux CI flake of the narrow-zoom comparison test (#220): the row moved
+// by about 33 px between Playwright's stability check and the click. In D
+// (#194) the Formatted bibliography is a Dialog from the ⋯ Menu rather than a
+// panel above the feed, and the detail opens only on the press itself.
 test("a narrow feed row stays under the pointer while the completed Reference's suggestion renders", async ({
   page,
 }) => {
@@ -268,9 +290,7 @@ test("a narrow feed row stays under the pointer while the completed Reference's 
     await route.fulfill({ response });
   });
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   await page
     .getByRole("textbox")
     .fill(
@@ -283,23 +303,19 @@ test("a narrow feed row stays under the pointer while the completed Reference's 
     name: "Reference and best match",
     exact: true,
   });
-  await expect(comparison).toBeVisible({ timeout: 15000 });
   await entered;
   await page.setViewportSize({ width: 320, height: 640 });
   const row = page
     .getByRole("grid", { name: "References", exact: true })
     .getByRole("button");
-  // As a click finds it: the panel above shows through the top of the viewport
-  // and the row sits low.
+  // As a click finds it: the feed's header (in D the echo line above the
+  // cards, which scrolls with them) shows through the top of the viewport and
+  // the row sits low.
   await row.evaluate((element) => {
     const top = element.getBoundingClientRect().top;
     scrollBy(0, top - (innerHeight - 220));
   });
-  const panel = page.getByRole("region", {
-    name: "Formatted bibliography",
-    exact: true,
-  });
-  await expect(panel).toBeInViewport();
+  await expect(page.locator(".feed-echo")).toBeInViewport();
   const before = (await row.boundingBox())!;
   const centre = {
     x: before.x + before.width / 2,
@@ -333,9 +349,7 @@ for (const language of ["en", "de"] as const)
     page,
   }) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page
       .getByRole("textbox")
       .fill("Darwin, C. (1859). On the Origin of Species.");
@@ -355,7 +369,10 @@ for (const language of ["en", "de"] as const)
     await expect(help).toBeVisible();
     await help.focus();
     await page.keyboard.press("Enter");
-    const explanation = page.getByRole("region", {
+    // D (#194): the explanation is a modal Dialog opened from the feed's
+    // footer, not an inline disclosure; Escape closes it and focus returns
+    // to its button.
+    const explanation = page.getByRole("dialog", {
       name:
         language === "en"
           ? "How the check works"
@@ -367,8 +384,13 @@ for (const language of ["en", "de"] as const)
         ? "A verdict is not proof of deception. A human makes the decision."
         : "Ein Befund ist kein Beweis für Täuschung. Die Entscheidung trifft ein Mensch.",
     );
-    await expect(help).toBeFocused();
-    await expect(help).toHaveAttribute("aria-expanded", "true");
+    await expect
+      .poll(() =>
+        explanation.evaluate((element) =>
+          element.contains(document.activeElement),
+        ),
+      )
+      .toBe(true);
     expect(
       (
         await new AxeBuilder({ page })
@@ -383,8 +405,9 @@ for (const language of ["en", "de"] as const)
           .analyze()
       ).violations,
     ).toEqual([]);
-    await page.keyboard.press("Enter");
+    await page.keyboard.press("Escape");
     await expect(explanation).toBeHidden();
+    await expect(help).toBeFocused();
   });
 
 for (const language of ["en", "de"] as const)
@@ -393,9 +416,7 @@ for (const language of ["en", "de"] as const)
   }) => {
     await page.setViewportSize({ width: 360, height: 640 });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     const reference =
       "Aspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170";
     await page.getByRole("textbox").fill(Array(12).fill(reference).join("\n"));
@@ -417,9 +438,8 @@ for (const language of ["en", "de"] as const)
     });
     const last = list.getByRole("row").last();
     await last.focus();
-    const scroll = await list
-      .locator("..")
-      .evaluate((element) => element.scrollTop);
+    // D: the feed scrolls with the page, not inside its own scroller.
+    const scroll = await page.evaluate(() => scrollY);
     expect(scroll).toBeGreaterThan(0);
     await page.keyboard.press("Enter");
     await expect(list).toBeHidden();
@@ -431,9 +451,7 @@ for (const language of ["en", "de"] as const)
     await page.keyboard.press("Enter");
     await expect(last).toBeFocused();
     await expect(filter).toHaveAttribute("aria-pressed", "true");
-    expect(
-      await list.locator("..").evaluate((element) => element.scrollTop),
-    ).toBe(scroll);
+    expect(await page.evaluate(() => scrollY)).toBe(scroll);
     expect(
       (
         await new AxeBuilder({ page })
@@ -452,9 +470,7 @@ for (const language of ["en", "de"] as const)
 
 test("DOI conflict has its own current count and filter", async ({ page }) => {
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   await page
     .getByRole("textbox")
     .fill(
@@ -474,6 +490,8 @@ test("DOI conflict has its own current count and filter", async ({ page }) => {
       .getByRole("grid", { name: "References", exact: true })
       .getByRole("row"),
   ).toHaveCount(1);
+  // D: the detail opens only on a press, never on its own (#194).
+  await openReference(page, 1);
   await expect(
     page.getByRole("region", { name: "Reference detail", exact: true }),
   ).toContainText("DOI conflict");
@@ -483,9 +501,7 @@ test("selected detail stays on its Reference while streaming completes other slo
   page,
 }) => {
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   await page
     .getByRole("textbox")
     .fill(
@@ -500,8 +516,9 @@ test("selected detail stays on its Reference while streaming completes other slo
     name: "Reference detail",
     exact: true,
   });
+  // D: focus lands on the detail's title heading (the Reference's title).
   const heading = detail.getByRole("heading", {
-    name: "Reference detail",
+    name: "Held Reference",
     exact: true,
   });
   await expect(heading).toBeFocused();
@@ -522,17 +539,17 @@ test("selected detail stays on its Reference while streaming completes other slo
 
 // Scroll anchoring is what keeps a feed row under the reader while rows above
 // it grow (streaming results, a wrapping header). The reference detail opts the
-// window out of anchoring inside itself; the feed must keep both of its
-// anchors: the page's and the list scroller's own.
-for (const anchor of ["page", "list"] as const)
+// window out of anchoring inside itself; the feed must keep the page's anchor.
+// D (#194): the feed scrolls with the page and has no scroller of its own, so
+// the former list-scroller case now inserts content inside the feed above its
+// cards (where notices appear) and the page's anchor must hold the row there too.
+for (const anchor of ["page", "feed"] as const)
   test(`the feed keeps a visible row in place when content is inserted above it at 360 px (${anchor} anchor)`, async ({
     page,
   }) => {
     await page.setViewportSize({ width: 360, height: 640 });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption("en");
+    await choosePreferences(page, { language: "en" });
     await page
       .getByRole("textbox")
       .fill(
@@ -551,22 +568,13 @@ for (const anchor of ["page", "list"] as const)
     await expect(rows).toHaveCount(8);
     const target = rows.nth(3);
     await target.scrollIntoViewIfNeeded();
-    // Rest both scrollers away from their start and end, so that each one can
-    // really move in both directions.
+    // Rest the page away from its start and end, so that it can really move
+    // in both directions.
     const rest = await page.evaluate(() => {
-      const list = document.querySelector<HTMLElement>(".check-list")!;
-      list.scrollTop = Math.min(120, list.scrollHeight - list.clientHeight);
       const room = document.documentElement.scrollHeight - innerHeight;
       scrollTo(0, Math.max(0, Math.min(scrollY, room - 80)));
-      return {
-        listRoom: list.scrollHeight - list.clientHeight,
-        listTop: list.scrollTop,
-        pageRoom: room,
-        pageTop: scrollY,
-      };
+      return { pageRoom: room, pageTop: scrollY };
     });
-    expect(rest.listRoom, "the feed list scrolls").toBeGreaterThan(200);
-    expect(rest.listTop, "the feed list is mid-scroll").toBeGreaterThan(0);
     expect(rest.pageTop, "the page is mid-scroll").toBeGreaterThan(0);
     expect(rest.pageTop, "the page can still scroll").toBeLessThan(
       rest.pageRoom,
@@ -578,15 +586,10 @@ for (const anchor of ["page", "list"] as const)
     await page.evaluate((where) => {
       const block = document.createElement("div");
       block.style.height = "120px";
-      const parent =
-        where === "list"
-          ? document.querySelector(".check-list")!
-          : document.querySelector(".check-panes")!.parentElement!;
-      const reference =
-        where === "list"
-          ? parent.firstElementChild
-          : document.querySelector(".check-panes");
-      parent.insertBefore(block, reference);
+      const reference = document.querySelector(
+        where === "feed" ? ".feed-cards" : ".check-stage",
+      )!;
+      reference.parentElement!.insertBefore(block, reference);
     }, anchor);
     expect(
       await target.boundingBox(),

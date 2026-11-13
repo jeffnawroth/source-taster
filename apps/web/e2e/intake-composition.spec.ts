@@ -1,5 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { expect, test } from "@playwright/test";
+import {
+  checkFromPreview,
+  choosePreferences,
+  closeStructuringPreview,
+  newCheck,
+} from "./support/workspace.ts";
 import { CheckResponse } from "@source-taster/contract-verification/v2";
 import { docx } from "../../server/test/support/documents.ts";
 
@@ -9,9 +15,7 @@ test("switches between library and document input without checking stale Referen
   const library = "@patent{Library,title={Library witness},year={2024}}\n";
   const document = "Doe, J. (2020). Document witness. Example Press.";
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   const libraryInput = page.getByLabel("Import BibTeX or RIS", { exact: true });
   const documentInput = page.getByLabel("PDF or Word document", {
     exact: true,
@@ -20,11 +24,6 @@ test("switches between library and document input without checking stale Referen
     name: "Upload and structure",
     exact: true,
   });
-  const start = page.getByRole("button", {
-    name: "Check reference",
-    exact: true,
-  });
-  const reset = page.getByRole("button", { name: "Reset", exact: true });
 
   await libraryInput.setInputFiles({
     name: "library.bib",
@@ -34,6 +33,8 @@ test("switches between library and document input without checking stale Referen
   await expect(
     page.getByRole("region", { name: "Recognized references" }),
   ).toContainText("Library witness");
+  // The Structuring preview is a modal Dialog over the intake (#194 D).
+  await closeStructuringPreview(page);
   await documentInput.setInputFiles({
     name: "references.docx",
     mimeType:
@@ -47,14 +48,14 @@ test("switches between library and document input without checking stale Referen
       response.request().method() === "POST" &&
       response.url().endsWith("/v2/checks"),
   );
-  await start.click();
+  await checkFromPreview(page);
   const documentCheck = CheckResponse.parse(
     await (await documentResponse).json(),
   ).data;
   expect(
     documentCheck.references.map((reference) => reference.originalText),
   ).toEqual([document]);
-  await reset.click();
+  await newCheck(page);
 
   await documentInput.setInputFiles({
     name: "references.docx",
@@ -64,6 +65,7 @@ test("switches between library and document input without checking stale Referen
   });
   await upload.click();
   await expect(page.getByRole("textbox")).toHaveValue(document);
+  await closeStructuringPreview(page);
   await libraryInput.setInputFiles({
     name: "library.bib",
     mimeType: "application/x-bibtex",
@@ -79,7 +81,7 @@ test("switches between library and document input without checking stale Referen
       response.request().method() === "POST" &&
       response.url().endsWith("/v2/checks"),
   );
-  await start.click();
+  await checkFromPreview(page);
   const libraryCheck = CheckResponse.parse(
     await (await libraryResponse).json(),
   ).data;

@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import {
+  choosePreferences,
+  moreAction,
+  openReference,
+} from "./support/workspace.ts";
 import { readFile } from "node:fs/promises";
 
 // Only Chromium can grant clipboard permissions and read the clipboard back;
@@ -15,9 +20,7 @@ test("copies a Correction suggestion and applies it only to the formatted export
   if (readableClipboard(browserName))
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/u })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   await page
     .getByRole("textbox")
     .fill(
@@ -26,6 +29,7 @@ test("copies a Correction suggestion and applies it only to the formatted export
   await page
     .getByRole("button", { name: "Check reference", exact: true })
     .click();
+  await openReference(page, 1);
   const suggestion = page.getByRole("region", {
     name: "Correction suggestion",
     exact: true,
@@ -44,11 +48,11 @@ test("copies a Correction suggestion and applies it only to the formatted export
   await suggestion.getByText("Apply for export only", { exact: true }).click();
   await expect(suggestion.getByRole("checkbox")).toBeChecked();
   await page
-    .getByRole("grid", { name: "References", exact: true })
-    .getByRole("button")
-    .nth(1)
+    .getByRole("button", { name: "Next reference", exact: true })
     .click();
   await suggestion.getByText("Apply for export only", { exact: true }).click();
+  // The formatted bibliography is a Dialog from the ⋯ Menu (#194 D).
+  await moreAction(page, "Formatted bibliography");
   const exportPreview = page.getByRole("region", {
     name: "Formatted bibliography",
     exact: true,
@@ -75,7 +79,15 @@ test("copies a Correction suggestion and applies it only to the formatted export
   expect(content).toContain("\\rtf1");
   expect(content).toContain("2009");
   expect(content).not.toContain("2008");
-  await expect(page.getByRole("textbox")).toContainText("2008");
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  // Export-only corrections leave the Reference itself unchanged.
+  await expect(
+    page
+      .getByRole("grid", { name: "References", exact: true })
+      .getByRole("gridcell")
+      .first(),
+  ).toContainText("Aspelmeyer · 2008");
   await expect(
     page.getByRole("region", { name: "Reference detail", exact: true }),
   ).toContainText("Exists, with deviations");
@@ -90,9 +102,7 @@ for (const language of ["en", "de"] as const)
     if (readableClipboard(browserName))
       await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/u })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page
       .getByRole("textbox")
       .fill(
@@ -104,6 +114,7 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
+    await openReference(page, 1);
     const suggestion = page.getByRole("region", {
       name: language === "en" ? "Correction suggestion" : "Korrekturvorschlag",
       exact: true,
@@ -112,15 +123,7 @@ for (const language of ["en", "de"] as const)
     await expect(suggestion.locator("ins").first()).toContainText("5(1),", {
       timeout: 15000,
     });
-    await page
-      .getByRole("combobox", {
-        name:
-          language === "en"
-            ? "Preferred citation style"
-            : "Bevorzugter Zitierstil",
-        exact: true,
-      })
-      .selectOption("ieee");
+    await choosePreferences(page, { citationStyle: "ieee" });
     // The tracked change previews the IEEE rendering; its kept and
     // inserted parts, without the localised labels, read as the suggestion.
     const proposed = (region: typeof suggestion) =>
@@ -136,9 +139,9 @@ for (const language of ["en", "de"] as const)
     await expect.poll(() => proposed(suggestion)).toContain("M. Aspelmeyer");
     const formatted = await proposed(suggestion);
     expect(formatted).not.toContain("[1]");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/u })
-      .selectOption(language === "en" ? "de" : "en");
+    await choosePreferences(page, {
+      language: language === "en" ? "de" : "en",
+    });
     await expect
       .poll(() =>
         proposed(
@@ -152,6 +155,13 @@ for (const language of ["en", "de"] as const)
         ),
       )
       .toBe(formatted);
+    // The formatted bibliography is a Dialog from the ⋯ Menu (#194 D).
+    await moreAction(
+      page,
+      language === "en"
+        ? "Formatiertes Literaturverzeichnis"
+        : "Formatted bibliography",
+    );
     await page
       .getByRole("button", {
         name:
@@ -188,6 +198,8 @@ for (const language of ["en", "de"] as const)
           .analyze()
       ).violations,
     ).toEqual([]);
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog")).toHaveCount(0);
     await expect(
       page.getByRole("region", {
         name: language === "en" ? "Referenzdetails" : "Reference detail",

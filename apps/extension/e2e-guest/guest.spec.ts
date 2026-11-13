@@ -15,6 +15,10 @@ import {
 } from "../e2e/support/chromium.ts";
 import { evidence } from "../e2e/support/evidence.ts";
 import {
+  choosePreferencesOnWeb,
+  runCommandOnWeb,
+} from "../e2e/support/workspace.ts";
+import {
   allowOrigins,
   bothPrograms,
   expireIssuedTokensIn,
@@ -92,6 +96,11 @@ const probesAreAnonymous = (panel: Panel) =>
 async function check(panel: Panel, name = "Check reference") {
   await panel.fill("textbox", /^(Reference|Referenz)$/, physicsReference);
   await panel.click("button", name);
+}
+// Structuring without a Check is a launcher command in #194 D.
+async function structureIn(panel: Panel) {
+  await panel.fill("textbox", /^(Reference|Referenz)$/, physicsReference);
+  await panel.structure();
 }
 // The API refused the hosted start at whichever request came first, and no
 // Check was created.
@@ -182,7 +191,7 @@ test("the extension Guest ID persists in extension storage across panel close, r
       );
       panel = await browser.openPanel();
       expect(await panel.query("region", "Your check")).toEqual([]);
-      await check(panel, "Structure references");
+      await structureIn(panel);
       await panel.locate(
         `[...document.querySelectorAll("p, span, dd, li")].find((e) => e.textContent === "Measured measurement")`,
         20_000,
@@ -234,7 +243,7 @@ test("web and extension keep separate Guest IDs and Preferences in the same nati
         webIssued.push(r.postDataJSON() as { guestId: string; client: string });
     });
     await page.goto(web.url);
-    await page.getByRole("combobox", { name: "Language" }).selectOption("de");
+    await choosePreferencesOnWeb(page, { language: "de" });
     await page.getByRole("textbox").fill(physicsReference);
     await page
       .getByRole("button", { name: "Referenz prüfen", exact: true })
@@ -276,7 +285,7 @@ async function renewal(browser: NativeChromium) {
     // already issues its token on load to read the Quota (#99).
     await expireIssuedTokensIn(both, 40_000);
     const panel = await browser.openPanel();
-    await check(panel, "Structure references");
+    await structureIn(panel);
     await panel.locate(
       `[...document.querySelectorAll("p, span, dd, li")].find((e) => e.textContent === "Measured measurement")`,
       20_000,
@@ -312,7 +321,7 @@ async function renewal(browser: NativeChromium) {
 test("revocation stops lease renewal and later Checks fail closed without replacing the extension Guest ID", async () => {
   await native(async (browser) => {
     const panel = await browser.openPanel();
-    await panel.select("combobox", "Language", "de");
+    await panel.preferences({ language: "de" });
     await check(panel, "Referenz prüfen");
     await results(panel);
     const id = issued(panel)[0]!.guestId;
@@ -336,7 +345,7 @@ test("revocation stops lease renewal and later Checks fail closed without replac
     // A new Check with the in-memory token is refused by the API at its first
     // hosted request (the structuring preview precedes the Quota read and the
     // Check) and no Check is created.
-    await panel.click("button", "Zurücksetzen");
+    await panel.newCheck();
     const revokedMark = panel.responses.length;
     await check(panel, "Referenz prüfen");
     await until(
@@ -401,12 +410,12 @@ for (const language of ["en", "de"] as const) {
   const checkName = language === "en" ? "Check reference" : "Referenz prüfen";
   const structureName =
     language === "en" ? "Structure references" : "Referenzen strukturieren";
-  const resetName = language === "en" ? "Reset" : "Zurücksetzen";
+  const newCheckName = language === "en" ? "New check" : "Neue Prüfung";
   test(`native extension ${language} token refusal is readable and latched without replacing identity`, async () => {
     await native(async (browser) => {
       const panel = await browser.openPanel();
-      await panel.select("combobox", "Language", language);
-      await check(panel, structureName);
+      await panel.preferences({ language: language });
+      await structureIn(panel);
       await panel.locate(
         `[...document.querySelectorAll("p, span, dd, li")].find((e) => e.textContent === "Measured measurement")`,
         20_000,
@@ -427,7 +436,7 @@ for (const language of ["en", "de"] as const) {
             r.url === `${both.serviceUrl}/v1/guest-tokens` && r.status === 403,
         ),
       ).toBe(true);
-      await panel.click("button", resetName);
+      await panel.newCheck();
       expect(await alerts(panel)).toEqual([]);
       await check(panel, checkName);
       await until(
@@ -463,13 +472,9 @@ for (const language of ["en", "de"] as const) {
       if (r.url().startsWith(`${web.url}/v`)) apiRequests.push(r.url());
     });
     await page.goto(web.url);
-    await page
-      .getByRole("combobox", { name: "Language" })
-      .selectOption(language);
+    await choosePreferencesOnWeb(page, { language });
     await page.getByRole("textbox").fill(physicsReference);
-    await page
-      .getByRole("button", { name: structureName, exact: true })
-      .click();
+    await runCommandOnWeb(page, structureName);
     await expect(
       page.getByText("Measured measurement", { exact: true }),
     ).toBeVisible();
@@ -480,7 +485,7 @@ for (const language of ["en", "de"] as const) {
     await page.getByRole("textbox").fill(physicsReference);
     await page.getByRole("button", { name: checkName, exact: true }).click();
     await expect(page.getByRole("alert")).toHaveText(deniedText);
-    await page.getByRole("button", { name: resetName, exact: true }).click();
+    await runCommandOnWeb(page, newCheckName);
     await expect(page.getByRole("alert")).toHaveCount(0);
     await page.getByRole("textbox").fill(physicsReference);
     await page.getByRole("button", { name: checkName, exact: true }).click();
@@ -511,7 +516,7 @@ test("a Guest without Check creation permission is refused by the API in the nat
       permissions: withoutCheckCreation,
       client: "extension",
     });
-    await panel.click("button", "Reset");
+    await panel.newCheck();
     const mark = panel.responses.length;
     await check(panel);
     // The fail-closed Quota read before the Check is already refused, so the
@@ -637,7 +642,7 @@ test("the production background denies extension-local storage to a test-only un
       try {
         await allowOrigins(both, [web.url, browser.origin]);
         const panel = await browser.openPanel();
-        await check(panel, "Structure references");
+        await structureIn(panel);
         await panel.locate(
           `[...document.querySelectorAll("p, span, dd, li")].find((e) => e.textContent === "Measured measurement")`,
           20_000,

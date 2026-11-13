@@ -2,6 +2,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { readFile } from "node:fs/promises";
 import { test, expect } from "@playwright/test";
+import { choosePreferences, openReference } from "./support/workspace.ts";
 import { CheckResponse } from "@source-taster/contract-verification";
 const cases = JSON.parse(
   await readFile(
@@ -28,9 +29,7 @@ for (const c of cases)
     page,
   }) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption("en");
+    await choosePreferences(page, { language: "en" });
     await page.getByRole("textbox").fill(c.text);
     const creation = page.waitForResponse(
       (r) => r.url().endsWith("/v2/checks") && r.request().method() === "POST",
@@ -39,6 +38,8 @@ for (const c of cases)
       .getByRole("button", { name: "Check reference", exact: true })
       .click();
     const created = CheckResponse.parse(await (await creation).json()).data;
+    // The detail opens from the feed in #194 D.
+    await openReference(page, 1);
     const result = page.getByRole("region", {
       name: /^(Reference detail|Referenzdetails)$/,
       exact: true,
@@ -76,9 +77,7 @@ for (const c of cases)
     expect(
       outcome.candidates[0]?.fields.find((f) => f.field === c.field)?.score,
     ).toEqual({ value: c.value, fullAgreement: c.value === 100000000 });
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption("de");
+    await choosePreferences(page, { language: "de" });
     await expect(result).toContainText(c.scoreDisplay);
     await expect(result).toContainText(c.fieldDisplay);
     const reread = CheckResponse.parse(
@@ -92,9 +91,7 @@ for (const language of ["en", "de"] as const)
     page,
   }) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page
       .getByRole("textbox")
       .fill(
@@ -106,6 +103,8 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
+    // The detail opens from the feed in #194 D.
+    await openReference(page, 1);
     const result = page.getByRole("region", {
       name: /^(Reference detail|Referenzdetails)$/,
       exact: true,

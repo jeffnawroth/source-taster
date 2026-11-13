@@ -7,6 +7,7 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { once } from "node:events";
 import { expect, test, type Page } from "@playwright/test";
+import { newCheck, openReference } from "../e2e/support/workspace.ts";
 import {
   newAccount,
   newGuest,
@@ -329,6 +330,16 @@ const cancelled = (page: Page) =>
 const cancelButton = (page: Page) =>
   page.getByRole("button", { name: "Cancel check", exact: true });
 
+/** The ended Check's Reference keeps the entered text as its original input. */
+async function expectOriginalInput(page: Page) {
+  await openReference(page, 1);
+  await expect(
+    page
+      .getByRole("region", { name: "Reference detail", exact: true })
+      .locator(".detail-original"),
+  ).toHaveText(aspelmeyer);
+}
+
 // Ordering note: the worker is started lazily and stays up, so the one test
 // that proves settlement after Cancel without any worker runs first.
 for (const kind of ["guest", "account"] as const) {
@@ -362,7 +373,9 @@ for (const kind of ["guest", "account"] as const) {
     expect((await ownerRows(owner)).ended).toBe(1);
     expect(await slotIds(owner)).toEqual(slots);
     expect(quotaCount("/reserve")).toBe(1);
-    await expect(input).toHaveValue(aspelmeyer);
+    // #194 D: results replace the intake, so the text survives as the
+    // Reference's original input in its detail.
+    await expectOriginalInput(page);
     await expectNothingPersisted(page, kind);
     // The outbox settles the reservation exactly once when a worker runs.
     await api.startWorker();
@@ -472,7 +485,9 @@ for (const kind of ["guest", "account"] as const) {
       })
       .toBe(1);
     expect(quotaCount("/reserve")).toBe(1);
-    await expect(input).toHaveValue(aspelmeyer);
+    // #194 D: results replace the intake, so the text survives as the
+    // Reference's original input in its detail.
+    await expectOriginalInput(page);
     await expectNothingPersisted(page, kind);
   });
 
@@ -489,7 +504,7 @@ for (const kind of ["guest", "account"] as const) {
     expect(first).toBe(1);
     await api.advance(301_000);
     await page.clock.fastForward(301_000);
-    await page.getByRole("button", { name: "Reset", exact: true }).click();
+    await newCheck(page);
     await input.fill(aspelmeyer);
     await start(page).click();
     await expect(correct(page)).toBeVisible({ timeout: 20000 });

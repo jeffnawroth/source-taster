@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { choosePreferences, openReference } from "../e2e/support/workspace.ts";
 
 for (const language of ["en", "de"] as const) {
   for (const scenario of ["tied", "ranked"] as const)
@@ -8,9 +9,7 @@ for (const language of ["en", "de"] as const) {
       page,
     }) => {
       await page.goto("/");
-      await page
-        .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-        .selectOption(language);
+      await choosePreferences(page, { language: language });
       await page
         .getByRole("textbox")
         .fill(
@@ -24,6 +23,7 @@ for (const language of ["en", "de"] as const) {
           exact: true,
         })
         .click();
+      await openReference(page, 1);
       const detail = page.getByRole("region", {
         name: language === "en" ? "Reference detail" : "Referenzdetails",
         exact: true,
@@ -121,9 +121,7 @@ for (const language of ["en", "de"] as const)
     page,
   }) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page
       .getByRole("textbox")
       .fill(
@@ -135,6 +133,7 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
+    await openReference(page, 1);
     const detail = page.getByRole("region", {
       name: language === "en" ? "Reference detail" : "Referenzdetails",
       exact: true,
@@ -154,16 +153,23 @@ for (const language of ["en", "de"] as const)
     await expect(fields).toBeVisible();
     const title = fields.getByRole("rowgroup").filter({
       has: page.getByRole("rowheader", {
-        name: language === "en" ? /^Title:/ : /^Titel:/,
+        // #194 D: the row header is the bare field name.
+        name: language === "en" ? "Title" : "Titel",
+        exact: true,
       }),
     });
+    // #194 D: each cell starts with its column name (aria-hidden, shown only
+    // when the narrow detail stacks the columns), and the Best match cell
+    // also carries the field's score line; the text is matched exactly.
     await expect(title.getByRole("cell").nth(0)).toHaveText(
-      "Entirely synthetic missing article",
+      language === "en"
+        ? /^Your referenceEntirely synthetic missing article$/u
+        : /^Ihre ReferenzEntirely synthetic missing article$/u,
     );
     await expect(title.getByRole("cell").nth(1)).toHaveText(
       language === "en"
-        ? "Unknown / not supplied"
-        : "Unbekannt / nicht angegeben",
+        ? /^Best matchUnknown \/ not suppliedExcluded from score · Unknown; not compared\.$/u
+        : /^Bester TrefferUnbekannt \/ nicht angegebenVom Score ausgeschlossen · Unbekannt; nicht verglichen\.$/u,
     );
     await expect(detail).toContainText(
       language === "en"

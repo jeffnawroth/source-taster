@@ -7,6 +7,10 @@ import {
 // Client race injection at the HTTP edge; Preferences persist in the real private service.
 import type { Page } from "@playwright/test";
 import type { Panel } from "../e2e/support/chromium.ts";
+import {
+  choosePreferencesOnWeb,
+  expectPreferencesOnWeb,
+} from "../e2e/support/workspace.ts";
 import { test, expect } from "@playwright/test";
 import { createServer } from "node:http";
 import { once } from "node:events";
@@ -177,23 +181,17 @@ async function signIn(page: Page) {
   await page.getByRole("button", { name: "Confirm code", exact: true }).click();
   await expect(page.getByText(account.email, { exact: true })).toBeVisible();
 }
-const language = (page: Page) =>
-  page.getByRole("combobox", { name: /^(Language|Sprache)$/ });
-const style = (page: Page) =>
-  page.getByRole("combobox", {
-    name: /^(Preferred citation style|Bevorzugter Zitierstil)$/,
-  });
 
 test("existing Account wins, immediate partial changes never write Guest storage, sign-out copies displayed values", async ({
   page,
 }) => {
   await page.goto("/");
-  await style(page).selectOption("oxford");
+  await choosePreferencesOnWeb(page, { citationStyle: "oxford" });
   await signIn(page);
-  await expect(language(page)).toHaveValue("de");
-  await expect(style(page)).toHaveValue("ieee");
+  await expectPreferencesOnWeb(page, { language: "de" });
+  await expectPreferencesOnWeb(page, { citationStyle: "ieee" });
   expect(registration).toEqual({ language: "en", citationStyle: "oxford" });
-  await language(page).selectOption("en");
+  await choosePreferencesOnWeb(page, { language: "en" });
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect.poll(() => patches).toEqual([{ language: "en" }]);
   expect(
@@ -222,7 +220,7 @@ test("open/refocus reads apply another client's values without changing unfinish
 }) => {
   signedIn = true;
   await page.goto("/");
-  await expect(language(page)).toHaveValue("de");
+  await expectPreferencesOnWeb(page, { language: "de" });
   await page
     .getByRole("textbox", { name: "Referenz", exact: true })
     .fill("Unfinished bibliography");
@@ -231,8 +229,8 @@ test("open/refocus reads apply another client's values without changing unfinish
   const before = reads;
   await page.evaluate(() => window.dispatchEvent(new Event("focus")));
   await expect.poll(() => reads).toBeGreaterThan(before);
-  await expect(language(page)).toHaveValue("en");
-  await expect(style(page)).toHaveValue("apa");
+  await expectPreferencesOnWeb(page, { language: "en" });
+  await expectPreferencesOnWeb(page, { citationStyle: "apa" });
   await expect(page.getByRole("status")).toContainText(
     "Your saved citation style is no longer available.",
   );
@@ -240,13 +238,13 @@ test("open/refocus reads apply another client's values without changing unfinish
     page.getByRole("textbox", { name: "Reference", exact: true }),
   ).toHaveValue("Unfinished bibliography");
   expect(patches).toEqual([]);
-  await style(page).selectOption("vancouver");
+  await choosePreferencesOnWeb(page, { citationStyle: "vancouver" });
   await expect(page.getByRole("status")).toHaveCount(0);
   await expect
     .poll(async () => (await readStored()).citationStyle)
     .toBe("vancouver");
   await page.reload();
-  await expect(style(page)).toHaveValue("vancouver");
+  await expectPreferencesOnWeb(page, { citationStyle: "vancouver" });
 });
 
 test("a delayed refocus read cannot undo a later edit or a newer refocus response", async ({
@@ -254,20 +252,20 @@ test("a delayed refocus read cannot undo a later edit or a newer refocus respons
 }) => {
   signedIn = true;
   await page.goto("/");
-  await expect(language(page)).toHaveValue("de");
+  await expectPreferencesOnWeb(page, { language: "de" });
   let release!: () => void;
   holdRead = (send) => {
     release = send;
   };
   await page.evaluate(() => window.dispatchEvent(new Event("focus")));
   await expect.poll(() => !!release).toBe(true);
-  await language(page).selectOption("en");
-  await style(page).selectOption("oxford");
+  await choosePreferencesOnWeb(page, { language: "en" });
+  await choosePreferencesOnWeb(page, { citationStyle: "oxford" });
   await expect.poll(() => patches.length).toBe(2);
   release();
   await page.waitForLoadState("networkidle");
-  await expect(language(page)).toHaveValue("en");
-  await expect(style(page)).toHaveValue("oxford");
+  await expectPreferencesOnWeb(page, { language: "en" });
+  await expectPreferencesOnWeb(page, { citationStyle: "oxford" });
   let older!: () => void;
   holdRead = (send) => {
     older = send;
@@ -276,11 +274,11 @@ test("a delayed refocus read cannot undo a later edit or a newer refocus respons
   await expect.poll(() => !!older).toBe(true);
   await setStored({ language: "de", citationStyle: "acs" });
   await page.evaluate(() => window.dispatchEvent(new Event("focus")));
-  await expect(style(page)).toHaveValue("acs");
+  await expectPreferencesOnWeb(page, { citationStyle: "acs" });
   older();
   await page.waitForLoadState("networkidle");
-  await expect(language(page)).toHaveValue("de");
-  await expect(style(page)).toHaveValue("acs");
+  await expectPreferencesOnWeb(page, { language: "de" });
+  await expectPreferencesOnWeb(page, { citationStyle: "acs" });
 });
 
 test("rapid per-field writes remain immediate and refocus waits for pending writes", async ({
@@ -288,16 +286,16 @@ test("rapid per-field writes remain immediate and refocus waits for pending writ
 }) => {
   signedIn = true;
   await page.goto("/");
-  await expect(style(page)).toHaveValue("ieee");
+  await expectPreferencesOnWeb(page, { citationStyle: "ieee" });
   let release!: () => void;
   holdPatch = (send) => {
     release = send;
   };
-  await language(page).selectOption("en");
+  await choosePreferencesOnWeb(page, { language: "en" });
   await expect.poll(() => !!release).toBe(true);
-  await style(page).selectOption("oxford");
-  await style(page).selectOption("vancouver");
-  await expect(style(page)).toHaveValue("vancouver");
+  await choosePreferencesOnWeb(page, { citationStyle: "oxford" });
+  await choosePreferencesOnWeb(page, { citationStyle: "vancouver" });
+  await expectPreferencesOnWeb(page, { citationStyle: "vancouver" });
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   const before = reads;
   await page.evaluate(() => window.dispatchEvent(new Event("focus")));
@@ -311,8 +309,8 @@ test("rapid per-field writes remain immediate and refocus waits for pending writ
       { citationStyle: "vancouver" },
     ]);
   await expect.poll(() => reads).toBeGreaterThan(before);
-  await expect(style(page)).toHaveValue("vancouver");
-  await expect(language(page)).toHaveValue("en");
+  await expectPreferencesOnWeb(page, { citationStyle: "vancouver" });
+  await expectPreferencesOnWeb(page, { language: "en" });
 });
 
 test("unavailable Account writes remain separate from Guest storage; retry reads authority, expiry copies displayed values", async ({
@@ -320,9 +318,9 @@ test("unavailable Account writes remain separate from Guest storage; retry reads
 }) => {
   signedIn = true;
   await page.goto("/");
-  await expect(style(page)).toHaveValue("ieee");
+  await expectPreferencesOnWeb(page, { citationStyle: "ieee" });
   unavailable = true;
-  await language(page).selectOption("en");
+  await choosePreferencesOnWeb(page, { language: "en" });
   const preferenceAlert = page
     .getByRole("alert")
     .filter({ hasText: /Account Preferences|Kontoeinstellungen/ });
@@ -336,7 +334,7 @@ test("unavailable Account writes remain separate from Guest storage; retry reads
   await page
     .getByRole("button", { name: "Retry session", exact: true })
     .click();
-  await expect(language(page)).toHaveValue("de");
+  await expectPreferencesOnWeb(page, { language: "de" });
   await expect(preferenceAlert).toHaveCount(0);
   denied = true;
   await page.evaluate(() => window.dispatchEvent(new Event("focus")));
@@ -349,7 +347,7 @@ test("unavailable Account writes remain separate from Guest storage; retry reads
       guestKey,
     ),
   ).toEqual({ language: "de", citationStyle: "ieee", theme: "system" });
-  await style(page).selectOption("oxford");
+  await choosePreferencesOnWeb(page, { citationStyle: "oxford" });
   expect(
     await page.evaluate(
       (key) => JSON.parse(localStorage.getItem(key)!) as unknown,
@@ -364,7 +362,7 @@ test("a late Account reply after sign-out cannot change Guest values", async ({
 }) => {
   signedIn = true;
   await page.goto("/");
-  await expect(style(page)).toHaveValue("ieee");
+  await expectPreferencesOnWeb(page, { citationStyle: "ieee" });
   let release!: () => void;
   await setStored({ language: "en", citationStyle: "acs" });
   holdRead = (send) => {
@@ -381,10 +379,10 @@ test("a late Account reply after sign-out cannot change Guest values", async ({
   ).toBeVisible();
   release();
   await page.waitForLoadState("networkidle");
-  await expect(language(page)).toHaveValue("de");
-  await expect(style(page)).toHaveValue("ieee");
+  await expectPreferencesOnWeb(page, { language: "de" });
+  await expectPreferencesOnWeb(page, { citationStyle: "ieee" });
   await page.reload();
-  await expect(style(page)).toHaveValue("ieee");
+  await expectPreferencesOnWeb(page, { citationStyle: "ieee" });
 });
 
 test("web and native Chromium panel share Account values on refocus while keeping Guest stores separate", async ({
@@ -417,14 +415,15 @@ test("web and native Chromium panel share Account values on refocus while keepin
       [guestKey]: guestValues,
     });
     await page.goto("/");
-    await expect(language(page)).toHaveValue("de");
-    await language(page).selectOption("en");
-    await style(page).selectOption("oxford");
+    await expectPreferencesOnWeb(page, { language: "de" });
+    await choosePreferencesOnWeb(page, { language: "en" });
+    await choosePreferencesOnWeb(page, { citationStyle: "oxford" });
     await expect
       .poll(readStored)
       .toEqual({ language: "en", citationStyle: "oxford" });
     await panel.evaluate('window.dispatchEvent(new Event("focus"))');
-    await panel.find("combobox", "Preferred citation style");
+    // The panel's Preferences live in its Preferences Dialog (ADR-0023).
+    await panel.openPreferences();
     await expect
       .poll(() =>
         panel!.evaluate('document.querySelectorAll("select")[1].value'),
@@ -436,8 +435,9 @@ test("web and native Chromium panel share Account values on refocus while keepin
     await expect
       .poll(async () => (await readStored()).citationStyle)
       .toBe("vancouver");
+    await panel.closePreferences();
     await page.evaluate(() => window.dispatchEvent(new Event("focus")));
-    await expect(style(page)).toHaveValue("vancouver");
+    await expectPreferencesOnWeb(page, { citationStyle: "vancouver" });
     expect(await browser.storage()).toEqual({
       [sessionKey]: "s".repeat(43),
       [guestKey]: guestValues,
@@ -466,9 +466,11 @@ test("web and native Chromium panel share Account values on refocus while keepin
     ).toBeNull();
     await panel.reload();
     await panel.find("button", "Sign in");
+    await panel.openPreferences();
     expect(
       await panel.evaluate('document.querySelectorAll("select")[1].value'),
     ).toBe("vancouver");
+    await panel.closePreferences();
   } finally {
     panel?.detach();
     await browser?.close();
@@ -480,11 +482,11 @@ test("registration transports the current client Preferences, including changes 
   page,
 }) => {
   await page.goto("/");
-  await style(page).selectOption("din-iso-690");
+  await choosePreferencesOnWeb(page, { citationStyle: "din-iso-690" });
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await page.getByLabel("Email address", { exact: true }).fill(account.email);
   await page.getByRole("button", { name: "Send code", exact: true }).click();
-  await language(page).selectOption("de");
+  await choosePreferencesOnWeb(page, { language: "de" });
   await page.getByLabel("Sechsstelliger Code", { exact: true }).fill("123456");
   await page
     .getByRole("button", { name: "Code bestätigen", exact: true })
@@ -495,7 +497,7 @@ test("registration transports the current client Preferences, including changes 
     citationStyle: "din-iso-690",
   });
   // This fixture represents an existing Account: it must remain authoritative.
-  await expect(style(page)).toHaveValue("ieee");
+  await expectPreferencesOnWeb(page, { citationStyle: "ieee" });
 });
 
 test("an already expired sign-out copies last displayed values and announces session expiry", async ({
@@ -503,9 +505,9 @@ test("an already expired sign-out copies last displayed values and announces ses
 }) => {
   signedIn = true;
   await page.goto("/");
-  await expect(style(page)).toHaveValue("ieee");
+  await expectPreferencesOnWeb(page, { citationStyle: "ieee" });
   // Record foreground activity before the simulated server-side expiry.
-  await language(page).selectOption("en");
+  await choosePreferencesOnWeb(page, { language: "en" });
   await expect.poll(() => patches.length).toBe(1);
   logoutDenied = true;
   await openWebAccount(page);

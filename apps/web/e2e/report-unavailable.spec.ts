@@ -2,15 +2,14 @@
 // Without a Quota feature grant (standalone has none) no report can be asked
 // for, and the page says so instead of offering a button that cannot work.
 import { expect, test } from "@playwright/test";
+import { choosePreferences, openReport } from "./support/workspace.ts";
 
 for (const language of ["en", "de"] as const)
   test(`explains that the accessible PDF report is unavailable in ${language}`, async ({
     page,
   }) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/u })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page
       .getByRole("textbox")
       .fill(
@@ -22,6 +21,8 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
+    // The PDF report is a Dialog from the ⋯ Menu (#194 D).
+    await openReport(page);
     const region = page.getByRole("region", {
       name:
         language === "en"

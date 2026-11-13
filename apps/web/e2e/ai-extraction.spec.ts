@@ -2,6 +2,12 @@
 // Client-only synthetic HTTP witnesses; provider/legal qualification is separate.
 import { aiClientWitness } from "../../server/test/support/ai-client-witness.ts";
 import { expect, test } from "@playwright/test";
+import {
+  choosePreferences,
+  closeStructuringPreview,
+  openReference,
+  structureReferences,
+} from "./support/workspace.ts";
 for (const language of ["en", "de"] as const) {
   test(`shows grounded AI provenance and quarantined proposals in ${language}`, async ({
     page,
@@ -48,19 +54,9 @@ for (const language of ["en", "de"] as const) {
       }),
     );
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page.getByRole("textbox").fill("Doe (2020). Exact maps.");
-    await page
-      .getByRole("button", {
-        name:
-          language === "en"
-            ? "Structure references"
-            : "Referenzen strukturieren",
-        exact: true,
-      })
-      .click();
+    await structureReferences(page);
     await expect(page.getByTestId("ai-uncertainty")).toContainText(
       language === "en"
         ? "AI results can be wrong"
@@ -98,9 +94,7 @@ for (const language of ["en", "de"] as const)
       });
     });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page.getByRole("textbox").fill("Doe (2020). Exact maps.");
     await page
       .getByRole("button", {
@@ -121,6 +115,7 @@ for (const language of ["en", "de"] as const)
             : "Als eigene Korrektur übernehmen",
       })
       .click();
+    await openReference(page, 1);
     const detail = page.getByRole("region", {
       name: language === "en" ? "Reference detail" : "Referenzdetails",
       exact: true,
@@ -145,7 +140,7 @@ for (const language of ["en", "de"] as const)
   });
 
 for (const language of ["en", "de"] as const)
-  test(`shows parser reasons, upgrade offers and the exact fallback passage in ${language}`, async ({
+  test(`shows parser reasons without a standalone upgrade offer and the exact fallback passage in ${language}`, async ({
     page,
   }) => {
     const witness = aiClientWitness();
@@ -163,15 +158,8 @@ for (const language of ["en", "de"] as const)
       });
     });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page.getByRole("textbox").fill("Doe (2020). Exact maps.");
-    const action = page.getByRole("button", {
-      name:
-        language === "en" ? "Structure references" : "Referenzen strukturieren",
-      exact: true,
-    });
     for (const reason of [
       "guest",
       "feature-unavailable",
@@ -182,23 +170,26 @@ for (const language of ["en", "de"] as const)
         upgrade: reason !== "configuration-unavailable",
         fallbacks: [],
       };
-      await action.click();
+      await structureReferences(page);
       await expect(page.getByTestId("ai-unavailable")).toContainText(
         language === "en"
           ? "The parser was used"
           : "Der Parser wurde verwendet",
       );
-      if (reason !== "configuration-unavailable")
-        await expect(page.getByTestId("ai-unavailable")).toContainText(
-          language === "en" ? "paid plan" : "kostenpflichtiger Plan",
-        );
+      // Standalone sells no plan: the server's upgrade flag shows no offer
+      // without a hosted upgrade link (#194 D).
+      await expect(page.getByTestId("ai-unavailable")).not.toContainText(
+        language === "en" ? "paid plan" : "kostenpflichtiger Plan",
+      );
+      // The preview is a modal Dialog: close it before structuring again.
+      await closeStructuringPreview(page);
     }
     witness.structuring.ai = {
       reason: null,
       upgrade: false,
       fallbacks: [{ span: { start: 0, end: 23 }, reason: "timeout" }],
     };
-    await action.click();
+    await structureReferences(page);
     await expect(page.getByTestId("ai-fallback")).toContainText(
       language === "en" ? "after one retry" : "nach einem erneuten Versuch",
     );

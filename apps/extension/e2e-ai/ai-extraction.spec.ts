@@ -13,6 +13,9 @@ const apiPort = Number(process.env.SOURCE_TASTER_E2E_AI_API_PORT ?? 5002);
 const websitePort = Number(
   process.env.SOURCE_TASTER_E2E_AI_WEBSITE_PORT ?? 5401,
 );
+// The Structuring preview is a modal Dialog (#194 D); the page behind it is
+// inert, so its notices are read inside the Dialog.
+const preview = /^(Recognized references|Erkannte Referenzen)$/u;
 let server: Server;
 let build: Awaited<ReturnType<typeof buildExtension>>;
 let witness = aiClientWitness();
@@ -64,25 +67,22 @@ for (const language of ["en", "de"] as const)
     );
     try {
       const panel = await browser.openPanel();
-      await panel.select("combobox", /^(Language|Sprache)$/, language);
+      await panel.preferences({ language: language });
       await panel.fill(
         "textbox",
         /^(Reference|Referenz)$/,
         "Doe (2020). Exact maps.",
       );
-      await panel.click(
-        "button",
-        language === "en" ? "Structure references" : "Referenzen strukturieren",
-      );
+      await panel.structure();
       await panel.waitForText(
-        "main",
-        undefined,
+        "dialog",
+        preview,
         language === "en"
           ? "AI results can be wrong"
           : "KI-Ergebnisse können falsch sein",
       );
-      expect(await panel.text("main")).toContain("10.5555/PROPOSED");
-      expect(await panel.text("main")).toContain(
+      expect(await panel.text("dialog", preview)).toContain("10.5555/PROPOSED");
+      expect(await panel.text("dialog", preview)).toContain(
         language === "en"
           ? "Excluded from search and scoring"
           : "Von Suche und Bewertung ausgeschlossen",
@@ -101,10 +101,12 @@ for (const language of ["en", "de"] as const)
           ? "Adopt as a user correction"
           : "Als eigene Korrektur übernehmen",
       );
+      // #194 D sets detail section labels in capitals (CSS text-transform),
+      // which innerText reports, so the label matches case-insensitively.
       await panel.waitForText(
         "region",
         language === "en" ? "Reference detail" : "Referenzdetails",
-        language === "en" ? "Field revision 2" : "Feldrevision 2",
+        language === "en" ? /Field revision 2/iu : /Feldrevision 2/iu,
       );
       expect(
         witness.requests.find((r) => r.path.endsWith("/revisions"))?.body,
@@ -135,7 +137,7 @@ for (const language of ["en", "de"] as const)
     );
     try {
       const panel = await browser.openPanel();
-      await panel.select("combobox", /^(Language|Sprache)$/, language);
+      await panel.preferences({ language: language });
       await panel.fill(
         "textbox",
         /^(Reference|Referenz)$/,
@@ -151,39 +153,35 @@ for (const language of ["en", "de"] as const)
           upgrade: reason !== "configuration-unavailable",
           fallbacks: [],
         };
-        await panel.click(
-          "button",
-          language === "en"
-            ? "Structure references"
-            : "Referenzen strukturieren",
-        );
+        await panel.structure();
         await panel.waitForText(
-          "main",
-          undefined,
+          "dialog",
+          preview,
           language === "en"
             ? "The parser was used"
             : "Der Parser wurde verwendet",
         );
-        if (reason !== "configuration-unavailable")
-          expect(await panel.text("main")).toContain(
-            language === "en" ? "paid plan" : "kostenpflichtiger Plan",
-          );
+        // The standalone build sells no plan, so no upgrade offer (#194 D).
+        expect(await panel.text("dialog", preview)).not.toContain(
+          language === "en" ? "paid plan" : "kostenpflichtiger Plan",
+        );
+        // The preview is a modal Dialog: close it before structuring again.
+        await panel.closeStructuringPreview();
       }
       witness.structuring.ai = {
         reason: null,
         upgrade: false,
         fallbacks: [{ span: { start: 0, end: 23 }, reason: "timeout" }],
       };
-      await panel.click(
-        "button",
-        language === "en" ? "Structure references" : "Referenzen strukturieren",
-      );
+      await panel.structure();
       await panel.waitForText(
-        "main",
-        undefined,
+        "dialog",
+        preview,
         language === "en" ? "after one retry" : "nach einem erneuten Versuch",
       );
-      expect(await panel.text("main")).toContain("Doe (2020). Exact maps.");
+      expect(await panel.text("dialog", preview)).toContain(
+        "Doe (2020). Exact maps.",
+      );
       expect(await panel.axe()).toEqual([]);
       panel.detach();
     } finally {

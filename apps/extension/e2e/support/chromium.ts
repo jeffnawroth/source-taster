@@ -413,6 +413,79 @@ export class Panel {
       [value],
     );
   }
+  /** Waits, bounded, until no element has this role and name. */
+  async gone(role: string, name?: string | RegExp) {
+    await until(
+      async () => (await this.query(role, name)).length === 0,
+      `The ${role} named ${String(name)} never closed`,
+    );
+  }
+  /** Opens the launcher and runs the command with this accessible name (#194 D). */
+  async command(name: string | RegExp) {
+    const launcher = /^(Search or command|Suchen oder Befehl) …$/u;
+    await this.click("button", launcher);
+    await this.click("menuitem", name);
+    await this.gone("dialog", /^(Commands|Aktionen)$/u);
+  }
+  /** Opens the Preferences Dialog (ADR-0023) from the launcher. */
+  async openPreferences() {
+    await this.command(/^(Preferences|Einstellungen)$/u);
+    await this.find("dialog", /^(Preferences|Einstellungen)$/u);
+  }
+  async closePreferences() {
+    await this.click("button", /^(Close|Schließen)$/u);
+    await this.gone("dialog", /^(Preferences|Einstellungen)$/u);
+  }
+  /** Language and citation style, set in the Preferences Dialog. */
+  async preferences(choice: { language?: string; citationStyle?: string }) {
+    await this.openPreferences();
+    if (choice.language)
+      await this.select("combobox", /^(Language|Sprache)$/u, choice.language);
+    if (choice.citationStyle)
+      await this.select(
+        "combobox",
+        /^(Preferred citation style|Bevorzugter Zitierstil)$/u,
+        choice.citationStyle,
+      );
+    await this.closePreferences();
+  }
+  /** Structuring without a Check: a launcher command while the intake can run it. */
+  async structure() {
+    await this.command(/^(Structure references|Referenzen strukturieren)$/u);
+  }
+  /**
+   * Closes the Structuring preview Dialog. "Upload and structure" opens it
+   * over the intake (#194 D), as the web tests' closeStructuringPreview does.
+   */
+  async closeStructuringPreview() {
+    await this.click("button", /^(Close|Schließen)$/u);
+    await this.gone("dialog", /^(Recognized references|Erkannte Referenzen)$/u);
+  }
+  /** One-action Reset: the launcher's "New check". */
+  async newCheck() {
+    await this.command(/^(New check|Neue Prüfung)$/u);
+  }
+  /**
+   * Runs a check-level action from the ⋯ Menu. At panel width an open detail
+   * replaces the feed and the strip that holds the Menu (#194 D), so a person
+   * goes Back first, as the web tests at 320 and 360 px do.
+   */
+  async moreAction(name: string | RegExp) {
+    const back = /^(Back to references|Zurück zu Referenzen)$/u;
+    if ((await this.query("button", back)).length > 0)
+      await this.click("button", back);
+    await this.click("button", /^(More actions|Weitere Aktionen)$/u);
+    await this.click("menuitem", name);
+  }
+  /** Opens the Export Dialog from the ⋯ Menu (#194 D). */
+  async openExport() {
+    await this.moreAction(/^(Export|Exportieren)$/u);
+    await this.find("dialog", /^(Export references|Referenzen exportieren)$/u);
+  }
+  async closeExport() {
+    await this.click("button", /^(Cancel|Abbrechen)$/u);
+    await this.gone("dialog", /^(Export references|Referenzen exportieren)$/u);
+  }
   async waitForText(
     role: string,
     name: string | RegExp | undefined,
@@ -435,6 +508,12 @@ export class Panel {
     );
   }
   async axe(tags = wcagTags) {
+    // A view that just opened may still be fading in (#194 D detail slide).
+    // Axe would sample its partly transparent text, so finite animations end
+    // first, as a person sees the settled view.
+    await this.evaluate(
+      `Promise.all(document.getAnimations().filter((a) => a.effect?.getComputedTiming().iterations !== Infinity).map((a) => a.finished.catch(() => null))).then(() => 0)`,
+    );
     await this.evaluate(`${await axeSource};0`);
     return this.evaluate<{ id: string; nodes: string[] }[]>(
       `axe.run(document, { runOnly: { type: "tag", values: ${JSON.stringify(tags)} } })

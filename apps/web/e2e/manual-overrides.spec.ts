@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { expect, test, type Page } from "@playwright/test";
+import { choosePreferences } from "./support/workspace.ts";
 import AxeBuilder from "@axe-core/playwright";
 import { CheckResponse } from "@source-taster/contract-verification/v2";
 for (const language of ["en", "de"] as const) {
@@ -9,9 +10,7 @@ for (const language of ["en", "de"] as const) {
     const en = language === "en";
     await page.setViewportSize({ width: 360, height: 780 });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page
       .getByRole("textbox")
       .fill(
@@ -75,17 +74,19 @@ for (const language of ["en", "de"] as const) {
       name: en ? "Check summary" : "Prüfungsübersicht",
       exact: true,
     });
-    await expect(
-      summary.getByRole("button", {
-        name: en ? /^Not found: 1/ : /^Nicht gefunden: 1/,
-      }),
-    ).toContainText(en ? "Manual: 1" : "Manuell: 1");
     await detail
       .getByRole("button", {
         name: en ? "Back to references" : "Zurück zu Referenzen",
         exact: true,
       })
       .click();
+    // D (#194): at 360 px the detail replaces the feed and its strip, so the
+    // strip's count is read once Back has returned to the feed.
+    await expect(
+      summary.getByRole("button", {
+        name: en ? /^Not found: 1/ : /^Nicht gefunden: 1/,
+      }),
+    ).toContainText(en ? "Manual: 1" : "Manuell: 1");
     await expect(list).toContainText(
       en ? "Manual verdict: Not found" : "Manueller Befund: Nicht gefunden",
     );
@@ -96,6 +97,14 @@ for (const language of ["en", "de"] as const) {
     await expect(filter).toHaveAttribute("aria-pressed", "true");
     await expect(list.getByRole("row")).toHaveCount(1);
     await list.getByRole("button").click();
+    // D (#194): at 360 px the open detail covers the strip, so Back returns to
+    // the feed before the filter is removed.
+    await detail
+      .getByRole("button", {
+        name: en ? "Back to references" : "Zurück zu Referenzen",
+        exact: true,
+      })
+      .click();
     // Return to all before Re-check so the running Status stays visible.
     await summary
       .getByRole("button", {
@@ -121,9 +130,6 @@ for (const language of ["en", "de"] as const) {
         exact: true,
       }),
     ).toBeVisible({ timeout: 15000 });
-    await expect(
-      summary.getByRole("button", { name: en ? /^Correct: 1/ : /^Korrekt: 1/ }),
-    ).not.toContainText(en ? "Manual:" : "Manuell:");
     await detail
       .getByText(
         en
@@ -150,6 +156,16 @@ for (const language of ["en", "de"] as const) {
         () => document.documentElement.scrollWidth <= innerWidth,
       ),
     ).toBe(true);
+    // D (#194): the strip shows again once Back returns to the feed.
+    await detail
+      .getByRole("button", {
+        name: en ? "Back to references" : "Zurück zu Referenzen",
+        exact: true,
+      })
+      .click();
+    await expect(
+      summary.getByRole("button", { name: en ? /^Correct: 1/ : /^Korrekt: 1/ }),
+    ).not.toContainText(en ? "Manual:" : "Manuell:");
   });
 }
 // Visually hidden text (the correction diff's "Deleted:"/"Inserted:" labels) is
@@ -161,9 +177,7 @@ for (const language of ["en", "de"] as const) {
 async function openManualJudgment(page: Page) {
   await page.setViewportSize({ width: 360, height: 780 });
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   await page
     .getByRole("textbox")
     .fill(
@@ -223,10 +237,21 @@ test("a layout change in the detail during a Save press does not lose the press"
   await save.scrollIntoViewIfNeeded();
   // The press must not depend on where the page happened to come to rest. Put
   // the window where it only sometimes rests: Save fully in view, the detail
-  // running on past the bottom edge (a window-level scroll anchor could then
-  // sit inside the detail's own scroller).
+  // running on past the bottom edge.
+  // D (#194): at 360 px the detail is no scroller of its own; the window is
+  // the only one, so it anchors inside the detail. What follows the detail on
+  // the page changed height, so the spot is taken from the detail itself,
+  // 40 px of it below the bottom edge, rather than as a fixed 142 px above the
+  // window's maximum.
   await page.evaluate(() =>
-    scrollTo(0, document.documentElement.scrollHeight - innerHeight - 142),
+    scrollTo(
+      0,
+      scrollY +
+        document.querySelector(".check-detail")!.getBoundingClientRect()
+          .bottom -
+        innerHeight -
+        40,
+    ),
   );
   const placement = await page.evaluate(() => {
     const pane = document
@@ -283,20 +308,21 @@ test("a layout change in the detail during a Save press does not lose the press"
     x: expect.closeTo(before.x + before.width / 2, 0),
     y: expect.closeTo(before.y + before.height / 2, 0),
   });
-  await page.mouse.up();
+  // With one scroller there is one compensation: the window moves by exactly
+  // the inserted height while the pointer is down, never twice or not at all.
+  // (Before D the detail was the scroller, so the window had to stay put.)
   expect(
-    await page.evaluate(() => scrollY),
-    "the window did not scroll during the press",
-  ).toBe(scrollBefore);
+    (await page.evaluate(() => scrollY)) - scrollBefore,
+    "the window compensated once for the late content during the press",
+  ).toBe(300);
+  await page.mouse.up();
   await expect(detail).toContainText("Manual verdict: Not found");
 });
 test("a manual draft cannot silently move to a newer same-revision result", async ({
   page,
 }) => {
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   const apiPort = process.env.SOURCE_TASTER_E2E_API_PORT ?? "3102";
   let checkId = "";
   page.on("response", async (response) => {

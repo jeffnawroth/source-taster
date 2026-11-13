@@ -2,7 +2,16 @@
 // Real browser, real shared UI and real server with fixture sources. The
 // structured suggestion comes from the server's proven candidate record.
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+import {
+  chooseExportFormat,
+  choosePreferences,
+  closeDialog,
+  closeExport,
+  newCheck,
+  openBibliography,
+  openExport,
+} from "./support/workspace.ts";
 import { readFile } from "node:fs/promises";
 import { CheckResponse } from "@source-taster/contract-verification/v2";
 
@@ -71,9 +80,7 @@ const copy = {
 async function start(page: Page, text: string, language: "en" | "de" = "en") {
   const t = copy[language];
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/u })
-    .selectOption(t.language);
+  await choosePreferences(page, { language: t.language });
   const creation = page.waitForResponse(
     (response) =>
       /\/v2\/checks$/u.test(response.url()) &&
@@ -225,12 +232,17 @@ test("detail leads with the effective Verdict in the documented section order an
   const { detail, grid } = await openDeviating(page);
   const order = [
     detail.getByRole("heading", { level: 3 }).first(),
-    detail.getByRole("heading", { name: "Original text", exact: true }),
-    detail.getByRole("table", { name: "Reference and best match" }),
-    detail.getByText("Explanation and source evidence", { exact: true }),
-    detail.getByRole("region", { name: "Correction suggestion", exact: true }),
+    // #194 D names the section "Your original input".
+    detail.getByRole("heading", { name: "Your original input", exact: true }),
+    // #194 D: Edit fields is the comparison section's header action, so it
+    // precedes the field table it edits rather than following the suggestion.
     detail.getByRole("button", { name: "Edit fields", exact: true }),
+    detail.getByRole("table", { name: "Reference and best match" }),
+    detail.getByRole("region", { name: "Correction suggestion", exact: true }),
     detail.getByRole("region", { name: "Manual judgment", exact: true }),
+    // #194 D: the explanation leads in the verdict block; the source evidence
+    // (Data sources, Candidates, evidence trail) closes the detail.
+    detail.getByText("Explanation and source evidence", { exact: true }),
   ];
   await expect(order[0]!).toHaveText("Exists, with deviations");
   // Document order (not layout) follows the detail anatomy.
@@ -245,8 +257,9 @@ test("detail leads with the effective Verdict in the documented section order an
       ),
     ).toBe(true);
   }
+  // D: the detail's title heading (the Reference's title) is its focus target.
   await detail
-    .getByRole("heading", { name: "Reference detail", exact: true })
+    .getByRole("heading", { name: "Measured measurement", exact: true })
     .focus();
   await page.keyboard.press("Escape");
   await expect(detail).toBeHidden();
@@ -346,24 +359,20 @@ async function holdNextBibliography(page: Page) {
  * Presses Back as a click finds it, with the held response released between
  * press and release, and asserts that Back did not move under the pointer.
  */
-async function pressBackAcrossHeldResponse(
-  page: Page,
-  panel: Locator,
-  release: () => void,
-) {
+async function pressBackAcrossHeldResponse(page: Page, release: () => void) {
   const back = page.getByRole("button", {
     name: "Back to references",
     exact: true,
   });
-  // As a click lands when Back is already in view: the panel above shows
-  // through the top of the viewport and Back sits low.
-  await page.evaluate(() => {
-    const top = [...document.querySelectorAll("button")]
-      .find((b) => b.textContent?.trim() === "Back to references")!
-      .getBoundingClientRect().top;
+  // As a click lands when Back is already in view. D (#194): Back sits in the
+  // detail's sticky header and no bibliography panel shows above it, as the
+  // formatted bibliography is a Dialog from the ⋯ Menu.
+  // Back's visible text is "Back"; its accessible name comes from aria-label.
+  await back.evaluate((el) => {
+    const top = el.getBoundingClientRect().top;
     scrollBy(0, top - (innerHeight - 220));
   });
-  await expect(panel).toBeInViewport();
+  await expect(back).toBeInViewport();
   const before = (await back.boundingBox())!;
   const centre = {
     x: before.x + before.width / 2,
@@ -390,10 +399,10 @@ async function pressBackAcrossHeldResponse(
   await page.mouse.up();
 }
 
-// On a narrow viewport the bibliography panel sits above the detail. Opening a
-// Reference renders its suggestion; with no correction selected the panel does
-// not depend on that rendering, so it must not change height and move Back
-// from under a press.
+// Opening a Reference renders its suggestion; with no correction selected the
+// formatted bibliography does not depend on that rendering, so nothing may move
+// Back from under a press while it settles. D (#194): the bibliography is a
+// Dialog from the ⋯ Menu, read from the feed before the Reference opens.
 test("narrow Back stays under the pointer while the opened Reference's suggestion loads", async ({
   page,
 }) => {
@@ -409,20 +418,17 @@ test("narrow Back stays under the pointer while the opened Reference's suggestio
     await expect(
       summary.getByRole("button", { name, exact: true }),
     ).toBeVisible({ timeout: 15000 });
-  const panel = page.getByRole("region", {
-    name: "Formatted bibliography",
-    exact: true,
-  });
-  await expect(panel).toContainText(
+  await expect(await openBibliography(page)).toContainText(
     "No corrections selected. The export uses the current fields.",
   );
+  await closeDialog(page, /^Formatted bibliography$/u);
   // Opening another Reference renders that Reference's suggestion.
   hold.arm(3);
   const open = grid.getByRole("button", { name: /^Open reference 3:/u });
   await open.click();
   await expect(detail).toContainText(deviating);
   await hold.entered;
-  await pressBackAcrossHeldResponse(page, panel, hold.release);
+  await pressBackAcrossHeldResponse(page, hold.release);
   await expect(grid).toBeVisible();
   await expect(
     grid.getByRole("row").filter({
@@ -435,6 +441,9 @@ test("narrow Back stays under the pointer while the opened Reference's suggestio
 // With a correction applied the export panels list it. Opening another
 // Reference changes only the suggestion that is rendered, so neither panel may
 // blank, show Formatting… or change height while that rendering is pending.
+// D (#194): both panels are Dialogs from the ⋯ Menu, which at 360 px the open
+// detail covers; they are read from the feed after Back while the rendering is
+// still held, and Back is then pressed across a second held rendering.
 test("narrow Back stays under the pointer while another Reference's suggestion loads with a correction applied", async ({
   page,
 }) => {
@@ -449,17 +458,10 @@ test("narrow Back stays under the pointer while another Reference's suggestion l
     await expect(
       summary.getByRole("button", { name, exact: true }),
     ).toBeVisible({ timeout: 15000 });
-  const panel = page.getByRole("region", {
-    name: "Formatted bibliography",
+  const back = page.getByRole("button", {
+    name: "Back to references",
     exact: true,
   });
-  const exports = page.getByRole("region", {
-    name: "Export references",
-    exact: true,
-  });
-  await exports
-    .getByRole("combobox", { name: "Export content", exact: true })
-    .selectOption("selected-corrections");
   // Apply the deviating Reference's suggestion to the export.
   await grid.getByRole("button", { name: /^Open reference 3:/u }).click();
   await expect(detail).toContainText(deviating);
@@ -467,43 +469,60 @@ test("narrow Back stays under the pointer while another Reference's suggestion l
     .getByRole("region", { name: "Correction suggestion", exact: true })
     .getByText("Apply for export only", { exact: true })
     .click();
-  for (const region of [panel, exports])
-    await expect(region.getByRole("listitem")).toHaveCount(1);
-  await expect(panel.getByRole("button", { name: /^Copy/u })).toBeEnabled();
-  await page
-    .getByRole("button", { name: "Back to references", exact: true })
-    .click();
+  await back.click();
   await expect(grid).toBeVisible();
-  await expect(panel.getByRole("listitem")).toHaveCount(1);
-  const heights = async () => [
-    (await panel.boundingBox())!.height,
-    (await exports.boundingBox())!.height,
-  ];
-  const settled = await heights();
+  /** Reads both panels, softly when a rendering is pending, and their heights. */
+  const readPanels = async (soft: boolean) => {
+    const check = soft ? expect.soft : expect;
+    const panel = await openBibliography(page);
+    await check(panel.getByRole("listitem")).toHaveCount(1);
+    await check(panel).not.toContainText("Formatting");
+    await check(panel.getByRole("button", { name: /^Copy/u })).toBeEnabled();
+    await check(
+      panel.getByRole("button", { name: /^Download/u }).first(),
+    ).toBeEnabled();
+    const panelHeight = (await panel.boundingBox())!.height;
+    await closeDialog(page, /^Formatted bibliography$/u);
+    const exports = await openExport(page);
+    await exports
+      .getByRole("combobox", { name: "Export content", exact: true })
+      .selectOption("selected-corrections");
+    await check(exports.getByRole("listitem")).toHaveCount(1);
+    await check(
+      exports.getByRole("button", { name: "Download references" }),
+    ).toBeEnabled();
+    const exportsHeight = (await exports.boundingBox())!.height;
+    await closeExport(page);
+    return [panelHeight, exportsHeight];
+  };
+  const settled = await readPanels(false);
   // Opening another Reference renders that Reference's suggestion.
   hold.arm(1);
   await grid.getByRole("button", { name: /^Open reference 1:/u }).click();
   await expect(detail).toContainText(correct);
   await hold.entered;
+  await back.click();
+  await expect(grid).toBeVisible();
   // Soft, so a failure shows every panel that changed.
-  for (const region of [exports, panel])
-    await expect.soft(region.getByRole("listitem")).toHaveCount(1);
-  await expect.soft(panel).not.toContainText("Formatting");
-  await expect
-    .soft(panel.getByRole("button", { name: /^Copy/u }))
-    .toBeEnabled();
-  await expect
-    .soft(panel.getByRole("button", { name: /^Download/u }))
-    .toBeEnabled();
-  await expect
-    .soft(exports.getByRole("button", { name: "Download references" }))
-    .toBeEnabled();
-  expect.soft(await heights(), "the panels kept their height").toEqual(settled);
-  await pressBackAcrossHeldResponse(page, panel, hold.release);
+  expect
+    .soft(await readPanels(true), "the panels kept their height")
+    .toEqual(settled);
+  const delivered = page.waitForResponse((response) =>
+    /\/bibliography$/u.test(response.url()),
+  );
+  hold.release();
+  await delivered;
+  // Back across a held rendering, with the correction still applied.
+  const again = await holdNextBibliography(page);
+  again.arm(3);
+  await grid.getByRole("button", { name: /^Open reference 3:/u }).click();
+  await expect(detail).toContainText(deviating);
+  await again.entered;
+  await pressBackAcrossHeldResponse(page, again.release);
   await expect(grid).toBeVisible();
   await expect(
     grid.getByRole("row").filter({
-      has: page.getByRole("button", { name: /^Open reference 1:/u }),
+      has: page.getByRole("button", { name: /^Open reference 3:/u }),
     }),
   ).toBeFocused();
   await page.unrouteAll({ behavior: "ignoreErrors" });
@@ -601,17 +620,17 @@ for (const language of ["en", "de"] as const)
     await expect(first).not.toHaveAccessibleName(new RegExp(t.marker, "u"));
   });
 
-test("a control scrolled into view from under the sticky verdict header ends up clear of it", async ({
+test("a control scrolled into view from under the sticky detail header ends up clear of it", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 520 });
   const t = copy.en;
   const { detail } = await openDeviating(page);
   await detail.getByRole("button", { name: t.apply, exact: true }).click();
-  await expect(detail.locator(".detail-verdict-header")).toBeVisible();
+  await expect(detail.locator(".detail-head")).toBeVisible();
   const covered = await page.evaluate(() => {
     const pane = document.querySelector<HTMLElement>(".check-detail")!;
-    const head = document.querySelector<HTMLElement>(".detail-verdict-header")!;
+    const head = document.querySelector<HTMLElement>(".detail-head")!;
     const controls = [
       ...pane.querySelectorAll<HTMLElement>(
         "button:not([disabled]), input:not([type=hidden]), textarea, summary",
@@ -753,17 +772,14 @@ test("export and formatted bibliography use committed fields, never an Apply dra
   await detail
     .getByRole("textbox", { name: "Title", exact: true })
     .fill("UNSAVED APPLY DRAFT");
-  const exports = page.getByRole("region", {
-    name: "Export references",
-    exact: true,
-  });
+  // D (#194): Export and the formatted bibliography are Dialogs from the ⋯
+  // Menu; the export format is a radio group.
+  const exports = await openExport(page);
   for (const [kind, extension] of [
     ["csl-json", "json"],
     ["bibtex", "bib"],
   ] as const) {
-    await exports
-      .getByRole("combobox", { name: "Export format", exact: true })
-      .selectOption(kind);
+    await chooseExportFormat(exports, kind);
     await exports
       .getByRole("combobox", { name: "Export content", exact: true })
       .selectOption("original");
@@ -780,8 +796,10 @@ test("export and formatted bibliography use committed fields, never an Apply dra
     expect(content).not.toContain("UNSAVED APPLY DRAFT");
     expect(content).not.toContain("2009");
   }
+  await closeExport(page);
+  const bibliography = await openBibliography(page);
   const rtf = page.waitForEvent("download");
-  await page
+  await bibliography
     .getByRole("button", {
       name: "Download formatted bibliography (RTF)",
       exact: true,
@@ -790,6 +808,10 @@ test("export and formatted bibliography use committed fields, never an Apply dra
   const formatted = await readFile(await (await rtf).path(), "utf8");
   expect(formatted).toContain("Aspelmeyer, M. (2008). Measured measurement.");
   expect(formatted).not.toContain("UNSAVED APPLY DRAFT");
+  await closeDialog(page, /^Formatted bibliography$/u);
+  await expect(
+    detail.getByRole("textbox", { name: "Title", exact: true }),
+  ).toHaveValue("UNSAVED APPLY DRAFT");
 });
 
 test("Save and re-check after Apply resets the current manual verdict and keeps it on the historical result", async ({
@@ -870,7 +892,8 @@ test("Cancel with an open Apply draft keeps the draft local and unsaved", async 
   });
   await expect(date).toHaveValue("2009-01");
   await page.getByRole("button", { name: "Cancel check", exact: true }).click();
-  await expect(page.getByText("Cancelled", { exact: true })).toBeVisible();
+  // The Status counter repeats the short label (aria-hidden); the row says it.
+  await expect(grid.getByText("Cancelled", { exact: true })).toBeVisible();
   await expect(date).toHaveValue("2009-01");
   const [reference] = (await snapshot()).references;
   expect(reference!.revision).toBe(1);
@@ -949,9 +972,11 @@ test("same-revision Re-check invalidates the draft and export choice even when t
   await expect(title).toHaveValue("Keep until deliberate replacement");
   await expect(detail).toContainText("earlier revision or result");
   // The earlier export choice is bound to the replaced result and is dropped.
-  await expect(
-    page.getByRole("region", { name: "Formatted bibliography", exact: true }),
-  ).toContainText("No corrections selected.");
+  // D (#194): the formatted bibliography is a Dialog from the ⋯ Menu.
+  await expect(await openBibliography(page)).toContainText(
+    "No corrections selected.",
+  );
+  await closeDialog(page, /^Formatted bibliography$/u);
   // Without a current proven suggestion only Discard leaves the stale draft.
   await detail
     .getByRole("button", { name: "Discard draft", exact: true })
@@ -986,12 +1011,8 @@ test("late suggestion responses cannot attach to a newer citation style", async 
     await route.fulfill({ response });
   });
   const { detail } = await openDeviating(page);
-  const style = page.getByRole("combobox", {
-    name: "Preferred citation style",
-    exact: true,
-  });
   holding = true;
-  await style.selectOption("ieee");
+  await choosePreferences(page, { citationStyle: "ieee" });
   await entered;
   await expect(
     detail.getByRole("button", { name: "Apply to fields", exact: true }),
@@ -1000,7 +1021,7 @@ test("late suggestion responses cannot attach to a newer citation style", async 
     "Apply to fields becomes available once the suggestion for the current result has loaded.",
   );
   holding = false;
-  await style.selectOption("apa");
+  await choosePreferences(page, { citationStyle: "apa" });
   await expect(
     detail.getByRole("button", { name: "Apply to fields", exact: true }),
   ).toBeEnabled();
@@ -1065,7 +1086,7 @@ test("pending Save sends once, failures retain the draft and a late reply cannot
     detail.getByRole("button", { name: "Save fields only", exact: true }),
   ).toBeDisabled();
   expect(count).toBe(1);
-  await page.getByRole("button", { name: "Reset", exact: true }).click();
+  await newCheck(page);
   release();
   await expect(
     page.getByRole("textbox", { name: "Reference", exact: true }),
