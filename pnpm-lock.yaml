@@ -523,6 +523,9 @@ importers:
       '@source-taster/contract-verification':
         specifier: workspace:*
         version: link:../contract-verification
+      '@source-taster/core':
+        specifier: workspace:*
+        version: link:../core
       '@source-taster/design-tokens':
         specifier: workspace:*
         version: link:../design-tokens

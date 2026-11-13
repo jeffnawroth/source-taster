@@ -27,6 +27,21 @@ const fieldLabels = {
   PMCID: "field_pmcid",
 } as const;
 
+/** What a Structuring recognised, as the summary line announces it. */
+export function structuringSummary(result: StructuringResult | ImportResult) {
+  return ("guidance" in result
+    ? result.guidance
+    : result.references.length
+      ? "recognized"
+      : "no-references") === "no-references"
+    ? "guidance" in result
+      ? m.structuring_no_references()
+      : m.library_no_references()
+    : result.references.length === 1
+      ? m.structuring_summary_one()
+      : m.structuring_summary({ count: String(result.references.length) });
+}
+
 export function StructuringResults({
   result,
   inputText,
@@ -43,15 +58,7 @@ export function StructuringResults({
         aria-label={m.structuring_summary_label()}
         className="rounded-xl bg-surface-sunken p-4 text-text"
       >
-        {("guidance" in result
-          ? result.guidance
-          : result.references.length
-            ? "recognized"
-            : "no-references") === "no-references"
-          ? "guidance" in result
-            ? m.structuring_no_references()
-            : m.library_no_references()
-          : m.structuring_summary({ count: String(result.references.length) })}
+        {structuringSummary(result)}
       </p>
       {"ai" in result && result.ai?.reason && (
         <p data-testid="ai-unavailable">
@@ -60,15 +67,21 @@ export function StructuringResults({
             "feature-unavailable": m.ai_feature_unavailable,
             "configuration-unavailable": m.ai_configuration_unavailable,
           }[result.ai.reason]()}
+          {/* A plan to upgrade to exists only where the service sells one;
+              standalone builds pass no upgrade link (#194 D). */}
           {result.ai.upgrade && upgradeUrl && (
-            <a
-              className="ml-2 underline"
-              href={upgradeUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {m.quota_upgrade()}
-            </a>
+            <>
+              {" "}
+              {m.ai_upgrade_hint()}
+              <a
+                className="ml-2 underline"
+                href={upgradeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {m.quota_upgrade()}
+              </a>
+            </>
           )}
         </p>
       )}

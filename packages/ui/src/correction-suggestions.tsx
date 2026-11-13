@@ -248,10 +248,11 @@ export function BibliographyActions({
       .finally(() => setExporting(false));
   }
   // The export is rendered once the selected suggestions have been formatted.
-  const exportAvailability =
-    !rendered.exportReady || exporting
-      ? { isDisabled: true as const, disabledReason: m.correction_loading() }
-      : { isDisabled: false as const };
+  // A running export is pending, not disabled: disabling the pressed Button
+  // would drop focus to the page and out of its Dialog.
+  const exportAvailability = !rendered.exportReady
+    ? { isDisabled: true as const, disabledReason: m.correction_loading() }
+    : { isDisabled: false as const };
   return (
     <section
       aria-label={m.bibliography_heading()}
@@ -281,6 +282,7 @@ export function BibliographyActions({
         <Button
           variant="secondary"
           {...exportAvailability}
+          isPending={exporting}
           onPress={() => exportBibliography("copy")}
         >
           {m.bibliography_copy()}
@@ -288,6 +290,7 @@ export function BibliographyActions({
         <Button
           variant="secondary"
           {...exportAvailability}
+          isPending={exporting}
           onPress={() => exportBibliography("download")}
         >
           {m.bibliography_download()}

@@ -15,11 +15,17 @@ type ButtonBase = Omit<Aria.ButtonProps, "isDisabled" | "render"> & {
   ref?: Ref<HTMLButtonElement>;
   variant?: "primary" | "secondary" | "ghost" | "danger";
   size?: "md" | "sm";
+  /** Leading Lucide icon. While pending the Spinner takes its place. */
+  icon?: ReactNode;
+  /** Where a disabled reason sits: under the control (default) or before it on the same row. */
+  reasonPlacement?: "below" | "start";
 };
 export type ButtonProps = ButtonBase & Availability;
 export function Button({
   variant,
   size,
+  icon,
+  reasonPlacement = "below",
   disabledReason,
   children,
   ...props
@@ -29,7 +35,12 @@ export function Button({
     <Aria.Button
       {...props}
       render={(domProps, state) => (
-        <button {...domProps} aria-busy={state.isPending || undefined} />
+        <button
+          {...domProps}
+          data-size={size ?? "md"}
+          data-variant={variant ?? "secondary"}
+          aria-busy={state.isPending || undefined}
+        />
       )}
       aria-describedby={describedBy(
         props["aria-describedby"],
@@ -44,23 +55,61 @@ export function Button({
     >
       {Aria.composeRenderProps(children, (label, { isPending }) => (
         <>
-          <span className="st-loading-slot" aria-hidden="true">
-            {isPending && <Spinner size={size === "sm" ? 16 : 20} />}
-          </span>
-          {label}
+          {(icon || isPending) && (
+            <span
+              className={cx(
+                "st-loading-slot",
+                icon ? undefined : "st-loading-overlay",
+              )}
+              aria-hidden="true"
+            >
+              {isPending ? <Spinner size={size === "sm" ? 16 : 20} /> : icon}
+            </span>
+          )}
+          {icon ? label : <span className="st-button-label">{label}</span>}
         </>
       ))}
     </Aria.Button>
   );
-  return disabledReason ? (
-    <span className="st-disabled-control">
+  return (
+    <DisabledControl
+      reason={disabledReason}
+      reasonId={reasonId}
+      placement={reasonPlacement}
+    >
       {button}
-      <span id={reasonId} className="text-xs text-text-secondary">
-        {disabledReason}
-      </span>
+    </DisabledControl>
+  );
+}
+/**
+ * One wrapper whether or not a reason shows, so the control keeps its place
+ * in the tree: toggling the reason must not remount the button, lose focus,
+ * or leave its pending announcement pointing at a stale id. Without a reason
+ * the wrapper is `display: contents`.
+ */
+function DisabledControl({
+  reason,
+  reasonId,
+  placement,
+  children,
+}: {
+  reason: string | undefined;
+  reasonId: string;
+  placement?: "below" | "start";
+  children: ReactNode;
+}) {
+  return (
+    <span
+      className={reason ? "st-disabled-control" : "st-reason-slot"}
+      data-placement={reason ? placement : undefined}
+    >
+      {children}
+      {reason && (
+        <span id={reasonId} className="text-xs text-text-secondary">
+          {reason}
+        </span>
+      )}
     </span>
-  ) : (
-    button
   );
 }
 export type IconButtonProps = Omit<
@@ -117,15 +166,10 @@ export function ToggleButton({
       )}
     />
   );
-  return disabledReason ? (
-    <span className="st-disabled-control">
+  return (
+    <DisabledControl reason={disabledReason} reasonId={reasonId}>
       {button}
-      <span id={reasonId} className="text-xs text-text-secondary">
-        {disabledReason}
-      </span>
-    </span>
-  ) : (
-    button
+    </DisabledControl>
   );
 }
 export type LinkProps = Aria.LinkProps & { newTabLabel?: string };
