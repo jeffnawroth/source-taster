@@ -23,7 +23,7 @@ for (const language of ["en", "de"] as const)
     );
     try {
       const panel = await browser.openPanel();
-      await panel.select("combobox", /^(Language|Sprache)$/, language);
+      await panel.preferences({ language: language });
       const original =
         "Aspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170";
       await panel.fill(
@@ -47,9 +47,8 @@ for (const language of ["en", "de"] as const)
       // The Correction suggestion renders above the Edit fields row when its
       // response arrives. A press measured before that lands on the suggestion
       // text and never opens the editor, so the page settles first.
-      await panel.waitForText(
+      await panel.find(
         "region",
-        language === "en" ? "Reference detail" : "Referenzdetails",
         language === "en" ? "Correction suggestion" : "Korrekturvorschlag",
       );
       await panel.click(
@@ -68,10 +67,12 @@ for (const language of ["en", "de"] as const)
         "button",
         language === "en" ? "Save fields only" : "Nur Felder speichern",
       );
+      // #194 D sets detail section labels in capitals (CSS text-transform),
+      // which innerText reports, so the label matches case-insensitively.
       await panel.waitForText(
         "region",
         language === "en" ? "Reference detail" : "Referenzdetails",
-        language === "en" ? "Field revision 2" : "Feldrevision 2",
+        language === "en" ? /Field revision 2/iu : /Feldrevision 2/iu,
       );
       await panel.waitForText(
         "region",
@@ -126,8 +127,8 @@ for (const language of ["en", "de"] as const)
         "button",
         language === "en" ? "Back to references" : "Zurück zu Referenzen",
       );
-      await panel.click(
-        "button",
+      // The list editor is a Dialog from the ⋯ Menu (#194 D).
+      await panel.moreAction(
         language === "en" ? "Edit reference list" : "Referenzliste bearbeiten",
       );
       // The membership row is a choice primitive: its input is visually hidden,
@@ -201,7 +202,7 @@ for (const language of ["en", "de"] as const)
     );
     try {
       const panel = await browser.openPanel();
-      await panel.select("combobox", /^(Language|Sprache)$/, language);
+      await panel.preferences({ language: language });
       await panel.fill(
         "textbox",
         en ? "Reference" : "Referenz",
@@ -241,9 +242,8 @@ for (const language of ["en", "de"] as const)
       await press.release();
       // The press reached the button, and the suggestion renders afterwards.
       await panel.find("textbox", en ? "Title" : "Titel");
-      await panel.waitForText(
+      await panel.find(
         "region",
-        en ? "Reference detail" : "Referenzdetails",
         en ? "Correction suggestion" : "Korrekturvorschlag",
       );
     } finally {

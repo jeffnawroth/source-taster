@@ -239,8 +239,7 @@ async function withIntake(
     expect(await background.evaluate<boolean[]>("selectionEdge.opens")).toEqual(
       [true],
     );
-    if (language === "de")
-      await panel.select("combobox", /^(Language|Sprache)$/, "de");
+    if (language === "de") await panel.preferences({ language: "de" });
     await run({
       panel,
       browser,
@@ -284,7 +283,13 @@ async function withIntake(
 test("ordinary-page selection opens the native panel synchronously and stays local until Check", async () => {
   await withIntake(async ({ panel }) => {
     expect(await panel.query("region", "Reference detail")).toEqual([]);
-    expect(await panel.text("main")).toContain("Page selection");
+    // #194 D names the intake source by its selected segment, not by a
+    // "Page selection" caption.
+    expect(
+      await panel.evaluate<string[]>(
+        `Array.from(document.querySelectorAll('[aria-label="Input source"] [aria-checked="true"], [aria-label="Input source"] [aria-pressed="true"]'), (e) => e.textContent.trim())`,
+      ),
+    ).toEqual(["Selection"]);
   });
 });
 
@@ -357,8 +362,10 @@ test("selection replaces an imported draft and Undo restores its preview", async
           backendNodeId: node,
           files: [file],
         });
+        // An imported library opens its Structuring preview as a modal
+        // Dialog (#194 D).
         await panel.waitForText(
-          "region",
+          "dialog",
           "Recognized references",
           "Old library title",
         );
@@ -371,17 +378,18 @@ test("selection replaces an imported draft and Undo restores its preview", async
             )) === "New plain text draft",
           "New selection did not arrive",
         );
-        expect(await panel.query("region", "Recognized references")).toEqual(
-          [],
-        );
+        // The replaced preview's Dialog closes (after its exit transition).
+        await panel.gone("dialog", "Recognized references");
         expect(await panel.text("main")).not.toContain("references.bib");
         await panel.click("button", "Undo selection replacement");
+        await panel.waitForText("main", undefined, "references.bib");
+        // Undo restores the preview closed; the launcher reopens it.
+        await panel.command("Structuring preview");
         await panel.waitForText(
-          "region",
+          "dialog",
           "Recognized references",
           "Old library title",
         );
-        expect(await panel.text("main")).toContain("references.bib");
       },
       { allowRequests: true },
     );
@@ -438,22 +446,31 @@ test("selection keeps the running Check reachable and its finished evidence inta
             (r) => r.method === "POST" && r.url.endsWith("/v2/checks"),
           );
         expect(create()).toHaveLength(1);
+        // Results replace the intake (#194 D): a selection that arrives
+        // while a Check is open waits as the next draft and says so.
         await select("Draft received while running");
-        await until(
-          async () =>
-            (await panel.call(
-              await panel.find("textbox", "Reference"),
-              "function() { return this.value; }",
-            )) === "Draft received while running",
-          "Selection while running was lost",
+        await panel.waitForText(
+          "main",
+          undefined,
+          "The page selection is waiting for your next check.",
         );
         await panel.waitForText("grid", "References", "Running");
         expect(await panel.query("button", "Cancel check")).toHaveLength(1);
         held.release();
         await panel.waitForText("grid", "References", "Correct");
         await panel.click("button", /^Open reference 1:/);
+        // The detail settles once its Correction suggestion has loaded.
+        await panel.find("region", "Correction suggestion");
         const before = await panel.text("region", "Reference detail");
         await select("Draft received after completion");
+        // At panel width the open detail replaces the feed and its notices, so
+        // nothing visible marks the arrival. Settle: the selection reaches the
+        // panel within one port round trip; New check below proves it arrived.
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        expect(await panel.text("region", "Reference detail")).toBe(before);
+        expect(create()).toHaveLength(1);
+        // New check opens the intake with the latest selection as its draft.
+        await panel.newCheck();
         await until(
           async () =>
             (await panel.call(
@@ -462,8 +479,6 @@ test("selection keeps the running Check reachable and its finished evidence inta
             )) === "Draft received after completion",
           "Selection after completion was lost",
         );
-        expect(await panel.text("region", "Reference detail")).toBe(before);
-        expect(create()).toHaveLength(1);
         expect(
           panel.requests.filter(
             (r) => r.method === "POST" && r.url.endsWith("/cancel"),
@@ -596,12 +611,14 @@ test("selection replaces a prepared bibliography draft and Undo restores its mov
         const second = "Roe, A. (2021). Careful systems. Example Press.";
         const original = `References\n${first}\n${second}`;
         await panel.fill("textbox", "Reference", original);
-        await panel.click("button", "Structure references");
+        await panel.structure();
         await panel.waitForText(
-          "region",
+          "dialog",
           "Recognized references",
           "Signal maps",
         );
+        // The preview is a modal Dialog over the region editor (#194 D).
+        await panel.closeStructuringPreview();
         await panel.fill(
           "spinbutton",
           "Region 1 start",
@@ -619,10 +636,19 @@ test("selection replaces a prepared bibliography draft and Undo restores its mov
           );
         }, "Selection did not replace the prepared bibliography draft");
         expect(await panel.query("spinbutton", "Region 1 start")).toEqual([]);
-        expect(await panel.query("region", "Recognized references")).toEqual(
+        expect(await panel.query("dialog", "Recognized references")).toEqual(
           [],
         );
         await panel.click("button", "Undo selection replacement");
+        // The pressed Undo leaves; focus goes to the start of the restored
+        // draft rather than to the body at a scroll position left to chance.
+        await until(
+          async () =>
+            await panel.evaluate<boolean>(
+              `document.activeElement?.classList.contains("intake-heading") && scrollY === 0`,
+            ),
+          "Undo did not return focus to the restored intake",
+        );
         expect(
           await panel.call(
             await panel.find(

@@ -21,13 +21,34 @@
   .st-control[data-pending] {
     cursor: progress;
   }
-  /* The leading slot is always reserved, so pending never changes intrinsic width. */
+  /* The leading slot holds the Button's icon; while pending the Spinner takes
+     its place, so pending never changes intrinsic width. A Button without an
+     icon has no idle slot: its Spinner overlays the label instead. */
   .st-loading-slot {
     display: inline-flex;
     width: 20px;
     height: 20px;
     flex: none;
+    align-items: center;
+    justify-content: center;
     color: inherit;
+  }
+  .st-loading-slot > svg:not(.st-spinner) {
+    width: 100%;
+    height: 100%;
+  }
+  .st-control[data-size="sm"] .st-loading-slot {
+    width: 16px;
+    height: 16px;
+  }
+  .st-loading-overlay {
+    position: absolute;
+    inset: 0;
+    width: auto;
+    height: auto;
+  }
+  .st-control[data-pending] .st-loading-overlay ~ .st-button-label {
+    opacity: 0;
   }
   .st-icon-button .st-loading-slot {
     display: none;
@@ -45,6 +66,10 @@
     visibility: hidden;
   }
 
+  /* A control without a disabled reason: the wrapper adds no box. */
+  .st-reason-slot {
+    display: contents;
+  }
   .st-disabled-control {
     display: inline-flex;
     max-width: 100%;
@@ -52,6 +77,14 @@
     align-items: flex-start;
     gap: 4px;
     overflow-wrap: anywhere;
+  }
+  /* The reason sits before its control on one row; it wraps above it when
+     the row is too narrow. */
+  .st-disabled-control[data-placement="start"] {
+    flex-flow: row-reverse wrap-reverse;
+    align-items: center;
+    justify-content: flex-start;
+    column-gap: 12px;
   }
   .st-disabled,
   .st-input[data-disabled],

@@ -1,27 +1,27 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import {
+  choosePreferences,
+  closeStructuringPreview,
+  structureReferences,
+  structuringOffered,
+} from "./support/workspace.ts";
 
 for (const language of ["en", "de"] as const) {
   test(`structures References and shows original text, fields, rejected entries and guidance accessibly in ${language}`, async ({
     page,
   }) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/, exact: true })
-      .selectOption(language);
-    const action = page.getByRole("button", {
-      name:
-        language === "en" ? "Structure references" : "Referenzen strukturieren",
-      exact: true,
-    });
-    await expect(action).toBeDisabled();
+    await choosePreferences(page, { language });
+    // Nothing to structure yet, so the launcher does not offer it.
+    expect(await structuringOffered(page)).toBe(false);
     await page
       .getByRole("textbox")
       .fill(
         "Doe, J. (2020). A careful title. Journal of Testing, 12(3), 45–67.\n\nNot a Reference",
       );
-    await action.click();
+    await structureReferences(page);
     const results = page.getByRole("region", {
       name: language === "en" ? "Recognized references" : "Erkannte Referenzen",
     });
@@ -49,8 +49,9 @@ for (const language of ["en", "de"] as const) {
           .analyze()
       ).violations,
     ).toEqual([]);
+    await closeStructuringPreview(page);
     await page.getByRole("textbox").fill("No bibliographic features");
-    await action.click();
+    await structureReferences(page);
     await expect(page.getByRole("status")).toContainText(
       language === "en"
         ? "No references recognized"
@@ -89,8 +90,14 @@ test("Check and Structuring show a safe localized Problem for a non-JSON server 
   );
   await page.goto("/");
   await page.getByRole("textbox").fill("Doe, J. (2020). A study.");
-  for (const name of ["Structure references", "Check reference"]) {
-    await page.getByRole("button", { name, exact: true }).click();
+  for (const run of [
+    () => structureReferences(page),
+    () =>
+      page
+        .getByRole("button", { name: "Check reference", exact: true })
+        .click(),
+  ]) {
+    await run();
     await expect(page.getByRole("alert")).toContainText(
       "Try again. A technical error occurred on our side. A technical status uses no quota; completed verdicts remain debited.",
     );

@@ -29,7 +29,7 @@ for (const language of ["en", "de"] as const) {
       const scan = join(directory, "scan.pdf");
       await writeFile(scan, pdf([[]]));
       const panel = await browser.openPanel();
-      await panel.select("combobox", /^(Language|Sprache)$/, language);
+      await panel.preferences({ language: language });
       const input = await panel.locate(
         'document.querySelector("#document-file")',
       );
@@ -54,6 +54,8 @@ for (const language of ["en", "de"] as const) {
           ).includes("Signal maps"),
         "The panel did not structure the uploaded document",
       );
+      // The Structuring preview is a modal Dialog over the intake (#194 D).
+      await panel.closeStructuringPreview();
       expect(
         await panel.call<string>(
           await panel.find(

@@ -1,6 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import {
+  checkFromPreview,
+  chooseExportFormat,
+  choosePreferences,
+  closeExport,
+  editReferenceList,
+  newCheck,
+  openExport,
+} from "./support/workspace.ts";
 import { readFile } from "node:fs/promises";
 
 for (const language of ["en", "de"] as const)
@@ -17,9 +26,7 @@ for (const language of ["en", "de"] as const)
           ? "TY  - BOOK\r\nTI  - Missing end marker"
           : "@book{Broken, title={Unclosed";
       await page.goto("/");
-      await page
-        .getByRole("combobox", { name: /^(Language|Sprache)$/u })
-        .selectOption(language);
+      await choosePreferences(page, { language: language });
       await page
         .getByLabel(
           language === "en"
@@ -34,9 +41,7 @@ for (const language of ["en", "de"] as const)
       await expect(
         page.getByRole("status").filter({
           hasText:
-            language === "en"
-              ? "1 references recognized"
-              : "1 Referenzen erkannt",
+            language === "en" ? "1 reference recognized" : "1 Referenz erkannt",
         }),
       ).toBeVisible();
       await expect(
@@ -54,28 +59,16 @@ for (const language of ["en", "de"] as const)
         )
         .click();
       await expect(page.getByText(rejected, { exact: true })).toBeVisible();
-      await page
-        .getByRole("button", {
-          name: language === "en" ? "Check reference" : "Referenz prüfen",
-          exact: true,
-        })
-        .click();
+      // An import opens the Structuring preview as a Dialog, which offers the Check.
+      await checkFromPreview(page);
       await expect(
         page.getByText(language === "en" ? "Finished" : "Abgeschlossen", {
           exact: true,
         }),
       ).toBeVisible();
-      const exports = page.getByRole("region", {
-        name:
-          language === "en" ? "Export references" : "Referenzen exportieren",
-        exact: true,
-      });
-      await exports
-        .getByRole("combobox", {
-          name: language === "en" ? "Export format" : "Exportformat",
-          exact: true,
-        })
-        .selectOption("imported-format");
+      // Export is a Dialog reached from the ⋯ Menu (#194 D).
+      const exports = await openExport(page);
+      await chooseExportFormat(exports, "imported-format");
       const downloaded = page.waitForEvent("download");
       await exports
         .getByRole("button", {
@@ -98,12 +91,8 @@ for (const language of ["en", "de"] as const)
             .analyze()
         ).violations,
       ).toEqual([]);
-      await page
-        .getByRole("button", {
-          name: language === "en" ? "Reset" : "Zurücksetzen",
-          exact: true,
-        })
-        .click();
+      await closeExport(page);
+      await newCheck(page);
       await expect(page.getByRole("textbox")).toHaveValue("");
       await expect(
         page.getByRole("button", {
@@ -117,31 +106,22 @@ test("keeps canonical exports available when membership adds a non-imported Refe
   page,
 }) => {
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/u })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   await page.getByLabel("Import BibTeX or RIS").setInputFiles({
     name: "library.bib",
     mimeType: "application/x-bibtex",
     buffer: Buffer.from("@patent{Kept,title={Synthetic patent},year=2024}\n"),
   });
   await expect(
-    page.getByRole("status").filter({ hasText: "1 references recognized" }),
+    page.getByRole("status").filter({ hasText: "1 reference recognized" }),
   ).toBeVisible();
-  await page
-    .getByRole("button", { name: "Check reference", exact: true })
-    .click();
-  const format = page.getByRole("combobox", {
-    name: "Export format",
-    exact: true,
-  });
-  await format.selectOption("imported-format");
-  const edit = page.getByRole("button", {
-    name: "Edit reference list",
-    exact: true,
-  });
-  await expect(edit).toBeEnabled({ timeout: 15000 });
-  await edit.click();
+  await checkFromPreview(page);
+  // The format choice lives in the Export Dialog (#194 D): the imported
+  // format is offered while every Reference came from the library.
+  const before = await openExport(page);
+  await chooseExportFormat(before, "imported-format");
+  await closeExport(page);
+  await editReferenceList(page);
   await page
     .getByRole("textbox", {
       name: "Original input for the new reference",
@@ -165,12 +145,15 @@ test("keeps canonical exports available when membership adds a non-imported Refe
       .getByRole("grid", { name: "References", exact: true })
       .getByRole("row"),
   ).toHaveCount(2);
-  await expect(format).toHaveValue("csl-json");
-  await expect(format.locator('option[value="imported-format"]')).toHaveCount(
-    0,
-  );
+  const exports = await openExport(page);
+  await expect(
+    exports.locator('input[type="radio"][value="csl-json"]'),
+  ).toBeChecked();
+  await expect(
+    exports.locator('input[type="radio"][value="imported-format"]'),
+  ).toHaveCount(0);
   const downloaded = page.waitForEvent("download");
-  await page
+  await exports
     .getByRole("button", { name: "Download references", exact: true })
     .click();
   const output = JSON.parse(

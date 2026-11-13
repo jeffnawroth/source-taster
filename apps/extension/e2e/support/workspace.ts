@@ -11,7 +11,9 @@ export const labels = {
     check: "Check reference",
     open: /^Open reference 1:/,
     detail: "Reference detail",
-    evidence: "Explanation and source evidence",
+    candidates: /^All candidates \(\d+\)$/,
+    suggestionLoading:
+      "Apply to fields becomes available once the suggestion for the current result has loaded.",
     correct: "Correct",
     exists: "Exists, with deviations",
     best: "Best match by score",
@@ -22,13 +24,87 @@ export const labels = {
     check: "Referenz prüfen",
     open: /^Referenz 1 öffnen:/,
     detail: "Referenzdetails",
-    evidence: "Erklärung und Quellenbelege",
+    candidates: /^Alle Kandidaten \(\d+\)$/,
+    suggestionLoading:
+      "In Felder übernehmen wird verfügbar, sobald der Vorschlag für das aktuelle Ergebnis geladen ist.",
     correct: "Korrekt",
     exists: "Existiert, mit Abweichungen",
     best: "Bester Treffer nach Score",
     library: "BibTeX oder RIS importieren",
   },
 } as const;
+
+/** Runs a launcher command on the web page by its accessible name. */
+export async function runCommandOnWeb(page: Page, name: string | RegExp) {
+  const launcher = /^(Search or command|Suchen oder Befehl) …$/u;
+  await page.getByRole("button", { name: launcher }).click();
+  const palette = page.getByRole("dialog", { name: /^(Commands|Aktionen)$/u });
+  await palette
+    .getByRole("menuitem", {
+      name,
+      ...(typeof name === "string" ? { exact: true } : {}),
+    })
+    .click();
+  await expect(palette).toBeHidden();
+}
+
+/**
+ * Language and citation style on the web workspace, set in the Preferences
+ * Dialog that the launcher opens (#194 D, ADR-0023).
+ */
+export async function choosePreferencesOnWeb(
+  page: Page,
+  choice: { language?: string; citationStyle?: string },
+) {
+  const launcher = /^(Search or command|Suchen oder Befehl) …$/u;
+  await page.getByRole("button", { name: launcher }).click();
+  await page
+    .getByRole("dialog", { name: /^(Commands|Aktionen)$/u })
+    .getByRole("menuitem", { name: /^(Preferences|Einstellungen)$/u })
+    .click();
+  const dialog = page.getByRole("dialog", {
+    name: /^(Preferences|Einstellungen)$/u,
+  });
+  if (choice.language)
+    await dialog
+      .getByRole("combobox", { name: /^(Language|Sprache)$/u })
+      .selectOption(choice.language);
+  if (choice.citationStyle)
+    await dialog
+      .getByRole("combobox", {
+        name: /^(Preferred citation style|Bevorzugter Zitierstil)$/u,
+      })
+      .selectOption(choice.citationStyle);
+  await dialog.getByRole("button", { name: /^(Close|Schließen)$/u }).click();
+  await expect(dialog).toBeHidden();
+}
+
+/**
+ * Asserts the displayed Preferences: opens the Dialog, waits for each value,
+ * and closes it again so the page behind is usable.
+ */
+export async function expectPreferencesOnWeb(
+  page: Page,
+  expected: { language?: string; citationStyle?: string },
+) {
+  await runCommandOnWeb(page, /^(Preferences|Einstellungen)$/u);
+  const dialog = page.getByRole("dialog", {
+    name: /^(Preferences|Einstellungen)$/u,
+  });
+  await expect(dialog).toBeVisible();
+  if (expected.language)
+    await expect(
+      dialog.getByRole("combobox", { name: /^(Language|Sprache)$/u }),
+    ).toHaveValue(expected.language);
+  if (expected.citationStyle)
+    await expect(
+      dialog.getByRole("combobox", {
+        name: /^(Preferred citation style|Bevorzugter Zitierstil)$/u,
+      }),
+    ).toHaveValue(expected.citationStyle);
+  await dialog.getByRole("button", { name: /^(Close|Schließen)$/u }).click();
+  await expect(dialog).toBeHidden();
+}
 
 export interface Witness {
   name: string;
@@ -88,8 +164,11 @@ export const witnesses: Witness[] = [
  */
 const hasLabel = (text: string, label: string) =>
   new RegExp(`(?<!\\p{L})${label}(?!\\p{L})`, "u").test(text);
+// The detail is read once its Correction suggestion has settled, so both
+// hosts are compared in the same state.
 const detailReady = (language: Language, marker: string) => (text: string) =>
   text.includes(marker) &&
+  !text.includes(labels[language].suggestionLoading) &&
   [labels[language].correct, labels[language].exists].some((v) =>
     hasLabel(text, v),
   );
@@ -98,17 +177,21 @@ const outcome = `(() => {
   const detail = document.getElementById("reference-detail");
   return {
     text: detail.innerText,
-    candidates: [...detail.querySelectorAll("details h3")].map((h) => h.parentElement.innerText),
+    candidates: [...detail.querySelectorAll("li.detail-cand")].map((c) => c.innerText),
   };
+})()`;
+/** Opens the Candidates toggle and every Disclosure in the detail, nested ones included. */
+const openDisclosures = `(() => {
+  for (const d of document.querySelectorAll("#reference-detail details")) d.open = true;
 })()`;
 export type Outcome = { text: string; candidates: string[] };
 /** Two Checks differ only in server observation times; everything else must match. */
 export function comparable(value: Outcome): Outcome {
   const stamp = (text: string) =>
-    text.replaceAll(
-      /\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z/g,
-      "<observed-at>",
-    );
+    text
+      .replaceAll(/\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z/g, "<observed-at>")
+      // The evidence trail shows each observation as a local time of day.
+      .replaceAll(/\b\d{1,2}:\d\d:\d\d(?:\s?[AP]M)?/g, "<observed-at>");
   return { text: stamp(value.text), candidates: value.candidates.map(stamp) };
 }
 
@@ -119,6 +202,9 @@ export async function checkInPanel(
   witness: Witness,
 ): Promise<Outcome> {
   const l = labels[language];
+  // Results replace the intake (#194 D): a later witness starts a new Check.
+  if ((await panel.query("textbox", l.input)).length === 0)
+    await panel.newCheck();
   await panel.fill("textbox", l.input, witness.text);
   await panel.click("button", l.check);
   const ready = detailReady(language, witness.marker);
@@ -139,18 +225,8 @@ export async function checkInPanel(
     `${witness.name} never showed its outcome in the side panel`,
     20_000,
   );
-  // Field revisions are also a disclosure; open the evidence one by its label.
-  const evidence = `[...document.querySelectorAll("#reference-detail details > summary")].find((s) => s.textContent.includes(${JSON.stringify(l.evidence)}))`;
-  const summary = await panel
-    .locate(
-      `(${evidence})?.parentElement.open ? undefined : ${evidence}`,
-      1_000,
-    )
-    .catch(() => undefined);
-  if (summary) await panel.clickNode(summary);
-  await panel.locate(
-    `${evidence}?.parentElement.open ? ${evidence} : undefined`,
-  );
+  // The Candidates toggle and every Disclosure start closed; read them open.
+  await panel.evaluate(openDisclosures);
   return panel.evaluate<Outcome>(outcome);
 }
 
@@ -160,6 +236,9 @@ export async function checkInWeb(
   witness: Witness,
 ): Promise<Outcome> {
   const l = labels[language];
+  // Results replace the intake (#194 D): a later witness starts a new Check.
+  if (!(await page.getByRole("textbox").isVisible()))
+    await runCommandOnWeb(page, /^(New check|Neue Prüfung)$/u);
   await page.getByRole("textbox").fill(witness.text);
   await page.getByRole("button", { name: l.check, exact: true }).click();
   const detail = page.getByRole("region", { name: l.detail, exact: true });
@@ -176,12 +255,8 @@ export async function checkInWeb(
       { timeout: 20_000, intervals: [100] },
     )
     .toBe(true);
-  const details = detail
-    .locator("details")
-    .filter({ has: page.locator("summary", { hasText: l.evidence }) });
-  if (!(await details.evaluate((d: HTMLDetailsElement) => d.open)))
-    await details.locator("summary").click();
-  await expect(details).toHaveAttribute("open", "");
+  await page.evaluate(openDisclosures);
+  await expect(detail.locator("details:not([open])")).toHaveCount(0);
   return page.evaluate<Outcome>(outcome);
 }
 

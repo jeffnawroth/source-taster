@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { AiProvenance } from "./ai-provenance.tsx";
 import { ManualVerdictActions } from "./manual-verdict.tsx";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, type ReactNode } from "react";
+import { ChevronRight, PencilLine, RotateCcw } from "lucide-react";
 import type {
   Check,
   ReferenceSlot,
@@ -20,7 +21,11 @@ import {
   type Rendered,
 } from "./correction-suggestions.tsx";
 import { availability, Fields } from "./reference-fields.tsx";
-import { fieldLabels, ReferenceOutcomeView } from "./reference-outcome.tsx";
+import {
+  DetailSection,
+  fieldLabels,
+  ReferenceOutcomeView,
+} from "./reference-outcome.tsx";
 import {
   committedDraft,
   errorMessage,
@@ -38,7 +43,16 @@ export function ReferenceActions({
   bibliography,
   work,
   gate,
+  comparison,
+  evidence,
+  provenance,
 }: {
+  /** Renders the field table with this slot's Edit fields action and draft editor. */
+  comparison: (action: ReactNode, editor: ReactNode) => ReactNode;
+  /** D's Data sources, Candidates and evidence trail, after Manual judgment. */
+  evidence?: ReactNode;
+  /** The style and source line under the Correction suggestion. */
+  provenance?: string;
   bibliography: Rendered;
   check: Check;
   reference: ReferenceSlot;
@@ -157,19 +171,74 @@ export function ReferenceActions({
       result.revision !== reference.revision ||
       result.id !== reference.results[0]?.id,
   );
-  return (
-    <section
-      aria-label={m.revision_actions()}
-      className="my-4 min-w-0 space-y-3"
+  const editAction = !draft && (
+    <Button
+      ref={editButton}
+      size="sm"
+      icon={<PencilLine aria-hidden="true" size={16} />}
+      {...availability(operationRunning)}
+      onPress={() => {
+        work.setDraft(committedDraft(check.id, reference));
+        setError(null);
+      }}
     >
-      <p className="font-semibold">
-        {m.revision_number({ revision: reference.revision })}
+      {m.revision_edit()}
+    </Button>
+  );
+  const editor = draft && (
+    <Form
+      className="detail-draft"
+      onSubmit={(event) => {
+        event.preventDefault();
+        void submit(true, true);
+      }}
+    >
+      <p role="status">
+        {stale ? m.revision_stale_draft() : m.revision_draft()}
       </p>
-      <p>
-        {reference.quotaEffect === "free-recheck"
-          ? m.revision_free()
-          : m.revision_new_work()}
-      </p>
+      <Fields
+        fields={draft.fields}
+        onChange={(fields) => work.setDraft((draft) => ({ ...draft, fields }))}
+        truncated={draft.authorsTruncated}
+        onTruncated={(authorsTruncated) =>
+          work.setDraft((draft) => ({ ...draft, authorsTruncated }))
+        }
+        disabled={operationRunning || stale}
+      />
+      <div className="flex flex-wrap gap-3">
+        <Button
+          variant="primary"
+          type="submit"
+          {...availability(operationRunning || stale)}
+        >
+          {m.revision_save_recheck()}
+        </Button>
+        <Button
+          {...availability(operationRunning || stale)}
+          onPress={() => {
+            void submit(false, true);
+          }}
+        >
+          {m.revision_save()}
+        </Button>
+        <Button
+          variant="ghost"
+          {...availability(pending)}
+          onPress={() => {
+            work.setDraft(null);
+            // The pressed control unmounts; focus returns to its opener.
+            requestAnimationFrame(() => editButton.current?.focus());
+          }}
+        >
+          {m.revision_discard()}
+        </Button>
+      </div>
+    </Form>
+  );
+  return (
+    <section aria-label={m.revision_actions()} className="detail-actions">
+      {comparison(editAction, editor)}
+      {error && <p role="alert">{error}</p>}
       {reference.revisions.at(-1)?.reference.ai &&
         (reference.revisions.at(-1)?.provenance === "ai" ||
           reference.revisions.at(-1)!.reference.ai!.proposals.length > 0) && (
@@ -205,6 +274,7 @@ export function ReferenceActions({
         onApplyToFields={requestApplyToFields}
         unavailableReason={unavailableReason}
         operationRunning={operationRunning}
+        provenance={provenance}
       />
       <Modal
         isOpen={replacement !== null}
@@ -224,20 +294,18 @@ export function ReferenceActions({
           {m.correction_replace_note()}
         </AlertDialog>
       </Modal>
-      {error && <p role="alert">{error}</p>}
-      {!draft ? (
-        <div className="flex flex-wrap gap-3">
+      <DetailSection
+        title={m.revision_number({ revision: reference.revision })}
+      >
+        <p className="detail-note">
+          {reference.quotaEffect === "free-recheck"
+            ? m.revision_free()
+            : m.revision_new_work()}
+        </p>
+        <div className="detail-row">
           <Button
-            ref={editButton}
-            {...availability(operationRunning)}
-            onPress={() => {
-              work.setDraft(committedDraft(check.id, reference));
-              setError(null);
-            }}
-          >
-            {m.revision_edit()}
-          </Button>
-          <Button
+            size="sm"
+            icon={<RotateCcw aria-hidden="true" size={16} />}
             {...availability(operationRunning)}
             onPress={() => {
               void submit(true, false);
@@ -246,58 +314,7 @@ export function ReferenceActions({
             {m.revision_recheck()}
           </Button>
         </div>
-      ) : (
-        <Form
-          className="space-y-3 rounded border-2 border-border-emphasis bg-surface-sunken p-3"
-          onSubmit={(event) => {
-            event.preventDefault();
-            void submit(true, true);
-          }}
-        >
-          <p role="status">
-            {stale ? m.revision_stale_draft() : m.revision_draft()}
-          </p>
-          <Fields
-            fields={draft.fields}
-            onChange={(fields) =>
-              work.setDraft((draft) => ({ ...draft, fields }))
-            }
-            truncated={draft.authorsTruncated}
-            onTruncated={(authorsTruncated) =>
-              work.setDraft((draft) => ({ ...draft, authorsTruncated }))
-            }
-            disabled={operationRunning || stale}
-          />
-          <div className="flex flex-wrap gap-3">
-            <Button
-              variant="primary"
-              type="submit"
-              {...availability(operationRunning || stale)}
-            >
-              {m.revision_save_recheck()}
-            </Button>
-            <Button
-              {...availability(operationRunning || stale)}
-              onPress={() => {
-                void submit(false, true);
-              }}
-            >
-              {m.revision_save()}
-            </Button>
-            <Button
-              variant="ghost"
-              {...availability(pending)}
-              onPress={() => {
-                work.setDraft(null);
-                // The pressed control unmounts; focus returns to its opener.
-                requestAnimationFrame(() => editButton.current?.focus());
-              }}
-            >
-              {m.revision_discard()}
-            </Button>
-          </div>
-        </Form>
-      )}
+      </DetailSection>
       <ManualVerdictActions
         check={check}
         reference={reference}
@@ -305,9 +322,11 @@ export function ReferenceActions({
         work={work}
         gate={gate}
       />
+      {evidence}
       {!!previous.length && (
-        <details>
-          <summary className="cursor-pointer py-2 font-semibold">
+        <details className="detail-disclosure">
+          <summary>
+            <ChevronRight aria-hidden="true" size={16} />
             {m.revision_history()}
           </summary>
           {previous.map((result) => (
@@ -317,7 +336,7 @@ export function ReferenceActions({
                   ? m.revision_historical()
                   : `${m.revision_historical()} · ${m.override_run({ run: result.generation + 1 })}`
               }
-              className="my-3 rounded border border-border-emphasis bg-surface-sunken p-3"
+              className="detail-history"
               key={result.id}
             >
               <p>
@@ -334,12 +353,13 @@ export function ReferenceActions({
           ))}
         </details>
       )}
-      <details>
-        <summary className="cursor-pointer py-2">
+      <details className="detail-disclosure">
+        <summary>
+          <ChevronRight aria-hidden="true" size={16} />
           {m.revision_field_history()}
         </summary>
         {reference.revisions.map((revision) => (
-          <section className="my-3 break-words" key={revision.revision}>
+          <section className="detail-history" key={revision.revision}>
             <p>
               {m.revision_number({ revision: revision.revision })} ·{" "}
               {revision.provenance === "user"

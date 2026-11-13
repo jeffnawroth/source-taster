@@ -11,6 +11,8 @@ import { m } from "@source-taster/i18n";
 import { afterPress } from "./after-press.ts";
 import { Button } from "./primitives/actions.tsx";
 import { Checkbox } from "./primitives/selection.tsx";
+import { Copy, PencilLine } from "lucide-react";
+import { DetailSection } from "./reference-outcome.tsx";
 import { resultBinding } from "./reference-work.ts";
 import type { CitationStyle } from "./preferences.ts";
 /**
@@ -248,10 +250,11 @@ export function BibliographyActions({
       .finally(() => setExporting(false));
   }
   // The export is rendered once the selected suggestions have been formatted.
-  const exportAvailability =
-    !rendered.exportReady || exporting
-      ? { isDisabled: true as const, disabledReason: m.correction_loading() }
-      : { isDisabled: false as const };
+  // A running export is pending, not disabled: disabling the pressed Button
+  // would drop focus to the page and out of its Dialog.
+  const exportAvailability = !rendered.exportReady
+    ? { isDisabled: true as const, disabledReason: m.correction_loading() }
+    : { isDisabled: false as const };
   return (
     <section
       aria-label={m.bibliography_heading()}
@@ -281,6 +284,7 @@ export function BibliographyActions({
         <Button
           variant="secondary"
           {...exportAvailability}
+          isPending={exporting}
           onPress={() => exportBibliography("copy")}
         >
           {m.bibliography_copy()}
@@ -288,6 +292,7 @@ export function BibliographyActions({
         <Button
           variant="secondary"
           {...exportAvailability}
+          isPending={exporting}
           onPress={() => exportBibliography("download")}
         >
           {m.bibliography_download()}
@@ -363,6 +368,7 @@ export function CorrectionSuggestion({
   onApplyToFields,
   unavailableReason,
   operationRunning,
+  provenance,
 }: {
   slot: number;
   rendered: Rendered;
@@ -372,12 +378,13 @@ export function CorrectionSuggestion({
   unavailableReason: string | null;
   /** A save, re-check or verdict change runs, so there is no current result. */
   operationRunning: boolean;
+  provenance?: string;
 }) {
   const [notice, setNotice] = useState<"copied" | "failed" | null>(null);
   const entry = rendered.data?.entries.find((entry) => entry.slot === slot);
   if (!entry?.suggestion)
     return (
-      <p className="my-4">
+      <p className="detail-note">
         {rendered.data && !operationRunning
           ? m.correction_none_current()
           : (unavailableReason ?? m.correction_loading())}
@@ -385,12 +392,11 @@ export function CorrectionSuggestion({
     );
   const suggestion = entry.suggestion;
   return (
-    <section
-      aria-label={m.correction_heading()}
-      className="my-4 space-y-3 rounded border border-border-emphasis bg-surface-sunken p-4"
+    <DetailSection
+      title={m.correction_heading()}
+      label={m.correction_heading()}
     >
-      <h3 className="font-semibold">{m.correction_heading()}</h3>
-      <p className="tracked-change break-words">
+      <p className="tracked-change detail-tc">
         {trackedChanges(originalText, suggestion.text).map((part, index) =>
           part.kind === "same" ? (
             <span key={index}>{part.text}</span>
@@ -407,18 +413,11 @@ export function CorrectionSuggestion({
           ),
         )}
       </p>
-      <div className="flex flex-wrap items-center gap-3">
+      {provenance && <p className="detail-tc-meta">{provenance}</p>}
+      <div className="detail-row">
         <Button
-          variant="secondary"
-          onPress={onApplyToFields}
-          {...(unavailableReason
-            ? { isDisabled: true, disabledReason: unavailableReason }
-            : { isDisabled: false })}
-        >
-          {m.correction_fields_apply()}
-        </Button>
-        <Button
-          variant="ghost"
+          size="sm"
+          icon={<Copy aria-hidden="true" size={16} />}
           onPress={() => {
             void navigator.clipboard
               .writeText(suggestion.text)
@@ -428,13 +427,23 @@ export function CorrectionSuggestion({
         >
           {m.correction_copy()}
         </Button>
-        <Checkbox
-          isSelected={entry.applied}
-          onChange={(selected) => rendered.apply(slot, selected)}
+        <Button
+          size="sm"
+          icon={<PencilLine aria-hidden="true" size={16} />}
+          onPress={onApplyToFields}
+          {...(unavailableReason
+            ? { isDisabled: true, disabledReason: unavailableReason }
+            : { isDisabled: false })}
         >
-          {m.correction_apply()}
-        </Checkbox>
+          {m.correction_fields_apply()}
+        </Button>
       </div>
+      <Checkbox
+        isSelected={entry.applied}
+        onChange={(selected) => rendered.apply(slot, selected)}
+      >
+        {m.correction_apply()}
+      </Checkbox>
       {notice && (
         <p role="status">
           {notice === "copied"
@@ -442,6 +451,6 @@ export function CorrectionSuggestion({
             : m.correction_copy_failed()}
         </p>
       )}
-    </section>
+    </DetailSection>
   );
 }

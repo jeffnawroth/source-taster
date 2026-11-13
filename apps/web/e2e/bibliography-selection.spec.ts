@@ -1,15 +1,20 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import {
+  checkFromPreview,
+  choosePreferences,
+  closeStructuringPreview,
+  editReferenceList,
+  structureReferences,
+} from "./support/workspace.ts";
 import { docx } from "../../server/test/support/documents.ts";
 for (const language of ["en", "de"] as const)
   test(`adjusts detected regions, checks only selected text and preserves slots in ${language}`, async ({
     page,
   }) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     const first = "Doe, J. (2020). Signal maps. Example Press.";
     const second = "Roe, A. (2021). Careful systems. Example Press.";
     const text = `Introduction\nRunning text (2018).\nReferences\n${first}\nChapter 2\nOutside (2019).\nBibliography\n${second}`;
@@ -35,6 +40,9 @@ for (const language of ["en", "de"] as const)
       })
       .click();
     expect((await uploaded).ok()).toBe(true);
+    // "Upload and structure" opens the Structuring preview Dialog (#194 D);
+    // the regions are adjusted on the intake behind it.
+    await closeStructuringPreview(page);
     const selection = page.getByRole("region", {
       name: language === "en" ? "Bibliography selection" : "Literaturauswahl",
       exact: true,
@@ -46,51 +54,24 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
-    await page
-      .getByRole("button", {
-        name:
-          language === "en"
-            ? "Structure references"
-            : "Referenzen strukturieren",
-        exact: true,
-      })
-      .click();
+    await structureReferences(page);
     await expect(
       page.getByRole("region", {
         name:
           language === "en" ? "Recognized references" : "Erkannte Referenzen",
       }),
     ).not.toContainText("Careful systems");
-    await page
-      .getByRole("button", {
-        name: language === "en" ? "Check reference" : "Referenz prüfen",
-        exact: true,
-      })
-      .click();
+    // The Structuring preview is a Dialog over the intake and offers the Check.
+    await checkFromPreview(page);
     await expect(
       page.getByRole("grid", {
         name: language === "en" ? "References" : "Referenzen",
         exact: true,
       }),
     ).toContainText("Signal maps");
-    await expect(
-      page.getByRole("button", {
-        name:
-          language === "en"
-            ? "Edit reference list"
-            : "Referenzliste bearbeiten",
-        exact: true,
-      }),
-    ).toBeEnabled();
-    await page
-      .getByRole("button", {
-        name:
-          language === "en"
-            ? "Edit reference list"
-            : "Referenzliste bearbeiten",
-        exact: true,
-      })
-      .click();
+    // List editing is a Dialog from the ⋯ Menu (#194 D), enabled once the
+    // Check has finished.
+    await editReferenceList(page);
     const editor = page.getByRole("region", {
       name:
         language === "en"

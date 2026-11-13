@@ -12,6 +12,10 @@ import type { AddressInfo } from "node:net";
 import { buildExtension } from "../e2e/support/build.ts";
 import { openWebAccount } from "../e2e/support/account-entry.ts";
 import {
+  choosePreferencesOnWeb,
+  expectPreferencesOnWeb,
+} from "../e2e/support/workspace.ts";
+import {
   account,
   credential,
   startService,
@@ -225,7 +229,6 @@ async function withFirefoxPanel(
   }
 }
 
-const style = (page: Page) => page.getByLabel("Preferred citation style");
 const allow = (page: Page) =>
   page.getByRole("button", { name: "Allow preferences sync" });
 
@@ -237,9 +240,9 @@ test.describe("Firefox Account Preferences sync consent", () => {
       {},
       async ({ service, stored }) => {
         await expect(allow(page)).toBeVisible();
-        await expect(style(page)).toBeVisible();
-        await style(page).selectOption("ieee");
-        await expect(style(page)).toHaveValue("ieee");
+        await expectPreferencesOnWeb(page, {});
+        await choosePreferencesOnWeb(page, { citationStyle: "ieee" });
+        await expectPreferencesOnWeb(page, { citationStyle: "ieee" });
         // Settle: a leaked request would arrive within the round trip.
         await page.waitForTimeout(500);
         expect(service.preferenceRequests()).toEqual([]);
@@ -298,11 +301,11 @@ test.describe("Firefox Account Preferences sync consent", () => {
           },
         ]);
         // One read, applying the Account value, and nothing was written yet.
-        await expect(style(page)).toHaveValue("chicago");
+        await expectPreferencesOnWeb(page, { citationStyle: "chicago" });
         expect(service.preferenceRequests().map((r) => r.method)).toEqual([
           "GET",
         ]);
-        await style(page).selectOption("ieee");
+        await choosePreferencesOnWeb(page, { citationStyle: "ieee" });
         await expect
           .poll(() => service.preferenceRequests().map((r) => r.method))
           .toEqual(["GET", "PATCH"]);
@@ -325,7 +328,7 @@ test.describe("Firefox Account Preferences sync consent", () => {
           "Preferences sync was not allowed",
         );
         expect(await consentRequests()).toHaveLength(1);
-        await style(page).selectOption("ieee");
+        await choosePreferencesOnWeb(page, { citationStyle: "ieee" });
         await page.waitForTimeout(500);
         expect(service.preferenceRequests()).toEqual([]);
         // The control stays available for another attempt.
@@ -362,7 +365,7 @@ test.describe("Firefox Account Preferences sync consent", () => {
     await withFirefoxPanel(
       { granted: ["technicalAndInteraction"] },
       async ({ service }) => {
-        await expect(style(page)).toHaveValue("chicago");
+        await expectPreferencesOnWeb(page, { citationStyle: "chicago" });
         await expect(allow(page)).toHaveCount(0);
         expect(service.preferenceRequests().map((r) => r.method)).toEqual([
           "GET",
@@ -378,15 +381,15 @@ test.describe("Firefox Account Preferences sync consent", () => {
     await withFirefoxPanel(
       { granted: ["technicalAndInteraction"] },
       async ({ service, revoke, stored }) => {
-        await expect(style(page)).toHaveValue("chicago");
-        await style(page).selectOption("mla");
+        await expectPreferencesOnWeb(page, { citationStyle: "chicago" });
+        await choosePreferencesOnWeb(page, { citationStyle: "mla" });
         await expect
           .poll(() => service.preferenceRequests().map((r) => r.method))
           .toEqual(["GET", "PATCH"]);
         await revoke();
         await openWebAccount(page);
         await expect(allow(page)).toBeVisible();
-        await style(page).selectOption("ieee");
+        await choosePreferencesOnWeb(page, { citationStyle: "ieee" });
         // A refocus must not read either.
         await page.evaluate(() => window.dispatchEvent(new Event("focus")));
         await page.waitForTimeout(500);
@@ -408,9 +411,12 @@ test.describe("Firefox Account Preferences sync consent", () => {
     await withFirefoxPanel(
       { granted: ["technicalAndInteraction"], lookup: "never" },
       async ({ service }) => {
-        await expect(style(page)).toBeVisible();
+        // The sync control sits in the Account Dialog; the Preferences Dialog
+        // replaces it (#194 D), so the Account view is reopened to read it.
+        await expectPreferencesOnWeb(page, {});
+        await openWebAccount(page);
         await expect(allow(page)).toBeVisible();
-        await style(page).selectOption("ieee");
+        await choosePreferencesOnWeb(page, { citationStyle: "ieee" });
         await page.waitForTimeout(500);
         expect(service.preferenceRequests()).toEqual([]);
       },
@@ -428,7 +434,7 @@ test.describe("Firefox Account Preferences sync consent", () => {
         expect(service.preferenceRequests()).toEqual([]);
         await releaseLookup();
         await expect(allow(page)).toHaveCount(0);
-        await expect(style(page)).toHaveValue("chicago");
+        await expectPreferencesOnWeb(page, { citationStyle: "chicago" });
         expect(service.preferenceRequests().map((r) => r.method)).toEqual([
           "GET",
         ]);
@@ -443,8 +449,9 @@ test.describe("Firefox Account Preferences sync consent", () => {
     await withFirefoxPanel(
       { granted: ["technicalAndInteraction"] },
       async ({ revoke, stored }) => {
-        await expect(style(page)).toHaveValue("chicago");
+        await expectPreferencesOnWeb(page, { citationStyle: "chicago" });
         await revoke();
+        await openWebAccount(page);
         await expect(allow(page)).toBeVisible();
         await expect
           .poll(async () => (await stored())[guestKey])
@@ -461,7 +468,7 @@ test.describe("Firefox Account Preferences sync consent", () => {
     await withFirefoxPanel(
       { granted: ["technicalAndInteraction"] },
       async ({ stored }) => {
-        await expect(style(page)).toHaveValue("chicago");
+        await expectPreferencesOnWeb(page, { citationStyle: "chicago" });
         await expect
           .poll(async () => (await stored())[guestKey])
           .toMatchObject({ citationStyle: "chicago" });
@@ -476,8 +483,8 @@ test.describe("Firefox Account Preferences sync consent", () => {
       { seed: afterFirstPanel },
       async ({ service }) => {
         await expect(allow(second)).toBeVisible();
-        await expect(style(second)).toHaveValue("chicago");
-        await style(second).selectOption("ieee");
+        await expectPreferencesOnWeb(second, { citationStyle: "chicago" });
+        await choosePreferencesOnWeb(second, { citationStyle: "ieee" });
         await second.waitForTimeout(500);
         expect(service.preferenceRequests()).toEqual([]);
       },

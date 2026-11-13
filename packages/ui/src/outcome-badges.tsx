@@ -18,6 +18,16 @@ export const verdictLabels = {
   "not-found": "verdict_not_found",
   "not-verifiable": "verdict_not_verifiable",
 } as const;
+/** Counter labels: the strip's narrow tiles carry the short form; the
+ *  accessible name keeps the full Verdict, which contains it. */
+export const shortVerdictLabels = {
+  correct: "verdict_short_correct",
+  "exists-with-deviations": "verdict_short_exists",
+  "mixed-citation": "verdict_short_mixed",
+  "doi-conflict": "verdict_short_doi_conflict",
+  "not-found": "verdict_short_not_found",
+  "not-verifiable": "verdict_short_not_verifiable",
+} as const;
 export const statusLabels = {
   running: "status_running",
   cancelled: "status_cancelled",

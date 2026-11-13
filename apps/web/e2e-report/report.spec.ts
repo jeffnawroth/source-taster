@@ -4,6 +4,11 @@
 // with an independent PDF parser.
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import {
+  choosePreferences,
+  moreAction,
+  openReference,
+} from "../e2e/support/workspace.ts";
 import { readFile } from "node:fs/promises";
 import {
   inspectPdf,
@@ -15,6 +20,7 @@ const reference =
   "Aspelmeyer, M. (2008). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170";
 const copy = {
   en: {
+    menu: "PDF report",
     region: "Accessible PDF report",
     language: "Report language",
     create: "Create report",
@@ -28,6 +34,7 @@ const copy = {
     title: "Title",
   },
   de: {
+    menu: "PDF-Bericht",
     region: "Barrierefreier PDF-Bericht",
     language: "Berichtssprache",
     create: "Bericht erstellen",
@@ -48,17 +55,10 @@ for (const language of ["en", "de"] as const)
   }) => {
     const t = copy[language];
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/u })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page.getByRole("textbox").fill(reference);
     await page.getByRole("button", { name: t.check, exact: true }).click();
-    const region = page.getByRole("region", { name: t.region, exact: true });
-    await expect(region).toBeVisible({ timeout: 20_000 });
-    // The report language starts as the interface language.
-    await expect(
-      region.getByRole("combobox", { name: t.language, exact: true }),
-    ).toHaveValue(language);
+    await openReference(page, 1);
     // The report is frozen from server evidence even while local draft and
     // export-only suggestion state exist in the real shared workspace.
     const suggestion = page.getByRole("region", {
@@ -79,6 +79,14 @@ for (const language of ["en", "de"] as const)
     await page
       .getByRole("textbox", { name: t.title, exact: true })
       .fill("UNSAVED REPORT DRAFT");
+    // The PDF report is a Dialog from the ⋯ Menu (#194 D).
+    await moreAction(page, t.menu);
+    const region = page.getByRole("region", { name: t.region, exact: true });
+    await expect(region).toBeVisible({ timeout: 20_000 });
+    // The report language starts as the interface language.
+    await expect(
+      region.getByRole("combobox", { name: t.language, exact: true }),
+    ).toHaveValue(language);
     await region.getByRole("button", { name: t.create, exact: true }).click();
     const download = region.getByRole("button", {
       name: t.download,

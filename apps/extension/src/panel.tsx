@@ -64,6 +64,7 @@ createRoot(document.getElementById("root")!).render(
         guest={guest!}
         transport={transport}
         siteUrl={config.websiteUrl}
+        brandMark="/icons/extension-64.png"
         upgradeUrl={
           config.mode === "hosted"
             ? `${config.serviceUrl!.replace(/\/$/, "")}/plan`
@@ -83,6 +84,7 @@ createRoot(document.getElementById("root")!).render(
         preferenceStorage={preferenceStorage}
         transport={transport}
         siteUrl={config.websiteUrl}
+        brandMark="/icons/extension-64.png"
         upgradeUrl={
           config.mode === "hosted"
             ? `${config.serviceUrl!.replace(/\/$/, "")}/plan`

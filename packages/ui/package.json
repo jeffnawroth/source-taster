@@ -29,6 +29,7 @@
   "dependencies": {
     "@source-taster/contract-service": "workspace:*",
     "@source-taster/contract-verification": "workspace:*",
+    "@source-taster/core": "workspace:*",
     "@source-taster/design-tokens": "workspace:*",
     "@source-taster/i18n": "workspace:*",
     "lucide-react": "1.66.0",

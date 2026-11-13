@@ -2,6 +2,11 @@
 import AxeBuilder from "@axe-core/playwright";
 import { readFile } from "node:fs/promises";
 import { test, expect } from "@playwright/test";
+import {
+  choosePreferences,
+  openEvidence,
+  openReference,
+} from "./support/workspace.ts";
 import { CheckResponse } from "@source-taster/contract-verification";
 const cases = JSON.parse(
   await readFile(
@@ -28,9 +33,7 @@ for (const c of cases)
     page,
   }) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption("en");
+    await choosePreferences(page, { language: "en" });
     await page.getByRole("textbox").fill(c.text);
     const creation = page.waitForResponse(
       (r) => r.url().endsWith("/v2/checks") && r.request().method() === "POST",
@@ -39,6 +42,8 @@ for (const c of cases)
       .getByRole("button", { name: "Check reference", exact: true })
       .click();
     const created = CheckResponse.parse(await (await creation).json()).data;
+    // The detail opens from the feed in #194 D.
+    await openReference(page, 1);
     const result = page.getByRole("region", {
       name: /^(Reference detail|Referenzdetails)$/,
       exact: true,
@@ -49,18 +54,22 @@ for (const c of cases)
         { exact: true },
       ),
     ).toBeVisible({ timeout: 15000 });
-    await result
-      .getByText("Explanation and source evidence", { exact: true })
-      .click();
-    await expect(result).toContainText(`Score: ${c.scoreDisplay}`);
-    const term = result.getByRole("term").filter({
-      hasText:
-        c.field === "title"
-          ? /^Title:/
-          : c.field === "page"
-            ? /^Pages or article number:/
-            : /^Journal/,
-    });
+    await openEvidence(result);
+    await expect(result).toContainText(`Score ${c.scoreDisplay}`);
+    // The compared fields are the best Candidate's; Field revisions below
+    // name the same fields, so the lookup stays inside the Candidate.
+    const term = result
+      .locator("li.detail-cand")
+      .first()
+      .getByRole("term")
+      .filter({
+        hasText:
+          c.field === "title"
+            ? /^Title:/
+            : c.field === "page"
+              ? /^Pages or article number:/
+              : /^Journal/,
+      });
     await expect(term.locator("..")).toContainText(c.fieldDisplay);
     await expect(term.locator("..")).toContainText(c.supplied);
     await expect(term.locator("..")).toContainText(c.metadata);
@@ -76,9 +85,7 @@ for (const c of cases)
     expect(
       outcome.candidates[0]?.fields.find((f) => f.field === c.field)?.score,
     ).toEqual({ value: c.value, fullAgreement: c.value === 100000000 });
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption("de");
+    await choosePreferences(page, { language: "de" });
     await expect(result).toContainText(c.scoreDisplay);
     await expect(result).toContainText(c.fieldDisplay);
     const reread = CheckResponse.parse(
@@ -92,9 +99,7 @@ for (const language of ["en", "de"] as const)
     page,
   }) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page
       .getByRole("textbox")
       .fill(
@@ -106,6 +111,8 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
+    // The detail opens from the feed in #194 D.
+    await openReference(page, 1);
     const result = page.getByRole("region", {
       name: /^(Reference detail|Referenzdetails)$/,
       exact: true,
@@ -118,16 +125,11 @@ for (const language of ["en", "de"] as const)
         { exact: true },
       ),
     ).toBeVisible({ timeout: 15000 });
-    await result
-      .getByText(
-        language === "en"
-          ? "Explanation and source evidence"
-          : "Erklärung und Quellenbelege",
-        { exact: true },
-      )
-      .click();
+    await openEvidence(result);
     await expect(result).toContainText("76.19 %");
     const author = result
+      .locator("li.detail-cand")
+      .first()
       .getByRole("term")
       .filter({ hasText: language === "en" ? /^Authors:/ : /^Autoren/ })
       .locator("..");

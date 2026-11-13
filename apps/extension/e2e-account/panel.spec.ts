@@ -478,7 +478,7 @@ test("an expired Account access token never reaches verification, including afte
     await panel.fill("textbox", "Reference", "Expired token input");
     await panel.click("button", "Check reference");
     await panel.waitForText("alert", undefined, /./);
-    await panel.click("button", "Reset");
+    await panel.newCheck();
     await panel.fill("textbox", "Reference", "Retry expired token");
     await panel.click("button", "Check reference");
     await panel.waitForText("alert", undefined, /./);
@@ -508,7 +508,7 @@ test("revoked Account renewal stays denied after Reset and never changes into Gu
       undefined,
       "Sign in again to continue. Your session has expired or was revoked.",
     );
-    await panel.click("button", "Reset");
+    await panel.newCheck();
     await panel.fill(
       "textbox",
       "Reference",
@@ -573,7 +573,7 @@ test("extension sign-in remains gated off without explicit private-phase activat
 
 test("German native email-code controls support keyboard confirmation and scoped sign-out", async () => {
   await withPanel(async ({ panel, requests }) => {
-    await panel.select("combobox", "Language", "de");
+    await panel.preferences({ language: "de" });
     await panel.click("button", "Anmelden");
     await panel.fill("textbox", "E-Mail-Adresse", account.email);
     await panel.click("button", "Code senden");
@@ -729,7 +729,7 @@ test("Account streams reconnect with memory tokens and generic permission cannot
       [guestKey]: guestId,
       [key]: credential,
     });
-    await panel.click("button", "Reset");
+    await panel.newCheck();
     expect(await panel.query("grid", "References")).toEqual([]);
   });
 });
