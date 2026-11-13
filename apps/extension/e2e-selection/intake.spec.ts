@@ -460,11 +460,7 @@ test("selection keeps the running Check reachable and its finished evidence inta
         await panel.waitForText("grid", "References", "Correct");
         await panel.click("button", /^Open reference 1:/);
         // The detail settles once its Correction suggestion has loaded.
-        await panel.waitForText(
-          "region",
-          "Reference detail",
-          "Correction suggestion",
-        );
+        await panel.find("region", "Correction suggestion");
         const before = await panel.text("region", "Reference detail");
         await select("Draft received after completion");
         // At panel width the open detail replaces the feed and its notices, so
@@ -644,6 +640,15 @@ test("selection replaces a prepared bibliography draft and Undo restores its mov
           [],
         );
         await panel.click("button", "Undo selection replacement");
+        // The pressed Undo leaves; focus goes to the start of the restored
+        // draft rather than to the body at a scroll position left to chance.
+        await until(
+          async () =>
+            await panel.evaluate<boolean>(
+              `document.activeElement?.classList.contains("intake-heading") && scrollY === 0`,
+            ),
+          "Undo did not return focus to the restored intake",
+        );
         expect(
           await panel.call(
             await panel.find(

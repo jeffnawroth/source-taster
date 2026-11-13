@@ -291,6 +291,7 @@ export function CheckWorkspace({
   const controller = useRef<AbortController | null>(null);
   const generation = useRef(0);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const intakeHeading = useRef<HTMLHeadingElement>(null);
   const [pending, setPending] = useState<
     "create" | "structure" | "document" | null
   >(null);
@@ -1330,7 +1331,9 @@ export function CheckWorkspace({
           }}
         >
           <div>
-            <h2 className="intake-heading">{m.shell_intake_heading()}</h2>
+            <h2 ref={intakeHeading} tabIndex={-1} className="intake-heading">
+              {m.shell_intake_heading()}
+            </h2>
             <p className="intake-lead">{m.shell_intake_lead()}</p>
           </div>
           <div className="intake-command">
@@ -1538,6 +1541,13 @@ export function CheckWorkspace({
                 setFileError(selectionUndo.fileError);
                 setDocumentNotice(selectionUndo.documentNotice);
                 setSelectionUndo(null);
+                // The pressed Undo leaves with the replacement. Focus and view
+                // go to the start of the restored draft, not to the body at
+                // wherever the page happened to come to rest.
+                requestAnimationFrame(() => {
+                  scrollTo({ top: 0 });
+                  intakeHeading.current?.focus({ preventScroll: true });
+                });
               }}
             >
               {m.selection_undo()}

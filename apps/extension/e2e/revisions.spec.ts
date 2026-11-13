@@ -47,9 +47,8 @@ for (const language of ["en", "de"] as const)
       // The Correction suggestion renders above the Edit fields row when its
       // response arrives. A press measured before that lands on the suggestion
       // text and never opens the editor, so the page settles first.
-      await panel.waitForText(
+      await panel.find(
         "region",
-        language === "en" ? "Reference detail" : "Referenzdetails",
         language === "en" ? "Correction suggestion" : "Korrekturvorschlag",
       );
       await panel.click(
@@ -243,9 +242,8 @@ for (const language of ["en", "de"] as const)
       await press.release();
       // The press reached the button, and the suggestion renders afterwards.
       await panel.find("textbox", en ? "Title" : "Titel");
-      await panel.waitForText(
+      await panel.find(
         "region",
-        en ? "Reference detail" : "Referenzdetails",
         en ? "Correction suggestion" : "Korrekturvorschlag",
       );
     } finally {

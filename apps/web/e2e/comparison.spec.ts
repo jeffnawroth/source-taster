@@ -56,14 +56,20 @@ for (const c of cases)
     ).toBeVisible({ timeout: 15000 });
     await openEvidence(result);
     await expect(result).toContainText(`Score ${c.scoreDisplay}`);
-    const term = result.getByRole("term").filter({
-      hasText:
-        c.field === "title"
-          ? /^Title:/
-          : c.field === "page"
-            ? /^Pages or article number:/
-            : /^Journal/,
-    });
+    // The compared fields are the best Candidate's; Field revisions below
+    // name the same fields, so the lookup stays inside the Candidate.
+    const term = result
+      .locator("li.detail-cand")
+      .first()
+      .getByRole("term")
+      .filter({
+        hasText:
+          c.field === "title"
+            ? /^Title:/
+            : c.field === "page"
+              ? /^Pages or article number:/
+              : /^Journal/,
+      });
     await expect(term.locator("..")).toContainText(c.fieldDisplay);
     await expect(term.locator("..")).toContainText(c.supplied);
     await expect(term.locator("..")).toContainText(c.metadata);
@@ -122,6 +128,8 @@ for (const language of ["en", "de"] as const)
     await openEvidence(result);
     await expect(result).toContainText("76.19 %");
     const author = result
+      .locator("li.detail-cand")
+      .first()
       .getByRole("term")
       .filter({ hasText: language === "en" ? /^Authors:/ : /^Autoren/ })
       .locator("..");

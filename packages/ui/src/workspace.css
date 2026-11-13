@@ -337,6 +337,7 @@ body {
   gap: 14px;
 }
 .intake-heading {
+  outline: none; /* a focus target after Undo, not a control */
   font-size: var(--st-text-2xl);
   font-weight: 800;
   letter-spacing: -0.025em;
