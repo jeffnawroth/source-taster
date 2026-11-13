@@ -179,7 +179,7 @@ const legalHref = legal ? site(`${page.id.split('/versions/')[0]}/versions/${leg
         <a href={`/third-party/pagefind/${language}/`}>{t.searchLicenses}</a>
         <a href="/third-party/ui/NOTICE.txt">{t.uiLicenses}</a>
       </nav>
-      <p>{preview ? `${t.draft}. ` : ''}{t.noSignIn}</p>
+      <p>{preview && <span class="draft">{`${t.draft}. `}</span>}{t.noSignIn}</p>
     </footer>
     <Search language={language} />
     <script>import '../theme';</script>
