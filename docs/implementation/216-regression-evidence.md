@@ -19,6 +19,7 @@ and native gates in section 6.
 | Website regression suite                   | Delivered, passing.                                                                                  |
 | CI wiring                                  | Delivered: new `web-suites` step; `apps/server/test/operations/ci-workflow.test.mjs` asserts it.     |
 | Final-baseline gate (`b588c9c` in history) | Met: `git merge-base --is-ancestor b588c9c HEAD` succeeds on the merged tree.                        |
+| D rebuild re-run (#243, `0a1c6ac`)         | Passed: all 13 CI jobs green on `6e7a54f` (run 43479778969); see section 10.                         |
 | **Public/private primitive drift check**   | **OPEN.** Blocked by private styled primitives, `source-taster-service#29`. Nothing here claims it.  |
 | Manual and native gates                    | OPEN by design; handed to #217 (section 6).                                                          |
 
@@ -354,3 +355,38 @@ with and without the tooltip open.
 - The hosted suite uses a fake private-service edge and a controlled clock.
 - Passing automated tests does not demonstrate accessibility for people. The
   manual gates in section 6 remain.
+
+## 10. Re-run on the D rebuild
+
+The D rebuild (#211, #212; PR #243) replaced the check workspace and the
+Reference detail with the accepted prototype D (#194). It merged into
+`design/fidelity` as `0a1c6ac`; its tree equals the PR head `6e7a54f`. Because
+no screenshot baseline is committed (section 1), the same suites ran unchanged
+against the new design, with the test corrections listed below.
+
+| Check                                     | Result                                                                        |
+| ----------------------------------------- | ----------------------------------------------------------------------------- |
+| CI run 43479778969 on `6e7a54f`, 13 jobs  | All passed: `checks`, `verify`, `dependencies`, `public-contracts`, `pdfua`, `server-tests` 1–4, `e2e`, `web-suites`, `extension-suites`, `side-panel` |
+| Greyscale, macOS                          | Strongest cell 333–642 of 765 at full opacity, unchanged from section 2 (#242) |
+
+**Greyscale (#242).** The first D run failed the greyscale case because it
+measured the summary-strip counters while the Check was still running: all
+counters were at 0, disabled and dimmed to opacity 0.55, exactly as the
+prototype's disabled counter (183–357 on both). The test now measures at full
+opacity; the floor of 250 and the silhouette checks are unchanged.
+
+**Test corrections, no threshold changed.**
+
+- `apps/web/e2e/manual-overrides.spec.ts`: Save is centred before the late
+  content press, and the press is refused unless a hit test at its centre
+  finds Save, because D's sticky detail head could cover it at 360 px.
+- `apps/extension/e2e/support/workspace.ts`: panel and web are compared only
+  once the Correction suggestion has loaded.
+- Region lookups by name instead of `innerText`, which D's upper-case eyebrows
+  change; candidate terms scoped to one candidate.
+- Product fix found by the axe run: after selection Undo, focus returns to the
+  intake heading instead of the body (`579c7e5`).
+
+The open items of sections 5 and 6 are unchanged: the primitive drift check
+waits on `source-taster-service#29`, the manual and native gates on #217, and
+the native panel flake on #227.
