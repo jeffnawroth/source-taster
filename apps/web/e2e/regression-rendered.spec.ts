@@ -299,6 +299,14 @@ for (const theme of ["light", "dark"] as const)
       .getByRole("region", { name: "Check summary" })
       .locator(".summary-strip");
     await expect(strip.locator("svg[data-verdict]")).toHaveCount(6);
+    // The #194 D strip shows from the start of the check, so the six counters
+    // can be measured while they are still at 0 and disabled. A disabled counter
+    // is dimmed to 0.55 opacity exactly as in the prototype (an inactive
+    // component, outside WCAG 1.4.11). The dimming is not the glyph design
+    // this test is about, so the counters are measured at full opacity.
+    await page.addStyleTag({
+      content: ".summary-counter { opacity: 1 !important; }",
+    });
     const glyphs = strip.locator("svg[data-verdict]");
     const names: string[] = [];
     const differences: number[][] = [];
