@@ -5,13 +5,34 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import { rolldown } from "rolldown";
 
 // Standalone builds sell no plan: the server may still flag a guest reason
 // as upgradeable, but the offer only renders with a hosted upgrade link.
 test("the AI upgrade offer renders only with an upgrade link", async () => {
   const ui = new URL("../", import.meta.url);
-  const entry = join(await mkdtemp(join(tmpdir(), "st-upgrade-")), "entry.tsx");
+  const i18n = new URL("../../i18n/", import.meta.url).pathname;
+  const work = await mkdtemp(join(tmpdir(), "st-upgrade-"));
+  // CI runs this suite before `pnpm build`, so the generated messages may not
+  // exist yet: compile the catalogs into the temp dir, as the build would.
+  const messages = join(work, "paraglide");
+  await promisify(execFile)(
+    join(i18n, "node_modules", ".bin", "paraglide-js"),
+    [
+      "compile",
+      "--project",
+      "./project.inlang",
+      "--outdir",
+      messages,
+      "--strategy",
+      "globalVariable",
+      "baseLocale",
+    ],
+    { cwd: i18n },
+  );
+  const entry = join(work, "entry.tsx");
   await writeFile(
     entry,
     `import { renderToStaticMarkup } from "react-dom/server";
@@ -25,6 +46,12 @@ test("the AI upgrade offer renders only with an upgrade link", async () => {
   const bundle = await rolldown({
     input: entry,
     cwd: new URL(".", ui).pathname,
+    resolve: {
+      alias: {
+        "@source-taster/i18n/runtime": join(messages, "runtime.js"),
+        "@source-taster/i18n": join(messages, "messages.js"),
+      },
+    },
     external: (id) => /^(react|react-dom)(\/|$)/u.test(id),
   });
   try {
@@ -49,6 +76,6 @@ test("the AI upgrade offer renders only with an upgrade link", async () => {
     }
   } finally {
     await bundle.close();
-    await rm(join(entry, ".."), { recursive: true, force: true });
+    await rm(work, { recursive: true, force: true });
   }
 });
