@@ -1,13 +1,12 @@
 ---
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { linkRecipe } from '@source-taster/ui/recipes';
 import { copy, pages, pathFor, type Language } from '../content';
 interface Props { language: Language; current: string }
 const { language, current } = Astro.props;
+const t = copy[language];
 ---
-<nav aria-label={copy[language].chapters}>
-  <h2>{copy[language].chapters}</h2>
-  <ul>{pages[language].filter(p => p.section === 'docs').map(p =>
-    <li><a class={linkRecipe()} href={pathFor(language, p)} aria-current={current === p.id ? 'page' : undefined}>{p.title}</a></li>
-  )}</ul>
+<nav class="chapter-nav" aria-label={t.chapters}>
+  {pages[language].filter(p => p.section === 'docs').map(p =>
+    <a href={pathFor(language, p)} aria-current={current === p.id ? 'page' : undefined}>{p.id === 'index' ? t.overview : p.title}</a>
+  )}
 </nav>

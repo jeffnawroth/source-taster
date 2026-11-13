@@ -2,32 +2,46 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { m } from '@source-taster/i18n';
 import { getLocale, setLocale } from '@source-taster/i18n/runtime';
-import { ReferenceOutcomeSummary } from '../../../../packages/ui/src/reference-outcome';
-import { badgeRecipe } from '@source-taster/ui/recipes';
+import { VerdictGlyph } from '../../../../packages/ui/src/outcome-badges';
 import { copy, type Language } from '../content';
+import Icon from './Icon.astro';
 interface Props { language: Language }
 const { language } = Astro.props;
 const t = copy[language];
-// Synchronous build-time rendering of the actual product component. Restore
-// the catalog locale before another route renders; no React runtime is shipped.
+// Synchronous build-time rendering of the product's own Verdict glyphs and
+// labels. Restore the catalog locale before another route renders; no React
+// runtime is shipped.
 const previous = getLocale();
-let outcome: string;
+let counts: { verdict: 'correct' | 'exists-with-deviations' | 'not-verifiable'; glyph: string; label: string }[];
 try {
   setLocale(language, { reload: false });
-  outcome = renderToStaticMarkup(createElement(ReferenceOutcomeSummary, {
-    outcome: { kind: 'status', status: 'not-checked' },
-  }));
+  const glyph = (verdict: 'correct' | 'exists-with-deviations' | 'not-verifiable') => renderToStaticMarkup(createElement(VerdictGlyph, { verdict }));
+  counts = [
+    { verdict: 'correct', glyph: glyph('correct'), label: m.verdict_correct() },
+    { verdict: 'exists-with-deviations', glyph: glyph('exists-with-deviations'), label: m.verdict_exists() },
+    { verdict: 'not-verifiable', glyph: glyph('not-verifiable'), label: m.verdict_not_verifiable() },
+  ];
 } finally { setLocale(previous, { reload: false }); }
+const deviation = counts.find((c) => c.verdict === 'exists-with-deviations')!;
 ---
-<figure class="product-example" aria-labelledby="example-caption">
-  <figcaption id="example-caption"><span class={badgeRecipe()}>{t.example}</span></figcaption>
-  <div class="example-workspace">
-    <h2>{t.exampleTitle}</h2>
-    <ol><li>
-      <p class="reference-input">{t.exampleInput}</p>
-      <div class="product-outcome" set:html={outcome} />
-    </li></ol>
+<figure class="example" aria-labelledby="example-caption">
+  <div class="example-top" aria-hidden="true">
+    <img src="/favicon.svg" width="24" height="24" alt="" />
+    <div class="command"><Icon name="search" /><span>{t.paste}</span></div>
+    <Icon name="user" />
   </div>
-  <p class="example-note">{t.exampleNote}</p>
+  <figcaption id="example-caption" class="example-label">{t.example}</figcaption>
+  <div class="strip">
+    <div class="strip-head"><strong>{t.sampleCheck}</strong><span class="subtle">{t.sampleCount.replace('{count}', '3')}</span></div>
+    <div class="counts">{counts.map((c) => <span class={`count ${c.verdict}`}><span set:html={c.glyph} />1 {c.label}</span>)}</div>
+  </div>
+  <div class="reference">
+    <div class="ref-label"><span set:html={deviation.glyph} />{deviation.label}</div>
+    <strong>Attention is all you need</strong>
+    <div class="subtle">Vaswani et al. · 2017</div>
+    <div class="meta">{t.exampleMeta}</div>
+  </div>
+  <div class="example-bottom"><span class="subtle">{t.exampleOutcome}</span></div>
 </figure>

@@ -1,11 +1,11 @@
 ---
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { copy, pages, pathFor, type Language, type Page } from '../content';
-import { buttonRecipe, linkRecipe, badgeRecipe, bannerRecipe } from '@source-taster/ui/recipes';
 import { guideNavigation, type GuideId } from '../guide-navigation';
 import { headLinks } from '../../../../packages/brand/src/web-head.ts';
 import ProductExample from './ProductExample.astro';
 import Chapters from './Chapters.astro';
+import Icon from './Icon.astro';
 import Search from './Search.astro';
 import 'virtual:website-recipes.css';
 import '../style.css';
@@ -28,11 +28,29 @@ const cancellationLabel = t.cancellation;
 const other = language === 'en' ? 'de' : 'en';
 const site = (id: string) => pathFor(language, { id, section: 'site' });
 const guides = pages[language].filter(p => p.section === 'docs' && p.id !== 'index');
+const chapterIndex = guides.findIndex(p => p.id === page.id) + 1;
+const previous = chapterIndex > 1 ? guides[chapterIndex - 2] : undefined;
+const next = chapterIndex > 0 ? guides[chapterIndex] : undefined;
 const isHome = page.section === 'site' && page.id === 'home';
 const isIndex = page.section === 'docs' && page.id === 'index';
 const isArticle = page.section === 'docs' && !isIndex;
 const guide = isArticle ? guideNavigation[language][page.id as GuideId] : undefined;
 const docsHref = pathFor(language, { id: 'index', section: 'docs' });
+const homeHref = site('home');
+const switchHref = alternateHref ?? pathFor(other, page);
+const isDocs = page.section === 'docs';
+// aria-current marks only the page itself (the documentation index), as in the prototype.
+const current = (id: string) => page.id === (id === 'docs' ? 'index' : id) ? 'page' : undefined;
+const find = (id: string) => pages[language].find(p => p.id === id)!;
+const limitsHref = pathFor(language, find('availability'));
+const howHref = pathFor(language, find('how-the-check-works'));
+const faqItems = page.id === 'faq' ? page.paragraphs.map(text => {
+  const end = text.indexOf('?');
+  return end >= 0 ? { question: text.slice(0, end + 1), answer: text.slice(end + 1).trim() } : { question: undefined, answer: text };
+}) : [];
+const isSimple = !isHome && !isDocs;
+const sectionHeadings = guide?.sections ?? [];
+const legalHref = legal ? site(`${page.id.split('/versions/')[0]}/versions/${legal.version}`) : undefined;
 ---
 <!doctype html>
 <html lang={language}>
@@ -44,77 +62,126 @@ const docsHref = pathFor(language, { id: 'index', section: 'docs' });
     {preview && <meta name="robots" content="noindex, nofollow" />}
     <title>{page.title} · Source Taster</title>
     {headLinks.map((link) => <link {...link} />)}
-    <link rel="alternate" hreflang={other} href={alternateHref ?? pathFor(other, page)} />
+    <link rel="alternate" hreflang={other} href={switchHref} />
   </head>
   <body>
     <a class="skip" href="#content">{t.skip}</a>
-    {preview && <div class={`draft ${bannerRecipe({tone:'warning'})}`}>{t.draft}</div>}
     <header class="site-header">
-      <a class="brand" href={site('home')}>Source Taster</a>
-      <nav aria-label={t.nav}>
-        <a class={linkRecipe()} href={docsHref}>{t.docs}</a>
-        <a class={linkRecipe()} href={site('faq')}>{t.faq}</a>
-        <a class={linkRecipe()} href={site('contact')}>{t.contact}</a>
-        <button type="button" class={buttonRecipe()} data-search-open aria-haspopup="dialog" aria-controls="documentation-search" aria-keyshortcuts="Control+k Meta+k" hidden>{t.search}</button>
-        <a class={linkRecipe()} href={alternateHref ?? pathFor(other, page)} lang={other} hreflang={other}>{other === 'de' ? 'Deutsch' : 'English'}</a>
-      </nav>
-    </header>
-    <main id="content" tabindex="-1" class:list={{'docs-layout':isArticle}}>
-      {isArticle && <aside class="desktop-chapters"><Chapters language={language} current={page.id} /></aside>}
-      {isArticle && <details class="mobile-chapters"><summary>{t.chapters}</summary><Chapters language={language} current={page.id} /></details>}
-      <article class:list={{'home':isHome, 'reading':!isHome}} data-pagefind-body={page.section === 'docs' ? '' : undefined}>
-        {isHome ? <>
-          <div class="home-split">
-            <div class="home-intro">
-              <span class={badgeRecipe()}>{t.development}</span>
-              <h1>{page.title}</h1>
-              <p class="summary">{page.summary}</p>
-              <a class={buttonRecipe({variant:'primary'})} href={docsHref}>{t.readDocs}</a>
-              <p>{page.paragraphs[0]}</p>
-            </div>
-            <ProductExample language={language} />
+      <div class="wrap">
+        <div class="header-row">
+          <a class="brand" href={homeHref}><img src="/favicon.svg" width="32" height="32" alt="" /><span>Source Taster</span></a>
+          <nav class="desktop-nav" aria-label={t.nav}>
+            <a href={docsHref} aria-current={current('docs')}>{t.docs}</a>
+            <a href={site('faq')} aria-current={current('faq')}>{t.faq}</a>
+            <a href={site('contact')} aria-current={current('contact')}>{t.contact}</a>
+          </nav>
+          <div class="utilities">
+            <button type="button" class="btn icon" data-search-open aria-haspopup="dialog" aria-controls="documentation-search" aria-keyshortcuts="Control+k Meta+k" aria-label={t.search} hidden><Icon name="search" /></button>
+            <a class="btn ghost" href={switchHref} lang={other} hreflang={other}>{other.toUpperCase()}<span class="sr-only"> {other === 'de' ? 'Deutsch' : 'English'}</span></a>
+            <button type="button" class="btn icon theme-toggle" data-theme-toggle aria-label={t.themeSwitch} hidden><Icon name="moon" class="theme-moon" /><Icon name="swatch" class="theme-swatch" /></button>
           </div>
-          <section class="home-explanation" aria-labelledby="human-heading">
-            <h2 id="human-heading">{t.humanTitle}</h2>
-            {page.paragraphs.slice(1).map(p => <p>{p}</p>)}
-          </section>
-          <section aria-labelledby="explore-heading">
-            <h2 id="explore-heading">{t.explore}</h2>
-            <div class="topic-grid">{guides.filter(p => ['how-the-check-works','structuring','availability'].includes(p.id)).map(p =>
-              <div class="topic"><h3><a class={linkRecipe()} href={pathFor(language,p)}>{p.title}</a></h3><p>{p.summary}</p></div>
-            )}</div>
-          </section>
-        </> : <>
+          <details class="mobile-menu">
+            <summary class="btn icon" aria-label={t.menu}><Icon name="list" /></summary>
+            <nav class="mobile-nav" aria-label={t.nav}>
+              <a href={docsHref} aria-current={current('docs')}>{t.docs}</a>
+              <a href={site('faq')} aria-current={current('faq')}>{t.faq}</a>
+              <a href={site('contact')} aria-current={current('contact')}>{t.contact}</a>
+            </nav>
+          </details>
+        </div>
+      </div>
+    </header>
+    {isHome && <main id="content" class="wrap" tabindex="-1">
+      <section class="hero-A">
+        <div>
+          <div class="stack">
+            <div><div class="eyebrow">{t.homeEyebrow}</div><h1>{page.title}</h1></div>
+            <p class="lead">{page.summary}</p>
+            <div class="actions"><a class="btn primary" href={howHref}>{t.how}<Icon name="arrow" /></a><a class="link" href={limitsHref}>{t.limitations}</a></div>
+          </div>
+          <p class="hero-note">{page.paragraphs[0]}</p>
+        </div>
+        <ProductExample language={language} />
+      </section>
+      <section class="section" aria-labelledby="understand-heading">
+        <h2 class="section-title" id="understand-heading">{t.understand}</h2>
+        <div class="three">{['how-the-check-works', 'structuring', 'availability'].map((id, index) => {
+          const guidePage = find(id);
+          return <div class="stack"><div><span class="number">0{index + 1}</span><h3>{guidePage.title}</h3></div><p class="subtle">{guidePage.summary}</p><a class="link" href={pathFor(language, guidePage)}>{t.readMore}<Icon name="arrow" /></a></div>;
+        })}</div>
+      </section>
+      <section class="section" aria-labelledby="limits-heading">
+        <div class="stack"><h2 id="limits-heading">{t.limitsTitle}</h2><p>{page.paragraphs[1]}</p><a class="link" href={docsHref}>{t.readDocs}</a></div>
+      </section>
+    </main>}
+    {isIndex && <main id="content" class="wrap" tabindex="-1">
+      <div class="docs-C" data-pagefind-body>
+        <header class="intro stack">
+          <div><div class="eyebrow">{t.helpEyebrow}</div><h1>{page.title}</h1></div>
+          <p class="lead">{page.summary}</p>
+          <p>{page.paragraphs[0]}</p>
+        </header>
+        <button type="button" class="btn" data-search-open aria-haspopup="dialog" aria-controls="documentation-search" hidden><Icon name="search" />{t.search}</button>
+        <div class="topic-grid">{guides.map((p, index) =>
+          <a class="guide" href={pathFor(language, p)}><span class="number">0{index + 1}</span><span><h2>{guideNavigation[language][p.id as GuideId].question}</h2><small>{p.summary}</small></span><Icon name="arrow" /></a>
+        )}</div>
+        <div class="note index-note">{page.paragraphs[1]}</div>
+      </div>
+      <noscript><p>{t.noScript}</p></noscript>
+    </main>}
+    {isArticle && <main id="content" class="wrap" tabindex="-1">
+      <div class="docs-A">
+        <Chapters language={language} current={page.id} />
+        <details class="chapter-disclosure mobile-chapters"><summary>{t.chooseChapter}</summary><Chapters language={language} current={page.id} /></details>
+        <article class="article" data-pagefind-body>
+          <nav class="breadcrumbs" aria-label={t.breadcrumb} data-pagefind-ignore><a href={homeHref}>{t.home}</a><span aria-hidden="true">/</span><a href={docsHref}>{t.docs}</a><span aria-hidden="true">/</span><span aria-current="page">{page.title}</span></nav>
+          <div class="eyebrow" data-pagefind-ignore>{t.guideEyebrow} · 0{chapterIndex} / 0{guides.length}</div>
           <h1>{page.title}</h1>
-          <p class="summary">{page.summary}</p>
-          {legal && <p class="legal-state">{legal.status === 'draft' ? t.pending : ''} · {t.version}: <a class={linkRecipe()} href={site(`${page.id.split('/versions/')[0]}/versions/${legal.version}`)}>{legal.version}</a></p>}
-          {page.paragraphs.map((p,index) => guide ?
-            <section aria-labelledby={`section-${index+1}`}><h2 id={`section-${index+1}`}>{guide.sections[index]}</h2><p>{p}</p></section> : <p>{p}</p>
+          <p class="lead">{page.summary}</p>
+          <div class="note">{t.devNote}</div>
+          {page.paragraphs.map((text, index) =>
+            <section class="article-section" id={`section-${index + 1}`} aria-labelledby={`section-heading-${index + 1}`}><h2 id={`section-heading-${index + 1}`} tabindex="-1">{sectionHeadings[index]}</h2><p>{text}</p></section>
           )}
-          {isIndex && <div class="topic-grid">{guides.map(p =>
-            <section class="topic">
-              <h2><a class={linkRecipe()} href={pathFor(language,p)}>{guideNavigation[language][p.id as GuideId].question}</a></h2>
-              <p>{p.summary}</p><p class="topic-title">{p.title}</p>
-            </section>
-          )}</div>}
-        </>}
-        <slot />
-      </article>
-      {guide && <aside class="contents"><nav aria-label={t.contents}><h2>{t.contents}</h2><ol>{guide.sections.map((title,index) =>
-        <li><a class={linkRecipe()} href={`#section-${index+1}`}>{title}</a></li>
-      )}</ol></nav></aside>}
-      {page.section === 'docs' && <noscript><p>{t.noScript}</p></noscript>}
-    </main>
-    <footer class="site-footer"><nav aria-label={t.legal}>
-      {cancellationService && <a class={linkRecipe()} href={`${cancellationService.replace(/\/$/, '')}/cancel?language=${language}`} referrerpolicy="no-referrer">{cancellationLabel}</a>}
-      <a class={linkRecipe()} href={site('legal-notice')}>{t.notice}</a>
-      <a class={linkRecipe()} href={site('terms')}>{t.terms}</a>
-      <a class={linkRecipe()} href={site('privacy')}>{t.privacy}</a>
-      <a class={linkRecipe()} href={site('withdrawal')}>{t.withdrawal}</a>
-      <a class={linkRecipe()} href={site('accessibility')}>{t.accessibility}</a>
-      <a class={linkRecipe()} href={`/third-party/pagefind/${language}/`}>{t.searchLicenses}</a>
-      <a class={linkRecipe()} href="/third-party/ui/NOTICE.txt">{t.uiLicenses}</a>
-    </nav></footer>
+          <nav class="pager" aria-label={t.moreChapters} data-pagefind-ignore>
+            <a href={previous ? pathFor(language, previous) : docsHref}>← {previous ? previous.title : t.overview}</a>
+            <a href={next ? pathFor(language, next) : docsHref}>{next ? next.title : t.allGuides} →</a>
+          </nav>
+        </article>
+        <aside class="toc"><nav aria-label={t.contents}><strong>{t.contents}</strong>{sectionHeadings.map((title, index) => <a href={`#section-${index + 1}`}>{title}</a>)}</nav></aside>
+      </div>
+      <noscript><p>{t.noScript}</p></noscript>
+    </main>}
+    {isSimple && <main id="content" class="wrap simple" tabindex="-1">
+      <nav class="breadcrumbs" aria-label={t.breadcrumb}><a href={homeHref}>{t.home}</a><span aria-hidden="true">/</span><span aria-current="page">{page.title}</span></nav>
+      <h1>{page.title}</h1>
+      {legal && <div class="note legal-state"><strong>{legal.status === 'draft' ? t.pending : ''}</strong><br />{t.version}: <a class="mono" href={legalHref}>{legal.version}</a></div>}
+      <p class="lead">{page.summary}</p>
+      {page.id === 'faq'
+        ? <div class="faq">{faqItems.map(item => item.question
+            ? <details><summary>{item.question}</summary><p>{item.answer}</p></details>
+            : <p class="faq-statement">{item.answer}</p>)}</div>
+        : <div class="stack">{page.paragraphs.map(text => <p>{text}</p>)}</div>}
+      <slot />
+      <div class="actions end-actions"><a class="btn" href={docsHref}>{t.docs}</a><a class="link" href={limitsHref}>{t.limitations}</a></div>
+    </main>}
+    <footer class="wrap site-footer">
+      <div class="footer-top">
+        <div><strong>Source Taster</strong><br /><span class="subtle">{t.tagline}</span></div>
+        <div class="footer-links"><a href={docsHref}>{t.docs}</a><a href={site('faq')}>{t.faq}</a><a href={site('contact')}>{t.contact}</a></div>
+      </div>
+      <nav class="footer-links" aria-label={t.legal}>
+        <a href={site('legal-notice')}>{t.notice}</a>
+        <a href={site('terms')}>{t.terms}</a>
+        <a href={site('privacy')}>{t.privacy}</a>
+        <a href={site('withdrawal')}>{t.withdrawal}</a>
+        <a href={site('accessibility')}>{t.accessibility}</a>
+        {cancellationService && <a href={`${cancellationService.replace(/\/$/, '')}/cancel?language=${language}`} referrerpolicy="no-referrer">{cancellationLabel}</a>}
+        <a href={`/third-party/pagefind/${language}/`}>{t.searchLicenses}</a>
+        <a href="/third-party/ui/NOTICE.txt">{t.uiLicenses}</a>
+      </nav>
+      <p>{preview && <span class="draft">{`${t.draft}. `}</span>}{t.noSignIn}</p>
+    </footer>
     <Search language={language} />
+    <script>import '../theme';</script>
   </body>
 </html>

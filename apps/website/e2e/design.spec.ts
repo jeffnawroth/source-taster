@@ -82,13 +82,13 @@ test("readers can cite the exact legal draft and switch its immutable language c
         page.locator("article > p:not(.summary):not(.legal-state)"),
       ).toHaveText(paragraphs);
       if (id === "terms")
-        await expect(page.locator("article")).toContainText(
+        await expect(page.locator("main")).toContainText(
           language === "en" ? "contracting party" : "Vertragspartner",
         );
       const other = language === "de" ? "en" : "de";
       await page
         .getByRole("link", {
-          name: other === "de" ? "Deutsch" : "English",
+          name: other === "de" ? "DE Deutsch" : "EN English",
           exact: true,
         })
         .click();
@@ -99,7 +99,7 @@ test("readers can cite the exact legal draft and switch its immutable language c
     }
     await page.goto(`/${language}/contact/`);
     await expect(page.locator('a[href^="mailto:"]')).toHaveCount(0);
-    await expect(page.locator("article")).toContainText(
+    await expect(page.locator("main")).toContainText(
       language === "en" ? "have not been selected" : "noch nicht ausgewählt",
     );
   }
@@ -138,7 +138,8 @@ test("a visitor sees an honest product example and finds help by question", asyn
       })
       .click();
     await expect(page).toHaveURL(new RegExp(`/docs/${language}/$`));
-    await page.getByRole("link", { name: question, exact: true }).click();
+    // The guide card is one link whose name starts with its number and question.
+    await page.getByRole("link", { name: question }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
     const chapters = page.getByRole("navigation", {
       name: language === "en" ? "Chapters" : "Kapitel",
@@ -170,11 +171,12 @@ for (const language of ["de", "en"] as const)
       await page.setViewportSize({ width: 320, height: 800 });
       await page.goto(`/docs/${language}/how-the-check-works/`);
       const chapters = language === "en" ? "Chapters" : "Kapitel";
+      const choose = language === "en" ? "Choose a chapter" : "Kapitel wählen";
       // Native summary has no implicit ARIA role in the HTML-AAM mapping used
       // by the locator engine; address its semantic element and visible name.
       const disclosure = page
         .locator("summary")
-        .filter({ hasText: new RegExp(`^${chapters}$`) });
+        .filter({ hasText: new RegExp(`^${choose}$`) });
       await expect(disclosure).toBeVisible();
       await disclosure.focus();
       await disclosure.press("Enter");

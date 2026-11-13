@@ -161,10 +161,11 @@ const prototypeAfter: Partial<Record<string, (page: Page) => Promise<void>>> = {
   },
 };
 
-function site(path: string) {
+function site(path: string, after?: (page: Page) => Promise<void>) {
   return async (page: Page) => {
     await page.goto(`${url}${path}`);
     await page.waitForLoadState("networkidle");
+    await after?.(page);
   };
 }
 
@@ -201,6 +202,9 @@ function states(structure: string, website: string): State[] {
         ["home", `/${lang}/`],
         ["index", `/docs/${lang}/`],
         ["how-the-check-works", `/docs/${lang}/how-the-check-works/`],
+        ["faq", `/${lang}/faq/`],
+        ["contact", `/${lang}/contact/`],
+        ["legal-notice", `/${lang}/legal-notice/`],
       ] as const)
         list.push({
           id: `site-${pageId}-${tag}`,
@@ -211,6 +215,39 @@ function states(structure: string, website: string): State[] {
           built: site(path),
           note: "The prototype's top review bar and bottom switcher are review chrome, not design.",
         });
+      // The mobile navigation overlay, open on the home page.
+      if (frame === "360")
+        list.push({
+          id: `site-menu-${tag}`,
+          frame,
+          theme,
+          lang,
+          prototype: s("home", frame, theme, lang),
+          prototypeAfter: async (page) => {
+            await page.click("[data-action=menu]");
+          },
+          built: site(`/${lang}/`, async (page) => {
+            await page.locator(".mobile-menu > summary").click();
+          }),
+          note: "The prototype's top review bar and bottom switcher are review chrome, not design. The prototype's extra app-design link is omitted (see website-gaps.md).",
+        });
+      // The search dialog, opened from the documentation index. The built
+      // search needs the Pagefind index, which loads on the first open.
+      list.push({
+        id: `site-search-${tag}`,
+        frame,
+        theme,
+        lang,
+        prototype: s("index", frame, theme, lang),
+        prototypeAfter: async (page) => {
+          await page.click("[data-action=search]");
+        },
+        built: site(`/docs/${lang}/`, async (page) => {
+          await page.locator("[data-search-open]").first().click();
+          await page.waitForSelector("dialog[data-search][open]");
+        }),
+        note: "The prototype's top review bar and bottom switcher are review chrome, not design.",
+      });
     }
   return only ? list.filter((state) => state.id.includes(only)) : list;
 }

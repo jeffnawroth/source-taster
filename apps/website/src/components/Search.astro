@@ -1,19 +1,18 @@
 ---
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { copy, type Language } from '../content';
-import { buttonRecipe, kbdRecipe } from '@source-taster/ui/recipes';
+import Icon from './Icon.astro';
 interface Props { language: Language }
 const { language } = Astro.props;
 const t = copy[language];
 ---
 <dialog id="documentation-search" aria-labelledby="search-heading" aria-describedby="search-privacy" data-search data-language={language} data-empty={t.empty} data-loading={t.loading} data-failure={t.failure} data-one={t.oneResult} data-many={t.manyResults}>
-  <div class="search-heading-row"><button type="button" class={buttonRecipe({variant:'ghost',size:'sm'})} data-search-close>{t.closeSearch} <kbd class={kbdRecipe()}>Esc</kbd></button></div>
-  <h2 id="search-heading">{t.search}</h2>
+  <div class="dialog-head"><h2 id="search-heading">{t.search}</h2><button type="button" class="btn icon" data-search-close aria-label={t.closeSearch}><Icon name="close" /></button></div>
+  <form role="search"><label for="query" class="sr-only">{t.search}</label><input id="query" type="search" autocomplete="off" spellcheck="false" maxlength="200" placeholder={t.searchPlaceholder} aria-describedby="search-prompt" autofocus/><button type="submit" class="btn primary">{t.submit}</button></form>
   <p id="search-privacy">{t.searchPrivacy}</p>
-  <form role="search"><label for="query">{t.search}</label><input id="query" type="search" autocomplete="off" spellcheck="false" aria-describedby="search-prompt" autofocus/><button type="submit" class={buttonRecipe()}>{t.submit}</button></form>
   <p id="search-prompt">{t.prompt}</p>
   <p id="search-status" role="status" aria-live="polite"></p>
-  <button type="button" class={buttonRecipe()} data-search-retry hidden>{t.retrySearch}</button>
+  <button type="button" class="btn" data-search-retry hidden>{t.retrySearch}</button>
   <section aria-label={t.results}><ul id="search-results" aria-busy="false"></ul></section>
 </dialog>
 <script>
