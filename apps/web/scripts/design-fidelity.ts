@@ -9,9 +9,14 @@
 //   pnpm dev:local                                   # in another terminal
 //   pnpm --filter @source-taster/web fidelity [--only web-done] [--url http://127.0.0.1:5493]
 //
-// Output: apps/web/test-results/design-fidelity/index.html and <state>.png.
+//   pnpm dev:local:hosted                            # instead, for --hosted
+//   pnpm --filter @source-taster/web fidelity --hosted [--only free-account]
+//
+// Output: apps/web/test-results/design-fidelity/index.html and <state>.png;
+// with --hosted, design-fidelity-hosted/. The hosted run signs a never-seen
+// address in once through the mail capture (--mail, default port 5496).
 // The sheets are review evidence for a human, not an automated pass/fail gate.
-import { chromium, type Page } from "@playwright/test";
+import { chromium, type Browser, type Page } from "@playwright/test";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -19,14 +24,21 @@ import { join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = fileURLToPath(new URL("../../..", import.meta.url));
-const out = resolve(root, "apps/web/test-results/design-fidelity");
 const args = process.argv.slice(2);
+// Hosted states (#229) need `pnpm dev:local:hosted`; they write their own
+// sheets so a hosted run never wipes the standalone ones.
+const hosted = args.includes("--hosted");
+const out = resolve(
+  root,
+  `apps/web/test-results/design-fidelity${hosted ? "-hosted" : ""}`,
+);
 const option = (name: string) => {
   const index = args.indexOf(name);
   return index >= 0 ? args[index + 1] : undefined;
 };
 const url = option("--url") ?? "http://127.0.0.1:5493";
 const only = option("--only");
+const mailUrl = option("--mail") ?? "http://127.0.0.1:5496/mail.json";
 
 export const pins = {
   structure: {
@@ -67,6 +79,8 @@ interface State {
   prototypeAfter?: (page: Page) => Promise<void>;
   /** Expected, documented differences that are not fidelity defects. */
   note?: string;
+  /** Built side runs signed in as the run's fresh Free Account (hosted). */
+  signedIn?: boolean;
 }
 
 const standalone =
@@ -160,6 +174,150 @@ const prototypeAfter: Partial<Record<string, (page: Page) => Promise<void>>> = {
     await page.click('[data-act="dlg:export"]');
   },
 };
+
+type HostedStage = "intake" | "counted" | "short" | "account" | "history";
+
+/** As many references as the Guest's or Free Account's balance plus three. */
+const beyond = (n: number) =>
+  Array.from(
+    { length: n },
+    (_, i) =>
+      `Aspelmeyer, M. (${2000 + (i % 20)}). Measured measurement ${i + 1}. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170`,
+  ).join("\n\n");
+
+/**
+ * Drives the hosted preview. References are separated by blank lines: the
+ * hosted run counted single-newline pastes as one (docs/local-preview.md).
+ */
+function hostedApp(stage: HostedStage, beyondCount: number) {
+  return async (page: Page) => {
+    await page.goto(`${url}/`);
+    await page.waitForLoadState("networkidle");
+    await page
+      .getByTestId("quota-meter")
+      .or(page.getByTestId("quota-summary"))
+      .first()
+      .waitFor({ timeout: 15_000 })
+      .catch(() => undefined);
+    const topbar = page.locator(".checking-topbar");
+    if (stage === "intake") return;
+    if (stage === "account") {
+      await topbar
+        .getByRole("button", { name: /^(Account|Konto|Sign in|Anmelden)\b/ })
+        .last()
+        .click();
+      await page.waitForTimeout(800);
+      return;
+    }
+    if (stage === "history") {
+      await topbar
+        .getByRole("button", { name: /^(History|Verlauf)$/ })
+        .first()
+        .click();
+      await page.waitForTimeout(800);
+      return;
+    }
+    const text =
+      stage === "short"
+        ? beyond(beyondCount)
+        : references.split("\n").join("\n\n");
+    await page.getByRole("textbox").first().fill(text);
+    if (stage === "counted") {
+      await page.waitForTimeout(1500);
+      return;
+    }
+    await page
+      .getByRole("button", { name: /^Check\b|pr\u00fcfen$/ })
+      .first()
+      .click();
+    await page.getByTestId("quota-choice").waitFor({ timeout: 30_000 });
+  };
+}
+
+/** Signs a never-seen address in through the mail capture; returns the session. */
+async function signIn(browser: Browser) {
+  const context = await browser.newContext({ locale: "en-US" });
+  const page = await context.newPage();
+  const email = `fidelity-${Date.now()}@example.invalid`;
+  await page.goto(`${url}/`);
+  await page.waitForLoadState("networkidle");
+  await page
+    .locator(".checking-topbar")
+    .getByRole("button", { name: /^Sign in$/ })
+    .click();
+  await page.getByLabel("Email address", { exact: true }).fill(email);
+  await page.getByRole("button", { name: "Send code", exact: true }).click();
+  let code: string | undefined;
+  for (let attempt = 0; attempt < 60 && !code; attempt++) {
+    const mail = (await (await fetch(mailUrl)).json()) as {
+      to: string;
+      code?: string;
+      text: string;
+    }[];
+    const hit = mail.find((entry) => entry.to.includes(email));
+    code = hit?.code ?? hit?.text.match(/\b[0-9]{6}\b/)?.[0];
+    if (!code) await new Promise((done) => setTimeout(done, 500));
+  }
+  if (!code) throw new Error(`No sign-in code for ${email} at ${mailUrl}.`);
+  await page.getByLabel("Six-digit code").fill(code);
+  await page.getByRole("button", { name: "Confirm code", exact: true }).click();
+  await page.getByText(email, { exact: true }).first().waitFor();
+  const state = await context.storageState();
+  await context.close();
+  return state;
+}
+
+function hostedStates(structure: string): State[] {
+  const list: State[] = [];
+  const d = (
+    stage: string,
+    frame: Frame,
+    theme: Theme,
+    lang: Lang,
+    extra: string,
+  ) =>
+    `${pathToFileURL(structure).href}?variant=D&calm=1&strip=a&still=1&theme=${theme}&lang=${lang}&stage=${stage}${extra}${frame === "360" ? "&w=360" : ""}`;
+  const note =
+    "Hosted preview (pnpm dev:local:hosted). Prototype fixture data, names and balances differ: the prototype's short Quota is 6 left, the built one is the real Guest or Free balance.";
+  for (const frame of ["web", "360"] as const)
+    for (const theme of ["light", "dark"] as const) {
+      const lang: Lang = theme === "dark" ? "de" : "en";
+      const tag = `${frame}-${theme}`;
+      for (const [account, stage, prototypeStage, extra] of [
+        ["guest", "intake", "intake", ""],
+        ["guest", "counted", "counted", "&quota=enough"],
+        ["guest", "short", "counted", "&quota=short"],
+        ["guest", "account", "intake", ""],
+        ["free", "intake", "intake", ""],
+        ["free", "short", "counted", "&quota=short"],
+        ["free", "account", "intake", ""],
+        ["free", "history", "intake", "&hist=1"],
+      ] as const)
+        list.push({
+          id: `hosted-${account}-${stage}-${tag}`,
+          frame,
+          theme,
+          lang,
+          prototype: d(
+            prototypeStage,
+            frame,
+            theme,
+            lang,
+            `&acct=${account}${extra}`,
+          ),
+          prototypeAfter:
+            stage === "account"
+              ? (page) => page.click('[data-k="acctbtn"]')
+              : stage === "history"
+                ? (page) => page.click('[data-k="histbtn"]')
+                : undefined,
+          built: hostedApp(stage, account === "guest" ? 23 : 103),
+          signedIn: account === "free",
+          note,
+        });
+    }
+  return only ? list.filter((state) => state.id.includes(only)) : list;
+}
 
 function site(path: string, after?: (page: Page) => Promise<void>) {
   return async (page: Page) => {
@@ -272,8 +430,11 @@ try {
   rmSync(out, { recursive: true, force: true });
   mkdirSync(out, { recursive: true });
   const browser = await chromium.launch();
+  const session = hosted ? await signIn(browser) : undefined;
   const rows: string[] = [];
-  for (const state of states(structure, website)) {
+  for (const state of hosted
+    ? hostedStates(structure)
+    : states(structure, website)) {
     const viewport = {
       width: state.frame === "360" ? 360 : 1280,
       height: 860,
@@ -291,6 +452,7 @@ try {
             : viewport,
         colorScheme: state.theme,
         locale: state.lang === "de" ? "de-DE" : "en-US",
+        storageState: !prototype && state.signedIn ? session : undefined,
       });
       try {
         await go(page).catch((error: unknown) => {
