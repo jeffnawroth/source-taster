@@ -14,7 +14,9 @@ import {
 import { m } from "@source-taster/i18n";
 import { verdictLabels, VerdictGlyph } from "./outcome-badges.tsx";
 import { Button } from "./primitives/actions.tsx";
-import { Check as CheckIcon, PencilLine } from "lucide-react";
+import { Check as CheckIcon } from "lucide-react";
+import { PencilLine } from "./workspace-icons.tsx";
+import "./manual-verdict.css";
 import { DetailSection } from "./reference-outcome.tsx";
 import { Form } from "./primitives/fields.tsx";
 import { Radio, RadioGroup } from "./primitives/selection.tsx";
@@ -100,7 +102,7 @@ export function ManualVerdictActions({
       )}
       {available && (
         <>
-          <p className="detail-note">{m.override_note()}</p>
+          <p className="detail-note manual-verdict-note">{m.override_note()}</p>
           {!draft ? (
             <div className="detail-row">
               <Button
@@ -132,13 +134,14 @@ export function ManualVerdictActions({
             </div>
           ) : (
             <Form
-              className="space-y-3"
+              className="manual-verdict-form"
               onSubmit={(event) => {
                 event.preventDefault();
                 void save(draft);
               }}
             >
               <RadioGroup
+                className="manual-verdict-group"
                 label={m.override_label()}
                 value={draft.verdict}
                 isDisabled={blocked}
@@ -146,16 +149,22 @@ export function ManualVerdictActions({
                   setDraft({ ...draft, verdict: verdict as Verdict })
                 }
               >
-                {(Object.keys(verdictLabels) as Verdict[]).map((verdict) => (
-                  <Radio key={verdict} value={verdict}>
-                    <span className="inline-flex items-start gap-2">
-                      <VerdictGlyph verdict={verdict} />
-                      {m[verdictLabels[verdict]]()}
-                    </span>
-                  </Radio>
-                ))}
+                <div className="manual-verdict-grid">
+                  {(Object.keys(verdictLabels) as Verdict[]).map((verdict) => (
+                    <Radio
+                      key={verdict}
+                      value={verdict}
+                      className="manual-verdict-choice"
+                    >
+                      <span className="manual-verdict-choice-content">
+                        <VerdictGlyph verdict={verdict} />
+                        <span>{m[verdictLabels[verdict]]()}</span>
+                      </span>
+                    </Radio>
+                  ))}
+                </div>
               </RadioGroup>
-              <div className="flex flex-wrap gap-3">
+              <div className="manual-verdict-actions">
                 <Button variant="primary" type="submit" {...busy}>
                   {m.override_save()}
                 </Button>

@@ -17,8 +17,10 @@
 }
 body {
   margin: 0;
+  font-family: var(--st-font-sans);
   font-size: var(--st-text-base);
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* ---------- verdict colour hooks ---------- */
@@ -48,18 +50,26 @@ body {
 }
 
 /* ---------- buttons (prototype .btn) ---------- */
-/* D sets every text Button semibold at the small size; a disabled Button
+/* #194 D .btn uses 700, 40px; .btn.sm uses 34px. A disabled Button
    keeps its variant and fades, so the primary Check stays recognisable
    while its reason sits beside it. */
 .st-control[data-variant]:not(.st-icon-button) {
-  font-weight: 600;
+  font-weight: 700;
   font-size: var(--st-text-sm);
+  line-height: 1.2;
+}
+.st-control[data-variant]:not(.st-icon-button) .st-loading-slot {
+  width: 1.1em;
+  height: 1.1em;
 }
 .st-control[data-size="md"][data-variant]:not(.st-icon-button) {
-  min-height: 38px;
+  min-height: 40px;
+}
+.st-control[data-size="sm"][data-variant]:not(.st-icon-button) {
+  min-height: 34px;
 }
 .st-control.st-disabled[data-variant] {
-  opacity: 0.55;
+  opacity: 0.5;
 }
 .st-control.st-disabled[data-variant="primary"] {
   border-color: transparent;
@@ -76,6 +86,9 @@ body {
   background: transparent;
   color: var(--st-text);
 }
+.st-control[data-variant="secondary"]:not(.st-icon-button, .st-disabled) {
+  box-shadow: var(--st-shadow-raised), var(--st-highlight-inset);
+}
 
 /* ---------- workspace shell ---------- */
 .check-workspace {
@@ -88,6 +101,11 @@ body {
   .check-workspace {
     --pad: 12px;
   }
+}
+/* A live region after the Results sits at their foot; pinned to the top it
+   never adds the 1px that would lengthen the page scroll. */
+.check-workspace > .sr-only {
+  inset-block-start: 0;
 }
 .check-workspace :where(h1, h2, h3, p, ul, ol, fieldset) {
   margin: 0;
@@ -138,7 +156,12 @@ body {
   z-index: var(--st-z-topbar);
 }
 .checking-topbar-inner {
-  display: flex;
+  /* The owner requested the command field align with the content centre.
+     Equal side tracks deliberately correct D's asymmetric flex margins. */
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr) minmax(0, min(620px, calc(100% - 480px)))
+    minmax(0, 1fr);
   align-items: center;
   gap: 10px;
   height: 60px;
@@ -146,6 +169,42 @@ body {
   border-width: 0 0 1px;
   border-radius: 0;
   box-shadow: var(--st-highlight-inset);
+}
+.checking-topbar-start,
+.checking-topbar-end {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 4px;
+}
+.checking-topbar-end {
+  justify-content: flex-end;
+  gap: 6px;
+}
+.checking-topbar .theme-toggle[data-size][data-variant],
+.checking-help {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid var(--st-border-strong);
+  background: var(--st-surface);
+  color: var(--st-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 700;
+  text-decoration: none;
+  line-height: 1.3;
+}
+.checking-topbar .theme-toggle[data-size][data-variant]:hover,
+.checking-help:hover {
+  border-color: var(--st-accent);
+  color: var(--st-text);
 }
 .checking-topbar-inner.st-glass::before {
   border-width: 0 0 1px;
@@ -183,12 +242,13 @@ body {
   font-size: var(--st-text-2xs);
   color: var(--st-text-on-glass-secondary);
 }
-.checking-topbar .command-trigger {
+.checking-topbar .command-trigger[data-variant] {
   flex: 1;
   min-width: 0;
   max-width: 620px;
   height: 42px;
-  margin: 0 auto;
+  margin: 0;
+  width: 100%;
   justify-content: flex-start;
   gap: 10px;
   padding: 0 8px 0 14px;
@@ -199,6 +259,32 @@ body {
   box-shadow: var(--st-shadow-raised), var(--st-highlight-inset);
   font-size: var(--st-text-base);
   font-weight: 400;
+  line-height: 1.5;
+}
+.checking-topbar .command-trigger .st-loading-slot {
+  width: 1.1em;
+  height: 1.1em;
+}
+.checking-topbar .account-chip {
+  flex: none;
+  display: inline-flex;
+  gap: 8px;
+  min-height: 40px;
+  padding: 3px 12px 3px 3px;
+  border-radius: var(--st-radius-full);
+  border: 1px solid var(--st-border-strong);
+  background: var(--st-surface);
+  max-width: 190px;
+}
+.account-chip > .st-button-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.checking-topbar .account-chip[aria-expanded="true"] {
+  border-color: var(--st-accent);
+  background: var(--st-accent-tint);
 }
 .checking-topbar .command-trigger:hover {
   border-color: var(--st-border-emphasis);
@@ -231,10 +317,15 @@ body {
 }
 @container app (width < 700px) {
   .checking-topbar-inner {
+    grid-template-columns: auto minmax(0, 1fr) auto;
     height: 54px;
     gap: 6px;
   }
-  .checking-topbar .command-trigger {
+  .checking-topbar .account-chip {
+    padding: 3px;
+    max-width: none;
+  }
+  .checking-topbar .command-trigger[data-variant] {
     height: 40px;
     padding: 0 12px;
   }
@@ -244,7 +335,7 @@ body {
   }
   /* The mark stands for the name in the panel; the heading stays for
      assistive technology. */
-  .checking-brand:has(img) h1 {
+  .checking-brand:has(img) .checking-brand-text {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -254,10 +345,60 @@ body {
   }
 }
 .account-entry {
-  width: 400px;
+  width: 340px;
   max-width: calc(100vw - 24px);
   max-height: calc(100dvh - 90px);
   overflow-y: auto;
+  padding: 14px;
+  border: 1px solid var(--st-glass-border);
+  border-radius: var(--st-radius-xl);
+  background: var(--st-glass-base);
+  box-shadow:
+    var(--st-shadow-glass),
+    inset 0 1px 0 var(--st-glass-rim-1);
+  backdrop-filter: blur(var(--st-glass-blur)) saturate(var(--st-glass-saturate));
+}
+.account-entry .st-dialog {
+  display: grid;
+  gap: 10px;
+  padding: 0;
+}
+.account-entry :where(h2) {
+  margin: 0;
+  font-size: var(--st-text-md);
+  font-weight: 800;
+  /* text-lg's tracking would ride along; D .pop h2 keeps normal tracking. */
+  letter-spacing: normal;
+  /* #194 D .pop h2 inherits the body's 1.5 rather than a heading's tight leading. */
+  line-height: 1.5;
+}
+.account-entry :where(p) {
+  margin: 0;
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
+}
+.account-entry .st-track {
+  height: 8px;
+  background: var(--st-chart-track);
+}
+.account-entry .st-progress {
+  gap: 0;
+}
+.account-entry .st-progress > :is(label, .react-aria-Label) {
+  font-size: var(--st-text-2xs);
+  font-weight: 600; /* #194 .eyebrow */
+  line-height: calc(var(--st-text-base) * 1.5);
+  text-transform: uppercase;
+  letter-spacing: var(--st-tracking-caps);
+  color: var(--st-text-muted);
+}
+.account-entry .st-meter-value {
+  font: 400 var(--st-text-sm) / 1.5 var(--st-font-mono);
+  color: var(--st-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.account-entry .st-fill {
+  border-radius: 0;
 }
 .account-entry :where(button, a) {
   min-height: 28px;
@@ -270,14 +411,59 @@ body {
   color: var(--st-accent-text);
   text-decoration: underline;
 }
-.account-entry :where(input, select, textarea) {
+.account-entry-identity {
+  overflow-wrap: anywhere;
+  font-weight: 700;
   color: var(--st-text);
-  background: var(--st-surface);
-  border: 1px solid var(--st-border-emphasis);
-  border-radius: var(--st-radius-sm);
-  padding: 6px 10px;
-  min-height: 36px;
-  max-width: 100%;
+}
+.account-entry .account-entry-identity {
+  color: var(--st-text);
+}
+.account-entry .st-progress > span:not([class]) {
+  display: none;
+}
+.account-entry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px; /* #194 D .row */
+}
+/* #194 D accountStub: the popover is the entry point to Account and
+   Preferences. Those entry actions follow the prototype rows as one quiet,
+   hairline-separated group. */
+.account-entry .account-entry-more {
+  padding-top: 10px;
+  border-top: 1px solid var(--st-border);
+}
+.account-dialog {
+  display: grid;
+  gap: 16px;
+}
+.account-dialog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.account-dialog :where(p) {
+  margin: 0;
+}
+.account-dialog .account-sign-in-form {
+  margin-top: 16px;
+}
+.account-dialog > section {
+  padding-top: 16px;
+  border-top: 1px solid var(--st-border);
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .account-entry {
+    background: var(--st-surface);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .account-entry {
+    background: var(--st-surface);
+    backdrop-filter: none;
+  }
 }
 
 /* ---------- shared rows ---------- */
@@ -294,6 +480,7 @@ body {
   flex: none;
   margin-top: 2px;
   color: var(--st-feedback-info);
+  stroke-width: 1.75;
 }
 .feed-foot-row > svg {
   color: var(--st-text-muted);
@@ -301,6 +488,11 @@ body {
 .workspace-notes {
   display: grid;
   gap: 8px;
+}
+/* #194 D intake notes are direct children of .intake, so they take its 14px
+   gap; the feed .foot keeps 8px. */
+.workspace-notes.intake-notes {
+  gap: 14px;
 }
 .workspace-banners {
   display: grid;
@@ -323,6 +515,16 @@ body {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+/* #194 D .lnk sits inside a sentence (WCAG 2.5.8 inline exception), so it
+   keeps the line height instead of a control's minimum height. */
+.st-control.feed-link[data-variant][data-size] {
+  min-height: 0;
+  line-height: inherit;
+  padding: 0;
+  display: inline-flex;
+  vertical-align: baseline;
+  box-shadow: none;
+}
 .detail-note {
   font-size: var(--st-text-sm);
   color: var(--st-text-secondary);
@@ -344,7 +546,6 @@ body {
   line-height: 1.12;
 }
 .intake-lead {
-  margin-top: 4px;
   color: var(--st-text-secondary);
   max-width: 56ch;
 }
@@ -383,6 +584,7 @@ body {
 .intake-search {
   margin-top: 6px;
   color: var(--st-text-muted);
+  stroke-width: 1.75;
 }
 .intake-text .intake-textarea {
   grid-column: 2;
@@ -496,7 +698,7 @@ body {
   gap: 6px;
   min-height: 34px;
   padding: 0 14px;
-  border: 1px solid transparent;
+  border: 0;
   border-radius: var(--st-radius-full);
   background: transparent;
   font: inherit;
@@ -504,10 +706,13 @@ body {
   font-size: var(--st-text-sm);
   color: var(--st-text-secondary);
 }
+.intake-segment > button > svg {
+  stroke-width: 1.75;
+}
 .intake-segment > button[data-selected] {
   background: var(--st-surface);
   color: var(--st-text);
-  border-color: var(--st-border-strong);
+  border: 1px solid var(--st-border-strong);
   box-shadow: var(--st-shadow-raised), var(--st-highlight-inset);
 }
 .intake-segment > button[data-disabled]:not([data-selected]) {
@@ -568,14 +773,13 @@ body {
 }
 
 /* ---------- dialogs ---------- */
-/* D's scrim places every Dialog and the launcher at 12vh, not centred, so
-   the Dialog opens where the eye already is (prototype .scrim/.dlg). */
-.st-modal-overlay:has(> .st-modal:not(.st-sheet)) {
+/* #194 D .dlg: ordinary dialogs sit below the command palette's 90px line. */
+.st-modal-overlay:not(.st-command-overlay):has(> .st-modal:not(.st-sheet)) {
   align-items: flex-start;
-  padding: 12vh 14px 14px;
+  padding: min(14vh, 110px) 12px 12px;
 }
-.st-modal-overlay > .st-modal:not(.st-sheet) {
-  max-height: calc(var(--visual-viewport-height, 100dvh) - 12vh - 14px);
+.st-modal-overlay:not(.st-command-overlay) > .st-modal:not(.st-sheet) {
+  max-height: 80dvh;
 }
 .st-modal:has(> .workspace-dialog:not(.wide)) {
   max-width: 520px;
@@ -585,7 +789,7 @@ body {
   gap: 12px;
 }
 .st-dialog.workspace-dialog {
-  padding: 20px;
+  padding: 18px;
 }
 .workspace-dialog h2 {
   font-size: var(--st-text-lg);
@@ -593,6 +797,7 @@ body {
 }
 .workspace-dialog .st-actions {
   justify-content: flex-end;
+  margin-top: 0;
 }
 /* Content reached from the ⋯ Menu brings its own section: inside a Dialog the
    Dialog is the card, so the section drops its frame and its h3 is the title. */
@@ -609,10 +814,10 @@ body {
 }
 .reference-exports {
   display: grid;
-  gap: 14px;
+  gap: 12px;
 }
 .reference-exports .workspace-select {
-  color: var(--st-text);
+  color: var(--st-text-secondary);
 }
 .export-subheading {
   font-weight: 700;
@@ -622,7 +827,7 @@ body {
   color: var(--st-text-secondary);
 }
 .reference-exports .st-actions {
-  margin-top: 4px;
+  margin-top: 0;
 }
 .workspace-dialog-steps {
   list-style: decimal;
@@ -636,23 +841,23 @@ body {
 }
 .workspace-select {
   display: grid;
-  gap: 4px;
+  gap: 3px;
   font-size: var(--st-text-sm);
   font-weight: 700;
   color: var(--st-text-secondary);
 }
 /* Native selects in the dialogs read as fields, like the Input primitive. */
-.workspace-select select {
+.workspace-select :is(select, input) {
   width: 100%;
-  min-height: 36px;
-  padding: 4px 12px;
+  min-height: 38px;
+  padding: 6px 10px;
   border: 1px solid var(--st-border-emphasis);
   border-radius: var(--st-radius-md);
   background-color: var(--st-surface);
   color: var(--st-text);
   font: inherit;
   font-weight: 400;
-  font-size: var(--st-text-base);
+  font-size: var(--st-text-sm);
 }
 .workspace-select select:focus-visible {
   outline: var(--st-focus-width) solid var(--st-focus-ring);
@@ -664,6 +869,8 @@ body {
 }
 .strip-menu {
   min-width: min(300px, 92vw);
+  padding: 6px;
+  border-color: var(--st-border-strong);
 }
 .strip-menu .st-menu {
   display: grid;
@@ -677,19 +884,25 @@ body {
 .strip-menu .strip-menu-item {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  column-gap: 7px;
+  column-gap: 10px;
   row-gap: 0;
   align-items: center;
   min-height: 40px;
-  padding: 4px 15px;
+  padding: 4px 10px;
   border-radius: var(--st-radius-md);
   font-weight: 600;
   font-size: var(--st-text-sm);
 }
-/* D sizes menu icons with the label (.ico: 1.1em). */
+/* D explicitly gives menu icons an 18px target. */
 .strip-menu-item > svg {
-  width: 1.1em;
-  height: 1.1em;
+  width: 18px;
+  height: 18px;
+}
+.strip-menu-item[data-focused]:not([data-hovered]) {
+  background: transparent;
+}
+.strip-menu-item[data-hovered] {
+  background: var(--st-accent-tint);
 }
 .strip-menu-item small {
   grid-column: 2;
@@ -734,6 +947,11 @@ body {
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
+  min-height: 34px;
+}
+.summary-row .st-icon-button[data-size="sm"] {
+  width: 34px;
+  height: 34px;
   min-height: 34px;
 }
 .summary-phase {
@@ -865,7 +1083,7 @@ body {
 .summary-eyebrow {
   flex: 1 0 100%;
   font-size: var(--st-text-2xs);
-  font-weight: 700;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: var(--st-tracking-caps);
   color: var(--st-text-on-glass-secondary);
@@ -874,9 +1092,9 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  min-height: 28px;
-  padding: 0 6px;
-  border: 1px solid transparent;
+  min-height: 0;
+  padding: 0;
+  border: 0;
   border-radius: var(--st-radius-sm);
   background: transparent;
   font: inherit;
@@ -979,6 +1197,7 @@ body {
 .summary-section[data-compact="true"] .summary-row .st-icon-button {
   flex: none;
   width: 32px;
+  height: 32px;
   min-height: 32px;
 }
 .active-filter.compact {
@@ -1219,7 +1438,6 @@ body {
   top: 50%;
   width: 14px;
   height: 2px;
-  margin-right: 1px;
   background: var(--st-border-strong);
   transform: translateY(-50%);
 }
@@ -1227,6 +1445,10 @@ body {
   width: 14px;
   height: 14px;
   stroke-width: 2.4;
+}
+.track-node[data-state="cur"] > svg {
+  width: 16px;
+  height: 16px;
 }
 .track-node > .verdict-glyph {
   width: 16px;
@@ -1384,6 +1606,7 @@ body {
   width: clamp(380px, 38cqw, 520px);
   height: 100%;
   overflow: auto;
+  overflow-x: hidden;
   container: detail / inline-size;
   background: var(--st-surface);
   border-left: 1px solid var(--st-border-strong);
@@ -1403,26 +1626,26 @@ body {
 .check-stage[data-narrow="true"][data-detail-open="true"] .check-main {
   display: none;
 }
-/* Narrow: the page is the only scroller, so the window anchors inside the
-   detail like any other content. */
+/* D keeps the full-cover narrow detail in its own viewport scroller. */
 .check-stage[data-narrow="true"] .check-detail-slot {
-  position: static;
+  position: sticky;
+  top: var(--checking-topbar-height, 54px);
   flex: 1;
   min-width: 0;
-  height: auto;
-  overflow-anchor: auto;
+  height: calc(100dvh - var(--checking-topbar-height, 54px));
+  overflow-anchor: none;
 }
 .check-stage[data-narrow="true"] .check-detail {
   width: auto;
-  height: auto;
-  min-height: calc(100dvh - var(--checking-topbar-height, 54px));
-  overflow: visible;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
   border-left: 0;
   box-shadow: none;
   animation-name: detail-slide;
 }
 .check-stage[data-narrow="true"] .detail-head {
-  top: var(--checking-topbar-height, 54px);
+  top: 0;
 }
 @keyframes detail-slide {
   from {
@@ -1465,6 +1688,9 @@ body {
    automatic minimum is its min-content width, so one unbreakable string
    (a rules version or a URL) would otherwise widen the whole detail past a
    360 px panel. */
+.check-stage[data-narrow="false"] :is(.detail-body, .detail-head) {
+  width: calc(100% + 1px);
+}
 .detail-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -1538,7 +1764,7 @@ body {
 }
 .detail-eyebrow {
   font-size: var(--st-text-2xs);
-  font-weight: 700;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: var(--st-tracking-caps);
   color: var(--st-text-muted);
@@ -1556,7 +1782,7 @@ body {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 4px 10px;
+  gap: 8px;
   font-size: var(--st-text-sm);
   color: var(--st-text-secondary);
 }
@@ -1571,44 +1797,42 @@ body {
   color: var(--st-text-muted);
 }
 .detail-compare {
+  display: grid;
   width: 100%;
-  table-layout: fixed;
-  border-collapse: separate;
-  border-spacing: 0;
   border: 1px solid var(--st-border);
   border-radius: var(--st-radius-md);
   overflow: hidden;
+  border-spacing: 0;
 }
-.detail-compare th,
-.detail-compare td {
-  padding: 8px 5px;
-  vertical-align: top;
+.detail-compare :is(thead, tbody) {
+  display: contents;
+}
+.detail-compare tr {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr) minmax(0, 1fr);
+  gap: 4px 10px;
+  padding: 8px 10px;
+  align-items: start;
+}
+.detail-compare :is(th, td) {
+  padding: 0;
   text-align: start;
-  /* Break long values, but hyphenate whole words such as field names. */
-  overflow-wrap: break-word;
-  hyphens: auto;
-  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  min-width: 0;
   font-size: var(--st-text-sm);
   font-weight: 400;
 }
-.detail-compare :is(th, td):first-child {
-  padding-inline-start: 10px;
-}
-.detail-compare :is(th, td):last-child {
-  padding-inline-end: 10px;
-}
-.detail-compare thead th {
+.detail-compare thead tr {
   background: var(--st-surface-sunken);
-  font-size: var(--st-text-2xs);
-  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: var(--st-tracking-caps);
   color: var(--st-text-muted);
 }
-.detail-compare thead th:first-child {
-  width: 94px;
+.detail-compare thead th {
+  font-size: var(--st-text-2xs);
+  font-weight: 600;
 }
-.detail-compare tbody :is(th, td) {
+.detail-compare tbody tr {
   border-top: 1px solid var(--st-border);
 }
 .detail-compare th[scope="row"] {
@@ -1649,7 +1873,7 @@ body {
 }
 .compare-agrees {
   display: inline-flex;
-  margin-inline-start: 4px;
+  margin-inline-start: 0;
   vertical-align: middle;
   color: var(--st-verdict-correct-mark);
 }
@@ -1958,10 +2182,28 @@ html:has(.check-workspace) {
 
 /* ---------- quota ---------- */
 [data-testid="quota-meter"] progress {
+  display: block;
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  appearance: none;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-full);
+  background: var(--st-chart-track);
+  color: var(--st-accent);
   accent-color: var(--st-accent);
 }
-[data-testid="quota-meter"][data-warning]:not([data-warning="none"]) progress {
-  accent-color: var(--st-feedback-warning);
+[data-testid="quota-meter"] progress::-webkit-progress-bar {
+  border-radius: inherit;
+  background: transparent;
+}
+[data-testid="quota-meter"] progress::-webkit-progress-value {
+  border-radius: inherit;
+  background: var(--st-accent);
+}
+[data-testid="quota-meter"] progress::-moz-progress-bar {
+  border-radius: inherit;
+  background: var(--st-accent);
 }
 
 /* ---------- tracked change ---------- */
@@ -1999,6 +2241,22 @@ html:has(.check-workspace) {
   transition: none;
 }
 @media (forced-colors: active) {
+  .account-entry {
+    background: Canvas;
+    border-color: CanvasText;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+  [data-testid="quota-meter"] progress {
+    border-color: CanvasText;
+    background: Canvas;
+  }
+  [data-testid="quota-meter"] progress::-webkit-progress-value {
+    background: Highlight;
+  }
+  [data-testid="quota-meter"] progress::-moz-progress-bar {
+    background: Highlight;
+  }
   .verdict-glyph {
     color: CanvasText !important;
   }
@@ -2020,4 +2278,389 @@ html:has(.check-workspace) {
   .detail-verdict {
     border-color: CanvasText;
   }
+}
+
+/* #194 D counted stage: .sh .t, pre-search cards and empty tracks. */
+.counted-preview .counted-heading {
+  flex: 1 1 220px;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  font-size: var(--st-text-sm);
+  color: var(--st-text-on-glass-secondary);
+}
+.counted-preview .counted-heading strong {
+  color: var(--st-text);
+  font-size: var(--st-text-base);
+}
+.counted-preview [data-testid="quota-choice"] {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: var(--st-text-sm);
+  color: var(--st-text-on-glass-secondary);
+}
+.counted-preview [data-testid="quota-choice"] h2 {
+  font-size: var(--st-text-sm);
+}
+.counted-preview [data-testid="quota-choice"] > div {
+  gap: 8px;
+}
+.counted-preview [data-testid="quota-choice"] .st-control {
+  font-weight: 700;
+}
+.counted-preview
+  [data-testid="quota-choice"]
+  .st-control[data-variant="primary"] {
+  min-height: 40px;
+}
+.counted-preview .counted-card {
+  cursor: default;
+}
+.counted-preview .counted-card .card-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.counted-preview .counted-empty-track {
+  margin: 0;
+}
+@container app (width < 700px) {
+  .counted-preview .summary-strip {
+    padding: 8px;
+    gap: 6px;
+    border-radius: var(--st-radius-lg);
+  }
+  .counted-preview .summary-row {
+    gap: 6px 8px;
+    min-height: 0;
+  }
+  .counted-preview .summary-verdicts {
+    gap: 4px;
+  }
+  .counted-preview .summary-counter {
+    min-height: 40px;
+    padding: 4px 6px;
+  }
+  .counted-preview .summary-count {
+    font-size: var(--st-text-md);
+  }
+}
+
+/* Appearance follows #198's accepted keyboard focus treatment. */
+.checking-topbar
+  .theme-toggle[data-size][data-variant]:is(
+    [data-focus-visible],
+    :focus-visible
+  ) {
+  outline: 3px solid var(--st-accent);
+  outline-offset: 3px;
+}
+
+/* #194 D .fs/.opt uses the native radio indicator, with RAC keeping its behavior. */
+.workspace-dialog [role="radiogroup"] {
+  display: grid;
+  gap: 4px;
+}
+.workspace-dialog [role="radiogroup"] > :first-child {
+  font-size: var(--st-text-sm);
+  font-weight: 700;
+}
+.workspace-dialog .st-radio {
+  align-items: center;
+  min-height: 36px;
+  padding: 0;
+}
+.workspace-dialog .st-radio > span:has(> input[type="radio"]) {
+  display: contents !important;
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  clip: auto !important;
+  clip-path: none !important;
+  overflow: visible !important;
+  white-space: normal !important;
+}
+.workspace-dialog .st-radio .st-choice-mark {
+  display: none;
+}
+
+.workspace-dialog .st-radio input[type="radio"] {
+  margin: 3px 3px 0 5px;
+}
+/* The original .btn keeps the raised edge on every non-ghost variant. */
+.st-control:is([data-variant="primary"], [data-variant="danger"]):not(
+    .st-disabled,
+    .st-icon-button
+  ) {
+  box-shadow: var(--st-shadow-raised), var(--st-highlight-inset);
+}
+.st-control[data-variant="ghost"]:not(.st-icon-button, .st-disabled) {
+  color: var(--st-text-secondary);
+  box-shadow: none;
+}
+.st-control[data-variant="ghost"]:hover:not(.st-icon-button, .st-disabled) {
+  color: var(--st-text);
+  background: var(--st-accent-tint);
+}
+
+.report-download {
+  display: grid;
+  gap: 12px;
+}
+.report-options {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.report-download p[role="status"]:empty {
+  display: none;
+}
+
+/* ---------- History drawer: #194 D .hist/.ovh/.ovb/.box/.he/.bill ---------- */
+.st-sheet {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.st-dialog.history-sheet {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+.history-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--st-border);
+}
+.history-head h2 {
+  font-size: var(--st-text-lg);
+  font-weight: 800;
+}
+.history-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 12px 14px 24px;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  scrollbar-width: thin;
+}
+.history-note {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
+}
+.history-note > svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--st-feedback-info);
+}
+.history-box {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-surface);
+  box-shadow: var(--st-shadow-raised);
+}
+.history-muted {
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
+}
+.history-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.history-list {
+  display: grid;
+  gap: 10px;
+}
+.history-entry {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-surface);
+}
+.history-entry[data-locked] {
+  background: var(--st-surface-sunken);
+}
+.history-entry-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-weight: 800;
+}
+.history-entry-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  font-size: var(--st-text-xs);
+  color: var(--st-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.history-entry-meta svg {
+  display: inline;
+  vertical-align: -0.18em;
+}
+.history-bill {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  padding: 6px 8px;
+  border: 1px solid var(--st-feedback-warning);
+  border-radius: var(--st-radius-md);
+  background: var(--st-feedback-warning-tint);
+  font-size: var(--st-text-xs);
+  color: var(--st-text);
+}
+.history-bill > svg {
+  flex: none;
+  margin-top: 1px;
+  color: var(--st-feedback-warning);
+}
+.history-current {
+  padding: 2px 8px;
+  border: 1px solid var(--st-accent);
+  border-radius: var(--st-radius-full);
+  background: var(--st-accent-tint);
+  color: var(--st-accent-text);
+  font-size: var(--st-text-2xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--st-tracking-caps);
+}
+/* Statutory cancellation entry (FA-KTO-27, §312k BGB). #194 D has no such
+   control, so it takes the D .foot recipe: quiet small text, underlined link,
+   below the shell rather than inside the prototype's layout. */
+.legal-foot {
+  display: flex;
+  justify-content: center;
+  padding: 12px 16px 20px;
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
+}
+.legal-link,
+.history-link {
+  color: var(--st-accent-text);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+/* #194 D .hbtn: a labelled ghost History button; the label hides below 700. */
+.checking-topbar .history-trigger[data-variant] {
+  flex: none;
+  min-height: 40px;
+}
+.history-trigger > svg {
+  width: 1.1em;
+  height: 1.1em;
+}
+@container app (width < 700px) {
+  .checking-topbar .history-trigger[data-variant] {
+    width: 40px;
+    padding: 0;
+    justify-content: center;
+  }
+  .history-trigger-label {
+    display: none;
+  }
+}
+/* #194 D acctPop: .row avatar/identity, Plan .eyebrow + .mtag, .btn.sm links. */
+.account-entry-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.account-entry-row > .account-entry-identity {
+  min-width: 0;
+  font-size: var(--st-text-base);
+}
+.account-entry-eyebrow {
+  font-size: var(--st-text-2xs);
+  font-weight: 600; /* #194 .eyebrow */
+  text-transform: uppercase;
+  letter-spacing: var(--st-tracking-caps);
+  color: var(--st-text-muted);
+}
+.account-plan-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 22px;
+  padding: 1px 8px;
+  border: 1px solid var(--st-accent);
+  border-radius: var(--st-radius-full);
+  background: var(--st-accent-tint);
+  color: var(--st-accent-text);
+  font-size: var(--st-text-xs);
+  font-weight: 700;
+}
+.account-entry .account-entry-pill,
+.account-entry .account-entry-more > a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--st-border-strong);
+  border-radius: var(--st-radius-full);
+  background: var(--st-surface);
+  box-shadow: var(--st-shadow-raised), var(--st-highlight-inset);
+  color: var(--st-text);
+  font-size: var(--st-text-sm);
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+}
+.account-entry .account-entry-pill:hover,
+.account-entry .account-entry-more > a:hover {
+  border-color: var(--st-border-emphasis);
+}
+.account-entry .account-entry-more > a {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  color: var(--st-text-secondary);
+}
+.account-entry .account-entry-more > a:hover {
+  border-color: transparent;
+  background: var(--st-accent-tint);
+  color: var(--st-text);
+}
+.account-entry .account-entry-preferences {
+  justify-self: start;
+}
+/* #194 D .pop is anchored to the sticky bar at top: 62px at every width and
+   stays put while the page scrolls beneath it. */
+.account-entry[data-placement="bottom"] {
+  position: fixed !important;
+  top: 62px !important;
+}
+/* #194 D .foot .nrow: footer icons are muted, intake notes keep info. */
+.feed-foot .note-row > svg {
+  color: var(--st-text-muted);
 }

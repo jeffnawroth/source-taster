@@ -61,7 +61,7 @@ export function useAccountPreferences(
   const [loadedAccount, setLoadedAccount] = useState<string | null>(null);
   const displayed = useRef(initial);
   const epoch = useRef(0);
-  const versions = useRef({ language: 0, citationStyle: 0 });
+  const versions = useRef({ language: 0, citationStyle: 0, theme: 0 });
   const readOrder = useRef(0);
   const writes = useRef(Promise.resolve());
   const previousAccount = useRef<string | null>(null);
@@ -91,6 +91,9 @@ export function useAccountPreferences(
         .catch(() => {});
     void setLocale(next.preferences.language, { reload: false });
     document.documentElement.lang = next.preferences.language;
+    if (next.preferences.theme === "system")
+      delete document.documentElement.dataset.theme;
+    else document.documentElement.dataset.theme = next.preferences.theme;
     setState(next);
   }
   function failed(error: unknown) {
@@ -131,6 +134,7 @@ export function useAccountPreferences(
           ? saved.citationStyle
           : "apa";
       }
+      if (edits.theme === versions.current.theme) next.theme = saved.theme;
       display({ preferences: next, citationStyleReset: reset });
       setFailure(false);
     } catch (error) {
@@ -235,7 +239,7 @@ export function useAccountPreferences(
     if (!authority.session || authority.expired) return;
     const fence = epoch.current;
     const edited = { ...versions.current };
-    for (const field of ["language", "citationStyle"] as const) {
+    for (const field of ["language", "citationStyle", "theme"] as const) {
       if (patch[field] !== undefined) edited[field] = ++versions.current[field];
     }
     writes.current = writes.current.then(async () => {
@@ -264,6 +268,11 @@ export function useAccountPreferences(
             ? saved.citationStyle
             : "apa";
         }
+        if (
+          patch.theme !== undefined &&
+          edited.theme === versions.current.theme
+        )
+          values.theme = saved.theme;
         display({ preferences: values, citationStyleReset: reset });
         setFailure(false);
       } catch (error) {

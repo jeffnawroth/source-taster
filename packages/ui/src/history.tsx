@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { useEffect, useId, useState } from "react";
+import {
+  ArrowRight,
+  Lock,
+  RotateCcw,
+  Trash,
+  Warn,
+} from "./workspace-icons.tsx";
 import { m } from "@source-taster/i18n";
+import { getLocale } from "@source-taster/i18n/runtime";
 import {
   ApiError,
   type verificationClient,
@@ -12,6 +20,7 @@ import {
   Modal,
   Dialog,
   DialogHeading,
+  SearchField,
   type Availability,
 } from "./primitives/index.ts";
 import { QuotaChoice } from "./quota-panel.tsx";
@@ -21,16 +30,22 @@ type Entry = HistoryData["entries"][number];
 export function HistoryPanel({
   api,
   busy,
+  currentId,
   refreshKey,
   onCheck,
   onDelete,
+  onData,
   upgradeUrl,
 }: {
   api: Api;
   busy: boolean;
+  /** The open Check, tagged as current and named by the storage line. */
+  currentId?: string;
   refreshKey: string;
   onCheck: (check: Check) => void;
   onDelete: (id?: string) => void;
+  /** Every History state this panel reads or writes, for the storage line. */
+  onData?: (data: HistoryData) => void;
   upgradeUrl?: string;
 }) {
   const [data, setData] = useState<HistoryData | null>(null);
@@ -45,6 +60,9 @@ export function HistoryPanel({
     available: number;
   } | null>(null);
   const id = useId();
+  useEffect(() => {
+    if (data) onData?.(data);
+  }, [data, onData]);
   useEffect(() => {
     let live = true;
     api.getHistory().then(
@@ -104,41 +122,55 @@ export function HistoryPanel({
   const whileBusy: Availability = busy
     ? { isDisabled: true, disabledReason: m.shell_busy() }
     : { isDisabled: false };
+  const current = currentId
+    ? data?.entries.find((entry) => entry.id === currentId)
+    : undefined;
+  const storage = !data
+    ? undefined
+    : !data.enabled
+      ? m.storage_temporary()
+      : current
+        ? m.storage_history({ date: historyDate(current.expiresAt) })
+        : undefined;
+  const entries = (data?.entries ?? []).filter((entry) =>
+    `${entry.label ?? ""} ${entry.storedAt} ${entry.id}`
+      .toLocaleLowerCase()
+      .includes(search.toLocaleLowerCase()),
+  );
   return (
-    <section
-      aria-labelledby={`${id}-heading`}
-      className="my-6 rounded-xl border border-border-emphasis bg-surface p-4"
-    >
-      <h2 id={`${id}-heading`} className="text-xl font-semibold">
-        {m.history_heading()}
-      </h2>
-      <p>{m.history_policy()}</p>
-      {error && <p role="alert">{m.history_unavailable()}</p>}
-      <div className="my-3 flex flex-wrap gap-3">
-        <Button
-          className="rounded border border-border-emphasis px-3 py-2"
-          isPending={pending}
-          onPress={() =>
-            void run(async () => {
-              setData(await api.getHistory());
-            })
-          }
-        >
-          {m.history_refresh()}
-        </Button>
-        {data &&
-          (data.enabled ? (
+    <div className="history-body">
+      {storage && (
+        <p className="history-note">
+          <Lock aria-hidden="true" size={16} />
+          <span>{storage}</span>
+        </p>
+      )}
+      {error && (
+        <div className="history-box" role="alert">
+          <p>{m.history_unavailable()}</p>
+          <div className="history-row">
             <Button
-              className="rounded border border-border-emphasis px-3 py-2"
+              size="sm"
               isPending={pending}
-              {...whileBusy}
-              onPress={() => setChoice({ kind: "revoke" })}
+              onPress={() =>
+                void run(async () => {
+                  setData(await api.getHistory());
+                })
+              }
             >
-              {m.history_revoke()}
+              {m.history_refresh()}
             </Button>
-          ) : (
+          </div>
+        </div>
+      )}
+      {data && !data.enabled && (
+        <div className="history-box">
+          <p>{m.history_off()}</p>
+          <p className="history-muted">{m.history_consent()}</p>
+          <div className="history-row">
             <Button
-              className="rounded border border-border-emphasis px-3 py-2"
+              size="sm"
+              variant="primary"
               isPending={pending}
               {...whileBusy}
               onPress={() =>
@@ -149,80 +181,145 @@ export function HistoryPanel({
             >
               {m.history_enable()}
             </Button>
-          ))}
-      </div>
+          </div>
+        </div>
+      )}
       {data?.enabled && (
         <>
-          <label htmlFor={`${id}-search`}>{m.history_search()}</label>
-          <input
-            id={`${id}-search`}
-            type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="my-2 block w-full max-w-md rounded border border-border-emphasis p-2"
-          />
-          {!data.entries.length && <p>{m.history_empty()}</p>}
-          <ul className="space-y-4">
-            {data.entries
-              .filter((entry) =>
-                `${entry.label ?? ""} ${entry.storedAt} ${entry.id}`
-                  .toLocaleLowerCase()
-                  .includes(search.toLocaleLowerCase()),
-              )
-              .map((entry) => (
-                <li
-                  key={entry.id}
-                  className="rounded border border-border-emphasis p-3"
-                >
-                  {entry.label && <p>{entry.label}</p>}
-                  <p>
-                    <time dateTime={entry.storedAt}>{entry.storedAt}</time> ·{" "}
-                    {m.history_count({ count: String(entry.referenceCount) })}
-                  </p>
-                  <p>{m.history_expires({ date: entry.expiresAt })}</p>
-                  {entry.locked && (
-                    <p>
-                      {m.problem_history_locked()}{" "}
-                      {upgradeUrl && (
-                        <a href={upgradeUrl}>{m.quota_upgrade()}</a>
-                      )}
-                    </p>
+          {data.entries.length > 0 && (
+            <SearchField
+              label={m.history_search()}
+              clearLabel={m.history_search_clear()}
+              value={search}
+              onChange={setSearch}
+            />
+          )}
+          {!data.entries.length && (
+            <p className="history-muted">{m.history_empty()}</p>
+          )}
+          <ul className="history-list">
+            {entries.map((entry) => (
+              <li
+                key={entry.id}
+                className="history-entry"
+                data-locked={entry.locked || undefined}
+              >
+                <div className="history-entry-head">
+                  <span>
+                    {entry.label ??
+                      m.history_count({ count: String(entry.referenceCount) })}
+                  </span>
+                  {entry.id === currentId && (
+                    <span className="history-current">
+                      {m.history_current()}
+                    </span>
                   )}
-                  <div className="flex flex-wrap gap-3">
-                    <button
-                      className="rounded border border-border-emphasis px-3 py-2"
-                      disabled={disabled || entry.locked}
-                      onClick={() =>
-                        void run(async () => {
-                          onCheck(await api.getCheck(entry.id));
-                        })
-                      }
-                    >
-                      {m.history_open()}
-                    </button>
-                    <button
-                      className="rounded border border-border-emphasis px-3 py-2"
-                      disabled={
-                        disabled || entry.locked || entry.referenceCount === 0
-                      }
-                      onClick={() => {
-                        setPartial(null);
-                        setChoice({ kind: "restart", entry });
-                      }}
-                    >
-                      {m.history_restart()}
-                    </button>
-                    <button
-                      className="rounded border border-border-emphasis px-3 py-2"
-                      disabled={disabled}
-                      onClick={() => setChoice({ kind: "delete", entry })}
-                    >
-                      {m.history_delete()}
-                    </button>
-                  </div>
-                </li>
-              ))}
+                </div>
+                <div className="history-entry-meta">
+                  <time dateTime={entry.storedAt}>
+                    {historyDate(entry.storedAt)}
+                  </time>
+                  <span>
+                    {m.history_count({ count: String(entry.referenceCount) })}
+                  </span>
+                  <span>
+                    {entry.locked ? (
+                      <Lock aria-hidden="true" size={14} />
+                    ) : (
+                      <Trash aria-hidden="true" size={14} />
+                    )}{" "}
+                    {m.history_expires({ date: historyDate(entry.expiresAt) })}
+                  </span>
+                </div>
+                {entry.locked ? (
+                  <>
+                    <p className="history-note">
+                      <Lock aria-hidden="true" size={16} />
+                      <span>
+                        {m.problem_history_locked()}{" "}
+                        {upgradeUrl && (
+                          <a className="history-link" href={upgradeUrl}>
+                            {m.quota_upgrade()}
+                          </a>
+                        )}
+                      </span>
+                    </p>
+                    <div className="history-row">
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        icon={<Trash aria-hidden="true" size={16} />}
+                        {...whileBusy}
+                        onPress={() => setChoice({ kind: "delete", entry })}
+                      >
+                        {m.history_delete()}
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="history-row">
+                      <Button
+                        size="sm"
+                        icon={<ArrowRight aria-hidden="true" size={16} />}
+                        {...whileBusy}
+                        onPress={() =>
+                          void run(async () => {
+                            onCheck(await api.getCheck(entry.id));
+                          })
+                        }
+                      >
+                        {m.history_open()}
+                      </Button>
+                      {entry.referenceCount > 0 && (
+                        <Button
+                          size="sm"
+                          icon={<RotateCcw aria-hidden="true" size={16} />}
+                          {...whileBusy}
+                          onPress={() => {
+                            setPartial(null);
+                            setChoice({ kind: "restart", entry });
+                          }}
+                        >
+                          {m.history_restart()}
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        icon={<Trash aria-hidden="true" size={16} />}
+                        {...whileBusy}
+                        onPress={() => setChoice({ kind: "delete", entry })}
+                      >
+                        {m.history_delete()}
+                      </Button>
+                    </div>
+                    {entry.referenceCount > 0 && (
+                      <p className="history-bill">
+                        <Warn aria-hidden="true" size={15} />
+                        <span>
+                          {m.history_billable_short({
+                            count: String(entry.referenceCount),
+                          })}
+                        </span>
+                      </p>
+                    )}
+                  </>
+                )}
+              </li>
+            ))}
           </ul>
+          <div className="history-row">
+            <Button
+              size="sm"
+              variant="ghost"
+              isPending={pending}
+              {...whileBusy}
+              onPress={() => setChoice({ kind: "revoke" })}
+            >
+              {m.history_revoke()}
+            </Button>
+          </div>
         </>
       )}
       {choice && (
@@ -311,6 +408,16 @@ export function HistoryPanel({
           onDismiss={() => setPartial(null)}
         />
       )}
-    </section>
+    </div>
   );
+}
+
+/** #194 D ST.date: "7 Nov 2026" in English, "7.11.2026" in German. */
+export function historyDate(iso: string) {
+  const locale = getLocale();
+  return new Intl.DateTimeFormat(locale === "de" ? "de-DE" : "en-GB", {
+    day: "numeric",
+    month: locale === "de" ? "numeric" : "short",
+    year: "numeric",
+  }).format(new Date(iso));
 }

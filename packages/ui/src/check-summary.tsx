@@ -74,7 +74,7 @@ export function MoreActions({
       <Popover
         placement="bottom end"
         className="strip-menu"
-        {...(anchor ? { triggerRef: anchor, offset: -4, crossOffset: -8 } : {})}
+        {...(anchor ? { triggerRef: anchor, offset: -5, crossOffset: -9 } : {})}
       >
         <Menu
           aria-label={m.shell_more_actions()}

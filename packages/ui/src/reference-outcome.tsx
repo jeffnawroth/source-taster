@@ -811,7 +811,11 @@ export function BestMatchComparison({
             )
               return null;
             return (
-              <tbody key={field} data-deviates={state.deviates}>
+              <tbody
+                key={field}
+                data-field={field}
+                data-deviates={state.deviates}
+              >
                 <tr>
                   <th scope="row">{m[fieldLabels[field]]()}</th>
                   <td>

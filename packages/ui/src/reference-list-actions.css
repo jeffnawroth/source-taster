@@ -1,0 +1,115 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Accepted #194 D, f6db1f512255bd404428212ade37abf5ea26f4a3,
+   paramsDcalm1stripa. The source Edit-list .dlg is a stub; its existing
+   .fld/.sel/.fs/.opt/.row recipes style the real business form here.
+   Request, revision, preview, errors and pending behavior stay in React. */
+.reference-list-actions {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+.reference-list-actions .reference-list-form,
+.reference-list-actions .reference-list-preview {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+
+/* Original .dlg .fs and legend, including nested structured-author fields. */
+.reference-list-actions fieldset,
+.reference-list-actions .reference-list-removals {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.reference-list-actions fieldset > *,
+.reference-list-actions .reference-list-removals > * {
+  margin-block: 0;
+}
+.reference-list-actions legend,
+.reference-list-actions .reference-list-removals > :first-child {
+  padding: 0;
+  margin-bottom: 4px;
+  font-size: var(--st-text-sm);
+  font-weight: 700;
+}
+/* A RAC group label is a grid item; a native legend sits outside that grid.
+   The group's existing 4px gap supplies the legend's 4px separation. */
+.reference-list-actions .reference-list-removals > :first-child {
+  margin-bottom: 0;
+}
+
+/* A disabled action and its reason use the same .fs/.note recipes. */
+.reference-list-actions .st-disabled-control {
+  display: grid;
+  gap: 4px;
+}
+.reference-list-actions .st-disabled-control > span {
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
+}
+
+/* Original .fld and .fld input/.sel. Textareas retain their real auto-growth. */
+.reference-list-actions .st-field:not(.reference-list-removals) {
+  display: grid;
+  gap: 3px;
+  font-size: var(--st-text-sm);
+  font-weight: 700;
+  color: var(--st-text-secondary);
+}
+.reference-list-actions .st-field > label {
+  font: inherit;
+  color: inherit;
+}
+.reference-list-actions .st-input {
+  width: 100%;
+  min-height: 38px;
+  padding: 6px 10px;
+  border-radius: var(--st-radius-md);
+  border: 1px solid var(--st-border-emphasis);
+  background: var(--st-surface);
+  color: var(--st-text);
+  font: inherit;
+  font-weight: 400;
+  font-size: var(--st-text-sm);
+}
+.reference-list-actions .st-input:disabled {
+  opacity: 0.6;
+}
+
+/* Original .dlg label.opt uses the native checkbox; RAC retains control,
+   accessible names, focus handling and disabled state. */
+.reference-list-actions .st-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0;
+}
+.reference-list-actions .st-checkbox > span:has(> input[type="checkbox"]) {
+  display: contents !important;
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  clip: auto !important;
+  clip-path: none !important;
+  overflow: visible !important;
+  white-space: normal !important;
+}
+.reference-list-actions .st-checkbox .st-choice-mark {
+  display: none;
+}
+.reference-list-actions .st-checkbox input[type="checkbox"] {
+  margin: 4px 3px 3px 4px;
+}
+
+/* Original .row: preview Apply/Back actions can wrap at narrow widths. */
+.reference-list-actions .reference-list-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}

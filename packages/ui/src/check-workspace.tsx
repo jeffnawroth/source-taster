@@ -1,10 +1,11 @@
 import { MaintenanceNotice } from "./maintenance.tsx";
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { HistoryPanel } from "./history.tsx";
+import { HistoryPanel, historyDate } from "./history.tsx";
 import { ContinuationTime } from "./abuse-message.tsx";
 import type { AiStructuringResult as StructuringResult } from "@source-taster/contract-verification/ai";
 import type { ReactNode } from "react";
 import {
+  useCallback,
   useDeferredValue,
   useEffect,
   useEffectEvent,
@@ -38,15 +39,14 @@ import { setLocale } from "@source-taster/i18n/runtime";
 import * as Aria from "react-aria-components";
 import {
   Check as CheckIcon,
-  FileText,
   Info,
-  List,
+  Lock,
   PanelRight,
   Plus,
-  Search,
   Upload,
-  X,
 } from "lucide-react";
+import { FileText, CircleHelp, List, Search, X } from "./workspace-icons.tsx";
+import { FeedDisclaimer } from "./how-it-works.tsx";
 import {
   Banner,
   Button,
@@ -65,25 +65,29 @@ import {
   TextArea,
   TextFieldRoot,
 } from "./primitives/fields.tsx";
+import { ThemeToggle } from "./theme-toggle.tsx";
 import { CheckingTopBar } from "./checking-top-bar.tsx";
+import { CountedPreview } from "./counted-preview.tsx";
 import { recognizedCount } from "./recognized-count.ts";
 import {
   citationStyles,
   isCitationStyle,
   isInterfaceLanguage,
+  isTheme,
+  applyTheme,
   saveGuestPreferences,
   type CitationStyle,
   type Preferences,
   type PreferenceStorage,
 } from "./preferences.ts";
 import { GuestIdentityError } from "./guest-identity.ts";
-import { InformationLinks } from "./information.tsx";
+import { InformationLinks, informationLinks } from "./information.tsx";
 import {
   StructuringResults,
   structuringSummary,
 } from "./structuring-results.tsx";
 import { CheckResults, type IntakeSource } from "./check-results.tsx";
-import { QuotaChoice, QuotaMeter, QuotaPending } from "./quota-panel.tsx";
+import { QuotaChoice, QuotaBalance, QuotaPending } from "./quota-panel.tsx";
 import { ownerQuota, planStart, type OwnerQuota } from "./quota.ts";
 const apple =
   typeof navigator !== "undefined" &&
@@ -139,6 +143,7 @@ export function CheckWorkspace({
   accountLabel,
   accountNotice,
   onPreferencesChange,
+  onSignIn,
   controlledPreferences,
   selectionIntake,
   upgradeUrl,
@@ -155,12 +160,15 @@ export function CheckWorkspace({
   siteUrl?: string;
   accountLabel?: string;
   accountNotice?: ReactNode;
+  /** The Account host owns the real sign-in modal; shared intake invokes the same action. */
+  onSignIn?: () => void;
   accountControls?: (
     language: "de" | "en",
     quota: OwnerQuota | null,
+    storage: ReactNode,
   ) => ReactNode;
   onPreferencesChange?: (
-    patch: Partial<Pick<Preferences, "language" | "citationStyle">>,
+    patch: Partial<Pick<Preferences, "language" | "citationStyle" | "theme">>,
   ) => void;
   controlledPreferences?: {
     preferences: Preferences;
@@ -199,6 +207,7 @@ export function CheckWorkspace({
   const styleReset =
     controlledPreferences?.citationStyleReset ?? localStyleReset;
   const locale = preferences.language;
+  useEffect(() => applyTheme(preferences.theme), [preferences.theme]);
   const [text, setText] = useState("");
   const [inputKind, setInputKind] = useState<"text" | "selection">("text");
   const [filesOpen, setFilesOpen] = useState(false);
@@ -329,6 +338,10 @@ export function CheckWorkspace({
     after: number;
     skipped: number;
   } | null>(null);
+  const countedPreview =
+    !check &&
+    !!preview?.references.length &&
+    (pending === "create" || quotaChoice !== null);
   /** Reads the acting identity's balance; throws when the read fails. */
   async function readQuota() {
     try {
@@ -910,6 +923,39 @@ export function CheckWorkspace({
   const running = check?.references.some(
     (r) => r.outcome.kind === "status" && r.outcome.status === "running",
   );
+  const isRunning = !!running;
+  const [storage, setStorage] = useState<{
+    enabled: boolean;
+    expiresAt?: string;
+  } | null>(null);
+  const currentCheckId = check?.id;
+  const storageFrom = useCallback(
+    (history: {
+      enabled: boolean;
+      entries: { id: string; expiresAt: string }[];
+    }) =>
+      setStorage({
+        enabled: history.enabled,
+        expiresAt: history.entries.find((entry) => entry.id === currentCheckId)
+          ?.expiresAt,
+      }),
+    [currentCheckId],
+  );
+  useEffect(() => {
+    if (!accountHistory) return;
+    let live = true;
+    api.getHistory().then(
+      (history) => {
+        if (live) storageFrom(history);
+      },
+      () => {
+        if (live) setStorage(null);
+      },
+    );
+    return () => {
+      live = false;
+    };
+  }, [api, accountHistory, storageFrom, isRunning]);
   const busy = pending !== null || running;
   // Debits settle shortly after the last Verdict; look again a few times.
   const checkId = check?.id;
@@ -937,7 +983,7 @@ export function CheckWorkspace({
         reference.outcome.status !== "running",
     ).length ?? 0;
   function changePreferences(
-    patch: Partial<Pick<Preferences, "language" | "citationStyle">>,
+    patch: Partial<Pick<Preferences, "language" | "citationStyle" | "theme">>,
   ) {
     const next = { ...preferences, ...patch };
     void setLocale(next.language, { reload: false });
@@ -985,7 +1031,7 @@ export function CheckWorkspace({
           {m.selection_limit({ limit: selectionLimit })}
         </Banner>
       )}
-      {quotaChoice && (
+      {quotaChoice && !countedPreview && (
         <QuotaChoice
           required={quotaChoice.required}
           available={quotaChoice.available}
@@ -995,7 +1041,7 @@ export function CheckWorkspace({
         />
       )}
       {/* Standalone has no Owner Quota: no Quota line, note or upgrade. */}
-      {hostedQuota && quotaNote && (
+      {hostedQuota && quotaNote && !countedPreview && (
         <Banner data-testid="quota-note">
           {quotaNote.skipped > 0
             ? m.quota_started({
@@ -1058,15 +1104,81 @@ export function CheckWorkspace({
       )}
     </>
   );
+  const guestNote = hostedQuota && !accountLabel && onSignIn && (
+    <p className="note-row">
+      <Info aria-hidden="true" size={16} />
+      <span>
+        {m.auth_guest_notice()}{" "}
+        <Button variant="ghost" className="feed-link" onPress={onSignIn}>
+          {m.auth_sign_in()}
+        </Button>
+      </span>
+    </p>
+  );
+  // #194 D storageLine: where this Check's content lives and when it goes
+  // (ADR-0005). Without History every hosted Check follows the 24-hour rule.
+  const storageText = !hostedQuota
+    ? undefined
+    : accountHistory && storage?.enabled
+      ? storage.expiresAt &&
+        m.storage_history({ date: historyDate(storage.expiresAt) })
+      : m.storage_temporary();
+  const storageNote = storageText && (
+    <p className="note-row">
+      <Lock aria-hidden="true" size={16} />
+      <span>{storageText}</span>
+    </p>
+  );
+  const quotaLine =
+    hostedQuota &&
+    (quota ? (
+      <QuotaBalance quota={quota} upgradeUrl={upgradeUrl} />
+    ) : (
+      quotaState !== "ready" && <QuotaPending state={quotaState} />
+    ));
+  const devNote = (
+    <p className="note-row dev-note">
+      <Info aria-hidden="true" size={16} />
+      <span>{m.skeleton_notice()}</span>
+    </p>
+  );
+  // #194 D notes(withAi): on the intake a Guest also learns that AI
+  // extraction is a paid-Plan feature before anything is structured.
+  const guestAiNote = guestNote && (
+    <p className="note-row">
+      <Info aria-hidden="true" size={16} />
+      <span>
+        {m.ai_guest()} {m.ai_upgrade_hint()}
+      </span>
+    </p>
+  );
   const notes = (
+    <div className="workspace-notes intake-notes">
+      {guestNote}
+      {guestAiNote}
+      {devNote}
+      {storageNote}
+      {quotaLine}
+    </div>
+  );
+  // In the feed the guest notice sits above the cards, as in #194 D.
+  // #194 D feed .foot: storage, the Verdict disclaimer, then the open
+  // Check's consumption beside the balance. Statuses are never billed
+  // (ADR-0005), so a Verdict marks a debited slot.
+  const consumed =
+    check?.references.filter((r) => r.outcome.kind === "verdict").length ?? 0;
+  const feedNotes = (
     <div className="workspace-notes">
-      <p className="note-row">
-        <Info aria-hidden="true" size={16} />
-        <span>{m.skeleton_notice()}</span>
-      </p>
+      {devNote}
+      {storageNote}
+      <FeedDisclaimer />
       {hostedQuota &&
         (quota ? (
-          <QuotaMeter quota={quota} upgradeUrl={upgradeUrl} />
+          <QuotaBalance
+            quota={quota}
+            upgradeUrl={upgradeUrl}
+            consumed={consumed}
+          />
         ) : (
           quotaState !== "ready" && <QuotaPending state={quotaState} />
         ))}
@@ -1205,13 +1317,33 @@ export function CheckWorkspace({
     if (documentFileInput.current) documentFileInput.current.value = "";
   }
   return (
-    <main className="check-workspace" data-stage={check ? "check" : "intake"}>
+    <main
+      className="check-workspace"
+      data-stage={check ? "check" : countedPreview ? "counted" : "intake"}
+    >
       <MaintenanceNotice baseUrl={transport.baseUrl} language={locale} />
       <CheckingTopBar
         brandMark={brandMark}
         documentName={file?.name ?? (fileName || undefined)}
-        account={accountControls?.(locale, quota)}
+        account={accountControls?.(locale, quota, storageNote)}
         accountLabel={accountLabel}
+        tools={
+          <>
+            <a
+              className="checking-help"
+              href={informationLinks(locale, siteUrl)[0]!.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={m.information_help()}
+            >
+              <CircleHelp aria-hidden="true" size={20} />
+            </a>
+            <ThemeToggle
+              theme={preferences.theme}
+              onChange={(theme) => changePreferences({ theme })}
+            />
+          </>
+        }
         onInput={() => inputRef.current?.focus()}
         onReset={reset}
         onPreferences={() => setPreferencesOpen(true)}
@@ -1233,7 +1365,7 @@ export function CheckWorkspace({
                 },
               ]
             : []),
-          ...(!check && preview && !previewOpen
+          ...(!check && !countedPreview && preview && !previewOpen
             ? [
                 {
                   id: "structuring-preview",
@@ -1256,6 +1388,8 @@ export function CheckWorkspace({
                 <HistoryPanel
                   api={api}
                   busy={!!busy || !!quotaChoice}
+                  currentId={check?.id}
+                  onData={storageFrom}
                   refreshKey={`${check?.id ?? ""}:${!!running}`}
                   upgradeUrl={upgradeUrl}
                   onCheck={(snapshot) => {
@@ -1279,6 +1413,20 @@ export function CheckWorkspace({
             <>
               <DialogHeading>{m.shell_preferences()}</DialogHeading>
               <div className="workspace-preferences">
+                <label className="workspace-select">
+                  {m.theme_label()}
+                  <select
+                    value={preferences.theme}
+                    onChange={(event) => {
+                      if (isTheme(event.target.value))
+                        changePreferences({ theme: event.target.value });
+                    }}
+                  >
+                    <option value="system">{m.theme_system()}</option>
+                    <option value="light">{m.theme_light()}</option>
+                    <option value="dark">{m.theme_dark()}</option>
+                  </select>
+                </label>
                 <label className="workspace-select">
                   {m.language_label()}
                   <select
@@ -1313,6 +1461,7 @@ export function CheckWorkspace({
                   </select>
                 </label>
               </div>
+              <InformationLinks language={locale} siteUrl={siteUrl} />
               <div className="st-actions">
                 <Button variant="primary" onPress={close}>
                   {m.shell_close()}
@@ -1322,7 +1471,59 @@ export function CheckWorkspace({
           )}
         </Dialog>
       </Modal>
-      {!check && (
+      {countedPreview && preview && (
+        <CountedPreview
+          result={preview}
+          source={intakeSource}
+          sourceLabel={sourceLabel}
+          consumption={
+            quotaChoice
+              ? quotaChoice.available > 0
+                ? m.quota_choice_body({
+                    required: String(quotaChoice.required),
+                    available: String(quotaChoice.available),
+                  })
+                : m.quota_choice_none({
+                    required: String(quotaChoice.required),
+                  })
+              : hostedQuota && quotaNote
+                ? `${m.quota_preview_fits({
+                    required: String(quotaNote.required),
+                    remaining: String(quotaNote.remaining),
+                    after: String(quotaNote.after),
+                  })} ${m.shell_auto_start()}`
+                : undefined
+          }
+          choice={
+            quotaChoice && (
+              <QuotaChoice
+                required={quotaChoice.required}
+                available={quotaChoice.available}
+                upgradeUrl={upgradeUrl}
+                pending={pending === "create"}
+                layout="strip"
+                onFirst={() => {
+                  if (pending !== "create") void startFirst();
+                }}
+                onDismiss={() => {
+                  if (pending === "create") return;
+                  setQuotaChoice(null);
+                  requestAnimationFrame(() => inputRef.current?.focus());
+                }}
+              />
+            )
+          }
+          notices={
+            <>
+              {guestNote}
+              {notices}
+            </>
+          }
+          footer={feedNotes}
+          onReset={reset}
+        />
+      )}
+      {!check && !countedPreview && (
         <form
           className="intake"
           onSubmit={(event) => {
@@ -1336,7 +1537,7 @@ export function CheckWorkspace({
             </h2>
             <p className="intake-lead">{m.shell_intake_lead()}</p>
           </div>
-          <div className="intake-command">
+          <div className="intake-command st-glass">
             {sourceDocument || intakeSource === "file" ? (
               <div className="intake-file-card">
                 <FileText aria-hidden="true" size={20} />
@@ -1384,6 +1585,7 @@ export function CheckWorkspace({
                   className="intake-textarea"
                   autoFocus
                   rows={1}
+                  autoResizeMaxViewportRatio={0.42}
                   onKeyDown={(event) => {
                     if (
                       event.key === "Enter" &&
@@ -1409,7 +1611,7 @@ export function CheckWorkspace({
                   </span>
                 ) : (
                   !!recognized && (
-                    <span className="intake-count">
+                    <span className="sr-only">
                       {recognized === 1
                         ? m.workspace_recognized_one()
                         : m.workspace_recognized({ count: recognized })}
@@ -1558,7 +1760,7 @@ export function CheckWorkspace({
         </form>
       )}
       <Modal
-        isOpen={!!preview && previewOpen && !check}
+        isOpen={!!preview && previewOpen && !check && !countedPreview}
         onOpenChange={setPreviewOpen}
       >
         <Dialog
@@ -1666,9 +1868,10 @@ export function CheckWorkspace({
                       )}
                     {notices}
                   </div>
+                  {guestNote}
                 </>
               }
-              footer={notes}
+              footer={feedNotes}
               onSnapshot={(snapshot) => {
                 if (
                   generation.current === workspaceGeneration &&
@@ -1680,7 +1883,6 @@ export function CheckWorkspace({
           </div>
         </section>
       )}
-      <InformationLinks language={locale} siteUrl={siteUrl} />
     </main>
   );
 }

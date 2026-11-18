@@ -1,26 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { effectiveVerdict } from "./effective-verdict.ts";
-import {
-  verdictLabels,
-  statusLabels,
-  VerdictGlyph,
-} from "./outcome-badges.tsx";
-import { Button, IconButton } from "./primitives/actions.tsx";
+import { verdictLabels, statusLabels } from "./outcome-badges.tsx";
+import { Button } from "./primitives/actions.tsx";
 import {
   AlertDialog,
   Dialog,
-  DialogHeading,
   GlassSurface,
   Modal,
 } from "./primitives/overlays.tsx";
-import {
-  useLayoutEffect,
-  useRef,
-  useState,
-  type ReactNode,
-  type RefObject,
-} from "react";
-import { useStickySize } from "./sticky-layout.ts";
+import { useRef, useState, type ReactNode } from "react";
+import { useNarrow, useStickySize } from "./sticky-layout.ts";
 import type {
   Check,
   ReferenceSlot,
@@ -35,24 +24,23 @@ import {
 import { ReferenceExports } from "./reference-exports.tsx";
 import type { OwnerQuota } from "./quota.ts";
 import { ReportDownload } from "./report-download.tsx";
+import { HowItWorksDialog } from "./how-it-works.tsx";
+import { PanelRight } from "lucide-react";
 import {
-  BookOpenText,
   ChevronLeft,
-  ChevronRight,
   CircleHelp,
   Download,
   FileDown,
   FileText,
   List,
   ListPlus,
-  PanelRight,
   PencilLine,
   RotateCcw,
-  Shield,
   Square,
   X,
-} from "lucide-react";
+} from "./workspace-icons.tsx";
 import { m } from "@source-taster/i18n";
+import { Spinner } from "./primitives/display.tsx";
 import {
   evidenceLabel,
   evidenceStep,
@@ -88,22 +76,6 @@ import {
   useSnapshotGate,
 } from "./reference-work.ts";
 
-/** D switches to the compact strip and the full-cover detail below 700 px. */
-const NARROW = 700;
-function useNarrow(ref: RefObject<HTMLElement | null>) {
-  const [narrow, setNarrow] = useState(false);
-  useLayoutEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-    const measure = () => setNarrow(element.clientWidth < NARROW);
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [ref]);
-  return narrow;
-}
-
 const verdictStep: Record<Verdict, StepState> = {
   correct: "ok",
   "exists-with-deviations": "diff",
@@ -130,7 +102,9 @@ function EvidenceTrack({ reference }: { reference: ReferenceSlot }) {
     return (
       <div className="card-track">
         <ol className="evidence-track" aria-label={runningText(reference)}>
-          <li className="track-node" data-state={queued ? "pend" : "cur"} />
+          <li className="track-node" data-state={queued ? "pend" : "cur"}>
+            {!queued && <Spinner size={16} />}
+          </li>
         </ol>
         <span className="card-step">{runningText(reference)}</span>
       </div>
@@ -161,7 +135,18 @@ function EvidenceTrack({ reference }: { reference: ReferenceSlot }) {
           </li>
         ))}
         <li className="track-node" data-state={verdictStep[verdict]}>
-          <VerdictGlyph verdict={verdict} />
+          <svg
+            aria-hidden="true"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M5 20V4M5 5h12l-2.5 4L17 13H5" />
+          </svg>
           <span className="sr-only">{m[verdictLabels[verdict]]()}</span>
         </li>
       </ol>
@@ -364,7 +349,7 @@ export function CheckResults({
     {
       id: "bibliography",
       label: m.bibliography_heading(),
-      icon: <BookOpenText aria-hidden="true" size={16} />,
+      icon: <List aria-hidden="true" size={16} />,
       onAction: () => setDialog("bibliography"),
     },
     {
@@ -517,22 +502,7 @@ export function CheckResults({
               </Button>
             </div>
           )}
-          <footer className="feed-foot">
-            {footer}
-            <p className="feed-foot-row">
-              <Shield aria-hidden="true" size={16} />
-              <span>
-                {m.shell_feed_disclaimer()}{" "}
-                <button
-                  type="button"
-                  className="feed-link"
-                  onClick={() => setDialog("help")}
-                >
-                  {m.workspace_help()}
-                </button>
-              </span>
-            </p>
-          </footer>
+          <footer className="feed-foot">{footer}</footer>
         </div>
       </div>
       {showDetail && (
@@ -567,41 +537,6 @@ export function CheckResults({
               >
                 {narrow ? m.shell_back() : m.shell_close()}
               </Button>
-              <span className="detail-position">
-                {m.shell_reference_position({
-                  position: String(selectedIndex + 1),
-                  total: String(visible.length),
-                })}
-              </span>
-              {/* At either end the arrow gives way to a same-size gap rather
-                than a disabled control: the position already says why, and
-                every page change moves focus to the title. */}
-              <div className="detail-pager">
-                {selectedIndex > 0 ? (
-                  <IconButton
-                    size="sm"
-                    variant="secondary"
-                    label={m.shell_previous_reference()}
-                    onPress={() => open(visible[selectedIndex - 1]!.slot)}
-                  >
-                    <ChevronLeft aria-hidden="true" size={16} />
-                  </IconButton>
-                ) : (
-                  <span className="detail-pager-gap" />
-                )}
-                {selectedIndex < visible.length - 1 ? (
-                  <IconButton
-                    size="sm"
-                    variant="secondary"
-                    label={m.shell_next_reference()}
-                    onPress={() => open(visible[selectedIndex + 1]!.slot)}
-                  >
-                    <ChevronRight aria-hidden="true" size={16} />
-                  </IconButton>
-                ) : (
-                  <span className="detail-pager-gap" />
-                )}
-              </div>
             </DetailHeader>
             <div className="detail-body">
               <div>
@@ -681,8 +616,10 @@ export function CheckResults({
         label={m.report_ui_heading()}
         isOpen={dialog === "report"}
         onClose={() => setDialog(null)}
+        ownActions
       >
         <ReportDownload
+          onClose={() => setDialog(null)}
           check={check}
           citationStyle={citationStyle}
           transport={transport}
@@ -714,31 +651,12 @@ export function CheckResults({
           onDone={() => setDialog(null)}
         />
       </ActionDialog>
-      <Modal
+      <HowItWorksDialog
         isOpen={dialog === "help"}
         onOpenChange={(isOpen) => {
           if (!isOpen) setDialog(null);
         }}
-      >
-        <Dialog className="workspace-dialog">
-          {({ close }) => (
-            <>
-              <DialogHeading>{m.workspace_help()}</DialogHeading>
-              <ol className="workspace-dialog-steps">
-                <li>{m.workspace_method()}</li>
-                <li>{m.workspace_limits()}</li>
-                <li>{m.doi_uncalibrated()}</li>
-              </ol>
-              <p className="detail-note">{m.workspace_human()}</p>
-              <div className="st-actions">
-                <Button variant="primary" onPress={close}>
-                  {m.shell_close()}
-                </Button>
-              </div>
-            </>
-          )}
-        </Dialog>
-      </Modal>
+      />
       <Modal
         isOpen={dialog === "reset"}
         onOpenChange={(isOpen) => {
@@ -749,6 +667,7 @@ export function CheckResults({
           title={m.check_reset()}
           cancelLabel={m.shell_keep()}
           actionLabel={m.check_reset()}
+          actionIcon={<RotateCcw aria-hidden="true" />}
           onAction={onReset}
         >
           {m.shell_reset_confirm()}

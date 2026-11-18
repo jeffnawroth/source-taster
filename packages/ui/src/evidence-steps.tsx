@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import type { SourceEvidence } from "@source-taster/contract-verification/v2";
-import { Check as CheckIcon, Minus, TriangleAlert, X } from "lucide-react";
 import { m } from "@source-taster/i18n";
 
 /** How one evidence step reads in D's track, source list and trail. */
@@ -48,17 +47,26 @@ export function queriedSources(evidence: readonly SourceEvidence[]) {
   return [...bySource.values()];
 }
 export function StepIcon({ state }: { state: StepState }) {
-  const props = { "aria-hidden": true, size: 14, strokeWidth: 2.25 } as const;
-  switch (state) {
-    case "ok":
-      return <CheckIcon {...props} />;
-    case "bad":
-      return <X {...props} />;
-    case "warn":
-      return <TriangleAlert {...props} />;
-    case "none":
-      return <Minus {...props} />;
-    default:
-      return null;
-  }
+  const path = {
+    ok: "M5 12.5l4.6 4.6L19 7.4",
+    bad: "M6.5 6.5l11 11M17.5 6.5l-11 11",
+    warn: "M12 6.5v7M12 17.4h.01",
+    none: "M6 12h12",
+    diff: "M6 9h12M6 15h12M14.4 4.6L9.6 19.4",
+  }[state as "ok" | "bad" | "warn" | "none" | "diff"];
+  return path ? (
+    <svg
+      aria-hidden="true"
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d={path} />
+    </svg>
+  ) : null;
 }
