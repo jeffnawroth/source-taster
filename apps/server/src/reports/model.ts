@@ -16,7 +16,22 @@ export type ReportVerdict = keyof typeof verdictLabels;
 
 /** One piece of reading content below a heading, in reading order. */
 export type Block =
-  | { kind: "paragraph"; text: string; keepWithNext?: boolean }
+  | {
+      kind: "paragraph";
+      text: string;
+      keepWithNext?: boolean;
+      appearance?:
+        | "document"
+        | "capture"
+        | "snapshot"
+        | "notice"
+        | "summary"
+        | "manual"
+        | "timestamp"
+        | "overview-note";
+    }
+  | { kind: "outcome"; text: string; verdict?: ReportVerdict }
+  | { kind: "metadata"; text: string }
   | {
       kind: "labelled";
       label: string;
@@ -198,15 +213,14 @@ export function buildReport(input: ReportInput): ReportModel {
   ];
   if (input.documentName)
     front.push({
-      kind: "labelled",
-      label: m.report_document({}, locale),
+      kind: "paragraph",
       text: input.documentName,
+      appearance: "document",
     });
   front.push({
-    kind: "labelled",
-    label: m.report_date({}, locale),
-    text: when,
-    face: "Mono",
+    kind: "paragraph",
+    text: `${m.report_date({}, locale)}: ${when}`,
+    appearance: "capture",
   });
   front.push({
     kind: "paragraph",
@@ -214,6 +228,7 @@ export function buildReport(input: ReportInput): ReportModel {
       { date: when },
       locale,
     ),
+    appearance: "snapshot",
   });
 
   const overview: Section = {
@@ -230,6 +245,7 @@ export function buildReport(input: ReportInput): ReportModel {
       {
         kind: "paragraph",
         text: m.report_summary_total({ count: references.length }, locale),
+        appearance: "summary",
       },
       {
         kind: "paragraph",
@@ -287,17 +303,15 @@ export function buildReport(input: ReportInput): ReportModel {
     ];
     const outcome = reference.outcome;
     if (outcome.kind === "status") {
-      blocks.push({
-        kind: "labelled",
-        label: m.report_status({}, locale),
-        text: m[statuses[outcome.status]]({}, locale),
+      blocks.unshift({
+        kind: "outcome",
+        text: `${m.report_status({}, locale)}: ${m[statuses[outcome.status]]({}, locale)}`,
       });
     } else {
       const manual = reference.manualOverride;
-      blocks.push({
-        kind: "labelled",
-        label: m.report_verdict({}, locale),
-        text: verdictName(manual?.verdict ?? outcome.verdict),
+      blocks.unshift({
+        kind: "outcome",
+        text: `${m.report_verdict({}, locale)}: ${verdictName(manual?.verdict ?? outcome.verdict)}`,
         verdict: manual?.verdict ?? outcome.verdict,
       });
       if (manual) {
@@ -307,6 +321,7 @@ export function buildReport(input: ReportInput): ReportModel {
             { verdict: verdictName(manual.verdict) },
             locale,
           ),
+          appearance: "manual",
         });
         blocks.push({
           kind: "paragraph",
@@ -314,6 +329,7 @@ export function buildReport(input: ReportInput): ReportModel {
             { verdict: verdictName(outcome.verdict) },
             locale,
           ),
+          appearance: "manual",
         });
         blocks.push({
           kind: "paragraph",
@@ -321,6 +337,7 @@ export function buildReport(input: ReportInput): ReportModel {
             { date: stamp(manual.createdAt) },
             locale,
           ),
+          appearance: "timestamp",
         });
       }
       blocks.push(...explanation(outcome, locale, unknown));
@@ -402,10 +419,8 @@ export function buildReport(input: ReportInput): ReportModel {
       }
 
       blocks.push({
-        kind: "labelled",
-        label: m.scoring_rules_label({}, locale),
-        text: outcome.scoringRules.version,
-        face: "Mono",
+        kind: "metadata",
+        text: `${m.scoring_rules_label({}, locale)}: ${outcome.scoringRules.version}`,
       });
     }
     const suggestion = suggestionFor(index);
@@ -421,7 +436,7 @@ export function buildReport(input: ReportInput): ReportModel {
         text: m.report_suggestion_style({ style: styleName }, locale),
       });
     return {
-      heading: m.report_reference_heading({ slot: reference.slot }, locale),
+      heading: `${m.report_reference_heading({ slot: reference.slot }, locale)}${outcome.kind === "verdict" && typeof outcome.reference.csl.title === "string" ? ` · ${outcome.reference.csl.title}` : ""}`,
       blocks,
     };
   });

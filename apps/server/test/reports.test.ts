@@ -354,7 +354,8 @@ it("writes a German report in reading order with overview first, one numbered se
   const outcome = check.references[0]!.outcome;
   if (outcome.kind !== "verdict") throw new Error("expected a Verdict");
   expect(text.replace(/\s+/gu, "")).toContain(outcome.scoringRules.version);
-  expect(text).toContain("Bester Treffer: 10.1038/nphys1170");
+  // Prototype C presents the field label and value in adjacent columns.
+  expect(text).toMatch(/Bester Treffer\s+10\.1038\/nphys1170/u);
   expect(text).toContain("https://doi.org/10.1038/nphys1170");
   expect(text).toContain("Seite 1 von");
   // The document name, the Correction suggestion section and the footer.
@@ -420,7 +421,7 @@ it("labels a running Check's report as an intermediate snapshot, keeps unfinishe
     );
     const { text } = await inspectPdf(first);
     expect(text).toContain("Intermediate snapshot as of");
-    expect(text).toContain("Check state: Running");
+    expect(text).toMatch(/Check state\s+Running/u);
     expect(text).toContain("Status: Running");
     // The later result of the running Reference is not in this report.
     held.release();

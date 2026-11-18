@@ -26,7 +26,7 @@ beforeAll(async () => {
 }, 60_000);
 
 describe("report PDF structure", () => {
-  it("keeps text neutral or link blue and artifacts all six supplementary colored vector marks", async () => {
+  it("keeps text in the accepted paper hierarchy or link blue and artifacts all six supplementary colored vector marks", async () => {
     const colors = [
       "#018c46",
       "#b26f06",
@@ -41,7 +41,9 @@ describe("report PDF structure", () => {
       )!;
       const paints = await inspectPaint(sample.pdf);
       for (const paint of paints.filter((p) => p.kind === "text"))
-        expect(["#0e1626", "#214bc9"]).toContain(paint.fill);
+        expect(["#0e1626", "#374053", "#535b6c", "#214bc9"]).toContain(
+          paint.fill,
+        );
       const marks = paints.filter(
         (p) =>
           p.kind === "path" &&
@@ -119,11 +121,11 @@ describe("report PDF structure", () => {
       for (const page of pdf.pages)
         for (const item of page.items) {
           if (!("str" in item) || !item.str.trim()) continue;
-          expect(item.transform[4], item.str).toBeGreaterThanOrEqual(55.9);
+          expect(item.transform[4], item.str).toBeGreaterThanOrEqual(47.9);
           expect(item.transform[4] + item.width, item.str).toBeLessThanOrEqual(
-            540,
+            548,
           );
-          expect(item.transform[5], item.str).toBeGreaterThan(30);
+          expect(item.transform[5], item.str).toBeGreaterThan(20);
           expect(item.transform[5], item.str).toBeLessThan(790);
         }
     }
@@ -197,12 +199,12 @@ describe("report PDF structure", () => {
         "00000000-0000-4000-8000-000000000042",
       );
       expect(text).toContain(
-        language === "de" ? "Feldrevision: 2" : "Field revision: 2",
+        language === "de" ? "Feldrevision 2" : "Field revision 2",
       );
       expect(text).toContain(
         language === "de"
-          ? "Herkunft: Manuell bearbeitet"
-          : "Origin: Edited by user",
+          ? "Herkunft Manuell bearbeitet"
+          : "Origin Edited by user",
       );
       const sections = text.split(
         language === "de" ? /Referenz \d/gu : /Reference \d/gu,
@@ -224,11 +226,11 @@ describe("report PDF structure", () => {
     const original = items.find(
       (i) => "str" in i && i.str.startsWith("Aspelmeyer"),
     )!;
-    const verdict = items.find((i) => "str" in i && i.str === "Verdict:")!;
-    expect("transform" in original && original.transform[4]).toBeGreaterThan(
-      190,
-    );
-    expect("transform" in verdict && verdict.transform[4]).toBe(56);
+    const verdict = items.find(
+      (i) => "str" in i && i.str.startsWith("Verdict:"),
+    )!;
+    expect("transform" in original && original.transform[4]).toBe(163);
+    expect("transform" in verdict && verdict.transform[4]).toBe(71);
   });
   it("uses a mapped Noto fallback run without changing bibliographic Unicode and refuses impossible output", async () => {
     const check = finalSample();
