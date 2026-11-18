@@ -142,7 +142,7 @@ export async function closeExport(page: Page) {
   await expect(dialog).toBeHidden();
 }
 
-const previewName = /^(Recognized references|Erkannte Referenzen)$/u;
+const previewName = /^(Recognised references|Erkannte Referenzen)$/u;
 
 /** The Structuring preview opens as a Dialog; this closes it with its Close button. */
 export async function closeStructuringPreview(page: Page) {

@@ -39,7 +39,7 @@ for (const language of ["en", "de"] as const) {
     await expect(
       page.getByRole("region", {
         name:
-          language === "en" ? "Recognized references" : "Erkannte Referenzen",
+          language === "en" ? "Recognised references" : "Erkannte Referenzen",
       }),
     ).toContainText("Signal maps");
     await expect(page.getByRole("textbox")).toHaveValue(reference);
@@ -82,7 +82,7 @@ for (const language of ["en", "de"] as const) {
     await expect(
       page.getByRole("region", {
         name:
-          language === "en" ? "Recognized references" : "Erkannte Referenzen",
+          language === "en" ? "Recognised references" : "Erkannte Referenzen",
       }),
     ).toHaveCount(0);
   });

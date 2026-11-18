@@ -8,6 +8,41 @@ import {
 import { checkStatus } from "./check-status.ts";
 import AxeBuilder from "@axe-core/playwright";
 
+test("appearance persists, follows System changes and keeps the current input", async ({
+  page,
+}) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto("/");
+  await page.getByRole("textbox").fill("An unfinished reference");
+  await page.getByRole("button", { name: "Switch to dark appearance" }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(page.getByRole("textbox")).toHaveValue(
+    "An unfinished reference",
+  );
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  const dialog = await openPreferences(page);
+  await dialog
+    .getByRole("combobox", { name: "Appearance", exact: true })
+    .selectOption("system");
+  await closePreferences(page);
+  await expect(page.locator("html")).not.toHaveAttribute("data-theme");
+  await page.emulateMedia({ colorScheme: "dark" });
+  await expect(
+    page.getByRole("button", { name: "Switch to light appearance" }),
+  ).toBeVisible();
+  await page.reload();
+  await expect(page.locator("html")).not.toHaveAttribute("data-theme");
+  expect(
+    await page.evaluate(
+      () =>
+        JSON.parse(
+          localStorage.getItem("source-taster-guest-preferences-v1")!,
+        ) as unknown,
+    ),
+  ).toMatchObject({ theme: "system" });
+});
+
 test("Guest language and citation style persist independently without losing input", async ({
   page,
 }) => {

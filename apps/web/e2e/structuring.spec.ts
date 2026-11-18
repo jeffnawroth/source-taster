@@ -23,7 +23,7 @@ for (const language of ["en", "de"] as const) {
       );
     await structureReferences(page);
     const results = page.getByRole("region", {
-      name: language === "en" ? "Recognized references" : "Erkannte Referenzen",
+      name: language === "en" ? "Recognised references" : "Erkannte Referenzen",
     });
     await expect(results).toContainText("A careful title");
     await expect(results).toContainText("Doe, J. (2020).");
@@ -34,7 +34,7 @@ for (const language of ["en", "de"] as const) {
     await page
       .getByText(
         language === "en"
-          ? "Not recognized as a reference"
+          ? "Not recognised as a reference"
           : "Nicht als Referenz erkannt",
         { exact: true },
       )
@@ -54,7 +54,7 @@ for (const language of ["en", "de"] as const) {
     await structureReferences(page);
     await expect(page.getByRole("status")).toContainText(
       language === "en"
-        ? "No references recognized"
+        ? "No references recognised"
         : "Keine Referenzen erkannt",
     );
     await expect(page.getByRole("status")).toContainText(

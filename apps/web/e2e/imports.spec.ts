@@ -41,7 +41,7 @@ for (const language of ["en", "de"] as const)
       await expect(
         page.getByRole("status").filter({
           hasText:
-            language === "en" ? "1 reference recognized" : "1 Referenz erkannt",
+            language === "en" ? "1 reference recognised" : "1 Referenz erkannt",
         }),
       ).toBeVisible();
       await expect(
@@ -53,7 +53,7 @@ for (const language of ["en", "de"] as const)
       await page
         .getByText(
           language === "en"
-            ? "Not recognized as a reference"
+            ? "Not recognised as a reference"
             : "Nicht als Referenz erkannt",
           { exact: true },
         )
@@ -113,7 +113,7 @@ test("keeps canonical exports available when membership adds a non-imported Refe
     buffer: Buffer.from("@patent{Kept,title={Synthetic patent},year=2024}\n"),
   });
   await expect(
-    page.getByRole("status").filter({ hasText: "1 reference recognized" }),
+    page.getByRole("status").filter({ hasText: "1 reference recognised" }),
   ).toBeVisible();
   await checkFromPreview(page);
   // The format choice lives in the Export Dialog (#194 D): the imported

@@ -77,7 +77,7 @@ async function open(page: Page) {
   // #99: Quota and consumption are visible before the first start.
   await page.goto(url);
   await expect(page.getByTestId("quota-summary")).toContainText(
-    "20 of 20 checks left · 0 used",
+    "20 of 20 checks left",
   );
 }
 const guestTokens = (page: Page) => {
@@ -97,13 +97,13 @@ test("the Guest sees count and consumption before the start and the balance afte
   await page.getByRole("textbox").fill(references(2));
   await check(page);
   await expect(page.getByTestId("quota-note")).toContainText(
-    "2 references will use 2 of your 20 remaining checks. 18 will be left.",
+    "2 references use 2 of your 20 remaining checks. 18 remain afterwards.",
   );
   await expect(page.getByTestId("quota-meter")).toBeVisible();
   await expect(page.locator("#results-title")).toBeVisible();
   // The debit lands after the last Verdict; the meter follows without a reload.
   await expect(page.getByTestId("quota-summary")).toContainText(
-    "18 of 20 checks left · 2 used",
+    "18 of 20 checks left",
     { timeout: 30000 },
   );
   expect(
@@ -135,7 +135,7 @@ test("a start beyond the balance asks: first N in input order, or upgrade; warni
         .analyze()
     ).violations,
   ).toEqual([]);
-  await choice.getByRole("button", { name: "Check first 20" }).click();
+  await choice.getByRole("button", { name: "Check the first 20" }).click();
   await expect(page.getByTestId("quota-note")).toContainText(
     "Started 20 of 23 references; 3 were not checked.",
   );
@@ -143,7 +143,7 @@ test("a start beyond the balance asks: first N in input order, or upgrade; warni
     timeout: 45000,
   });
   await expect(page.getByTestId("quota-summary")).toContainText(
-    "0 of 20 checks left · 20 used",
+    "0 of 20 checks left",
     { timeout: 45000 },
   );
   // A new start finds nothing left: only upgrade or cancel.
@@ -153,9 +153,9 @@ test("a start beyond the balance asks: first N in input order, or upgrade; warni
   await expect(page.getByTestId("quota-choice")).toContainText(
     "no checks left",
   );
-  await expect(page.getByRole("button", { name: /Check first/ })).toHaveCount(
-    0,
-  );
+  await expect(
+    page.getByRole("button", { name: /Check the first/ }),
+  ).toHaveCount(0);
 });
 
 test("80 percent of the Quota raises an upgrade warning", async ({ page }) => {
@@ -166,7 +166,7 @@ test("80 percent of the Quota raises an upgrade warning", async ({ page }) => {
     timeout: 45000,
   });
   await expect(page.getByTestId("quota-summary")).toContainText(
-    "4 of 20 checks left · 16 used",
+    "4 of 20 checks left",
     { timeout: 45000 },
   );
 });
@@ -192,13 +192,13 @@ test("a returning Guest sees the real, already reduced balance before starting a
   await page.getByRole("textbox").fill(references(2));
   await check(page);
   await expect(page.getByTestId("quota-summary")).toContainText(
-    "18 of 20 checks left · 2 used",
+    "18 of 20 checks left",
     { timeout: 30000 },
   );
   await page.reload();
   // Not the catalog value: the service's journal for this Guest, before any start.
   await expect(page.getByTestId("quota-summary")).toContainText(
-    "18 of 20 checks left · 2 used",
+    "18 of 20 checks left",
   );
   await expect(page.locator("#results-title")).toHaveCount(0);
 });
@@ -253,7 +253,7 @@ test("while the session is still pending nothing reads Quota or mints a Guest", 
   release();
   // Resolved as Guest: only now the Guest path reads its real balance.
   await expect(page.getByTestId("quota-summary")).toContainText(
-    "20 of 20 checks left · 0 used",
+    "20 of 20 checks left",
   );
   expect(minted).toHaveLength(1);
 });

@@ -130,6 +130,7 @@ for (const language of ["en", "de"] as const)
       expect(await readPreferences()).toEqual({
         language,
         citationStyle: "ieee",
+        theme: "system",
       });
       expect(
         (
@@ -163,7 +164,7 @@ for (const language of ["en", "de"] as const)
       await panel.closePreferences();
       await expect
         .poll(readPreferences)
-        .toEqual({ language, citationStyle: "vancouver" });
+        .toEqual({ language, citationStyle: "vancouver", theme: "system" });
       const storage = await browser.storage();
       expect(storage[key]).toMatch(/^[A-Za-z0-9_-]{43}$/);
       expect(

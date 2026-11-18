@@ -15,7 +15,7 @@ const websitePort = Number(
 );
 // The Structuring preview is a modal Dialog (#194 D); the page behind it is
 // inert, so its notices are read inside the Dialog.
-const preview = /^(Recognized references|Erkannte Referenzen)$/u;
+const preview = /^(Recognised references|Erkannte Referenzen)$/u;
 let server: Server;
 let build: Awaited<ReturnType<typeof buildExtension>>;
 let witness = aiClientWitness();

@@ -58,7 +58,7 @@ for (const language of ["en", "de"] as const)
     await expect(
       page.getByRole("region", {
         name:
-          language === "en" ? "Recognized references" : "Erkannte Referenzen",
+          language === "en" ? "Recognised references" : "Erkannte Referenzen",
       }),
     ).not.toContainText("Careful systems");
     // The Structuring preview is a Dialog over the intake and offers the Check.

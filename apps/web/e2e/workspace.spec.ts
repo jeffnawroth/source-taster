@@ -22,7 +22,7 @@ test("summary filters current Verdicts separately from technical Statuses", asyn
   // "Check complete" and how many of all References check out instead.
   await expect(
     page.getByRole("region", { name: "Your check", exact: true }),
-  ).toContainText("2 references recognized");
+  ).toContainText("2 references recognised");
   await expect(
     summary.getByRole("button", { name: "Correct: 1", exact: true }),
   ).toBeVisible();

@@ -459,7 +459,7 @@ export class Panel {
    */
   async closeStructuringPreview() {
     await this.click("button", /^(Close|Schließen)$/u);
-    await this.gone("dialog", /^(Recognized references|Erkannte Referenzen)$/u);
+    await this.gone("dialog", /^(Recognised references|Erkannte Referenzen)$/u);
   }
   /** One-action Reset: the launcher's "New check". */
   async newCheck() {

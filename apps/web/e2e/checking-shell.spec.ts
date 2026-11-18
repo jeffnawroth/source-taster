@@ -2,6 +2,58 @@
 import { expect, test } from "@playwright/test";
 import { chooseFileSource, choosePreferences } from "./support/workspace.ts";
 
+test("recognized input becomes a counted feed before search and is replaced by the real Check", async ({
+  page,
+}) => {
+  let release!: () => void;
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route("**/v2/checks", async (route) => {
+    if (route.request().method() === "POST") await held;
+    await route.continue();
+  });
+  await page.goto("/");
+  await choosePreferences(page, { language: "en" });
+  await page
+    .getByRole("textbox", { name: "Reference", exact: true })
+    .fill(
+      "Darwin, C. (1859). On the Origin of Species.\n\nAspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170",
+    );
+  await page
+    .getByRole("button", { name: "Check reference", exact: true })
+    .click();
+  const counted = page.getByTestId("counted-preview");
+  try {
+    await expect(page.locator("main.check-workspace")).toHaveAttribute(
+      "data-stage",
+      "counted",
+    );
+    await expect(counted).toContainText("2 references recognised");
+    await expect(counted.locator(".feed-cards > li")).toHaveCount(2);
+    await expect(counted.locator(".feed-cards > li").first()).toContainText(
+      "On the Origin of Species",
+    );
+    await expect(counted.locator(".feed-cards > li").last()).toContainText(
+      "Measured measurement",
+    );
+    await expect(counted.locator(".summary-counter")).toHaveCount(6);
+    await expect(
+      counted.getByRole("button", { name: "Correct: 0", exact: true }),
+    ).toBeDisabled();
+    await expect(counted.locator(".verdict-chip, .status-chip")).toHaveCount(0);
+    await expect(page.locator("form.intake")).toHaveCount(0);
+  } finally {
+    release();
+  }
+  await expect(counted).toHaveCount(0);
+  await expect(
+    page
+      .getByRole("grid", { name: "References", exact: true })
+      .getByRole("row"),
+  ).toHaveCount(2);
+});
+
 test("streamed feed has one keyboard entry, keeps slot order and returns focus from detail", async ({
   page,
 }) => {

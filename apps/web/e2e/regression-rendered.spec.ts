@@ -628,7 +628,7 @@ for (const language of ["en", "de"] as const)
     // finished count is the last of the progress lines, after the others.
     expect(heard[0], "the recognised References are announced first").toMatch(
       language === "en"
-        ? /^8 references recognized\./u
+        ? /^8 references recognised\./u
         : /^8 Referenzen erkannt\./u,
     );
     expect(

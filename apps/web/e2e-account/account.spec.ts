@@ -4,6 +4,7 @@ import { writeFile } from "node:fs/promises";
 import { once } from "node:events";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { openWebSignIn } from "../../extension/e2e/support/account-entry.ts";
 import {
   bothPrograms,
   eventually,
@@ -104,6 +105,15 @@ for (const language of ["en", "de"] as const)
       );
       const code = mail.text.match(/\b[0-9]{6}\b/)![0];
       await page.getByLabel(label).fill(code);
+      // A real server-issued challenge survives modal dismissal without a new mail.
+      const mailCount = (await both.mail()).length;
+      await page.keyboard.press("Escape");
+      await expect(
+        page.getByRole("dialog", { name: /^(Sign in|Anmelden)$/ }),
+      ).toBeHidden();
+      await openWebSignIn(page);
+      await expect(page.getByLabel(label)).toHaveValue(code);
+      expect((await both.mail()).length).toBe(mailCount);
       await page.getByLabel(label).press("Enter");
       await expect(
         page.getByRole("button", {

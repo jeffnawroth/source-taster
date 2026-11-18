@@ -366,7 +366,7 @@ test("selection replaces an imported draft and Undo restores its preview", async
         // Dialog (#194 D).
         await panel.waitForText(
           "dialog",
-          "Recognized references",
+          "Recognised references",
           "Old library title",
         );
         await select("New plain text draft");
@@ -379,7 +379,7 @@ test("selection replaces an imported draft and Undo restores its preview", async
           "New selection did not arrive",
         );
         // The replaced preview's Dialog closes (after its exit transition).
-        await panel.gone("dialog", "Recognized references");
+        await panel.gone("dialog", "Recognised references");
         expect(await panel.text("main")).not.toContain("references.bib");
         await panel.click("button", "Undo selection replacement");
         await panel.waitForText("main", undefined, "references.bib");
@@ -387,7 +387,7 @@ test("selection replaces an imported draft and Undo restores its preview", async
         await panel.command("Structuring preview");
         await panel.waitForText(
           "dialog",
-          "Recognized references",
+          "Recognised references",
           "Old library title",
         );
       },
@@ -614,7 +614,7 @@ test("selection replaces a prepared bibliography draft and Undo restores its mov
         await panel.structure();
         await panel.waitForText(
           "dialog",
-          "Recognized references",
+          "Recognised references",
           "Signal maps",
         );
         // The preview is a modal Dialog over the region editor (#194 D).
@@ -636,7 +636,7 @@ test("selection replaces a prepared bibliography draft and Undo restores its mov
           );
         }, "Selection did not replace the prepared bibliography draft");
         expect(await panel.query("spinbutton", "Region 1 start")).toEqual([]);
-        expect(await panel.query("dialog", "Recognized references")).toEqual(
+        expect(await panel.query("dialog", "Recognised references")).toEqual(
           [],
         );
         await panel.click("button", "Undo selection replacement");

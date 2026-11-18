@@ -2,6 +2,7 @@
 // Drives one Check through the shared workspace in the native panel or on web.
 import { readFile } from "node:fs/promises";
 import { expect, type Page } from "@playwright/test";
+import type { Theme } from "@source-taster/ui/preferences";
 import { until, type Panel } from "./chromium.ts";
 
 export type Language = "en" | "de";
@@ -54,7 +55,7 @@ export async function runCommandOnWeb(page: Page, name: string | RegExp) {
  */
 export async function choosePreferencesOnWeb(
   page: Page,
-  choice: { language?: string; citationStyle?: string },
+  choice: { language?: string; citationStyle?: string; theme?: Theme },
 ) {
   const launcher = /^(Search or command|Suchen oder Befehl) …$/u;
   await page.getByRole("button", { name: launcher }).click();
@@ -75,6 +76,10 @@ export async function choosePreferencesOnWeb(
         name: /^(Preferred citation style|Bevorzugter Zitierstil)$/u,
       })
       .selectOption(choice.citationStyle);
+  if (choice.theme)
+    await dialog
+      .getByRole("combobox", { name: /^(Appearance|Darstellung)$/u })
+      .selectOption(choice.theme);
   await dialog.getByRole("button", { name: /^(Close|Schließen)$/u }).click();
   await expect(dialog).toBeHidden();
 }
@@ -85,7 +90,7 @@ export async function choosePreferencesOnWeb(
  */
 export async function expectPreferencesOnWeb(
   page: Page,
-  expected: { language?: string; citationStyle?: string },
+  expected: { language?: string; citationStyle?: string; theme?: Theme },
 ) {
   await runCommandOnWeb(page, /^(Preferences|Einstellungen)$/u);
   const dialog = page.getByRole("dialog", {
@@ -102,6 +107,10 @@ export async function expectPreferencesOnWeb(
         name: /^(Preferred citation style|Bevorzugter Zitierstil)$/u,
       }),
     ).toHaveValue(expected.citationStyle);
+  if (expected.theme)
+    await expect(
+      dialog.getByRole("combobox", { name: /^(Appearance|Darstellung)$/u }),
+    ).toHaveValue(expected.theme);
   await dialog.getByRole("button", { name: /^(Close|Schließen)$/u }).click();
   await expect(dialog).toBeHidden();
 }

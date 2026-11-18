@@ -48,7 +48,7 @@ for (const language of ["en", "de"] as const) {
             await panel.text(
               "region",
               language === "en"
-                ? "Recognized references"
+                ? "Recognised references"
                 : "Erkannte Referenzen",
             )
           ).includes("Signal maps"),

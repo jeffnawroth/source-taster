@@ -109,7 +109,7 @@ for (const language of ["en", "de"] as const) {
     const t =
       language === "en"
         ? {
-            enable: "Enable history",
+            enable: "Turn on history",
             refresh: "Refresh history",
             open: "Open check",
             restart: "Start as a new check",

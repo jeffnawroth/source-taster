@@ -178,7 +178,7 @@ for (const locale of ["en", "de"] as const) {
     await trigger.click();
     await page
       .getByRole("button", {
-        name: en ? "Enable history" : "Verlauf aktivieren",
+        name: en ? "Turn on history" : "Verlauf aktivieren",
         exact: true,
       })
       .click();
@@ -359,7 +359,7 @@ for (const locale of ["en", "de"] as const)
     );
     expect(beforeSearch).toContain(
       en
-        ? "1 references will use 1 of your 20 remaining checks"
+        ? "1 references use 1 of your 20 remaining checks"
         : "1 Referenzen verbrauchen 1 Ihrer 20 verbleibenden Prüfungen",
     );
     await page.unroute("**/v2/checks");
@@ -381,7 +381,7 @@ for (const locale of ["en", "de"] as const)
     );
     await choice
       .getByRole("button", {
-        name: en ? "Check first 20" : "Die ersten 20 prüfen",
+        name: en ? "Check the first 20" : "Die ersten 20 prüfen",
         exact: true,
       })
       .click();
