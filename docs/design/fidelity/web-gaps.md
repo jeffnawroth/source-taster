@@ -46,7 +46,7 @@ D's counted stage is post-structuring: the strip head "n References recognised",
 
 | Element | Current | Target | Files |
 |---|---|---|---|
-| Counted strip | No counted phase; Check jumps from the form to the results. | While a Check is being created after structuring (`pending === "create"` with a known count), and while the first-N choice is open, the workspace shows the strip head "n References recognised" with the Quota sentence. `QuotaChoice` (Check first N / Cancel) **moves to** that strip head; it no longer sits under the form. The cards show empty, dashed tracks. | `check-workspace.tsx`, `summary-strip.tsx` |
+| Counted strip | No counted phase; Check jumps from the form to the results. | While a Check is being created after structuring (`pending === "create"` with a known count), and while the first-N choice is open, the workspace shows the strip head "n References recognised" with the Quota sentence. `QuotaChoice` (Check the first N / Change plan / Cancel) **moves to** that strip head; it no longer sits under the form. The cards show empty, dashed tracks. | `check-workspace.tsx`, `summary-strip.tsx` |
 | Harness pairing | The harness pairs the prototype's `counted` with the built `filled` state (text typed, nothing structured). | **Driver mismatch, not fixture data.** Built `filled` shows the intake with text and an enabled inline Check. The prototype counted strip has no stable built twin, because a standalone Check starts right after structuring. The counted strip is covered by an e2e test instead. | — |
 
 ## 5. Strip (running and done)

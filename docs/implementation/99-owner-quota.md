@@ -59,7 +59,7 @@ this work.
   fails (fail closed). Before the automatic start the user sees
   count and expected consumption; when
   the balance does not cover the input the Check does not start and the user
-  chooses "Check first N" or upgrade. The meter is always visible and warns at
+  chooses "Check the first N" or upgrade. The meter is always visible and warns at
   80 % and 100 % with an upgrade offer (a link when the host passes
   `upgradeUrl`, text otherwise). DE/EN messages cover every string.
 - **Unconfirmed Accounts.** An Account and its personal Owner exist only after

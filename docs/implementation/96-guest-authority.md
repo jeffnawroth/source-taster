@@ -183,6 +183,15 @@ public JWKS. Private keys are operator-owned configuration, never client bundles
 Production accepts HTTPS service origins; HTTP fixture overrides are loopback
 and development only.
 
+The optional `accountOrigin` is the independently validated Account UI origin.
+Only `GET/PUT /v2/history/consent` grants CORS to that origin, without cookies
+or credentialed CORS. The endpoint requires an actual Account Bearer token and
+returns only `{ data: { enabled } }`; it never returns entries, Check labels or
+Quota. Reads and withdrawal remain independent of Quota availability. Without
+an explicit Account origin the service issuer's origin is used. The local
+hosted composition supplies its actual Account origin and local email/DPA
+destinations.
+
 **Deployable hosted web/worker startup still refuses absent/ineligible exact
 measurement, even with working service authority and valid Guest tokens.**
 `build:release` remains closed. There is no

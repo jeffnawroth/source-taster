@@ -1,5 +1,15 @@
 # #216 — Integrated visual and accessibility regression evidence
 
+The records below are historical runs, not acceptance of the current fidelity
+work. The owner rejected screenshot tracing and thumbnail comparisons on
+17 November 2026. The current gate is [measured prototype fidelity](../design/fidelity/measured-gate.md):
+the pinned original renderers/CSS, native-size pixel differences, computed
+styles and geometry for each language, appearance, viewport and interaction.
+The website subset has 152 passing states and PDF C has ten passing pages;
+app, native extension and hosted/private completion, live review and a fresh
+independent review are still pending. **The integrated fidelity gate remains
+open.** A subset with `complete: false` cannot close it.
+
 Public implementation on `implement/216-regression-evidence`, built under the
 TDD workflow, and reviewed and hardened on `fix/220-review`. The recorded code
 tree is `3eb7c62`, which contains the #212 review fix `b588c9c` and the

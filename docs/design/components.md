@@ -41,7 +41,7 @@ The private surfaces need Table, the form primitives and AlertDialog beyond what
 
 - **Colour only in the verdict glyph.** `verdict-*-mark` fills the glyph. The label beside it is `text`. Chips, cards, rows, headers and counters around a verdict stay neutral: no tints, no coloured borders, no glows. `feedback-*` is the only other colour, and only for form errors, destructive confirmations, quota warnings and toasts, never inside a results list.
 - **Accent** marks the one primary action per view, the selected state, links and "Running".
-- **Glass only on floating layers:** TopBar, the sticky SummaryStrip, Toast, the DetailPane header (variant `glass`), and CommandPalette (variant `glass-overlay`). Everything else is opaque `surface`. The fallback for no `backdrop-filter` or `prefers-reduced-transparency` is opaque `surface`.
+- **Glass only on floating layers:** TopBar, the sticky SummaryStrip, Toast, the DetailPane header (variant `glass`), CommandPalette (variant `glass-overlay`), AccountPopover (calm strong glass, per the owner’s 17 November 2026 fidelity instruction), and floating Dialogs (the accepted D `.dlg.st-glass.quiet` recipe). The History Sheet uses the same calm strong glass (the accepted D `.hist.st-glass.quiet` recipe); working content inside it stays on opaque `surface` cards. The fallback for no `backdrop-filter` or `prefers-reduced-transparency` is opaque `surface`.
 - **Verdict never by colour alone** (FA-ERG-03). Every verdict shows its glyph shape plus its label. The one exception is the compact strip (3.2), which shows glyph + number and keeps the full label as accessible name and tooltip.
 - **Forced colours:** glyphs become monochrome `CanvasText` shapes. Focus uses `Highlight`. Borders that carry state (dashed Status contour, selected outline) stay visible as system colours.
 
@@ -146,6 +146,10 @@ Each entry gives the RAC primitive, anatomy, variants and sizes, roles, keyboard
 - `accent-text`, underlined, `text-decoration-thickness: 1px`, offset 0.2em. Hover thickens the underline. Visited is not styled.
 - External links get a 16 px Lucide `arrow-up-right` and "opens in a new tab" in the accessible name.
 - Long text: wraps.
+
+**LinkButton** — RAC `Link` with the Button recipe (`secondary`, `sm` or `md`), no underline.
+- For a navigation that D draws as a `.btn`, such as Change plan in the short-Quota choice.
+- An external target keeps "opens in a new tab" in the accessible name, without a visible arrow, because D's button has none.
 
 ### 2.2 Input
 
@@ -263,6 +267,7 @@ All fields share one anatomy through **Form, Label, Description and FieldError**
   - The summary sentence moves to the top of the feed: done „5 von 10 Referenzen stimmen.“; running „Prüfung läuft · 4 von 10 fertig“ with a Stop Button.
   - An active filter adds a Tag below the row with the glyph, the **full** label and ×.
   - „Alle Labels zeigen“ in the ⋯ Menu switches the strip to the wide layout, wrapped over several rows, until switched back.
+- **Counted, compact:** an IconButton with the filter icon ("Counts") before the ⋯ Menu folds the counter grid; `aria-expanded` reports it. Open by default, as in D.
 - **Explicit exception to "glyph + label"**: only the compact strip, only below 700 px, may show glyph + number without the visible label. Name and tooltip carry the label. Every other place shows the label.
 - Arrow keys move between counters (Toolbar); Tab leaves the strip.
 
@@ -302,7 +307,9 @@ All fields share one anatomy through **Form, Label, Description and FieldError**
 
 **CommandPalette** — ⌘K / Ctrl+K. RAC `Autocomplete` with a SearchField and a `Menu` of commands and recent Checks, inside a modal `glass-overlay` Dialog, `radius-2xl`, max width 640 px. Items show icon, label, optional Kbd; Verdict items show VerdictGlyph + label. Esc closes and returns focus.
 
-**AccountChip** — Button `ghost` with the avatar initial in a neutral `surface-sunken` circle (no gradient) and, on the web, the name. Opens **AccountPopover**: account name, QuotaMeter, links to Preferences and Account, sign-out. A Guest sees a sign-in action instead.
+**AccountChip** — source D’s rounded chip Button with the avatar initial in a neutral `surface-sunken` circle (no gradient) and, on the web, the name. Opens **AccountPopover**: account name, QuotaMeter, links to Preferences and Account, sign-out. A Guest sees a primary sign-in action with the user icon instead.
+- The popover is pinned under the sticky TopBar at D's `top: 62px` and stays open while the page scrolls; Esc, the chip and its own actions close it.
+- Headings, eyebrows and the meter value keep normal tracking: no text step adds letter-spacing (the token pipeline does not map per-step tracking into Tailwind).
 
 **QuotaMeter** — Meter with the remaining Quota in words („Noch 12 von 50 Prüfungen“). The quota warning switches it to `feedback-warning` with icon and text (1.7). Quota facts follow #192 (a technical Status uses no Quota; a previously debited slot is not debited again, while a previously unbilled slot can incur its first debit on a Verdict).
 
@@ -371,6 +378,8 @@ The inventory from #187 named five cross-cutting problems:
 
 The Account popover is an entry point. #196 puts substantive Account work on full pages (KA with KC’s Plan/Quota hierarchy), not an Account sheet. Email A/PDF C, website A with C’s question index, and brand A-store/B-social follow their later accepted specs.
 
-No should/deferred feature is pulled into launch by appearing in this catalogue: CommandPalette is a design hook, not a new full-text application search service; persistent Theme choice remains ADR-0023 should. Use only existing routes/actions when wiring the launcher.
+No should/deferred feature is pulled into launch by appearing in this catalogue: CommandPalette is a design hook, not a new full-text application search service; the owner promoted persistent Theme choice on 17 November 2026. Web and extension provide the website’s circular 36 px appearance toggle and System/Light/Dark in Preferences under ADR-0023’s Account/Guest lifecycle. Use only existing routes/actions when wiring the launcher.
+
+**Information navigation relocation (17 November 2026):** the checking workspace’s Help, Contact, Legal notice, Terms, Privacy policy and Withdrawal instructions links live in Preferences. This implementation placement retains every destination, interface-language selection, labelled navigation landmark and keyboard-accessible link while following accepted #194 D, which has no always-visible information footer. It is implementation judgment, not an owner decision. Help also has a direct localized circular link beside Theme in every checking view (FA-UEB-02); results retain their direct “How the check works” action (FA-ERG-05).
 
 The “drafted, not grilled” timings, dimensions and announcement batching in section 5 are implementation defaults within the accepted rules. Validate them with the actual content, controls and assistive technology; they are not new business rules or separately granted exceptions. See [reconciliations.md](reconciliations.md).

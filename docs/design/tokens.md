@@ -28,7 +28,7 @@ Rules:
 - **CSS variables:**
   - Roles are `--st-<role>`, and primitives are `--st-prim-<family>-<step>`.
   - Light is the default on `:root`.
-  - Dark applies under `@media (prefers-color-scheme: dark) { :root:not([data-theme=light]) }` and under `:root[data-theme=dark]`. This supports both appearances with System as the default. A persistent manual Theme preference remains a should under ADR-0023; this token rule does not promote it to a launch must.
+  - Dark applies under `@media (prefers-color-scheme: dark) { :root:not([data-theme=light]) }` and under `:root[data-theme=dark]`. This supports both appearances with System as the default. The owner promoted persistent manual Theme choice on 17 November 2026; ADR-0023 defines its Account/Guest lifecycle.
   - Each mode block also sets `color-scheme`.
   - Components never use `dark:` utilities.
 - **Tints are computed at build time**, never with `color-mix` inside components (see 2.5).

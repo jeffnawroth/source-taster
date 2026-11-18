@@ -10,7 +10,7 @@ The approved baseline remains [requirements v3.3](../requirements-specification.
 
 ## Preference set
 
-At launch the Preferences are the **interface language** (DE or EN) and the **preferred citation style** (one of the eleven styles of the pinned manifest; default APA). Both are closed lists, validated on write. If a later manifest version removes a stored style, the client falls back to APA and shows a notice. Preferences never contain Check content.
+At launch the Preferences are the **interface language** (DE or EN), the **preferred citation style** (one of the eleven styles of the pinned manifest; default APA), and **Theme** (System, Light or Dark; default System). All three are closed lists, validated on write. If a later manifest version removes a stored style, the client falls back to APA and shows a notice. Preferences never contain Check content.
 
 ## Account preferences
 
@@ -44,12 +44,12 @@ This keeps ADR-0013's separate sessions and ADR-0005's rule that Guest Checks ne
 - **One style setting:** the Verification report and every export use the current preferred style. The export dialog shows the style and edits the same Preference; there is no separate one-off export style.
 - **Formatted bibliography:** add a "Formatted bibliography" download as RTF in the preferred style. It has the same content as the CSL-JSON/BibTeX export: current committed fields, removed slots omitted, selected eligible suggestions applied (ADR-0016). It is rendered by the existing server citeproc-js facade. CSL-JSON and BibTeX stay style-neutral data under FA-ERG-30, so the RTF download is how the selected style appears in the export (FA-KON-03).
 
-## Should seams
+## Appearance and onboarding
 
-- **Theme (FA-KON-02):** joins the same Preference set and rules later, default System.
+- **Theme (FA-KON-02):** promoted by the owner on 17 November 2026; implemented under the Preference lifecycle above, default System. The circular 36 px app/extension toggle matches the website, and Preferences also offers System, Light and Dark. System follows OS changes immediately.
 - **Onboarding (FA-KON-30):** the "seen" marker stays local per client environment, also when signed in, and is not stored on the Account.
 
-Both remain **should**; this records the seam only.
+Onboarding remains **should**. The owner explicitly requires persistent Theme choice for design fidelity; its earlier should classification no longer defers implementation.
 
 ## Acceptance evidence
 
@@ -91,3 +91,7 @@ Mozilla files "extension usage and settings data" under the data collection type
 - **Later grant:** the existing sign-in rule applies. The Account's stored values are applied; local values are not merged into the Account.
 
 Chromium and the web app are unchanged: they always sync while signed in. An existing Account that signs in without the grant keeps its stored values, and a new registration without the grant sends none; whether to offer "send my current Preferences" at grant time remains undecided.
+
+## Amendment (17 November 2026, prototype fidelity)
+
+The owner requires persistent appearance controls in the web app and extension. This supersedes the former Theme should seam and ADR-0027's corresponding deferral. Theme follows the same Account authority, per-client Guest storage, registration, sign-in, focus refresh, sign-out and deletion rules as the other Preferences. Older records read as System. The website toggle remains page-local under ADR-0020, without storage.

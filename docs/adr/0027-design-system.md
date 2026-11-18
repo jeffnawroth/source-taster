@@ -13,7 +13,7 @@ Accepted by the owner on 10 November 2026 in [#206](https://github.com/jeffnawro
 - Keep React Aria Components 1.x and Tailwind CSS 4 under ADR-0002. Copy and restyle the official RAC Tailwind starter as project-owned primitives; it is not a runtime dependency. Use the selected stable styling helpers and locally bundled Lucide generic icons from #188. Pin and qualify exact versions at implementation; this packet does not update dependencies.
 - Use Atkinson Hyperlegible Next and IBM Plex Mono, locally hosted. The PDF uses static TTFs with the Noto fallback; email uses dependable native font fallbacks. The two-drop quotation mark is brand artwork; the six Verdict glyphs are distinct project-owned SVG shapes with readable labels.
 - Use semantic sRGB-safe roles, a 15 px body scale, the same text steps for panel and web, 36/28 px controls and targets at least 24×24 px. Ordinary working surfaces are opaque and neutral. Verdict colour appears only in its glyph; labels, cards, counters, field evidence and tracked-change previews stay neutral. Accent identifies actions/selection; feedback colours have the limited non-result uses in the styleguide.
-- Glass is limited to TopBar, sticky SummaryStrip, Toast, the web detail header and CommandPalette. Keep two variants (`glass`, `glass-overlay`) with an opaque `surface` fallback. No broad colour fields, background glow, button gradients or Verdict tints. The glass edge treatment and logo artwork are not decorative page gradients.
+- Glass is limited to TopBar, sticky SummaryStrip, Toast, the web detail header, CommandPalette, AccountPopover and floating Dialogs. Keep two variants (`glass`, `glass-overlay`) with an opaque `surface` fallback. No broad colour fields, background glow, button gradients or Verdict tints. The glass edge treatment and logo artwork are not decorative page gradients.
 - Use #194 D **Feed + sticky strip** for the shared checking workspace. Detail is a non-modal push drawer at sufficient width and a full view with Back when narrow. Below 700 px only the compact strip may omit visible Verdict labels: retain glyph, count, accessible name, tooltip, labelled active filter and a way to reveal all labels.
 - Use #196 **KA with KC's combined Plan/Quota hierarchy** for full Account pages and a full-page ordering stepper, and **OC** for the Operator inbox/work area. The Account popover remains an entry point. Preserve Check context in the open client without carrying Reference content into private pages.
 - Use #197 **email A** and **PDF C**, #198 **website A with C's question-led documentation index**, and #199 **store imagery A, social previews B, shared icon family**. Medium and surface details remain in their linked specifications. A design example never proves a released capability.
@@ -44,7 +44,7 @@ The existing FA-UEB-23 review must examine actual CSS/constants distribution, de
 
 ## Scope, authority and delivery
 
-Both light/dark appearances and System-default CSS are designed. A durable manual Theme preference remains the ADR-0023 should seam; it is not a launch blocker introduced here. Likewise the launcher may expose existing actions/navigation but does not promote a new application search service. Context-menu intake, reconnect, History, consent, eligibility, billing, cancellation, DPA, Operator proof and data boundaries remain under their accepted ADRs. No prototype fixture or UI placement grants authority.
+Both light/dark appearances and System-default CSS are designed. The owner promoted durable manual Theme choice on 17 November 2026: web and extension require the website’s 36 px circular toggle plus System/Light/Dark in Preferences, under ADR-0023’s lifecycle. Likewise the launcher may expose existing actions/navigation but does not promote a new application search service. Context-menu intake, reconnect, History, consent, eligibility, billing, cancellation, DPA, Operator proof and data boundaries remain under their accepted ADRs. No prototype fixture or UI placement grants authority.
 
 The [reconciliation record](../design/reconciliations.md) distinguishes accepted source reconciliations from implementation defaults and still-open execution qualifications. Legal/versioned copy, no-analytics/public-content-only search, token/brand rights, reported-wrong-Verdict ownership, exact Check/result snapshots and native acceptance gates remain in force. Keep private specifications and templates private. The [implementation plan](../design/implementation-plan.md) gives each slice a repository, dependencies, evidence and review gate; it reuses #105 for PDF instead of creating a competing implementation.
 
@@ -53,3 +53,15 @@ Before launch, verify actual built outputs: DE/EN, wide/narrow, keyboard and foc
 ## Alternatives and consequences
 
 The prototype process rejected a new component framework, a shared proprietary/open component package, new visual identities per surface, cramped Account sheets, the full single-page Account, and decorative glow/colour fields. Independent private primitives cost a small amount of duplicated styling, in exchange for a narrow transportable contract and explicit ownership. Token-name removal/rename is breaking and requires coordinated consumers; colour value changes still require regression/contrast review. The final specifications take precedence over stale prototype copy, fixture behaviour and historical seed descriptions.
+
+## Amendment (17 November 2026, prototype fidelity)
+
+The accepted prototypes’ actual CSS is the visual source for owned primitives; prose summaries and reduced screenshot pairs are insufficient acceptance evidence. Compare all four accepted prototype families at full size with explicit pixel, computed-style and geometry tolerances, including open states and both appearances. The owner also requires the command trigger to share the content column’s centre line.
+
+AccountPopover joins the floating glass layers: #194 D uses the calm strong glass backdrop, 340 px maximum width, 14 px padding and radius-xl. This corrects the catalogue’s former opaque-only reading of that popover. Private components remain independently owned and private evidence stays private.
+
+The original #194 D renderer also applies `.st-glass.quiet` to `.dlg`.
+The measured port therefore uses calm glass for floating Dialogs, with the
+existing opaque reduced-transparency fallback. Sheet bodies remain opaque.
+This corrects the prose catalogue's omission of an accepted source recipe;
+it does not introduce gradients or additional coloured surfaces.

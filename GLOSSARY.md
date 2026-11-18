@@ -149,7 +149,7 @@ A person's registration, confirmed by e-mail, with which they sign in to the ext
 _Avoid_: Owner (as a substitute)
 
 **Preferences**:
-The interface language and preferred citation style a user chooses; kept with the account when signed in, otherwise separately in each client for a guest.
+The interface language, preferred citation style and appearance (System, Light or Dark) a user chooses; kept with the account when signed in, otherwise separately in each client for a guest.
 _Avoid_: Expert settings (which change verification parameters)
 
 **Owner**:

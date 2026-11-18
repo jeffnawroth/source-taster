@@ -1,6 +1,14 @@
 # #213 — Product-first website and question-led documentation
 
-## Basis and delivered behavior
+## Current fidelity reconciliation (17 November 2026)
+
+The implementation history below predates the reopened #213 fidelity work. Its 116-test result and original Not checked `ReferenceOutcomeSummary` example describe that historical implementation, not the current website. The current sample renders shared `VerdictGlyph` markup at build time with an explicit illustrative disclaimer.
+
+Preserved [website results](../../apps/web/test-results/design-fidelity-website/results.json) and [comparison sheet](../../apps/web/test-results/design-fidelity-website/index.html) now record **152 selected, 152 completed, 152 passed**, no failures or masks, against original #198 S at `b6dfa14909b7ec8ed4f8a7057d4bc0ea94f14022`. This selected run has `complete: false`; the full integrated #216 gate remains open. [website-gaps.md](../design/fidelity/website-gaps.md) is the current crosswalk, explicit amendment record and scope limitation. #230 is resolved by the bilingual FAQ question; #231 is resolved by distinguishing #194’s shared scrim from #198’s exact 48% search backdrop. No stylesheet/token change is required by that resolution. #213 stays open pending the current behavioral gate, including the stale German question expectation documented in website-gaps.md.
+
+This reconciliation inspected current code, the harness and preserved artifacts; it did not rerun browsers, servers or the historical behavioral suite, and it does not grant publication or asset-upload approval.
+
+## Historical basis and delivered behavior
 
 The isolated branch `t3/product-first-website` initially matched required base
 `55275f49179ac0a2dc832f19ac407161f5202fb4`; ancestry was verified before edits.
@@ -77,7 +85,7 @@ local/session storage, IndexedDB, CacheStorage and service-worker registrations.
 The full retained privacy suite rejects remote resources/embeds, React runtime
 and client islands. Actual Pagefind source/WASM object downloads remain hash-bound.
 
-## Final validation
+## Historical final validation
 
 - `SOURCE_TASTER_WEBSITE_E2E_PORT=53213 pnpm --filter @source-taster/website test:e2e`:
   **116 Chromium tests pass** after the final integration merge, including every
@@ -122,7 +130,7 @@ DE/EN indexing and hash-bound source/notice delivery. No stale generated runtime
 or another worktree's receipt was used. The original generated directory was
 kept as a temporary rollback until this check succeeded.
 
-No known #213 implementation gap remains. Chromium automation is not human
+At that historical handoff, no #213 implementation gap was recorded; the later reopening and current fidelity result are documented above. Chromium automation is not human
 screen-reader review, native browser-chrome zoom, Safari/Firefox qualification,
 translation approval, legal review or deployment/release acceptance. Those
 existing gates remain, together with actual capability/provider qualification.

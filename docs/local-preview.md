@@ -52,7 +52,7 @@ Options, e.g. `pnpm dev:local --basic --no-reports`:
 | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `--basic`      | DOI route only: no OpenAlex/Europe PMC fixtures.                                                                                                                      |
 | `--web`        | Turns on web-page checks. `example.com` and the Internet Archive hosts answer from a fixture; **any other URL is fetched from the real internet**. Not combinable with `--basic`. |
-| `--no-reports` | Standalone as it really is: no Quota panel and no PDF report (the fake Quota below is not installed).                                                                 |
+| `--no-reports` | Disable the standalone report entitlement fixture. Account/Plan/Quota UI remains absent in either standalone mode.                                                                 |
 | `--no-smoke`   | Skip the startup smoke Check.                                                                                                                                         |
 | `--hosted`     | Also start the private service and run the web app in hosted mode; see "Hosted preview". Alias: `pnpm dev:local:hosted`. Not combinable with `--web` or `--no-reports`. |
 
@@ -63,7 +63,7 @@ The container is left running when you press Ctrl-C (starting again is faster); 
 - **Data sources**: the DOI resolver, Crossref, OpenAlex and Europe PMC are loopback fixtures started by the script, so no real DOI or article search is queried. Semantic Scholar, arXiv, Open Library and Google Books are never switched on, so ISBN and book lookups answer "not checked" rather than reaching a real catalog.
 - **AI**: off. Standalone has no AI extraction; the page says "Your current feature scope does not include AI extraction. The parser was used."
 - **Mail, payments, accounts**: not present in this mode; `pnpm dev:local:hosted` adds them, all faked (see "Hosted preview").
-- **Quota and PDF report**: the server's test composition installs a **fake Quota** (1000 granted checks, report feature granted). The panel always shows the full 1000 and never counts down; it exists so the Quota panel and the report are visible.
+- **Quota and PDF report**: the server's test composition installs a **fake Quota** (1000 granted checks, report feature granted). This fixture grants report creation without enabling Account, Plan or Quota service UI in standalone mode (ADR-0003); its balance does not count down. Hosted mode uses the actual service ledger.
 - **Web-page checks**: off unless you start with `--web`. Then `example.com`, `archive.org` and `web.archive.org` are redirected to a local fixture, and **a Reference containing a URL on any other host is fetched from the real internet** (plain GET, with the server's private-address protection). Paste only `example.com` URLs if you want to stay offline.
 
 ## Fixture data to paste
@@ -82,13 +82,13 @@ Ready-made import files are in `docs/local-preview/`: `demo.bib` (three entries,
 
 ### Visible in `pnpm dev:local`
 
-1. **Check workspace** – open <http://127.0.0.1:5493/>. Paste the first Reference above, press **Check Reference**. The Check runs, the summary shows the Verdict counts, and *Open Reference 1* shows fields, evidence and Correction suggestions. Switch language (Deutsch/English) and citation style at the top. Edit fields, *Re-check this Reference* (free of Quota), or *Judge manually*.
+1. **Check workspace** – open <http://127.0.0.1:5493/>. Paste the first Reference above, press **Check Reference**. The Check runs, the summary shows the Verdict counts, and *Open Reference 1* shows fields, evidence and Correction suggestions. Open Preferences for language (Deutsch/English), citation style and System/Light/Dark appearance; the top bar also has the circular appearance toggle. Edit fields, *Re-check this Reference* (free of Quota), or *Judge manually*.
 2. **Structure References** – previews the deterministic Structuring without starting a Check and without Quota.
 3. **Import BibTeX / RIS** – "Import BibTeX or RIS" → choose `docs/local-preview/demo.bib` (or `.ris`) → the entries are recognised → **Check Reference** → three different Verdicts.
 4. **Exports** – after a Check: *Export References* (CSL-JSON or BibTeX, with or without selected Correction suggestions) and *Formatted bibliography* (copy, or RTF download).
 5. **PDF report** – *Accessible PDF report* → language → **Create report** → **Download report**: a tagged PDF (`application/pdf`). Temporary, 15 minutes at most.
-6. **Quota panel** – shows "1000 of 1000 checks left" (fake, static; see above).
-7. **Website** – <http://127.0.0.1:5493/en/> and `/de/`, documentation at `/docs/en/`, plus the legal pages linked in the app footer.
+6. **Account, Plan and Quota** – absent in standalone mode. Use the hosted composition below for the actual Account controls and changing Quota balance.
+7. **Website** – <http://127.0.0.1:5493/en/> and `/de/`, documentation at `/docs/en/`, plus the legal pages linked in Preferences. The top bar opens Help directly.
 8. **Document upload (PDF/DOCX)** – shows "Document reading is temporarily unavailable". That is the intended fail-closed behaviour: it needs the isolated extractor image `SOURCE_TASTER_DOCUMENT_IMAGE`, which the preview deliberately does not configure. Paste References instead.
 
 ### Hosted-only (not in `pnpm dev:local`)
