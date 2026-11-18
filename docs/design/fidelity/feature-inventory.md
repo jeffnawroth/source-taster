@@ -309,7 +309,10 @@ These keys belong to the private account UI for e-mail change and account deleti
 
 `sensitive_change_email`, `sensitive_delete`, `sensitive_proof_intro`, `sensitive_proof_send`, `sensitive_proof_code_sent`, `sensitive_proof_confirm`, `sensitive_proof_valid`, `sensitive_proof_expired`, `sensitive_proof_required`, `sensitive_proof_invalid`, `sensitive_proof_exhausted`, `sensitive_rate_limited`, `sensitive_unavailable`, `sensitive_temporarily_unavailable`, `sensitive_failed`, `sensitive_cancel`, `sensitive_new_email`, `sensitive_new_email_send`, `sensitive_new_email_sent`, `sensitive_new_email_code`, `sensitive_new_email_confirm`, `sensitive_new_email_invalid`, `sensitive_email_changed`, `sensitive_delete_heading`, `sensitive_delete_notice_content`, `sensitive_delete_notice_retention`, `sensitive_delete_notice_quota`, `sensitive_delete_notice_quota_unknown`, `sensitive_delete_ack`, `sensitive_delete_confirm`, `sensitive_deleting`, `sensitive_deleted`, `sensitive_deletion_in_progress`, `sensitive_deletion_failed`, `sensitive_reload`
 
-### Other uncovered keys (5)
+### Other uncovered keys (5, removed)
+
+All five were dead and are removed from both catalogs (#236).
+
 
 - `app_intro` ("A first step towards checking your references."): referenced nowhere outside the catalogs, so it is dead.
 - `report_summary_heading` ("Summary"): referenced nowhere outside the catalogs, so it is dead.
