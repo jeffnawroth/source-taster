@@ -233,7 +233,9 @@ export async function captureLanguage(
     // the Candidates they returned, the candidate list opened as a person
     // opens it.
     const candidates = `document.querySelector("#reference-detail details.detail-candidates")`;
-    await panel.evaluate(`${candidates}?.querySelector(":scope > summary")?.click()`);
+    await panel.evaluate(
+      `${candidates}?.querySelector(":scope > summary")?.click()`,
+    );
     await until(
       () => panel.evaluate<boolean>(`!!${candidates}?.open`),
       "The candidate list did not open",

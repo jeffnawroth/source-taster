@@ -9,6 +9,7 @@
   },
   "include": [
     "src",
+    "scripts",
     "e2e-history",
     "e2e",
     "e2e-guest",
