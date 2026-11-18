@@ -114,7 +114,7 @@ test("documentation search stays local, language-scoped and keyboard accessible"
   await page.getByRole("link", { name: "DE Deutsch", exact: true }).click();
   await expect(
     page.getByRole("link", {
-      name: "Wie wähle ich Sprache und Zitierstil?",
+      name: "Wie ändere ich Sprache und Stil?",
     }),
   ).toHaveAttribute("href", "/docs/de/preferences/");
   await openDocumentationSearch(page);

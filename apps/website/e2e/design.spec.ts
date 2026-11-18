@@ -112,13 +112,13 @@ test("a visitor sees an honest product example and finds help by question", asyn
     [
       "en",
       "Illustrative example · not a live check",
-      "What does a verdict tell me?",
+      "What do the verdicts mean?",
       "How the check works",
     ],
     [
       "de",
       "Beispielansicht · keine laufende Prüfung",
-      "Was sagt ein Befund aus?",
+      "Was bedeuten die Befunde?",
       "So funktioniert die Prüfung",
     ],
   ] as const) {
@@ -247,14 +247,15 @@ for (const language of ["de", "en"] as const)
           });
         }
       }
-      for (const font of [
-        "AtkinsonHyperlegibleNext.woff2",
-        "IBMPlexMono-Regular.woff2",
-      ]) {
+      for (const [font, type, signature] of [
+        ["AtkinsonHyperlegibleNext-Regular.ttf", "font/ttf", [0, 1, 0, 0]],
+        ["AtkinsonHyperlegibleNext-Bold.ttf", "font/ttf", [0, 1, 0, 0]],
+        ["IBMPlexMono-Regular.woff2", "font/woff2", [119, 79, 70, 50]],
+      ] as const) {
         const response = await request.get(`/fonts/${font}`);
         expect(response.status()).toBe(200);
-        expect(response.headers()["content-type"]).toBe("font/woff2");
-        expect((await response.body()).subarray(0, 4).toString()).toBe("wOF2");
+        expect(response.headers()["content-type"]).toBe(type);
+        expect([...(await response.body()).subarray(0, 4)]).toEqual(signature);
       }
     });
   }

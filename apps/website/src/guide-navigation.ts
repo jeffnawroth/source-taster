@@ -4,85 +4,77 @@ import type { Language } from "./content.ts";
 export const guideNavigation = {
   en: {
     "how-the-check-works": {
-      question: "What does a verdict tell me?",
+      question: "What do the verdicts mean?",
       sections: [
-        "The local DOI preview",
-        "Status, verdict and human decision",
-        "Limits of this development version",
+        "The current checking path",
+        "Status and verdict",
+        "Human judgment",
       ],
     },
     structuring: {
-      question: "How can I structure a bibliography?",
+      question: "How do I structure references?",
       sections: [
-        "From references to fields",
-        "Original text and uncertain fields",
-        "Supported input and limits",
+        "Input and fields",
+        "Structuring is separate from checking",
+        "Scope and limits",
       ],
     },
     preferences: {
-      question: "How do I choose language and citation style?",
-      sections: [
-        "Preferences in the web workspace",
-        "Existing checks stay unchanged",
-        "Language on this website",
-      ],
+      question: "How do I change language and style?",
+      sections: ["In the workspace", "Existing checks", "On this website"],
     },
     "errors-and-retry": {
-      question: "What can I do after a connection error?",
-      sections: [
-        "Check the local connection",
-        "Progress and reconnection",
-        "Retrying and support",
-      ],
+      question: "What if my connection fails?",
+      sections: ["Check your connection", "Reconnecting", "Trying again"],
     },
     availability: {
-      question: "What is available now?",
+      question: "What is available today?",
       sections: [
-        "Development paths and release limits",
-        "Accounts and paid features",
-        "History and retention",
+        "Checking and extension",
+        "Account and purchases",
+        "History and storage",
       ],
     },
   },
   de: {
     "how-the-check-works": {
-      question: "Was sagt ein Befund aus?",
+      question: "Was bedeuten die Befunde?",
       sections: [
-        "Die lokale DOI-Vorschau",
-        "Status, Befund und menschliche Entscheidung",
-        "Grenzen dieser Entwicklungsversion",
+        "Der aktuelle Prüfpfad",
+        "Status und Befund",
+        "Menschliche Beurteilung",
       ],
     },
     structuring: {
-      question: "Wie strukturiere ich ein Literaturverzeichnis?",
+      question: "Wie strukturiere ich Referenzen?",
       sections: [
-        "Von Referenzen zu Feldern",
-        "Originaltext und unsichere Felder",
-        "Unterstützte Eingaben und Grenzen",
+        "Eingabe und Felder",
+        "Strukturieren ist keine Prüfung",
+        "Umfang und Grenzen",
       ],
     },
     preferences: {
-      question: "Wie wähle ich Sprache und Zitierstil?",
+      question: "Wie ändere ich Sprache und Stil?",
       sections: [
-        "Einstellungen im Web-Arbeitsbereich",
-        "Bestehende Prüfungen bleiben unverändert",
-        "Sprache auf dieser Website",
+        "Im Arbeitsbereich",
+        "Bestehende Prüfungen",
+        "Auf dieser Website",
       ],
     },
     "errors-and-retry": {
-      question: "Was kann ich bei einem Verbindungsfehler tun?",
+      question: "Was tun bei Verbindungsfehlern?",
       sections: [
-        "Lokale Verbindung prüfen",
-        "Fortschritt und erneute Verbindung",
-        "Erneuter Versuch und Support",
+        "Verbindung prüfen",
+        "Verbindung wiederherstellen",
+        "Erneut versuchen",
       ],
     },
     availability: {
-      question: "Was ist jetzt verfügbar?",
+      question: "Was ist bereits verfügbar?",
       sections: [
-        "Entwicklungsfunktionen und Veröffentlichungsgrenzen",
-        "Konten und kostenpflichtige Funktionen",
-        "Verlauf und Aufbewahrung",
+        "Prüfung und Erweiterung",
+        "Account und Käufe",
+        "Verlauf und Speicherung",
       ],
     },
   },

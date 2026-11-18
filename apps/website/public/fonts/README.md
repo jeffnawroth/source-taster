@@ -27,3 +27,10 @@ SHA-256 of the delivered fonts:
 
 - AtkinsonHyperlegibleNext.woff2: `f3e29ef3fbad6f5f6afbfab829d9ed7aad8148c545bf421f4fa05bdd15e65789`
 - IBMPlexMono-Regular.woff2: `ba204497f16b6d334cee9d1e963a831b73e3a56e1d6300a8489d18df7214b350`
+
+## Accepted prototype typography (17 November 2026)
+
+The website uses the unmodified static Regular and Bold TTFs embedded by the accepted #198 prototype. They come from `googlefonts/atkinson-hyperlegible-next` at `7925f50f649b3813257faf2f4c0b381011f434f1`, paths `fonts/ttf/AtkinsonHyperlegibleNext-Regular.ttf` and `fonts/ttf/AtkinsonHyperlegibleNext-Bold.ttf`. The variable Google Fonts distribution above has different metrics and is retained only as historical provenance; it is no longer referenced by website CSS. The upstream OFL notice remains alongside the fonts.
+
+- Regular: SHA-256 `88ed5c31a71584c7772963b02d04bef1eb7e3d2e9c8b9cb204339b1f82cf432c`
+- Bold: SHA-256 `994414047df66bb4998d01c1cb1eeb4a2ddc4622d1aa56bbb8adbeca7645b041`
