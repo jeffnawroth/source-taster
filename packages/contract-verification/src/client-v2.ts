@@ -14,6 +14,7 @@ import {
   SelectionPreviewResponse,
   QuotaResponse,
   HistoryResponse,
+  HistoryConsentResponse,
 } from "./v2.ts";
 import {
   ApiError,
@@ -89,6 +90,12 @@ export function verificationClient(options: VerificationClientOptions = {}) {
   }
   return {
     ...base,
+    getHistoryConsent: async () =>
+      HistoryConsentResponse.parse(await historyRequest("/consent")).data,
+    setHistoryConsent: async (enabled: boolean) =>
+      HistoryConsentResponse.parse(
+        await historyRequest("/consent", "PUT", { enabled }),
+      ).data,
     getHistory: async () => HistoryResponse.parse(await historyRequest()).data,
     setHistory: async (enabled: boolean) =>
       HistoryResponse.parse(await historyRequest("", "PUT", { enabled })).data,

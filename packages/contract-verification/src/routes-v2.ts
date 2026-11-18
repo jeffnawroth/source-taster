@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
 // Same lifecycle/authority protocol, with an explicitly versioned result schema.
-import { HistoryResponse } from "./v2.ts";
+import {
+  HistoryResponse,
+  HistoryConsent,
+  HistoryConsentResponse,
+} from "./v2.ts";
 import { LibraryInput, ImportResponse } from "./import.ts";
 import { z } from "zod";
 import {
@@ -256,6 +260,30 @@ const historyResponses = {
     content: { "application/json": { schema: HistoryResponse } },
   },
 };
+const historyConsentResponses = {
+  ...getCheck.responses,
+  200: {
+    description:
+      "Current Account History consent only. Withdrawal completes retained History deletion before success; no entries, labels or Check metadata are returned.",
+    content: { "application/json": { schema: HistoryConsentResponse } },
+  },
+};
+export const getHistoryConsent = createRoute({
+  method: "get",
+  path: "/v2/history/consent",
+  responses: historyConsentResponses,
+});
+export const setHistoryConsent = createRoute({
+  method: "put",
+  path: "/v2/history/consent",
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: HistoryConsent } },
+    },
+  },
+  responses: historyConsentResponses,
+});
 export const getHistory = createRoute({
   method: "get",
   path: "/v2/history",

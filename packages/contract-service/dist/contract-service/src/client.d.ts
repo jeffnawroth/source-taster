@@ -186,10 +186,12 @@ export declare function accountSessionClient(options: {
     };
     preferences: () => Promise<{
         language: "de" | "en";
+        theme: "dark" | "light" | "system";
         citationStyle: string;
     }>;
     updatePreferences: (patch: AccountPreferencesPatch) => Promise<{
         language: "de" | "en";
+        theme: "dark" | "light" | "system";
         citationStyle: string;
     }>;
     session: () => Promise<{
@@ -430,10 +432,12 @@ export declare function extensionSessionClient(options: {
     }>;
     preferences: (credential: string) => Promise<{
         language: "de" | "en";
+        theme: "dark" | "light" | "system";
         citationStyle: string;
     }>;
     updatePreferences: (credential: string, patch: AccountPreferencesPatch) => Promise<{
         language: "de" | "en";
+        theme: "dark" | "light" | "system";
         citationStyle: string;
     }>;
     session: (credential: string) => Promise<{

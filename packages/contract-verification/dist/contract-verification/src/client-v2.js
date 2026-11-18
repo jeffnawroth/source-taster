@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR MIT
-import { CheckResponse, CheckEvent, isFinalEvent, ProblemDetails, SelectionPreviewResponse, QuotaResponse, HistoryResponse, } from "./v2.js";
+import { CheckResponse, CheckEvent, isFinalEvent, ProblemDetails, SelectionPreviewResponse, QuotaResponse, HistoryResponse, HistoryConsentResponse, } from "./v2.js";
 import { ApiError, createVerificationClient, watchContractEvents, } from "./client.js";
 import { ImportResponse } from "./import.js";
 export { ApiError, CheckStreamError, readSseFrames, } from "./client.js";
@@ -45,6 +45,8 @@ export function verificationClient(options = {}) {
     }
     return {
         ...base,
+        getHistoryConsent: async () => HistoryConsentResponse.parse(await historyRequest("/consent")).data,
+        setHistoryConsent: async (enabled) => HistoryConsentResponse.parse(await historyRequest("/consent", "PUT", { enabled })).data,
         getHistory: async () => HistoryResponse.parse(await historyRequest()).data,
         setHistory: async (enabled) => HistoryResponse.parse(await historyRequest("", "PUT", { enabled })).data,
         deleteHistory: async (id) => HistoryResponse.parse(await historyRequest(`/${encodeURIComponent(id)}`, "DELETE")).data,

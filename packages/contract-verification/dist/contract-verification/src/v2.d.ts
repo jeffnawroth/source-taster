@@ -7234,3 +7234,12 @@ export declare const HistoryResponse: z.ZodObject<{
         status: z.ZodLiteral<"unavailable">;
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
+/** Account controls may receive consent only, never History entries or labels. */
+export declare const HistoryConsent: z.ZodObject<{
+    enabled: z.ZodBoolean;
+}, z.core.$strict>;
+export declare const HistoryConsentResponse: z.ZodObject<{
+    data: z.ZodObject<{
+        enabled: z.ZodBoolean;
+    }, z.core.$strict>;
+}, z.core.$strict>;

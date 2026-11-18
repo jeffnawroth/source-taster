@@ -43,6 +43,8 @@ export async function bothPrograms(
     servicePort?: number;
     accounts?: boolean;
     serviceAllowedOrigins?: string[];
+    accountOrigin?: string;
+    dpaAccountUrl?: string;
     verificationPublicOrigin?: string;
     clientLeaseMs?: number;
     extensionOrigins?: string[];
@@ -338,6 +340,9 @@ export async function bothPrograms(
     JSON.stringify({
       serviceOrigin: `http://127.0.0.1:${proxyPort}`,
       serviceIssuer: serviceConfig.issuer,
+      ...(options.accountOrigin
+        ? { accountOrigin: options.accountOrigin }
+        : {}),
       verificationAudience: serviceConfig.verificationAudience,
       assertionIssuer: serviceConfig.verificationIssuer,
       internalKey: verificationInternal.key,
@@ -367,7 +372,9 @@ export async function bothPrograms(
         ...(options.accountPolicy ? { policy: options.accountPolicy } : {}),
         secret: randomUUID() + randomUUID(),
         publicOrigin: "https://service.test.invalid",
-        dpaAccountUrl: "https://web.test.invalid/",
+        dpaAccountUrl: options.dpaAccountUrl?.startsWith("https:")
+          ? options.dpaAccountUrl
+          : "https://web.test.invalid/",
         from: "signin@source-taster.invalid",
         smtp: { host: "127.0.0.1", port: 1, secure: false },
       }),
@@ -390,6 +397,9 @@ export async function bothPrograms(
     ...(options.abuse ? { SERVICE_ABUSE_CONFIG: abuseConfigPath } : {}),
     DATABASE_URL: urls[1]!,
     SERVICE_PORT: String(servicePort),
+    ...(options.dpaAccountUrl?.startsWith("http:")
+      ? { TEST_DPA_ACCOUNT_URL: options.dpaAccountUrl }
+      : {}),
     ...options.serviceEnv,
     SERVICE_GUEST_AUTH_CONFIG: serviceConfigPath,
     ...(options.accounts
