@@ -150,26 +150,31 @@ it("bounds a Check to ten active References across workers and admits other Chec
     await Promise.all([first.ready, second.ready]);
     // Admission precedes globally paced source I/O. Observe the published Check
     // progress so this scheduler test does not time the source rate limiter.
+    let observed: Awaited<ReturnType<typeof snapshot>>[] = [];
     await expect
       .poll(
-        async () =>
-          (await Promise.all([snapshot(a.id), snapshot(b.id)])).map(
+        async () => {
+          observed = await Promise.all([snapshot(a.id), snapshot(b.id)]);
+          return observed.map(
             (check) =>
               check.references.filter((r) => r.progress !== "queued").length,
-          ),
+          );
+        },
         { timeout: 2500 },
       )
       .toEqual([10, 2]);
-    const snap = await snapshot(a.id);
-    expect(snap.references.filter((r) => r.progress !== "queued")).toHaveLength(
-      10,
-    );
+    // Assert the same admission observation. A real source timeout can free a
+    // slot between HTTP reads; progress !== queued counts completed work too.
+    const [snap, other] = observed;
     expect(
-      snap.references.filter((r) => r.progress === "queued").map((r) => r.slot),
+      snap!.references.filter((r) => r.progress !== "queued"),
+    ).toHaveLength(10);
+    expect(
+      snap!.references
+        .filter((r) => r.progress === "queued")
+        .map((r) => r.slot),
     ).toEqual([11, 12]);
-    expect(
-      (await snapshot(b.id)).references.every((r) => r.progress !== "queued"),
-    ).toBe(true);
+    expect(other!.references.every((r) => r.progress !== "queued")).toBe(true);
   } finally {
     await Promise.all([post(a.id, "cancel"), post(b.id, "cancel")]);
     for (const gate of gates) gate.release();
