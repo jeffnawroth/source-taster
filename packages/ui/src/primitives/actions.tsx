@@ -196,4 +196,43 @@ export function Link({ children, newTabLabel, ...props }: LinkProps) {
     </Aria.Link>
   );
 }
+/** A navigation that reads as a Button (prototype 194 D `btn sm`, Change plan). */
+export function LinkButton({
+  variant = "secondary",
+  size = "md",
+  newTabLabel,
+  children,
+  ...props
+}: Aria.LinkProps & {
+  variant?: "primary" | "secondary" | "ghost";
+  size?: "md" | "sm";
+  newTabLabel?: string;
+}) {
+  if (props.target === "_blank" && !newTabLabel)
+    throw new Error("External links require a localized newTabLabel.");
+  return (
+    <Aria.Link
+      {...props}
+      data-size={size}
+      data-variant={variant}
+      rel={props.target === "_blank" ? "noopener noreferrer" : props.rel}
+      className={styles(
+        props.className,
+        cx(
+          buttonRecipe({ variant, size, isDisabled: false }),
+          "no-underline hover:bg-surface-sunken",
+        ),
+      )}
+    >
+      {Aria.composeRenderProps(children, (label) => (
+        <>
+          {label}
+          {props.target === "_blank" && (
+            <span className="sr-only"> ({newTabLabel})</span>
+          )}
+        </>
+      ))}
+    </Aria.Link>
+  );
+}
 export { FileTrigger } from "react-aria-components";

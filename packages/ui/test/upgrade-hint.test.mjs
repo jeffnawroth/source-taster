@@ -69,7 +69,7 @@ test("the AI upgrade offer renders only with an upgrade link", async () => {
       assert.doesNotMatch(standalone, /paid plan/u);
       assert.doesNotMatch(standalone, /<a\b/u);
       const hosted = render("https://service.example/plan");
-      assert.match(hosted, /Upgrade to a paid plan for AI extraction\./u);
+      assert.match(hosted, /A paid plan offers AI extraction\./u);
       assert.match(hosted, /href="https:\/\/service\.example\/plan"/u);
     } finally {
       await rm(file, { force: true });

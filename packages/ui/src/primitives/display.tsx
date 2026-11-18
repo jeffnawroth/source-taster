@@ -132,8 +132,9 @@ export function ProgressBar({
 export function Meter({
   label,
   warning,
+  valueLabel,
   ...props
-}: Aria.MeterProps & { label: string; warning?: string }) {
+}: Aria.MeterProps & { label: string; warning?: string; valueLabel?: string }) {
   return (
     <Aria.Meter
       {...props}
@@ -145,13 +146,13 @@ export function Meter({
       {({ percentage, valueText }) => (
         <>
           <Aria.Label>{label}</Aria.Label>
-          <span>{valueText}</span>
           <div className="st-track">
             <div
               className={cx("st-fill", warning && "st-warning-fill")}
               style={{ width: `${percentage ?? 0}%` }}
             />
           </div>
+          <span className="st-meter-value">{valueLabel ?? valueText}</span>
           {warning && (
             <span className="flex gap-1">
               <FeedbackIcon tone="warning" />

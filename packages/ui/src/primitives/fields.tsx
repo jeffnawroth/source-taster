@@ -140,20 +140,49 @@ export function TextField({
 }
 export function TextArea({
   ref: externalRef,
+  autoResizeMaxViewportRatio,
   ...props
-}: Aria.TextAreaProps & { ref?: Ref<HTMLTextAreaElement> }) {
+}: Aria.TextAreaProps & {
+  ref?: Ref<HTMLTextAreaElement>;
+  /** Optional viewport cap for auto-growth, independent of the CSS hard limit. */
+  autoResizeMaxViewportRatio?: number;
+}) {
   const ref = useRef<HTMLTextAreaElement>(null);
   const resize = useCallback(() => {
     if (ref.current) {
       ref.current.style.height = "auto";
-      ref.current.style.height = `${Math.min(ref.current.scrollHeight, 320)}px`;
+      const computed = getComputedStyle(ref.current);
+      const maximum = parseFloat(computed.maxHeight);
+      const border =
+        computed.boxSizing === "border-box"
+          ? parseFloat(computed.borderTopWidth) +
+            parseFloat(computed.borderBottomWidth)
+          : 0;
+      ref.current.style.height = `${Math.min(ref.current.scrollHeight + border, Number.isFinite(maximum) ? maximum : Infinity, autoResizeMaxViewportRatio === undefined ? Infinity : Math.round(document.documentElement.clientHeight * autoResizeMaxViewportRatio))}px`;
     }
-  }, []);
+  }, [autoResizeMaxViewportRatio]);
   // Context-provided values (paste/selection intake) must resize on commit too.
   useLayoutEffect(resize);
   return (
     <Aria.TextArea
       {...props}
+      onFocus={(event) => {
+        props.onFocus?.(event);
+        resize();
+      }}
+      onBlur={(event) => {
+        props.onBlur?.(event);
+        // Moving to another ordinary control retains the user's working size.
+        // Modal intake is inert: recompute after focus has moved into the dialog.
+        requestAnimationFrame(() => {
+          if (
+            document.activeElement?.closest(
+              '[role="dialog"], [role="alertdialog"]',
+            )
+          )
+            resize();
+        });
+      }}
       ref={(element) => {
         ref.current = element;
         if (typeof externalRef === "function") return externalRef(element);
@@ -175,7 +204,7 @@ export type SearchFieldProps = Omit<
   "children" | "isDisabled"
 > &
   FieldContent &
-  DisabledField & { clearLabel: string };
+  DisabledField & { clearLabel: string; placeholder?: string };
 export function SearchField({
   label,
   description,
@@ -183,6 +212,7 @@ export function SearchField({
   requiredLabel,
   disabledReason,
   clearLabel,
+  placeholder,
   ...props
 }: SearchFieldProps) {
   return (
@@ -199,7 +229,7 @@ export function SearchField({
       </Label>
       <div className="st-search-control">
         <Search aria-hidden="true" size={20} strokeWidth={1.75} />
-        <Input />
+        <Input placeholder={placeholder} />
         <IconButton slot="clear" label={clearLabel} size="sm">
           <X aria-hidden="true" size={16} strokeWidth={1.75} />
         </IconButton>

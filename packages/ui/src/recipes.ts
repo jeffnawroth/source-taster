@@ -36,7 +36,7 @@ export const buttonRecipe = tv({
     {
       variant: "danger",
       isDisabled: false,
-      class: "border-transparent bg-feedback-danger text-surface",
+      class: "border-feedback-danger bg-surface text-feedback-danger",
     },
   ],
 });
