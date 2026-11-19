@@ -102,7 +102,7 @@ for (const language of ["en", "de"] as const)
       const mail = (await both.mail()).at(-1)!;
       expect(mail.subject).toBe(
         language === "de"
-          ? "Dein Anmeldecode für Source Taster"
+          ? "Ihr Anmeldecode für Source Taster"
           : "Your Source Taster sign-in code",
       );
       const code = mail.text.match(/\b[0-9]{6}\b/)![0];
