@@ -137,7 +137,7 @@ The fixtures cannot reach Mixed citation or Technical failure. Both render throu
 
 ## 13. Differences that remain on purpose
 
-Result of the last full `fidelity --only app-` run: 28 sheets (intake, counted, running, done, detail, menu and export at web and 360 width, light/en and dark/de). Every sheet matches D in layout, order, controls, type and colour. Only the differences below remain. After the intake-field fix, the counted sheets were rendered again and are pixel-identical to the previous run. The latest `--only app-` run renders 196 sheets: 164 pass, and the 32 others are the detail, detail-end, detail-edit and detail-manual sheets, whose differences are the detail rows below.
+The `fidelity --only app-` sheets cover every app stage and interaction at web and 360 width, light and dark, en and de. Every sheet matches D in layout, order, controls, type and colour. Only the differences below remain. After the intake-field fix, the counted sheets were rendered again and are pixel-identical to the previous run. The latest `--only app-` run renders 196 sheets: 164 pass, and the 32 others are the detail, detail-end, detail-edit and detail-manual sheets, whose differences are the detail rows below.
 
 | Difference | Sheets | Reason |
 |---|---|---|
@@ -186,6 +186,8 @@ Result of the last full `fidelity --only app-` run: 28 sheets (intake, counted, 
 | "Unbekannt / nicht angegeben" and "Unknown / not supplied" (detail de slices 5–7, detail dark en slice 6, about 1.0 %). | detail | Font loading: real italic versus D's synthesised slant (section 13). |
 
 Two harness rules keep the sheets comparable. The pointer is parked at (1, 1) before each capture, because a click leaves it over a FeedCard and D's `.card:hover` lifts that card; hover stages set their own pointer. An open modal (the command palette is an `Aria.Modal`) blocks page scrolling, as D's palette makes its feed inert, so the page behind it is no scroll root (`scroll-coverage.ts`, shared with the web harness).
+
+The web harness also swaps D's copy (the settled disclaimer) before a top-bar hover or focus, not only after it. The swap re-renders D, and a re-render while focus sits on the command field resizes D's intake field to its empty height. Measured on D itself, moving focus from the field to the command field keeps the field at 96 px, as the product does.
 
 
 ## 14. Feature inventory mapping
