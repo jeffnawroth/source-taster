@@ -201,28 +201,77 @@ export async function normalizeShell(
   }
   if (!hosted) {
     const before = await page.locator(".v-D .intake .nrow").allTextContents();
-    await page.evaluate((notice) => {
-      document
-        .querySelectorAll(
-          '.v-D .hbtn,.v-D .acct,.v-D [data-act="src:selection"]',
-        )
-        .forEach((node) => node.remove());
-      const notes = [...document.querySelectorAll(".v-D .intake .nrow")];
-      if (notes[0] && notice) {
-        const span = notes[0].querySelector("span");
-        if (span) span.textContent = notice;
-      }
-      notes.slice(notice ? 1 : 0).forEach((node) => node.remove());
-      document
-        .querySelectorAll(".v-D .feed > .nrow")
-        .forEach((node) => node.remove());
-    }, fixture.notice);
+    await page.evaluate(
+      ({ notice, devNotice }) => {
+        // The feed footer is re-rendered (and morphed) with every source state
+        // change, so drive it through the source's own strings: its storage
+        // line becomes the development notice, the Quota consumption line is
+        // hidden, and the storage icon follows the product's info icon.
+        const source = (
+          window as unknown as {
+            ST: { strings(value: unknown): void };
+          }
+        ).ST;
+        const style = document.createElement("style");
+        style.textContent = `.v-D .feed .foot>.nrow:has(use[href='#i-list'])${devNotice ? "" : ",.v-D .feed .foot>.nrow:first-child"}{display:none!important}`;
+        document.head.append(style);
+        if (devNotice) {
+          source.strings({
+            de: { storageTemp: devNotice },
+            en: { storageTemp: devNotice },
+          });
+          // No re-render here: it would reset states opened before this
+          // step. Later source renders read the string; patch the current
+          // footer once.
+          for (const span of document.querySelectorAll(
+            ".v-D .feed .foot>.nrow:first-child>span",
+          ))
+            span.textContent = devNotice;
+          const root = document.querySelector(".v-D") ?? document.body;
+          const fix = () => {
+            for (const use of root.querySelectorAll(
+              ".feed .foot>.nrow:first-child use[href='#i-lock']",
+            ))
+              use.setAttribute("href", "#i-info");
+          };
+          fix();
+          new MutationObserver(fix).observe(root, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ["href"],
+          });
+        }
+        document
+          .querySelectorAll(
+            '.v-D .hbtn,.v-D .acct,.v-D [data-act="src:selection"]',
+          )
+          .forEach((node) => node.remove());
+        const notes = [...document.querySelectorAll(".v-D .intake .nrow")];
+        if (notes[0] && notice) {
+          const span = notes[0].querySelector("span");
+          if (span) span.textContent = notice;
+        }
+        notes.slice(notice ? 1 : 0).forEach((node) => node.remove());
+        document
+          .querySelectorAll(".v-D .feed > .nrow")
+          .forEach((node) => node.remove());
+      },
+      { notice: fixture.notice, devNotice: fixture.devNotice },
+    );
     changes.push({
       field: "shell.mode",
       reason:
         "ADR-0003 standalone exposes no Account, History, Plan or Quota service; development notice remains visible",
       before: before.join("\n"),
       after: fixture.notice ?? "",
+    });
+    changes.push({
+      field: "feed.footer",
+      reason:
+        "ADR-0003 standalone keeps no Checks and has no Quota: the feed footer's storage line is the development notice and the consumption line is absent, as in the product",
+      before: "Storage line, disclaimer, consumption and Quota line",
+      after: `${fixture.devNotice ?? ""}\nDisclaimer`,
     });
     changes.push({
       field: "intake.sources",

@@ -1150,6 +1150,15 @@ try {
             );
           }
           if (state.id.startsWith("app-")) {
+            // An element screenshot scrolls its target into view, which
+            // moves a sticky top bar's document back to the top; keep the
+            // measured scroll state for the page screenshot.
+            const scrolled = await page.evaluate(() =>
+              [
+                document.scrollingElement,
+                ...document.querySelectorAll("[data-scroll], .check-detail"),
+              ].map((node) => node?.scrollTop ?? 0),
+            );
             const glyph = page.locator(
               prototype ? ".owner-theme > svg" : ".theme-toggle svg",
             );
@@ -1161,6 +1170,14 @@ try {
                 ),
                 animations: "disabled",
               });
+            await page.evaluate((tops) => {
+              [
+                document.scrollingElement,
+                ...document.querySelectorAll("[data-scroll], .check-detail"),
+              ].forEach((node, index) => {
+                if (node) node.scrollTop = tops[index] ?? 0;
+              });
+            }, scrolled);
           }
           await page.screenshot({
             path: join(
