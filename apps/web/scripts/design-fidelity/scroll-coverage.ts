@@ -72,7 +72,14 @@ export function scrollCoverageDom(request: ScrollRequest): ScrollRoot[] {
       request.prototype ? '.v-D [data-scroll="detail"]' : ".check-detail",
     );
     if (request.prototype) pick("feed", '.v-D [data-scroll="feed"]');
-    else if (document.scrollingElement)
+    // An open modal (the command palette is one) blocks page scrolling, as
+    // D's palette makes its feed inert; the page behind it is no scroll root.
+    else if (
+      document.scrollingElement &&
+      !Array.from(document.querySelectorAll<HTMLElement>(".st-modal")).some(
+        visible,
+      )
+    )
       roots.set("feed", document.scrollingElement as HTMLElement);
   }
   // Textareas scroll independently even when their enclosing form is also long.

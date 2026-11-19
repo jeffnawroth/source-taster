@@ -492,7 +492,13 @@ if (args.includes("--list")) {
         capture = captureResponses(native, panel);
         const base = stageFor(state.stage);
         const inputText =
-          state.stage === "running" ? `${references}\n${held}` : references;
+          state.stage === "running"
+            ? // The product ends every Reference at its 30 s deadline, the
+              // held DOI too. The local sources answer one Reference about
+              // every 4 s, so eight would settle only at that deadline. Four
+              // settle well before it, like D's four done References.
+              `${references.split("\n\n").slice(0, 4).join("\n\n")}\n\n${held}`
+            : references;
         const hold =
           base === "counted"
             ? await panel.holdRequests(/\/v2\/checks$/)
@@ -537,11 +543,20 @@ if (args.includes("--list")) {
                     panel!.evaluate<boolean>(
                       // Wait for the ordinary witnesses to settle while the
                       // real held DOI remains pending. No sleep-based stage.
-                      "Array.from(document.querySelectorAll('[role=progressbar]')).some((node) => Number(node.getAttribute('aria-valuenow')) === 8 && Number(node.getAttribute('aria-valuemax')) === 9)",
+                      "Array.from(document.querySelectorAll('[role=progressbar]')).some((node) => Number(node.getAttribute('aria-valuenow')) === 4 && Number(node.getAttribute('aria-valuemax')) === 5)",
                     ),
-                  "Running fixture never settled at eight completed / nine total",
+                  "Running fixture never settled at four completed / five total",
                   120_000,
-                );
+                ).catch(async (error: unknown) => {
+                  // Name what the panel actually reached so a stuck run is
+                  // diagnosable from the results alone.
+                  const reached = await panel!
+                    .evaluate<string>(
+                      "Array.from(document.querySelectorAll('[role=progressbar]')).map((node) => node.getAttribute('aria-valuenow') + '/' + node.getAttribute('aria-valuemax')).join(', ') + ' · ' + (document.querySelector('.check-status')?.textContent?.trim() ?? '')",
+                    )
+                    .catch(() => "unreadable");
+                  throw new Error(`${String(error)} (reached ${reached})`);
+                });
             }
           }
         }
@@ -550,6 +565,16 @@ if (args.includes("--list")) {
             "button",
             /^(Open reference 1:|Referenz 1 öffnen:)/u,
           );
+        // Clicks leave the pointer where the clicked control was; after the
+        // layout changes it rests on whatever moved there (a FeedCard lifts
+        // on hover in D too). D's prototype page has no pointer over it, so
+        // park ours in the TopBar's empty corner. Hover stages set their own
+        // pointer in builtAfter.
+        await panel.send("Input.dispatchMouseEvent", {
+          type: "mouseMoved",
+          x: 1,
+          y: 1,
+        });
         await builtAfter(panel, state.stage);
         await settle(panel);
         await capture.flush();
