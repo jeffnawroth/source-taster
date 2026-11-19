@@ -25,7 +25,8 @@ export const buttonRecipe = tv({
       variant: "secondary",
       isDisabled: false,
       class:
-        "border-border-strong bg-surface text-text enabled:hover:bg-surface-sunken",
+        // #194 D `.btn:hover` only darkens the border; the surface stays.
+        "border-border-strong bg-surface text-text enabled:hover:border-border-emphasis",
     },
     {
       variant: "ghost",

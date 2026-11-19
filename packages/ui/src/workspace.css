@@ -897,10 +897,12 @@ body {
   width: auto;
   max-width: none;
 }
-/* A disabled item fades like D's disabled .btn and takes no fill. */
+/* A disabled item fades like D's `.mi:disabled` (opacity .6) and takes no
+   fill; its label keeps the text colour and its note stays muted. */
 .strip-menu .strip-menu-item[data-disabled] {
   background: transparent;
-  color: var(--st-text-muted);
+  color: var(--st-text);
+  opacity: 0.6;
 }
 .strip-menu .strip-menu-item {
   display: grid;
@@ -2103,6 +2105,8 @@ body {
   margin: 0;
   padding: 0;
   border: 0;
+  /* D's block-level .fld labels stack without a gap. */
+  gap: 0;
 }
 .detail-author legend {
   padding: 0;
