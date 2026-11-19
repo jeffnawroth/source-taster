@@ -1224,6 +1224,7 @@ body {
 }
 .summary-status.compact {
   flex: none;
+  gap: 3px;
   min-height: 32px;
   padding: 0 4px;
   border: 1px dashed var(--st-border-emphasis);
@@ -1329,6 +1330,8 @@ body {
 }
 .feed-echo-count {
   font-family: var(--st-font-mono);
+  /* D's .mono scale. */
+  font-size: calc(var(--st-font-mono-scale) * 1em);
   font-variant-numeric: tabular-nums;
   color: var(--st-text-muted);
 }
@@ -1644,8 +1647,16 @@ body {
   border-style: dashed;
   color: var(--st-text-secondary);
 }
+/* D's .spin: the running glyph turns unless motion is reduced. A turning
+   glyph never anchors the scroll: its per-frame rotation would suppress
+   scroll anchoring for the card it sits in. */
 .status-running {
-  color: var(--st-accent);
+  overflow-anchor: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .status-running {
+    animation: st-spin 900ms linear infinite;
+  }
 }
 .verdict-glyph {
   flex: none;

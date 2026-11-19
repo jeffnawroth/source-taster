@@ -10,11 +10,11 @@ import * as Aria from "react-aria-components";
 import { useStickySize } from "./sticky-layout.ts";
 import {
   Check as CheckIcon,
-  Ellipsis,
-  ListFilter,
+  Filter,
+  More,
   Square,
   X,
-} from "lucide-react";
+} from "./workspace-icons.tsx";
 import type { Check, Verdict } from "@source-taster/contract-verification/v2";
 import { effectiveVerdict } from "./effective-verdict.ts";
 import { availability } from "./reference-fields.tsx";
@@ -75,7 +75,7 @@ export function MoreActions({
   return (
     <MenuTrigger>
       <IconButton size="sm" variant="secondary" label={m.shell_more_actions()}>
-        <Ellipsis aria-hidden="true" size={16} />
+        <More aria-hidden="true" size={16} />
       </IconButton>
       <Popover
         placement="bottom end"
@@ -221,7 +221,7 @@ export function CheckSummary({
         {
           id: "labels",
           label: labelled ? m.shell_hide_labels() : m.shell_show_labels(),
-          icon: <ListFilter aria-hidden="true" size={16} />,
+          icon: <Filter aria-hidden="true" size={16} />,
           onAction: () => setLabelled((value) => !value),
         },
         ...actions,
@@ -351,7 +351,7 @@ export function CheckSummary({
                 {running ? (
                   <>
                     <span className="summary-phase">
-                      <Spinner size={16} />
+                      <StatusIcon status="running" size={18} />
                       {m.shell_check_in_progress()}
                     </span>
                     <span className="summary-checked">
@@ -393,7 +393,7 @@ export function CheckSummary({
                       setLabelled(false);
                     }}
                   >
-                    <ListFilter aria-hidden="true" size={16} />
+                    <Filter aria-hidden="true" size={16} />
                   </IconButton>
                 )}
                 <MoreActions actions={menu} anchor={menuAnchor} />
@@ -487,7 +487,7 @@ export function SummaryLede({
       {running ? (
         <>
           <span className="feed-lede-phase">
-            <Spinner size={16} />
+            <StatusIcon status="running" size={18} />
             {m.shell_run_lede({
               completed: String(completed),
               total: String(total),

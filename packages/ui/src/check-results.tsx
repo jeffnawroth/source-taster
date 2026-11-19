@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { effectiveVerdict } from "./effective-verdict.ts";
-import { verdictLabels, statusLabels } from "./outcome-badges.tsx";
+import {
+  verdictLabels,
+  statusLabels,
+  StatusIcon,
+} from "./outcome-badges.tsx";
 import { Button } from "./primitives/actions.tsx";
 import {
   AlertDialog,
@@ -40,7 +44,6 @@ import {
   X,
 } from "./workspace-icons.tsx";
 import { m } from "@source-taster/i18n";
-import { Spinner } from "./primitives/display.tsx";
 import {
   evidenceLabel,
   evidenceStep,
@@ -104,7 +107,7 @@ function EvidenceTrack({ reference }: { reference: ReferenceSlot }) {
       <div className="card-track">
         <ol className="evidence-track" aria-label={runningText(reference)}>
           <li className="track-node" data-state={queued ? "pend" : "cur"}>
-            {!queued && <Spinner size={16} />}
+            {!queued && <StatusIcon status="running" size={16} />}
           </li>
         </ol>
         <span className="card-step">{runningText(reference)}</span>

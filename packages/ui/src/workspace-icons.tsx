@@ -442,3 +442,21 @@ export function Undo({ size = 20, ...props }: Props) {
     </svg>
   );
 }
+export function More({ size = 20, ...props }: Props) {
+  return (
+    <svg
+      aria-hidden="true"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M6 12h.01M12 12h.01M18 12h.01" />
+    </svg>
+  );
+}

@@ -6,7 +6,6 @@ import type {
 import {
   CircleDashed,
   CircleOff,
-  LoaderCircle,
   TriangleAlert,
 } from "lucide-react";
 import { m } from "@source-taster/i18n";
@@ -204,21 +203,42 @@ export function VerdictBadge({ verdict }: { verdict: Verdict }) {
     </span>
   );
 }
-export function StatusIcon({ status }: { status: Status }) {
+/** D's running status glyph: a faint ring and a quarter arc in the text colour. */
+function RunningGlyph({ size }: { size: number }) {
+  return (
+    <svg
+      aria-hidden="true"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      className="status-running"
+    >
+      {/* D sets the 2.2 stroke on the shapes, so no host stroke-width wins. */}
+      <circle cx="12" cy="12" r="8.5" strokeWidth={2.2} opacity={0.22} />
+      <path
+        d="M12 3.5a8.5 8.5 0 0 1 8.5 8.5"
+        strokeWidth={2.2}
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+export function StatusIcon({
+  status,
+  size = 16,
+}: {
+  status: Status;
+  size?: number;
+}) {
+  if (status === "running") return <RunningGlyph size={size} />;
   const Icon = {
-    running: LoaderCircle,
     cancelled: CircleOff,
     failed: TriangleAlert,
     "not-checked": CircleDashed,
   }[status];
-  return (
-    <Icon
-      aria-hidden="true"
-      width={16}
-      height={16}
-      className={status === "running" ? "status-running" : undefined}
-    />
-  );
+  return <Icon aria-hidden="true" width={size} height={size} />;
 }
 export function StatusBadge({ status }: { status: Status }) {
   return (
