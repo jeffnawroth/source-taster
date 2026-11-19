@@ -148,6 +148,30 @@ async function settle(panel: Panel) {
     await new Promise((done) => setTimeout(done, 400));
   })()`);
 }
+// Same alignment as the web harness (`interactions.ts` `centre`): D restores
+// its remembered scroll offset after an interaction re-render, so both sides
+// put the same element's top on the same viewport line before capture.
+function centreDom(selector: string) {
+  const node = document.querySelector(selector);
+  if (!node) throw new Error(`Nothing matched ${selector} for centring`);
+  const line = Math.round(window.innerHeight * 0.4);
+  let scroller: Element | null = node.parentElement;
+  while (scroller) {
+    const { overflowY } = getComputedStyle(scroller);
+    if (
+      /auto|scroll/.test(overflowY) &&
+      scroller.scrollHeight > scroller.clientHeight
+    )
+      break;
+    scroller = scroller.parentElement;
+  }
+  const delta = node.getBoundingClientRect().top - line;
+  if (scroller) scroller.scrollTop += delta;
+  else window.scrollBy(0, delta);
+}
+function centreFor(stage: string) {
+  return interactions.find((item) => item.id === stage)?.centre;
+}
 async function builtAfter(panel: Panel, stage: string) {
   if (stage.startsWith("palette")) {
     await panel.click("button", launcher);
@@ -544,6 +568,11 @@ if (args.includes("--list")) {
         );
         const manualFixture = await readManualFixture(measurementPage(panel));
         const listFixture = await readListFixture(measurementPage(panel));
+        const centre = centreFor(state.stage);
+        if (centre) {
+          await measurementPage(panel).evaluate(centreDom, centre.built);
+          await settle(panel);
+        }
         if (state.stage.endsWith("-end"))
           normalizations.push(
             await scrollAppEnd(
@@ -683,6 +712,16 @@ if (args.includes("--list")) {
             await document.fonts.ready;
           });
           await page.waitForTimeout(400);
+          if (centre) {
+            await page.evaluate(centreDom, centre.prototype);
+            normalizations.push({
+              field: "viewport.centre",
+              reason:
+                "Driver alignment: the source restores its remembered scroll offset after the interaction re-render; both sides put the same element's top on the same viewport line",
+              selector: centre.prototype,
+            });
+            await page.waitForTimeout(100);
+          }
           if (state.stage.endsWith("-end"))
             normalizations.push(
               await scrollAppEnd(
