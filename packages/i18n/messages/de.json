@@ -560,7 +560,7 @@
   "maintenance_announcement": "Geplante Wartung: {start}–{end} ({zone}). Der Dienst kann in dieser Zeit nicht verfügbar sein.",
   "maintenance_withdrawn": "Die geplante Wartung wurde zurückgezogen.",
   "shell_show_labels": "Alle Labels zeigen",
-  "shell_compact_labels": "Kompakte Labels",
+  "shell_hide_labels": "Labels ausblenden",
   "shell_counts": "Zähler",
   "shell_new_tab": "öffnet in neuem Tab",
   "shell_outcome_filters": "Ergebnisfilter",

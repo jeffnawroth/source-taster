@@ -1256,6 +1256,43 @@ body {
   .summary-container {
     padding-top: 6px;
   }
+  /* D's narrow .strip/.sh/.cnts/.cnt/.stg: the wide strip under "Show
+     all labels" at 360 px. */
+  .summary-section[data-compact="false"] .summary-strip {
+    padding: 8px;
+    gap: 6px;
+    border-radius: var(--st-radius-lg);
+  }
+  .summary-section[data-compact="false"] .summary-row {
+    gap: 6px 8px;
+    min-height: 0;
+  }
+  /* D's .note sits beside the phase; .spc pushes the buttons along. */
+  .summary-section[data-compact="false"] .summary-sentence {
+    flex: 0 1 auto;
+  }
+  .summary-section[data-compact="false"] .summary-spacer {
+    display: block;
+    flex: 1;
+  }
+  .summary-section[data-compact="false"] .summary-verdicts {
+    gap: 4px;
+  }
+  .summary-section[data-compact="false"] .summary-counter {
+    min-height: 40px;
+    padding: 4px 6px;
+  }
+  .summary-section[data-compact="false"] .summary-count {
+    font-size: var(--st-text-md);
+  }
+  .summary-section[data-compact="false"] .summary-statuses {
+    min-height: 0;
+    padding: 4px 8px;
+    gap: 2px 8px;
+  }
+  .summary-section[data-compact="false"] .summary-eyebrow {
+    flex: 0 0 auto;
+  }
 }
 
 /* ---------- feed ---------- */

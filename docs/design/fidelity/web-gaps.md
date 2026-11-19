@@ -221,7 +221,7 @@ Every row of `feature-inventory.md` (web app, extension and shared UI) and where
 | SU-RE-02 | Moved to the feed echo line ("n references recognized"). |
 | SU-RE-03 | Moved to the D counter tiles (wide) and glyph counters (compact). Names carry the full Verdict and the manual count. |
 | SU-RE-04 | Moved to the dashed "Technical status" counter group in the strip. |
-| SU-RE-05 | Moved to the compact ⋯ Menu ("Show all labels" / "Compact labels"). "Show all" is "Clear filter" and the empty-filter button. |
+| SU-RE-05 | Moved to the compact ⋯ Menu ("Show all labels" / "Hide labels", D's copy), plus D's "Hide labels" toggle beside ⋯ while the labels show. "Show all" is "Clear filter" and the empty-filter button. |
 | SU-RE-06 | Moved to the filter row (wide) and the filter chip with × (compact). |
 | SU-RE-07 | Moved to D FeedCards in the same GridList. |
 | SU-RE-08 | Unchanged. |

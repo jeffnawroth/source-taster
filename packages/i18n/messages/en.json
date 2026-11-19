@@ -560,7 +560,7 @@
   "maintenance_announcement": "Planned maintenance: {start}–{end} ({zone}). The service may be unavailable during this time.",
   "maintenance_withdrawn": "The planned maintenance has been withdrawn.",
   "shell_show_labels": "Show all labels",
-  "shell_compact_labels": "Compact labels",
+  "shell_hide_labels": "Hide labels",
   "shell_counts": "Counts",
   "shell_new_tab": "opens in a new tab",
   "shell_outcome_filters": "Outcome filters",

@@ -1,5 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { useRef, useState, type ReactNode, type RefObject } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import * as Aria from "react-aria-components";
 import { useStickySize } from "./sticky-layout.ts";
 import {
@@ -193,12 +199,28 @@ export function CheckSummary({
   // "Show all labels" lays the narrow strip out like the wide one.
   const [labelled, setLabelled] = useState(false);
   const narrow = compact && !labelled;
+  // D moves focus to ⋯ once "Hide labels" removes the toggle itself.
+  const refocusMore = useRef(false);
+  useEffect(() => {
+    if (narrow && refocusMore.current) {
+      refocusMore.current = false;
+      const anchor = menuAnchor.current;
+      // After React Aria settles the press on the removed toggle.
+      requestAnimationFrame(() =>
+        anchor
+          ?.querySelector<HTMLElement>(
+            `.summary-row [aria-haspopup][aria-label="${m.shell_more_actions()}"]`,
+          )
+          ?.focus(),
+      );
+    }
+  }, [narrow]);
   // D leads the narrow ⋯ Menu with the label toggle.
   const menu: StripAction[] = compact
     ? [
         {
           id: "labels",
-          label: labelled ? m.shell_compact_labels() : m.shell_show_labels(),
+          label: labelled ? m.shell_hide_labels() : m.shell_show_labels(),
           icon: <ListFilter aria-hidden="true" size={16} />,
           onAction: () => setLabelled((value) => !value),
         },
@@ -348,7 +370,7 @@ export function CheckSummary({
                 ) : (
                   <>
                     <span className="summary-phase">
-                      <CheckIcon aria-hidden="true" size={16} />
+                      <CheckIcon aria-hidden="true" size={18} />
                       {m.shell_check_complete()}
                     </span>
                     <span className="summary-sentence">
@@ -359,6 +381,20 @@ export function CheckSummary({
                     </span>
                     <span className="summary-spacer" />
                   </>
+                )}
+                {compact && (
+                  <IconButton
+                    size="sm"
+                    variant="secondary"
+                    label={m.shell_hide_labels()}
+                    aria-expanded
+                    onPress={() => {
+                      refocusMore.current = true;
+                      setLabelled(false);
+                    }}
+                  >
+                    <ListFilter aria-hidden="true" size={16} />
+                  </IconButton>
                 )}
                 <MoreActions actions={menu} anchor={menuAnchor} />
               </div>

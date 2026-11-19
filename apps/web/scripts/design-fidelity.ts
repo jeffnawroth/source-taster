@@ -224,7 +224,7 @@ function app(stage: AppStage) {
           .first()
           .click();
         await page
-          .getByRole("menuitem", { name: /^(Compact labels|Kompakte Labels)$/ })
+          .getByRole("menuitem", { name: /^(Hide labels|Labels ausblenden)$/ })
           .click();
       }
     } else {

@@ -212,10 +212,25 @@ for (const language of ["en", "de"] as const)
         () => document.documentElement.scrollWidth <= window.innerWidth,
       ),
     ).toBe(true);
+    // D's own toggle beside ⋯ hides the labels and hands focus to ⋯.
+    await summary
+      .getByRole("button", {
+        name: en ? "Hide labels" : "Labels ausblenden",
+        exact: true,
+      })
+      .click();
+    await expect(more).toBeFocused();
     await more.click();
     await page
       .getByRole("menuitem", {
-        name: en ? "Compact labels" : "Kompakte Labels",
+        name: en ? "Show all labels" : "Alle Labels zeigen",
+        exact: true,
+      })
+      .click();
+    await more.click();
+    await page
+      .getByRole("menuitem", {
+        name: en ? "Hide labels" : "Labels ausblenden",
         exact: true,
       })
       .click();
