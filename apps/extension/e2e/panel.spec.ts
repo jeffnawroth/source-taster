@@ -69,6 +69,8 @@ for (const language of ["en", "de"] as const)
   test(`native panel persists appearance and follows System in ${language}`, async () => {
     await native(language === "en" ? "en-GB" : "de-DE", async (browser) => {
       const panel = await browser.openPanel();
+      // The browser locale does not choose the panel language; Preferences does.
+      await panel.preferences({ language });
       await panel.send("Emulation.setEmulatedMedia", {
         features: [{ name: "prefers-color-scheme", value: "light" }],
       });
