@@ -580,51 +580,8 @@ export async function normalizeShell(
         after: fixture.devNotice,
       });
   }
-  if (fixture.legal?.length) {
-    // Product addition: Help and the legal pages stay reachable on every
-    // screen as a quiet row closing the intake notes and the feed foot. D
-    // draws no such row, so it is projected after D's last note in D's own
-    // foot type (sm, secondary); the source re-renders, so keep it live.
-    await page.evaluate((labels) => {
-      const root = document.querySelector(".v-D") ?? document.body;
-      const make = () => {
-        const nav = document.createElement("nav");
-        nav.dataset.appLegal = "";
-        nav.style.cssText =
-          "display:flex;flex-wrap:wrap;gap:4px 16px;font-size:var(--st-text-sm);color:var(--st-text-secondary)";
-        for (const label of labels) {
-          const link = document.createElement("a");
-          link.href = "#";
-          link.textContent = label;
-          link.style.cssText =
-            "color:inherit;text-decoration:underline;text-underline-offset:3px";
-          nav.append(link);
-        }
-        return nav;
-      };
-      const fix = () => {
-        for (const box of root.querySelectorAll(".intake, .feed .foot")) {
-          if (box.querySelector(":scope > [data-app-legal]")) continue;
-          const rows = box.querySelectorAll(":scope > .nrow");
-          const last = rows[rows.length - 1];
-          if (!last) continue;
-          last.after(make());
-        }
-      };
-      fix();
-      new MutationObserver(fix).observe(root, {
-        childList: true,
-        subtree: true,
-      });
-    }, fixture.legal);
-    changes.push({
-      field: "notes.legal",
-      reason:
-        "Product addition (web-gaps section 13): Help, Contact and the legal pages stay reachable on every screen as a quiet row after the last note of the intake and the feed foot; #194 D draws no such row, so it is projected in D's foot type",
-      before: "",
-      after: fixture.legal.join(" · "),
-    });
-  }
+  const legal = await projectLegal(page, fixture.legal);
+  if (legal) changes.push(legal);
   if (hosted && fixture.selectionAvailable === undefined) {
     // Hosted re-renders the source, so hide rather than remove.
     await page.addStyleTag({
@@ -764,6 +721,56 @@ export async function normalizeShell(
     });
   }
   return changes;
+}
+
+/** Product addition: Help, Contact and the legal pages close the intake notes
+ * and the feed foot. #194 D has no such row, so it is projected in D's foot type.
+ * Shared by the web and native extension drivers. */
+export async function projectLegal(page: Page, labels: string[] | undefined) {
+  if (!labels?.length) return undefined;
+  // Product addition: Help and the legal pages stay reachable on every
+  // screen as a quiet row closing the intake notes and the feed foot. D
+  // draws no such row, so it is projected after D's last note in D's own
+  // foot type (sm, secondary); the source re-renders, so keep it live.
+  await page.evaluate((labels) => {
+    const root = document.querySelector(".v-D") ?? document.body;
+    const make = () => {
+      const nav = document.createElement("nav");
+      nav.dataset.appLegal = "";
+      nav.style.cssText =
+        "display:flex;flex-wrap:wrap;gap:4px 16px;font-size:var(--st-text-sm);color:var(--st-text-secondary)";
+      for (const label of labels) {
+        const link = document.createElement("a");
+        link.href = "#";
+        link.textContent = label;
+        link.style.cssText =
+          "color:inherit;text-decoration:underline;text-underline-offset:3px";
+        nav.append(link);
+      }
+      return nav;
+    };
+    const fix = () => {
+      for (const box of root.querySelectorAll(".intake, .feed .foot")) {
+        if (box.querySelector(":scope > [data-app-legal]")) continue;
+        const rows = box.querySelectorAll(":scope > .nrow");
+        const last = rows[rows.length - 1];
+        if (!last) continue;
+        last.after(make());
+      }
+    };
+    fix();
+    new MutationObserver(fix).observe(root, {
+      childList: true,
+      subtree: true,
+    });
+  }, labels);
+  return {
+    field: "notes.legal",
+    reason:
+      "Product addition (web-gaps section 13): Help, Contact and the legal pages stay reachable on every screen as a quiet row after the last note of the intake and the feed foot; #194 D draws no such row, so it is projected in D's foot type",
+    before: "",
+    after: labels.join(" · "),
+  };
 }
 
 export async function ownerGeometryChecks(

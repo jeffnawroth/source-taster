@@ -24,7 +24,10 @@ import {
   normalizePrototype,
   normalizeStructuringPrototype,
 } from "../../web/scripts/design-fidelity/fixtures.ts";
-import { readShellFixture } from "../../web/scripts/design-fidelity/normalization.ts";
+import {
+  projectLegal,
+  readShellFixture,
+} from "../../web/scripts/design-fidelity/normalization.ts";
 import { interactions } from "../../web/scripts/design-fidelity/interactions.ts";
 import {
   alignNativeShell,
@@ -610,6 +613,8 @@ if (args.includes("--list")) {
           }
           await sourceAfter(page, state.stage);
           normalizations.push(...(await alignNativeShell(page, fixture)));
+          const legal = await projectLegal(page, fixture.legal);
+          if (legal) normalizations.push(legal);
           normalizations.push(await normalizeBrand(page, root, "extension"));
           normalizations.push(
             ...(await normalizeAppFixture(
