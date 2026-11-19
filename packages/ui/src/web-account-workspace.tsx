@@ -516,9 +516,15 @@ export function AccountWorkspace({
     [error, setError] = useState(false),
     [generation, setGeneration] = useState(0);
   const [credentialFailure, setCredentialFailure] = useState(false);
+  // A concluded DPA's link (#dpa/<id>) lands in the Account dialog that holds it.
   const [accountDialog, setAccountDialog] = useState<
     "sign-in" | "account" | null
-  >(null);
+  >(() =>
+    typeof location !== "undefined" &&
+    /^#dpa\/[0-9a-f-]{36}$/.test(location.hash)
+      ? "account"
+      : null,
+  );
   const openSignIn = () => setAccountDialog("sign-in");
   const [sessionRevision, setSessionRevision] = useState(0);
   const accountPreferences = useAccountPreferences(
@@ -763,7 +769,7 @@ export function AccountWorkspace({
       />
       <Modal
         key={`account-dialog:${generation}`}
-        isOpen={accountDialog === "account"}
+        isOpen={accountDialog === "account" && !!session && !credentialFailure}
         onOpenChange={(open) => {
           if (!open) setAccountDialog(null);
         }}
