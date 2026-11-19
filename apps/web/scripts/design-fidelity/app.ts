@@ -44,6 +44,7 @@ export async function readAppFixture(
                 record: node.classList.contains("detail-record"),
               }),
             ),
+            editing: !!document.querySelector(".detail-compare input"),
             rows: [...document.querySelectorAll(".detail-compare tbody")].map(
               (node) => {
                 const cells = node.querySelectorAll("td");
@@ -157,6 +158,18 @@ export async function readAppFixture(
         "An actual API Reference is required to validate the displayed comparison",
       );
     const expected = apiComparisonRows(reference, language);
+    // While a draft is open, D's table holds an input per editable field in the
+    // Your Reference cell (validated by the editor fixture below); the compared
+    // rows and their Best-match side must still match the API.
+    if (fixture.detail.editing) {
+      const fields = new Set(expected.map((row) => row.field));
+      fixture.detail.rows = fixture.detail.rows
+        .filter((row) => fields.has(row.field))
+        .map((row) => {
+          const api = expected.find((item) => item.field === row.field)!;
+          return { ...row, yours: api.yours, unknownYours: api.unknownYours };
+        });
+    }
     assertComparisonRows(expected, fixture.detail.rows);
     // The source receives API expectations, never unchecked display observations.
     fixture.detail.rows = expected;

@@ -27,6 +27,7 @@ import {
 import { m } from "@source-taster/i18n";
 import { getLocale } from "@source-taster/i18n/runtime";
 import { JournalAbbreviationExplanation } from "./journal-abbreviation.tsx";
+import { FieldCell, type FieldEditing } from "./reference-fields.tsx";
 const reasons = {
   "url-unavailable": "reason_url_unavailable",
   "web-original-unavailable": "reason_web_original_unavailable",
@@ -744,11 +745,14 @@ export function BestMatchComparison({
   outcome,
   contextLabel,
   action,
+  editing,
   children,
 }: {
   outcome: VerdictResult;
   contextLabel?: string;
   action?: ReactNode;
+  /** An open field draft: D puts each input in its row's Your Reference cell. */
+  editing?: FieldEditing;
   children?: ReactNode;
 }) {
   const best = outcome.candidates.find(
@@ -804,8 +808,10 @@ export function BestMatchComparison({
             const theirs = raw(
               comparison ? comparison.candidate : best?.csl[field],
             );
-            // A field neither side has and nothing compared tells nothing.
+            // A field neither side has and nothing compared tells nothing,
+            // unless it is being edited.
             if (
+              !editing &&
               !comparison &&
               yours === m.workspace_unknown() &&
               theirs === m.workspace_unknown()
@@ -823,17 +829,21 @@ export function BestMatchComparison({
                     <span className="compare-label" aria-hidden="true">
                       {m.shell_your_reference()}
                     </span>
-                    <span
-                      className={
-                        yours === m.workspace_unknown()
-                          ? "compare-unknown"
-                          : state.deviates
-                            ? "compare-deviating"
-                            : undefined
-                      }
-                    >
-                      {yours}
-                    </span>
+                    {editing ? (
+                      <FieldCell editing={editing} field={field} />
+                    ) : (
+                      <span
+                        className={
+                          yours === m.workspace_unknown()
+                            ? "compare-unknown"
+                            : state.deviates
+                              ? "compare-deviating"
+                              : undefined
+                        }
+                      >
+                        {yours}
+                      </span>
+                    )}
                     {state.deviates ? (
                       <span className="compare-differs">
                         <VerdictGlyph verdict="exists-with-deviations" />
@@ -859,7 +869,13 @@ export function BestMatchComparison({
                     >
                       {theirs}
                     </span>
-                    <small className="compare-note">{state.note}</small>
+                    {/* A field only the draft adds was never compared; D
+                        shows it as unknown without a score note. */}
+                    {(!editing ||
+                      comparison ||
+                      best?.csl[field] !== undefined) && (
+                      <small className="compare-note">{state.note}</small>
+                    )}
                   </td>
                 </tr>
               </tbody>

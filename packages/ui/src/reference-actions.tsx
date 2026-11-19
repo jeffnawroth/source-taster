@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { AiProvenance } from "./ai-provenance.tsx";
 import { ManualVerdictActions } from "./manual-verdict.tsx";
-import { useMemo, useRef, useState, type ReactNode } from "react";
+import { useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
 import { PencilLine, Undo } from "./workspace-icons.tsx";
 import type {
@@ -21,7 +21,7 @@ import {
   CorrectionSuggestion,
   type Rendered,
 } from "./correction-suggestions.tsx";
-import { availability, Fields } from "./reference-fields.tsx";
+import { availability, type FieldEditing } from "./reference-fields.tsx";
 import {
   DetailSection,
   fieldLabels,
@@ -37,6 +37,12 @@ import {
   type SnapshotGate,
 } from "./reference-work.ts";
 
+/** An open field draft: its inputs, and the form holding its note and actions. */
+export interface DraftEditor {
+  editing: FieldEditing;
+  form: (fields?: ReactNode) => ReactNode;
+}
+
 export function ReferenceActions({
   check,
   reference,
@@ -48,8 +54,10 @@ export function ReferenceActions({
   evidence,
   provenance,
 }: {
-  /** Renders the field table with this slot's Edit fields action and draft editor. */
-  comparison: (action: ReactNode, editor: ReactNode) => ReactNode;
+  /** Renders the field table with this slot's Edit fields action and, while a
+   *  draft is open, its inputs in the table and `form` (note and actions) below.
+   *  Without a table, pass the labelled `Fields` into `form`. */
+  comparison: (action: ReactNode, edit: DraftEditor | null) => ReactNode;
   /** D's Data sources, Candidates and evidence trail, after Manual judgment. */
   evidence?: ReactNode;
   /** The style and source line under the Correction suggestion. */
@@ -186,56 +194,66 @@ export function ReferenceActions({
       {m.revision_edit()}
     </Button>
   );
-  const editor = draft && (
-    <Form
-      className="detail-draft"
-      onSubmit={(event) => {
-        event.preventDefault();
-        void submit(true, true);
-      }}
-    >
-      <p role="status">
-        {stale ? m.revision_stale_draft() : m.revision_draft()}
-      </p>
-      <Fields
-        fields={draft.fields}
-        onChange={(fields) => work.setDraft((draft) => ({ ...draft, fields }))}
-        truncated={draft.authorsTruncated}
-        onTruncated={(authorsTruncated) =>
-          work.setDraft((draft) => ({ ...draft, authorsTruncated }))
-        }
-        disabled={operationRunning || stale}
-      />
-      <div className="flex flex-wrap gap-3">
-        <Button
-          variant="primary"
-          type="submit"
-          {...availability(operationRunning || stale)}
-        >
-          {m.revision_save_recheck()}
-        </Button>
-        <Button
-          {...availability(operationRunning || stale)}
-          onPress={() => {
-            void submit(false, true);
-          }}
-        >
-          {m.revision_save()}
-        </Button>
-        <Button
-          variant="ghost"
-          {...availability(pending)}
-          onPress={() => {
-            work.setDraft(null);
-            // The pressed control unmounts; focus returns to its opener.
-            requestAnimationFrame(() => editButton.current?.focus());
-          }}
-        >
-          {m.revision_discard()}
-        </Button>
-      </div>
-    </Form>
-  );
+  const formId = useId();
+  const editor: DraftEditor | null = draft && {
+    editing: {
+      formId,
+      fields: draft.fields,
+      onChange: (fields) => work.setDraft((draft) => ({ ...draft, fields })),
+      truncated: draft.authorsTruncated,
+      onTruncated: (authorsTruncated) =>
+        work.setDraft((draft) => ({ ...draft, authorsTruncated })),
+      disabled: operationRunning || stale,
+    },
+    form: (fields) => (
+      <Form
+        id={formId}
+        aria-label={m.revision_fields()}
+        className="detail-draft"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void submit(true, true);
+        }}
+      >
+        {fields}
+        <p role="status" className="detail-note">
+          {stale ? m.revision_stale_draft() : m.revision_draft()}
+        </p>
+        <div className="detail-row">
+          <Button
+            variant="primary"
+            type="submit"
+            size="sm"
+            icon={<Undo aria-hidden="true" size={16} />}
+            {...availability(operationRunning || stale)}
+          >
+            {m.revision_save_recheck()}
+          </Button>
+          <Button
+            size="sm"
+            {...availability(operationRunning || stale)}
+            onPress={() => {
+              void submit(false, true);
+            }}
+          >
+            {m.revision_save()}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            {...availability(pending)}
+            onPress={() => {
+              work.setDraft(null);
+              // The pressed control unmounts; focus returns to its opener.
+              requestAnimationFrame(() => editButton.current?.focus());
+            }}
+          >
+            {m.revision_discard()}
+          </Button>
+        </div>
+      </Form>
+    ),
+  };
   return (
     <section aria-label={m.revision_actions()} className="detail-actions">
       {comparison(editAction, editor)}

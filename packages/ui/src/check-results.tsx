@@ -49,6 +49,7 @@ import {
   type StepState,
 } from "./evidence-steps.tsx";
 import { ReferenceActions } from "./reference-actions.tsx";
+import { Fields } from "./reference-fields.tsx";
 import { ReferenceListActions } from "./reference-list-actions.tsx";
 import { GridList, GridListItem } from "./primitives/grid-list.tsx";
 import {
@@ -570,20 +571,29 @@ export function CheckResults({
                 transport={transport}
                 work={work(selected.slot)}
                 gate={gate}
-                comparison={(action, editor) =>
+                comparison={(action, edit) =>
                   selected.outcome.kind === "verdict" ? (
                     <BestMatchComparison
                       outcome={selected.outcome}
                       action={action}
+                      editing={edit?.editing}
                     >
-                      {editor}
+                      {edit?.form()}
                     </BestMatchComparison>
                   ) : (
                     <DetailSection
                       title={m.shell_field_by_field()}
                       action={action}
                     >
-                      {editor}
+                      {edit?.form(
+                        <Fields
+                          fields={edit.editing.fields}
+                          onChange={edit.editing.onChange}
+                          truncated={edit.editing.truncated}
+                          onTruncated={edit.editing.onTruncated}
+                          disabled={edit.editing.disabled}
+                        />,
+                      )}
                     </DetailSection>
                   )
                 }

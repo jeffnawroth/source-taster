@@ -491,6 +491,18 @@ body {
 .workspace-notes.intake-notes {
   gap: 14px;
 }
+.workspace-legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
+}
+.workspace-legal a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 .workspace-banners {
   display: grid;
   gap: 8px;
@@ -521,6 +533,13 @@ body {
   display: inline-flex;
   vertical-align: baseline;
   box-shadow: none;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 700;
+  color: var(--st-accent-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 .detail-note {
   font-size: var(--st-text-sm);
@@ -1995,6 +2014,52 @@ body {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 8px;
+}
+/* D edits inside the field table: each Your Reference cell holds a .fld
+   input (D .fld, .cmp .fld input). Structured authors stack in their cell. */
+.detail-compare .detail-field {
+  display: grid;
+  gap: 3px;
+  font-size: var(--st-text-sm);
+  font-weight: 700;
+  color: var(--st-text-secondary);
+}
+.detail-compare .detail-field .st-input {
+  min-height: 34px;
+  padding: 6px 10px;
+  border-radius: var(--st-radius-md);
+  font-size: var(--st-text-sm);
+  font-weight: 400;
+}
+.detail-compare .detail-field label {
+  font: inherit;
+  color: inherit;
+}
+/* Author parts take the same .fld recipe; the group stacks like D's
+   block-level .fld labels, actions in a .row. */
+.detail-authors,
+.detail-author {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: start;
+  gap: 2px;
+  min-width: 0;
+}
+.detail-authors .detail-field {
+  justify-self: stretch;
+}
+.detail-author {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.detail-author legend {
+  padding: 0;
+  color: var(--st-text);
+}
+.detail-authors .detail-check.st-checkbox {
+  flex-wrap: nowrap;
+  align-items: flex-start;
 }
 /* D's lower detail (.nrow, .tc, .srcs, .cand, .trail): sections between
    Manual judgment and the history read as bordered lists, never as boxes. */

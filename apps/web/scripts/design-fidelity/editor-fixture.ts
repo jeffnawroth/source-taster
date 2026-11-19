@@ -30,6 +30,8 @@ export interface EditorFixture {
     primary: boolean;
   }[];
   messages: { text: string; role: string | null }[];
+  /** The product's copy for a Best-match side the API leaves unsupplied. */
+  unknown?: string;
 }
 
 /** Initial Edit-fields draft comes from the committed editable revision, NOT
@@ -98,6 +100,7 @@ export function assertEditorFixture(
   language: "en" | "de",
   fixture: EditorFixture,
 ) {
+  fixture.unknown = (language === "de" ? de : en).workspace_unknown;
   const expected = apiEditorControls(reference, language);
   const messages = language === "de" ? de : en;
   if (
@@ -172,9 +175,14 @@ export async function readEditorFixture(
     if (!form) return null;
     const text = (node: Node | null | undefined) =>
       node?.textContent?.trim() ?? "";
-    const root = form.querySelector(":scope > fieldset");
-    if (!root) throw new Error("Product field editor has no field inventory");
-    const authors = root.querySelector(":scope > fieldset");
+    // D edits inside the field table; without a table the form holds a labelled list.
+    const table = document.querySelector(".check-detail .detail-compare");
+    const inline = !!table?.querySelector("input");
+    const root = inline ? null : form.querySelector(":scope > fieldset");
+    if (!inline && !root)
+      throw new Error("Product field editor has no field inventory");
+    const authors = root?.querySelector(":scope > fieldset") ?? null;
+    const scopes = inline ? [table!, form] : [form];
     const group = (node: Element) => {
       const fieldset = node.closest("fieldset");
       return fieldset && fieldset !== root && fieldset !== authors
@@ -192,35 +200,43 @@ export async function readEditorFixture(
       return text(copy) || input.getAttribute("aria-label") || "";
     };
     return {
-      legend: text(root.querySelector(":scope > legend")),
-      authorLegend: text(authors?.querySelector(":scope > legend")),
-      controls: [
-        ...form.querySelectorAll<
-          HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-        >("input,textarea,select"),
-      ].map((input) => ({
-        path: "",
-        group: group(input),
-        label: label(input),
-        kind:
-          input instanceof HTMLInputElement
-            ? input.type
-            : input.tagName.toLowerCase(),
-        value:
-          input instanceof HTMLInputElement && input.type === "checkbox"
-            ? ""
-            : input.value,
-        checked: input instanceof HTMLInputElement && input.checked,
-        disabled: input.matches(":disabled"),
-      })),
-      actions: [...form.querySelectorAll<HTMLButtonElement>("button")].map(
-        (button) => ({
+      legend: inline
+        ? (form.getAttribute("aria-label") ?? "")
+        : text(root!.querySelector(":scope > legend")),
+      authorLegend: inline
+        ? text(table!.querySelector('[data-field="author"] th'))
+        : text(authors?.querySelector(":scope > legend")),
+      controls: scopes
+        .flatMap((scope) => [
+          ...scope.querySelectorAll<
+            HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+          >("input,textarea,select"),
+        ])
+        .map((input) => ({
+          path: "",
+          group: group(input),
+          label: label(input),
+          kind:
+            input instanceof HTMLInputElement
+              ? input.type
+              : input.tagName.toLowerCase(),
+          value:
+            input instanceof HTMLInputElement && input.type === "checkbox"
+              ? ""
+              : input.value,
+          checked: input instanceof HTMLInputElement && input.checked,
+          disabled: input.matches(":disabled"),
+        })),
+      actions: scopes
+        .flatMap((scope) => [
+          ...scope.querySelectorAll<HTMLButtonElement>("button"),
+        ])
+        .map((button) => ({
           group: group(button),
           label: text(button),
           disabled: button.matches(":disabled"),
           primary: button.getAttribute("data-variant") === "primary",
-        }),
-      ),
+        })),
       messages: [...form.querySelectorAll(':scope > p,[role="alert"]')].map(
         (node) => ({ text: text(node), role: node.getAttribute("role") }),
       ),
@@ -333,14 +349,41 @@ export async function normalizeEditorFixture(
               "'": "&#39;",
             })[char]!,
         );
+      // D's own edit cell: <span class="fld"><input aria-label></span>; the row
+      // header names the field. Structured author parts have no row header,
+      // so they keep a visible .fld label.
       const makeInput = (control: EditorFixture["controls"][number]) => {
-        const label = document.createElement("label");
+        const scalar =
+          !control.path.startsWith("author.") &&
+          control.path !== "authorsTruncated";
+        // A lone checkbox takes D's label.row.note recipe (as .dlg label.opt),
+        // never .fld, whose input rules would draw a 34px box.
+        if (control.kind === "checkbox") {
+          const label = document.createElement("label");
+          label.className = "row note";
+          const span = document.createElement("span");
+          span.textContent = control.label;
+          label.append(projected.get(control.path)!, span);
+          return label;
+        }
+        const label = document.createElement(scalar ? "span" : "label");
         label.className = "fld";
-        const span = document.createElement("span");
-        span.textContent = control.label;
-        label.append(span, projected.get(control.path)!);
+        if (!scalar) {
+          const span = document.createElement("span");
+          span.textContent = control.label;
+          label.append(span);
+        }
+        label.append(projected.get(control.path)!);
         return label;
       };
+      // D's compareBlock: every cell opens with its .lab column name (shown
+      // when narrow), and a field the best match lacks reads as unknown.
+      const lab = (column: number) =>
+        `<span class="lab" aria-hidden="true">${esc(cmp.querySelector(`.cmp-h span:nth-child(${column})`)?.textContent ?? "")}</span>`;
+      const best = (row: (typeof rows)[number] | undefined) =>
+        row
+          ? `<span class="${row.unknownBest ? "unk" : ""}">${esc(row.best)}</span><small>${esc(row.note)}</small>`
+          : `<span class="unk">${esc(fixture.unknown ?? "")}</span>`;
       // Move every original input out before replacing row children.
       for (const input of projected.values()) input.remove();
       cmp.querySelectorAll(".cmp-r").forEach((node) => node.remove());
@@ -352,7 +395,7 @@ export async function normalizeEditorFixture(
         node.className = `cmp-r${row?.differs ? " is-dev" : ""}`;
         node.setAttribute("role", "row");
         node.dataset.field = control.path;
-        node.innerHTML = `<span class="cf" role="rowheader">${esc(control.label)}</span><span class="cy" role="cell"></span><span class="cb" role="cell">${row ? `<span class="${row.unknownBest ? "unk" : ""}">${esc(row.best)}</span><small>${esc(row.note)}</small>` : ""}</span>`;
+        node.innerHTML = `<span class="cf" role="rowheader">${esc(control.label)}</span><span class="cy" role="cell">${lab(2)}</span><span class="cb" role="cell">${lab(3)}${best(row)}</span>`;
         const yours = node.querySelector(".cy")!;
         yours.append(makeInput(control));
         if (row?.differs)
@@ -372,7 +415,7 @@ export async function normalizeEditorFixture(
       author.className = `cmp-r${authorRow?.differs ? " is-dev" : ""}`;
       author.dataset.field = "author";
       author.setAttribute("role", "row");
-      author.innerHTML = `<span class="cf" role="rowheader">${esc(fixture.authorLegend)}</span><span class="cy" role="cell"></span><span class="cb" role="cell">${authorRow ? `<span class="${authorRow.unknownBest ? "unk" : ""}">${esc(authorRow.best)}</span><small>${esc(authorRow.note)}</small>` : ""}</span>`;
+      author.innerHTML = `<span class="cf" role="rowheader">${esc(fixture.authorLegend)}</span><span class="cy" role="cell">${lab(2)}</span><span class="cb" role="cell">${lab(3)}${best(authorRow)}</span>`;
       const authorCell = author.querySelector(".cy")!;
       for (const group of new Set(
         fixture.controls
@@ -430,7 +473,10 @@ export async function normalizeEditorFixture(
           "beforeend",
           `<span class="okmark">${ST.ico("e-ok")}</span>`,
         );
-      cmp.append(author);
+      // The author row keeps the API field order (after Title), as in D's rows.
+      const next = cmp.querySelector('.cmp-r[data-field="issued"]');
+      if (next) next.before(author);
+      else cmp.append(author);
       const oldSave = section.querySelector<HTMLButtonElement>(
         '[data-act^="save:"]',
       );
@@ -444,7 +490,10 @@ export async function normalizeEditorFixture(
       section
         .querySelectorAll('[data-editor-fixture="messages"]')
         .forEach((node) => node.remove());
-      for (const node of [...section.querySelectorAll(":scope > p.note")])
+      // D's own draft note only; the projected Best-match provenance line stays.
+      for (const node of [
+        ...section.querySelectorAll(":scope > p.note:not([data-app-fixture])"),
+      ])
         node.remove();
       for (const message of fixture.messages) {
         const node = document.createElement("p");
@@ -463,7 +512,11 @@ export async function normalizeEditorFixture(
         .forEach((node) => node.remove());
       for (const [index, button] of [oldSave, saveOnly, oldDiscard].entries()) {
         const action = actions[index]!;
-        button.textContent = action.label;
+        // Keep D's leading sprite icon (Save and re-check: i-undo) and label span.
+        const span =
+          button.querySelector(":scope > span") ??
+          button.appendChild(document.createElement("span"));
+        span.textContent = action.label;
         button.disabled = action.disabled;
         button.className = `btn sm${action.primary ? " primary" : index === 2 ? " ghost" : ""}`;
       }
