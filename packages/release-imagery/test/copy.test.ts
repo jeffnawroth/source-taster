@@ -66,7 +66,7 @@ await test("alt texts name Verdicts with their exact labels and follow the voice
     // The evidence story pictures the sources and the opened candidate list,
     // not the verdict, so its alt text names both by their exact labels.
     for (const label of l === "en"
-      ? ["Data sources queried", "More Candidates"]
+      ? ["Data sources queried", "More candidates"]
       : ["Abgefragte Datenquellen", "Weitere Kandidaten"])
       assert.ok(imageAlt(evidence)[l].includes(label), `${l} ${label}`);
   }
@@ -90,7 +90,7 @@ await test("English copy, alt text and claims use sentence case: domain nouns ar
     "Not found",
     "Not verifiable",
     "Check reference",
-    "More Candidates",
+    "More candidates",
   ];
   const nouns =
     /\b(References?|Verdicts?|Statuses|Status|Best match|Original text|Checks?|Evidence|Candidates?)\b/u;

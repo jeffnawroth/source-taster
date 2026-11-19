@@ -505,7 +505,7 @@ export async function normalizeShell(
     if (source.lang() !== "en") return [];
     const seen = new Set<string>();
     const term =
-      /(?<=[a-z0-9,;:)] )(Checks?|References?|Quota|Plans?|History|Accounts?|Verdicts?|Guests?|Evidence)\b/g;
+      /(?<=[a-z0-9,;:)] )(Checks?|References?|Quota|Plans?|History|Accounts?|Verdicts?|Guests?|Evidence|Candidates?)\b/g;
     const fix = (root: Node) => {
       const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
       for (let node = walker.nextNode(); node; node = walker.nextNode()) {

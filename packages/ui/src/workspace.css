@@ -2280,7 +2280,7 @@ body {
 .detail-fields dd {
   color: var(--st-text-secondary);
 }
-/* D's toggle button ("More Candidates (2)", + closed, × open). */
+/* D's toggle button ("More candidates (2)", + closed, × open). */
 .detail-candidates {
   display: grid;
   gap: 8px;

@@ -12,7 +12,7 @@ export const labels = {
     check: "Check reference",
     open: /^Open reference 1:/,
     detail: "Reference detail",
-    candidates: /^More Candidates \(\d+\)$/,
+    candidates: /^More candidates \(\d+\)$/,
     suggestionLoading:
       "Apply to fields becomes available once the suggestion for the current result has loaded.",
     correct: "Correct",
