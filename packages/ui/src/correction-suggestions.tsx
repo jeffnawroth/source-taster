@@ -11,7 +11,7 @@ import { m } from "@source-taster/i18n";
 import { afterPress } from "./after-press.ts";
 import { Button } from "./primitives/actions.tsx";
 import { Checkbox } from "./primitives/selection.tsx";
-import { Copy, PencilLine } from "lucide-react";
+import { Copy, PencilLine } from "./workspace-icons.tsx";
 import { DetailSection } from "./reference-outcome.tsx";
 import { resultBinding } from "./reference-work.ts";
 import type { CitationStyle } from "./preferences.ts";
@@ -439,6 +439,7 @@ export function CorrectionSuggestion({
         </Button>
       </div>
       <Checkbox
+        className="detail-check"
         isSelected={entry.applied}
         onChange={(selected) => rendered.apply(slot, selected)}
       >

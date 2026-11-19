@@ -14,8 +14,7 @@ import {
 import { m } from "@source-taster/i18n";
 import { verdictLabels, VerdictGlyph } from "./outcome-badges.tsx";
 import { Button } from "./primitives/actions.tsx";
-import { Check as CheckIcon } from "lucide-react";
-import { PencilLine } from "./workspace-icons.tsx";
+import { Check as CheckIcon, PencilLine } from "./workspace-icons.tsx";
 import "./manual-verdict.css";
 import { DetailSection } from "./reference-outcome.tsx";
 import { Form } from "./primitives/fields.tsx";

@@ -9,7 +9,8 @@ import type {
   SourceEvidence,
 } from "@source-taster/contract-verification/v2";
 import type { Verdict } from "@source-taster/contract-verification/v2";
-import { Check, ChevronRight, Info, PencilLine, Plus, X } from "lucide-react";
+import { ChevronRight, Info, Plus, X } from "lucide-react";
+import { Check, PencilLine } from "./workspace-icons.tsx";
 import {
   evidenceLabel,
   evidenceStep,

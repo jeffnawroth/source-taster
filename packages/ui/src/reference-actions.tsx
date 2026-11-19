@@ -2,7 +2,8 @@
 import { AiProvenance } from "./ai-provenance.tsx";
 import { ManualVerdictActions } from "./manual-verdict.tsx";
 import { useMemo, useRef, useState, type ReactNode } from "react";
-import { ChevronRight, PencilLine, RotateCcw } from "lucide-react";
+import { ChevronRight } from "lucide-react";
+import { PencilLine, Undo } from "./workspace-icons.tsx";
 import type {
   Check,
   ReferenceSlot,
@@ -305,7 +306,7 @@ export function ReferenceActions({
         <div className="detail-row">
           <Button
             size="sm"
-            icon={<RotateCcw aria-hidden="true" size={16} />}
+            icon={<Undo aria-hidden="true" size={16} />}
             {...availability(operationRunning)}
             onPress={() => {
               void submit(true, false);

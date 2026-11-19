@@ -1812,7 +1812,9 @@ body {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+/* D .cb small */
 .detail-record {
+  margin-top: 2px;
   font: 400 var(--st-text-2xs) var(--st-font-mono);
   color: var(--st-text-muted);
 }
@@ -1903,7 +1905,9 @@ body {
 }
 @container detail (width < 470px) {
   /* The table keeps its semantics; only the layout reflows to two columns. */
+  /* display: contents above would leave the header rows in the flow. */
   .detail-compare thead {
+    display: block;
     position: absolute;
     width: 1px;
     height: 1px;
@@ -1939,12 +1943,14 @@ body {
     display: block;
   }
 }
+/* These wrappers only group D's .dsec sections, which sit directly in
+   .dbody with its 18px gap. */
 .detail-actions,
 .detail-evidence,
 .detail-stack {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 12px;
+  gap: 18px;
 }
 .detail-evidence {
   overflow-wrap: anywhere;
@@ -1954,6 +1960,36 @@ body {
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+}
+/* D draws a lone detail checkbox as label.row.note around the native
+   checkbox (as .dlg label.opt in Edit list): RAC keeps the control, name,
+   focus and disabled state; the native box replaces the drawn mark. */
+.detail-check.st-checkbox {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-height: 0;
+  padding: 0;
+  font-size: var(--st-text-sm);
+  line-height: 1.5;
+  color: var(--st-text-secondary);
+}
+.detail-check.st-checkbox > span:has(> input[type="checkbox"]) {
+  display: contents !important;
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  clip: auto !important;
+  clip-path: none !important;
+  overflow: visible !important;
+  white-space: normal !important;
+}
+.detail-check.st-checkbox .st-choice-mark {
+  display: none;
+}
+.detail-check.st-checkbox input[type="checkbox"] {
+  margin: 3px 3px 3px 4px;
 }
 .detail-draft {
   display: grid;
@@ -2061,9 +2097,9 @@ body {
   color: var(--st-text-muted);
   white-space: nowrap;
 }
+/* D: p.mono.muted at text-xs under the .tc box, in the .dsec gap. */
 .detail-tc-meta {
-  margin-top: -6px;
-  font: 400 var(--st-text-xs) / 1.4 var(--st-font-mono);
+  font: 400 var(--st-text-xs) / 1.5 var(--st-font-mono);
   color: var(--st-text-muted);
 }
 /* D's small detail actions (.btn.sm) stand 34px tall. */
@@ -2230,19 +2266,22 @@ html:has(.check-workspace) {
 .tracked-change {
   overflow-wrap: anywhere;
 }
+/* D .st-del / .st-ins (the shared tracked-change marks) */
 .tracked-change del {
   color: var(--st-correction-delete-text);
   background: var(--st-correction-delete-bg);
+  text-decoration: line-through;
   text-decoration-color: var(--st-correction-delete-line);
+  text-decoration-thickness: 1.5px;
+  border-radius: var(--st-radius-xs);
 }
 .tracked-change ins {
-  color: var(--st-text);
   background: var(--st-correction-insert-bg);
-  text-decoration: underline 2px var(--st-correction-insert-line);
-  text-underline-offset: 0.2em;
-}
-.tracked-change del + ins {
-  margin-inline-start: 0.25em;
+  text-decoration: underline;
+  text-decoration-color: var(--st-correction-insert-line);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  border-radius: var(--st-radius-xs);
 }
 
 /* ---------- motion and forced colours ---------- */
