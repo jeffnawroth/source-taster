@@ -516,7 +516,9 @@ export class Panel {
     );
     await this.evaluate(`${await axeSource};0`);
     return this.evaluate<{ id: string; nodes: string[] }[]>(
-      `axe.run(document, { runOnly: { type: "tag", values: ${JSON.stringify(tags)} } })
+      // React Aria's off-screen live announcer keeps a spoken pending message
+      // for a few seconds; it names its Button by id after that Dialog closed.
+      `axe.run({ exclude: [["[data-live-announcer]"]] }, { runOnly: { type: "tag", values: ${JSON.stringify(tags)} } })
         .then((r) => r.violations.map((v) => ({ id: v.id, nodes: v.nodes.map((n) => String(n.target) + " — " + n.failureSummary) })))`,
     );
   }

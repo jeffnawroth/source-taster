@@ -35,10 +35,20 @@ export const labels = {
   },
 } as const;
 
-/** Runs a launcher command on the web page by its accessible name. */
-export async function runCommandOnWeb(page: Page, name: string | RegExp) {
+/** A modal Dialog (for example Account) blocks the launcher; Escape closes it first. */
+async function openLauncherOnWeb(page: Page) {
+  const modal = page.getByRole("dialog");
+  for (let i = 0; i < 3 && (await modal.count()) > 0; i++) {
+    await page.keyboard.press("Escape");
+    await expect(modal).toHaveCount(0, { timeout: 2_000 }).catch(() => {});
+  }
   const launcher = /^(Search or command|Suchen oder Befehl) …$/u;
   await page.getByRole("button", { name: launcher }).click();
+}
+
+/** Runs a launcher command on the web page by its accessible name. */
+export async function runCommandOnWeb(page: Page, name: string | RegExp) {
+  await openLauncherOnWeb(page);
   const palette = page.getByRole("dialog", { name: /^(Commands|Aktionen)$/u });
   await palette
     .getByRole("menuitem", {
@@ -57,8 +67,7 @@ export async function choosePreferencesOnWeb(
   page: Page,
   choice: { language?: string; citationStyle?: string; theme?: Theme },
 ) {
-  const launcher = /^(Search or command|Suchen oder Befehl) …$/u;
-  await page.getByRole("button", { name: launcher }).click();
+  await openLauncherOnWeb(page);
   await page
     .getByRole("dialog", { name: /^(Commands|Aktionen)$/u })
     .getByRole("menuitem", { name: /^(Preferences|Einstellungen)$/u })
