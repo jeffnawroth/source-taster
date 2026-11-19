@@ -214,7 +214,7 @@ All fields share one anatomy through **Form, Label, Description and FieldError**
 
 ### 2.5 Display
 
-**Tag / TagGroup** — RAC `TagGroup` + `TagList` + `Tag`. `sm`, `radius-full`, `surface` + `border`. Removable tags have a × IconButton named "Remove ‹label›". Used for source chips in IntakeField and the active filter chip. Labels never truncate.
+**Tag / TagGroup** — RAC `TagGroup` + `TagList` + `Tag`. `sm`, `radius-full`, `surface` + `border`. Removable tags have a × IconButton named "Remove ‹label›". Used for source chips in IntakeField. Labels never truncate.
 
 **Badge** — a non-interactive span. `sm`, `radius-full`, `surface-sunken`, `text-secondary`, `text-xs`. For counts and neutral markers. Domain badges (VerdictBadge, StatusBadge, ManualTag) build on it.
 
@@ -265,7 +265,7 @@ All fields share one anatomy through **Form, Label, Description and FieldError**
 - **Wide** (container ≥ 700 px, as decided in #194): the summary sentence, then six labelled VerdictCounters, then a separate Status group.
 - **Compact** (container < 700 px; the 360 px panel): one row of six glyph + number counters, a StatusCounter when there are Statuses, and the ⋯ Menu, with a 2 px ProgressBar along the bottom edge. About 46 px high.
   - The summary sentence moves to the top of the feed: done „5 von 10 Referenzen stimmen.“; running „Prüfung läuft · 4 von 10 fertig“ with a Stop Button.
-  - An active filter adds a Tag below the row with the glyph, the **full** label and ×.
+  - An active filter adds a row below the strip. Wide (D `.frow`): "Filter on: ‹label›" and a ghost `sm` Button "Clear filter". Compact (D `.fchip`): a pill with the glyph, the **full** label and a × IconButton named "Remove filter: ‹label›".
   - „Alle Labels zeigen“ in the ⋯ Menu switches the strip to the wide layout, wrapped over several rows, until switched back.
 - **Counted, compact:** an IconButton with the filter icon ("Counts") before the ⋯ Menu folds the counter grid; `aria-expanded` reports it. Open by default, as in D.
 - **Explicit exception to "glyph + label"**: only the compact strip, only below 700 px, may show glyph + number without the visible label. Name and tooltip carry the label. Every other place shows the label.

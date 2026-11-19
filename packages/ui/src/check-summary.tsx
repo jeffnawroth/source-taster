@@ -205,29 +205,39 @@ export function CheckSummary({
         ...actions,
       ]
     : actions;
-  const filterRow = filter && (
-    <div className={narrow ? "active-filter compact" : "active-filter"}>
-      {narrow ? (
-        filter.startsWith("status:") ? (
+  // D: the wide strip states the filter as a plain row ("Filter on: x" +
+  // a ghost "Clear filter"); the compact strip keeps the glyph chip.
+  const filterRow =
+    filter &&
+    (narrow ? (
+      <div className="active-filter compact">
+        {filter.startsWith("status:") ? (
           <StatusIcon status={filter.slice(7) as Status} />
         ) : (
           <VerdictGlyph verdict={filter as Verdict} />
-        )
-      ) : null}
-      <span>
-        {narrow
-          ? filterLabel(filter)
-          : m.shell_active_filter({ filter: filterLabel(filter) })}
-      </span>
-      <IconButton
-        size="sm"
-        onPress={() => onFilter(null)}
-        label={m.shell_remove_filter({ filter: filterLabel(filter) })}
-      >
-        <X aria-hidden="true" size={16} />
-      </IconButton>
-    </div>
-  );
+        )}
+        <span>{filterLabel(filter)}</span>
+        <IconButton
+          size="sm"
+          onPress={() => onFilter(null)}
+          label={m.shell_remove_filter({ filter: filterLabel(filter) })}
+        >
+          <X aria-hidden="true" size={16} />
+        </IconButton>
+      </div>
+    ) : (
+      <div className="active-filter">
+        <span>{m.shell_active_filter({ filter: filterLabel(filter) })}</span>
+        <Button
+          size="sm"
+          variant="ghost"
+          icon={<X aria-hidden="true" size={16} />}
+          onPress={() => onFilter(null)}
+        >
+          {m.shell_clear_filter()}
+        </Button>
+      </div>
+    ));
   return (
     <div ref={strip} className="summary-container">
       <section

@@ -41,7 +41,7 @@ const copy = {
     status: "Technical status",
     feed: "References",
     detail: "Reference detail",
-    remove: "Remove filter: Mixed citation",
+    remove: "Clear filter",
   },
   de: {
     check: "Referenz prüfen",
@@ -50,7 +50,7 @@ const copy = {
     status: "Technischer Status",
     feed: "Referenzen",
     detail: "Referenzdetails",
-    remove: "Filter entfernen: Gemischte Referenz",
+    remove: "Filter aufheben",
   },
 } as const;
 

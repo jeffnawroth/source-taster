@@ -1108,9 +1108,28 @@ body {
   outline: 2px solid var(--st-accent);
   outline-offset: 1px;
 }
+/* D .frow: the wide strip's filter line. */
 .active-filter {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: var(--st-text-sm);
+  font-weight: 700;
+}
+/* D .btn.sm.ghost */
+.active-filter > .st-control[data-variant] {
+  min-height: 34px;
+  padding: 0 12px;
+  gap: 8px;
+  font-size: var(--st-text-sm);
+  font-weight: 700;
+  line-height: 1.2;
+}
+/* D .fchip: the compact strip's chip. */
+.active-filter.compact {
+  display: inline-flex;
+  flex-wrap: nowrap;
   gap: 6px;
   justify-self: start;
   min-height: 28px;
@@ -1118,8 +1137,13 @@ body {
   border-radius: var(--st-radius-full);
   border: 1px solid var(--st-border-strong);
   background: var(--st-surface);
-  font-size: var(--st-text-sm);
-  font-weight: 700;
+}
+/* D .fchip button: a 24 px round target. */
+.active-filter.compact .st-icon-button {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
 }
 .active-filter .verdict-glyph,
 .active-filter > svg {
@@ -1198,9 +1222,6 @@ body {
   width: 32px;
   height: 32px;
   min-height: 32px;
-}
-.active-filter.compact {
-  min-height: 28px;
 }
 /* Below the 360 px panel the six counters, the status and ⋯ still fit
    one row at 320 px (WCAG 1.4.10): the tiles narrow to 30 px, still
