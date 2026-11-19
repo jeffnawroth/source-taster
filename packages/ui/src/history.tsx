@@ -63,15 +63,16 @@ export function HistoryPanel({
   // Turning History on removes its button, so focus moves to Revoke history,
   // the control that now owns the consent (it would otherwise fall to body).
   const revokeRow = useRef<HTMLDivElement>(null);
-  const [focusRevoke, setFocusRevoke] = useState(false);
+  // Turning History on replaces its button; focus follows to Revoke.
+  const focusRevoke = useRef(false);
   useEffect(() => {
     if (data) onData?.(data);
   }, [data, onData]);
   useEffect(() => {
-    if (!focusRevoke || !data?.enabled) return;
+    if (!focusRevoke.current || !data?.enabled) return;
+    focusRevoke.current = false;
     revokeRow.current?.querySelector("button")?.focus();
-    setFocusRevoke(false);
-  }, [focusRevoke, data]);
+  }, [data]);
   useEffect(() => {
     let live = true;
     api.getHistory().then(
@@ -184,8 +185,9 @@ export function HistoryPanel({
               {...whileBusy}
               onPress={() =>
                 void run(async () => {
-                  setData(await api.setHistory(true));
-                  setFocusRevoke(true);
+                  const next = await api.setHistory(true);
+                  focusRevoke.current = true;
+                  setData(next);
                 })
               }
             >
