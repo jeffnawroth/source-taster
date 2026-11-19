@@ -40,7 +40,9 @@ async function openLauncherOnWeb(page: Page) {
   const modal = page.getByRole("dialog");
   for (let i = 0; i < 3 && (await modal.count()) > 0; i++) {
     await page.keyboard.press("Escape");
-    await expect(modal).toHaveCount(0, { timeout: 2_000 }).catch(() => {});
+    await expect(modal)
+      .toHaveCount(0, { timeout: 2_000 })
+      .catch(() => {});
   }
   const launcher = /^(Search or command|Suchen oder Befehl) …$/u;
   await page.getByRole("button", { name: launcher }).click();
