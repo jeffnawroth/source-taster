@@ -9,7 +9,7 @@ import {
 } from "react";
 import * as Aria from "react-aria-components";
 import { CircleAlert, X, ChevronDown, Check } from "lucide-react";
-// #194 D i-search: the one search glyph of every search field.
+// Prototype D (issue 194) i-search: the one search glyph of every search field.
 import { Search } from "../workspace-icons.tsx";
 import { cx, styles } from "./utils.ts";
 import { IconButton } from "./actions.tsx";

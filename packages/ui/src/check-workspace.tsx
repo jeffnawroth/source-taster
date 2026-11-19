@@ -1402,9 +1402,25 @@ export function CheckWorkspace({
               },
             ]
           : []),
-        // D's empty intake has nothing to reset; once text, a file or a
-        // pending request exists, New check stays reachable (SU-SH-05).
-        ...(busy || !!text.trim() || !!library || !!file
+        // D's empty intake has nothing to reset; once text, a file, a notice
+        // or a pending request exists, New check stays reachable (SU-SH-05).
+        ...(busy ||
+        !!text.trim() ||
+        !!library ||
+        !!file ||
+        !!fileName ||
+        !!fileError ||
+        !!sourceDocument ||
+        !!preview ||
+        !!pending ||
+        !!quotaChoice ||
+        !!quotaNote ||
+        !!requestError ||
+        !!streamError ||
+        !!selectionWaiting ||
+        !!selectionNotice ||
+        documentNotice ||
+        !!accountNotice
           ? [
               {
                 id: "reset",
