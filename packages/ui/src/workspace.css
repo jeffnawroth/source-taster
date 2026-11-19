@@ -2399,7 +2399,13 @@ html:has(.check-workspace) {
   color: var(--st-text-secondary);
   box-shadow: none;
 }
-.st-control[data-variant="ghost"]:hover:not(.st-icon-button, .st-disabled) {
+/* The command trigger is a search field in D (.cmdf): hover only darkens its
+   border (rule above), so it keeps its surface and text colour. */
+.st-control[data-variant="ghost"]:hover:not(
+    .st-icon-button,
+    .st-disabled,
+    .command-trigger
+  ) {
   color: var(--st-text);
   background: var(--st-accent-tint);
 }
