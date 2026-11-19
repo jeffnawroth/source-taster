@@ -172,21 +172,12 @@ export function TextArea({
       }}
       onBlur={(event) => {
         props.onBlur?.(event);
-        // Shrinking moves only what sits below the field, so a press on a
-        // control below would land elsewhere (lost click): moving there keeps
-        // the user's working size. A target above the field is never
-        // displaced, so the field collapses as in D (.cmdbar loses
-        // :focus-within). Modal intake is inert: recompute after focus has
-        // moved into the dialog.
-        const field = event.currentTarget;
-        const target = event.relatedTarget;
-        const above =
-          target instanceof Element &&
-          target.getBoundingClientRect().bottom <=
-            field.getBoundingClientRect().top;
+        // D sizes the field only when it renders: leaving it keeps its
+        // working size (a press below is never displaced, and a Tab to the
+        // command field above leaves it open as in D). Opening a dialog
+        // re-renders D, so modal intake recomputes once focus is inside it.
         requestAnimationFrame(() => {
           if (
-            above ||
             document.activeElement?.closest(
               '[role="dialog"], [role="alertdialog"]',
             )
