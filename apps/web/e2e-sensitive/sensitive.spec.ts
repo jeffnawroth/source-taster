@@ -7,6 +7,7 @@ import { once } from "node:events";
 import { createServer } from "node:net";
 import { randomUUID } from "node:crypto";
 import { test, expect } from "@playwright/test";
+import { choosePreferences } from "../e2e/support/workspace.ts";
 import {
   newAccount,
   startAccountApi,
@@ -128,10 +129,10 @@ for (const language of ["en", "de"] as const) {
     ]);
     await page.goto(enabled.url);
     await expect(page.getByText(identity.email, { exact: true })).toBeVisible();
-    await page
-      .getByRole("combobox", { name: /Language|Sprache/ })
-      .selectOption(language);
-    const link = page.getByRole("link", {
+    await choosePreferences(page, { language });
+    // #194 D: the signed-in Account entry carries the management link.
+    await page.getByRole("button", { name: /^(Account|Konto): / }).click();
+    const link = page.locator(".account-entry").getByRole("link", {
       name: language === "de" ? "Kontosicherheit" : "Account security",
       exact: true,
     });

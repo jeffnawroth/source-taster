@@ -138,6 +138,14 @@ for (const language of ["en", "de"] as const)
             },
           });
         }
+        // #194 D: the DPA lives in the Account dialog behind the Account entry.
+        await page
+          .getByRole("button", { name: de ? /^Konto: / : /^Account: / })
+          .click();
+        await page
+          .locator(".account-entry")
+          .getByRole("button", { name: de ? "Konto" : "Account", exact: true })
+          .click();
         await page
           .getByRole("button", {
             name: de

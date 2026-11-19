@@ -122,8 +122,14 @@ test("a start beyond the balance asks: first N in input order, or upgrade; warni
   await page.getByRole("textbox").fill(references(23));
   await check(page);
   const choice = page.getByTestId("quota-choice");
-  await expect(choice).toContainText("You entered 23 references");
-  await expect(choice).toContainText("20 checks left");
+  // #194 D: the counted strip carries the explanation the choice is described by.
+  const body = page.locator("#counted-consumption");
+  await expect(choice).toHaveAttribute(
+    "aria-describedby",
+    "counted-consumption",
+  );
+  await expect(body).toContainText("You entered 23 references");
+  await expect(body).toContainText("20 checks left");
   // Nothing was reserved by merely asking.
   await expect(page.getByTestId("quota-summary")).toContainText(
     "20 of 20 checks left",
@@ -221,11 +227,11 @@ test("a signed-in Account sees its Free Quota before starting and never reads as
     page.getByText("quota-reader@example.invalid", { exact: true }),
   ).toBeVisible();
   await expect(page.getByTestId("quota-summary")).toContainText(
-    "100 of 100 checks left · 0 used",
+    "100 of 100 checks left",
   );
   await page.reload();
   await expect(page.getByTestId("quota-summary")).toContainText(
-    "100 of 100 checks left · 0 used",
+    "100 of 100 checks left",
   );
   expect(minted).toEqual([]);
 });

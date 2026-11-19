@@ -211,7 +211,7 @@ test("unavailable identity storage gives an explicit message and never falls bac
     .getByRole("button", { name: "Check reference", exact: true })
     .click();
   await expect(page.getByRole("alert")).toContainText(
-    "Browser storage is required",
+    "Allow local browser storage and try again.",
   );
   await expect(page.locator("#results-title")).toHaveCount(0);
 });

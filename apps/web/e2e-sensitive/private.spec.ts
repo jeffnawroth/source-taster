@@ -87,7 +87,11 @@ for (const language of ["en", "de"] as const)
         });
         const code = async () =>
           (await both.mail()).at(-1)!.text.match(/\b[0-9]{6}\b/)![0];
-        await page.goto(`${url}/account?language=${language}`);
+        // #196 KA: sign-in, Preferences, email change and deletion share
+        // the Account Preferences section.
+        await page.goto(
+          `${url}/account?section=preferences&language=${language}`,
+        );
         await page
           .getByLabel(t.email, { exact: true })
           .fill(`private-${language}@example.invalid`);

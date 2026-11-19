@@ -75,11 +75,13 @@ for (const language of ["en", "de"] as const)
         })
         .click();
       await expect(
-        page.getByText(
-          language === "de"
-            ? "Gast-Prüfungen und Gast-Kontingent werden bei der Registrierung nicht übertragen."
-            : "Guest checks and guest quota are not transferred when you register.",
-        ),
+        page
+          .getByRole("dialog", { name: /^(Sign in|Anmelden)$/ })
+          .getByText(
+            language === "de"
+              ? "Gast-Prüfungen und Gast-Kontingent werden bei der Registrierung nicht übertragen."
+              : "Guest checks and guest quota are not transferred when you register.",
+          ),
       ).toBeVisible();
       await page
         .getByLabel(language === "de" ? "E-Mail-Adresse" : "Email address", {
@@ -126,11 +128,18 @@ for (const language of ["en", "de"] as const)
           name: language === "de" ? /^Konto:/ : /^Account:/,
         })
         .click();
+      // #194 D: the Account entry opens the Account dialog.
+      await page
+        .locator(".account-entry")
+        .getByRole("button", {
+          name: language === "de" ? "Konto" : "Account",
+          exact: true,
+        })
+        .click();
       await expect(
         page
           .getByRole("dialog", {
-            name: language === "de" ? "Konto" : "Account",
-            exact: true,
+            name: language === "de" ? /^Konto: / : /^Account: /,
           })
           .getByText(
             `browser-${language}-${testInfo.repeatEachIndex}@example.invalid`,
@@ -150,11 +159,18 @@ for (const language of ["en", "de"] as const)
           name: language === "de" ? /^Konto:/ : /^Account:/,
         })
         .click();
+      // #194 D: the Account entry opens the Account dialog.
+      await page
+        .locator(".account-entry")
+        .getByRole("button", {
+          name: language === "de" ? "Konto" : "Account",
+          exact: true,
+        })
+        .click();
       await expect(
         page
           .getByRole("dialog", {
-            name: language === "de" ? "Konto" : "Account",
-            exact: true,
+            name: language === "de" ? /^Konto: / : /^Account: /,
           })
           .getByText(
             `browser-${language}-${testInfo.repeatEachIndex}@example.invalid`,

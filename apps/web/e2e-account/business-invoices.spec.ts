@@ -147,8 +147,10 @@ for (const plan of ["check-pack", "pro"] as const)
           (cookie) => cookie.name === "__Host-st-session",
         )!;
         const a = { cookie: `${session.name}=${session.value}` };
+        // #196 KA: Pro and check packs share the order page; the business
+        // box reveals the VAT ID, which must be validated before ordering.
         await page.goto(
-          `${both.serviceUrl}/${plan === "pro" ? "plan" : "order"}?language=${language}`,
+          `${both.serviceUrl}/order?${plan === "pro" ? "kind=pro&" : ""}language=${language}`,
         );
         await page
           .getByLabel(language === "en" ? "Billing name" : "Rechnungsname", {
@@ -161,25 +163,25 @@ for (const plan of ["check-pack", "pro"] as const)
             { exact: true },
           )
           .fill("Synthetic street 1");
+        const boxes = page.getByRole("checkbox");
+        await boxes.nth(0).check();
         await page
           .getByLabel(
-            language === "en"
-              ? "VAT ID (optional)"
-              : "Umsatzsteuer-ID (optional)",
+            language === "en" ? "VAT ID (optional)" : "USt-IdNr. (optional)",
             { exact: true },
           )
           .fill("DE123456789");
         await page
           .getByRole("button", {
-            name: language === "en" ? "Validate VAT ID" : "USt-IdNr. prüfen",
+            name: language === "en" ? "Validate" : "Prüfen",
             exact: true,
           })
           .click();
-        await expect(page.getByRole("status")).toContainText(
+        await expect(page.getByRole("status").first()).toContainText(
           language === "en" ? "VAT ID validated" : "USt-IdNr. bestätigt",
         );
-        await page.getByRole("checkbox").nth(0).check();
-        await page.getByRole("checkbox").nth(1).check();
+        for (let i = 1; i < (await boxes.count()); i++)
+          await boxes.nth(i).check();
         const ordered = page.waitForResponse(
           (r) =>
             r
@@ -226,6 +228,17 @@ for (const plan of ["check-pack", "pro"] as const)
         });
         await page.goto(webUrl);
         // Account language is authoritative in the real service.
+        // #194 D: invoices live in the Account dialog behind the Account entry.
+        const account = language === "en" ? "Account" : "Konto";
+        await page
+          .getByRole("button", {
+            name: `${account}: business-browser-${plan}-${language}@example.invalid`,
+          })
+          .click();
+        await page
+          .locator(".account-entry")
+          .getByRole("button", { name: account, exact: true })
+          .click();
         await page
           .getByRole("button", {
             name: language === "en" ? "Load invoices" : "Rechnungen laden",
