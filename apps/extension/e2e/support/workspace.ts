@@ -223,6 +223,14 @@ export async function checkInPanel(
 ): Promise<Outcome> {
   const l = labels[language];
   // Results replace the intake (#194 D): a later witness starts a new Check.
+  // Wait for the rendered workspace first; a panel still loading has no
+  // textbox either, and its empty intake offers no New check (D).
+  await until(
+    async () =>
+      (await panel.query("button", /^(Search or command|Suchen oder Befehl)/u))
+        .length > 0,
+    "The side panel workspace never rendered",
+  );
   if ((await panel.query("textbox", l.input)).length === 0)
     await panel.newCheck();
   await panel.fill("textbox", l.input, witness.text);
@@ -257,6 +265,8 @@ export async function checkInWeb(
 ): Promise<Outcome> {
   const l = labels[language];
   // Results replace the intake (#194 D): a later witness starts a new Check.
+  // The empty intake offers no New check (D), so wait for the workspace.
+  await page.locator(".command-trigger").waitFor();
   if (!(await page.getByRole("textbox").isVisible()))
     await runCommandOnWeb(page, /^(New check|Neue Prüfung)$/u);
   await page.getByRole("textbox").fill(witness.text);
