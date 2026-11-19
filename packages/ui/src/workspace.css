@@ -1125,7 +1125,7 @@ body {
   font-weight: 700;
   color: var(--st-text);
 }
-.summary-status b {
+.summary-status > span {
   font-variant-numeric: tabular-nums;
 }
 .summary-status[data-selected] {

@@ -334,7 +334,7 @@ export function CheckSummary({
                 {statusCount > 0 && (
                   <MenuTrigger>
                     <Aria.Button
-                      aria-label={`${m.workspace_statuses()}: ${statuses.map((s) => `${s.count} ${m[statusLabels[s.status]]()}`).join(", ")}`}
+                      aria-label={`${m.workspace_statuses()}: ${statuses.map((s) => `${m[statusLabels[s.status]]()} ${s.count}`).join(", ")}`}
                       className="summary-status compact"
                       data-pressed={filter?.startsWith("status:") || undefined}
                     >
@@ -479,9 +479,12 @@ export function CheckSummary({
                         }
                         className="summary-status"
                       >
-                        {/* The visible "1 Running" is the name (WCAG 2.5.3). */}
+                        {/* The visible "Running 1" is the name (WCAG 2.5.3);
+                            label before count, as D's status chips. */}
                         <StatusIcon status={status} />
-                        <b>{count}</b> <span>{m[statusLabels[status]]()}</span>
+                        <span>
+                          {m[statusLabels[status]]()} {count}
+                        </span>
                       </Aria.ToggleButton>
                     ))}
                   </div>

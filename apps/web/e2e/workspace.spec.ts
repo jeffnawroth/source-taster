@@ -27,7 +27,7 @@ test("summary filters current Verdicts separately from technical Statuses", asyn
     summary.getByRole("button", { name: "Correct: 1", exact: true }),
   ).toBeVisible();
   await expect(
-    summary.getByRole("button", { name: "1 Not checked", exact: true }),
+    summary.getByRole("button", { name: "Not checked 1", exact: true }),
   ).toBeVisible();
   await expect(summary).toContainText("Check complete");
   await expect(summary).toContainText("1 of 2 references check out.");

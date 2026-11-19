@@ -159,8 +159,8 @@ for (const language of ["en", "de"] as const)
     // Arrow keys skip the disabled zero counters to the next live control.
     const status = toolbar.getByRole("button", {
       name: en
-        ? "Technical status: 1 Not checked"
-        : "Technischer Status: 1 Nicht geprüft",
+        ? "Technical status: Not checked 1"
+        : "Technischer Status: Nicht geprüft 1",
       exact: true,
     });
     await correct.focus();

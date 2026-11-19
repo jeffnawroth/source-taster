@@ -81,7 +81,7 @@ for (const language of ["en", "de"] as const) {
     });
     await expect(mixed).toBeEnabled({ timeout: 20_000 });
     const failed = summary.getByRole("button", {
-      name: `1 ${t.failed}`,
+      name: `${t.failed} 1`,
       exact: true,
     });
     await expect(failed).toBeVisible();
@@ -125,7 +125,7 @@ for (const language of ["en", "de"] as const) {
     ).toBeEnabled({ timeout: 20_000 });
     await toolbar
       .getByRole("button", {
-        name: `${t.status}: 1 ${t.failed}`,
+        name: `${t.status}: ${t.failed} 1`,
         exact: true,
       })
       .click();
