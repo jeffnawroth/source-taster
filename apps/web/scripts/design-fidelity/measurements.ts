@@ -417,9 +417,35 @@ export function probesFor(id: string): Probe[] {
     probes.push({
       name: "dialog-heading",
       prototype: ".v-D .dlg h2",
-      built: ".st-modal:not([data-st-layer]) h2",
+      // Menu-reached content keeps its own section h3 (it also renders
+      // inline), styled as the Dialog title; either is the measured title.
+      built:
+        ".st-modal:not([data-st-layer]) :is(h2, .workspace-dialog > section > h3:first-child)",
       styles: ["font-size", "font-weight", "line-height", "letter-spacing"],
     });
+  if (id.includes("edit-list"))
+    probes.push(
+      {
+        name: "edit-list-legend",
+        prototype: ".v-D .dlg fieldset > legend",
+        built: ".reference-list-removals > :first-child",
+        geometry: ["x", "y", "height"],
+        styles: ["font-size", "line-height"],
+      },
+      {
+        name: "edit-list-option",
+        prototype: ".v-D .dlg label.opt",
+        built: ".reference-list-actions .st-checkbox",
+        geometry: ["x", "y", "width", "height"],
+        styles: ["font-size", "line-height", "column-gap"],
+      },
+      {
+        name: "edit-list-option-box",
+        prototype: ".v-D .dlg label.opt > input",
+        built: ".reference-list-actions .st-checkbox input",
+        geometry: ["x", "y", "width", "height"],
+      },
+    );
   if (id.includes("export"))
     probes.push(
       {

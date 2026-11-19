@@ -358,6 +358,9 @@ export async function normalizeListFixture(
           // .sel is the source's existing full-width generic control recipe;
           // its properties apply unchanged to the actual multiline input too.
           if (data.control !== "input") control.className = "sel";
+          // D's own editable draft fields are rows="1" .fld textareas (the
+          // native default of two rows is not a D recipe).
+          if (control instanceof HTMLTextAreaElement) control.rows = 1;
           control.disabled = data.disabled;
           control.required = data.required;
           if (!(control instanceof HTMLSelectElement))

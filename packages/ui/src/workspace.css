@@ -791,6 +791,7 @@ body {
 .workspace-dialog h2 {
   font-size: var(--st-text-lg);
   font-weight: 800;
+  line-height: 1.5;
 }
 .workspace-dialog .st-actions {
   justify-content: flex-end;
@@ -807,6 +808,7 @@ body {
 .workspace-dialog > section > h3:first-child {
   font-size: var(--st-text-lg);
   font-weight: 800;
+  line-height: 1.5;
   color: var(--st-text);
 }
 .reference-exports {
@@ -2365,6 +2367,7 @@ html:has(.check-workspace) {
 .workspace-dialog [role="radiogroup"] > :first-child {
   font-size: var(--st-text-sm);
   font-weight: 700;
+  line-height: 1.5;
 }
 .workspace-dialog .st-radio {
   align-items: center;

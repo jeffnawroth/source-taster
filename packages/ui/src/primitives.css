@@ -729,4 +729,6 @@
 .st-dialog.st-alert-dialog > h2 {
   font-size: var(--st-text-lg);
   font-weight: 800;
+  /* D .dlg h2 inherits the body's 1.5, not text-lg's own leading. */
+  line-height: 1.5;
 }

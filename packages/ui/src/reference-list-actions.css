@@ -35,6 +35,7 @@
   margin-bottom: 4px;
   font-size: var(--st-text-sm);
   font-weight: 700;
+  line-height: 1.5;
 }
 /* A RAC group label is a grid item; a native legend sits outside that grid.
    The group's existing 4px gap supplies the legend's 4px separation. */
