@@ -2208,6 +2208,16 @@ body {
 .detail-trail {
   grid-template-columns: auto minmax(0, 1fr) auto;
 }
+/* D `.te > .ico`: the trail's sprite mark fills its 20px box; the source
+   name is plain mono, not the bold source-list name. */
+.detail-trail > .detail-mark > svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 1.8;
+}
+.detail-trail .detail-src-name {
+  font-weight: 400;
+}
 .detail-trail-time {
   font: 400 var(--st-text-xs) / 1.6 var(--st-font-mono);
   color: var(--st-text-muted);

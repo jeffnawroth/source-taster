@@ -647,8 +647,8 @@
   "shell_evidence_steps": "{count} Schritte",
   "shell_evidence_track": "Nachweisspur: {done}/{total}",
   "shell_sources_queried": "Abgefragte Datenquellen",
-  "shell_candidates_heading": "Kandidaten",
-  "shell_candidates_toggle": "Alle Kandidaten ({count})",
+  "shell_candidates_heading": "Weitere Kandidaten",
+  "shell_candidates_toggle": "Weitere Kandidaten ({count})",
   "shell_evidence_trail": "Nachweisspur",
   "shell_candidate_fields": "Details und Feldvergleich",
   "shell_back": "Zurück",
@@ -667,5 +667,10 @@
   "shell_navigation": "Navigation",
   "shell_actions": "Aktionen",
   "shell_auto_start": "Die Prüfung startet automatisch.",
-  "shell_command_empty": "Keine Treffer"
+  "shell_command_empty": "Keine Treffer",
+  "shell_trail_result_ok": "bestätigt",
+  "shell_trail_result_none": "kein Treffer",
+  "shell_trail_result_diff": "weicht ab",
+  "shell_trail_result_bad": "widerspricht",
+  "shell_trail_result_warn": "unklar"
 }

@@ -164,10 +164,11 @@ export function ManualVerdictActions({
                 </div>
               </RadioGroup>
               <div className="manual-verdict-actions">
-                <Button variant="primary" type="submit" {...busy}>
+                <Button size="sm" variant="primary" type="submit" {...busy}>
                   {m.override_save()}
                 </Button>
                 <Button
+                  size="sm"
                   variant="ghost"
                   {...busy}
                   onPress={() => {

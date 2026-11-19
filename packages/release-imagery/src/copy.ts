@@ -79,8 +79,8 @@ const storyAlt: Record<Story, Text> = {
     de: "Die Source-Taster-Übersicht mit je einer Zahl pro Befund über einer Liste aus drei Referenzen. Sie tragen die Befunde Korrekt, Existiert, mit Abweichungen und DOI-Konflikt, jeweils mit Symbol und Beschriftung.",
   },
   evidence: {
-    en: "The detail of one reference, scrolled to its sources. The section Data sources queried lists each source asked with its outcome, among them a candidate retrieved from Crossref. Below it the opened list All candidates shows each candidate with its source, score and title.",
-    de: "Die Detailansicht einer Referenz, zu ihren Quellen gescrollt. Der Abschnitt Abgefragte Datenquellen nennt jede befragte Quelle mit ihrem Ergebnis, darunter einen von Crossref abgerufenen Kandidaten. Darunter zeigt die geöffnete Liste Alle Kandidaten jeden Kandidaten mit Quelle, Score und Titel.",
+    en: "The detail of one reference, scrolled to its sources. The section Data sources queried lists each source asked with its outcome, among them a candidate retrieved from Crossref. Below it the opened list More Candidates shows each candidate with its source, score and title.",
+    de: "Die Detailansicht einer Referenz, zu ihren Quellen gescrollt. Der Abschnitt Abgefragte Datenquellen nennt jede befragte Quelle mit ihrem Ergebnis, darunter einen von Crossref abgerufenen Kandidaten. Darunter zeigt die geöffnete Liste Weitere Kandidaten jeden Kandidaten mit Quelle, Score und Titel.",
   },
 };
 

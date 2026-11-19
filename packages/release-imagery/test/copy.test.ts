@@ -66,8 +66,8 @@ await test("alt texts name Verdicts with their exact labels and follow the voice
     // The evidence story pictures the sources and the opened candidate list,
     // not the verdict, so its alt text names both by their exact labels.
     for (const label of l === "en"
-      ? ["Data sources queried", "All candidates"]
-      : ["Abgefragte Datenquellen", "Alle Kandidaten"])
+      ? ["Data sources queried", "More Candidates"]
+      : ["Abgefragte Datenquellen", "Weitere Kandidaten"])
       assert.ok(imageAlt(evidence)[l].includes(label), `${l} ${label}`);
   }
   for (const spec of imageSpecs)
@@ -82,13 +82,15 @@ await test("alt texts name Verdicts with their exact labels and follow the voice
 });
 
 await test("English copy, alt text and claims use sentence case: domain nouns are lower case mid-sentence, labels stay exact (voice-and-tone Terminology 5)", () => {
-  // Verdict labels and the button label are shown as labels and stay exact.
+  // Verdict labels, the button label and the candidate list label are shown
+  // as labels and stay exact.
   const labels = [
     ...captureReferences.map((r) => r.verdict.en),
     "Mixed citation",
     "Not found",
     "Not verifiable",
     "Check reference",
+    "More Candidates",
   ];
   const nouns =
     /\b(References?|Verdicts?|Statuses|Status|Best match|Original text|Checks?|Evidence|Candidates?)\b/u;

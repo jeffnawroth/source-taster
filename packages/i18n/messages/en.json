@@ -647,8 +647,8 @@
   "shell_evidence_steps": "{count} steps",
   "shell_evidence_track": "Evidence trail: {done}/{total}",
   "shell_sources_queried": "Data sources queried",
-  "shell_candidates_heading": "Candidates",
-  "shell_candidates_toggle": "All candidates ({count})",
+  "shell_candidates_heading": "More Candidates",
+  "shell_candidates_toggle": "More Candidates ({count})",
   "shell_evidence_trail": "Evidence trail",
   "shell_candidate_fields": "Details and field comparison",
   "shell_back": "Back",
@@ -667,5 +667,10 @@
   "shell_navigation": "Navigation",
   "shell_actions": "Actions",
   "shell_auto_start": "The check starts automatically.",
-  "shell_command_empty": "No results"
+  "shell_command_empty": "No results",
+  "shell_trail_result_ok": "confirmed",
+  "shell_trail_result_none": "no hit",
+  "shell_trail_result_diff": "deviates",
+  "shell_trail_result_bad": "contradicts",
+  "shell_trail_result_warn": "unclear"
 }

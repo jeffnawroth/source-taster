@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { effectiveVerdict } from "./effective-verdict.ts";
-import {
-  verdictLabels,
-  statusLabels,
-  StatusIcon,
-} from "./outcome-badges.tsx";
+import { verdictLabels, statusLabels, StatusIcon } from "./outcome-badges.tsx";
 import { Button } from "./primitives/actions.tsx";
 import {
   AlertDialog,
@@ -17,7 +13,6 @@ import { useNarrow, useStickySize } from "./sticky-layout.ts";
 import type {
   Check,
   ReferenceSlot,
-  Verdict,
 } from "@source-taster/contract-verification/v2";
 import type { VerificationClientOptions } from "@source-taster/contract-verification/client-v2";
 import type { CitationStyle } from "./preferences.ts";
@@ -45,11 +40,12 @@ import {
 } from "./workspace-icons.tsx";
 import { m } from "@source-taster/i18n";
 import {
+  EndIcon,
   evidenceLabel,
   evidenceStep,
   queriedSources,
   StepIcon,
-  type StepState,
+  verdictStep,
 } from "./evidence-steps.tsx";
 import { ReferenceActions } from "./reference-actions.tsx";
 import { Fields } from "./reference-fields.tsx";
@@ -80,14 +76,6 @@ import {
   useSnapshotGate,
 } from "./reference-work.ts";
 
-const verdictStep: Record<Verdict, StepState> = {
-  correct: "ok",
-  "exists-with-deviations": "diff",
-  "mixed-citation": "diff",
-  "doi-conflict": "bad",
-  "not-found": "none",
-  "not-verifiable": "warn",
-};
 function runningText(reference: ReferenceSlot) {
   return reference.progress === "queued"
     ? m.reference_queued()
@@ -139,18 +127,7 @@ function EvidenceTrack({ reference }: { reference: ReferenceSlot }) {
           </li>
         ))}
         <li className="track-node" data-state={verdictStep[verdict]}>
-          <svg
-            aria-hidden="true"
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M5 20V4M5 5h12l-2.5 4L17 13H5" />
-          </svg>
+          <EndIcon />
           <span className="sr-only">{m[verdictLabels[verdict]]()}</span>
         </li>
       </ol>
@@ -600,7 +577,12 @@ export function CheckResults({
                     </DetailSection>
                   )
                 }
-                evidence={<EvidenceDetails outcome={selected.outcome} />}
+                evidence={
+                  <EvidenceDetails
+                    outcome={selected.outcome}
+                    manualOverride={selected.manualOverride}
+                  />
+                }
                 provenance={suggestionProvenance(
                   selected.outcome,
                   citationStyleLabel,

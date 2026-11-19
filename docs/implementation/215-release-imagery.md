@@ -121,7 +121,7 @@ alt text in both languages in `manifest.json`.
 | --------------------- | ---------------------------------------------------------------------------------------------------- |
 | `*-1-workspace`       | A capture of the Source Taster side panel with three pasted References in the input field …          |
 | `*-2-overview`        | The Source Taster summary with one count for each Verdict … Correct, Exists, with deviations and DOI conflict … |
-| `*-3-evidence`        | The detail of one reference, scrolled to its sources. The section Data sources queried lists each source asked with its outcome … the opened list All candidates shows each candidate with its source, score and title. |
+| `*-3-evidence`        | The detail of one reference, scrolled to its sources. The section Data sources queried lists each source asked with its outcome … the opened list More Candidates shows each candidate with its source, score and title. |
 | `social-en`, `x-en`   | Source Taster. Check References against sources. …                                                   |
 
 ## Claim evidence
@@ -143,7 +143,7 @@ notice says so, and the workspace capture keeps that notice in view.
 | `source-evidence-disclosure` | 74-doi-tracer.md          | `apps/web/e2e/doi.spec.ts`         | shows the DOI Verdict with icon, text, field values and evidence in … |
 
 The evidence story pictures the section "Data sources queried" and the
-opened list "All candidates" of the reference detail: the sources asked and the
+opened list "More Candidates" of the reference detail: the sources asked and the
 candidates they returned, not the verdict (the overview image shows that). The
 capture fails closed unless the candidate list is open, the source that
 retrieved a candidate and the first candidate are both inside the viewport, and

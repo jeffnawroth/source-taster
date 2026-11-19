@@ -16,6 +16,9 @@ import {
   evidenceStep,
   queriedSources,
   StepIcon,
+  trailResult,
+  verdictStep,
+  EndIcon,
 } from "./evidence-steps.tsx";
 import {
   VerdictGlyph,
@@ -480,11 +483,16 @@ function CandidateEntry({
 export function EvidenceDetails({
   outcome,
   contextLabel,
+  manualOverride,
 }: {
   outcome: ReferenceOutcome;
   contextLabel?: string;
+  manualOverride?: ManualOverride | null;
 }) {
   if (outcome.kind === "status") return null;
+  // D's trail ends like the feed track: the effective Verdict under a flag.
+  const verdict = manualOverride?.verdict ?? outcome.verdict;
+  const end = verdictStep[verdict];
   const sources = queriedSources(outcome.evidence);
   return (
     <div className="detail-evidence">
@@ -641,6 +649,15 @@ export function EvidenceDetails({
                 </time>
               </li>
             ))}
+            <li className="detail-trail" data-state={end}>
+              <span className="detail-mark">
+                <EndIcon />
+              </span>
+              <p>
+                {m[verdictLabels[verdict]]()}{" "}
+                <span className="detail-muted">· {trailResult(end)}</span>
+              </p>
+            </li>
           </ol>
         </DetailSection>
       )}
@@ -706,7 +723,11 @@ export function ReferenceOutcomeView({
       {outcome.kind === "verdict" && (
         <BestMatchComparison outcome={outcome} contextLabel={contextLabel} />
       )}
-      <EvidenceDetails outcome={outcome} contextLabel={contextLabel} />
+      <EvidenceDetails
+        outcome={outcome}
+        contextLabel={contextLabel}
+        manualOverride={manualOverride}
+      />
     </div>
   );
 }

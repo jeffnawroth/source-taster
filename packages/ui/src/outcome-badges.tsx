@@ -3,11 +3,7 @@ import type {
   Verdict,
   ReferenceOutcome,
 } from "@source-taster/contract-verification/v2";
-import {
-  CircleDashed,
-  CircleOff,
-  TriangleAlert,
-} from "lucide-react";
+import { CircleDashed, CircleOff, TriangleAlert } from "lucide-react";
 import { m } from "@source-taster/i18n";
 export const verdictLabels = {
   correct: "verdict_correct",

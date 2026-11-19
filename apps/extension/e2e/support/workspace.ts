@@ -12,7 +12,7 @@ export const labels = {
     check: "Check reference",
     open: /^Open reference 1:/,
     detail: "Reference detail",
-    candidates: /^All candidates \(\d+\)$/,
+    candidates: /^More Candidates \(\d+\)$/,
     suggestionLoading:
       "Apply to fields becomes available once the suggestion for the current result has loaded.",
     correct: "Correct",
@@ -25,7 +25,7 @@ export const labels = {
     check: "Referenz prüfen",
     open: /^Referenz 1 öffnen:/,
     detail: "Referenzdetails",
-    candidates: /^Alle Kandidaten \(\d+\)$/,
+    candidates: /^Weitere Kandidaten \(\d+\)$/,
     suggestionLoading:
       "In Felder übernehmen wird verfügbar, sobald der Vorschlag für das aktuelle Ergebnis geladen ist.",
     correct: "Korrekt",

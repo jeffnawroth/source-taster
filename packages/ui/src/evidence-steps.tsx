@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import type { SourceEvidence } from "@source-taster/contract-verification/v2";
+import type {
+  SourceEvidence,
+  Verdict,
+} from "@source-taster/contract-verification/v2";
 import { m } from "@source-taster/i18n";
 
 /** How one evidence step reads in D's track, source list and trail. */
@@ -69,4 +72,42 @@ export function StepIcon({ state }: { state: StepState }) {
       <path d={path} />
     </svg>
   ) : null;
+}
+
+/** The Verdict's end node in D's track and trail. */
+export const verdictStep: Record<Verdict, StepState> = {
+  correct: "ok",
+  "exists-with-deviations": "diff",
+  "mixed-citation": "diff",
+  "doi-conflict": "bad",
+  "not-found": "none",
+  "not-verifiable": "warn",
+};
+/** D `dRes`: the result word after the Verdict in the trail's end row. */
+export function trailResult(state: StepState) {
+  return {
+    ok: m.shell_trail_result_ok,
+    diff: m.shell_trail_result_diff,
+    bad: m.shell_trail_result_bad,
+    warn: m.shell_trail_result_warn,
+    none: m.shell_trail_result_none,
+  }[state as "ok" | "diff" | "bad" | "warn" | "none"]();
+}
+/** D `e-end`: the flag that closes a track or trail. */
+export function EndIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M5 20V4M5 5h12l-2.5 4L17 13H5" />
+    </svg>
+  );
 }
