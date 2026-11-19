@@ -72,8 +72,31 @@ export function MoreActions({
   /** D opens the Menu under the whole strip, not under its trigger. */
   anchor?: RefObject<HTMLElement | null>;
 }) {
+  const [open, setOpen] = useState(false);
+  // React Aria places the Popover in document coordinates, so it would scroll
+  // away from the sticky strip; D's Menu stays under the strip.
+  const [top, setTop] = useState<number>();
+  useEffect(() => {
+    if (!open || !anchor) return;
+    const update = () => {
+      const box = anchor.current?.getBoundingClientRect();
+      if (box) setTop(box.bottom - 5);
+    };
+    update();
+    addEventListener("scroll", update, { capture: true, passive: true });
+    return () => removeEventListener("scroll", update, { capture: true });
+  }, [open, anchor]);
   return (
-    <MenuTrigger>
+    <MenuTrigger
+      isOpen={open}
+      onOpenChange={(next) => {
+        // The trigger sits in the sticky strip, so the Menu stays put while
+        // the feed scrolls; D keeps it open. React Aria closes a non-modal
+        // Popover on any scroll of the trigger's scroll parent.
+        if (!next && globalThis.event?.type === "scroll") return;
+        setOpen(next);
+      }}
+    >
       <IconButton size="sm" variant="secondary" label={m.shell_more_actions()}>
         <More aria-hidden="true" size={16} />
       </IconButton>
@@ -81,6 +104,9 @@ export function MoreActions({
         placement="bottom end"
         className="strip-menu"
         {...(anchor ? { triggerRef: anchor, offset: -5, crossOffset: -9 } : {})}
+        {...(anchor && top !== undefined
+          ? { style: { position: "fixed", top } }
+          : {})}
       >
         <Menu
           aria-label={m.shell_more_actions()}

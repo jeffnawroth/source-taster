@@ -893,6 +893,9 @@ body {
 .strip-menu .st-menu {
   display: grid;
   gap: 2px;
+  /* D's items span the whole Menu, so the hover fill does too. */
+  width: auto;
+  max-width: none;
 }
 /* A disabled item fades like D's disabled .btn and takes no fill. */
 .strip-menu .strip-menu-item[data-disabled] {
