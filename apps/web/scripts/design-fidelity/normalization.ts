@@ -546,6 +546,18 @@ export async function normalizeShell(
     before: "D asymmetric flex margins",
     after: "Equal side tracks; original source dimensions, gap and padding",
   });
+  // Owner finding, 17 November 2026: the Quota meter has round ends. #196 KA
+  // already rounds its fill; #194 D left the fill's leading edge square.
+  await page.addStyleTag({
+    content: `.v-D .pop .meter>i{border-radius:var(--st-radius-full)}`,
+  });
+  changes.push({
+    field: "quota.fill.radius",
+    reason:
+      "Owner amendment, 17 November 2026: Quota meter fill has round ends, as in #196 KA",
+    before: "D fill with square ends inside the round track",
+    after: "Fill radius full; track unchanged",
+  });
   if (fixture.commandPlaceholder) {
     const input = page.locator(".v-D .pq input");
     const before = await input.getAttribute("placeholder");
@@ -666,8 +678,21 @@ export async function ownerGeometryChecks(
         granted: Number(node.getAttribute("aria-valuemax")),
         trackWidth: track.clientWidth,
         fillWidth: fill.getBoundingClientRect().width,
+        // Owner finding: both meter ends are round, on the track and fill.
+        ends: [track, fill].map((part) => {
+          const style = getComputedStyle(part);
+          const height = part.getBoundingClientRect().height;
+          return [
+            style.borderTopLeftRadius,
+            style.borderTopRightRadius,
+            style.borderBottomLeftRadius,
+            style.borderBottomRightRadius,
+          ].every((radius) => parseFloat(radius) >= height / 2 - 0.5);
+        }),
       };
     });
+    if (actual.ends.includes(false))
+      failures.push("Owner quota meter: track and fill ends are not round");
     failures.push(
       ...compareQuotaProportion(quota, actual.trackWidth, actual.fillWidth),
     );
@@ -700,7 +725,17 @@ export async function ownerGeometryChecks(
     failures.push(
       "Owner alignment: command trigger and content column do not share their centre line",
     );
-  const theme = await page.locator(".theme-toggle").boundingBox();
+  const toggle = page.locator(".theme-toggle");
+  const theme = await toggle.boundingBox();
+  if (
+    theme &&
+    !(await toggle.evaluate(
+      (node) =>
+        parseFloat(getComputedStyle(node).borderTopLeftRadius) >=
+        node.getBoundingClientRect().height / 2 - 0.5,
+    ))
+  )
+    failures.push("Owner appearance control is not circular");
   if (!theme) failures.push("Owner appearance control is absent");
   else if (
     Math.abs(theme.width - 36) > 0.5 ||

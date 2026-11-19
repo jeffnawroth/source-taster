@@ -51,7 +51,7 @@ logged as `brand.final-artwork`; the reference bytes come from that immutable
 source tree rather than the current product exports. The extension export's
 SHA-256 is `d28d0fd169f8191edc3fa04c53a4b60809e5547b228cf03757ed5c0630080dc6`.
 
-The owner's 17 November amendments are explicit: the launcher shares the content column's centre, persistent appearance controls are required, and AccountPopover uses the source's calm floating glass treatment. ADR-0023 and ADR-0027 record these corrections. Standalone mode retains ADR-0003's absence of Account/Plan/Quota service UI.
+The owner's 17 November amendments are explicit: the launcher shares the content column's centre, persistent appearance controls are required, AccountPopover uses the source's calm floating glass treatment, and the QuotaMeter fill has round ends as in #196 KA (#194 D left its leading edge square). The harness asserts round track and fill ends and a circular 36 px appearance toggle on every hosted app state. ADR-0023 and ADR-0027 record these corrections. Standalone mode retains ADR-0003's absence of Account/Plan/Quota service UI.
 
 ## Local review links
 

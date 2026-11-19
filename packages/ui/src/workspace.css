@@ -397,9 +397,6 @@ body {
   color: var(--st-text-secondary);
   font-variant-numeric: tabular-nums;
 }
-.account-entry .st-fill {
-  border-radius: 0;
-}
 .account-entry :where(button, a) {
   min-height: 28px;
   min-width: 24px;

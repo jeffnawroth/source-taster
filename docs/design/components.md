@@ -311,7 +311,7 @@ All fields share one anatomy through **Form, Label, Description and FieldError**
 - The popover is pinned under the sticky TopBar at D's `top: 62px` and stays open while the page scrolls; Esc, the chip and its own actions close it.
 - Headings, eyebrows and the meter value keep normal tracking: no text step adds letter-spacing (the token pipeline does not map per-step tracking into Tailwind).
 
-**QuotaMeter** — Meter with the remaining Quota in words („Noch 12 von 50 Prüfungen“). The quota warning switches it to `feedback-warning` with icon and text (1.7). Quota facts follow #192 (a technical Status uses no Quota; a previously debited slot is not debited again, while a previously unbilled slot can incur its first debit on a Verdict).
+**QuotaMeter** — Meter with round ends on both the track and the fill (owner, 17 November 2026), and the remaining Quota in words („Noch 12 von 50 Prüfungen“). The quota warning switches it to `feedback-warning` with icon and text (1.7). Quota facts follow #192 (a technical Status uses no Quota; a previously debited slot is not debited again, while a previously unbilled slot can incur its first debit on a Verdict).
 
 **HistorySheet** — Sheet from the left with a SearchField and a list of **HistoryEntry** rows: document name (one line, truncated), date, and the summary sentence in text („5 von 10 Referenzen stimmen.“). No glyph-only counts: the compact-strip exception does not extend here. Opening an entry loads it; "Als neue Prüfung starten" asks first (AlertDialog).
 
