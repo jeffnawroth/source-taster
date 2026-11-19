@@ -381,6 +381,50 @@ export function probesFor(id: string): Probe[] {
         built: ".detail-title",
         styles: ["font-size", "font-weight", "line-height", "letter-spacing"],
       },
+      // Documented extra sections (web-gaps §13) shift these down the scroller,
+      // so section probes compare inline geometry and type, not document y.
+      // Built-only Best-match provenance, projected through D .row.note/.cb.
+      {
+        name: "detail-provenance",
+        prototype: '[data-app-fixture="provenance"]',
+        built: ".detail-best",
+        geometry: ["x", "width", "height"],
+        styles: ["font-size", "line-height", "row-gap"],
+      },
+      {
+        name: "detail-record",
+        prototype: '[data-app-fixture="provenance"] .cb small',
+        built: ".detail-record",
+        geometry: ["x", "width", "height"],
+        styles: ["font-size", "line-height", "margin-top"],
+      },
+      {
+        name: "detail-tc-del",
+        prototype: ".v-D .detail .tc del",
+        built: ".detail-tc del",
+        geometry: ["x", "width", "height"],
+        styles: ["padding-left", "padding-right", "margin-right"],
+      },
+      {
+        name: "detail-tc-ins",
+        prototype: ".v-D .detail .tc ins",
+        built: ".detail-tc ins",
+        geometry: ["x", "width", "height"],
+        styles: ["padding-left", "margin-left"],
+      },
+      {
+        name: "detail-tc-meta",
+        prototype: ".v-D .detail .tc + p",
+        built: ".detail-tc-meta",
+        geometry: ["x", "width", "height"],
+        styles: ["font-size", "line-height", "margin-top"],
+      },
+      {
+        name: "detail-compare",
+        prototype: ".v-D .cmp",
+        built: ".detail-compare",
+        geometry: ["x", "width"],
+      },
     );
   // D's active filter: a chip in the compact strip, a row beside the wide one.
   if (id.includes("-filter-"))

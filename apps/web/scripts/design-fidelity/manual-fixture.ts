@@ -13,6 +13,8 @@ interface Content {
   disabled?: boolean;
   open?: boolean;
   variant?: string;
+  /** Geometry key of the button's leading icon, resolved against D's sprite. */
+  icon?: string;
   recipe?: "tracked" | "provenance";
   children?: Content[];
 }
@@ -57,6 +59,16 @@ export async function readManualFixture(
         .forEach((n) => n.remove());
       return text(copy);
     };
+    const glyphKey = (svg: Element) =>
+      [...svg.children]
+        .map(
+          (child) =>
+            `${child.tagName.toLowerCase()}(${[...child.attributes]
+              .map((a) => `${a.name}=${a.value}`)
+              .sort()
+              .join(",")})`,
+        )
+        .join("");
     function content(node: Node): Content[] {
       if (node.nodeType === Node.TEXT_NODE)
         return node.textContent
@@ -91,6 +103,10 @@ export async function readManualFixture(
         base.children = [];
         base.disabled = node.disabled;
         base.variant = node.getAttribute("data-variant") ?? undefined;
+        // D's btn() draws its sprite icon before the label. Carry the built
+        // glyph's geometry; the prototype side looks it up in D's own sprite.
+        const glyph = node.querySelector("svg");
+        if (glyph) base.icon = glyphKey(glyph);
       }
       if (
         node instanceof HTMLInputElement ||
@@ -187,7 +203,30 @@ export async function normalizeManualFixture(
 ) {
   if (!fixture) return [];
   return page.evaluate((fixture) => {
-    const ST = (window as unknown as { ST: { gly(value: string): string } }).ST;
+    const ST = (
+      window as unknown as {
+        ST: { gly(value: string): string; ico(name: string): string };
+      }
+    ).ST;
+    // Built button glyphs are D recipes; find the D sprite with the same
+    // geometry so the oracle draws D's own icon, never the product's.
+    const sprite = (key: string) => {
+      const match = [...document.querySelectorAll("svg symbol[id^='i-']")].find(
+        (symbol) =>
+          [...symbol.children]
+            .map(
+              (child) =>
+                `${child.tagName.toLowerCase()}(${[...child.attributes]
+                  .map((a) => `${a.name}=${a.value}`)
+                  .sort()
+                  .join(",")})`,
+            )
+            .join("") === key,
+      );
+      if (!match)
+        throw new Error(`Built button glyph has no #194 D sprite: ${key}`);
+      return match.id;
+    };
     const section =
       document
         .querySelector('.v-D .detail [data-act^="judge:"]')
@@ -229,7 +268,7 @@ export async function normalizeManualFixture(
           : (data.children ?? []).map(render).join("");
       const attrs = `${data.role ? ` role="${esc(data.role)}"` : ""}${data.label ? ` aria-label="${esc(data.label)}"` : ""}`;
       if (data.tag === "button")
-        return `<button type="button" class="btn sm ${data.variant === "primary" ? "primary" : data.variant === "ghost" ? "ghost" : ""}"${data.disabled ? " disabled" : ""}${attrs}>${inner}</button>`;
+        return `<button type="button" class="btn sm ${data.variant === "primary" ? "primary" : data.variant === "ghost" ? "ghost" : ""}"${data.disabled ? " disabled" : ""}${attrs}>${data.icon ? `${ST.ico(sprite(data.icon))}<span>${inner}</span>` : inner}</button>`;
       if (data.tag === "checkbox")
         return `<label class="row note"><input type="checkbox"${data.checked ? " checked" : ""}${data.disabled ? " disabled" : ""}>${inner}</label>`;
       if (data.tag === "input" || data.tag === "textarea")
