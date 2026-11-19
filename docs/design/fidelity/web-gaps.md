@@ -137,7 +137,7 @@ The fixtures cannot reach Mixed citation or Technical failure. Both render throu
 
 ## 13. Differences that remain on purpose
 
-Result of the last full `fidelity --only app-` run: 28 sheets (intake, counted, running, done, detail, menu and export at web and 360 width, light/en and dark/de). Every sheet matches D in layout, order, controls, type and colour. Only the differences below remain. After the intake-field fix, the counted sheets were rendered again and are pixel-identical to the previous run.
+Result of the last full `fidelity --only app-` run: 28 sheets (intake, counted, running, done, detail, menu and export at web and 360 width, light/en and dark/de). Every sheet matches D in layout, order, controls, type and colour. Only the differences below remain. After the intake-field fix, the counted sheets were rendered again and are pixel-identical to the previous run. The latest `--only app-` run renders 196 sheets: 164 pass, and the 32 others are the detail, detail-end, detail-edit and detail-manual sheets, whose differences are the detail rows below.
 
 | Difference | Sheets | Reason |
 |---|---|---|

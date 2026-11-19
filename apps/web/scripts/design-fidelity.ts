@@ -1046,6 +1046,14 @@ try {
                   }),
                 );
               if (state.prototypeAfter) {
+                // The copy and data swaps re-render D. For a hover or focus
+                // on the top bar, run them before the interaction too: a
+                // re-render after it would resize D's field while focus sits
+                // on the command field, which D never does.
+                if (/^app-(command|theme)-(hover|focus)-/.test(state.id))
+                  normalizations.push(
+                    ...(await normalizeShell(page, fixture, hosted)),
+                  );
                 await state.prototypeAfter(page);
                 // D coalesces pointer-up renders in a zero-delay task.
                 await page.waitForTimeout(50);
