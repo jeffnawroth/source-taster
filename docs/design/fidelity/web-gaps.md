@@ -157,7 +157,8 @@ The harness amends D before it compares. Each run lists every amendment in `resu
   - The development-preview notice in hosted.
 - **Identical input data:**
   - Input text, Quota balance, textarea scroll position and the palette's empty-query text.
-  - The palette rows. In standalone they leave out History and Account; all other rows are D's own. After the intake-field fix, the counted sheets were rendered again and are pixel-identical to the previous run. The latest `--only app-` run renders 196 sheets: 164 pass, and the 32 others are the detail, detail-end, detail-edit and detail-manual sheets, whose differences are the detail rows below.
+  - The palette rows. In standalone the harness leaves out D's History and Account rows; every other row is compared as drawn, and the product's own palette rows differ only as the palette rows below say.
+- **Latest full standalone run (`node scripts/design-fidelity.ts`):** 366 sheets, 322 pass. The 44 others are the detail, detail-end, detail-edit and detail-manual sheets (32, the detail rows below), the intake palette sheets (8) and the 360 px palette-done sheets (4); the palette sheets differ only by the documented rows "Enter references", "New check" and "Preferences" and the rows they move down. The palette-done sheets at web width pass (0.51–0.61 %).
 
 | Difference | Sheets | Reason |
 |---|---|---|
