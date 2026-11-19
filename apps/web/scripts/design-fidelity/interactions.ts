@@ -24,6 +24,8 @@ export const interactions: {
   frame?: "web" | "360";
   built: (page: Page) => Promise<void>;
   prototype: (page: Page) => Promise<void>;
+  /** Element both sides scroll to the viewport centre before capture. */
+  centre?: { built: string; prototype: string };
 }[] = [
   {
     id: "filter",
@@ -128,6 +130,13 @@ export const interactions: {
     id: "detail-manual",
     builtStage: "detail",
     sourceStage: "detail",
+    // D re-renders on the click and restores its remembered scroll offset,
+    // so its form opens below the fold; the built form stays where it was
+    // clicked. After normalisation both sides centre the opened choice grid.
+    centre: {
+      built: ".check-detail .manual-verdict-grid",
+      prototype: ".v-D .detail .jg",
+    },
     built: async (page) => {
       await page
         .getByRole("button", { name: /^(Judge manually|Manuell beurteilen)$/ })

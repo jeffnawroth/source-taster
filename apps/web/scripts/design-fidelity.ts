@@ -159,6 +159,8 @@ interface State {
   /** Built side runs signed in as the run's fresh Free Account (hosted). */
   signedIn?: boolean;
   scrollEnd?: "feed" | "detail";
+  /** Element both sides scroll to the viewport centre before capture. */
+  centre?: { built: string; prototype: string };
   /** Per-state fixture text only; masks preserve surrounding chrome and geometry. */
   masks?: { prototype: string; built: string }[];
 }
@@ -571,6 +573,7 @@ function states(structure: string, website: string): State[] {
             lang,
             prototype: d(interaction.sourceStage, frame, theme, lang),
             prototypeAfter: interaction.prototype,
+            ...(interaction.centre ? { centre: interaction.centre } : {}),
             built: async (page) => {
               await app(interaction.builtStage)(page);
               await interaction.built(page);
@@ -1093,6 +1096,38 @@ try {
           });
           if (!state.id.includes("hover")) await page.mouse.move(0, 0);
           await page.waitForTimeout(400);
+          if (state.centre) {
+            const selector = state.centre[prototype ? "prototype" : "built"];
+            await page
+              .locator(selector)
+              .first()
+              .evaluate((node) => {
+                // Put the element's top on the same viewport line on both
+                // sides; scrollIntoView centres within each scroll container,
+                // and D's container starts below its header.
+                const line = Math.round(window.innerHeight * 0.4);
+                let scroller: Element | null = node.parentElement;
+                while (scroller) {
+                  const { overflowY } = getComputedStyle(scroller);
+                  if (
+                    /auto|scroll/.test(overflowY) &&
+                    scroller.scrollHeight > scroller.clientHeight
+                  )
+                    break;
+                  scroller = scroller.parentElement;
+                }
+                const delta = node.getBoundingClientRect().top - line;
+                if (scroller) scroller.scrollTop += delta;
+                else window.scrollBy(0, delta);
+              });
+            normalizations.push({
+              field: "viewport.centre",
+              reason:
+                "Driver alignment: the source restores its remembered scroll offset after the interaction re-render; both sides put the same element's top on the same viewport line",
+              selector,
+            });
+            await page.waitForTimeout(100);
+          }
           if (state.scrollEnd) {
             normalizations.push(
               await scrollAppEnd(page, prototype, state.scrollEnd),

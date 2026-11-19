@@ -38,6 +38,12 @@ export interface ManualFixture {
   preceding: { kind: "correction" | "additional"; content: Content }[];
   /** Field/result history disclosures, including their closed contents. */
   following: Content[];
+  /** D's lower detail, read from the built evidence block. */
+  evidence: null | {
+    notice: string;
+    trail: { state: string; source: boolean; name: string; rest: string }[];
+    disclosures: Content[];
+  };
 }
 
 /** Read after the product driver opens Manual judgment. DOM selectors locate
@@ -189,6 +195,29 @@ export async function readManualFixture(
       following: [...parent.children]
         .filter((node) => node.matches("details"))
         .flatMap(content),
+      evidence: (() => {
+        const block = parent.querySelector(".detail-evidence");
+        if (!block) return null;
+        return {
+          notice: text(block.querySelector(":scope > .detail-nrow")),
+          trail: [...block.querySelectorAll(".detail-trail")].map((row) => {
+            const line = row.querySelector("p");
+            const muted = text(line?.querySelector(".detail-muted"));
+            const name = row.querySelector(".detail-src-name");
+            return {
+              state: row.getAttribute("data-state") ?? "none",
+              source: !!name,
+              name: name
+                ? text(name)
+                : text(line).slice(0, -muted.length).trim(),
+              rest: muted.replace(/^·\s*/, ""),
+            };
+          }),
+          disclosures: [...block.children]
+            .filter((node) => node.matches("details"))
+            .flatMap(content),
+        };
+      })(),
     };
   });
 }
@@ -373,6 +402,58 @@ export async function normalizeManualFixture(
           ? "Preserve the actual tracked Correction suggestion, provenance, actions and export checkbox using original .tc/.st-del/.st-ins/.row recipes."
           : "Actual additional section data absent from the accepted source (including Field revision); retain every recorded value and action using original .dsec/.row recipes. No product geometry or styles enter the oracle.",
       );
+    }
+    if (fixture.evidence) {
+      const ev = fixture.evidence;
+      const sources = body.querySelector(".srcs")?.closest(".dsec");
+      if (ev.notice && sources) {
+        sources.insertAdjacentHTML(
+          "beforebegin",
+          `<p class="nrow" data-manual-fixture="additional">${ST.ico("i-info")}<span>${esc(ev.notice)}</span></p>`,
+        );
+        record(
+          "detail.uncalibrated-notice",
+          null,
+          ev.notice,
+          "Release gate notice (releaseQualified false) projected through D's own .nrow recipe before the Data sources.",
+        );
+      }
+      const trail = body.querySelector("ol.trail");
+      if (trail && ev.trail.length) {
+        const before = trail.textContent;
+        const icons: Record<string, string> = {
+          ok: "e-ok",
+          none: "e-none",
+          diff: "e-diff",
+          bad: "e-bad",
+          warn: "e-warn",
+        };
+        trail.innerHTML = ev.trail
+          .map(
+            (row) =>
+              `<li class="te is-${row.state}">${ST.ico(row.source ? (icons[row.state] ?? "e-none") : "e-end")}<span><span class="${row.source ? "mono" : ""}">${esc(row.name)}</span> <span class="muted">· ${esc(row.rest)}</span></span></li>`,
+          )
+          .join("");
+        record(
+          "detail.evidence-trail",
+          before,
+          ev.trail,
+          "One row per actual evidence step (operation and outcome), then the Verdict row, through D's own .te recipe. The fixture trail drives D's feed track, so it keeps one node per queried Data source there.",
+        );
+      }
+      for (const [index, data] of ev.disclosures.entries()) {
+        const node = document.createElement("div");
+        node.innerHTML = render(data);
+        const projected = node.firstElementChild!;
+        projected.setAttribute("data-manual-fixture", "additional");
+        body.append(projected);
+        record(
+          `detail.evidence-disclosure.${index}`,
+          null,
+          data,
+          "Actual rules and identity provenance Disclosure, closed as built, through D's .dsec/.row recipes.",
+        );
+      }
     }
     for (const [index, data] of fixture.following.entries()) {
       const node = document.createElement("div");

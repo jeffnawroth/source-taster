@@ -42,7 +42,7 @@ export async function readShellFixture(page: Page): Promise<ShellFixture> {
       .trim(),
     legal: [
       ...document.querySelectorAll(".workspace-notes .workspace-legal a"),
-    ].map((link) => link.textContent!.trim()),
+    ].map((link) => link.textContent.trim()),
     devNotice: document.querySelector(".dev-note > span")?.textContent?.trim(),
     inputHint: document.querySelector(".intake-hint")?.textContent?.trim(),
     inputDisabledReason: document
