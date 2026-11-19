@@ -230,11 +230,14 @@ for (const language of ["en", "de"] as const)
           name: language === "de" ? /^Konto:/ : /^Account:/,
         })
         .click();
+      // #194 D: the Guest chip opens the Account dialog with its Sign in action.
       await expect(
-        page.getByRole("button", {
-          name: language === "de" ? "Anmelden" : "Sign in",
-          exact: true,
-        }),
+        page
+          .getByRole("dialog", { name: language === "de" ? "Konto" : "Account" })
+          .getByRole("button", {
+            name: language === "de" ? "Anmelden" : "Sign in",
+            exact: true,
+          }),
       ).toBeVisible();
       await expect(page.locator("#results-title")).toHaveCount(0);
     } finally {

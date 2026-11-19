@@ -152,12 +152,19 @@ test("a start beyond the balance asks: first N in input order, or upgrade; warni
     "0 of 20 checks left",
     { timeout: 45000 },
   );
+  // New check cancels a running Check and releases its reservations, so the
+  // started References must finish first for the balance to be used up.
+  await expect(page.getByTestId("quota-summary")).not.toContainText(
+    "in progress",
+    { timeout: 90000 },
+  );
   // A new start finds nothing left: only upgrade or cancel.
   await newCheck(page);
   await page.getByRole("textbox").fill(references(1));
   await check(page);
-  await expect(page.getByTestId("quota-choice")).toContainText(
-    "no checks left",
+  // #194 D: the counted strip carries the sentence that describes the choice.
+  await expect(page.getByTestId("quota-choice")).toHaveAccessibleDescription(
+    /no checks left/,
   );
   await expect(
     page.getByRole("button", { name: /Check the first/ }),

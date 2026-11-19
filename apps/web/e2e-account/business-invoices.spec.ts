@@ -37,11 +37,17 @@ test.beforeAll(async () => {
     publicOrigin: string;
     allowedOrigins: string[];
   };
-  config.publicOrigin = `http://127.0.0.1:${process.env.SOURCE_TASTER_TEST_SERVICE_PORT ?? "5803"}`;
+  // The order page is served by the service itself, so its origin is the
+  // service port the harness binds below.
+  const servicePort = Number(
+    process.env.SOURCE_TASTER_TEST_SERVICE_PORT ?? 5803,
+  );
+  config.publicOrigin = `http://127.0.0.1:${servicePort}`;
   config.allowedOrigins.push(webUrl, config.publicOrigin);
   await writeFile(ready.config, JSON.stringify(config));
   both = await bothPrograms({
     accounts: true,
+    servicePort,
     serviceEnv: { SERVICE_COMMERCE_CONFIG: ready.config },
   });
   both.serviceConfig.allowedOrigins = [
