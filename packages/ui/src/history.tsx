@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import {
   ArrowRight,
   Lock,
@@ -60,9 +60,18 @@ export function HistoryPanel({
     available: number;
   } | null>(null);
   const id = useId();
+  // Turning History on removes its button, so focus moves to Revoke history,
+  // the control that now owns the consent (it would otherwise fall to body).
+  const revokeRow = useRef<HTMLDivElement>(null);
+  const [focusRevoke, setFocusRevoke] = useState(false);
   useEffect(() => {
     if (data) onData?.(data);
   }, [data, onData]);
+  useEffect(() => {
+    if (!focusRevoke || !data?.enabled) return;
+    revokeRow.current?.querySelector("button")?.focus();
+    setFocusRevoke(false);
+  }, [focusRevoke, data]);
   useEffect(() => {
     let live = true;
     api.getHistory().then(
@@ -176,6 +185,7 @@ export function HistoryPanel({
               onPress={() =>
                 void run(async () => {
                   setData(await api.setHistory(true));
+                  setFocusRevoke(true);
                 })
               }
             >
@@ -309,7 +319,7 @@ export function HistoryPanel({
               </li>
             ))}
           </ul>
-          <div className="history-row">
+          <div className="history-row" ref={revokeRow}>
             <Button
               size="sm"
               variant="ghost"
