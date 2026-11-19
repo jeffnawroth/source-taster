@@ -407,7 +407,6 @@ export function CheckSummary({
                     {statuses.map(({ status, count }) => (
                       <Aria.ToggleButton
                         key={status}
-                        aria-label={`${m[statusLabels[status]]()}: ${count}`}
                         isSelected={filter === `status:${status}`}
                         onChange={() =>
                           onFilter(
@@ -418,11 +417,9 @@ export function CheckSummary({
                         }
                         className="summary-status"
                       >
+                        {/* The visible "1 Running" is the name (WCAG 2.5.3). */}
                         <StatusIcon status={status} />
-                        <b aria-hidden="true">{count}</b>
-                        <span aria-hidden="true">
-                          {m[statusLabels[status]]()}
-                        </span>
+                        <b>{count}</b> <span>{m[statusLabels[status]]()}</span>
                       </Aria.ToggleButton>
                     ))}
                   </div>

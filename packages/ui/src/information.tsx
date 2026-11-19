@@ -46,14 +46,16 @@ export function informationLinks(language: InformationLanguage, siteUrl = "") {
 export function InformationLinks({
   language,
   siteUrl,
+  className = "mt-8 flex flex-wrap gap-4 text-sm",
 }: {
   language: InformationLanguage;
   siteUrl?: string;
+  className?: string;
 }) {
   return (
     <nav
       aria-label={m.information_navigation({}, { locale: language })}
-      className="mt-8 flex flex-wrap gap-4 text-sm"
+      className={className}
     >
       {informationLinks(language, siteUrl).map((link) => (
         <a

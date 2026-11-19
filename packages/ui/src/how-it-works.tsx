@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { useState } from "react";
+import * as Aria from "react-aria-components";
 import { Shield } from "lucide-react";
 import { m } from "@source-taster/i18n";
 import { Button } from "./primitives/actions.tsx";
@@ -10,11 +10,15 @@ export function HowItWorksDialog({
   isOpen,
   onOpenChange,
 }: {
-  isOpen: boolean;
-  onOpenChange: (isOpen: boolean) => void;
+  /** Omitted inside a DialogTrigger, which then owns the open state. */
+  isOpen?: boolean;
+  onOpenChange?: (isOpen: boolean) => void;
 }) {
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+    <Modal
+      {...(isOpen === undefined ? {} : { isOpen })}
+      {...(onOpenChange ? { onOpenChange } : {})}
+    >
       <Dialog className="workspace-dialog">
         {({ close }) => (
           <>
@@ -39,23 +43,19 @@ export function HowItWorksDialog({
 
 /** #194 D feed .foot: the Verdict disclaimer with its inline method link. */
 export function FeedDisclaimer() {
-  const [open, setOpen] = useState(false);
+  // A DialogTrigger moves focus into the Dialog and back to the link on close.
   return (
-    <>
+    <Aria.DialogTrigger>
       <p className="note-row">
         <Shield aria-hidden="true" size={16} />
         <span>
           {m.shell_feed_disclaimer()}{" "}
-          <button
-            type="button"
-            className="feed-link"
-            onClick={() => setOpen(true)}
-          >
+          <Button variant="ghost" size="sm" className="feed-link">
             {m.workspace_help()}
-          </button>
+          </Button>
         </span>
       </p>
-      <HowItWorksDialog isOpen={open} onOpenChange={setOpen} />
-    </>
+      <HowItWorksDialog />
+    </Aria.DialogTrigger>
   );
 }

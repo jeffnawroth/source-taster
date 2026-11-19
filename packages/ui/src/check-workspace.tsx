@@ -1152,6 +1152,15 @@ export function CheckWorkspace({
       </span>
     </p>
   );
+  // D has no legal links; the product keeps them reachable on every screen
+  // as a quiet row closing the notes (web-gaps section 6, Footer).
+  const legalRow = (
+    <InformationLinks
+      language={locale}
+      siteUrl={siteUrl}
+      className="workspace-legal"
+    />
+  );
   const notes = (
     <div className="workspace-notes intake-notes">
       {guestNote}
@@ -1159,6 +1168,7 @@ export function CheckWorkspace({
       {devNote}
       {storageNote}
       {quotaLine}
+      {legalRow}
     </div>
   );
   // In the feed the guest notice sits above the cards, as in #194 D.
@@ -1182,6 +1192,7 @@ export function CheckWorkspace({
         ) : (
           quotaState !== "ready" && <QuotaPending state={quotaState} />
         ))}
+      {legalRow}
     </div>
   );
   const fileInputs = (
@@ -1461,7 +1472,6 @@ export function CheckWorkspace({
                   </select>
                 </label>
               </div>
-              <InformationLinks language={locale} siteUrl={siteUrl} />
               <div className="st-actions">
                 <Button variant="primary" onPress={close}>
                   {m.shell_close()}
