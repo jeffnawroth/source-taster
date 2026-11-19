@@ -6,14 +6,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { ArrowUpLeft, History, Plus, UserRound } from "lucide-react";
-import {
-  HistoryGlyph,
-  Search,
-  Settings,
-  Square,
-  X,
-} from "./workspace-icons.tsx";
+import * as Aria from "react-aria-components";
+import { HistoryGlyph, Search, Settings, User, X } from "./workspace-icons.tsx";
 import { m } from "@source-taster/i18n";
 import { useStickySize } from "./sticky-layout.ts";
 import {
@@ -37,6 +31,22 @@ import {
 } from "./primitives/index.ts";
 /** Lets entry actions hand focus back to the chip before opening a separate modal. */
 export const AccountPopoverCloseContext = createContext<() => void>(() => {});
+/** One launcher row of the current view (#194 D `cmdItems`). */
+export interface PaletteCommand {
+  id: string;
+  group: "actions" | "filters" | "references";
+  label: string;
+  icon: ReactNode;
+  /** Without one, the bar hands the id to `onCommand`. */
+  onAction?: () => void;
+  /** Shown muted under the label; the row stays visible but inert (D `hint`). */
+  disabledReason?: string;
+}
+const groupHeading = {
+  actions: () => m.shell_actions(),
+  filters: () => m.shell_filters(),
+  references: () => m.workspace_references(),
+} as const;
 const apple =
   typeof navigator !== "undefined" &&
   /Mac|iPhone|iPad/u.test(navigator.platform);
@@ -47,11 +57,10 @@ export function CheckingTopBar({
   accountLabel,
   history,
   onInput,
-  onReset,
   onPreferences,
-  onStop,
   tools,
-  commands: extraCommands = [],
+  commands: viewCommands = [],
+  onCommand,
 }: {
   brandMark?: string;
   documentName?: string;
@@ -59,13 +68,13 @@ export function CheckingTopBar({
   accountLabel?: string;
   history?: (close: () => void) => ReactNode;
   onInput: () => void;
-  onReset: () => void;
   onPreferences: () => void;
-  onStop?: () => void;
   /** Host-supplied controls such as the persistent appearance toggle. */
   tools?: ReactNode;
-  /** Commands of the current view, such as structuring in the intake. */
-  commands?: { id: string; label: string; onAction: () => void }[];
+  /** The view's Actions, Filters and References, in D's order. */
+  commands?: PaletteCommand[];
+  /** Runs a row that carries no handler of its own. */
+  onCommand?: (id: string) => void;
 }) {
   const [commands, setCommands] = useState(false);
   const topbar = useStickySize("--checking-topbar-height");
@@ -195,7 +204,7 @@ export function CheckingTopBar({
                   <SearchField
                     autoFocus
                     label={m.shell_find_command()}
-                    placeholder={m.shell_find_command()}
+                    placeholder={m.shell_command_placeholder()}
                     clearLabel={m.shell_clear_command()}
                     value={query}
                     onChange={setQuery}
@@ -230,7 +239,9 @@ export function CheckingTopBar({
                       onAction={() => run(onInput)}
                     >
                       <Search aria-hidden="true" size={18} />
-                      <span>{m.shell_enter_references()}</span>
+                      <Aria.Text slot="label">
+                        {m.shell_enter_references()}
+                      </Aria.Text>
                     </MenuItem>
                     {history && (
                       <MenuItem
@@ -238,8 +249,10 @@ export function CheckingTopBar({
                         textValue={m.history_heading()}
                         onAction={() => run(() => setHistoryOpen(true))}
                       >
-                        <History aria-hidden="true" size={18} />
-                        <span>{m.history_heading()}</span>
+                        <HistoryGlyph aria-hidden="true" size={18} />
+                        <Aria.Text slot="label">
+                          {m.history_heading()}
+                        </Aria.Text>
                       </MenuItem>
                     )}
                     {account && (
@@ -248,53 +261,56 @@ export function CheckingTopBar({
                         textValue={m.shell_account()}
                         onAction={() => run(() => setAccountOpen(true))}
                       >
-                        <UserRound aria-hidden="true" size={18} />
-                        <span>{m.shell_account()}</span>
+                        <User aria-hidden="true" size={18} />
+                        <Aria.Text slot="label">{m.shell_account()}</Aria.Text>
                       </MenuItem>
                     )}
                   </MenuSection>
-                  <MenuSection aria-label={m.shell_actions()}>
-                    <MenuHeading className="command-palette-group">
-                      {m.shell_actions()}
-                    </MenuHeading>
-                    <MenuItem
-                      id="reset"
-                      textValue={m.shell_new_check()}
-                      onAction={() => run(onReset)}
-                    >
-                      <Plus aria-hidden="true" size={18} />
-                      <span>{m.shell_new_check()}</span>
-                    </MenuItem>
-                    <MenuItem
-                      id="preferences"
-                      textValue={m.shell_preferences()}
-                      onAction={() => run(onPreferences)}
-                    >
-                      <Settings aria-hidden="true" size={18} />
-                      <span>{m.shell_preferences()}</span>
-                    </MenuItem>
-                    {extraCommands.map((command) => (
-                      <MenuItem
-                        key={command.id}
-                        id={command.id}
-                        textValue={command.label}
-                        onAction={() => run(command.onAction)}
-                      >
-                        <ArrowUpLeft aria-hidden="true" size={18} />
-                        <span>{command.label}</span>
-                      </MenuItem>
-                    ))}
-                    {onStop && (
-                      <MenuItem
-                        id="stop"
-                        textValue={m.check_cancel()}
-                        onAction={() => run(onStop)}
-                      >
-                        <Square aria-hidden="true" size={18} />
-                        <span>{m.check_cancel()}</span>
-                      </MenuItem>
-                    )}
-                  </MenuSection>
+                  {(["actions", "filters", "references"] as const).map(
+                    (group) => {
+                      const rows = viewCommands.filter(
+                        (command) => command.group === group,
+                      );
+                      if (!rows.length) return null;
+                      return (
+                        <MenuSection
+                          key={group}
+                          aria-label={groupHeading[group]()}
+                        >
+                          <MenuHeading className="command-palette-group">
+                            {groupHeading[group]()}
+                          </MenuHeading>
+                          {rows.map((command) => (
+                            <MenuItem
+                              key={command.id}
+                              id={command.id}
+                              textValue={command.label}
+                              isDisabled={!!command.disabledReason}
+                              onAction={() =>
+                                run(
+                                  command.onAction ??
+                                    (() => onCommand?.(command.id)),
+                                )
+                              }
+                            >
+                              {command.icon}
+                              <Aria.Text slot="label">
+                                {command.label}
+                              </Aria.Text>
+                              {command.disabledReason ? (
+                                <Aria.Text
+                                  slot="description"
+                                  elementType="small"
+                                >
+                                  {command.disabledReason}
+                                </Aria.Text>
+                              ) : null}
+                            </MenuItem>
+                          ))}
+                        </MenuSection>
+                      );
+                    },
+                  )}
                 </Menu>
               </Autocomplete>
             </Dialog>
@@ -330,7 +346,7 @@ export function CheckingTopBar({
                   </span>
                 ) : (
                   <span className="account-avatar" aria-hidden="true">
-                    <UserRound size={17} />
+                    <User size={17} />
                   </span>
                 )}
                 <span className="account-chip-label">

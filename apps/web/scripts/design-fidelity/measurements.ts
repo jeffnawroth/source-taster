@@ -304,7 +304,9 @@ export function probesFor(id: string): Probe[] {
     },
   ];
   if (
-    /(?:intake|filled|input-focus|command-hover|command-focus|palette)/.test(id)
+    /(?:intake|filled|input-focus|command-hover|command-focus|palette(?!-done))/.test(
+      id,
+    )
   )
     probes.push(
       {

@@ -245,6 +245,63 @@ for (const language of ["en", "de"] as const)
     await expect(feed).toContainText("On the Origin of Species");
   });
 
+test("launcher offers D's actions, filters and references of the current check", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await choosePreferences(page, { language: "en" });
+  await page
+    .getByRole("textbox", { name: "Reference", exact: true })
+    .fill(
+      "Doe, J. (2020). Held Reference. doi:10.5555/browser-held\nDarwin, C. (1859). On the Origin of Species.",
+    );
+  await page
+    .getByRole("button", { name: "Check reference", exact: true })
+    .click();
+  const feed = page.getByRole("grid", { name: "References", exact: true });
+  await expect(feed.getByRole("row")).toHaveCount(2);
+  const launcher = page.getByRole("button", {
+    name: "Search or command …",
+    exact: true,
+  });
+  const palette = page.getByRole("dialog", { name: "Commands", exact: true });
+  const item = (name: string) =>
+    palette.getByRole("menuitem", { name, exact: true });
+  await launcher.click();
+  // The held Reference keeps the Check running: Stop is offered and the
+  // list edit stays inert with its reason.
+  await expect(item("Cancel check")).toBeVisible();
+  await expect(item("Edit reference list")).toBeDisabled();
+  await expect(item("Edit reference list")).toHaveAccessibleDescription(
+    "Only while no check is running.",
+  );
+  for (const group of ["Actions", "Filter", "References"])
+    await expect(
+      palette.getByRole("group", { name: group, exact: true }),
+    ).toBeVisible();
+  await expect(item("2 · On the Origin of Species")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(
+    page.getByRole("button", { name: "Not verifiable: 1", exact: true }),
+  ).toBeVisible({ timeout: 15000 });
+  await launcher.click();
+  await item("Not verifiable (1)").click();
+  await expect(palette).toBeHidden();
+  await expect(feed.getByRole("row")).toHaveCount(1);
+  await expect(feed.getByRole("row")).toContainText("Held Reference");
+  await launcher.click();
+  await item("Clear filter").click();
+  await expect(feed.getByRole("row")).toHaveCount(2);
+  await launcher.click();
+  await item("2 · On the Origin of Species").click();
+  await expect(
+    page.getByRole("region", { name: "Reference detail", exact: true }),
+  ).toContainText("Darwin, C. (1859). On the Origin of Species.");
+  await launcher.click();
+  await item("Export").click();
+  await expect(page.getByRole("dialog", { name: /^Export/u })).toBeVisible();
+});
+
 for (const language of ["en", "de"] as const)
   test(`existing-action launcher opens intake and restores keyboard focus without account UI in standalone (${language})`, async ({
     page,
@@ -265,12 +322,27 @@ for (const language of ["en", "de"] as const)
     });
     await expect(dialog).toBeVisible();
     await expect(dialog).toHaveAttribute("aria-modal", "true");
+    // #194 D: the empty intake offers Check, inert, with its reason.
+    const check = dialog.getByRole("menuitem", {
+      name: en ? "Check" : "Prüfen",
+      exact: true,
+    });
+    await expect(check).toBeDisabled();
+    await expect(check).toHaveAccessibleDescription(
+      en ? "Paste references first." : "Fügen Sie zuerst Referenzen ein.",
+    );
+    await expect(
+      dialog.getByRole("menuitem", {
+        name: en ? "How the check works" : "So funktioniert die Prüfung",
+        exact: true,
+      }),
+    ).toBeVisible();
     await expect(
       dialog.getByRole("menuitem", {
         name: en ? "New check" : "Neue Prüfung",
         exact: true,
       }),
-    ).toBeVisible();
+    ).toHaveCount(0);
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
     await expect(launcher).toBeFocused();

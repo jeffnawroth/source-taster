@@ -309,6 +309,7 @@ function app(stage: AppStage) {
 /** Prototype interactions after its `stage` param has rendered. */
 const prototypeAfter: Partial<Record<string, (page: Page) => Promise<void>>> = {
   palette: (page) => page.keyboard.press("ControlOrMeta+k"),
+  "palette-done": (page) => page.keyboard.press("ControlOrMeta+k"),
   "palette-query": async (page) => {
     await page.keyboard.press("ControlOrMeta+k");
     await page.locator(".v-D .pq input").fill("zzzz-no-command");
@@ -520,6 +521,7 @@ function states(structure: string, website: string): State[] {
           ["running", "running", "running"],
           ["done", "done", "done"],
           ["done-end", "done", "done"],
+          ["palette-done", "done", "done"],
           ["detail", "detail", "detail"],
           ["detail-end", "detail", "detail"],
           ["menu", "menu", "done"],
@@ -534,7 +536,14 @@ function states(structure: string, website: string): State[] {
             prototypeAfter: prototypeAfter[stage],
             built: async (page) => {
               await app(built)(page);
-              if (stage === "palette" || stage === "palette-query") {
+              if (
+                stage === "palette" ||
+                stage === "palette-query" ||
+                stage === "palette-done"
+              ) {
+                // React Aria focuses the row under a resting pointer; D
+                // selects only on keyboard or click. Park the pointer.
+                await page.mouse.move(0, 0);
                 await page.keyboard.press("ControlOrMeta+k");
                 if (stage === "palette-query")
                   await page
@@ -556,7 +565,10 @@ function states(structure: string, website: string): State[] {
               if (stage === "command-focus")
                 await page.locator(".command-trigger").focus();
             },
-            note: standalone,
+            note:
+              stage === "palette" || stage === "palette-done"
+                ? `${standalone} Palette product rules (web-gaps §2): the nav row reads "Enter references" because D's "Check" would name two different commands alike; "New check" keeps its one-step action in D's Reset slot; Preferences is the product's added last action.`
+                : standalone,
             ...(stage === "done-end"
               ? { scrollEnd: "feed" as const }
               : stage === "detail-end"

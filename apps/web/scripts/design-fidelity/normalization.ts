@@ -619,18 +619,26 @@ export async function normalizeShell(
     after: "Fill radius full; track unchanged",
   });
   if (fixture.commandPlaceholder) {
+    // Only the settled voice rule may change the placeholder: D's capital
+    // "Reference" becomes lower case; any other wording stays measured.
     const input = page.locator(".v-D .pq input");
-    const before = await input.getAttribute("placeholder");
-    await input.evaluate(
-      (node, value) => node.setAttribute("placeholder", value),
-      fixture.commandPlaceholder,
-    );
-    changes.push({
-      field: "palette.placeholder",
-      reason: "Available command-search wording; source input recipe unchanged",
-      before: before ?? "",
-      after: fixture.commandPlaceholder,
-    });
+    const before = (await input.getAttribute("placeholder")) ?? "";
+    if (
+      before !== fixture.commandPlaceholder &&
+      before.toLowerCase() === fixture.commandPlaceholder.toLowerCase()
+    ) {
+      await input.evaluate(
+        (node, value) => node.setAttribute("placeholder", value),
+        fixture.commandPlaceholder,
+      );
+      changes.push({
+        field: "copy.case",
+        reason:
+          "docs/design/voice-and-tone.md rule 5 (settled in #192): the palette placeholder lower-cases D's domain noun",
+        before,
+        after: fixture.commandPlaceholder,
+      });
+    }
   }
   if (fixture.commandEmpty) {
     const empty = page.locator(".v-D .palette .pl .note");
@@ -647,62 +655,44 @@ export async function normalizeShell(
     });
   }
   if (fixture.commands.length) {
-    const before = await page.locator(".v-D .palette .po").allTextContents();
-    await page.evaluate((items) => {
-      const list = document.querySelector(".v-D .palette .pl");
-      if (!list) throw new Error("Source palette list is absent");
-      const template = list.querySelector(".po");
-      if (!template) throw new Error("Source palette row is absent");
-      const icons: Record<string, string> = {
-        input: "i-search",
-        history: "i-history",
-        account: "i-user",
-        reset: "i-plus",
-        preferences: "i-gear",
-        stop: "i-stop",
-      };
-      const source = (
-        window as unknown as { ST: { ico(name: string): string } }
-      ).ST;
-      const rows = items.map((item, i) => {
-        const row = template.cloneNode(true) as HTMLElement;
-        row.id = `fidelity-command-${i}`;
-        row.dataset.i = String(i);
-        row.setAttribute("aria-selected", String(i === 0));
-        row.setAttribute("aria-disabled", String(item.disabled));
-        const icon = icons[item.id];
-        if (!icon)
-          throw new Error(`No source command glyph mapping for ${item.id}`);
-        row.querySelector("svg")?.remove();
-        row.insertAdjacentHTML("afterbegin", source.ico(icon));
-        const label = row.querySelector("span");
-        if (label) label.textContent = item.label;
-        row.querySelector("small")?.remove();
-        return { row, group: item.group };
+    // Mode absence only: a standalone client has no History and no Account,
+    // so D's two Navigation rows for them go. Every other row is D's own and
+    // measured against the built palette.
+    const absent = ["history", "account"].filter(
+      (id) => !fixture.commands.some((item) => item.id === id),
+    );
+    if (absent.length) {
+      const before = await page.locator(".v-D .palette .po").allTextContents();
+      const removed = await page.evaluate((ids) => {
+        const glyphs = ids.map(
+          (id) =>
+            `#${({ history: "i-history", account: "i-user" } as const)[id as "history" | "account"]}`,
+        );
+        const list = document.querySelector(".v-D .palette .pl");
+        if (!list) throw new Error("Source palette list is absent");
+        const seen = new Set<string>();
+        const prune = () => {
+          for (const row of list.querySelectorAll(".po")) {
+            const glyph = row.querySelector("use")?.getAttribute("href") ?? "";
+            if (glyphs.includes(glyph)) {
+              seen.add(row.textContent?.trim() ?? "");
+              row.remove();
+            }
+          }
+        };
+        prune();
+        // The source re-renders the list on every query.
+        new MutationObserver(prune).observe(list, { childList: true });
+        return [...seen];
+      }, absent);
+      changes.push({
+        field: "palette.commands",
+        reason:
+          "Mode absence: the standalone client has no History and no Account (section 2), so D's Navigation rows for them are removed; all other rows stay D's",
+        before: before.join("\n"),
+        after: `removed: ${removed.join(", ")}`,
       });
-      list.replaceChildren();
-      let group: string | undefined;
-      for (const item of rows) {
-        if (item.group !== group) {
-          const heading = document.createElement("li");
-          heading.className = "pg-h eyebrow";
-          heading.setAttribute("role", "presentation");
-          heading.textContent = item.group;
-          list.append(heading);
-          group = item.group;
-        }
-        list.append(item.row);
-      }
-    }, fixture.commands);
-    changes.push({
-      field: "palette.commands",
-      reason:
-        "Available actions differ by client mode and lifecycle; identical command data uses untouched source row/group recipes",
-      before: before.join("\n"),
-      after: fixture.commands
-        .map((item) => `${item.group}: ${item.label}`)
-        .join("\n"),
-    });
+    }
   }
   if (fixture.inputText && fixture.inputScrollTop !== undefined) {
     const input = page.locator(".v-D .cmdbar textarea");

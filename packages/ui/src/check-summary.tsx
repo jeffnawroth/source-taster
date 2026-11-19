@@ -145,7 +145,7 @@ export function MoreActions({
 function CounterName({ verdict }: { verdict: Verdict }) {
   return <span className="sr-only">{`${m[verdictLabels[verdict]]()}: `}</span>;
 }
-function counts(check: Check) {
+export function counts(check: Check) {
   const verdicts = (Object.keys(verdictLabels) as Verdict[]).map((verdict) => {
     const matching = check.references.filter(
       (r) => effectiveVerdict(r) === verdict,

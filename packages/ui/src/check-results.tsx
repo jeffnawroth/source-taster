@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { effectiveVerdict } from "./effective-verdict.ts";
-import { verdictLabels, statusLabels, StatusIcon } from "./outcome-badges.tsx";
+import {
+  verdictLabels,
+  statusLabels,
+  StatusIcon,
+  VerdictGlyph,
+} from "./outcome-badges.tsx";
 import { Button } from "./primitives/actions.tsx";
 import {
   AlertDialog,
@@ -8,7 +13,14 @@ import {
   GlassSurface,
   Modal,
 } from "./primitives/overlays.tsx";
-import { useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import type { PaletteCommand } from "./checking-top-bar.tsx";
 import { useNarrow, useStickySize } from "./sticky-layout.ts";
 import type {
   Check,
@@ -33,6 +45,7 @@ import {
   FileText,
   List,
   ListPlus,
+  Filter,
   PencilLine,
   RotateCcw,
   Square,
@@ -53,6 +66,7 @@ import { ReferenceListActions } from "./reference-list-actions.tsx";
 import { GridList, GridListItem } from "./primitives/grid-list.tsx";
 import {
   CheckSummary,
+  counts,
   matchesFilter,
   StopButton,
   SummaryLede,
@@ -224,6 +238,7 @@ export function CheckResults({
   sourceLabel,
   notices,
   footer,
+  onCommands,
 }: {
   quota: OwnerQuota | null;
   upgradeUrl?: string;
@@ -244,6 +259,8 @@ export function CheckResults({
   sourceLabel: string;
   notices?: ReactNode;
   footer?: ReactNode;
+  /** Receives the launcher's Actions, Filters and References of this view. */
+  onCommands?: (commands: PaletteCommand[]) => void;
 }) {
   const firstFormat =
     check.references[0]?.revisions[0]?.reference.imported?.format;
@@ -347,6 +364,96 @@ export function CheckResults({
       disabledReason: busy ? m.shell_edit_list_reason() : undefined,
     },
   ];
+  // #194 D cmdItems: the strip's Actions (Stop and Reset come from the
+  // workspace), one filter per Verdict and present technical status, then
+  // every Reference.
+  const tally = counts(check);
+  const commands: PaletteCommand[] = [
+    ...actions
+      // D's palette leaves the bibliography to the ⋯ Menu.
+      .filter(
+        (action) =>
+          action.id !== "stop" &&
+          action.id !== "reset" &&
+          action.id !== "bibliography",
+      )
+      .map((action) => ({
+        id: action.id,
+        group: "actions" as const,
+        label: action.label,
+        icon: action.icon,
+        onAction: action.onAction,
+        disabledReason: action.disabledReason,
+      })),
+    ...tally.verdicts.map(({ verdict, count }) => ({
+      id: `filter:${verdict}`,
+      group: "filters" as const,
+      label: m.shell_filter_command({
+        label: m[verdictLabels[verdict]](),
+        count: String(count),
+      }),
+      icon: <VerdictGlyph verdict={verdict} />,
+      onAction: () => setFilter(verdict),
+    })),
+    ...tally.statuses.map(({ status, count }) => ({
+      id: `filter:status:${status}`,
+      group: "filters" as const,
+      label: m.shell_filter_command({
+        label: m[statusLabels[status]](),
+        count: String(count),
+      }),
+      icon: <Filter aria-hidden="true" size={16} />,
+      onAction: () => setFilter(`status:${status}` as const),
+    })),
+    ...(filter
+      ? [
+          {
+            id: "filter:clear",
+            group: "filters" as const,
+            label: m.shell_clear_filter(),
+            icon: <X aria-hidden="true" size={16} />,
+            onAction: () => setFilter(null),
+          },
+        ]
+      : []),
+    ...check.references.map((reference) => ({
+      id: `reference:${reference.slot}`,
+      group: "references" as const,
+      label: m.shell_reference_command({
+        slot: String(reference.slot),
+        title: titleOf(reference),
+      }),
+      icon: <FileText aria-hidden="true" size={16} />,
+      onAction: () => {
+        if (!matchesFilter(reference, filter)) setFilter(null);
+        open(reference.slot);
+      },
+    })),
+  ];
+  // Handlers change every render; publish only when a row changes and run
+  // the latest handler through the ref.
+  const latest = useRef(commands);
+  useLayoutEffect(() => {
+    latest.current = commands;
+  });
+  const signature = JSON.stringify(
+    commands.map((command) => [
+      command.id,
+      command.label,
+      command.disabledReason ?? "",
+    ]),
+  );
+  useEffect(() => {
+    if (!onCommands) return;
+    onCommands(
+      latest.current.map((command) => ({
+        ...command,
+        onAction: () =>
+          latest.current.find((row) => row.id === command.id)?.onAction?.(),
+      })),
+    );
+  }, [signature, onCommands]);
+  useEffect(() => () => onCommands?.([]), [onCommands]);
   const SourceIcon =
     source === "file" ? FileText : source === "selection" ? PanelRight : List;
   return (

@@ -1932,6 +1932,9 @@ body {
 .detail-compare th[scope="row"] {
   font-weight: 700;
   color: var(--st-text-secondary);
+  /* Long German field names break at a syllable (D .cnt .l). */
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 .compare-deviating {
   text-decoration: underline wavy var(--st-verdict-deviations-mark);

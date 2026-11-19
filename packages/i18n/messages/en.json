@@ -666,7 +666,7 @@
   "theme_switch_dark": "Switch to dark appearance",
   "shell_navigation": "Navigation",
   "shell_actions": "Actions",
-  "shell_filters": "Filters",
+  "shell_filters": "Filter",
   "shell_command_placeholder": "Command, filter or reference …",
   "shell_filter_command": "{label} ({count})",
   "shell_reference_command": "{slot} · {title}",

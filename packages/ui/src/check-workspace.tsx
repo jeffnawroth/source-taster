@@ -38,6 +38,7 @@ import { GuestTokenError } from "@source-taster/contract-service/client";
 import { setLocale } from "@source-taster/i18n/runtime";
 import * as Aria from "react-aria-components";
 import {
+  ArrowUpLeft,
   Check as CheckIcon,
   Info,
   Lock,
@@ -45,8 +46,17 @@ import {
   Plus,
   Upload,
 } from "lucide-react";
-import { FileText, CircleHelp, List, Search, X } from "./workspace-icons.tsx";
-import { FeedDisclaimer } from "./how-it-works.tsx";
+import {
+  FileText,
+  CircleHelp,
+  List,
+  RotateCcw,
+  Search,
+  Settings,
+  Square,
+  X,
+} from "./workspace-icons.tsx";
+import { FeedDisclaimer, HowItWorksDialog } from "./how-it-works.tsx";
 import {
   Banner,
   Button,
@@ -66,7 +76,7 @@ import {
   TextFieldRoot,
 } from "./primitives/fields.tsx";
 import { ThemeToggle } from "./theme-toggle.tsx";
-import { CheckingTopBar } from "./checking-top-bar.tsx";
+import { CheckingTopBar, type PaletteCommand } from "./checking-top-bar.tsx";
 import { CountedPreview } from "./counted-preview.tsx";
 import { recognizedCount } from "./recognized-count.ts";
 import {
@@ -200,6 +210,9 @@ export function CheckWorkspace({
   );
   const documentFileInput = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
+  // The launcher rows CheckResults publishes for the current Check.
+  const [resultCommands, setResultCommands] = useState<PaletteCommand[]>([]);
+  const [howOpen, setHowOpen] = useState(false);
   const [documentNotice, setDocumentNotice] = useState(false);
   const [localPreferences, updatePreferences] = useState(initial.preferences);
   const preferences = controlledPreferences?.preferences ?? localPreferences;
@@ -1013,6 +1026,7 @@ export function CheckWorkspace({
     : selectionBlocked
       ? m.shell_selection_blocked()
       : m.shell_empty_input();
+  const checkDisabledReason = canCheck ? undefined : checkReason;
   const notices = (
     <>
       {styleReset && <Banner>{m.citation_style_reset()}</Banner>}
@@ -1327,6 +1341,87 @@ export function CheckWorkspace({
     if (fileInput.current) fileInput.current.value = "";
     if (documentFileInput.current) documentFileInput.current.value = "";
   }
+  // #194 D cmdItems, Actions group: the intake offers Check (with its reason
+  // when it cannot run), a Check offers Stop, New check and the strip's
+  // actions. Preferences closes the group (product addition, section 2).
+  const preferencesCommand: PaletteCommand = {
+    id: "preferences",
+    group: "actions",
+    label: m.shell_preferences(),
+    icon: <Settings aria-hidden="true" size={16} />,
+  };
+  const paletteCommands: PaletteCommand[] = check
+    ? [
+        ...(running
+          ? [
+              {
+                id: "stop",
+                group: "actions" as const,
+                label: m.check_cancel(),
+                icon: <Square aria-hidden="true" size={16} />,
+              },
+            ]
+          : []),
+        {
+          id: "reset",
+          group: "actions",
+          label: m.shell_new_check(),
+          icon: <RotateCcw aria-hidden="true" size={16} />,
+        },
+        ...resultCommands.filter((command) => command.group === "actions"),
+        preferencesCommand,
+        ...resultCommands.filter((command) => command.group !== "actions"),
+      ]
+    : [
+        {
+          id: "check",
+          group: "actions",
+          label: m.shell_check_short(),
+          icon: <CheckIcon aria-hidden="true" size={16} />,
+          disabledReason: checkDisabledReason,
+        },
+        // Structuring is offered only while it can run: its unavailability
+        // is the Check's reason, which the row above already states.
+        ...((!!text.trim() || !!library) && !selectionBlocked && !busy
+          ? [
+              {
+                id: "structure",
+                group: "actions" as const,
+                label: m.structuring_action(),
+                icon: <ArrowUpLeft aria-hidden="true" size={16} />,
+              },
+            ]
+          : []),
+        ...(!countedPreview && preview && !previewOpen
+          ? [
+              {
+                id: "structuring-preview",
+                group: "actions" as const,
+                label: m.shell_structuring_preview(),
+                icon: <ArrowUpLeft aria-hidden="true" size={16} />,
+              },
+            ]
+          : []),
+        // D's empty intake has nothing to reset; once text, a file or a
+        // pending request exists, New check stays reachable (SU-SH-05).
+        ...(busy || !!text.trim() || !!library || !!file
+          ? [
+              {
+                id: "reset",
+                group: "actions" as const,
+                label: m.shell_new_check(),
+                icon: <RotateCcw aria-hidden="true" size={16} />,
+              },
+            ]
+          : []),
+        {
+          id: "help",
+          group: "actions",
+          label: m.workspace_help(),
+          icon: <CircleHelp aria-hidden="true" size={16} />,
+        },
+        preferencesCommand,
+      ];
   return (
     <main
       className="check-workspace"
@@ -1356,43 +1451,19 @@ export function CheckWorkspace({
           </>
         }
         onInput={() => inputRef.current?.focus()}
-        onReset={reset}
         onPreferences={() => setPreferencesOpen(true)}
-        commands={[
-          // Structuring is offered only while it can run: its unavailability
-          // is the Check's reason, which the intake already states once.
-          ...(!check &&
-          (!!text.trim() || !!library) &&
-          !selectionBlocked &&
-          !busy
-            ? [
-                {
-                  id: "structure",
-                  label: m.structuring_action(),
-                  onAction: () => {
-                    structureRequested.current = true;
-                    void start("structure");
-                  },
-                },
-              ]
-            : []),
-          ...(!check && !countedPreview && preview && !previewOpen
-            ? [
-                {
-                  id: "structuring-preview",
-                  label: m.shell_structuring_preview(),
-                  onAction: () => setPreviewOpen(true),
-                },
-              ]
-            : []),
-        ]}
-        onStop={
-          running
-            ? () => {
-                void cancel();
-              }
-            : undefined
-        }
+        commands={paletteCommands}
+        onCommand={(id) => {
+          if (id === "preferences") setPreferencesOpen(true);
+          else if (id === "stop") void cancel();
+          else if (id === "reset") reset();
+          else if (id === "check" && canCheck) void start("create");
+          else if (id === "structure") {
+            structureRequested.current = true;
+            void start("structure");
+          } else if (id === "structuring-preview") setPreviewOpen(true);
+          else if (id === "help") setHowOpen(true);
+        }}
         history={
           accountHistory
             ? (close) => (
@@ -1418,6 +1489,9 @@ export function CheckWorkspace({
         }
       />
       {accountNotice}
+      {!check && (
+        <HowItWorksDialog isOpen={howOpen} onOpenChange={setHowOpen} />
+      )}
       <Modal isOpen={preferencesOpen} onOpenChange={setPreferencesOpen}>
         <Dialog className="workspace-dialog">
           {({ close }) => (
@@ -1842,6 +1916,7 @@ export function CheckWorkspace({
             </p>
             <CheckResults
               key={check.id}
+              onCommands={setResultCommands}
               check={check}
               completed={completed}
               running={!!running}

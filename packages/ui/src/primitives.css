@@ -597,6 +597,10 @@
   line-height: 1.5;
   box-shadow: none;
 }
+/* #194 D .pq input sets no placeholder colour: the browser default shows. */
+.command-palette-search .st-input::placeholder {
+  color: revert;
+}
 .command-palette-search .st-search[data-empty] [slot="clear"] {
   display: none;
 }
@@ -638,8 +642,9 @@
 }
 .command-palette-list .st-option {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 10px;
+  align-items: center;
   min-height: 42px;
   padding: 4px 10px;
   border-radius: var(--st-radius-md);
@@ -649,6 +654,20 @@
 .command-palette-list .st-option > svg {
   width: 18px;
   height: 18px;
+}
+.command-palette-list .st-option > [slot="label"] {
+  overflow-wrap: anywhere;
+}
+/* #194 D .po small: the reason a row cannot run, muted beside its label. */
+.command-palette-list .st-option > small {
+  color: var(--st-text-muted);
+  font-weight: 400;
+  font-size: var(--st-text-xs);
+}
+.command-palette-list .st-option[data-disabled] {
+  color: inherit;
+  background: transparent;
+  opacity: 0.55;
 }
 .command-palette-list .st-option:is([data-focused], [data-hovered]) {
   background: var(--st-accent-tint);

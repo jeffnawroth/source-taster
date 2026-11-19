@@ -8,7 +8,9 @@ import {
   type Ref,
 } from "react";
 import * as Aria from "react-aria-components";
-import { CircleAlert, Search, X, ChevronDown, Check } from "lucide-react";
+import { CircleAlert, X, ChevronDown, Check } from "lucide-react";
+// #194 D i-search: the one search glyph of every search field.
+import { Search } from "../workspace-icons.tsx";
 import { cx, styles } from "./utils.ts";
 import { IconButton } from "./actions.tsx";
 import { Popover } from "./overlays.tsx";
@@ -230,7 +232,7 @@ export function SearchField({
         {props.isRequired && ` (${requiredLabel ?? "required"})`}
       </Label>
       <div className="st-search-control">
-        <Search aria-hidden="true" size={20} strokeWidth={1.75} />
+        <Search aria-hidden="true" size={20} />
         <Input placeholder={placeholder} />
         <IconButton slot="clear" label={clearLabel} size="sm">
           <X aria-hidden="true" size={16} strokeWidth={1.75} />
