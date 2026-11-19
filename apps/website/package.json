@@ -23,7 +23,7 @@
     "@playwright/test": "1.64.1",
     "@source-taster/i18n": "workspace:*",
     "@source-taster/ui": "workspace:*",
-    "astro": "7.4.2",
+    "astro": "7.4.7",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "tailwindcss": "4.3.4"
