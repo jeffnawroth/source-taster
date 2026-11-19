@@ -172,6 +172,21 @@ Result of the last full `fidelity --only app-` run: 28 sheets (intake, counted, 
 | "Unknown / not supplied" in the field table is drawn with Atkinson Hyperlegible Next Italic. D draws a slanted upright face. | detail | Font loading: D's Google Fonts request asks for no italic face (`wght@400;500;700;800`), so the browser synthesises the slant. The product ships the real italic face of the same family; colour and style follow D `.unk`. |
 | At 360 px the built Export dialog's "Export content" select cuts off its option text ("Original references (current saved fie…"). | export 360 | Platform control: the closed native select shows one line. The full text is in the open list and in the explanation below it. The control is an existing export choice D does not model (row above). |
 
+### 13a. Extension side panel (native harness)
+
+`apps/extension`: `node scripts/design-fidelity.ts` builds the extension, opens the real side panel against the `dev:local` API and pairs 25 stages × light/dark × en/de (100 sheets) with D's 360 px panel. Result of the last full run: 52 of 100 sheets pass, with no driver errors. Intake, filled, palette, palette query, input focus, command hover/focus, theme hover/focus, export, report, reset and edit list pass in all four variants. The other sheets differ only as below; nothing is masked.
+
+| Difference | Sheets | Reason |
+|---|---|---|
+| Below the first viewport, the feed foot differs: D shows its storage, Verdict and Quota lines; the panel shows the development-preview notice, "verdict" and "data sources" lower-case and the quiet link row. Counted feed 8–10 %, running 8–16 %, done and menu 1.0–5.9 %, filter 7.4–14.3 %, labels in the lowest slices. The done-end and detail-end sheets are that slice (done-end 13–15.6 %, detail-end 9.0–9.3 %), and the last card sits 12–13 px higher because the built foot is shorter. | counted, running, done, done-end, detail-end, menu, menu-hover, filter, labels | Mode absence and settled voice: the footer rows of section 13 (storage line, Quota, link row, lower-case glossary terms). |
+| In the labels sheets (en) the settled lower-case sentence wraps onto its own row, so the strip-head icons sit sub-pixel lower and anti-alias greyer (1.48 %). | labels en | Settled voice (section 13, rule 5). |
+| The running Stop item reads "Prüfung abbrechen" (running dark de, 1.01 %). | running de | Settled voice (section 13, "Cancel check"). |
+| The running card names the current Data source ("Checking with Crossref" / "Europe PMC"); it can advance between the harness's projection of D and the capture. | running | Fixture timing (section 13). The harness checks four References plus the held DOI, so four settle well before the product's 30 s Reference deadline, like D's four done References. |
+| Detail slices 10–14 and an extra built slice ("missing prototype slice"); detail edit slices 2–23; detail manual likewise. | detail, detail-edit, detail-manual | The product-only lower detail sections and the extra editable rows and author parts (section 13 detail rows). |
+| "Unbekannt / nicht angegeben" and "Unknown / not supplied" (detail de slices 5–7, detail dark en slice 6, about 1.0 %). | detail | Font loading: real italic versus D's synthesised slant (section 13). |
+
+Two harness rules keep the sheets comparable. The pointer is parked at (1, 1) before each capture, because a click leaves it over a FeedCard and D's `.card:hover` lifts that card; hover stages set their own pointer. An open modal (the command palette is an `Aria.Modal`) blocks page scrolling, as D's palette makes its feed inert, so the page behind it is no scroll root (`scroll-coverage.ts`, shared with the web harness).
+
 
 ## 14. Feature inventory mapping
 
