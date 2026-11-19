@@ -28,7 +28,10 @@ import {
   projectLegal,
   readShellFixture,
 } from "../../web/scripts/design-fidelity/normalization.ts";
-import { interactions } from "../../web/scripts/design-fidelity/interactions.ts";
+import {
+  interactions,
+  recordFiltered,
+} from "../../web/scripts/design-fidelity/interactions.ts";
 import {
   alignNativeShell,
   references,
@@ -178,6 +181,24 @@ async function builtAfter(panel: Panel, stage: string) {
     await focus(panel, ".theme-toggle");
   }
   if (stage === "theme-hover") await hover(panel, ".theme-toggle");
+  if (stage === "filter") {
+    // Same step as the web driver: the first enabled counter, then D filters
+    // by the Verdict it recorded.
+    const counter = await panel.locate(
+      "document.querySelector('.summary-section button.summary-counter[data-verdict]:not([disabled])')",
+    );
+    recordFiltered(
+      await panel.call<string>(
+        counter,
+        "function () { return this.dataset.verdict; }",
+      ),
+    );
+    await panel.clickNode(counter);
+  }
+  if (stage === "labels") {
+    await panel.click("button", more);
+    await panel.click("menuitem", /^(Show all labels|Alle Labels zeigen)$/u);
+  }
   if (
     ["menu", "export", "report", "reset", "edit-list", "menu-hover"].includes(
       stage,
@@ -612,6 +633,16 @@ if (args.includes("--list")) {
             );
           }
           await sourceAfter(page, state.stage);
+          // D renders a state change on a later frame. Project the shell only
+          // after it, or that render restores what the projection removed.
+          await page.evaluate(
+            () =>
+              new Promise((done) =>
+                requestAnimationFrame(() =>
+                  requestAnimationFrame(() => setTimeout(done, 100)),
+                ),
+              ),
+          );
           normalizations.push(...(await alignNativeShell(page, fixture)));
           const legal = await projectLegal(page, fixture.legal);
           if (legal) normalizations.push(legal);

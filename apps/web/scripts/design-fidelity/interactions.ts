@@ -16,6 +16,10 @@ const sourceVerdict: Record<string, string> = {
 };
 // The built side runs first; the source then filters by the same Verdict.
 let filtered: string | undefined;
+/** A driver without a Playwright page (the native panel) records it here. */
+export function recordFiltered(verdict: string | undefined) {
+  filtered = verdict;
+}
 export const interactions: {
   id: string;
   builtStage: "done" | "detail";
