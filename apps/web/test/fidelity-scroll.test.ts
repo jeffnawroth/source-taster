@@ -27,6 +27,12 @@ await test("scroll coverage leaves no middle gap and reaches the exact end at na
   }
   assert.deepEqual(scrollOffsets(400, 806), []);
   assert.throws(() => scrollOffsets(100, 0), /Invalid scroll geometry/);
+  // Roots of different heights share offsets once both use one step.
+  assert.deepEqual(
+    scrollOffsets(1600, 585, 195).slice(0, 3),
+    scrollOffsets(1544, 529, 195).slice(0, 3),
+  );
+  assert.deepEqual(scrollOffsets(1600, 585, 195).slice(0, 3), [0, 195, 390]);
 });
 
 await test("the capture driver visits every planned offset and restores its actual scroll position", async () => {

@@ -5,7 +5,11 @@ import { join } from "node:path";
 import { pixelDiff } from "./measurements.ts";
 
 /** Overlapping native-size views cover the middle as well as both endpoints. */
-export function scrollOffsets(scrollHeight: number, clientHeight: number) {
+export function scrollOffsets(
+  scrollHeight: number,
+  clientHeight: number,
+  sharedStep?: number,
+) {
   if (
     !Number.isFinite(scrollHeight) ||
     !Number.isFinite(clientHeight) ||
@@ -14,7 +18,12 @@ export function scrollOffsets(scrollHeight: number, clientHeight: number) {
     throw new Error("Invalid scroll geometry");
   const end = Math.max(0, scrollHeight - clientHeight);
   if (end <= 1) return [];
-  const step = Math.max(1, Math.min(384, Math.floor(clientHeight / 2)));
+  // A driver whose two sides scroll roots of different heights passes one
+  // shared step, so slice N sits at the same offset on both sides.
+  const step = Math.max(
+    1,
+    Math.min(384, Math.floor(clientHeight / 2), sharedStep ?? Infinity),
+  );
   const offsets = [0];
   for (let offset = step; offset < end; offset += step) offsets.push(offset);
   offsets.push(end);
@@ -115,6 +124,7 @@ export async function captureScrollCoverage(
   out: string,
   id: string,
   prototype: boolean,
+  sharedStep?: number,
 ): Promise<ScrollCoverage> {
   const roots = await evaluate({ prototype, action: "read" });
   const slices: ScrollCoverage["slices"] = [];
@@ -124,7 +134,11 @@ export async function captureScrollCoverage(
   }));
   try {
     for (const root of roots) {
-      const offsets = scrollOffsets(root.scrollHeight, root.clientHeight);
+      const offsets = scrollOffsets(
+        root.scrollHeight,
+        root.clientHeight,
+        sharedStep,
+      );
       for (const [index, offset] of offsets.entries()) {
         await evaluate({ prototype, action: "restore", positions });
         const moved = await evaluate({

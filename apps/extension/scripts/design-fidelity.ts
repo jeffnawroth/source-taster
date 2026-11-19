@@ -558,6 +558,10 @@ if (args.includes("--list")) {
           false,
         );
         await panel.screenshot(join(out, `${state.id}.built.png`));
+        // The panel document scrolls the whole viewport while D's feed scrolls
+        // below its TopBar, so half of each root differs by half a TopBar. A
+        // third of the viewport fits inside both roots and keeps slices aligned.
+        const sliceStep = Math.floor(viewport.observed.height / 3);
         scrollCoverage.built = await captureScrollCoverage(
           (request) =>
             measurementPage(panel!).evaluate(scrollCoverageDom, request),
@@ -565,6 +569,7 @@ if (args.includes("--list")) {
           out,
           state.id,
           false,
+          sliceStep,
         );
         const page = await native.context.newPage();
         try {
@@ -699,6 +704,7 @@ if (args.includes("--list")) {
             out,
             state.id,
             true,
+            sliceStep,
           );
         } finally {
           await page.close();
