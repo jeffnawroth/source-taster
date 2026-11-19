@@ -24,12 +24,19 @@
   },
   "greyscale": {
     "visibleMin": 250,
-    "sameShapeBelow": 0.8,
+    "sameShapeBelow": 0.85,
     "fractions": [0.25, 0.5, 0.75],
     "observedMacOS": {
       "strongestCellOf765": [333, 642],
-      "highestOverlapLoosest": 0.75,
-      "highestOverlapHalfMaximum": 0.68
+      "highestOverlapLoosest": 0.8,
+      "highestOverlapHalfMaximum": 0.76
+    },
+    "recalibrated": {
+      "reason": "Verdict glyphs moved to the original #194 D silhouettes (design fidelity, #236)",
+      "previousSameShapeBelow": 0.8,
+      "previousObservedMacOS": { "highestOverlapLoosest": 0.75, "highestOverlapHalfMaximum": 0.68 },
+      "margin": 0.05,
+      "thresholdsChanged": true
     },
     "observedLinux": "not recorded; passes the same thresholds"
   },

@@ -41,14 +41,16 @@ const aspelmeyer =
 // Greyscale thresholds, set from measurements on this build (macOS, Chromium):
 // the strongest cell of each glyph differs from its backdrop by 333 to 642 of
 // 765 (summed over three channels), so 250 leaves about a quarter of margin
-// under the weakest; the most alike pair of silhouettes reaches an
-// intersection-over-union of 0.75 at the loosest silhouette threshold tried
-// (0.68 at the half-maximum), so 0.80 leaves 0.05 over the worst case, where
-// two identical glyphs score 1. A change of rendering engine can move these;
-// the manifest in docs/implementation/216-regression-evidence.json records the
-// observed values.
+// under the weakest. With #194 D's original silhouettes the most alike pair
+// reaches an intersection-over-union of 0.80 at the loosest silhouette
+// threshold tried (correct/mixed-citation and mixed-citation/doi-conflict,
+// light) and 0.76 at the half-maximum (correct/doi-conflict), so 0.85 leaves
+// 0.05 over the worst case, where two identical glyphs score 1. (The earlier
+// project-owned glyphs measured 0.75 and 0.68 against 0.80.) A change of
+// rendering engine can move these; the manifest in
+// docs/implementation/216-regression-evidence.json records the observed values.
 const greyscaleVisible = 250;
-const greyscaleSameShape = 0.8;
+const greyscaleSameShape = 0.85;
 // Enough rows that a short viewport scrolls content under the sticky glass.
 const references = [
   aspelmeyer,
@@ -196,15 +198,8 @@ for (const language of ["en", "de"] as const)
     }) => {
       test.setTimeout(120_000);
       const header = await openStuckDetail(page, language, theme);
-      const positionText = await paintedContrast(
-        header.locator(".detail-position"),
-        "text",
-      );
-      expect(positionText.count, "position text is painted").toBeGreaterThan(5);
-      expect(
-        positionText.min,
-        "position text on the detail header",
-      ).toBeGreaterThanOrEqual(ratioFloor.text);
+      // The header holds only Close/Back; the Pager and its position were
+      // removed (reconciliations.md).
       const closeLabel = await paintedContrast(
         header.locator(".check-back"),
         "text",
@@ -229,7 +224,7 @@ test("negative control: the detail header measurement rejects faint text and a f
 }) => {
   test.setTimeout(120_000);
   const header = await openStuckDetail(page, "en", "light");
-  const label = header.locator(".detail-position");
+  const label = header.locator(".check-back");
   const glyph = header.locator(".check-back svg");
   expect(
     (await paintedContrast(label, "text")).min,

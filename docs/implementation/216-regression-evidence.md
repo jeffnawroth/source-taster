@@ -99,9 +99,12 @@ backdrop differences (summed over three channels, at most 765).
   least 250. Measured on macOS: 333 to 642.
 - Distinct: silhouettes are the cells at 0.25, 0.5 and 0.75 of the glyph's
   strongest cell, so the result does not hang on one threshold. At each, the
-  most alike pair has an intersection-over-union below 0.80. Measured on
-  macOS: highest 0.75 at the loosest threshold tried, 0.68 at the
-  half-maximum; two identical glyphs score 1.
+  most alike pair has an intersection-over-union below 0.85. Measured on
+  macOS with #194 D's original silhouettes: highest 0.80 at the loosest
+  threshold tried, 0.76 at the half-maximum; two identical glyphs score 1.
+  The threshold was 0.80 for the earlier project-owned glyphs (0.75 and
+  0.68); it was recalibrated with the same 0.05 margin when the glyphs moved
+  to D (design fidelity, #236).
 
 Visible labels stay neutral text; the label assertion is the accessible-name
 and text check in the same test.

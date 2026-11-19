@@ -47,9 +47,8 @@ test("copies a Correction suggestion and applies it only to the formatted export
     );
   await suggestion.getByText("Apply for export only", { exact: true }).click();
   await expect(suggestion.getByRole("checkbox")).toBeChecked();
-  await page
-    .getByRole("button", { name: "Next reference", exact: true })
-    .click();
+  // The detail has no Pager (reconciliations.md); the feed opens the next one.
+  await openReference(page, 2);
   await suggestion.getByText("Apply for export only", { exact: true }).click();
   // The formatted bibliography is a Dialog from the ⋯ Menu (#194 D).
   await moreAction(page, "Formatted bibliography");

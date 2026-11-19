@@ -78,10 +78,20 @@ export async function structuringOffered(page: Page) {
 }
 
 const moreName = /^(More actions|Weitere Aktionen)$/u;
+/**
+ * The ⋯ trigger of the Check summary strip. The counted stage before it has
+ * its own ⋯ Menu; a Menu opened there closes when the strip replaces the
+ * stage, so check-level actions wait for the strip.
+ */
+function moreTrigger(page: Page) {
+  return page
+    .getByRole("region", { name: /^(Check summary|Prüfungsübersicht)$/u })
+    .getByRole("button", { name: moreName });
+}
 
 /** Runs a check-level action from the ⋯ Menu by its accessible name. */
 export async function moreAction(page: Page, name: string | RegExp) {
-  await page.getByRole("button", { name: moreName }).click();
+  await moreTrigger(page).click();
   await page
     .getByRole("menuitem", {
       name,
@@ -98,7 +108,7 @@ const editListName = /^(Edit reference list|Referenzliste bearbeiten)$/u;
  */
 export async function editReferenceList(page: Page) {
   await expect(async () => {
-    await page.getByRole("button", { name: moreName }).click();
+    await moreTrigger(page).click();
     const item = page.getByRole("menuitem", { name: editListName });
     if (await item.isDisabled()) {
       await page.keyboard.press("Escape");

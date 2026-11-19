@@ -27,7 +27,7 @@ test("summary filters current Verdicts separately from technical Statuses", asyn
     summary.getByRole("button", { name: "Correct: 1", exact: true }),
   ).toBeVisible();
   await expect(
-    summary.getByRole("button", { name: "Not checked: 1", exact: true }),
+    summary.getByRole("button", { name: "1 Not checked", exact: true }),
   ).toBeVisible();
   await expect(summary).toContainText("Check complete");
   await expect(summary).toContainText("1 of 2 references check out.");
@@ -359,6 +359,14 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
+    // The counted stage carries its own footer until the summary strip
+    // replaces it; the feed's footer is the one that stays.
+    await expect(
+      page.getByRole("region", {
+        name: language === "en" ? "Check summary" : "Prüfungsübersicht",
+        exact: true,
+      }),
+    ).toBeVisible();
     const help = page.getByRole("button", {
       name:
         language === "en"
