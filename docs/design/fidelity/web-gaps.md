@@ -203,7 +203,7 @@ The harness amends D before it compares. Each run lists every amendment in `resu
 
 ### 13a. Extension side panel (native harness)
 
-`apps/extension`: `node scripts/design-fidelity.ts` builds the extension, opens the real side panel against the `dev:local` API and pairs 25 stages × light/dark × en/de (100 sheets) with D's 360 px panel. Result of the last full run: 52 of 100 sheets pass, with no driver errors. Intake, filled, palette, palette query, input focus, command hover/focus, theme hover/focus, export, report, reset and edit list pass in all four variants. The other sheets differ only as below; nothing is masked.
+`apps/extension`: `node scripts/design-fidelity.ts` builds the extension, opens the real side panel against the `dev:local` API and pairs 25 stages × light/dark × en/de (100 sheets) with D's 360 px panel. Result of the last full run (palette stages rerun after the D palette change): 48 of 100 sheets pass, with no driver errors. Intake, filled, palette query, input focus, command hover/focus, theme hover/focus, export, report, reset and edit list pass in all four variants. As on the web, the palette projection only removes D's History and Account rows (mode absence); every other row is D's own. The other sheets differ only as below; nothing is masked.
 
 | Difference | Sheets | Reason |
 |---|---|---|
@@ -212,6 +212,7 @@ The harness amends D before it compares. Each run lists every amendment in `resu
 | The running Stop item reads "Prüfung abbrechen" (running dark de, 1.01 %). | running de | Settled voice (section 13, "Cancel check"). |
 | The running card names the current Data source ("Checking with Crossref" / "Europe PMC"); it can advance between the harness's projection of D and the capture. | running | Fixture timing (section 13). The harness checks four References plus the held DOI, so four settle well before the product's 30 s Reference deadline, like D's four done References. |
 | Detail slices 10–14 and an extra built slice ("missing prototype slice"); detail edit slices 2–23; detail manual likewise. | detail, detail-edit, detail-manual | The product-only lower detail sections and the extra editable rows and author parts (section 13 detail rows). |
+| The intake palette shows "Enter references" for D's "Check", the added Preferences row below How the check works, and D's hint reads "Paste References first." against the settled "Paste references first." (6.6–10.6 %). | palette | Product rules of the palette (section 13 palette rows) and settled voice (rule 5). |
 | "Unbekannt / nicht angegeben" and "Unknown / not supplied" (detail de slices 5–7, detail dark en slice 6, about 1.0 %). | detail | Font loading: real italic versus D's synthesised slant (section 13). |
 
 Two harness rules keep the sheets comparable. The pointer is parked at (1, 1) before each capture, because a click leaves it over a FeedCard and D's `.card:hover` lifts that card; hover stages set their own pointer. An open modal (the command palette is an `Aria.Modal`) blocks page scrolling, as D's palette makes its feed inert, so the page behind it is no scroll root (`scroll-coverage.ts`, shared with the web harness).

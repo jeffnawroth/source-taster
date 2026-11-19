@@ -109,44 +109,29 @@ export async function alignNativeShell(page: Page, fixture: ShellFixture) {
       empty.textContent = fixture.commandEmpty;
     }
     if (fixture.commands.length) {
+      // Mode absence only, as in the web harness: a standalone client has no
+      // History and no Account, so D's two Navigation rows for them go. Every
+      // other row is D's own and measured against the built palette.
+      const glyphs = (["history", "account"] as const)
+        .filter((id) => !fixture.commands.some((item) => item.id === id))
+        .map((id) => `#${{ history: "i-history", account: "i-user" }[id]}`);
       const list = document.querySelector(".v-D .palette .pl");
-      const template = list?.querySelector(".po");
-      if (!list || !template) throw new Error("Source command row missing");
-      record("palette.commands", list.textContent, fixture.commands);
-      const icons: Record<string, string> = {
-        input: "i-search",
-        history: "i-history",
-        account: "i-user",
-        reset: "i-plus",
-        preferences: "i-gear",
-        stop: "i-stop",
-      };
-      list.replaceChildren();
-      let group: string | undefined;
-      fixture.commands.forEach((item, index) => {
-        if (item.group !== group) {
-          const heading = document.createElement("li");
-          heading.className = "pg-h eyebrow";
-          heading.setAttribute("role", "presentation");
-          heading.textContent = item.group;
-          list.append(heading);
-          group = item.group;
-        }
-        const row = template.cloneNode(true) as HTMLElement;
-        row.id = `native-fixture-command-${index}`;
-        row.dataset.i = String(index);
-        row.setAttribute("aria-selected", String(index === 0));
-        row.setAttribute("aria-disabled", String(item.disabled));
-        const icon = icons[item.id];
-        if (!icon)
-          throw new Error(`No accepted-source glyph for command ${item.id}`);
-        row.querySelector("svg")?.remove();
-        row.insertAdjacentHTML("afterbegin", source.ico(icon));
-        const label = row.querySelector("span");
-        if (label) label.textContent = item.label;
-        row.querySelector("small")?.remove();
-        list.append(row);
-      });
+      if (glyphs.length && list) {
+        const before = list.textContent;
+        const prune = () => {
+          for (const row of list.querySelectorAll(".po"))
+            if (
+              glyphs.includes(
+                row.querySelector("use")?.getAttribute("href") ?? "",
+              )
+            )
+              row.remove();
+        };
+        prune();
+        // The source re-renders the list on every query.
+        new MutationObserver(prune).observe(list, { childList: true });
+        record("palette.commands", before, list.textContent);
+      }
     }
     return changes;
   }, fixture);
