@@ -338,16 +338,18 @@ export function createApp(
     }
   }
   /**
-   * Answers one JSON envelope, with the body built and written under a single
-   * durable Owner guard.
+   * Answers one JSON envelope, with the body built and handed off under a
+   * single durable Owner guard.
    *
    * The guard's authority decision and Owner lock come first. `build` and the
    * serialization run inside it, and only then are status and headers committed.
    * A decision that cannot be made, a lock timeout or a failing `build` therefore
    * surface as their own problem response, never as a success status with a
    * truncated or empty body. Once the body is ready the guard stays held until
-   * the transport write has drained (or the client went away), so revocation
-   * still waits for in-flight output.
+   * the response stream has accepted it (or the client went away). It is not
+   * held for the socket: a reader that stalls must not hold the Owner lock and
+   * starve the Owner's other requests (#175,
+   * docs/implementation/96-guest-authority.md).
    *
    * `build` runs under the Owner lock: it must not take the guard again, call
    * `aiEligibility` or make service calls. Do those before `deliver`.
@@ -368,7 +370,7 @@ export function createApp(
       refuse = reject;
     });
     let release!: () => void;
-    const written = new Promise<void>((resolve) => {
+    const accepted = new Promise<void>((resolve) => {
       release = resolve;
     });
     let handedOff = false;
@@ -376,7 +378,7 @@ export function createApp(
       const body = JSON.stringify({ data: await build(), quota });
       handedOff = true;
       ready(body);
-      await written;
+      await accepted;
     };
     guarded(principal, permission, () =>
       checkId ? checks.publish(principal, checkId, apiVersion, hold) : hold(),
