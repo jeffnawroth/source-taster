@@ -70,12 +70,12 @@ test("readers can cite the exact legal draft and switch its immutable language c
         .locator("article > p:not(.summary):not(.legal-state)")
         .allTextContents();
       const version = page.getByRole("link", {
-        name: "draft-2026-10-26.1",
+        name: "draft-2026-11-20.1",
         exact: true,
       });
       await expect(version).toHaveAttribute(
         "href",
-        `/${language}/${id}/versions/draft-2026-10-26.1/`,
+        `/${language}/${id}/versions/draft-2026-11-20.1/`,
       );
       await version.click();
       await expect(
@@ -93,7 +93,7 @@ test("readers can cite the exact legal draft and switch its immutable language c
         })
         .click();
       await expect(page).toHaveURL(
-        new RegExp(`/${other}/${id}/versions/draft-2026-10-26.1/$`),
+        new RegExp(`/${other}/${id}/versions/draft-2026-11-20.1/$`),
       );
       await expect(page.locator("html")).toHaveAttribute("lang", other);
     }

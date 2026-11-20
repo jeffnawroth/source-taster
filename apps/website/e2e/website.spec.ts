@@ -165,7 +165,7 @@ test("every information page has a translated counterpart and versioned legal dr
           (await link.getAttribute("href")) ?? "",
         );
         expect(response.status()).toBe(200);
-        expect(await response.text()).toContain("draft-2026-10-26.1");
+        expect(await response.text()).toContain("draft-2026-11-20.1");
       }
       const other = language === "en" ? "de" : "en";
       await expect(
