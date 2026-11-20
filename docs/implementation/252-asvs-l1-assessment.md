@@ -249,7 +249,7 @@ ADR-0015 names evidence that the assessment must show. Where the row text is too
 - **Applicability and rationale:** Applicable to the Account session only. The public program and the Website set no cookies.
 - **Surfaces:** SVC (Account), API, Website
 - **Method:** code review (private repository read-only)
-- **Evidence:** `git grep` for `set-cookie`/`setCookie`/`document.cookie` over `apps/*/src` and `packages/*/src` finds nothing; `apps/server/test/website.test.ts` asserts that the Website sets no cookie. Account's session and sign-in binding cookies are `__Host-st-session` and `__Host-st-signin`, `Secure`, `HttpOnly`, `SameSite=Strict` (`jeffnawroth/source-taster-service` `apps/server/src/account-auth.ts`, `cookieOptions`). Account refuses a non-HTTPS public origin at start-up. Hosted `Set-Cookie` evidence from the real hostname is collected under #116.
+- **Evidence:** `git grep` for `set-cookie`/`setCookie`/`document.cookie` over `apps/*/src` and `packages/*/src` finds nothing; `apps/server/test/website.test.ts` asserts that the Website sets no cookie. Account's session and sign-in binding cookies use the `__Host-` prefix and are `Secure`, `HttpOnly` and `SameSite=Strict` (`jeffnawroth/source-taster-service` `apps/server/src/account-auth.ts`). Account refuses a non-HTTPS public origin at start-up. Hosted `Set-Cookie` evidence from the real hostname is collected under #116.
 - **Result:** Pass
 - **Findings:** None
 
@@ -273,7 +273,7 @@ ADR-0015 names evidence that the assessment must show. Where the row text is too
 - **Applicability and rationale:** Applicable.
 - **Surfaces:** API, SVC
 - **Method:** code review (private repository read-only)
-- **Evidence:** The public API emits `Access-Control-Allow-Origin` only on `/v2/history/consent`, and only when the request `Origin` equals the configured `historyConsentOrigin`; any other origin gets a `forbidden` problem (`apps/server/src/http/app.ts`, with `Vary: Origin`). Everything else sends no CORS headers. The private service matches `Origin` against exact-string allowlists (`extensionOrigins`, `authority.allowedOrigins`, `jeffnawroth/source-taster-service` `apps/server/src/account-auth.ts`). No wildcard or reflected origin.
+- **Evidence:** The public API emits `Access-Control-Allow-Origin` only on `/v2/history/consent`, and only when the request `Origin` equals the configured `historyConsentOrigin`; any other origin gets a `forbidden` problem (`apps/server/src/http/app.ts`, with `Vary: Origin`). Everything else sends no CORS headers. The private service matches `Origin` against exact-string allowlists (`jeffnawroth/source-taster-service` `apps/server/src/account-auth.ts`). No wildcard or reflected origin.
 - **Result:** Pass
 - **Findings:** None
 
@@ -285,7 +285,7 @@ ADR-0015 names evidence that the assessment must show. Where the row text is too
 - **Applicability and rationale:** Applicable to the cookie-authenticated Account endpoints; the public API has no ambient credential.
 - **Surfaces:** API, SVC
 - **Method:** code review (private repository read-only)
-- **Evidence:** The public API authenticates only with an `Authorization: Bearer` credential; cookies never authenticate it (comment and code in `apps/server/src/http/app.ts` around the consent route). A forged cross-site request therefore carries no credential. Account's cookie endpoints reject requests whose `Origin` is not on the exact allowlist (`origin-required` profile; the `firefox-originless-get` profile exists for session reads only and is configuration-gated), `jeffnawroth/source-taster-service` `apps/server/src/account-auth.ts`.
+- **Evidence:** The public API authenticates only with an `Authorization: Bearer` credential; cookies never authenticate it (comment and code in `apps/server/src/http/app.ts` around the consent route). A forged cross-site request therefore carries no credential. Account's cookie endpoints reject requests whose `Origin` is not on the exact allowlist (a narrow, configuration-gated exception exists for Firefox session reads only), `jeffnawroth/source-taster-service` `apps/server/src/account-auth.ts`.
 - **Result:** Pass
 - **Findings:** None
 
@@ -573,7 +573,7 @@ ADR-0015 names evidence that the assessment must show. Where the row text is too
 - **Applicability and rationale:** Applicable. Account sessions and Extension credentials are reference tokens.
 - **Surfaces:** SVC
 - **Method:** code review (private repository read-only)
-- **Evidence:** `randomBytes(32)` (256 bits) from the Node CSPRNG; only a keyed SHA-256 verifier is stored (`secretHash("session", credential)`, `jeffnawroth/source-taster-service` `apps/server/src/account-auth.ts`).
+- **Evidence:** `randomBytes(32)` (256 bits) from the Node CSPRNG; only a keyed SHA-256 verifier is stored (`jeffnawroth/source-taster-service` `apps/server/src/account-auth.ts`).
 - **Result:** Pass
 - **Findings:** None
 
@@ -909,7 +909,7 @@ ADR-0015 names evidence that the assessment must show. Where the row text is too
 - **Applicability and rationale:** Applicable.
 - **Surfaces:** API
 - **Method:** code review
-- **Evidence:** Responses are built from contract schemas that list the returned fields (`packages/contract-verification`), parsed with `.parse(...)` before sending (for example `FreshProofChallengeResponse.parse` in the private service); the consent route returns a content-free summary; problem responses carry codes only, and internal errors log only `{ code: "internal" }`.
+- **Evidence:** Responses are built from contract schemas that list the returned fields (`packages/contract-verification`), parsed with `.parse(...)` before sending (also in the private service); the consent route returns a content-free summary; problem responses carry codes only, and internal errors log only `{ code: "internal" }`.
 - **Result:** Pass
 - **Findings:** None
 
