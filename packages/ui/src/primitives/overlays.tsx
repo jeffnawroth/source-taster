@@ -2,9 +2,11 @@
 // Adapted from Adobe's RAC Tailwind starter; see ../../NOTICE.md.
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useRef,
+  useState,
   type ComponentPropsWithRef,
   type ReactNode,
 } from "react";
@@ -42,6 +44,13 @@ export function Popover(props: Aria.PopoverProps) {
     />
   );
 }
+/**
+ * How long a closing modal may stay mounted. The exit transition lasts
+ * `--st-duration-fast` (160 ms); this is the safety margin after which it is
+ * removed regardless (see the cancelled-animation spec in test/primitives.spec.ts).
+ */
+const exitGraceMs = 600;
+
 export function Modal({
   children,
   sheet,
@@ -51,6 +60,18 @@ export function Modal({
   sheet?: "left" | "right";
   material?: "surface" | "dialog" | "command-palette";
 }) {
+  // react-aria unmounts a closing modal only after every animation it collected
+  // at the start of the exit has *finished*. If one is cancelled instead (WebKit
+  // can replace the running entry transition when `data-exiting` retargets it),
+  // the modal stays mounted, invisible but modal, in `data-exiting` for good.
+  // A closing modal therefore gets a bounded exit: past `exitGraceMs` it is
+  // removed, which also restores focus to its trigger.
+  const triggerState = useContext(Aria.OverlayTriggerStateContext);
+  const open = props.isOpen ?? triggerState?.isOpen;
+  const [abandoned, setAbandoned] = useState(false);
+  const abandon = useCallback(() => setAbandoned(true), []);
+  if (abandoned && open) setAbandoned(false);
+  if (abandoned) return null;
   return (
     <Aria.ModalOverlay
       {...props}
@@ -66,6 +87,8 @@ export function Modal({
       {({ state }) => (
         <ModalFrame
           close={() => state.close()}
+          closing={!state.isOpen}
+          abandon={abandon}
           keyboardDismissDisabled={props.isKeyboardDismissDisabled}
           sheet={sheet}
           material={material}
@@ -78,18 +101,29 @@ export function Modal({
 }
 function ModalFrame({
   close,
+  closing,
+  abandon,
   keyboardDismissDisabled,
   sheet,
   material,
   children,
 }: {
   close: () => void;
+  /** The modal has been asked to close and is playing its exit. */
+  closing: boolean;
+  /** Removes the modal now; used when its exit never ends. */
+  abandon: () => void;
   keyboardDismissDisabled?: boolean;
   sheet?: "left" | "right";
   material: "surface" | "dialog" | "command-palette";
   children: Aria.ModalOverlayProps["children"];
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!closing) return;
+    const timer = setTimeout(abandon, exitGraceMs);
+    return () => clearTimeout(timer);
+  }, [closing, abandon]);
   useEffect(() => {
     // Tooltip's document-capture listener consumes Escape on focused icon controls.
     // Close this modal first in that case; leave nested menus/selects to RAC.
