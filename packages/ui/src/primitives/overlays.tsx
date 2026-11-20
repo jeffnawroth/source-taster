@@ -2,9 +2,11 @@
 // Adapted from Adobe's RAC Tailwind starter; see ../../NOTICE.md.
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useRef,
+  useState,
   type ComponentPropsWithRef,
   type ReactNode,
 } from "react";
@@ -13,6 +15,9 @@ import { X } from "lucide-react";
 import { Button, IconButton } from "./actions.tsx";
 import { cx, styles } from "./utils.ts";
 const ModalityContext = createContext(false);
+// Longest exit a modal may take (the exit transition lasts 160ms) before it is
+// treated as stuck.
+const MODAL_EXIT_LIMIT_MS = 1500;
 
 export function Tooltip(props: Aria.TooltipProps) {
   return (
@@ -51,8 +56,16 @@ export function Modal({
   sheet?: "left" | "right";
   material?: "surface" | "dialog" | "command-palette";
 }) {
+  // React Aria unmounts a closing modal only after every running animation on it
+  // has finished. A cancelled transition rejects that wait, and the rejection is
+  // swallowed, so the modal then stays mounted as `data-exiting` and keeps its
+  // scrim over the page (#227). Remounting the overlay while it is closed starts
+  // it from its closed state, which renders nothing.
+  const [exitEpoch, setExitEpoch] = useState(0);
+  const restartOverlay = useCallback(() => setExitEpoch((n) => n + 1), []);
   return (
     <Aria.ModalOverlay
+      key={exitEpoch}
       {...props}
       isDismissable={props.isDismissable ?? true}
       className={styles(
@@ -66,6 +79,7 @@ export function Modal({
       {({ state }) => (
         <ModalFrame
           close={() => state.close()}
+          onExitStuck={restartOverlay}
           keyboardDismissDisabled={props.isKeyboardDismissDisabled}
           sheet={sheet}
           material={material}
@@ -78,18 +92,43 @@ export function Modal({
 }
 function ModalFrame({
   close,
+  onExitStuck,
   keyboardDismissDisabled,
   sheet,
   material,
   children,
 }: {
   close: () => void;
+  onExitStuck: () => void;
   keyboardDismissDisabled?: boolean;
   sheet?: "left" | "right";
   material: "surface" | "dialog" | "command-palette";
   children: Aria.ModalOverlayProps["children"];
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const watch = () => {
+      if (element.hasAttribute("data-exiting")) {
+        timer ??= setTimeout(onExitStuck, MODAL_EXIT_LIMIT_MS);
+      } else {
+        clearTimeout(timer);
+        timer = undefined;
+      }
+    };
+    const observer = new MutationObserver(watch);
+    observer.observe(element, {
+      attributes: true,
+      attributeFilter: ["data-exiting"],
+    });
+    watch();
+    return () => {
+      observer.disconnect();
+      clearTimeout(timer);
+    };
+  }, [onExitStuck]);
   useEffect(() => {
     // Tooltip's document-capture listener consumes Escape on focused icon controls.
     // Close this modal first in that case; leave nested menus/selects to RAC.
