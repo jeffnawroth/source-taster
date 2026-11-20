@@ -166,8 +166,8 @@ export async function captureLanguage(
     };
 
     // The headless browser UI language does not reach the panel; a person
-    // chooses German in the panel's own Language control.
-    if (language === "de") await panel.select("combobox", "Language", "de");
+    // chooses German in the Preferences Dialog (ADR-0023).
+    if (language === "de") await panel.preferences({ language: "de" });
 
     // The product's own notice must be on the page; it is never hidden.
     await until(
