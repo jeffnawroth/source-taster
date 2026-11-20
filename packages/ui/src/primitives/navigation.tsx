@@ -28,6 +28,7 @@ export function MenuSection<T extends object>(props: Aria.MenuSectionProps<T>) {
     />
   );
 }
+export { Header as MenuHeading } from "react-aria-components";
 export function Disclosure(props: Aria.DisclosureProps) {
   return (
     <Aria.Disclosure

@@ -18,10 +18,15 @@ export function verdictMark(
   verdict: ReportVerdict,
   x: number,
   y: number,
+  size = 15,
 ) {
   doc.save();
   doc.markContent("Artifact", { type: "Layout" });
-  doc.translate(x, y).scale(0.6).lineCap("round").lineJoin("round");
+  doc
+    .translate(x, y)
+    .scale(size / 24)
+    .lineCap("round")
+    .lineJoin("round");
   const color = paper[roles[verdict]];
   const inner = paper["on-verdict-mark"];
   switch (verdict) {

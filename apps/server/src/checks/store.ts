@@ -782,6 +782,34 @@ export function createCheckStore(
     }
     return { enabled, paid };
   }
+  async function updateHistoryConsent(
+    tx: Tx,
+    principal: Principal,
+    enabled?: boolean,
+  ) {
+    if (enabled !== undefined) {
+      await tx.historyConsent.upsert({
+        where: { ownerId: principal.ownerId },
+        create: {
+          ownerId: principal.ownerId,
+          accountId: principal.actorId,
+          enabled,
+        },
+        update: { enabled },
+      });
+      if (!enabled) {
+        const entries = await tx.check.findMany({
+          where: {
+            ownerId: principal.ownerId,
+            historyStoredAt: { not: null },
+            deletedAt: null,
+          },
+          select: retentionMetadata,
+        });
+        for (const entry of entries) await purgeLocked(tx, entry);
+      }
+    }
+  }
   async function historySnapshot(
     tx: Tx,
     principal: Principal,
@@ -1080,6 +1108,16 @@ export function createCheckStore(
         await historyRules(tx, principal.ownerId);
       });
     },
+    async historyConsent(principal: Principal, enabled?: boolean) {
+      return transaction(async (tx) => {
+        await updateHistoryConsent(tx, principal, enabled);
+        const consent = await tx.historyConsent.findUnique({
+          where: { ownerId: principal.ownerId },
+          select: { enabled: true },
+        });
+        return { enabled: consent?.enabled ?? false };
+      });
+    },
     async history(
       principal: Principal,
       enabled?: boolean,
@@ -1087,28 +1125,7 @@ export function createCheckStore(
       metadataOnly = false,
     ) {
       return transaction(async (tx) => {
-        if (enabled !== undefined) {
-          await tx.historyConsent.upsert({
-            where: { ownerId: principal.ownerId },
-            create: {
-              ownerId: principal.ownerId,
-              accountId: principal.actorId,
-              enabled,
-            },
-            update: { enabled },
-          });
-          if (!enabled) {
-            const entries = await tx.check.findMany({
-              where: {
-                ownerId: principal.ownerId,
-                historyStoredAt: { not: null },
-                deletedAt: null,
-              },
-              select: retentionMetadata,
-            });
-            for (const entry of entries) await purgeLocked(tx, entry);
-          }
-        }
+        await updateHistoryConsent(tx, principal, enabled);
         if (deleteId) {
           const entry = await lock(rawTransactions.get(tx) ?? tx, deleteId);
           if (

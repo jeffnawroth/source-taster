@@ -19,7 +19,7 @@ const captures = (["en", "de"] as const).flatMap((language) =>
     verdictsRead: ["x"],
   })),
 );
-const gateOk = { ok: true, reason: "b588c9c is an ancestor of HEAD" };
+const gateOk = { ok: true, reason: "0a1c6ac is an ancestor of HEAD" };
 const build = (status: "dry-run" | "final", gate = gateOk) =>
   buildManifest({
     status,
@@ -50,7 +50,7 @@ await test("a manifest lists exactly the image set with its claims, alt text and
 });
 
 await test("final status needs an open gate and each tampering is reported", () => {
-  const closed = build("final", { ok: false, reason: "b588c9c missing" });
+  const closed = build("final", { ok: false, reason: "0a1c6ac missing" });
   assert.match(manifestProblems(closed).join("\n"), /final.*gate/u);
   const manifest = build("dry-run");
   manifest.images[0]!.claims = ["invented-claim"];

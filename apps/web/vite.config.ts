@@ -4,12 +4,14 @@ import { openWebsite } from "@source-taster/website/hosting";
 import { fileURLToPath } from "node:url";
 import { fontNotices } from "../../packages/ui/font-assets.ts";
 import { brandHead, websitePaths } from "./brand-head.ts";
+import { designPreview } from "./design-preview.ts";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [
     fontNotices(),
     brandHead(),
+    designPreview(),
     react(),
     tailwindcss(),
     {

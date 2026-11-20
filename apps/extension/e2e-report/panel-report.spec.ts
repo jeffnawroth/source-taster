@@ -27,12 +27,14 @@ test.afterAll(async () => {
 const copy = {
   en: {
     locale: "en-GB",
+    menu: "PDF report",
     create: "Create report",
     download: "Download report",
     heading: "Verification report",
   },
   de: {
     locale: "de-DE",
+    menu: "PDF-Bericht",
     create: "Bericht erstellen",
     download: "Bericht herunterladen",
     heading: "Prüfbericht",
@@ -60,7 +62,7 @@ for (const language of ["en", "de"] as const)
         if (event.state === "completed") completed.add(event.guid);
       });
       const panel = await browser.openPanel();
-      await panel.select("combobox", /^(Language|Sprache)$/, language);
+      await panel.preferences({ language: language });
       await checkInPanel(panel, language, {
         name: "report",
         text: "Aspelmeyer, M. (2008). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170",
@@ -68,6 +70,8 @@ for (const language of ["en", "de"] as const)
         verdict: "exists",
         scores: [],
       });
+      // The PDF report is a Dialog from the ⋯ Menu (#194 D).
+      await panel.moreAction(t.menu);
       await panel.click("button", t.create);
       await panel.find("button", t.download, 30_000);
       await panel.click("button", t.download);

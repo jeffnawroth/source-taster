@@ -18,6 +18,7 @@ import {
   expectWitness,
   labels,
   witnesses,
+  choosePreferencesOnWeb,
 } from "./support/workspace.ts";
 
 let build: Awaited<ReturnType<typeof buildExtension>>;
@@ -65,6 +66,77 @@ test("the toolbar action opens the real native side panel with the shared Check 
 });
 
 for (const language of ["en", "de"] as const)
+  test(`native panel persists appearance and follows System in ${language}`, async () => {
+    await native(language === "en" ? "en-GB" : "de-DE", async (browser) => {
+      const panel = await browser.openPanel();
+      // The browser locale does not choose the panel language; Preferences does.
+      await panel.preferences({ language });
+      await panel.send("Emulation.setEmulatedMedia", {
+        features: [{ name: "prefers-color-scheme", value: "light" }],
+      });
+      const dark =
+        language === "en"
+          ? "Switch to dark appearance"
+          : "Zur dunklen Darstellung wechseln";
+      const light =
+        language === "en"
+          ? "Switch to light appearance"
+          : "Zur hellen Darstellung wechseln";
+      const appearance = language === "en" ? "Appearance" : "Darstellung";
+      const input = labels[language].input;
+      await panel.find("button", dark);
+      await panel.fill("textbox", input, "Unfinished reference");
+      const box = await panel.call<{ width: number; height: number }>(
+        await panel.find("button", dark),
+        "function () { const r = this.getBoundingClientRect(); return { width: r.width, height: r.height }; }",
+      );
+      expect(box.width).toBeCloseTo(36, 1);
+      expect(box.height).toBeCloseTo(36, 1);
+      await panel.click("button", dark);
+      await panel.find("button", light);
+      expect(
+        await panel.call(
+          await panel.find("textbox", input),
+          "function () { return this.value; }",
+        ),
+      ).toBe("Unfinished reference");
+      await expect
+        .poll(
+          async () =>
+            (await browser.storage())["source-taster-guest-preferences-v1"],
+        )
+        .toEqual({ language, citationStyle: "apa", theme: "dark" });
+      await panel.reload();
+      await panel.find("button", light);
+      expect(
+        await panel.evaluate("document.documentElement.dataset.theme"),
+      ).toBe("dark");
+      await panel.openPreferences();
+      await panel.select("combobox", appearance, "system");
+      await panel.closePreferences();
+      await panel.find("button", dark);
+      await panel.send("Emulation.setEmulatedMedia", {
+        features: [{ name: "prefers-color-scheme", value: "dark" }],
+      });
+      await panel.find("button", light);
+      expect(
+        await panel.evaluate(
+          "document.documentElement.hasAttribute('data-theme')",
+        ),
+      ).toBe(false);
+      await panel.reload();
+      await panel.find("button", light);
+      await expect
+        .poll(
+          async () =>
+            (await browser.storage())["source-taster-guest-preferences-v1"],
+        )
+        .toEqual({ language, citationStyle: "apa", theme: "system" });
+      expect(await panel.axe()).toEqual([]);
+    });
+  });
+
+for (const language of ["en", "de"] as const)
   test(`native panel and web keep identical server outcomes for the synthetic witnesses in ${language}`, async ({
     page,
   }) => {
@@ -72,12 +144,10 @@ for (const language of ["en", "de"] as const)
     // Same narrow width as the panel, so both render the same detail layout.
     await page.setViewportSize({ width: 360, height: 585 });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferencesOnWeb(page, { language });
     await native(language === "en" ? "en-GB" : "de-DE", async (browser) => {
       const panel = await browser.openPanel();
-      await panel.select("combobox", /^(Language|Sprache)$/, language);
+      await panel.preferences({ language: language });
       await panel.find("button", labels[language].check);
       for (const witness of witnesses) {
         const extension = await checkInPanel(panel, language, witness);
@@ -94,8 +164,8 @@ test("closing, reopening and reloading the native panel keeps only validated Pre
   test.setTimeout(120_000);
   await native("en-GB", async (browser) => {
     let panel = await browser.openPanel();
-    await panel.select("combobox", "Language", "de");
-    await panel.select("combobox", "Bevorzugter Zitierstil", "mla");
+    await panel.preferences({ language: "de" });
+    await panel.preferences({ citationStyle: "mla" });
     const witness = witnesses.at(-2)!;
     expectWitness(await checkInPanel(panel, "de", witness), "de", witness);
     expect(await panel.axe()).toEqual([]);
@@ -125,12 +195,15 @@ test("closing, reopening and reloading the native panel keeps only validated Pre
       ),
     ).toBe("");
     expect(await panel.query("region", "Referenzdetails")).toEqual([]);
+    // The citation style lives in the Preferences Dialog (ADR-0023).
+    await panel.openPreferences();
     expect(
       await panel.call(
         await panel.find("combobox", "Bevorzugter Zitierstil"),
         "function () { return this.value; }",
       ),
     ).toBe("mla");
+    await panel.closePreferences();
 
     // The toolbar action toggles the open panel closed.
     panel.detach();
@@ -146,7 +219,8 @@ test("closing, reopening and reloading the native panel keeps only validated Pre
     panel = await browser.openPanel();
     await panel.find("button", "Referenz prüfen");
     expect(await panel.query("region", "Referenzdetails")).toEqual([]);
-    await panel.select("combobox", "Sprache", "en");
+    // The language lives in the Preferences Dialog (ADR-0023).
+    await panel.preferences({ language: "en" });
     await panel.find("button", "Check reference");
     const english = witnesses[0]!;
     expectWitness(await checkInPanel(panel, "en", english), "en", english);
@@ -181,7 +255,7 @@ test("native panel renders a Correction suggestion and keeps export choices loca
         "function () { return this.checked; }",
       ),
     ).toBe(true);
-    await panel.select("combobox", "Preferred citation style", "ieee");
+    await panel.preferences({ citationStyle: "ieee" });
     await until(async () => {
       const [suggestion] = await panel.query("region", "Correction suggestion");
       if (!suggestion) return false;
@@ -197,12 +271,12 @@ test("native panel renders a Correction suggestion and keeps export choices loca
         )
       ).includes("M. Aspelmeyer");
     }, "The panel did not re-render the IEEE suggestion");
-    expect(
-      await panel.call<string>(
-        await panel.find("textbox", "Reference"),
-        "function () { return this.value; }",
-      ),
-    ).toBe(original);
+    // Results replace the intake (#194 D): the feed row still reads the
+    // submitted Reference, so the export-only choice changed nothing else.
+    await panel.click("button", "Back to references");
+    expect(await panel.text("grid", "References")).toContain(
+      "Aspelmeyer · 2008",
+    );
     expect(Object.keys(await browser.storage())).toEqual([
       "source-taster-guest-preferences-v1",
     ]);
@@ -237,9 +311,14 @@ test("native panel downloads both citation formats with export-only corrections"
       });
       await panel.find("checkbox", "Apply for export only");
       await panel.clickChoice("checkbox", "Apply for export only");
+      // Export is a Dialog from the ⋯ Menu (#194 D); its format is a radio.
+      await panel.openExport();
       await panel.select("combobox", "Export content", "selected-corrections");
       for (const [index, format] of ["csl-json", "bibtex"].entries()) {
-        await panel.select("combobox", "Export format", format);
+        await panel.clickChoice(
+          "radio",
+          format === "csl-json" ? "CSL-JSON" : "BibTeX",
+        );
         await until(
           async () =>
             !(await panel.call<boolean>(
@@ -268,6 +347,7 @@ test("native panel downloads both citation formats with export-only corrections"
       }
       expect(Object.keys(await browser.storage())).toEqual([]);
       expect(await panel.axe()).toEqual([]);
+      await panel.closeExport();
     });
   } finally {
     await rm(downloads, { recursive: true, force: true });
@@ -293,7 +373,7 @@ for (const language of ["en", "de"] as const)
           if (event.state === "completed") completed.add(event.guid);
         });
         const panel = await browser.openPanel();
-        await panel.select("combobox", /^(Language|Sprache)$/u, language);
+        await panel.preferences({ language: language });
         for (const format of ["bibtex", "ris"] as const) {
           const text =
             format === "bibtex"
@@ -355,10 +435,10 @@ for (const language of ["en", "de"] as const)
               ? "Apply for export only"
               : "Nur für den Export übernehmen",
           );
-          await panel.select(
-            "combobox",
-            language === "en" ? "Export format" : "Exportformat",
-            "imported-format",
+          await panel.openExport();
+          await panel.clickChoice(
+            "radio",
+            /^(Original .* format|Ursprüngliches .*-Format) /u,
           );
           for (const mode of ["original", "selected-corrections"] as const) {
             await panel.select(
@@ -414,10 +494,8 @@ for (const language of ["en", "de"] as const)
             "Measured measurement",
           );
           expect(await panel.axe()).toEqual([]);
-          await panel.click(
-            "button",
-            language === "en" ? "Reset" : "Zurücksetzen",
-          );
+          await panel.closeExport();
+          await panel.newCheck();
         }
       });
     } finally {

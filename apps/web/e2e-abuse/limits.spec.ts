@@ -5,6 +5,10 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
+import {
+  choosePreferences,
+  structureReferences,
+} from "../e2e/support/workspace.ts";
 import { abuseService } from "../../server/test/support/abuse-service.ts";
 import { buildExtension } from "../../extension/e2e/support/build.ts";
 import { launchChromium, until } from "../../extension/e2e/support/chromium.ts";
@@ -57,19 +61,9 @@ for (const language of ["en", "de"] as const) {
       authorization: `Bearer ${service.token("web")}`,
     });
     await page.goto(webUrl);
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page.getByRole("textbox").fill("Doe, J. (2020). A study.");
-    await page
-      .getByRole("button", {
-        name:
-          language === "en"
-            ? "Structure references"
-            : "Referenzen strukturieren",
-        exact: true,
-      })
-      .click();
+    await structureReferences(page);
     const alert = page.getByRole("alert");
     await expect(alert).toContainText(
       language === "en" ? "too many requests" : "zu viele Anfragen",
@@ -100,12 +94,9 @@ for (const language of ["en", "de"] as const) {
       await panel.send("Network.setExtraHTTPHeaders", {
         headers: { authorization: `Bearer ${service.token("panel")}` },
       });
-      await panel.select("combobox", /^(Language|Sprache)$/, language);
+      await panel.preferences({ language: language });
       await panel.fill("textbox", undefined, "Doe, J. (2020). A study.");
-      await panel.click(
-        "button",
-        language === "en" ? "Structure references" : "Referenzen strukturieren",
-      );
+      await panel.structure();
       await panel.waitForText(
         "alert",
         undefined,

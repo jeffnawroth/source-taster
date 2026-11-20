@@ -6,6 +6,7 @@ import { spawn, type ChildProcess } from "node:child_process";
 import { once } from "node:events";
 import { CheckResponse } from "@source-taster/contract-verification/v2";
 import { expect, test } from "@playwright/test";
+import { newCheck } from "../e2e/support/workspace.ts";
 import AxeBuilder from "@axe-core/playwright";
 import {
   startAccountApi,
@@ -177,7 +178,7 @@ for (const locale of ["en", "de"] as const) {
     await trigger.click();
     await page
       .getByRole("button", {
-        name: en ? "Enable history" : "Verlauf aktivieren",
+        name: en ? "Turn on history" : "Verlauf aktivieren",
         exact: true,
       })
       .click();
@@ -358,13 +359,11 @@ for (const locale of ["en", "de"] as const)
     );
     expect(beforeSearch).toContain(
       en
-        ? "1 references will use 1 of your 20 remaining checks"
+        ? "1 references use 1 of your 20 remaining checks"
         : "1 Referenzen verbrauchen 1 Ihrer 20 verbleibenden Prüfungen",
     );
     await page.unroute("**/v2/checks");
-    await page
-      .getByRole("button", { name: en ? "Reset" : "Zurücksetzen", exact: true })
-      .click();
+    await newCheck(page);
     await input.fill(
       Array(20)
         .fill(reference)
@@ -382,7 +381,7 @@ for (const locale of ["en", "de"] as const)
     );
     await choice
       .getByRole("button", {
-        name: en ? "Check first 20" : "Die ersten 20 prüfen",
+        name: en ? "Check the first 20" : "Die ersten 20 prüfen",
         exact: true,
       })
       .click();

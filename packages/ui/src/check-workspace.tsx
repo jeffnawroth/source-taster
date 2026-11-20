@@ -1,10 +1,12 @@
 import { MaintenanceNotice } from "./maintenance.tsx";
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { HistoryPanel } from "./history.tsx";
+import { HistoryPanel, historyDate } from "./history.tsx";
 import { ContinuationTime } from "./abuse-message.tsx";
 import type { AiStructuringResult as StructuringResult } from "@source-taster/contract-verification/ai";
 import type { ReactNode } from "react";
 import {
+  useCallback,
+  useDeferredValue,
   useEffect,
   useEffectEvent,
   useId,
@@ -34,10 +36,37 @@ import { BibliographyEditor, validRegions } from "./bibliography-selection.tsx";
 import { m } from "@source-taster/i18n";
 import { GuestTokenError } from "@source-taster/contract-service/client";
 import { setLocale } from "@source-taster/i18n/runtime";
+import * as Aria from "react-aria-components";
 import {
+  ArrowUpLeft,
+  Check as CheckIcon,
+  Info,
+  Lock,
+  PanelRight,
+  Plus,
+  Upload,
+} from "lucide-react";
+import {
+  FileText,
+  CircleHelp,
+  List,
+  RotateCcw,
+  Search,
+  Settings,
+  Square,
+  X,
+} from "./workspace-icons.tsx";
+import { FeedDisclaimer, HowItWorksDialog } from "./how-it-works.tsx";
+import {
+  Banner,
   Button,
+  Dialog,
+  DialogHeading,
   DropZone,
   FileTrigger,
+  IconButton,
+  Kbd,
+  Modal,
   type Availability,
 } from "./primitives/index.ts";
 import {
@@ -46,22 +75,33 @@ import {
   TextArea,
   TextFieldRoot,
 } from "./primitives/fields.tsx";
-import { CheckingTopBar } from "./checking-top-bar.tsx";
+import { ThemeToggle } from "./theme-toggle.tsx";
+import { CheckingTopBar, type PaletteCommand } from "./checking-top-bar.tsx";
+import { CountedPreview } from "./counted-preview.tsx";
+import { recognizedCount } from "./recognized-count.ts";
 import {
   citationStyles,
   isCitationStyle,
   isInterfaceLanguage,
+  isTheme,
+  applyTheme,
   saveGuestPreferences,
   type CitationStyle,
   type Preferences,
   type PreferenceStorage,
 } from "./preferences.ts";
 import { GuestIdentityError } from "./guest-identity.ts";
-import { InformationLinks } from "./information.tsx";
-import { StructuringResults } from "./structuring-results.tsx";
-import { CheckResults } from "./check-results.tsx";
-import { QuotaChoice, QuotaMeter, QuotaPending } from "./quota-panel.tsx";
+import { InformationLinks, informationLinks } from "./information.tsx";
+import {
+  StructuringResults,
+  structuringSummary,
+} from "./structuring-results.tsx";
+import { CheckResults, type IntakeSource } from "./check-results.tsx";
+import { QuotaChoice, QuotaBalance, QuotaPending } from "./quota-panel.tsx";
 import { ownerQuota, planStart, type OwnerQuota } from "./quota.ts";
+const apple =
+  typeof navigator !== "undefined" &&
+  /Mac|iPhone|iPad/u.test(navigator.platform);
 function availability(disabled: boolean, reason: string): Availability {
   return disabled
     ? { isDisabled: true, disabledReason: reason }
@@ -113,12 +153,16 @@ export function CheckWorkspace({
   accountLabel,
   accountNotice,
   onPreferencesChange,
+  onSignIn,
   controlledPreferences,
   selectionIntake,
   upgradeUrl,
   accountHistory = false,
   deferQuotaRead = false,
+  brandMark,
 }: {
+  /** The host's brand mark URL for the top bar; the hosts ship it already. */
+  brandMark?: string;
   accountHistory?: boolean;
   initial: { preferences: Preferences; citationStyleReset: boolean };
   preferenceStorage: PreferenceStorage;
@@ -126,12 +170,15 @@ export function CheckWorkspace({
   siteUrl?: string;
   accountLabel?: string;
   accountNotice?: ReactNode;
+  /** The Account host owns the real sign-in modal; shared intake invokes the same action. */
+  onSignIn?: () => void;
   accountControls?: (
     language: "de" | "en",
     quota: OwnerQuota | null,
+    storage: ReactNode,
   ) => ReactNode;
   onPreferencesChange?: (
-    patch: Partial<Pick<Preferences, "language" | "citationStyle">>,
+    patch: Partial<Pick<Preferences, "language" | "citationStyle" | "theme">>,
   ) => void;
   controlledPreferences?: {
     preferences: Preferences;
@@ -163,6 +210,9 @@ export function CheckWorkspace({
   );
   const documentFileInput = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
+  // The launcher rows CheckResults publishes for the current Check.
+  const [resultCommands, setResultCommands] = useState<PaletteCommand[]>([]);
+  const [howOpen, setHowOpen] = useState(false);
   const [documentNotice, setDocumentNotice] = useState(false);
   const [localPreferences, updatePreferences] = useState(initial.preferences);
   const preferences = controlledPreferences?.preferences ?? localPreferences;
@@ -170,10 +220,14 @@ export function CheckWorkspace({
   const styleReset =
     controlledPreferences?.citationStyleReset ?? localStyleReset;
   const locale = preferences.language;
+  useEffect(() => applyTheme(preferences.theme), [preferences.theme]);
   const [text, setText] = useState("");
   const [inputKind, setInputKind] = useState<"text" | "selection">("text");
   const [filesOpen, setFilesOpen] = useState(false);
-  const languageInput = useRef<HTMLSelectElement>(null);
+  const [preferencesOpen, setPreferencesOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  // Only an explicit structuring or library import opens the preview dialog.
+  const structureRequested = useRef(false);
   const fileId = useId();
   const fileInput = useRef<HTMLInputElement>(null);
   const [library, setLibrary] = useState<LibraryInput | null>(null);
@@ -182,6 +236,9 @@ export function CheckWorkspace({
   const [selectionNotice, setSelectionNotice] = useState<
     "empty" | "shortened" | null
   >(null);
+  // Results replace the intake (#194 D): a selection that arrives while a
+  // Check is open waits here and becomes the draft of the next check.
+  const [selectionWaiting, setSelectionWaiting] = useState<string | null>(null);
   const [selectionUndo, setSelectionUndo] = useState<{
     text: string;
     inputKind: "text" | "selection";
@@ -201,6 +258,12 @@ export function CheckWorkspace({
         return;
       }
       setSelectionNotice(selection.possiblyShortened ? "shortened" : null);
+      // A selection is a new draft, not a new Check. While a Check is open it
+      // keeps the Check, its event stream and lease, and its original input.
+      if (check) {
+        setSelectionWaiting(selection.text);
+        return;
+      }
       setSelectionUndo({
         text,
         inputKind,
@@ -213,8 +276,7 @@ export function CheckWorkspace({
         selectionLimit,
         fileError,
       });
-      // A selection is a new draft, not a new Check. Keep the existing Check,
-      // its event stream and lease alive. Ignore only obsolete draft preparation.
+      // Ignore only obsolete draft preparation.
       if (pending === "structure" || pending === "document") {
         generation.current++;
         controller.current?.abort();
@@ -250,18 +312,29 @@ export function CheckWorkspace({
   const controller = useRef<AbortController | null>(null);
   const generation = useRef(0);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const intakeHeading = useRef<HTMLHeadingElement>(null);
   const [pending, setPending] = useState<
     "create" | "structure" | "document" | null
   >(null);
   const [preview, setPreview] = useState<
     StructuringResult | ImportResult | null
   >(null);
+  // A Structuring that opens no preview is still announced (D checks directly).
+  // The result, not its text: the note follows a language switch.
+  const [structuredNote, setStructuredNote] = useState<typeof preview>(null);
   const [requestError, setRequestError] = useState<unknown>(null);
   const [cancelling, setCancelling] = useState(false);
   const [cancelRequested, setCancelRequested] = useState(false);
   const [cleanupPending, setCleanupPending] = useState(false);
   // Hosted clients carry credentials; only they have an Owner Quota to show.
   const hostedQuota = transport.credentials !== undefined;
+  // Standalone structures with the same deterministic parser, so the intake
+  // can count locally. Hosted may structure with AI and shows no count (#229).
+  const deferredText = useDeferredValue(text);
+  const recognized = useMemo(
+    () => (hostedQuota ? null : recognizedCount(deferredText)),
+    [hostedQuota, deferredText],
+  );
   const [quota, setQuota] = useState<OwnerQuota | null>(null);
   const [quotaState, setQuotaState] = useState<
     "loading" | "ready" | "unavailable"
@@ -278,6 +351,10 @@ export function CheckWorkspace({
     after: number;
     skipped: number;
   } | null>(null);
+  const countedPreview =
+    !check &&
+    !!preview?.references.length &&
+    (pending === "create" || quotaChoice !== null);
   /** Reads the acting identity's balance; throws when the read fails. */
   async function readQuota() {
     try {
@@ -388,7 +465,15 @@ export function CheckWorkspace({
       setCleanupPending(true);
     }
   }
+  // A requested Structuring opens its preview dialog; any other preview stays closed.
+  function showPreview(result: typeof preview) {
+    setPreview(result);
+    setStructuredNote(result && !structureRequested.current ? result : null);
+    setPreviewOpen(!!result && structureRequested.current);
+    structureRequested.current = false;
+  }
   async function loadLibrary(file: File) {
+    structureRequested.current = true;
     setSelectionUndo(null);
     const token = ++generation.current;
     controller.current?.abort();
@@ -426,7 +511,7 @@ export function CheckWorkspace({
       const result = await api.importLibrary(input);
       if (generation.current !== token) return;
       setLibrary(input);
-      setPreview(result);
+      showPreview(result);
     } catch (error) {
       if (generation.current !== token) return;
       if (error instanceof TypeError) setFileError("problem_library_encoding");
@@ -436,12 +521,14 @@ export function CheckWorkspace({
     }
   }
   async function start(operation: "create" | "structure") {
+    if (operation === "create") structureRequested.current = false;
     setSelectionUndo(null);
     const token = ++generation.current;
     controller.current?.abort();
     const structuringController = new AbortController();
     controller.current = structuringController;
     setCheck(null);
+    setStructuredNote(null);
     if (!library) setPreview(null);
     setStreamError(null);
     setRequestError(null);
@@ -457,7 +544,7 @@ export function CheckWorkspace({
       if (library) {
         if (operation === "structure") {
           const result = await api.importLibrary(library);
-          if (generation.current === token) setPreview(result);
+          if (generation.current === token) showPreview(result);
           return;
         }
       } else {
@@ -474,7 +561,7 @@ export function CheckWorkspace({
         );
         if (generation.current !== token) return;
         setSourceDocument(result.document);
-        setPreview(result.structuring);
+        showPreview(result.structuring);
         setSelectionLimit(
           result.referenceLimitExceeded
             ? result.structuring.referenceLimit
@@ -666,7 +753,11 @@ export function CheckWorkspace({
           ? result.structuring.referenceLimit
           : null,
       );
-      setPreview(result.structuring);
+      // "Upload and structure" requests the Structuring: its preview opens
+      // when the detected selection yielded References. Without a detected
+      // Bibliography the selection editor stays in front.
+      structureRequested.current = result.structuring.references.length > 0;
+      showPreview(result.structuring);
       setDocumentNotice(result.document.notice === "partial-no-text");
     } catch (error) {
       if (generation.current === token && !next.signal.aborted)
@@ -812,8 +903,10 @@ export function CheckWorkspace({
       )
     )
       void cancelDetached(check.id);
-    setText("");
-    setInputKind("text");
+    setText(selectionWaiting ?? "");
+    setStructuredNote(null);
+    setInputKind(selectionWaiting ? "selection" : "text");
+    setSelectionWaiting(null);
     setSelectionUndo(null);
     setSelectionNotice(null);
     setFile(null);
@@ -841,6 +934,39 @@ export function CheckWorkspace({
   const running = check?.references.some(
     (r) => r.outcome.kind === "status" && r.outcome.status === "running",
   );
+  const isRunning = !!running;
+  const [storage, setStorage] = useState<{
+    enabled: boolean;
+    expiresAt?: string;
+  } | null>(null);
+  const currentCheckId = check?.id;
+  const storageFrom = useCallback(
+    (history: {
+      enabled: boolean;
+      entries: { id: string; expiresAt: string }[];
+    }) =>
+      setStorage({
+        enabled: history.enabled,
+        expiresAt: history.entries.find((entry) => entry.id === currentCheckId)
+          ?.expiresAt,
+      }),
+    [currentCheckId],
+  );
+  useEffect(() => {
+    if (!accountHistory) return;
+    let live = true;
+    api.getHistory().then(
+      (history) => {
+        if (live) storageFrom(history);
+      },
+      () => {
+        if (live) setStorage(null);
+      },
+    );
+    return () => {
+      live = false;
+    };
+  }, [api, accountHistory, storageFrom, isRunning]);
   const busy = pending !== null || running;
   // Debits settle shortly after the last Verdict; look again a few times.
   const checkId = check?.id;
@@ -868,7 +994,7 @@ export function CheckWorkspace({
         reference.outcome.status !== "running",
     ).length ?? 0;
   function changePreferences(
-    patch: Partial<Pick<Preferences, "language" | "citationStyle">>,
+    patch: Partial<Pick<Preferences, "language" | "citationStyle" | "theme">>,
   ) {
     const next = { ...preferences, ...patch };
     void setLocale(next.language, { reload: false });
@@ -877,375 +1003,47 @@ export function CheckWorkspace({
     else void saveGuestPreferences(preferenceStorage, next);
     if (patch.citationStyle) setStyleReset(false);
   }
-  return (
-    <main className="check-workspace mx-auto max-w-7xl px-6 py-10 sm:py-16">
-      <MaintenanceNotice baseUrl={transport.baseUrl} language={locale} />
-      <CheckingTopBar
-        documentName={file?.name ?? (fileName || undefined)}
-        account={accountControls?.(locale, quota)}
-        accountLabel={accountLabel}
-        onInput={() => inputRef.current?.focus()}
-        onReset={reset}
-        onPreferences={() => languageInput.current?.focus()}
-        onStop={
-          running
-            ? () => {
-                void cancel();
-              }
-            : undefined
-        }
-        history={
-          accountHistory
-            ? (close) => (
-                <HistoryPanel
-                  api={api}
-                  busy={!!busy || !!quotaChoice}
-                  refreshKey={`${check?.id ?? ""}:${!!running}`}
-                  upgradeUrl={upgradeUrl}
-                  onCheck={(snapshot) => {
-                    reset();
-                    follow(snapshot);
-                    void refreshQuota();
-                    close();
-                  }}
-                  onDelete={(id) => {
-                    if (!id || check?.id === id) reset();
-                  }}
-                />
-              )
-            : undefined
-        }
-      />
-      {accountNotice}
-      <div className="workspace-preferences">
-        <label className="flex flex-col gap-1 text-sm font-medium">
-          {m.language_label()}
-          <select
-            className="rounded-lg border border-border-emphasis bg-surface p-2"
-            ref={languageInput}
-            value={locale}
-            onChange={(event) => {
-              if (isInterfaceLanguage(event.target.value))
-                changePreferences({ language: event.target.value });
-            }}
-          >
-            <option value="de">{m.language_de()}</option>
-            <option value="en">{m.language_en()}</option>
-          </select>
-        </label>
-        <label className="flex flex-col gap-1 text-sm font-medium">
-          {m.citation_style_label()}
-          <select
-            className="rounded-lg border border-border-emphasis bg-surface p-2"
-            value={preferences.citationStyle}
-            onChange={(event) => {
-              if (isCitationStyle(event.target.value))
-                changePreferences({ citationStyle: event.target.value });
-            }}
-          >
-            {citationStyles.map((style) => (
-              <option key={style.id} value={style.id}>
-                {m[styleMessages[style.id]]()}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-      {quota ? (
-        <QuotaMeter quota={quota} upgradeUrl={upgradeUrl} />
-      ) : (
-        quotaState !== "ready" && <QuotaPending state={quotaState} />
+  const intakeSource: IntakeSource =
+    file || fileName || sourceDocument
+      ? "file"
+      : inputKind === "selection"
+        ? "selection"
+        : "text";
+  const sourceLabel =
+    file?.name ??
+    (fileName ||
+      (inputKind === "selection"
+        ? m.shell_selection_source()
+        : m.shell_text_source()));
+  const canCheck =
+    (!!text.trim() || !!(library && preview?.references.length)) &&
+    !busy &&
+    !selectionBlocked;
+  const checkReason = busy
+    ? m.shell_busy()
+    : selectionBlocked
+      ? m.shell_selection_blocked()
+      : m.shell_empty_input();
+  const checkDisabledReason = canCheck ? undefined : checkReason;
+  const notices = (
+    <>
+      {styleReset && <Banner>{m.citation_style_reset()}</Banner>}
+      {check && selectionWaiting && (
+        <Banner>{m.shell_selection_after_check()}</Banner>
       )}
-      {styleReset && (
-        <p
-          role="status"
-          className="mb-6 rounded-xl border border-border-emphasis bg-surface-sunken p-4 text-text"
-        >
-          {m.citation_style_reset()}
-        </p>
+      {selectionNotice && (
+        <Banner tone="warning">
+          {selectionNotice === "empty"
+            ? m.selection_empty()
+            : m.selection_shortened()}
+        </Banner>
       )}
-      <form
-        className="rounded-2xl border border-border-emphasis bg-surface p-6 shadow-sm"
-        onSubmit={(event) => {
-          event.preventDefault();
-          if ((text.trim() || (library && preview?.references.length)) && !busy)
-            void start("create");
-        }}
-      >
-        <div className="intake-command">
-          {!sourceDocument && (
-            <TextFieldRoot
-              value={text}
-              onChange={(value) => {
-                setText(value);
-                setInputKind("text");
-                setSelectionUndo(null);
-                setLibrary(null);
-                setFileName("");
-                setFileError(null);
-                if (fileInput.current) fileInput.current.value = "";
-                setPreview(null);
-                setDocumentNotice(false);
-              }}
-              isDisabled={!!busy}
-              className="intake-text"
-            >
-              <Label>{m.input_label()}</Label>
-              <Description>
-                {m.input_hint()}
-                {busy && ` · ${m.shell_busy()}`}
-              </Description>
-              <TextArea
-                ref={inputRef}
-                placeholder={m.input_example()}
-                className="intake-textarea"
-                rows={2}
-              />
-            </TextFieldRoot>
-          )}
-          <DropZone
-            aria-label={m.shell_drop()}
-            isDisabled={!!busy}
-            onDrop={(event) => {
-              const token = generation.current;
-              void (async () => {
-                const item = event.items.find((item) => item.kind === "file");
-                if (item?.kind === "file") {
-                  const dropped = await item.getFile();
-                  if (generation.current !== token) return;
-                  setFilesOpen(true);
-                  if (/\.(bib|bibtex|ris)$/iu.test(dropped.name))
-                    void loadLibrary(dropped);
-                  else {
-                    setFile(dropped);
-                    setRequestError(null);
-                  }
-                }
-              })().catch((error: unknown) => {
-                if (generation.current === token) setRequestError(error);
-              });
-            }}
-          >
-            <p>{m.shell_drop()}</p>
-            <FileTrigger
-              acceptedFileTypes={[".pdf", ".docx", ".bib", ".bibtex", ".ris"]}
-              onSelect={(files) => {
-                const selected = files?.[0];
-                if (!selected) return;
-                setFilesOpen(true);
-                if (/\.(bib|bibtex|ris)$/iu.test(selected.name))
-                  void loadLibrary(selected);
-                else {
-                  setFile(selected);
-                  setRequestError(null);
-                }
-              }}
-            >
-              <Button
-                type="button"
-                variant="ghost"
-                {...availability(!!busy, m.shell_busy())}
-              >
-                {m.shell_choose_file()}
-              </Button>
-            </FileTrigger>
-          </DropZone>
-        </div>
-        {(text.trim() || fileName || file) && (
-          <p className="intake-source">
-            {fileName || file
-              ? m.shell_file_source({ name: fileName || file!.name })
-              : inputKind === "selection"
-                ? m.shell_selection_source()
-                : m.shell_text_source()}
-          </p>
-        )}
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          aria-expanded={filesOpen}
-          aria-controls="intake-files"
-          onPress={() => setFilesOpen(!filesOpen)}
-        >
-          {m.shell_files()}
-        </Button>
-        <div id="intake-files" hidden={!filesOpen}>
-          <fieldset
-            className="mb-6 flex min-w-0 flex-col gap-3"
-            disabled={busy}
-          >
-            <label htmlFor="document-file" className="text-lg font-semibold">
-              {m.document_upload_label()}
-            </label>
-            <p id="document-hint" className="text-sm text-text-secondary">
-              {m.document_upload_hint()}
-            </p>
-            <input
-              ref={documentFileInput}
-              id="document-file"
-              type="file"
-              accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-              aria-describedby="document-hint"
-              onChange={(event) => {
-                setFilesOpen(true);
-                setFile(event.target.files?.[0] ?? null);
-                setRequestError(null);
-              }}
-              className="max-w-full rounded-lg border border-border-emphasis p-3"
-            />
-            <Button
-              type="button"
-              variant="secondary"
-              {...availability(
-                !file || !!busy,
-                busy ? m.shell_busy() : m.shell_empty_input(),
-              )}
-              onPress={() => {
-                void upload();
-              }}
-              className="mt-3"
-            >
-              {pending === "document"
-                ? m.document_upload_pending()
-                : m.document_upload_action()}
-            </Button>
-          </fieldset>
-          <label htmlFor={fileId} className="mb-2 block font-semibold">
-            {m.library_import_label()}
-          </label>
-          <p id={`${fileId}-hint`} className="mb-2 text-sm">
-            {m.library_import_hint()}
-          </p>
-          <input
-            ref={fileInput}
-            id={fileId}
-            type="file"
-            accept=".bib,.bibtex,.ris"
-            disabled={busy}
-            aria-describedby={`${fileId}-hint`}
-            className="mb-5 block max-w-full"
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (file) {
-                setFilesOpen(true);
-                void loadLibrary(file);
-              }
-            }}
-          />
-          {fileName && (
-            <p className="mb-4">{m.library_selected({ name: fileName })}</p>
-          )}
-        </div>
-        {sourceDocument && (
-          <BibliographyEditor
-            document={sourceDocument}
-            disabled={!!busy || !!check}
-            onChange={(regions) => {
-              setSelectionUndo(null);
-              setSourceDocument({
-                ...sourceDocument,
-                selection: { ...sourceDocument.selection, regions },
-              });
-              setPreview(null);
-              setSelectionLimit(null);
-            }}
-          />
-        )}
-        {selectionLimit && (
-          <p role="alert">{m.selection_limit({ limit: selectionLimit })}</p>
-        )}
-        {selectionIntake && (
-          <p className="mt-3 text-sm text-text-secondary">
-            {m.selection_intake_help()}
-          </p>
-        )}
-        {selectionNotice && (
-          <p
-            role="status"
-            className="mt-3 rounded-xl border border-border-emphasis bg-surface-sunken p-4"
-          >
-            {selectionNotice === "empty"
-              ? m.selection_empty()
-              : m.selection_shortened()}
-          </p>
-        )}
-        {selectionUndo !== null && (
-          <Button
-            type="button"
-            onPress={() => {
-              setSelectionNotice(null);
-              setText(selectionUndo.text);
-              setInputKind(selectionUndo.inputKind);
-              setSourceDocument(selectionUndo.sourceDocument);
-              setSelectionLimit(selectionUndo.selectionLimit);
-              setLibrary(selectionUndo.library);
-              setPreview(selectionUndo.preview);
-              setFileName(selectionUndo.fileName);
-              setFile(selectionUndo.file);
-              if (documentFileInput.current && selectionUndo.file) {
-                const restored = new DataTransfer();
-                restored.items.add(selectionUndo.file);
-                documentFileInput.current.files = restored.files;
-              }
-              setFileError(selectionUndo.fileError);
-              setDocumentNotice(selectionUndo.documentNotice);
-              setSelectionUndo(null);
-            }}
-            className="mt-3 rounded-xl border border-border-emphasis px-5 py-3 font-semibold"
-          >
-            {m.selection_undo()}
-          </Button>
-        )}
-        <Button
-          type="button"
-          variant="secondary"
-          {...availability(
-            (!text.trim() && !library) || !!busy || selectionBlocked,
-            busy
-              ? m.shell_busy()
-              : selectionBlocked
-                ? m.shell_selection_blocked()
-                : m.shell_empty_input(),
-          )}
-          onPress={() => {
-            void start("structure");
-          }}
-          className="mt-3"
-        >
-          {pending === "structure"
-            ? m.structuring_pending()
-            : m.structuring_action()}
-        </Button>
-        <Button
-          type="submit"
-          variant="primary"
-          {...availability(
-            (!text.trim() && !(library && preview?.references.length)) ||
-              !!busy ||
-              selectionBlocked,
-            busy
-              ? m.shell_busy()
-              : selectionBlocked
-                ? m.shell_selection_blocked()
-                : m.shell_empty_input(),
-          )}
-          className="mt-3"
-        >
-          {pending === "create" ? m.check_starting() : m.check_action()}
-        </Button>
-        <Button
-          type="button"
-          onPress={reset}
-          className="mt-5 ml-3 rounded-xl border border-border-emphasis px-5 py-3 font-semibold"
-        >
-          {m.check_reset()}
-        </Button>
-      </form>
-      <p className="mb-8 rounded-xl border border-border-emphasis bg-surface-sunken p-4 text-text">
-        {m.skeleton_notice()}
-      </p>
-      {quotaChoice && (
+      {selectionLimit && (
+        <Banner tone="danger">
+          {m.selection_limit({ limit: selectionLimit })}
+        </Banner>
+      )}
+      {quotaChoice && !countedPreview && (
         <QuotaChoice
           required={quotaChoice.required}
           available={quotaChoice.available}
@@ -1254,12 +1052,9 @@ export function CheckWorkspace({
           onDismiss={() => setQuotaChoice(null)}
         />
       )}
-      {quotaNote && (
-        <p
-          role="status"
-          data-testid="quota-note"
-          className="mt-6 rounded-xl border border-border-emphasis bg-surface p-4"
-        >
+      {/* Standalone has no Owner Quota: no Quota line, note or upgrade. */}
+      {hostedQuota && quotaNote && !countedPreview && (
+        <Banner data-testid="quota-note">
           {quotaNote.skipped > 0
             ? m.quota_started({
                 started: String(quotaNote.required),
@@ -1271,20 +1066,27 @@ export function CheckWorkspace({
                 remaining: String(quotaNote.remaining),
                 after: String(quotaNote.after),
               })}
-        </p>
+        </Banner>
       )}
       {cleanupPending && (
-        <p
-          role="alert"
-          className="mt-6 rounded-xl border border-border-emphasis bg-surface-sunken p-4 text-text"
-        >
-          {m.check_cleanup_pending()}
-        </p>
+        <Banner tone="danger">{m.check_cleanup_pending()}</Banner>
       )}
       {errorKey && (
-        <p
-          role="alert"
-          className="mt-6 rounded-xl border border-border-emphasis bg-surface-sunken p-4 text-text"
+        <Banner
+          tone="danger"
+          action={
+            streamError && check ? (
+              <Button
+                size="sm"
+                onPress={() => {
+                  void reconnect();
+                }}
+                {...availability(reconnecting, m.shell_reconnecting())}
+              >
+                {reconnecting ? m.shell_reconnecting() : m.shell_reconnect()}
+              </Button>
+            ) : undefined
+          }
         >
           {m[errorKey]({
             limit:
@@ -1304,36 +1106,809 @@ export function CheckWorkspace({
           <ContinuationTime
             error={streamError ? streamFailure : requestError}
           />
-        </p>
-      )}
-      {streamError && check && (
-        <Button
-          onPress={() => {
-            void reconnect();
-          }}
-          {...availability(reconnecting, m.shell_reconnecting())}
-        >
-          {reconnecting ? m.shell_reconnecting() : m.shell_reconnect()}
-        </Button>
+        </Banner>
       )}
       {documentNotice && (
-        <p
-          role="status"
-          className="mt-6 rounded-xl border border-border-emphasis bg-surface-sunken p-4"
-        >
-          {m.document_partial_no_text()}
-        </p>
+        <Banner tone="warning">{m.document_partial_no_text()}</Banner>
       )}
-      {preview && (
-        <StructuringResults
-          result={preview}
-          inputText={sourceDocument?.text ?? text}
-          upgradeUrl={upgradeUrl}
+      {check?.endReason === "lease-expired" && (
+        <Banner tone="warning">{m.check_lease_expired()}</Banner>
+      )}
+    </>
+  );
+  const guestNote = hostedQuota && !accountLabel && onSignIn && (
+    <p className="note-row">
+      <Info aria-hidden="true" size={16} />
+      <span>
+        {m.auth_guest_notice()}{" "}
+        <Button variant="ghost" className="feed-link" onPress={onSignIn}>
+          {m.auth_sign_in()}
+        </Button>
+      </span>
+    </p>
+  );
+  // #194 D storageLine: where this Check's content lives and when it goes
+  // (ADR-0005). Without History every hosted Check follows the 24-hour rule.
+  const storageText = !hostedQuota
+    ? undefined
+    : accountHistory && storage?.enabled
+      ? storage.expiresAt &&
+        m.storage_history({ date: historyDate(storage.expiresAt) })
+      : m.storage_temporary();
+  const storageNote = storageText && (
+    <p className="note-row">
+      <Lock aria-hidden="true" size={16} />
+      <span>{storageText}</span>
+    </p>
+  );
+  const quotaLine =
+    hostedQuota &&
+    (quota ? (
+      <QuotaBalance quota={quota} upgradeUrl={upgradeUrl} />
+    ) : (
+      quotaState !== "ready" && <QuotaPending state={quotaState} />
+    ));
+  const devNote = (
+    <p className="note-row dev-note">
+      <Info aria-hidden="true" size={16} />
+      <span>{m.skeleton_notice()}</span>
+    </p>
+  );
+  // #194 D notes(withAi): on the intake a Guest also learns that AI
+  // extraction is a paid-Plan feature before anything is structured.
+  const guestAiNote = guestNote && (
+    <p className="note-row">
+      <Info aria-hidden="true" size={16} />
+      <span>
+        {m.ai_guest()} {m.ai_upgrade_hint()}
+      </span>
+    </p>
+  );
+  // D has no legal links; the product keeps them reachable on every screen
+  // as a quiet row closing the notes (web-gaps section 6, Footer).
+  const legalRow = (
+    <InformationLinks
+      language={locale}
+      siteUrl={siteUrl}
+      className="workspace-legal"
+    />
+  );
+  const notes = (
+    <div className="workspace-notes intake-notes">
+      {guestNote}
+      {guestAiNote}
+      {devNote}
+      {storageNote}
+      {quotaLine}
+      {legalRow}
+    </div>
+  );
+  // In the feed the guest notice sits above the cards, as in #194 D.
+  // #194 D feed .foot: storage, the Verdict disclaimer, then the open
+  // Check's consumption beside the balance. Statuses are never billed
+  // (ADR-0005), so a Verdict marks a debited slot.
+  const consumed =
+    check?.references.filter((r) => r.outcome.kind === "verdict").length ?? 0;
+  const feedNotes = (
+    <div className="workspace-notes">
+      {devNote}
+      {storageNote}
+      <FeedDisclaimer quota={hostedQuota} />
+      {hostedQuota &&
+        (quota ? (
+          <QuotaBalance
+            quota={quota}
+            upgradeUrl={upgradeUrl}
+            consumed={consumed}
+          />
+        ) : (
+          quotaState !== "ready" && <QuotaPending state={quotaState} />
+        ))}
+      {legalRow}
+    </div>
+  );
+  const fileInputs = (
+    <div
+      id="intake-files"
+      className="intake-files"
+      hidden={intakeSource !== "file" && !filesOpen}
+    >
+      <DropZone
+        aria-label={m.shell_drop()}
+        isDisabled={!!busy}
+        className="intake-drop"
+        onDrop={(event) => {
+          const token = generation.current;
+          void (async () => {
+            const item = event.items.find((item) => item.kind === "file");
+            if (item?.kind === "file") {
+              const dropped = await item.getFile();
+              if (generation.current !== token) return;
+              setFilesOpen(true);
+              if (/\.(bib|bibtex|ris)$/iu.test(dropped.name))
+                void loadLibrary(dropped);
+              else {
+                setFile(dropped);
+                setRequestError(null);
+              }
+            }
+          })().catch((error: unknown) => {
+            if (generation.current === token) setRequestError(error);
+          });
+        }}
+      >
+        <Upload aria-hidden="true" size={20} />
+        <p>{m.shell_drop()}</p>
+        <FileTrigger
+          acceptedFileTypes={[".pdf", ".docx", ".bib", ".bibtex", ".ris"]}
+          onSelect={(files) => {
+            const selected = files?.[0];
+            if (!selected) return;
+            setFilesOpen(true);
+            if (/\.(bib|bibtex|ris)$/iu.test(selected.name))
+              void loadLibrary(selected);
+            else {
+              setFile(selected);
+              setRequestError(null);
+            }
+          }}
+        >
+          <Button
+            type="button"
+            size="sm"
+            {...availability(!!busy, m.shell_busy())}
+          >
+            {m.shell_choose_file()}
+          </Button>
+        </FileTrigger>
+      </DropZone>
+      <fieldset className="intake-file-fields" disabled={busy}>
+        <label htmlFor="document-file" className="intake-file-label">
+          {m.document_upload_label()}
+        </label>
+        <p id="document-hint" className="intake-hint">
+          {m.document_upload_hint()}
+        </p>
+        <div className="intake-file-row">
+          <input
+            ref={documentFileInput}
+            id="document-file"
+            type="file"
+            accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            aria-describedby="document-hint"
+            onChange={(event) => {
+              setFilesOpen(true);
+              setFile(event.target.files?.[0] ?? null);
+              setRequestError(null);
+            }}
+            className="intake-file-input"
+          />
+          <Button
+            type="button"
+            size="sm"
+            {...availability(
+              !file || !!busy,
+              busy ? m.shell_busy() : m.shell_empty_input(),
+            )}
+            onPress={() => {
+              void upload();
+            }}
+          >
+            {pending === "document"
+              ? m.document_upload_pending()
+              : m.document_upload_action()}
+          </Button>
+        </div>
+      </fieldset>
+      <div className="intake-file-fields">
+        <label htmlFor={fileId} className="intake-file-label">
+          {m.library_import_label()}
+        </label>
+        <p id={`${fileId}-hint`} className="intake-hint">
+          {m.library_import_hint()}
+        </p>
+        <input
+          ref={fileInput}
+          id={fileId}
+          type="file"
+          accept=".bib,.bibtex,.ris"
+          disabled={busy}
+          aria-describedby={`${fileId}-hint`}
+          className="intake-file-input"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) {
+              setFilesOpen(true);
+              void loadLibrary(file);
+            }
+          }}
+        />
+        {fileName && <p>{m.library_selected({ name: fileName })}</p>}
+      </div>
+    </div>
+  );
+  function clearFile() {
+    setFile(null);
+    setFileName("");
+    setLibrary(null);
+    setPreview(null);
+    setFileError(null);
+    setDocumentNotice(false);
+    setSourceDocument(null);
+    setSelectionLimit(null);
+    if (fileInput.current) fileInput.current.value = "";
+    if (documentFileInput.current) documentFileInput.current.value = "";
+  }
+  // #194 D cmdItems, Actions group: the intake offers Check (with its reason
+  // when it cannot run), a Check offers Stop, New check and the strip's
+  // actions. Preferences closes the group (product addition, section 2).
+  const preferencesCommand: PaletteCommand = {
+    id: "preferences",
+    group: "actions",
+    label: m.shell_preferences(),
+    icon: <Settings aria-hidden="true" size={16} />,
+  };
+  const paletteCommands: PaletteCommand[] = check
+    ? [
+        ...(running
+          ? [
+              {
+                id: "stop",
+                group: "actions" as const,
+                label: m.check_cancel(),
+                icon: <Square aria-hidden="true" size={16} />,
+              },
+            ]
+          : []),
+        {
+          id: "reset",
+          group: "actions",
+          label: m.shell_new_check(),
+          icon: <RotateCcw aria-hidden="true" size={16} />,
+        },
+        ...resultCommands.filter((command) => command.group === "actions"),
+        preferencesCommand,
+        ...resultCommands.filter((command) => command.group !== "actions"),
+      ]
+    : [
+        {
+          id: "check",
+          group: "actions",
+          label: m.shell_check_short(),
+          icon: <CheckIcon aria-hidden="true" size={16} />,
+          disabledReason: checkDisabledReason,
+        },
+        // Structuring is offered only while it can run: its unavailability
+        // is the Check's reason, which the row above already states.
+        ...((!!text.trim() || !!library) && !selectionBlocked && !busy
+          ? [
+              {
+                id: "structure",
+                group: "actions" as const,
+                label: m.structuring_action(),
+                icon: <ArrowUpLeft aria-hidden="true" size={16} />,
+              },
+            ]
+          : []),
+        ...(!countedPreview && preview && !previewOpen
+          ? [
+              {
+                id: "structuring-preview",
+                group: "actions" as const,
+                label: m.shell_structuring_preview(),
+                icon: <ArrowUpLeft aria-hidden="true" size={16} />,
+              },
+            ]
+          : []),
+        // D's empty intake has nothing to reset; once text, a file, a notice
+        // or a pending request exists, New check stays reachable (SU-SH-05).
+        ...(busy ||
+        !!text.trim() ||
+        !!library ||
+        !!file ||
+        !!fileName ||
+        !!fileError ||
+        !!sourceDocument ||
+        !!preview ||
+        !!pending ||
+        !!quotaChoice ||
+        !!quotaNote ||
+        !!requestError ||
+        !!streamError ||
+        !!selectionWaiting ||
+        !!selectionNotice ||
+        documentNotice ||
+        !!accountNotice
+          ? [
+              {
+                id: "reset",
+                group: "actions" as const,
+                label: m.shell_new_check(),
+                icon: <RotateCcw aria-hidden="true" size={16} />,
+              },
+            ]
+          : []),
+        {
+          id: "help",
+          group: "actions",
+          label: m.workspace_help(),
+          icon: <CircleHelp aria-hidden="true" size={16} />,
+        },
+        preferencesCommand,
+      ];
+  return (
+    <main
+      className="check-workspace"
+      data-stage={check ? "check" : countedPreview ? "counted" : "intake"}
+    >
+      <MaintenanceNotice baseUrl={transport.baseUrl} language={locale} />
+      <CheckingTopBar
+        brandMark={brandMark}
+        documentName={file?.name ?? (fileName || undefined)}
+        account={accountControls?.(locale, quota, storageNote)}
+        accountLabel={accountLabel}
+        tools={
+          <>
+            <a
+              className="checking-help"
+              href={informationLinks(locale, siteUrl)[0]!.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={m.information_help()}
+            >
+              <CircleHelp aria-hidden="true" size={20} />
+            </a>
+            <ThemeToggle
+              theme={preferences.theme}
+              onChange={(theme) => changePreferences({ theme })}
+            />
+          </>
+        }
+        onInput={() => inputRef.current?.focus()}
+        onPreferences={() => setPreferencesOpen(true)}
+        commands={paletteCommands}
+        onCommand={(id) => {
+          if (id === "preferences") setPreferencesOpen(true);
+          else if (id === "stop") void cancel();
+          else if (id === "reset") reset();
+          else if (id === "check" && canCheck) void start("create");
+          else if (id === "structure") {
+            structureRequested.current = true;
+            void start("structure");
+          } else if (id === "structuring-preview") setPreviewOpen(true);
+          else if (id === "help") setHowOpen(true);
+        }}
+        history={
+          accountHistory
+            ? (close) => (
+                <HistoryPanel
+                  api={api}
+                  busy={!!busy || !!quotaChoice}
+                  currentId={check?.id}
+                  onData={storageFrom}
+                  refreshKey={`${check?.id ?? ""}:${!!running}`}
+                  upgradeUrl={upgradeUrl}
+                  onCheck={(snapshot) => {
+                    reset();
+                    follow(snapshot);
+                    void refreshQuota();
+                    close();
+                  }}
+                  onDelete={(id) => {
+                    if (!id || check?.id === id) reset();
+                  }}
+                />
+              )
+            : undefined
+        }
+      />
+      {accountNotice}
+      {!check && (
+        <HowItWorksDialog
+          isOpen={howOpen}
+          onOpenChange={setHowOpen}
+          quota={hostedQuota}
         />
       )}
+      <Modal isOpen={preferencesOpen} onOpenChange={setPreferencesOpen}>
+        <Dialog className="workspace-dialog">
+          {({ close }) => (
+            <>
+              <DialogHeading>{m.shell_preferences()}</DialogHeading>
+              <div className="workspace-preferences">
+                <label className="workspace-select">
+                  {m.theme_label()}
+                  <select
+                    autoFocus
+                    value={preferences.theme}
+                    onChange={(event) => {
+                      if (isTheme(event.target.value))
+                        changePreferences({ theme: event.target.value });
+                    }}
+                  >
+                    <option value="system">{m.theme_system()}</option>
+                    <option value="light">{m.theme_light()}</option>
+                    <option value="dark">{m.theme_dark()}</option>
+                  </select>
+                </label>
+                <label className="workspace-select">
+                  {m.language_label()}
+                  <select
+                    value={locale}
+                    onChange={(event) => {
+                      if (isInterfaceLanguage(event.target.value))
+                        changePreferences({ language: event.target.value });
+                    }}
+                  >
+                    <option value="de">{m.language_de()}</option>
+                    <option value="en">{m.language_en()}</option>
+                  </select>
+                </label>
+                <label className="workspace-select">
+                  {m.citation_style_label()}
+                  <select
+                    value={preferences.citationStyle}
+                    onChange={(event) => {
+                      if (isCitationStyle(event.target.value))
+                        changePreferences({
+                          citationStyle: event.target.value,
+                        });
+                    }}
+                  >
+                    {citationStyles.map((style) => (
+                      <option key={style.id} value={style.id}>
+                        {m[styleMessages[style.id]]()}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <div className="st-actions">
+                <Button variant="primary" onPress={close}>
+                  {m.shell_close()}
+                </Button>
+              </div>
+            </>
+          )}
+        </Dialog>
+      </Modal>
+      {countedPreview && preview && (
+        <CountedPreview
+          result={preview}
+          source={intakeSource}
+          sourceLabel={sourceLabel}
+          consumption={
+            quotaChoice
+              ? quotaChoice.available > 0
+                ? m.quota_choice_body({
+                    required: String(quotaChoice.required),
+                    available: String(quotaChoice.available),
+                  })
+                : m.quota_choice_none({
+                    required: String(quotaChoice.required),
+                  })
+              : hostedQuota && quotaNote
+                ? `${m.quota_preview_fits({
+                    required: String(quotaNote.required),
+                    remaining: String(quotaNote.remaining),
+                    after: String(quotaNote.after),
+                  })} ${m.shell_auto_start()}`
+                : undefined
+          }
+          choice={
+            quotaChoice && (
+              <QuotaChoice
+                required={quotaChoice.required}
+                available={quotaChoice.available}
+                upgradeUrl={upgradeUrl}
+                pending={pending === "create"}
+                layout="strip"
+                onFirst={() => {
+                  if (pending !== "create") void startFirst();
+                }}
+                onDismiss={() => {
+                  if (pending === "create") return;
+                  setQuotaChoice(null);
+                  requestAnimationFrame(() => inputRef.current?.focus());
+                }}
+              />
+            )
+          }
+          notices={
+            <>
+              {guestNote}
+              {notices}
+            </>
+          }
+          footer={feedNotes}
+          onReset={reset}
+        />
+      )}
+      {!check && !countedPreview && (
+        <form
+          className="intake"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (canCheck) void start("create");
+          }}
+        >
+          <div>
+            <h2 ref={intakeHeading} tabIndex={-1} className="intake-heading">
+              {m.shell_intake_heading()}
+            </h2>
+            <p className="intake-lead">{m.shell_intake_lead()}</p>
+          </div>
+          <div className="intake-command st-glass">
+            {sourceDocument || intakeSource === "file" ? (
+              <div className="intake-file-card">
+                <FileText aria-hidden="true" size={20} />
+                <div className="intake-file-name">
+                  <span>{sourceLabel}</span>
+                  {pending === "document" && (
+                    <small>{m.document_upload_pending()}</small>
+                  )}
+                </div>
+                <IconButton
+                  size="sm"
+                  label={m.shell_remove_file()}
+                  {...availability(!!busy, m.shell_busy())}
+                  onPress={clearFile}
+                >
+                  <X aria-hidden="true" size={16} />
+                </IconButton>
+              </div>
+            ) : (
+              <TextFieldRoot
+                value={text}
+                onChange={(value) => {
+                  setText(value);
+                  setInputKind("text");
+                  setSelectionUndo(null);
+                  setLibrary(null);
+                  setFileName("");
+                  setFileError(null);
+                  if (fileInput.current) fileInput.current.value = "";
+                  setPreview(null);
+                  setDocumentNotice(false);
+                }}
+                isDisabled={!!busy}
+                className="intake-text"
+              >
+                <Search
+                  aria-hidden="true"
+                  size={20}
+                  className="intake-search"
+                />
+                <Label className="sr-only">{m.input_label()}</Label>
+                <TextArea
+                  ref={inputRef}
+                  placeholder={m.shell_intake_placeholder()}
+                  className="intake-textarea"
+                  autoFocus
+                  rows={1}
+                  autoResizeMaxViewportRatio={0.42}
+                  onKeyDown={(event) => {
+                    if (
+                      event.key === "Enter" &&
+                      (event.metaKey || event.ctrlKey)
+                    ) {
+                      event.preventDefault();
+                      event.currentTarget.form?.requestSubmit();
+                    }
+                  }}
+                />
+                <Description className="sr-only">
+                  {m.input_hint()}
+                  {busy && ` · ${m.shell_busy()}`}
+                </Description>
+              </TextFieldRoot>
+            )}
+            <div className="intake-submit">
+              {intakeSource === "text" &&
+                !library &&
+                (pending === "structure" ? (
+                  <span className="intake-count">
+                    {m.structuring_pending()}
+                  </span>
+                ) : (
+                  !!recognized && (
+                    <span className="sr-only">
+                      {recognized === 1
+                        ? m.workspace_recognized_one()
+                        : m.workspace_recognized({ count: recognized })}
+                    </span>
+                  )
+                ))}
+              {canCheck && (
+                <span className="intake-kbd" aria-hidden="true">
+                  <Kbd modifier={apple ? "apple" : "other"}>↵</Kbd>{" "}
+                  {m.shell_kbd_submit()}
+                </span>
+              )}
+              <Button
+                type="submit"
+                variant="primary"
+                icon={<CheckIcon aria-hidden="true" size={16} />}
+                aria-label={pending === "create" ? undefined : m.check_action()}
+                reasonPlacement="start"
+                {...availability(!canCheck, checkReason)}
+              >
+                {pending === "create"
+                  ? m.check_starting()
+                  : m.shell_check_short()}
+              </Button>
+            </div>
+          </div>
+          <div className="intake-sources">
+            <Aria.ToggleButtonGroup
+              aria-label={m.shell_source()}
+              selectionMode="single"
+              disallowEmptySelection
+              isDisabled={!!busy}
+              selectedKeys={[filesOpen ? "file" : intakeSource]}
+              onSelectionChange={(keys) => {
+                const key = [...keys][0];
+                if (key === "file") setFilesOpen(true);
+                else if (key === "text") {
+                  setFilesOpen(false);
+                  if (intakeSource === "file") clearFile();
+                  setInputKind("text");
+                  requestAnimationFrame(() => inputRef.current?.focus());
+                }
+              }}
+              className="intake-segment"
+            >
+              <Aria.ToggleButton id="text">
+                <List aria-hidden="true" size={16} />
+                {m.shell_source_text()}
+              </Aria.ToggleButton>
+              <Aria.ToggleButton id="file">
+                <Upload aria-hidden="true" size={16} />
+                {m.shell_source_file()}
+              </Aria.ToggleButton>
+              {selectionIntake && (
+                <Aria.ToggleButton
+                  id="selection"
+                  isDisabled={intakeSource !== "selection"}
+                >
+                  <PanelRight aria-hidden="true" size={16} />
+                  {m.shell_source_selection()}
+                </Aria.ToggleButton>
+              )}
+            </Aria.ToggleButtonGroup>
+            <span className="intake-spacer" />
+            {intakeSource !== "file" && !filesOpen && (
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                icon={<Plus aria-hidden="true" size={16} />}
+                {...availability(!!busy, m.shell_busy())}
+                onPress={() => {
+                  setText(m.input_example());
+                  setInputKind("text");
+                  requestAnimationFrame(() => inputRef.current?.focus());
+                }}
+              >
+                {m.shell_insert_example()}
+              </Button>
+            )}
+          </div>
+          <p className="intake-hint" id="intake-hint">
+            {intakeSource === "file" || filesOpen
+              ? m.shell_formats()
+              : m.input_hint()}
+          </p>
+          {selectionIntake &&
+            (intakeSource === "selection" || selectionNotice === "empty") && (
+              <p className="note-row">
+                <Info aria-hidden="true" size={16} />
+                <span>{m.selection_intake_help()}</span>
+              </p>
+            )}
+          {fileInputs}
+          {sourceDocument && (
+            <BibliographyEditor
+              document={sourceDocument}
+              disabled={!!busy || !!check}
+              onChange={(regions) => {
+                setSelectionUndo(null);
+                setSourceDocument({
+                  ...sourceDocument,
+                  selection: { ...sourceDocument.selection, regions },
+                });
+                setPreview(null);
+                setSelectionLimit(null);
+              }}
+            />
+          )}
+          {selectionUndo !== null && (
+            <Button
+              type="button"
+              size="sm"
+              onPress={() => {
+                setSelectionNotice(null);
+                setText(selectionUndo.text);
+                setInputKind(selectionUndo.inputKind);
+                setSourceDocument(selectionUndo.sourceDocument);
+                setSelectionLimit(selectionUndo.selectionLimit);
+                setLibrary(selectionUndo.library);
+                showPreview(selectionUndo.preview);
+                setFileName(selectionUndo.fileName);
+                setFile(selectionUndo.file);
+                if (documentFileInput.current && selectionUndo.file) {
+                  const restored = new DataTransfer();
+                  restored.items.add(selectionUndo.file);
+                  documentFileInput.current.files = restored.files;
+                }
+                setFileError(selectionUndo.fileError);
+                setDocumentNotice(selectionUndo.documentNotice);
+                setSelectionUndo(null);
+                // The pressed Undo leaves with the replacement. Focus and view
+                // go to the start of the restored draft, not to the body at
+                // wherever the page happened to come to rest.
+                requestAnimationFrame(() => {
+                  scrollTo({ top: 0 });
+                  intakeHeading.current?.focus({ preventScroll: true });
+                });
+              }}
+            >
+              {m.selection_undo()}
+            </Button>
+          )}
+          <div className="workspace-banners">{notices}</div>
+          {notes}
+        </form>
+      )}
+      <Modal
+        isOpen={!!preview && previewOpen && !check && !countedPreview}
+        onOpenChange={setPreviewOpen}
+      >
+        <Dialog
+          aria-label={m.structuring_heading()}
+          className="workspace-dialog wide"
+        >
+          {({ close }) =>
+            preview && (
+              <>
+                <StructuringResults
+                  result={preview}
+                  inputText={sourceDocument?.text ?? text}
+                  upgradeUrl={upgradeUrl}
+                />
+                {/* The modal preview hides the intake's Check, so it offers
+                    the same Check itself instead of a dead end. */}
+                <div className="st-actions">
+                  <Button variant="secondary" onPress={close}>
+                    {m.shell_close()}
+                  </Button>
+                  <Button
+                    variant="primary"
+                    icon={<CheckIcon aria-hidden="true" size={16} />}
+                    aria-label={m.check_action()}
+                    reasonPlacement="start"
+                    {...availability(!canCheck, checkReason)}
+                    onPress={() => {
+                      close();
+                      if (canCheck) void start("create");
+                    }}
+                  >
+                    {m.shell_check_short()}
+                  </Button>
+                </div>
+              </>
+            )
+          }
+        </Dialog>
+      </Modal>
+      {/* A polite live region like the progress line: role=status stays with
+          the visible notices, so each of them is the one status it names. */}
+      <p className="sr-only" aria-live="polite" aria-atomic="true">
+        {structuredNote ? structuringSummary(structuredNote) : ""}
+      </p>
       {check && (
-        <section aria-labelledby="results-title" className="mt-10">
-          <h2 id="results-title" className="mb-4 text-2xl font-semibold">
+        <section aria-labelledby="results-title" className="workspace-results">
+          <h2 id="results-title" className="sr-only">
             {m.results_heading()}
           </h2>
           <div
@@ -1341,19 +1916,11 @@ export function CheckWorkspace({
             aria-labelledby="results-title"
             aria-live="off"
             aria-atomic="true"
-            className="check-status rounded-2xl border border-border-emphasis bg-surface p-6"
+            className="check-status"
           >
-            <div>
-              <p className="mb-4 font-semibold">
-                {running ? m.check_running() : m.check_ended()}
-              </p>
-              <p>
-                {m.check_progress({
-                  completed: String(completed),
-                  total: String(check.references.length),
-                })}
-              </p>
-            </div>
+            <p className="sr-only">
+              {running ? m.check_running() : m.check_ended()}
+            </p>
             <p className="sr-only" aria-live="polite" aria-atomic="true">
               {m.check_progress({
                 completed: String(
@@ -1364,39 +1931,49 @@ export function CheckWorkspace({
                 total: String(check.references.length),
               })}
             </p>
-            {running && !accessStopped && (
-              <p role="status">
-                {connection === "connected"
-                  ? m.shell_connected()
-                  : connection === "reconnecting"
-                    ? m.shell_reconnecting()
-                    : m.shell_connecting()}
-              </p>
-            )}
-            {check.endReason === "lease-expired" && (
-              <p>{m.check_lease_expired()}</p>
-            )}
-            {running && (
-              <Button
-                type="button"
-                {...availability(cancelling, m.check_cancelling())}
-                onPress={() => {
-                  void cancel();
-                }}
-                className="mb-4 rounded-xl border border-border-emphasis px-5 py-3 font-semibold"
-              >
-                {cancelling ? m.check_cancelling() : m.check_cancel()}
-              </Button>
-            )}
             <CheckResults
               key={check.id}
+              onCommands={setResultCommands}
               check={check}
               completed={completed}
+              running={!!running}
               citationStyle={preferences.citationStyle}
               citationStyleLabel={m[styleMessages[preferences.citationStyle]]()}
               transport={transport}
               quota={quota}
               upgradeUrl={upgradeUrl}
+              onStop={() => {
+                void cancel();
+              }}
+              stopping={cancelling}
+              onReset={reset}
+              busy={!!busy}
+              source={intakeSource}
+              sourceLabel={sourceLabel}
+              notices={
+                <>
+                  {/* A healthy stream is announced, not shown; only a lost
+                      one earns a Banner (D). */}
+                  <p role="status" className="sr-only">
+                    {running &&
+                      !accessStopped &&
+                      connection !== "reconnecting" &&
+                      (connection === "connected"
+                        ? m.shell_connected()
+                        : m.shell_connecting())}
+                  </p>
+                  <div className="workspace-banners">
+                    {running &&
+                      !accessStopped &&
+                      connection === "reconnecting" && (
+                        <Banner tone="warning">{m.shell_reconnecting()}</Banner>
+                      )}
+                    {notices}
+                  </div>
+                  {guestNote}
+                </>
+              }
+              footer={feedNotes}
               onSnapshot={(snapshot) => {
                 if (
                   generation.current === workspaceGeneration &&
@@ -1408,7 +1985,6 @@ export function CheckWorkspace({
           </div>
         </section>
       )}
-      <InformationLinks language={locale} siteUrl={siteUrl} />
     </main>
   );
 }

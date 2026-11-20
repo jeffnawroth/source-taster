@@ -2041,6 +2041,15 @@
                 "type": "string",
                 "minLength": 1,
                 "maxLength": 128
+              },
+              "theme": {
+                "type": "string",
+                "enum": [
+                  "system",
+                  "light",
+                  "dark"
+                ],
+                "default": "system"
               }
             },
             "required": [
@@ -2902,6 +2911,15 @@
                   "springer",
                   "din-iso-690"
                 ]
+              },
+              "theme": {
+                "type": "string",
+                "enum": [
+                  "system",
+                  "light",
+                  "dark"
+                ],
+                "default": "system"
               }
             },
             "required": [
@@ -3026,6 +3044,15 @@
                   "springer",
                   "din-iso-690"
                 ]
+              },
+              "theme": {
+                "type": "string",
+                "enum": [
+                  "system",
+                  "light",
+                  "dark"
+                ],
+                "default": "system"
               }
             },
             "required": [
@@ -6052,6 +6079,14 @@
                       "springer",
                       "din-iso-690"
                     ]
+                  },
+                  "theme": {
+                    "type": "string",
+                    "enum": [
+                      "system",
+                      "light",
+                      "dark"
+                    ]
                   }
                 },
                 "additionalProperties": false
@@ -6229,6 +6264,14 @@
                       "oxford",
                       "springer",
                       "din-iso-690"
+                    ]
+                  },
+                  "theme": {
+                    "type": "string",
+                    "enum": [
+                      "system",
+                      "light",
+                      "dark"
                     ]
                   }
                 },
@@ -6616,6 +6659,15 @@
                           "springer",
                           "din-iso-690"
                         ]
+                      },
+                      "theme": {
+                        "type": "string",
+                        "enum": [
+                          "system",
+                          "light",
+                          "dark"
+                        ],
+                        "default": "system"
                       }
                     },
                     "required": [
@@ -7054,6 +7106,15 @@
                           "springer",
                           "din-iso-690"
                         ]
+                      },
+                      "theme": {
+                        "type": "string",
+                        "enum": [
+                          "system",
+                          "light",
+                          "dark"
+                        ],
+                        "default": "system"
                       }
                     },
                     "required": [

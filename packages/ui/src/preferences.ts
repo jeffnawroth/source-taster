@@ -5,11 +5,11 @@ export type InterfaceLanguage = "de" | "en";
 import { citationStyles } from "@source-taster/contract-service";
 export { citationStyles };
 export type CitationStyle = (typeof citationStyles)[number]["id"];
+export type Theme = "system" | "light" | "dark";
 export interface Preferences {
   language: InterfaceLanguage;
   citationStyle: CitationStyle;
-  /** FA-KON-02 hook only. There is no theme UI yet. */
-  theme: "system";
+  theme: Theme;
 }
 
 /** Origin storage on web; extension-local storage can implement the same port. */
@@ -28,6 +28,14 @@ export function isInterfaceLanguage(
 }
 export function isCitationStyle(value: unknown): value is CitationStyle {
   return citationStyles.some((style) => style.id === value);
+}
+export function isTheme(value: unknown): value is Theme {
+  return value === "system" || value === "light" || value === "dark";
+}
+/** System stays responsive to OS changes; an explicit choice overrides it. */
+export function applyTheme(theme: Theme): void {
+  if (theme === "system") delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = theme;
 }
 function browserLanguage(languages: readonly string[]): InterfaceLanguage {
   for (const language of languages) {
@@ -57,7 +65,7 @@ export async function loadGuestPreferences(
       citationStyle: isCitationStyle(data.citationStyle)
         ? data.citationStyle
         : "apa",
-      theme: "system",
+      theme: isTheme(data.theme) ? data.theme : "system",
     },
     citationStyleReset:
       data.citationStyle !== undefined && !isCitationStyle(data.citationStyle),
@@ -110,7 +118,7 @@ export async function saveGuestPreferences(
   if (
     !isInterfaceLanguage(preferences.language) ||
     !isCitationStyle(preferences.citationStyle) ||
-    preferences.theme !== "system"
+    !isTheme(preferences.theme)
   ) {
     throw new TypeError("Invalid Preferences");
   }

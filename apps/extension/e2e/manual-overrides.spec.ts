@@ -24,7 +24,7 @@ for (const language of ["en", "de"] as const) {
     );
     try {
       const panel = await browser.openPanel();
-      await panel.select("combobox", /^(Language|Sprache)$/, language);
+      await panel.preferences({ language: language });
       await panel.fill(
         "textbox",
         en ? "Reference" : "Referenz",
@@ -81,6 +81,11 @@ for (const language of ["en", "de"] as const) {
       await panel.click(
         "button",
         en ? /^Open reference 1:/ : /^Referenz 1 öffnen:/,
+      );
+      // The narrow detail covers the feed and its strip (#194 D).
+      await panel.click(
+        "button",
+        en ? "Back to references" : "Zurück zu Referenzen",
       );
       await panel.click(
         "button",

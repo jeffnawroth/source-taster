@@ -21,9 +21,9 @@ export function CancellationLink({
     return () => observer.disconnect();
   }, []);
   return (
-    <footer className="mx-auto max-w-5xl p-6">
+    <footer className="legal-foot">
       <a
-        className="inline-block rounded border border-border-emphasis p-3 underline"
+        className="legal-link"
         href={`${serviceUrl.replace(/\/$/, "")}/cancel?language=${language}`}
         referrerPolicy="no-referrer"
       >

@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import AxeBuilder from "@axe-core/playwright";
 import { test, expect } from "@playwright/test";
+import {
+  choosePreferences,
+  openEvidence,
+  openReference,
+} from "./support/workspace.ts";
 const reference =
   "Aspelmeyer, M. (2008). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170";
 for (const language of ["en", "de"] as const) {
@@ -8,9 +13,7 @@ for (const language of ["en", "de"] as const) {
     page,
   }) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page.getByRole("textbox").fill(reference);
     await page
       .getByRole("button", {
@@ -18,6 +21,7 @@ for (const language of ["en", "de"] as const) {
         exact: true,
       })
       .click();
+    await openReference(page, 1);
     const result = page.getByRole("region", {
       name: /^(Reference detail|Referenzdetails)$/,
       exact: true,
@@ -51,14 +55,7 @@ for (const language of ["en", "de"] as const) {
         .locator("..")
         .locator('svg[data-verdict="exists-with-deviations"]'),
     ).toBeVisible();
-    await result
-      .getByText(
-        language === "en"
-          ? "Explanation and source evidence"
-          : "Erklärung und Quellenbelege",
-        { exact: true },
-      )
-      .click();
+    await openEvidence(result);
     await expect(result).toContainText("uncalibrated");
     await expect(result).toContainText("doi.org");
     await expect(result).toContainText("crossref");
@@ -80,9 +77,9 @@ for (const language of ["en", "de"] as const) {
       ).violations,
     ).toEqual([]);
     // Language switches preserve the same result and change its explanations.
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language === "en" ? "de" : "en");
+    await choosePreferences(page, {
+      language: language === "en" ? "de" : "en",
+    });
     await expect(result).toContainText(
       language === "en"
         ? "Existiert, mit Abweichungen"
@@ -98,9 +95,7 @@ for (const language of ["en", "de"] as const)
       page,
     }) => {
       await page.goto("/");
-      await page
-        .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-        .selectOption(language);
+      await choosePreferences(page, { language: language });
       await page
         .getByRole("textbox")
         .fill(
@@ -112,6 +107,7 @@ for (const language of ["en", "de"] as const)
           exact: true,
         })
         .click();
+      await openReference(page, 1);
       const result = page.getByRole("region", {
         name: /^(Reference detail|Referenzdetails)$/,
         exact: true,
@@ -122,14 +118,7 @@ for (const language of ["en", "de"] as const)
           { exact: true },
         ),
       ).toBeVisible({ timeout: 15000 });
-      await result
-        .getByText(
-          language === "en"
-            ? "Explanation and source evidence"
-            : "Erklärung und Quellenbelege",
-          { exact: true },
-        )
-        .click();
+      await openEvidence(result);
       await expect(
         result.getByText(
           language === "en"

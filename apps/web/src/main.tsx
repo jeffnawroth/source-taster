@@ -4,6 +4,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { CheckWorkspace } from "@source-taster/ui/check-workspace";
 import {
+  applyTheme,
   loadGuestPreferences,
   webPreferenceStorage,
 } from "@source-taster/ui/preferences";
@@ -15,6 +16,7 @@ const initial = await loadGuestPreferences(
   preferenceStorage,
   navigator.languages,
 );
+applyTheme(initial.preferences.theme);
 void setLocale(initial.preferences.language, { reload: false });
 const mode = import.meta.env.VITE_SOURCE_TASTER_MODE ?? "standalone";
 if (mode !== "standalone" && mode !== "hosted")
@@ -30,6 +32,7 @@ createRoot(document.getElementById("root")!).render(
         preferenceStorage={preferenceStorage}
         serviceUrl={serviceUrl!}
         siteUrl={import.meta.env.VITE_SOURCE_TASTER_WEBSITE_URL}
+        brandMark="/favicon.svg"
         sensitiveActions={
           import.meta.env.VITE_SOURCE_TASTER_SENSITIVE_ACCOUNT_ACTIONS ===
           "enabled"
@@ -41,6 +44,7 @@ createRoot(document.getElementById("root")!).render(
         preferenceStorage={preferenceStorage}
         transport={{ client: "web/0.0.0" }}
         siteUrl={import.meta.env.VITE_SOURCE_TASTER_WEBSITE_URL}
+        brandMark="/favicon.svg"
       />
     )}
     {mode === "hosted" && serviceUrl && (

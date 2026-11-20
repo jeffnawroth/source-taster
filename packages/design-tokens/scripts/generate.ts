@@ -96,6 +96,9 @@ const aliases: Record<string, string> = Object.fromEntries(
   names.map((name) => [`color-${name}`, `var(--st-${name})`]),
 );
 for (const name of Object.keys(values)) {
+  // #194 D and #198 S set size and leading per text step but never its
+  // tracking; a Tailwind text-* utility must not add tracking they lack.
+  if (name.endsWith("--letter-spacing")) continue;
   if (
     /^(font-(sans|mono)$|text-|radius-|ease-)/.test(name) ||
     name === "spacing" ||

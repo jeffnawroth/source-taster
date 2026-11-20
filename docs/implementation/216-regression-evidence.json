@@ -24,12 +24,19 @@
   },
   "greyscale": {
     "visibleMin": 250,
-    "sameShapeBelow": 0.8,
+    "sameShapeBelow": 0.85,
     "fractions": [0.25, 0.5, 0.75],
     "observedMacOS": {
       "strongestCellOf765": [333, 642],
-      "highestOverlapLoosest": 0.75,
-      "highestOverlapHalfMaximum": 0.68
+      "highestOverlapLoosest": 0.8,
+      "highestOverlapHalfMaximum": 0.76
+    },
+    "recalibrated": {
+      "reason": "Verdict glyphs moved to the original #194 D silhouettes (design fidelity, #236)",
+      "previousSameShapeBelow": 0.8,
+      "previousObservedMacOS": { "highestOverlapLoosest": 0.75, "highestOverlapHalfMaximum": 0.68 },
+      "margin": 0.05,
+      "thresholdsChanged": true
     },
     "observedLinux": "not recorded; passes the same thresholds"
   },
@@ -142,5 +149,24 @@
     "guest contract test needs SOURCE_TASTER_SERVICE_WORKTREE and was not run",
     "drift check stays open (source-taster-service#29)",
     "manual and native gates stay with #217"
-  ]
+  ],
+  "dRebuild": {
+    "pullRequest": 243,
+    "mergedAs": "0a1c6ac5cd13abb3f8c9fe818ea8fa708e17cf44",
+    "head": "6e7a54f",
+    "ciRun": 43479778969,
+    "ciJobs": "13 of 13 passed",
+    "greyscaleObservedMacOS": {
+      "strongestCellOf765": [333, 642],
+      "dimmedDisabledCounters": [183, 357],
+      "issue": 242
+    },
+    "testCorrections": [
+      "web manual-overrides: Save centred and hit-tested before the late-content press",
+      "extension parity: compare once the Correction suggestion has loaded",
+      "region lookups by accessible name instead of innerText; candidate terms scoped to one candidate"
+    ],
+    "productFix": "579c7e5: focus returns to the intake heading after selection Undo",
+    "thresholdsChanged": false
+  }
 }

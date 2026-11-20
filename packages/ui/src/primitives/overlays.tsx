@@ -45,17 +45,23 @@ export function Popover(props: Aria.PopoverProps) {
 export function Modal({
   children,
   sheet,
-  material = "surface",
+  material = "dialog",
   ...props
 }: Aria.ModalOverlayProps & {
   sheet?: "left" | "right";
-  material?: "surface" | "command-palette";
+  material?: "surface" | "dialog" | "command-palette";
 }) {
   return (
     <Aria.ModalOverlay
       {...props}
       isDismissable={props.isDismissable ?? true}
-      className={styles(props.className, "st-modal-overlay")}
+      className={styles(
+        props.className,
+        cx(
+          "st-modal-overlay",
+          material === "command-palette" && "st-command-overlay",
+        ),
+      )}
     >
       {({ state }) => (
         <ModalFrame
@@ -80,7 +86,7 @@ function ModalFrame({
   close: () => void;
   keyboardDismissDisabled?: boolean;
   sheet?: "left" | "right";
-  material: "surface" | "command-palette";
+  material: "surface" | "dialog" | "command-palette";
   children: Aria.ModalOverlayProps["children"];
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -110,12 +116,16 @@ function ModalFrame({
     <Aria.Modal
       ref={ref}
       data-st-glass={
-        material === "command-palette" ? "glass-overlay" : undefined
+        material === "command-palette"
+          ? "glass-overlay"
+          : material === "dialog"
+            ? "glass"
+            : undefined
       }
       data-st-layer={material === "command-palette" ? material : undefined}
       className={cx(
-        "st-modal st-enter font-sans text-text shadow-lifted",
-        material === "command-palette" ? "st-glass" : "bg-surface",
+        "st-modal st-enter font-sans text-text",
+        material !== "surface" ? "st-glass" : "bg-surface shadow-lifted",
         sheet && `st-sheet st-sheet-${sheet}`,
       )}
     >
@@ -132,7 +142,8 @@ export function Sheet(
   props: Aria.ModalOverlayProps & { side?: "left" | "right" },
 ) {
   const { side = "left", ...rest } = props;
-  return <Modal {...rest} sheet={side} />;
+  // Prototype 194 D .hist is .st-glass.quiet, the calm strong glass of floating layers.
+  return <Modal {...rest} material="dialog" sheet={side} />;
 }
 export function Dialog(props: Aria.DialogProps) {
   const isModal = useContext(ModalityContext);
@@ -185,26 +196,29 @@ export function AlertDialog({
   children,
   cancelLabel,
   actionLabel,
+  actionIcon,
   onAction,
 }: {
   title: string;
   children: ReactNode;
   cancelLabel: string;
   actionLabel: string;
+  actionIcon?: ReactNode;
   onAction: () => void;
 }) {
   return (
-    <Dialog role="alertdialog">
+    <Dialog role="alertdialog" className="st-alert-dialog">
       {({ close }) => (
         <>
           <DialogHeading>{title}</DialogHeading>
           <p>{children}</p>
           <div className="st-actions">
-            <Button autoFocus onPress={close}>
+            <Button autoFocus variant="ghost" onPress={close}>
               {cancelLabel}
             </Button>
             <Button
               variant="danger"
+              icon={actionIcon}
               onPress={() => {
                 onAction();
                 close();

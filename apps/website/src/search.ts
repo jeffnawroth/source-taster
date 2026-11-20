@@ -7,7 +7,10 @@ interface Index {
   search: (query: string) => Promise<{ results: Result[] }>;
 }
 const dialog = document.querySelector<HTMLDialogElement>("[data-search]");
-const trigger = document.querySelector<HTMLButtonElement>("[data-search-open]");
+const triggers = [
+  ...document.querySelectorAll<HTMLButtonElement>("[data-search-open]"),
+];
+const trigger = triggers[0];
 const form = dialog?.querySelector("form");
 const input = dialog?.querySelector("input");
 const close = dialog?.querySelector<HTMLButtonElement>("[data-search-close]");
@@ -19,7 +22,7 @@ if (dialog && trigger && form && input && close && retry && status && list) {
   let attempt = 0;
   let failed = false;
   let opener: HTMLElement | null = null;
-  trigger.hidden = false;
+  for (const button of triggers) button.hidden = false;
   function openSearch() {
     if (!dialog!.open) {
       opener =
@@ -30,7 +33,7 @@ if (dialog && trigger && form && input && close && retry && status && list) {
     }
     input!.focus();
   }
-  trigger.addEventListener("click", openSearch);
+  for (const button of triggers) button.addEventListener("click", openSearch);
   document.addEventListener("keydown", (event) => {
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
       event.preventDefault();

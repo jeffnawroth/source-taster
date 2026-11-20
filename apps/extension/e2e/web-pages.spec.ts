@@ -11,6 +11,7 @@ import {
   checkInWeb,
   comparable,
   type Witness,
+  choosePreferencesOnWeb,
 } from "./support/workspace.ts";
 
 let build: Awaited<ReturnType<typeof buildExtension>>;
@@ -53,9 +54,7 @@ for (const language of ["en", "de"] as const)
     );
     await page.setViewportSize({ width: 360, height: 585 });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/u })
-      .selectOption(language);
+    await choosePreferencesOnWeb(page, { language });
     const profile = await mkdtemp(join(tmpdir(), "st80-chromium-profile-"));
     const browser = await launchChromium(
       build.outDir,
@@ -64,7 +63,7 @@ for (const language of ["en", "de"] as const)
     );
     try {
       const panel = await browser.openPanel();
-      await panel.select("combobox", /^(Language|Sprache)$/u, language);
+      await panel.preferences({ language: language });
       await panel.evaluate(`(() => {
         const send = globalThis.fetch.bind(globalThis);
         globalThis.fetch = (input, init) => {

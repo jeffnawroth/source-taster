@@ -1,4 +1,7 @@
 /* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* The check workspace in the accepted #194 D layout: a full-bleed top bar,
+   one centred intake, then a sticky summary strip over a card feed, with the
+   reference detail pushed in beside the feed (wide) or over it (narrow). */
 :root {
   font-family: var(--st-font-sans);
   color: var(--st-text);
@@ -6,118 +9,1633 @@
   font-size: 16px;
   color-scheme: light dark;
 }
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
 body {
   margin: 0;
+  font-family: var(--st-font-sans);
   font-size: var(--st-text-base);
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
+
+/* ---------- verdict colour hooks ---------- */
+/* Colour only in the Verdict glyph: the surfaces around a Verdict stay
+   neutral (components.md 1.2, the calm D variant). */
+:where([data-verdict]) {
+  --vt: var(--st-surface);
+  --vb: var(--st-border-strong);
+}
+:where([data-verdict="correct"]) {
+  --vm: var(--st-verdict-correct-mark);
+}
+:where([data-verdict="exists-with-deviations"]) {
+  --vm: var(--st-verdict-deviations-mark);
+}
+:where([data-verdict="mixed-citation"]) {
+  --vm: var(--st-verdict-mixed-mark);
+}
+:where([data-verdict="doi-conflict"]) {
+  --vm: var(--st-verdict-doi-conflict-mark);
+}
+:where([data-verdict="not-found"]) {
+  --vm: var(--st-verdict-not-found-mark);
+}
+:where([data-verdict="not-verifiable"]) {
+  --vm: var(--st-verdict-not-verifiable-mark);
+}
+
+/* ---------- buttons (prototype .btn) ---------- */
+/* #194 D .btn uses 700, 40px; .btn.sm uses 34px. A disabled Button
+   keeps its variant and fades, so the primary Check stays recognisable
+   while its reason sits beside it. */
+.st-control[data-variant]:not(.st-icon-button) {
+  font-weight: 700;
+  font-size: var(--st-text-sm);
+  line-height: 1.2;
+}
+.st-control[data-variant]:not(.st-icon-button) .st-loading-slot {
+  width: 1.1em;
+  height: 1.1em;
+}
+.st-control[data-size="md"][data-variant]:not(.st-icon-button) {
+  min-height: 40px;
+}
+.st-control[data-size="sm"][data-variant]:not(.st-icon-button) {
+  min-height: 34px;
+}
+.st-control.st-disabled[data-variant] {
+  opacity: 0.5;
+}
+.st-control.st-disabled[data-variant="primary"] {
+  border-color: transparent;
+  background: var(--st-accent);
+  color: var(--st-on-accent);
+}
+.st-control.st-disabled[data-variant="secondary"] {
+  border-color: var(--st-border-strong);
+  background: var(--st-surface);
+  color: var(--st-text);
+}
+.st-control.st-disabled[data-variant="ghost"] {
+  border-color: transparent;
+  background: transparent;
+  color: var(--st-text);
+}
+/* D .btn.icon (the ⋯ trigger) keeps the raised shadow of .btn. */
+.st-control[data-variant="secondary"]:not(.st-disabled) {
+  box-shadow: var(--st-shadow-raised), var(--st-highlight-inset);
+}
+
+/* ---------- workspace shell ---------- */
 .check-workspace {
-  max-width: 1280px;
-  margin-inline: auto;
-  padding: 12px 24px 32px;
+  --pad: 24px;
+  min-height: 100dvh;
   overflow-wrap: anywhere;
-  container-type: inline-size;
+  container: app / inline-size;
+}
+@media (max-width: 699px) {
+  .check-workspace {
+    --pad: 12px;
+  }
+}
+/* A live region after the Results sits at their foot; pinned to the top it
+   never adds the 1px that would lengthen the page scroll. */
+.check-workspace > .sr-only {
+  inset-block-start: 0;
+}
+.check-workspace :where(h1, h2, h3, p, ul, ol, fieldset) {
+  margin: 0;
 }
 .check-workspace :where(label, input, textarea, select, button) {
   min-width: 0;
   max-width: 100%;
 }
+/* Native controls only; the primitives style their own (data-rac). */
 .check-workspace
-  :where(input:not([type="checkbox"], [type="radio"]), textarea, select) {
+  :where(
+    input:not([type="checkbox"], [type="radio"], [type="file"], [data-rac]),
+    textarea:not([data-rac]),
+    select
+  ) {
   color: var(--st-text);
   background: var(--st-surface);
   border: 1px solid var(--st-border-emphasis);
-  border-radius: var(--st-radius-sm);
+  border-radius: var(--st-radius-md);
   padding: 6px 10px;
-  min-height: 36px;
+  min-height: 38px;
+  font: inherit;
+  font-size: var(--st-text-sm);
 }
 .check-workspace :where(button) {
   cursor: pointer;
 }
 .check-workspace :where(button:disabled) {
-  cursor: default;
+  cursor: not-allowed;
 }
 .check-workspace :focus-visible {
   outline: var(--st-focus-width) solid var(--st-focus-ring);
   outline-offset: var(--st-focus-offset);
 }
-.check-panes {
+.check-workspace > :where(:not(.checking-topbar, .intake, .workspace-results)) {
+  max-width: 880px;
+  margin-inline: auto;
+  padding-inline: var(--pad);
+}
+.check-workspace > nav {
+  padding-block: 24px 32px;
+}
+
+/* ---------- top bar ---------- */
+.checking-topbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--st-z-topbar);
+}
+.checking-topbar-inner {
+  /* The owner requested the command field align with the content centre.
+     Equal side tracks deliberately correct D's asymmetric flex margins. */
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
-  gap: 24px;
-  align-items: start;
+  grid-template-columns:
+    minmax(0, 1fr) minmax(0, min(620px, calc(100% - 480px)))
+    minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  height: 60px;
+  padding: 0 var(--pad);
+  border-width: 0 0 1px;
+  border-radius: 0;
+  box-shadow: var(--st-highlight-inset);
 }
-.check-list {
-  max-height: 70vh;
-  overflow-y: auto;
-  overflow-wrap: anywhere;
-  padding: 4px;
+.checking-topbar-start,
+.checking-topbar-end {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 4px;
 }
-.check-detail {
-  overflow-wrap: anywhere;
+.checking-topbar-end {
+  justify-content: flex-end;
+  gap: 6px;
+}
+.checking-topbar .theme-toggle[data-size][data-variant],
+.checking-help {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid var(--st-border-strong);
+  background: var(--st-surface);
+  color: var(--st-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 700;
+  text-decoration: none;
+  line-height: 1.3;
+}
+.checking-topbar .theme-toggle[data-size][data-variant]:hover,
+.checking-help:hover {
+  border-color: var(--st-accent);
+  color: var(--st-text);
+}
+.checking-topbar-inner.st-glass::before {
+  border-width: 0 0 1px;
+}
+.checking-brand {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 260px;
+  min-height: 40px;
+  padding: 0 6px;
+}
+.checking-brand img {
+  flex: none;
+  display: block;
+  width: 28px;
+  height: 28px;
+}
+.checking-brand-text {
+  display: grid;
+  min-width: 0;
+}
+.checking-brand h1 {
+  font-size: var(--st-text-md);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.checking-brand p {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--st-text-2xs);
+  color: var(--st-text-on-glass-secondary);
+}
+.checking-topbar .command-trigger[data-variant] {
+  flex: 1;
+  min-width: 0;
+  max-width: 620px;
+  height: 42px;
+  margin: 0;
+  width: 100%;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 0 8px 0 14px;
+  border: 1px solid var(--st-border-strong);
+  border-radius: var(--st-radius-full);
+  background: var(--st-surface);
+  color: var(--st-text-muted);
+  box-shadow: var(--st-shadow-raised), var(--st-highlight-inset);
+  font-size: var(--st-text-base);
+  font-weight: 400;
+  line-height: 1.5;
+}
+.checking-topbar .command-trigger .st-loading-slot {
+  width: 1.1em;
+  height: 1.1em;
+}
+.checking-topbar .account-chip {
+  flex: none;
+  display: inline-flex;
+  gap: 8px;
+  min-height: 40px;
+  padding: 3px 12px 3px 3px;
+  border-radius: var(--st-radius-full);
+  border: 1px solid var(--st-border-strong);
+  background: var(--st-surface);
+  max-width: 190px;
+}
+.account-chip > .st-button-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.checking-topbar .account-chip[aria-expanded="true"] {
+  border-color: var(--st-accent);
+  background: var(--st-accent-tint);
+}
+.checking-topbar .command-trigger:hover {
+  border-color: var(--st-border-emphasis);
   background: var(--st-surface);
 }
-.check-back {
+.command-trigger-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: start;
+}
+.account-chip-label {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.account-avatar {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--st-radius-full);
+  background: var(--st-accent);
+  color: var(--st-on-accent);
+  font: 600 var(--st-text-xs) var(--st-font-mono);
+}
+@container app (width < 700px) {
+  .checking-topbar-inner {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    height: 54px;
+    gap: 6px;
+  }
+  .checking-topbar .account-chip {
+    padding: 3px;
+    max-width: none;
+  }
+  .checking-topbar .command-trigger[data-variant] {
+    height: 40px;
+    padding: 0 12px;
+  }
+  .checking-topbar .command-trigger kbd,
+  .account-chip-label {
+    display: none;
+  }
+  /* The mark stands for the name in the panel; the heading stays for
+     assistive technology. */
+  .checking-brand:has(img) .checking-brand-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+.account-entry {
+  width: 340px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100dvh - 90px);
+  overflow-y: auto;
+  padding: 14px;
+  border: 1px solid var(--st-glass-border);
+  border-radius: var(--st-radius-xl);
+  background: var(--st-glass-base);
+  box-shadow:
+    var(--st-shadow-glass),
+    inset 0 1px 0 var(--st-glass-rim-1);
+  backdrop-filter: blur(var(--st-glass-blur)) saturate(var(--st-glass-saturate));
+}
+.account-entry .st-dialog {
+  display: grid;
+  gap: 10px;
+  padding: 0;
+}
+.account-entry :where(h2) {
+  margin: 0;
+  font-size: var(--st-text-md);
+  font-weight: 800;
+  /* text-lg's tracking would ride along; D .pop h2 keeps normal tracking. */
+  letter-spacing: normal;
+  /* #194 D .pop h2 inherits the body's 1.5 rather than a heading's tight leading. */
+  line-height: 1.5;
+}
+.account-entry :where(p) {
+  margin: 0;
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
+}
+.account-entry .st-track {
+  height: 8px;
+  background: var(--st-chart-track);
+}
+.account-entry .st-progress {
+  gap: 0;
+}
+.account-entry .st-progress > :is(label, .react-aria-Label) {
+  font-size: var(--st-text-2xs);
+  font-weight: 600; /* #194 .eyebrow */
+  line-height: calc(var(--st-text-base) * 1.5);
+  text-transform: uppercase;
+  letter-spacing: var(--st-tracking-caps);
+  color: var(--st-text-muted);
+}
+.account-entry .st-meter-value {
+  font: 400 var(--st-text-sm) / 1.5 var(--st-font-mono);
+  color: var(--st-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.account-entry :where(button, a) {
+  min-height: 28px;
+  min-width: 24px;
+}
+.account-entry a {
+  display: inline-flex;
+  align-items: center;
+  padding-block: 4px;
+  color: var(--st-accent-text);
+  text-decoration: underline;
+}
+.account-entry-identity {
+  overflow-wrap: anywhere;
+  font-weight: 700;
+  color: var(--st-text);
+}
+.account-entry .account-entry-identity {
+  color: var(--st-text);
+}
+.account-entry .st-progress > span:not([class]) {
   display: none;
 }
-.feed-card {
+.account-entry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px; /* #194 D .row */
+}
+/* #194 D accountStub: the popover is the entry point to Account and
+   Preferences. Those entry actions follow the prototype rows as one quiet,
+   hairline-separated group. */
+.account-entry .account-entry-more {
+  padding-top: 10px;
+  border-top: 1px solid var(--st-border);
+}
+.account-dialog {
+  display: grid;
+  gap: 16px;
+}
+.account-dialog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.account-dialog :where(p) {
+  margin: 0;
+}
+.account-dialog .account-sign-in-form {
+  margin-top: 16px;
+}
+.account-dialog > section {
+  padding-top: 16px;
+  border-top: 1px solid var(--st-border);
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .account-entry {
+    background: var(--st-surface);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .account-entry {
+    background: var(--st-surface);
+    backdrop-filter: none;
+  }
+}
+
+/* ---------- shared rows ---------- */
+.note-row,
+.feed-foot-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
+}
+.note-row > svg,
+.feed-foot-row > svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--st-feedback-info);
+  stroke-width: 1.75;
+}
+.feed-foot-row > svg {
+  color: var(--st-text-muted);
+}
+.workspace-notes {
+  display: grid;
+  gap: 8px;
+}
+/* #194 D intake notes are direct children of .intake, so they take its 14px
+   gap; the feed .foot keeps 8px. */
+.workspace-notes.intake-notes {
+  gap: 14px;
+}
+.workspace-legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
+}
+.workspace-legal a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.workspace-banners {
+  display: grid;
+  gap: 8px;
+}
+.workspace-banners:empty {
+  display: none;
+}
+.workspace-banners .st-banner {
+  padding: 10px 12px;
+  font-size: var(--st-text-sm);
+}
+.feed-link {
+  border: 0;
+  padding: 0;
+  background: none;
+  font: inherit;
+  font-weight: 700;
+  color: var(--st-accent-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+/* #194 D .lnk sits inside a sentence (WCAG 2.5.8 inline exception), so it
+   keeps the line height instead of a control's minimum height. */
+.st-control.feed-link[data-variant][data-size] {
+  min-height: 0;
+  line-height: inherit;
+  padding: 0;
+  display: inline-flex;
+  vertical-align: baseline;
+  box-shadow: none;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 700;
+  color: var(--st-accent-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.detail-note {
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
+}
+
+/* ---------- intake ---------- */
+.intake {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: clamp(20px, 9vh, 88px) var(--pad) 120px;
+  display: grid;
+  gap: 14px;
+}
+.intake-heading {
+  outline: none; /* a focus target after Undo, not a control */
+  font-size: var(--st-text-2xl);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+}
+.intake-lead {
+  color: var(--st-text-secondary);
+  max-width: 56ch;
+}
+@container app (width < 700px) {
+  .intake {
+    padding-top: 18px;
+  }
+  .intake-heading {
+    font-size: var(--st-text-xl);
+  }
+}
+.intake-command {
+  display: grid;
+  gap: 8px 10px;
+  padding: 12px 12px 10px 16px;
+  border-radius: var(--st-radius-2xl);
+  border: 1px solid var(--st-glass-border);
+  background: var(--st-glass-base);
+  box-shadow: var(--st-shadow-glass);
+  transition:
+    border-color var(--st-duration-fast),
+    box-shadow var(--st-duration-fast);
+}
+.intake-command:focus-within {
+  border-color: var(--st-accent);
+  box-shadow:
+    var(--st-shadow-glass),
+    0 0 0 3px var(--st-accent-glow);
+}
+.intake-text {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0 10px;
+  align-items: start;
+}
+.intake-search {
+  margin-top: 6px;
+  color: var(--st-text-muted);
+  stroke-width: 1.75;
+}
+.intake-text .intake-textarea {
+  grid-column: 2;
+  width: 100%;
+  min-height: 34px;
+  max-height: 44vh;
+  padding: 4px 0;
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+  background: transparent;
+  box-shadow: none;
+  resize: none;
+  overflow: auto;
+  field-sizing: content;
+  font: inherit;
+  font-size: var(--st-text-md);
+  line-height: 1.5;
+  color: var(--st-text);
+}
+/* Entered text keeps the field open: growing only on focus-within would move
+   Check under the pointer when a press focuses it, and the click is lost. */
+.intake-command:is(
+    :focus-within,
+    :has(.intake-textarea:not(:placeholder-shown))
+  )
+  .intake-textarea {
+  min-height: 96px;
+}
+.intake-textarea::placeholder {
+  color: var(--st-text-muted);
+}
+.intake-text .intake-textarea[data-focus-visible] {
+  outline: 0;
+}
+.intake-file-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px 12px;
+  min-height: 40px;
+}
+.intake-file-card > svg {
+  color: var(--st-text-muted);
+}
+.intake-file-name span {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.intake-file-name small {
+  display: block;
+  color: var(--st-text-muted);
+  font-size: var(--st-text-xs);
+}
+.intake-submit {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.intake-count {
+  margin-inline-end: auto;
+  font-family: var(--st-font-mono);
+  font-size: var(--st-text-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--st-text-on-glass-secondary);
+}
+.intake-count + .intake-kbd {
+  margin-inline-end: 0;
+}
+.intake-kbd {
+  margin-inline-end: auto;
+  font-size: var(--st-text-xs);
+  color: var(--st-text-on-glass-secondary);
+}
+.intake-submit .st-disabled-control {
+  flex: 1;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+.intake-submit .st-disabled-control > :not(button) {
+  flex: 1 1 0;
+  min-width: 0;
+  font-size: var(--st-text-xs);
+  color: var(--st-text-on-glass-secondary);
+}
+.intake-submit .st-disabled-control > button {
+  flex: none;
+}
+.intake-sources {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.intake-spacer {
+  flex: 1;
+}
+.intake-segment {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--st-radius-full);
+  background: var(--st-surface-sunken);
+  border: 1px solid var(--st-border);
+}
+.intake-segment > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--st-radius-full);
+  background: transparent;
+  font: inherit;
+  font-weight: 700;
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
+}
+.intake-segment > button > svg {
+  stroke-width: 1.75;
+}
+.intake-segment > button[data-selected] {
+  background: var(--st-surface);
+  color: var(--st-text);
+  border: 1px solid var(--st-border-strong);
+  box-shadow: var(--st-shadow-raised), var(--st-highlight-inset);
+}
+.intake-segment > button[data-disabled]:not([data-selected]) {
+  opacity: 0.5;
+}
+.intake-segment > button[data-focus-visible] {
+  outline: var(--st-focus-width) solid var(--st-focus-ring);
+  outline-offset: 1px;
+}
+.intake-hint {
+  font-size: var(--st-text-sm);
+  color: var(--st-text-muted);
+}
+.intake-files {
+  display: grid;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--st-radius-lg);
   background: var(--st-surface);
   border: 1px solid var(--st-border);
-  border-radius: var(--st-radius-xl);
-  padding: 16px;
-  cursor: pointer;
-  margin-bottom: 12px;
+  box-shadow: var(--st-shadow-raised);
 }
-.feed-card[data-selected] {
+.intake-files[hidden] {
+  display: none;
+}
+.intake-drop {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 20px 12px;
+  border: 1px dashed var(--st-border-emphasis);
+  border-radius: var(--st-radius-md);
+  background: var(--st-surface-sunken);
+  text-align: center;
+  color: var(--st-text-secondary);
+  font-size: var(--st-text-sm);
+}
+.intake-file-fields {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.intake-file-label {
+  font-weight: 700;
+  font-size: var(--st-text-sm);
+}
+.intake-file-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.intake-file-input {
+  font-size: var(--st-text-sm);
+}
+
+/* ---------- dialogs ---------- */
+/* #194 D .dlg: ordinary dialogs sit below the command palette's 90px line. */
+.st-modal-overlay:not(.st-command-overlay):has(> .st-modal:not(.st-sheet)) {
+  align-items: flex-start;
+  padding: min(14vh, 110px) 12px 12px;
+}
+.st-modal-overlay:not(.st-command-overlay) > .st-modal:not(.st-sheet) {
+  max-height: 80dvh;
+}
+.st-modal:has(> .workspace-dialog:not(.wide)) {
+  max-width: 520px;
+}
+.workspace-dialog {
+  display: grid;
+  gap: 12px;
+}
+.st-dialog.workspace-dialog {
+  padding: 18px;
+}
+.workspace-dialog h2 {
+  font-size: var(--st-text-lg);
+  font-weight: 800;
+  line-height: 1.5;
+}
+.workspace-dialog .st-actions {
+  justify-content: flex-end;
+  margin-top: 0;
+}
+/* Content reached from the ⋯ Menu brings its own section: inside a Dialog the
+   Dialog is the card, so the section drops its frame and its h3 is the title. */
+.workspace-dialog > section {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+}
+.workspace-dialog > section > h3:first-child {
+  font-size: var(--st-text-lg);
+  font-weight: 800;
+  line-height: 1.5;
+  color: var(--st-text);
+}
+.reference-exports {
+  display: grid;
+  gap: 12px;
+}
+.reference-exports .workspace-select {
+  color: var(--st-text-secondary);
+}
+.export-subheading {
+  font-weight: 700;
+}
+.export-note {
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
+}
+.reference-exports .st-actions {
+  margin-top: 0;
+}
+.workspace-dialog-steps {
+  list-style: decimal;
+  padding-left: 20px;
+  display: grid;
+  gap: 6px;
+}
+.workspace-preferences {
+  display: grid;
+  gap: 12px;
+}
+.workspace-select {
+  display: grid;
+  gap: 3px;
+  font-size: var(--st-text-sm);
+  font-weight: 700;
+  color: var(--st-text-secondary);
+}
+/* Native selects in the dialogs read as fields, like the Input primitive. */
+.workspace-select :is(select, input) {
+  width: 100%;
+  min-height: 38px;
+  padding: 6px 10px;
+  border: 1px solid var(--st-border-emphasis);
+  border-radius: var(--st-radius-md);
+  background-color: var(--st-surface);
+  color: var(--st-text);
+  font: inherit;
+  font-weight: 400;
+  font-size: var(--st-text-sm);
+}
+.workspace-select select:focus-visible {
+  outline: var(--st-focus-width) solid var(--st-focus-ring);
+  outline-offset: 1px;
+}
+.workspace-panel {
+  display: grid;
+  gap: 12px;
+}
+.strip-menu {
+  min-width: min(300px, 92vw);
+  padding: 6px;
+  border-color: var(--st-border-strong);
+}
+.strip-menu .st-menu {
+  display: grid;
+  gap: 2px;
+  /* D's items span the whole Menu, so the hover fill does too. */
+  width: auto;
+  max-width: none;
+}
+/* A disabled item fades like D's `.mi:disabled` (opacity .6) and takes no
+   fill; its label keeps the text colour and its note stays muted. */
+.strip-menu .strip-menu-item[data-disabled] {
+  background: transparent;
+  color: var(--st-text);
+  opacity: 0.6;
+}
+.strip-menu .strip-menu-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 10px;
+  row-gap: 0;
+  align-items: center;
+  min-height: 40px;
+  padding: 4px 10px;
+  border-radius: var(--st-radius-md);
+  font-weight: 600;
+  font-size: var(--st-text-sm);
+}
+/* D explicitly gives menu icons an 18px target. */
+.strip-menu-item > svg {
+  width: 18px;
+  height: 18px;
+}
+.strip-menu-item[data-focused]:not([data-hovered]) {
+  background: transparent;
+}
+.strip-menu-item[data-hovered] {
+  background: var(--st-accent-tint);
+}
+.strip-menu-item small {
+  grid-column: 2;
+  color: var(--st-text-muted);
+  font-weight: 400;
+  font-size: var(--st-text-xs);
+}
+
+/* ---------- stage: feed column and push detail ---------- */
+.check-stage {
+  display: flex;
+  align-items: flex-start;
+  min-height: calc(100dvh - var(--checking-topbar-height, 60px));
+  /* The narrow detail slides in from 20 px to the right; that must not widen
+     the page for the length of the motion. Clip is no scroll container, so
+     the sticky strip and detail still stick to the viewport. */
+  overflow-x: clip;
+}
+.check-main {
+  flex: 1;
+  min-width: 0;
+  container: feed / inline-size;
+}
+
+/* ---------- sticky summary strip ---------- */
+.summary-container {
+  position: sticky;
+  top: var(--checking-topbar-height, 60px);
+  z-index: var(--st-z-sticky);
+  padding: 8px var(--pad) 0;
+}
+.summary-strip {
+  max-width: 880px;
+  margin: 0 auto;
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--st-radius-xl);
+}
+.summary-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-height: 34px;
+}
+.summary-row .st-icon-button[data-size="sm"] {
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+}
+.summary-phase {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+}
+.summary-checked,
+.summary-sentence {
+  font-size: var(--st-text-sm);
+  color: var(--st-text-on-glass-secondary);
+}
+.summary-checked {
+  font-family: var(--st-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.summary-sentence {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+.summary-spacer {
+  display: none;
+}
+.summary-progress {
+  flex: 1 1 80px;
+  min-width: 60px;
+  height: 6px;
+  border-radius: var(--st-radius-full);
+  background: var(--st-surface-sunken);
+  border: 1px solid var(--st-border);
+  overflow: hidden;
+}
+.summary-progress i {
+  display: block;
+  height: 100%;
+  background: var(--st-accent);
+  transition: width var(--st-duration-base) var(--st-ease-standard);
+}
+.summary-progress.compact {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 0;
+  height: 2px;
+  min-width: 0;
+  border: 0;
+  border-radius: 2px;
+  background: var(--st-border);
+}
+.summary-counts {
+  display: grid;
+  gap: 8px;
+}
+.summary-verdicts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+@container feed (width >= 640px) {
+  .summary-verdicts {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+.summary-counter {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 6px;
+  row-gap: 1px;
+  min-height: 46px;
+  padding: 6px 8px;
+  border-radius: var(--st-radius-md);
+  border: 1px solid var(--vb);
+  background: var(--vt);
+  color: var(--st-text);
+  font: inherit;
+  text-align: start;
+}
+.summary-counter .verdict-glyph {
+  width: 18px;
+  height: 18px;
+}
+.summary-count {
+  font-weight: 800;
+  font-size: var(--st-text-lg);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.summary-label {
+  grid-column: 1 / -1;
+  font-size: var(--st-text-2xs);
+  color: var(--st-text-secondary);
+  line-height: 1.2;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+.summary-counter[data-selected] {
   outline: 2px solid var(--st-accent);
-  outline-offset: -2px;
+  outline-offset: 1px;
+  background: var(--st-surface);
+}
+.summary-counter[data-selected]::after {
+  content: "";
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--st-accent);
+}
+.summary-counter[data-disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.summary-statuses {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 6px 10px;
+  min-height: 46px;
+  border-radius: var(--st-radius-md);
+  border: 1px dashed var(--st-border-emphasis);
+  background: var(--st-glass-base);
+}
+.summary-eyebrow {
+  flex: 1 0 100%;
+  font-size: var(--st-text-2xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--st-tracking-caps);
+  color: var(--st-text-on-glass-secondary);
+}
+.summary-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  font: inherit;
+  font-size: var(--st-text-xs);
+  font-weight: 700;
+  color: var(--st-text);
+}
+.summary-status > span {
+  font-variant-numeric: tabular-nums;
+}
+.summary-status[data-selected] {
+  outline: 2px solid var(--st-accent);
+  outline-offset: 1px;
+}
+/* D .frow: the wide strip's filter line. */
+.active-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: var(--st-text-sm);
+  font-weight: 700;
+}
+/* D .btn.sm.ghost */
+.active-filter > .st-control[data-variant] {
+  min-height: 34px;
+  padding: 0 12px;
+  gap: 8px;
+  font-size: var(--st-text-sm);
+  font-weight: 700;
+  line-height: 1.2;
+}
+/* D .fchip: the compact strip's chip. */
+.active-filter.compact {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  justify-self: start;
+  min-height: 28px;
+  padding: 0 4px 0 10px;
+  border-radius: var(--st-radius-full);
+  border: 1px solid var(--st-border-strong);
+  background: var(--st-surface);
+}
+/* D .fchip button: a 24 px round target. */
+.active-filter.compact .st-icon-button {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+}
+.active-filter .verdict-glyph,
+.active-filter > svg {
+  width: 15px;
+  height: 15px;
+}
+/* Compact strip ("a"): glyph + count, one row. */
+.summary-section[data-compact="true"] .summary-strip {
+  padding: 6px;
+  gap: 6px;
+  border-radius: var(--st-radius-lg);
+}
+.summary-section[data-compact="true"] .summary-row {
+  flex-wrap: nowrap;
+  gap: 4px;
+  min-height: 0;
+}
+.summary-compact-counts {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 2px;
+  min-width: 0;
+}
+.summary-counter.compact {
+  display: inline-flex;
+  justify-content: center;
+  gap: 3px;
+  flex: 1 1 0;
+  min-width: 34px;
+  min-height: 32px;
+  padding: 0 4px;
+  border: 1px solid transparent;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  white-space: nowrap;
+}
+.summary-counter.compact .verdict-glyph {
+  width: 16px;
+  height: 16px;
+}
+.summary-counter.compact .summary-count,
+.summary-status.compact .summary-count {
+  font-size: var(--st-text-sm);
+}
+.summary-counter.compact:hover:not([data-disabled]) {
+  border-color: var(--st-border-strong);
+}
+.summary-counter.compact[data-disabled] {
+  opacity: 0.45;
+}
+.summary-counter.compact[data-selected] {
+  outline: 0;
+  border-color: var(--st-accent);
+  background: var(--st-surface);
+  box-shadow: inset 0 0 0 1px var(--st-accent);
+}
+.summary-counter.compact[data-selected]::after {
+  content: none;
+}
+.summary-status.compact {
+  flex: none;
+  gap: 3px;
+  min-height: 32px;
+  padding: 0 4px;
+  border: 1px dashed var(--st-border-emphasis);
+  font-size: var(--st-text-sm);
+}
+.summary-status.compact[data-pressed] {
+  border-style: solid;
+  border-color: var(--st-accent);
+}
+.summary-status .st-loading-slot {
+  display: none;
+}
+.summary-section[data-compact="true"] .summary-row .st-icon-button {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+}
+/* Below the 360 px panel the six counters, the status and ⋯ still fit
+   one row at 320 px (WCAG 1.4.10): the tiles narrow to 30 px, still
+   above the 24 px target size. */
+@container app (width < 360px) {
+  .summary-counter.compact {
+    min-width: 30px;
+    gap: 2px;
+    padding: 0 2px;
+  }
+}
+@container app (width < 700px) {
+  .summary-container {
+    padding-top: 6px;
+  }
+  /* D's narrow .strip/.sh/.cnts/.cnt/.stg: the wide strip under "Show
+     all labels" at 360 px. */
+  .summary-section[data-compact="false"] .summary-strip {
+    padding: 8px;
+    gap: 6px;
+    border-radius: var(--st-radius-lg);
+  }
+  .summary-section[data-compact="false"] .summary-row {
+    gap: 6px 8px;
+    min-height: 0;
+  }
+  /* D's .note sits beside the phase; .spc pushes the buttons along. */
+  .summary-section[data-compact="false"] .summary-sentence {
+    flex: 0 1 auto;
+  }
+  .summary-section[data-compact="false"] .summary-spacer {
+    display: block;
+    flex: 1;
+  }
+  .summary-section[data-compact="false"] .summary-verdicts {
+    gap: 4px;
+  }
+  .summary-section[data-compact="false"] .summary-counter {
+    min-height: 40px;
+    padding: 4px 6px;
+  }
+  .summary-section[data-compact="false"] .summary-count {
+    font-size: var(--st-text-md);
+  }
+  .summary-section[data-compact="false"] .summary-statuses {
+    min-height: 0;
+    padding: 4px 8px;
+    gap: 2px 8px;
+  }
+  .summary-section[data-compact="false"] .summary-eyebrow {
+    flex: 0 0 auto;
+  }
+}
+
+/* ---------- feed ---------- */
+.check-feed {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 12px var(--pad) 110px;
+  display: grid;
+  gap: 12px;
+}
+.feed-lede {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: var(--st-text-md);
+  font-weight: 700;
+}
+.feed-lede-phase {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.feed-echo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
+}
+.feed-echo b {
+  overflow-wrap: anywhere;
+}
+.feed-echo-count {
+  font-family: var(--st-font-mono);
+  /* D's .mono scale. */
+  font-size: calc(var(--st-font-mono-scale) * 1em);
+  font-variant-numeric: tabular-nums;
+  color: var(--st-text-muted);
+}
+.feed-note {
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
+}
+.feed-cards {
+  display: grid;
+  gap: 10px;
+}
+.feed-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 6px 12px;
+  align-items: start;
+  padding: 12px 14px;
+  border-radius: var(--st-radius-lg);
+  background: var(--st-surface);
+  border: 1px solid var(--st-border);
+  box-shadow: var(--st-shadow-raised);
+  cursor: pointer;
+  outline: none;
+  transition:
+    border-color var(--st-duration-fast),
+    box-shadow var(--st-duration-fast);
+}
+.feed-card[data-verdict] {
+  border-color: var(--vb);
 }
 .feed-card[data-hovered] {
   box-shadow: var(--st-shadow-lifted);
 }
-.feed-card button {
+.feed-card[data-current] {
+  outline: 2px solid var(--st-accent);
+  outline-offset: 0;
+}
+.feed-card[data-focus-visible] {
+  outline: 2px solid var(--st-focus-ring);
+  outline-offset: 2px;
+}
+.card-num {
+  min-width: 22px;
+  padding-top: 3px;
+  font: 600 var(--st-text-xs) var(--st-font-mono);
+  color: var(--st-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.card-main {
+  min-width: 0;
+}
+.card-title {
+  font-size: var(--st-text-base);
+  font-weight: 700;
+  line-height: 1.3;
+}
+.card-open {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
   text-align: start;
-  display: block;
-  font-weight: 600;
-  color: var(--st-text);
-  text-decoration: none;
+  outline: none;
 }
-.feed-slot {
-  font-family: var(--st-font-mono);
-  font-size: 0.94em;
-  margin-inline-end: 8px;
+.card-open::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+.card-meta {
+  font-size: var(--st-text-xs);
+  color: var(--st-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.card-meta:empty {
+  display: none;
+}
+.card-result {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+  max-width: 220px;
+}
+.card-track,
+.card-reason,
+.feed-draft {
+  grid-column: 2 / -1;
+}
+.card-track {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  min-height: 26px;
+}
+.card-step {
+  flex: 1 1 120px;
+  min-width: 0;
+  font: 500 var(--st-text-xs) var(--st-font-mono);
   color: var(--st-text-secondary);
+  overflow-wrap: anywhere;
 }
-.feed-meta {
+.card-reason {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
   font-size: var(--st-text-sm);
   color: var(--st-text-secondary);
-  margin: 8px 0;
 }
 .feed-draft {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin: 8px 0 0;
-  font-size: var(--st-text-sm);
-  font-weight: 600;
+  font-size: var(--st-text-xs);
+  font-weight: 700;
   color: var(--st-text);
 }
-.feed-reason {
-  font-size: var(--st-text-sm);
-  color: var(--st-text);
+@container feed (width < 540px) {
+  .feed-card {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .card-result {
+    grid-column: 2;
+    justify-content: flex-start;
+    max-width: none;
+  }
 }
-.verdict-glyph {
+.feed-empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 20px;
+  text-align: center;
+  color: var(--st-text-secondary);
+}
+.feed-foot {
+  display: grid;
+  gap: 8px;
+  padding-top: 8px;
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
+}
+
+/* evidence step track */
+.evidence-track {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.track-node {
+  position: relative;
   flex: none;
-  display: inline-block;
-  vertical-align: middle;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--st-border-strong);
+  background: var(--st-surface);
+  color: var(--st-text-muted);
 }
-.verdict-glyph path:not([fill]),
-.verdict-glyph ellipse {
-  fill: none;
-  stroke: var(--st-on-verdict-mark);
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.track-node + .track-node {
+  margin-left: 14px;
+}
+.track-node + .track-node::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  width: 14px;
+  height: 2px;
+  background: var(--st-border-strong);
+  transform: translateY(-50%);
+}
+.track-node > svg:not(.verdict-glyph) {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.4;
+}
+.track-node[data-state="cur"] > svg {
+  width: 16px;
+  height: 16px;
+}
+.track-node > .verdict-glyph {
+  width: 16px;
+  height: 16px;
+}
+.track-node[data-state="ok"] {
+  color: var(--st-verdict-correct-mark);
+  background: var(--st-surface);
+  border-color: var(--st-border-strong);
+}
+.track-node[data-state="diff"] {
+  color: var(--st-verdict-deviations-mark);
+  background: var(--st-surface);
+  border-color: var(--st-border-strong);
+}
+.track-node[data-state="bad"] {
+  color: var(--st-verdict-not-found-mark);
+  background: var(--st-surface);
+  border-color: var(--st-border-strong);
+}
+.track-node[data-state="warn"] {
+  color: var(--st-feedback-warning);
+  background: var(--st-feedback-warning-tint);
+  border-color: var(--st-feedback-warning);
+}
+.track-node[data-state="none"] {
+  color: var(--st-text-muted);
+  background: var(--st-surface-sunken);
+}
+.track-node[data-state="pend"] {
+  border-style: dashed;
+  background: transparent;
+}
+.track-node[data-state="cur"] {
+  color: var(--st-accent-text);
+  border-color: var(--st-accent);
+  background: var(--st-accent-tint);
+}
+
+/* ---------- chips ---------- */
+.verdict-chip,
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 26px;
+  max-width: 100%;
+  padding: 2px 10px 2px 5px;
+  border-radius: var(--st-radius-full);
+  font-weight: 700;
+  font-size: var(--st-text-sm);
+  line-height: 1.2;
+  color: var(--st-text);
+}
+.verdict-chip {
+  background: var(--vt);
+  border: 1px solid var(--vb);
+}
+.verdict-chip .verdict-glyph {
+  width: 18px;
+  height: 18px;
+}
+.verdict-chip.lg {
+  min-height: 34px;
+  padding: 3px 14px 3px 7px;
+  font-size: var(--st-text-md);
+}
+.verdict-chip.lg .verdict-glyph {
+  width: 24px;
+  height: 24px;
+}
+.status-chip {
+  padding-left: 7px;
+  border: 1px dashed var(--st-border-emphasis);
+  color: var(--st-text-secondary);
+}
+.status-chip > svg {
+  width: 16px;
+  height: 16px;
+}
+.status-chip[data-status="running"] {
+  color: var(--st-accent-text);
+  border: 1px solid var(--st-accent);
+  background: var(--st-accent-tint);
+}
+.status-chip[data-status="failed"] {
+  color: var(--st-feedback-danger);
+  border: 1px solid var(--st-feedback-danger);
+  background: var(--st-feedback-danger-tint);
+}
+.manual-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 22px;
+  padding: 1px 8px;
+  border-radius: var(--st-radius-full);
+  font-size: var(--st-text-xs);
+  font-weight: 700;
+  color: var(--st-accent-text);
+  background: var(--st-accent-tint);
+  border: 1px solid var(--st-accent);
 }
 .verdict-badge,
 .status-badge {
@@ -135,206 +1653,803 @@ body {
   border-style: dashed;
   color: var(--st-text-secondary);
 }
+/* D's .spin: the running glyph turns unless motion is reduced. A turning
+   glyph never anchors the scroll: its per-frame rotation would suppress
+   scroll anchoring for the card it sits in. */
 .status-running {
-  color: var(--st-accent);
+  overflow-anchor: none;
 }
-.manual-tag,
-.manual-system {
-  display: block;
-  color: var(--st-text-secondary);
-  font-size: var(--st-text-sm);
+@media (prefers-reduced-motion: no-preference) {
+  .status-running {
+    animation: st-spin 900ms linear infinite;
+  }
 }
-.evidence-track {
-  display: flex;
-  flex-wrap: wrap;
-  list-style: none;
-  color: var(--st-text-secondary);
-  font-size: var(--st-text-sm);
-  margin-top: 8px;
+.verdict-glyph {
+  flex: none;
+  display: inline-block;
+  vertical-align: middle;
 }
-.evidence-track li {
-  border-inline-start: 2px solid var(--st-border-strong);
-  padding-inline-start: 8px;
+.verdict-glyph path:not([fill]),
+.verdict-glyph ellipse {
+  fill: none;
+  stroke: var(--st-on-verdict-mark);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
-.summary-container {
+
+/* ---------- reference detail ---------- */
+/* The detail pane keeps its own scroll anchoring, but the window must not
+   anchor on content inside it (#220). Both would otherwise compensate for the
+   same late insertion, once in the pane and once in the window, and the
+   window scroll would move a control out from under a pointer that is still
+   down (a lost press). */
+.check-detail-slot {
   position: sticky;
-  top: 72px;
-  z-index: var(--st-z-sticky);
-  margin: 16px 0;
+  top: var(--checking-topbar-height, 60px);
+  flex: none;
+  height: calc(100dvh - var(--checking-topbar-height, 60px));
+  overflow-anchor: none;
 }
-.summary-strip {
-  padding: 8px;
-  border-radius: var(--st-radius-lg);
+.check-detail {
+  /* The detail scrolls, so it is also the containing block of its absolutely
+     positioned descendants (the visually hidden labels); otherwise they add
+     phantom overflow to the page and shift its scroll range. */
+  position: relative;
+  width: clamp(380px, 38cqw, 520px);
+  height: 100%;
+  overflow: auto;
+  overflow-x: hidden;
+  container: detail / inline-size;
+  background: var(--st-surface);
+  border-left: 1px solid var(--st-border-strong);
+  box-shadow: var(--st-shadow-raised);
+  scrollbar-width: thin;
+  scrollbar-color: var(--st-border-strong) transparent;
+  scroll-padding-block-start: calc(var(--detail-header-height, 0px) + 12px);
+  animation: detail-push var(--st-duration-base) var(--st-ease-standard);
 }
-.summary-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  align-items: center;
+@keyframes detail-push {
+  from {
+    width: 0;
+  }
 }
-.summary-counter {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  min-height: 28px;
-  min-width: 28px;
-  border: 1px solid var(--st-border-strong);
-  border-radius: var(--st-radius-sm);
-  padding: 2px 6px;
-  color: var(--st-text);
-  font-size: var(--st-text-sm);
-  font-variant-numeric: tabular-nums;
-}
-.summary-counter[data-selected] {
-  outline: 2px solid var(--st-accent);
-  outline-offset: -2px;
-  background: var(--st-accent-tint);
-  font-weight: 600;
-}
-.summary-strip progress {
-  display: block;
-  width: 100%;
-  height: 2px;
-  appearance: none;
-  margin-top: 6px;
-  border: 0;
-  background: var(--st-surface-sunken);
-  accent-color: var(--st-accent);
-}
-.summary-strip progress::-webkit-progress-bar {
-  background: var(--st-surface-sunken);
-}
-.summary-strip progress::-webkit-progress-value {
-  background: var(--st-accent);
-}
-.summary-strip progress::-moz-progress-bar {
-  background: var(--st-accent);
-}
-.summary-wide-statuses {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  color: var(--st-text-on-glass-secondary);
-  font-size: var(--st-text-sm);
-  margin-top: 8px;
-}
-.summary-wide-statuses button {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-height: 28px;
-  border: 1px dashed var(--st-border-emphasis);
-  padding: 2px 6px;
-  border-radius: var(--st-radius-sm);
-}
-.summary-wide-statuses button[aria-pressed="true"] {
-  outline: 2px solid var(--st-accent);
-}
-.summary-status {
-  padding: 2px 4px;
-  border: 1px dashed var(--st-border-emphasis);
-  color: var(--st-text-on-glass-secondary);
-}
-.summary-status .st-loading-slot {
+/* Narrow: the detail is a push view that replaces the feed, not an overlay
+   above it. The feed keeps its state and scroll position is restored on Back. */
+.check-stage[data-narrow="true"][data-detail-open="true"] .check-main {
   display: none;
 }
-.active-filter {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  padding: 4px 8px;
-  border: 1px solid var(--st-border);
-  background: var(--st-surface);
-  border-radius: var(--st-radius-md);
-  margin-top: 4px;
-}
-.active-filter span {
+/* D keeps the full-cover narrow detail in its own viewport scroller. */
+.check-stage[data-narrow="true"] .check-detail-slot {
+  position: sticky;
+  top: var(--checking-topbar-height, 54px);
   flex: 1;
+  min-width: 0;
+  height: calc(100dvh - var(--checking-topbar-height, 54px));
+  overflow-anchor: none;
 }
-.check-comparison {
-  table-layout: fixed;
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
+.check-stage[data-narrow="true"] .check-detail {
+  width: auto;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+  border-left: 0;
+  box-shadow: none;
+  animation-name: detail-slide;
 }
-.check-comparison th,
-.check-comparison td {
-  width: 50%;
-  vertical-align: top;
-  text-align: left;
-  padding: 0.5rem 0.25rem;
-  border-bottom: 1px solid var(--st-border);
+.check-stage[data-narrow="true"] .detail-head {
+  top: 0;
+}
+@keyframes detail-slide {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+}
+.detail-head {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-width: 0 0 1px;
+  border-radius: 0;
+}
+.detail-head.st-glass::before {
+  border-width: 0 0 1px;
+}
+.detail-position {
+  flex: 1;
+  text-align: center;
+  font-size: var(--st-text-xs);
+  color: var(--st-text-on-glass-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.detail-pager {
+  display: flex;
+  gap: 6px;
+}
+.detail-pager .st-icon-button,
+.detail-pager-gap {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--st-radius-full);
+}
+/* Every grid in the detail takes one shrinkable column. A grid item's
+   automatic minimum is its min-content width, so one unbreakable string
+   (a rules version or a URL) would otherwise widen the whole detail past a
+   360 px panel. */
+.check-stage[data-narrow="false"] :is(.detail-body, .detail-head) {
+  width: calc(100% + 1px);
+}
+.detail-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  padding: 16px 16px 120px;
+}
+.detail-title {
+  font-size: var(--st-text-lg);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  overflow-wrap: anywhere;
+  outline: none;
+}
+/* Programmatic focus target, not a control: D shows no ring (.dtitle). */
+.check-workspace .detail-title:focus-visible {
+  outline: none;
+}
+.detail-authors {
+  margin-top: 2px;
+  font-size: var(--st-text-sm);
+  color: var(--st-text-muted);
+  overflow-wrap: anywhere;
+}
+.detail-verdict {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  padding: 12px;
+  border-radius: var(--st-radius-lg);
+  background: var(--vt, var(--st-surface-sunken));
+  border: 1px solid var(--vb, var(--st-border-strong));
+}
+.detail-verdict-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: inherit;
+}
+.detail-reason {
+  font-size: var(--st-text-base);
+  line-height: 1.45;
+}
+.detail-system {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
+}
+.detail-system .verdict-glyph {
+  width: 16px;
+  height: 16px;
+}
+.detail-verdict .card-track {
+  grid-column: auto;
+}
+.detail-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+.detail-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.detail-eyebrow {
+  font-size: var(--st-text-2xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--st-tracking-caps);
+  color: var(--st-text-muted);
+}
+.detail-original {
+  padding: 10px 12px;
+  border-radius: var(--st-radius-md);
+  background: var(--st-surface-sunken);
+  border: 1px solid var(--st-border);
+  font: 400 var(--st-text-sm) / 1.5 var(--st-font-mono);
   overflow-wrap: anywhere;
   white-space: pre-wrap;
 }
-.check-comparison tbody[data-deviates="true"] th {
-  border-inline-start: 3px solid var(--st-border-emphasis);
+.detail-best {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
 }
-.check-comparison th[colspan] {
-  width: auto;
+.detail-best a {
+  color: var(--st-accent-text);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
-@container (width < 700px) {
-  .summary-toolbar {
-    flex-wrap: nowrap;
-    gap: 2px;
-  }
-  .summary-counter {
-    flex: 1 1 0;
-    min-width: 24px;
-    padding: 2px;
-    gap: 2px;
-  }
-  .summary-counter .verdict-glyph {
-    width: 16px;
-    height: 16px;
-  }
-  .summary-container:not([data-labels="true"]) .counter-label,
-  .summary-wide-sentence,
-  .summary-wide-statuses {
-    display: none;
-  }
-  .summary-container[data-labels="true"] .summary-toolbar {
-    flex-wrap: wrap;
-  }
-  .summary-container[data-labels="true"] .summary-counter {
-    flex: 0 1 auto;
-    padding: 4px 6px;
-  }
-  .summary-status {
-    min-width: 28px;
-    padding: 2px;
-    gap: 2px;
-  }
+/* D .cb small */
+.detail-record {
+  margin-top: 2px;
+  font: 400 var(--st-text-2xs) var(--st-font-mono);
+  color: var(--st-text-muted);
 }
-@media (max-width: 767px) {
-  .check-workspace {
-    padding-inline: 12px;
+.detail-compare {
+  display: grid;
+  width: 100%;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-md);
+  overflow: hidden;
+  border-spacing: 0;
+}
+.detail-compare :is(thead, tbody) {
+  display: contents;
+}
+.detail-compare tr {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr) minmax(0, 1fr);
+  gap: 4px 10px;
+  padding: 8px 10px;
+  align-items: start;
+}
+.detail-compare :is(th, td) {
+  padding: 0;
+  text-align: start;
+  overflow-wrap: anywhere;
+  min-width: 0;
+  font-size: var(--st-text-sm);
+  font-weight: 400;
+}
+.detail-compare thead tr {
+  background: var(--st-surface-sunken);
+  text-transform: uppercase;
+  letter-spacing: var(--st-tracking-caps);
+  color: var(--st-text-muted);
+}
+.detail-compare thead th {
+  font-size: var(--st-text-2xs);
+  font-weight: 600;
+}
+.detail-compare tbody tr {
+  border-top: 1px solid var(--st-border);
+}
+.detail-compare th[scope="row"] {
+  font-weight: 700;
+  color: var(--st-text-secondary);
+  /* Long German field names break at a syllable (D .cnt .l). */
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+.compare-deviating {
+  text-decoration: underline wavy var(--st-verdict-deviations-mark);
+  text-underline-offset: 3px;
+}
+.compare-note {
+  display: block;
+  margin-top: 2px;
+  font: 400 var(--st-text-2xs) var(--st-font-mono);
+  color: var(--st-text-muted);
+}
+.compare-label {
+  display: none;
+  margin-bottom: 1px;
+  font-size: var(--st-text-2xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--st-tracking-caps);
+  color: var(--st-text-muted);
+}
+.compare-differs {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 2px;
+  font-size: var(--st-text-xs);
+  font-weight: 700;
+  color: var(--st-text);
+}
+.compare-differs .verdict-glyph {
+  width: 13px;
+  height: 13px;
+}
+.compare-agrees {
+  display: inline-flex;
+  margin-inline-start: 0;
+  vertical-align: middle;
+  color: var(--st-verdict-correct-mark);
+}
+.compare-unknown {
+  color: var(--st-text-muted);
+  font-style: italic;
+}
+@container detail (width < 470px) {
+  /* The table keeps its semantics; only the layout reflows to two columns. */
+  /* display: contents above would leave the header rows in the flow. */
+  .detail-compare thead {
+    display: block;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
-  .check-panes {
+  .detail-compare,
+  .detail-compare tbody {
     display: block;
   }
-  .check-panes .check-detail-slot {
-    display: none;
+  .detail-compare tbody + tbody tr {
+    border-top: 1px solid var(--st-border);
   }
-  .check-panes[data-detail-open="open"] .check-list {
-    display: none;
+  .detail-compare tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 4px 10px;
+    padding: 8px 10px;
   }
-  .check-panes[data-detail-open="open"] .check-detail-slot {
+  .detail-compare tbody :is(th, td) {
+    display: block;
+    padding: 0;
+    border-top: 0;
+    background: none;
+  }
+  .detail-compare tbody[data-deviates="true"] :is(th, td) {
+    background: none;
+  }
+  .detail-compare th[scope="row"] {
+    grid-column: 1 / -1;
+  }
+  .compare-label {
     display: block;
   }
-  .check-back {
-    display: inline-block;
+}
+/* These wrappers only group D's .dsec sections, which sit directly in
+   .dbody with its 18px gap. */
+.detail-actions,
+.detail-evidence,
+.detail-stack {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+}
+.detail-evidence {
+  overflow-wrap: anywhere;
+}
+.detail-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+/* D draws a lone detail checkbox as label.row.note around the native
+   checkbox (as .dlg label.opt in Edit list): RAC keeps the control, name,
+   focus and disabled state; the native box replaces the drawn mark. */
+.detail-check.st-checkbox {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-height: 0;
+  padding: 0;
+  font-size: var(--st-text-sm);
+  line-height: 1.5;
+  color: var(--st-text-secondary);
+}
+.detail-check.st-checkbox > span:has(> input[type="checkbox"]) {
+  display: contents !important;
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  clip: auto !important;
+  clip-path: none !important;
+  overflow: visible !important;
+  white-space: normal !important;
+}
+.detail-check.st-checkbox .st-choice-mark {
+  display: none;
+}
+.detail-check.st-checkbox input[type="checkbox"] {
+  margin: 3px 3px 3px 4px;
+}
+.detail-draft {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+/* D edits inside the field table: each Your Reference cell holds a .fld
+   input (D .fld, .cmp .fld input). Structured authors stack in their cell. */
+.detail-compare .detail-field {
+  display: grid;
+  gap: 3px;
+  font-size: var(--st-text-sm);
+  font-weight: 700;
+  color: var(--st-text-secondary);
+}
+.detail-compare .detail-field .st-input {
+  min-height: 34px;
+  padding: 6px 10px;
+  border-radius: var(--st-radius-md);
+  font-size: var(--st-text-sm);
+  font-weight: 400;
+}
+.detail-compare .detail-field label {
+  font: inherit;
+  color: inherit;
+}
+/* Author parts take the same .fld recipe; the group stacks like D's
+   block-level .fld labels, actions in a .row. */
+.detail-authors,
+.detail-author {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: start;
+  gap: 2px;
+  min-width: 0;
+}
+.detail-authors .detail-field {
+  justify-self: stretch;
+}
+.detail-author {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  /* D's block-level .fld labels stack without a gap. */
+  gap: 0;
+}
+.detail-author legend {
+  padding: 0;
+  color: var(--st-text);
+}
+.detail-authors .detail-check.st-checkbox {
+  flex-wrap: nowrap;
+  align-items: flex-start;
+}
+/* D's lower detail (.nrow, .tc, .srcs, .cand, .trail): sections between
+   Manual judgment and the history read as bordered lists, never as boxes. */
+.detail-evidence {
+  gap: 18px;
+}
+.detail-nrow {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
+}
+.detail-nrow > svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--st-feedback-info);
+}
+.detail-callout {
+  padding: 10px 12px;
+  border-radius: var(--st-radius-md);
+  border: 1px solid var(--st-border-strong);
+  background: var(--st-surface-sunken);
+  font-size: var(--st-text-sm);
+}
+.detail-tc {
+  padding: 10px 12px;
+  border-radius: var(--st-radius-md);
+  border: 1px solid var(--st-border);
+  background: var(--st-surface-sunken);
+  font-size: var(--st-text-sm);
+  line-height: 1.7;
+}
+.detail-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-md);
+  overflow: hidden;
+}
+.detail-list > li {
+  min-width: 0;
+  padding: 8px 10px;
+  font-size: var(--st-text-sm);
+}
+.detail-list > li + li {
+  border-top: 1px solid var(--st-border);
+}
+.detail-src,
+.detail-trail {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 2px 10px;
+  align-items: start;
+}
+.detail-mark {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  grid-row: span 2;
+}
+[data-state="ok"] > .detail-mark {
+  color: var(--st-verdict-correct-mark);
+}
+[data-state="diff"] > .detail-mark {
+  color: var(--st-verdict-deviations-mark);
+}
+[data-state="bad"] > .detail-mark {
+  color: var(--st-verdict-not-found-mark);
+}
+[data-state="warn"] > .detail-mark {
+  color: var(--st-feedback-warning);
+}
+[data-state="none"] > .detail-mark {
+  color: var(--st-text-muted);
+}
+.detail-src-name {
+  font-family: var(--st-font-mono);
+  font-weight: 600;
+}
+.detail-src-text {
+  grid-column: 2;
+  color: var(--st-text-secondary);
+}
+.detail-muted {
+  color: var(--st-text-muted);
+}
+.detail-trail-body {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.detail-trail {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+/* D `.te > .ico`: the trail's sprite mark fills its 20px box; the source
+   name is plain mono, not the bold source-list name. */
+.detail-trail > .detail-mark > svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 1.8;
+}
+.detail-trail .detail-src-name {
+  font-weight: 400;
+}
+.detail-trail-time {
+  font: 400 var(--st-text-xs) / 1.6 var(--st-font-mono);
+  color: var(--st-text-muted);
+  white-space: nowrap;
+}
+/* D: p.mono.muted at text-xs under the .tc box, in the .dsec gap. */
+.detail-tc-meta {
+  font: 400 var(--st-text-xs) / 1.5 var(--st-font-mono);
+  color: var(--st-text-muted);
+}
+/* D's small detail actions (.btn.sm) stand 34px tall. */
+.detail-body .st-control[data-size="sm"][data-variant]:not(.st-icon-button) {
+  min-height: 34px;
+}
+.detail-web {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 2px 8px;
+  margin-top: 4px;
+  font-size: var(--st-text-xs);
+}
+.detail-web dt {
+  color: var(--st-text-muted);
+}
+.detail-cand {
+  display: grid;
+  gap: 4px;
+}
+.detail-cand-meta {
+  font: 400 var(--st-text-sm) / 1.5 var(--st-font-mono);
+  color: var(--st-text-secondary);
+}
+.detail-cand-title {
+  font-size: var(--st-text-sm);
+  font-weight: 400;
+}
+.detail-link {
+  justify-self: start;
+  color: var(--st-accent-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.detail-fields {
+  display: grid;
+  gap: 8px;
+  padding-top: 4px;
+}
+/* D marks a deviating field with an amber ≠, as in the field table. */
+.detail-fields > div[data-deviates] dt::before {
+  content: "≠ " / "";
+  color: var(--st-verdict-deviations-mark);
+}
+.detail-fields dt {
+  font-weight: 600;
+}
+.detail-fields dd {
+  color: var(--st-text-secondary);
+}
+/* D's toggle button ("More candidates (2)", + closed, × open). */
+.detail-candidates {
+  display: grid;
+  gap: 8px;
+}
+.detail-candidates[open] {
+  gap: 10px;
+}
+.detail-toggle {
+  display: inline-flex;
+  justify-self: start;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: var(--st-radius-full);
+  border: 1px solid var(--st-border-strong);
+  background: var(--st-surface);
+  box-shadow: var(--st-shadow-raised), var(--st-highlight-inset);
+  font-size: var(--st-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+.detail-toggle::-webkit-details-marker,
+.detail-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+.detail-toggle:hover {
+  border-color: var(--st-border-emphasis);
+}
+.detail-candidates[open] > .detail-toggle .when-closed,
+.detail-candidates:not([open]) > .detail-toggle .when-open {
+  display: none;
+}
+/* Quiet Disclosure: provenance, field comparison and history. */
+.detail-disclosure > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  font-size: var(--st-text-sm);
+  font-weight: 600;
+  color: var(--st-text-secondary);
+  cursor: pointer;
+  list-style: none;
+}
+.detail-disclosure > summary:hover {
+  color: var(--st-text);
+}
+.detail-disclosure > summary > svg {
+  flex: none;
+  transition: transform var(--st-duration-fast);
+}
+.detail-disclosure[open] > summary > svg {
+  transform: rotate(90deg);
+}
+.detail-disclosure-body {
+  display: grid;
+  gap: 4px;
+  padding: 4px 0 0 22px;
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
+}
+.detail-history {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: var(--st-radius-md);
+  border: 1px solid var(--st-border);
+  font-size: var(--st-text-sm);
+}
+.detail-toggle:focus-visible,
+.detail-disclosure > summary:focus-visible {
+  outline: 2px solid var(--st-focus-ring);
+  outline-offset: 2px;
+}
+html:has(.check-workspace) {
+  scroll-padding-block-start: calc(
+    var(--checking-topbar-height, 60px) + var(--checking-strip-height, 64px) +
+      16px
+  );
+}
+
+/* ---------- quota ---------- */
+[data-testid="quota-meter"] progress {
+  display: block;
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  appearance: none;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-full);
+  background: var(--st-chart-track);
+  color: var(--st-accent);
+  accent-color: var(--st-accent);
+}
+[data-testid="quota-meter"] progress::-webkit-progress-bar {
+  border-radius: inherit;
+  background: transparent;
+}
+[data-testid="quota-meter"] progress::-webkit-progress-value {
+  border-radius: inherit;
+  background: var(--st-accent);
+}
+[data-testid="quota-meter"] progress::-moz-progress-bar {
+  border-radius: inherit;
+  background: var(--st-accent);
+}
+
+/* ---------- tracked change ---------- */
+.tracked-change {
+  overflow-wrap: anywhere;
+}
+/* D .st-del / .st-ins (the shared tracked-change marks) */
+.tracked-change del {
+  color: var(--st-correction-delete-text);
+  background: var(--st-correction-delete-bg);
+  text-decoration: line-through;
+  text-decoration-color: var(--st-correction-delete-line);
+  text-decoration-thickness: 1.5px;
+  border-radius: var(--st-radius-xs);
+}
+.tracked-change ins {
+  background: var(--st-correction-insert-bg);
+  text-decoration: underline;
+  text-decoration-color: var(--st-correction-insert-line);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  border-radius: var(--st-radius-xs);
+}
+
+/* ---------- motion and forced colours ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .check-detail,
+  .feed-card,
+  .summary-progress i,
+  .intake-command,
+  .detail-disclosure > summary > svg {
+    animation: none;
+    transition: none;
   }
-  .check-workspace form {
-    padding: 12px;
-  }
-  .check-workspace .check-status,
-  .check-workspace .check-detail {
-    padding: 8px;
-  }
+}
+:root[data-still] :is(.check-detail, .feed-card, .summary-progress i) {
+  animation: none;
+  transition: none;
 }
 @media (forced-colors: active) {
+  .account-entry {
+    background: Canvas;
+    border-color: CanvasText;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+  [data-testid="quota-meter"] progress {
+    border-color: CanvasText;
+    background: Canvas;
+  }
+  [data-testid="quota-meter"] progress::-webkit-progress-value {
+    background: Highlight;
+  }
+  [data-testid="quota-meter"] progress::-moz-progress-bar {
+    background: Highlight;
+  }
   .verdict-glyph {
     color: CanvasText !important;
   }
@@ -342,315 +2457,410 @@ body {
   .verdict-glyph ellipse {
     stroke: Canvas !important;
   }
-  .summary-counter[data-selected],
-  .feed-card[data-selected] {
-    outline-color: Highlight;
-  }
-  .check-workspace :focus-visible {
-    outline-color: Highlight;
-  }
-}
-.checking-topbar {
-  position: sticky;
-  top: 8px;
-  z-index: var(--st-z-topbar);
-  margin-bottom: 16px;
-}
-.checking-topbar-inner {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: var(--st-radius-lg);
-}
-.checking-brand {
-  flex: 1;
-  min-width: 0;
-}
-.checking-brand h1 {
-  margin: 0;
-  font-size: var(--st-text-lg);
-  font-weight: 600;
-  line-height: 1.3;
-}
-.checking-brand p {
-  margin: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  font-size: var(--st-text-xs);
-  color: var(--st-text-on-glass-secondary);
-}
-.checking-topbar .st-loading-slot {
-  display: none;
-}
-.account-chip-label {
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.account-entry {
-  width: 400px;
-  max-width: calc(100vw - 24px);
-  max-height: calc(100dvh - 90px);
-  overflow-y: auto;
-}
-.workspace-preferences {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin: 16px 0;
-  align-items: start;
-}
-.intake-command {
-  display: flex;
-  gap: 12px;
-  align-items: stretch;
-}
-.intake-text {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.intake-textarea {
-  min-height: 80px;
-  max-height: 320px;
-  resize: vertical;
-  field-sizing: content;
-  width: 100%;
-}
-.intake-source {
-  display: inline-block;
-  background: var(--st-surface-sunken);
-  border: 1px solid var(--st-border);
-  border-radius: var(--st-radius-full);
-  padding: 2px 8px;
-  font-size: var(--st-text-xs);
-  margin: 8px 0;
-}
-.check-workspace > form {
-  background: var(--st-surface);
-}
-.check-workspace > form .st-disabled-control {
-  margin-top: 8px;
-}
-#intake-files:not([hidden]) {
-  margin: 12px 0;
-  padding: 12px;
-  border: 1px solid var(--st-border);
-  border-radius: var(--st-radius-lg);
-}
-@media (max-width: 699px) {
-  .command-trigger {
-    width: 36px;
-    height: 36px;
-    padding: 4px;
-    flex: none;
-  }
-  .command-trigger span,
-  .account-chip-label {
-    display: none;
-  }
-  .intake-command {
-    display: block;
-  }
-  .intake-command .st-dropzone {
-    margin-top: 8px;
-    min-height: 44px;
-    padding: 8px;
-  }
-}
-.feed-sentence {
-  margin: 0 0 12px;
-  color: var(--st-text-secondary);
-}
-.feed-title {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.feed-reason {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-@container (width < 400px) {
-  .summary-strip {
-    padding: 4px;
-  }
-  .summary-container:not([data-labels="true"]) .summary-counter {
-    flex-direction: column;
-    gap: 0;
-    line-height: 1.1;
-  }
-  .summary-container:not([data-labels="true"]) .summary-status {
-    flex-direction: column;
-    gap: 0;
-    line-height: 1.1;
-  }
-  .summary-container[data-labels="true"] .summary-counter {
-    flex-direction: row;
-  }
-}
-.compact-status-count {
-  display: none;
-}
-@container (width < 700px) {
-  .summary-container:not([data-labels="true"]) .compact-status-count {
-    display: inline;
-  }
-}
-.check-workspace :where(button:not([data-rac])) {
-  min-height: 28px;
-}
-.check-workspace :where([role="alert"]) {
-  border-inline-start: 3px solid var(--st-feedback-danger);
-  padding: 12px;
-  background: var(--st-feedback-danger-tint);
-  color: var(--st-text);
-}
-.feed-head {
-  display: flex;
-  gap: 8px;
-  align-items: baseline;
-}
-.feed-head .feed-slot {
-  flex: none;
-}
-.summary-counter.st-toggle::before {
-  content: none;
-}
-:root[data-theme="light"] {
-  color-scheme: light;
-}
-:root[data-theme="dark"] {
-  color-scheme: dark;
-}
-.account-avatar {
-  display: inline-grid;
-  place-items: center;
-  flex: none;
-  width: 28px;
-  height: 28px;
-  border-radius: var(--st-radius-full);
-  background: var(--st-surface-sunken);
-  color: var(--st-text);
-}
-.account-entry :where(button, a) {
-  min-height: 28px;
-  min-width: 24px;
-}
-.account-entry a {
-  display: inline-flex;
-  align-items: center;
-  padding-block: 4px;
-  color: var(--st-accent-text);
-  text-decoration: underline;
-}
-.account-entry :where(input, select, textarea) {
-  color: var(--st-text);
-  background: var(--st-surface);
-  border: 1px solid var(--st-border-emphasis);
-  border-radius: var(--st-radius-sm);
-  padding: 6px 10px;
-  min-height: 36px;
-  max-width: 100%;
-}
-@media (forced-colors: active) {
   .verdict-glyph[data-verdict="not-verifiable"] path {
     stroke: CanvasText !important;
   }
-}
-/* A push detail scrolls within the working viewport, rather than underneath
-   the sticky controls. Both heights follow wrapping/zoom and active filters. */
-html:has(.check-workspace) {
-  scroll-padding-block-start: calc(
-    var(--checking-topbar-height, 56px) + var(--checking-strip-height, 64px) +
-      32px
-  );
-}
-.summary-container {
-  top: calc(var(--checking-topbar-height, 56px) + 16px);
-}
-/* The detail pane keeps its own scroll anchoring, but the window must not
-   anchor on content inside it. Both would otherwise compensate for the same
-   late insertion, once in the pane and once in the window, and the window
-   scroll would move a control out from under a pointer that is still down
-   (a lost press). The window scrolls the pane as a whole; the feed keeps
-   anchoring in its own scroller and in the page. */
-.check-detail-slot {
-  overflow-anchor: none;
-}
-.check-detail {
-  /* The detail scrolls, so it must also be the containing block of its
-     absolutely positioned descendants (the visually hidden diff labels).
-     Otherwise they escape the clip and add phantom overflow to the page,
-     whose scroll range then shifts as the detail lays out and scrolls and
-     swallows presses on narrow viewports. */
-  position: relative;
-  max-height: calc(
-    100dvh - var(--checking-topbar-height, 56px) -
-      var(--checking-strip-height, 64px) - 48px
-  );
-  overflow-y: auto;
-  scroll-padding-block: 12px;
-}
-[data-testid="quota-meter"] progress {
-  accent-color: var(--st-accent);
-}
-[data-testid="quota-meter"][data-warning]:not([data-warning="none"]) progress {
-  accent-color: var(--st-feedback-warning);
-}
-.check-workspace [data-testid^="quota-warning-"] {
-  background: var(--st-feedback-warning-tint);
-  border-inline-start-color: var(--st-feedback-warning);
-}
-
-.tracked-change {
-  overflow-wrap: anywhere;
-}
-.tracked-change del {
-  color: var(--st-correction-delete-text);
-  background: var(--st-correction-delete-bg);
-  text-decoration-color: var(--st-correction-delete-line);
-}
-.tracked-change ins {
-  color: var(--st-text);
-  background: var(--st-correction-insert-bg);
-  text-decoration: underline 2px var(--st-correction-insert-line);
-  text-underline-offset: 0.2em;
-}
-.tracked-change del + ins {
-  margin-inline-start: 0.25em;
-}
-
-@media (min-width: 768px) {
-  .check-panes[data-detail-open="closed"] {
-    grid-template-columns: minmax(0, 1fr);
+  .summary-counter[data-selected],
+  .feed-card[data-current],
+  .check-workspace :focus-visible {
+    outline-color: Highlight;
   }
-  .check-panes[data-detail-open="closed"] .check-detail-slot {
+  .verdict-chip,
+  .summary-counter,
+  .track-node,
+  .detail-verdict {
+    border-color: CanvasText;
+  }
+}
+
+/* #194 D counted stage: .sh .t, pre-search cards and empty tracks. */
+.counted-preview .counted-heading {
+  flex: 1 1 220px;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  font-size: var(--st-text-sm);
+  color: var(--st-text-on-glass-secondary);
+}
+.counted-preview .counted-heading strong {
+  color: var(--st-text);
+  font-size: var(--st-text-base);
+}
+.counted-preview [data-testid="quota-choice"] {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: var(--st-text-sm);
+  color: var(--st-text-on-glass-secondary);
+}
+.counted-preview [data-testid="quota-choice"] h2 {
+  font-size: var(--st-text-sm);
+}
+.counted-preview [data-testid="quota-choice"] > div {
+  gap: 8px;
+}
+.counted-preview [data-testid="quota-choice"] .st-control {
+  font-weight: 700;
+}
+.counted-preview
+  [data-testid="quota-choice"]
+  .st-control[data-variant="primary"] {
+  min-height: 40px;
+}
+.counted-preview .counted-card {
+  cursor: default;
+}
+.counted-preview .counted-card .card-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.counted-preview .counted-empty-track {
+  margin: 0;
+}
+@container app (width < 700px) {
+  .counted-preview .summary-strip {
+    padding: 8px;
+    gap: 6px;
+    border-radius: var(--st-radius-lg);
+  }
+  .counted-preview .summary-row {
+    gap: 6px 8px;
+    min-height: 0;
+  }
+  .counted-preview .summary-verdicts {
+    gap: 4px;
+  }
+  .counted-preview .summary-counter {
+    min-height: 40px;
+    padding: 4px 6px;
+  }
+  .counted-preview .summary-count {
+    font-size: var(--st-text-md);
+  }
+}
+
+/* Appearance follows #198's accepted keyboard focus treatment. */
+.checking-topbar
+  .theme-toggle[data-size][data-variant]:is(
+    [data-focus-visible],
+    :focus-visible
+  ) {
+  outline: 3px solid var(--st-accent);
+  outline-offset: 3px;
+}
+
+/* #194 D .fs/.opt uses the native radio indicator, with RAC keeping its behavior. */
+.workspace-dialog [role="radiogroup"] {
+  display: grid;
+  gap: 4px;
+}
+.workspace-dialog [role="radiogroup"] > :first-child {
+  font-size: var(--st-text-sm);
+  font-weight: 700;
+  line-height: 1.5;
+}
+.workspace-dialog .st-radio {
+  align-items: center;
+  min-height: 36px;
+  padding: 0;
+}
+.workspace-dialog .st-radio > span:has(> input[type="radio"]) {
+  display: contents !important;
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  clip: auto !important;
+  clip-path: none !important;
+  overflow: visible !important;
+  white-space: normal !important;
+}
+.workspace-dialog .st-radio .st-choice-mark {
+  display: none;
+}
+
+.workspace-dialog .st-radio input[type="radio"] {
+  margin: 3px 3px 0 5px;
+}
+/* The original .btn keeps the raised edge on every non-ghost variant. */
+.st-control:is([data-variant="primary"], [data-variant="danger"]):not(
+    .st-disabled,
+    .st-icon-button
+  ) {
+  box-shadow: var(--st-shadow-raised), var(--st-highlight-inset);
+}
+.st-control[data-variant="ghost"]:not(.st-icon-button, .st-disabled) {
+  color: var(--st-text-secondary);
+  box-shadow: none;
+}
+/* The command trigger is a search field in D (.cmdf): hover only darkens its
+   border (rule above), so it keeps its surface and text colour. */
+.st-control[data-variant="ghost"]:hover:not(
+    .st-icon-button,
+    .st-disabled,
+    .command-trigger
+  ) {
+  color: var(--st-text);
+  background: var(--st-accent-tint);
+}
+
+.report-download {
+  display: grid;
+  gap: 12px;
+}
+.report-options {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.report-download p[role="status"]:empty {
+  display: none;
+}
+
+/* ---------- History drawer: #194 D .hist/.ovh/.ovb/.box/.he/.bill ---------- */
+.st-sheet {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.st-dialog.history-sheet {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+.history-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--st-border);
+}
+.history-head h2 {
+  font-size: var(--st-text-lg);
+  font-weight: 800;
+}
+.history-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 12px 14px 24px;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  scrollbar-width: thin;
+}
+.history-note {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
+}
+.history-note > svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--st-feedback-info);
+}
+.history-box {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-surface);
+  box-shadow: var(--st-shadow-raised);
+}
+.history-muted {
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
+}
+.history-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.history-list {
+  display: grid;
+  gap: 10px;
+}
+.history-entry {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-surface);
+}
+.history-entry[data-locked] {
+  background: var(--st-surface-sunken);
+}
+.history-entry-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-weight: 800;
+}
+.history-entry-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  font-size: var(--st-text-xs);
+  color: var(--st-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.history-entry-meta svg {
+  display: inline;
+  vertical-align: -0.18em;
+}
+.history-bill {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  padding: 6px 8px;
+  border: 1px solid var(--st-feedback-warning);
+  border-radius: var(--st-radius-md);
+  background: var(--st-feedback-warning-tint);
+  font-size: var(--st-text-xs);
+  color: var(--st-text);
+}
+.history-bill > svg {
+  flex: none;
+  margin-top: 1px;
+  color: var(--st-feedback-warning);
+}
+.history-current {
+  padding: 2px 8px;
+  border: 1px solid var(--st-accent);
+  border-radius: var(--st-radius-full);
+  background: var(--st-accent-tint);
+  color: var(--st-accent-text);
+  font-size: var(--st-text-2xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--st-tracking-caps);
+}
+/* Statutory cancellation entry (FA-KTO-27, §312k BGB). #194 D has no such
+   control, so it takes the D .foot recipe: quiet small text, underlined link,
+   below the shell rather than inside the prototype's layout. */
+.legal-foot {
+  display: flex;
+  justify-content: center;
+  padding: 12px 16px 20px;
+  font-size: var(--st-text-sm);
+  color: var(--st-text-secondary);
+}
+.legal-link,
+.history-link {
+  color: var(--st-accent-text);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+/* #194 D .hbtn: a labelled ghost History button; the label hides below 700. */
+.checking-topbar .history-trigger[data-variant] {
+  flex: none;
+  min-height: 40px;
+}
+.history-trigger > svg {
+  width: 1.1em;
+  height: 1.1em;
+}
+@container app (width < 700px) {
+  .checking-topbar .history-trigger[data-variant] {
+    width: 40px;
+    padding: 0;
+    justify-content: center;
+  }
+  .history-trigger-label {
     display: none;
   }
-  .check-back {
-    display: inline-flex;
-  }
-  .detail-verdict-header {
-    position: sticky;
-    top: -16px;
-    z-index: 1;
-  }
-  /* The stuck header covers the top of the scrollport, measured at its own
-     height (see DetailHeader); a control scrolled into view clears it. */
-  .check-detail {
-    scroll-padding-block-start: calc(var(--detail-header-height, 0px) + 12px);
-  }
 }
-.detail-verdict-header {
-  padding: 12px;
-  border-radius: var(--st-radius-lg);
-  margin-bottom: 16px;
+/* #194 D acctPop: .row avatar/identity, Plan .eyebrow + .mtag, .btn.sm links. */
+.account-entry-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.account-entry-row > .account-entry-identity {
+  min-width: 0;
+  font-size: var(--st-text-base);
+}
+.account-entry-eyebrow {
+  font-size: var(--st-text-2xs);
+  font-weight: 600; /* #194 .eyebrow */
+  text-transform: uppercase;
+  letter-spacing: var(--st-tracking-caps);
+  color: var(--st-text-muted);
+}
+.account-plan-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 22px;
+  padding: 1px 8px;
+  border: 1px solid var(--st-accent);
+  border-radius: var(--st-radius-full);
+  background: var(--st-accent-tint);
+  color: var(--st-accent-text);
+  font-size: var(--st-text-xs);
+  font-weight: 700;
+}
+.account-entry .account-entry-pill,
+.account-entry .account-entry-more > a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--st-border-strong);
+  border-radius: var(--st-radius-full);
+  background: var(--st-surface);
+  box-shadow: var(--st-shadow-raised), var(--st-highlight-inset);
+  color: var(--st-text);
+  font-size: var(--st-text-sm);
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+}
+.account-entry .account-entry-pill:hover,
+.account-entry .account-entry-more > a:hover {
+  border-color: var(--st-border-emphasis);
+}
+.account-entry .account-entry-more > a {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  color: var(--st-text-secondary);
+}
+.account-entry .account-entry-more > a:hover {
+  border-color: transparent;
+  background: var(--st-accent-tint);
+  color: var(--st-text);
+}
+.account-entry .account-entry-preferences {
+  justify-self: start;
+}
+/* #194 D .pop is anchored to the sticky bar at top: 62px at every width and
+   stays put while the page scrolls beneath it. */
+.account-entry[data-placement="bottom"] {
+  position: fixed !important;
+  top: 62px !important;
+}
+/* #194 D .foot .nrow: footer icons are muted, intake notes keep info. */
+.feed-foot .note-row > svg {
+  color: var(--st-text-muted);
 }

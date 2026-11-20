@@ -86,19 +86,6 @@ export const claims: readonly Claim[] = [
     },
   },
   {
-    id: "best-match-comparison",
-    text: {
-      en: "The reference and the best match are compared side by side.",
-      de: "Referenz und bester Treffer werden nebeneinander verglichen.",
-    },
-    qualified: null,
-    evidence: {
-      doc: "docs/implementation/82-check-workspace.md",
-      spec: workspace,
-      title: "compares Reference and server Best match side by side",
-    },
-  },
-  {
     id: "detail-leads-with-verdict",
     text: {
       en: "The reference detail leads with the verdict and offers the evidence behind it.",

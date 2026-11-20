@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
+import {
+  choosePreferences,
+  closeDialog,
+  openBibliography,
+  openReference,
+} from "./support/workspace.ts";
 
 for (const language of ["en", "de"] as const)
   test(`saving fields keeps earlier evidence historical until an explicit Re-check in ${language}`, async ({
@@ -8,9 +14,7 @@ for (const language of ["en", "de"] as const)
   }) => {
     await page.setViewportSize({ width: 360, height: 720 });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     const original =
       "Aspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170";
     await page.getByRole("textbox").fill(original);
@@ -81,8 +85,17 @@ for (const language of ["en", "de"] as const)
     await expect(detail).toContainText(original);
     expect(mutations).toHaveLength(1);
     // The RTF download uses committed fields even before they have a new result.
+    // #194 D: the download sits in the formatted bibliography Dialog of the ⋯
+    // Menu, which at 360 px is on the strip the open detail replaces.
+    await detail
+      .getByRole("button", {
+        name: language === "en" ? "Back to references" : "Zurück zu Referenzen",
+        exact: true,
+      })
+      .click();
+    const bibliography = await openBibliography(page);
     const downloaded = page.waitForEvent("download");
-    await page
+    await bibliography
       .getByRole("button", {
         name:
           language === "en"
@@ -94,6 +107,11 @@ for (const language of ["en", "de"] as const)
     expect(await readFile(await (await downloaded).path(), "utf8")).toContain(
       "Measured measurment",
     );
+    await closeDialog(
+      page,
+      /^(Formatted bibliography|Formatiertes Literaturverzeichnis)$/u,
+    );
+    await openReference(page, 1);
     await detail
       .getByText(
         language === "en"

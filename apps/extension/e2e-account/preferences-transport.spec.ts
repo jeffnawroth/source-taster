@@ -46,6 +46,7 @@ test("Account Preferences use partial validated writes and isolated web/extensio
     expect(await web.preferences()).toEqual({
       language: "de",
       citationStyle: "ieee",
+      theme: "system",
     });
     await web.updatePreferences({ language: "de" });
     const extension = extensionSessionClient({
@@ -70,6 +71,9 @@ test("Account Preferences use partial validated writes and isolated web/extensio
     ).rejects.toThrow();
     await expect(
       web.updatePreferences({ citationStyle: "removed" } as never),
+    ).rejects.toThrow();
+    await expect(
+      web.updatePreferences({ theme: "unsupported" } as never),
     ).rejects.toThrow();
     await expect(
       web.updatePreferences({ language: "en", guestId: "never" } as never),

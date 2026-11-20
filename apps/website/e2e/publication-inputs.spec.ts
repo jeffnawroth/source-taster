@@ -59,7 +59,8 @@ test("the publication review fingerprint binds local fonts and shared rendered i
   const { fingerprint } = tree;
   const before = fingerprint();
   for (const input of [
-    "public/fonts/AtkinsonHyperlegibleNext.woff2",
+    "public/fonts/AtkinsonHyperlegibleNext-Regular.ttf",
+    "public/fonts/AtkinsonHyperlegibleNext-Bold.ttf",
     "../../packages/ui/src/recipes.ts",
     "../../packages/design-tokens/theme.css",
     "../../packages/ui/src/reference-outcome.tsx",

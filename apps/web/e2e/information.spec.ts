@@ -2,6 +2,7 @@
 // #115: Help, contact and legal pages are linked from the web client through
 // the shared UI seam that the browser extension will reuse.
 import { expect, test } from "@playwright/test";
+import { choosePreferences } from "./support/workspace.ts";
 
 test("help, contact and legal links follow the interface language and carry no input", async ({
   page,
@@ -34,10 +35,10 @@ test("help, contact and legal links follow the interface language and carry no i
       ],
     ],
   ] as const) {
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     const nav = page.getByRole("navigation", { name: navigation, exact: true });
+    // One quiet row closes the notes on every screen; it is never doubled.
+    await expect(nav).toHaveCount(1);
     await expect(nav.getByRole("link")).toHaveCount(links.length);
     for (const [name, path] of links) {
       const link = nav.getByRole("link", { name, exact: true });

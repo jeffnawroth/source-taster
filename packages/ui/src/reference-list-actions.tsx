@@ -17,19 +17,30 @@ import { Form, TextField } from "./primitives/fields.tsx";
 import { Checkbox, CheckboxGroup } from "./primitives/selection.tsx";
 import { availability, Fields } from "./reference-fields.tsx";
 import { errorMessage } from "./reference-work.ts";
+import "./reference-list-actions.css";
 
 /** Edits which References a Check contains: remove some, add one, then apply. */
 export function ReferenceListActions({
   check,
   transport,
   onSnapshot,
+  autoStart = false,
+  onDone,
 }: {
   check: Check;
   transport: VerificationClientOptions;
   onSnapshot: (check: Check) => void;
+  /** Opened from the ⋯ menu: the draft is the reason the panel exists. */
+  autoStart?: boolean;
+  /** The applied or cancelled draft ends the task; its Dialog closes. */
+  onDone?: () => void;
 }) {
   const api = useMemo(() => verificationClient(transport), [transport]);
-  const [draft, setDraft] = useState<EditReferenceListRequest | null>(null);
+  const [draft, setDraft] = useState<EditReferenceListRequest | null>(() =>
+    autoStart
+      ? { expectedEventSeq: check.lastEventSeq, add: [], remove: [] }
+      : null,
+  );
   const [text, setText] = useState("");
   const [fields, setFields] = useState<StructuredCsl>({});
   const [truncated, setTruncated] = useState(false);
@@ -47,6 +58,7 @@ export function ReferenceListActions({
     setPreview(false);
     setError(null);
     setTruncated(false);
+    onDone?.();
   }
   const addition =
     draft && text.trim()
@@ -77,22 +89,25 @@ export function ReferenceListActions({
   return (
     <section
       aria-label={m.revision_list()}
-      className="my-4 rounded border-2 border-border-emphasis bg-surface-sunken p-3"
+      className="workspace-panel reference-list-actions"
     >
-      <Button
-        {...availability(listBusy, m.revision_list_busy)}
-        onPress={() => {
-          setDraft({
-            expectedEventSeq: check.lastEventSeq,
-            add: [],
-            remove: [],
-          });
-          setPreview(false);
-        }}
-      >
-        {m.revision_list()}
-      </Button>
-      <p className="mt-2">{m.revision_membership_note()}</p>
+      {autoStart && <h3>{m.revision_list()}</h3>}
+      {(!autoStart || !draft) && (
+        <Button
+          {...availability(listBusy, m.revision_list_busy)}
+          onPress={() => {
+            setDraft({
+              expectedEventSeq: check.lastEventSeq,
+              add: [],
+              remove: [],
+            });
+            setPreview(false);
+          }}
+        >
+          {m.revision_list()}
+        </Button>
+      )}
+      <p>{m.revision_membership_note()}</p>
       {error && <p role="alert">{error}</p>}
       {draft && check.document && (
         <CheckSelectionActions
@@ -104,7 +119,7 @@ export function ReferenceListActions({
       )}
       {draft && (
         <Form
-          className="mt-3 space-y-3"
+          className="reference-list-form"
           onSubmit={(event) => {
             event.preventDefault();
             setPreview(true);
@@ -113,6 +128,7 @@ export function ReferenceListActions({
           {!preview ? (
             <>
               <CheckboxGroup
+                className="reference-list-removals"
                 label={m.revision_remove()}
                 isDisabled={listBusy}
                 value={draft.remove.map(String)}
@@ -127,8 +143,8 @@ export function ReferenceListActions({
                   </Checkbox>
                 ))}
               </CheckboxGroup>
-              <fieldset disabled={listBusy} className="min-w-0 space-y-3">
-                <legend className="font-semibold">{m.revision_add()}</legend>
+              <fieldset disabled={listBusy}>
+                <legend>{m.revision_add()}</legend>
                 <TextField
                   multiline
                   label={m.revision_original()}
@@ -155,7 +171,10 @@ export function ReferenceListActions({
               </Button>
             </>
           ) : (
-            <section aria-label={m.revision_preview()} className="space-y-3">
+            <section
+              aria-label={m.revision_preview()}
+              className="reference-list-preview"
+            >
               <p>
                 {m.revision_preview_counts({
                   added: addition.length,
@@ -184,7 +203,7 @@ export function ReferenceListActions({
                 ))}
               </ul>
               <p>{m.revision_no_refund()}</p>
-              <div className="flex flex-wrap gap-3">
+              <div className="reference-list-row">
                 <Button
                   variant="primary"
                   {...availability(listBusy, m.revision_list_busy)}

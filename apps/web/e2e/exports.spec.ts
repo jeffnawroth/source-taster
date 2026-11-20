@@ -1,15 +1,20 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import {
+  chooseExportFormat,
+  choosePreferences,
+  closeExport,
+  openExport,
+  openReference,
+} from "./support/workspace.ts";
 import { readFile } from "node:fs/promises";
 for (const language of ["en", "de"] as const)
   test(`downloads original or selected corrected References in ${language}`, async ({
     page,
   }) => {
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/u })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page
       .getByRole("textbox")
       .fill(
@@ -21,6 +26,7 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
+    await openReference(page, 1);
     const suggestion = page.getByRole("region", {
       name: language === "en" ? "Correction suggestion" : "Korrekturvorschlag",
       exact: true,
@@ -35,11 +41,9 @@ for (const language of ["en", "de"] as const)
       )
       .click();
     await expect(suggestion.getByRole("checkbox")).toBeChecked();
-    const exports = page.getByRole("region", {
-      name: language === "en" ? "Export references" : "Referenzen exportieren",
-      exact: true,
-    });
-    const format = exports.getByRole("combobox", {
+    // Export is a Dialog reached from the ⋯ Menu (#194 D).
+    const exports = await openExport(page);
+    const format = exports.getByRole("radiogroup", {
       name: language === "en" ? "Export format" : "Exportformat",
       exact: true,
     });
@@ -47,8 +51,8 @@ for (const language of ["en", "de"] as const)
       name: language === "en" ? "Export content" : "Exportinhalt",
       exact: true,
     });
-    for (const kind of ["csl-json", "bibtex"]) {
-      await format.selectOption(kind);
+    for (const kind of ["csl-json", "bibtex"] as const) {
+      await chooseExportFormat(exports, kind);
       for (const choice of ["original", "selected-corrections"]) {
         await mode.selectOption(choice);
         const downloadEvent = page.waitForEvent("download");
@@ -82,7 +86,7 @@ for (const language of ["en", "de"] as const)
         }
       }
     }
-    await expect(page.getByRole("textbox")).toContainText("2008");
+    await expect(format.getByRole("radio")).toHaveCount(2);
     expect(
       (
         await new AxeBuilder({ page })
@@ -90,5 +94,16 @@ for (const language of ["en", "de"] as const)
           .analyze()
       ).violations,
     ).toEqual([]);
-    await expect(format.getByRole("option")).toHaveCount(2);
+    await closeExport(page);
+    // An export-only correction leaves the Reference itself untouched: the
+    // collapsed intake is gone in D, so its feed card still says 2008.
+    await expect(
+      page
+        .getByRole("grid", {
+          name: language === "en" ? "References" : "Referenzen",
+          exact: true,
+        })
+        .getByRole("gridcell")
+        .first(),
+    ).toContainText("Aspelmeyer · 2008");
   });

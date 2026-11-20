@@ -1,6 +1,7 @@
 import {
   openPanelAccount,
   openFirefoxAccount,
+  openFirefoxSignIn,
   openWebAccount,
   panelAccountName,
 } from "../e2e/support/account-entry.ts";
@@ -247,6 +248,7 @@ async function withPanel(
               preferences: {
                 language: expect.stringMatching(/^(de|en)$/),
                 citationStyle: "apa",
+                theme: expect.stringMatching(/^(system|light|dark)$/),
               },
             }
           : {}),
@@ -478,7 +480,7 @@ test("an expired Account access token never reaches verification, including afte
     await panel.fill("textbox", "Reference", "Expired token input");
     await panel.click("button", "Check reference");
     await panel.waitForText("alert", undefined, /./);
-    await panel.click("button", "Reset");
+    await panel.newCheck();
     await panel.fill("textbox", "Reference", "Retry expired token");
     await panel.click("button", "Check reference");
     await panel.waitForText("alert", undefined, /./);
@@ -508,7 +510,7 @@ test("revoked Account renewal stays denied after Reset and never changes into Gu
       undefined,
       "Sign in again to continue. Your session has expired or was revoked.",
     );
-    await panel.click("button", "Reset");
+    await panel.newCheck();
     await panel.fill(
       "textbox",
       "Reference",
@@ -573,7 +575,7 @@ test("extension sign-in remains gated off without explicit private-phase activat
 
 test("German native email-code controls support keyboard confirmation and scoped sign-out", async () => {
   await withPanel(async ({ panel, requests }) => {
-    await panel.select("combobox", "Language", "de");
+    await panel.preferences({ language: "de" });
     await panel.click("button", "Anmelden");
     await panel.fill("textbox", "E-Mail-Adresse", account.email);
     await panel.click("button", "Code senden");
@@ -628,7 +630,7 @@ test("Firefox's native sidebar uses the same cookie-free session transport witho
         return current.open && current.url ? current : false;
       }, "Firefox sidebar did not open");
       allowOrigin(new URL(sidebar.url!).origin);
-      await firefox.click(await firefox.find("pushbutton", "Sign in"));
+      await openFirefoxSignIn(firefox);
       await firefox.click(await firefox.find("entry", "Email address"));
       await firefox.type(account.email);
       await firefox.click(await firefox.find("pushbutton", "Send code"));
@@ -729,7 +731,7 @@ test("Account streams reconnect with memory tokens and generic permission cannot
       [guestKey]: guestId,
       [key]: credential,
     });
-    await panel.click("button", "Reset");
+    await panel.newCheck();
     expect(await panel.query("grid", "References")).toEqual([]);
   });
 });
@@ -783,7 +785,9 @@ test("the actual web UI keeps #97 cookie transport while the native extension si
         .press("Enter");
       await openWebAccount(page);
       await expect(
-        page.getByRole("button", { name: "Sign out here", exact: true }),
+        page
+          .getByRole("dialog", { name: /^Account: / })
+          .getByRole("button", { name: "Sign out here", exact: true }),
       ).toBeVisible();
       // A web cookie never automatically authenticates the extension.
       await panel.find("button", "Sign in");
@@ -794,7 +798,9 @@ test("the actual web UI keeps #97 cookie transport while the native extension si
       await page.reload();
       await openWebAccount(page);
       await expect(
-        page.getByRole("button", { name: "Sign out here", exact: true }),
+        page
+          .getByRole("dialog", { name: /^Account: / })
+          .getByRole("button", { name: "Sign out here", exact: true }),
       ).toBeVisible();
       // #99: the page first resolved as Guest and read its Quota, so only the
       // Guest ID may persist; no session, token or Account data.
@@ -881,8 +887,9 @@ test("browser restart restores only the extension session and never restores Che
 
 test("purchasing and Plan entries open the private web Plan management page without sending an extension credential", async () => {
   await withPanel(async ({ panel, requests }) => {
-    await panel.click("button", "Sign in");
-    const link = await panel.find("link", "Plans and check packs on the web");
+    // #194 D: the Guest's Account entry carries the Plan link.
+    await panel.click("button", "Account: Guest");
+    const link = await panel.find("link", "Change plan");
     expect(
       await panel.call(
         link,
@@ -893,7 +900,7 @@ test("purchasing and Plan entries open the private web Plan management page with
       target: "_blank",
       rel: "noopener noreferrer",
     });
-    await panel.click("link", "Plans and check packs on the web");
+    await panel.click("link", "Change plan");
     await until(
       () => requests.some((r) => r.path === "/plan?language=en"),
       "web Plan management page was not opened",

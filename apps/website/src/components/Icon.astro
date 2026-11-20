@@ -1,0 +1,17 @@
+---
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// The small stroke icons of the accepted #198 S prototype (24 px grid, 1.75
+// stroke, round caps). Decorative: the control or text beside them is named.
+const paths = {
+  search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  moon: '<path d="M19.5 14.5A8 8 0 0 1 9.5 4.5 8 8 0 1 0 19.5 14.5z"/>',
+  swatch: '<rect x="4" y="4" width="16" height="16" rx="5"/><path d="M4 14l6-6 10 10"/>',
+  list: '<path d="M9 6.5h11M9 12h11M9 17.5h11M4.5 6.5h.01M4.5 12h.01M4.5 17.5h.01"/>',
+  close: '<path d="M8 8l8 8M16 8l-8 8"/>',
+  user: '<circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4"/>',
+} as const;
+interface Props { name: keyof typeof paths; class?: string }
+const { name, class: className } = Astro.props;
+---
+<svg class:list={['ico', className]} viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false" set:html={paths[name]} />

@@ -254,6 +254,11 @@ const PROTECTED: Record<string, Entry> = {
   "GET /v2/checks/:checkId/reports/:reportId/file": {
     permission: "check:read",
   },
+  "GET /v2/history/consent": { permission: "check:read" },
+  "PUT /v2/history/consent": {
+    permission: "check:create",
+    body: { enabled: false },
+  },
   "GET /v2/checks/:checkId": { permission: "check:read" },
   "POST /v2/checks/:checkId/cancel": { permission: "check:cancel" },
   "POST /v2/checks/:checkId/lease": { permission: "check:renew" },

@@ -197,6 +197,8 @@ async function main() {
     accounts: true,
     apiPort: ports.api,
     servicePort: ports.service,
+    accountOrigin: tapUrl,
+    dpaAccountUrl: `${tapUrl}/account`,
     // https://web.test.invalid is the origin the harness's own sign-in helper
     // presents; the other two are the browser's (web app and service tap).
     serviceAllowedOrigins: [
@@ -207,6 +209,7 @@ async function main() {
     ],
     verificationEnv: { ...bibliographic?.env },
     serviceEnv: {
+      SERVICE_EMAIL_WEBSITE_ORIGIN: webUrl,
       ...(commerce ? { SERVICE_COMMERCE_CONFIG: commerce.config } : {}),
       SERVICE_OPERATOR_SETUP: operatorSetup,
       SERVICE_OPERATOR_SESSION_EPOCH: `preview-${randomUUID()}-operator-epoch`,

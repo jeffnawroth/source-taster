@@ -85,6 +85,12 @@ if (process.argv[2] === "worker") {
       )
     : undefined;
   const app = createApp({
+    historyConsentOrigin: (() => {
+      const settings = loadHostedSettings(
+        process.env.SOURCE_TASTER_AUTH_CONFIG,
+      );
+      return new URL(settings.accountOrigin ?? settings.serviceIssuer).origin;
+    })(),
     entrance,
     configuration: selection,
     structuring: createParser({ referenceLimit: config.referenceLimit }),

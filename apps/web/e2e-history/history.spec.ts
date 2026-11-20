@@ -109,7 +109,7 @@ for (const language of ["en", "de"] as const) {
     const t =
       language === "en"
         ? {
-            enable: "Enable history",
+            enable: "Turn on history",
             refresh: "Refresh history",
             open: "Open check",
             restart: "Start as a new check",
@@ -161,7 +161,10 @@ for (const language of ["en", "de"] as const) {
           ).data.entries.length,
       )
       .toBe(1);
-    await page.getByRole("button", { name: t.refresh, exact: true }).click();
+    // #194 D: History reads afresh each time it opens; Refresh is only the error retry.
+    await page.keyboard.press("Escape");
+    await expect(historyDialog).toBeHidden();
+    await historyTrigger.click();
     await page.getByLabel(t.search, { exact: true }).fill("Find this");
     await page.getByRole("button", { name: t.open, exact: true }).click();
     await expect(page.locator("#results-title")).toBeVisible();
@@ -198,6 +201,9 @@ for (const language of ["en", "de"] as const) {
       (
         await new AxeBuilder({ page })
           .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+          // React Aria's off-screen announcer still names the pending Button
+          // that Delete History just removed.
+          .exclude("[data-live-announcer]")
           .analyze()
       ).violations,
     ).toEqual([]);
@@ -263,12 +269,13 @@ test("locked entries explain the Plan rule and remain deletable", async ({
   await expect(
     page.getByText(/This entry is locked under the Free rules/),
   ).toBeVisible();
+  // #194 D: a locked entry offers only Delete.
   await expect(
     page.getByRole("button", { name: "Open check", exact: true }),
-  ).toBeDisabled();
+  ).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: "Start as a new check", exact: true }),
-  ).toBeDisabled();
+  ).toHaveCount(0);
   await page.getByRole("button", { name: "Delete entry", exact: true }).click();
   await page
     .getByRole("button", { name: "Delete check permanently", exact: true })

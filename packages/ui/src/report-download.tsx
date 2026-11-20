@@ -14,6 +14,8 @@ import { m } from "@source-taster/i18n";
 import type { CitationStyle } from "./preferences.ts";
 import type { OwnerQuota } from "./quota.ts";
 import { UpgradeLink } from "./quota-panel.tsx";
+import { Button } from "./primitives/actions.tsx";
+import { FileDown } from "./workspace-icons.tsx";
 
 type Phase =
   | { kind: "idle" }
@@ -29,6 +31,7 @@ export function ReportDownload({
   transport,
   quota,
   upgradeUrl,
+  onClose,
 }: {
   check: Check;
   citationStyle: CitationStyle;
@@ -36,6 +39,7 @@ export function ReportDownload({
   /** The Owner's Quota; its features say whether reports are included. */
   quota: OwnerQuota | null;
   upgradeUrl?: string;
+  onClose?: () => void;
 }) {
   const entitled = quota?.features.includes(reportFeature) ?? false;
   const client = useRef(reportClient(transport));
@@ -157,25 +161,30 @@ export function ReportDownload({
   }
 
   return (
-    <section
-      aria-label={m.report_ui_heading()}
-      className="my-4 space-y-3 rounded border border-border-emphasis p-4"
-    >
+    <section aria-label={m.report_ui_heading()} className="report-download">
       <h3 className="font-semibold">{m.report_ui_heading()}</h3>
       {!entitled ? (
-        <p>
-          {m.report_ui_unavailable()}
-          <UpgradeLink href={upgradeUrl} />
-        </p>
+        <>
+          <p>
+            {m.report_ui_unavailable()}
+            <UpgradeLink href={upgradeUrl} />
+          </p>
+          {onClose && (
+            <div className="st-actions">
+              <Button variant="ghost" onPress={onClose}>
+                {m.shell_close()}
+              </Button>
+            </div>
+          )}
+        </>
       ) : (
         <>
           <p>{m.report_ui_hint()}</p>
           {check.state !== "ended" && <p>{m.report_ui_intermediate()}</p>}
-          <div className="flex flex-wrap gap-3">
-            <label className="flex flex-col gap-1">
+          <div className="report-options">
+            <label className="workspace-select">
               {m.report_ui_language()}
               <select
-                className="rounded border border-border-emphasis bg-surface p-2"
                 value={language}
                 onChange={(event) =>
                   setLanguage(event.target.value === "de" ? "de" : "en")
@@ -185,42 +194,43 @@ export function ReportDownload({
                 <option value="en">English</option>
               </select>
             </label>
-            <label className="flex flex-col gap-1">
+            <label className="workspace-select">
               {m.report_ui_document()}
               <input
-                className="rounded border border-border-emphasis bg-surface p-2"
                 value={documentName}
                 maxLength={200}
                 onChange={(event) => setDocumentName(event.target.value)}
               />
             </label>
           </div>
-          <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              className="rounded-lg border border-border-emphasis px-4 py-2 font-semibold disabled:bg-surface-sunken disabled:text-text-secondary"
-              disabled={phase.kind === "working"}
+          <div className="report-actions st-actions">
+            {onClose && (
+              <Button variant="ghost" onPress={onClose}>
+                {m.shell_close()}
+              </Button>
+            )}
+            <Button
+              variant="primary"
+              icon={<FileDown aria-hidden="true" />}
+              {...(phase.kind === "working"
+                ? {
+                    isDisabled: true as const,
+                    disabledReason: m.report_ui_working(),
+                  }
+                : { isDisabled: false as const })}
               onClick={() => void create()}
             >
               {m.report_ui_create()}
-            </button>
+            </Button>
             {phase.kind === "working" && (
-              <button
-                type="button"
-                className="rounded-lg border border-border-emphasis px-4 py-2 font-semibold"
-                onClick={() => void cancel()}
-              >
+              <Button variant="ghost" onClick={() => void cancel()}>
                 {m.report_ui_cancel()}
-              </button>
+              </Button>
             )}
             {phase.kind === "ready" && (
-              <button
-                type="button"
-                className="rounded-lg border border-border-emphasis px-4 py-2 font-semibold"
-                onClick={() => void download()}
-              >
+              <Button variant="ghost" onClick={() => void download()}>
                 {m.report_ui_download()}
-              </button>
+              </Button>
             )}
           </div>
           <p role="status" aria-live="polite">

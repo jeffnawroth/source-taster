@@ -7,19 +7,24 @@ import {
 } from "@source-taster/contract-verification/export";
 import type { VerificationClientOptions } from "@source-taster/contract-verification/client-v2";
 import { m } from "@source-taster/i18n";
+import { Download } from "lucide-react";
 import type { Rendered } from "./correction-suggestions.tsx";
+import { Button, Radio, RadioGroup, Spinner } from "./primitives/index.ts";
 export function ReferenceExports({
   checkId,
   importedFormat,
   transport,
   rendered,
   styleLabel,
+  onCancel,
 }: {
   checkId: string;
   importedFormat?: "bibtex" | "ris";
   transport: VerificationClientOptions;
   rendered: Rendered;
   styleLabel: string;
+  /** Inside a Dialog: renders Cancel beside the download. */
+  onCancel?: () => void;
 }) {
   const request = useMemo(() => exportClient(transport), [transport]);
   const [format, setFormat] = useState<ExportRequest["format"]>("csl-json");
@@ -62,100 +67,118 @@ export function ReferenceExports({
     }
   }
   const selected = mode === "selected-corrections" ? rendered.corrections : [];
+  // A failed rendering of the opened Reference does not invalidate the
+  // corrections read for the applied set; only their readiness counts.
+  const availability =
+    mode === "selected-corrections" && !rendered.exportReady
+      ? { isDisabled: true as const, disabledReason: m.correction_loading() }
+      : { isDisabled: false as const };
+  const originalFormat = importedFormat
+    ? m.library_export_original({
+        format: importedFormat === "ris" ? "RIS" : "BibTeX",
+      })
+    : "";
   return (
     <section
       aria-label={m.export_references_heading()}
-      className="my-4 space-y-3 rounded border border-border-emphasis p-4"
+      className="reference-exports"
     >
-      <h3 className="font-semibold">{m.export_references_heading()}</h3>
-      <p>{m.export_references_hint()}</p>
-      <div className="flex flex-wrap gap-3">
-        <label className="flex flex-col gap-1">
-          {m.export_format()}
-          <select
-            className="rounded border border-border-emphasis bg-surface p-2"
-            value={selectedFormat}
-            onChange={(event) => {
-              const value = ExportFormat.safeParse(event.target.value);
-              if (value.success) setFormat(value.data);
-            }}
-          >
-            <option value="csl-json">CSL-JSON</option>
-            <option value="bibtex">BibTeX</option>
-            {importedFormat && (
-              <option value="imported-format">
-                {m.library_export_original({
-                  format: importedFormat === "ris" ? "RIS" : "BibTeX",
-                })}
-              </option>
-            )}
-          </select>
-        </label>
-        <label className="flex flex-col gap-1">
-          {m.export_content()}
-          <select
-            className="rounded border border-border-emphasis bg-surface p-2"
-            value={mode}
-            onChange={(event) =>
-              setMode(
-                event.target.value === "selected-corrections"
-                  ? "selected-corrections"
-                  : "original",
-              )
-            }
-          >
-            <option value="original">{m.export_original()}</option>
-            <option value="selected-corrections">{m.export_selected()}</option>
-          </select>
-        </label>
-      </div>
-      <p>
+      <h3>{m.export_references_heading()}</h3>
+      <RadioGroup
+        label={m.export_format()}
+        value={selectedFormat}
+        onChange={(value) => {
+          const parsed = ExportFormat.safeParse(value);
+          if (parsed.success) setFormat(parsed.data);
+        }}
+      >
+        <Radio value="csl-json">CSL-JSON</Radio>
+        <Radio value="bibtex">BibTeX</Radio>
+        {importedFormat && (
+          <Radio value="imported-format">{originalFormat}</Radio>
+        )}
+      </RadioGroup>
+      <label className="workspace-select">
+        {m.export_content()}
+        <select
+          value={mode}
+          onChange={(event) =>
+            setMode(
+              event.target.value === "selected-corrections"
+                ? "selected-corrections"
+                : "original",
+            )
+          }
+        >
+          <option value="original">{m.export_original()}</option>
+          <option value="selected-corrections">{m.export_selected()}</option>
+        </select>
+      </label>
+      {mode === "selected-corrections" &&
+        (selected.length ? (
+          <div>
+            <h4 className="export-subheading">
+              {m.correction_selected_heading()}
+            </h4>
+            <ul className="list-disc space-y-2 pl-5">
+              {selected.map((choice) => (
+                <li key={choice.slot} className="break-words">
+                  {m.correction_selected_item({
+                    slot: String(choice.slot),
+                    text:
+                      rendered.appliedSuggestions.find(
+                        (entry) => entry.slot === choice.slot,
+                      )?.text ?? "",
+                  })}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <p className="export-note">{m.correction_none_selected()}</p>
+        ))}
+      <p className="export-note">
+        {m.export_references_hint()}{" "}
         {m.export_preview({
           format:
             selectedFormat === "csl-json"
               ? "CSL-JSON"
               : selectedFormat === "imported-format"
-                ? m.library_export_original({
-                    format: importedFormat === "ris" ? "RIS" : "BibTeX",
-                  })
+                ? originalFormat
                 : "BibTeX",
           style: styleLabel,
         })}
       </p>
-      <h4 className="font-semibold">{m.correction_selected_heading()}</h4>
-      {selected.length ? (
-        <ul className="list-disc space-y-2 pl-5">
-          {selected.map((choice) => (
-            <li key={choice.slot} className="break-words">
-              {m.correction_selected_item({
-                slot: String(choice.slot),
-                text:
-                  rendered.appliedSuggestions.find(
-                    (entry) => entry.slot === choice.slot,
-                  )?.text ?? "",
-              })}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>{m.correction_none_selected()}</p>
-      )}
-      <button
-        type="button"
-        className="rounded-lg border border-border-emphasis px-4 py-2 font-semibold disabled:bg-surface-sunken disabled:text-text-secondary"
-        disabled={
-          pending ||
-          // A failed rendering of the opened Reference does not invalidate the
-          // corrections read for the applied set; only their readiness counts.
-          (mode === "selected-corrections" && !rendered.exportReady)
-        }
-        onClick={() => {
-          void download();
-        }}
-      >
-        {pending ? m.export_downloading() : m.export_download()}
-      </button>
       {failed && <p role="alert">{m.export_failed()}</p>}
+      <div className="st-actions">
+        {onCancel && (
+          <Button variant="ghost" onPress={onCancel}>
+            {m.shell_cancel()}
+          </Button>
+        )}
+        {/* Pending without isPending: its announcement points at the button
+            by id and outlives it once the Dialog closes, which leaves an
+            unnamed image in the live log. The polite note says it instead. */}
+        <Button
+          variant="primary"
+          icon={
+            pending ? (
+              <Spinner size={16} />
+            ) : (
+              <Download aria-hidden="true" size={16} />
+            )
+          }
+          {...availability}
+          onPress={() => {
+            if (!pending) void download();
+          }}
+        >
+          {pending ? m.export_downloading() : m.export_download()}
+        </Button>
+      </div>
+      <p className="sr-only" aria-live="polite" aria-atomic="true">
+        {pending ? m.export_downloading() : ""}
+      </p>
     </section>
   );
 }

@@ -274,6 +274,11 @@ export declare const requestSignIn: {
                                 springer: "springer";
                                 vancouver: "vancouver";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                         }, z.core.$strict>>;
                     }, z.core.$strict> | z.ZodObject<{
                         everywhere: z.ZodBoolean;
@@ -550,6 +555,11 @@ export declare const confirmSignIn: {
                                 springer: "springer";
                                 vancouver: "vancouver";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                         }, z.core.$strict>>;
                     }, z.core.$strict> | z.ZodObject<{
                         everywhere: z.ZodBoolean;
@@ -826,6 +836,11 @@ export declare const signOut: {
                                 springer: "springer";
                                 vancouver: "vancouver";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                         }, z.core.$strict>>;
                     }, z.core.$strict> | z.ZodObject<{
                         everywhere: z.ZodBoolean;
@@ -1445,6 +1460,11 @@ export declare const requestExtensionSignIn: {
                                 springer: "springer";
                                 vancouver: "vancouver";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                         }, z.core.$strict>>;
                         transactionCredential: z.ZodString;
                     }, z.core.$strict>;
@@ -1814,6 +1834,11 @@ export declare const confirmExtensionSignIn: {
                                 springer: "springer";
                                 vancouver: "vancouver";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                         }, z.core.$strict>>;
                         transactionCredential: z.ZodString;
                     }, z.core.$strict>;
@@ -2183,6 +2208,11 @@ export declare const getExtensionSession: {
                                 springer: "springer";
                                 vancouver: "vancouver";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                         }, z.core.$strict>>;
                         transactionCredential: z.ZodString;
                     }, z.core.$strict>;
@@ -2552,6 +2582,11 @@ export declare const issueExtensionAccountToken: {
                                 springer: "springer";
                                 vancouver: "vancouver";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                         }, z.core.$strict>>;
                         transactionCredential: z.ZodString;
                     }, z.core.$strict>;
@@ -2921,6 +2956,11 @@ export declare const recordExtensionSessionActivity: {
                                 springer: "springer";
                                 vancouver: "vancouver";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                         }, z.core.$strict>>;
                         transactionCredential: z.ZodString;
                     }, z.core.$strict>;
@@ -3290,6 +3330,11 @@ export declare const signOutExtension: {
                                 springer: "springer";
                                 vancouver: "vancouver";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                         }, z.core.$strict>>;
                         transactionCredential: z.ZodString;
                     }, z.core.$strict>;
@@ -3648,6 +3693,11 @@ export declare const getAccountPreferences: {
                             springer: "springer";
                             vancouver: "vancouver";
                         }>>;
+                        theme: z.ZodOptional<z.ZodEnum<{
+                            dark: "dark";
+                            light: "light";
+                            system: "system";
+                        }>>;
                     }, z.core.$strict>;
                 };
             };
@@ -3664,6 +3714,11 @@ export declare const getAccountPreferences: {
                                 de: "de";
                                 en: "en";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                             citationStyle: z.ZodString;
                         }, z.core.$strict>;
                         quota: z.ZodUnion<readonly [z.ZodObject<{
@@ -3835,6 +3890,11 @@ export declare const patchAccountPreferences: {
                             springer: "springer";
                             vancouver: "vancouver";
                         }>>;
+                        theme: z.ZodOptional<z.ZodEnum<{
+                            dark: "dark";
+                            light: "light";
+                            system: "system";
+                        }>>;
                     }, z.core.$strict>;
                 };
             };
@@ -3851,6 +3911,11 @@ export declare const patchAccountPreferences: {
                                 de: "de";
                                 en: "en";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                             citationStyle: z.ZodString;
                         }, z.core.$strict>;
                         quota: z.ZodUnion<readonly [z.ZodObject<{
@@ -4022,6 +4087,11 @@ export declare const getExtensionPreferences: {
                             springer: "springer";
                             vancouver: "vancouver";
                         }>>;
+                        theme: z.ZodOptional<z.ZodEnum<{
+                            dark: "dark";
+                            light: "light";
+                            system: "system";
+                        }>>;
                     }, z.core.$strict>;
                 };
             };
@@ -4038,6 +4108,11 @@ export declare const getExtensionPreferences: {
                                 de: "de";
                                 en: "en";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                             citationStyle: z.ZodString;
                         }, z.core.$strict>;
                         quota: z.ZodUnion<readonly [z.ZodObject<{
@@ -4209,6 +4284,11 @@ export declare const patchExtensionPreferences: {
                             springer: "springer";
                             vancouver: "vancouver";
                         }>>;
+                        theme: z.ZodOptional<z.ZodEnum<{
+                            dark: "dark";
+                            light: "light";
+                            system: "system";
+                        }>>;
                     }, z.core.$strict>;
                 };
             };
@@ -4225,6 +4305,11 @@ export declare const patchExtensionPreferences: {
                                 de: "de";
                                 en: "en";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                             citationStyle: z.ZodString;
                         }, z.core.$strict>;
                         quota: z.ZodUnion<readonly [z.ZodObject<{
@@ -4399,6 +4484,11 @@ export declare const webSensitiveRoutes: readonly [{
                                 springer: "springer";
                                 vancouver: "vancouver";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                         }, z.core.$strict>>;
                     }, z.core.$strict> | z.ZodObject<{
                         action: z.ZodEnum<{
@@ -4800,6 +4890,11 @@ export declare const webSensitiveRoutes: readonly [{
                                 springer: "springer";
                                 vancouver: "vancouver";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                         }, z.core.$strict>>;
                     }, z.core.$strict> | z.ZodObject<{
                         action: z.ZodEnum<{
@@ -5201,6 +5296,11 @@ export declare const webSensitiveRoutes: readonly [{
                                 springer: "springer";
                                 vancouver: "vancouver";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                         }, z.core.$strict>>;
                     }, z.core.$strict> | z.ZodObject<{
                         action: z.ZodEnum<{
@@ -5602,6 +5702,11 @@ export declare const webSensitiveRoutes: readonly [{
                                 springer: "springer";
                                 vancouver: "vancouver";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                         }, z.core.$strict>>;
                     }, z.core.$strict> | z.ZodObject<{
                         action: z.ZodEnum<{
@@ -6003,6 +6108,11 @@ export declare const webSensitiveRoutes: readonly [{
                                 springer: "springer";
                                 vancouver: "vancouver";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                         }, z.core.$strict>>;
                     }, z.core.$strict> | z.ZodObject<{
                         action: z.ZodEnum<{
@@ -6405,6 +6515,11 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 springer: "springer";
                                 vancouver: "vancouver";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                         }, z.core.$strict>>;
                     }, z.core.$strict> | z.ZodObject<{
                         action: z.ZodEnum<{
@@ -6806,6 +6921,11 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 springer: "springer";
                                 vancouver: "vancouver";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                         }, z.core.$strict>>;
                     }, z.core.$strict> | z.ZodObject<{
                         action: z.ZodEnum<{
@@ -7207,6 +7327,11 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 springer: "springer";
                                 vancouver: "vancouver";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                         }, z.core.$strict>>;
                     }, z.core.$strict> | z.ZodObject<{
                         action: z.ZodEnum<{
@@ -7608,6 +7733,11 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 springer: "springer";
                                 vancouver: "vancouver";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                         }, z.core.$strict>>;
                     }, z.core.$strict> | z.ZodObject<{
                         action: z.ZodEnum<{
@@ -8009,6 +8139,11 @@ export declare const extensionSensitiveRoutes: readonly [{
                                 springer: "springer";
                                 vancouver: "vancouver";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                         }, z.core.$strict>>;
                     }, z.core.$strict> | z.ZodObject<{
                         action: z.ZodEnum<{
@@ -13399,6 +13534,11 @@ export declare const routes: ((({
                                 springer: "springer";
                                 vancouver: "vancouver";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                         }, z.core.$strict>>;
                     }, z.core.$strict> | z.ZodObject<{
                         everywhere: z.ZodBoolean;
@@ -14006,6 +14146,11 @@ export declare const routes: ((({
                                 springer: "springer";
                                 vancouver: "vancouver";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                         }, z.core.$strict>>;
                         transactionCredential: z.ZodString;
                     }, z.core.$strict>;
@@ -14363,6 +14508,11 @@ export declare const routes: ((({
                             springer: "springer";
                             vancouver: "vancouver";
                         }>>;
+                        theme: z.ZodOptional<z.ZodEnum<{
+                            dark: "dark";
+                            light: "light";
+                            system: "system";
+                        }>>;
                     }, z.core.$strict>;
                 };
             };
@@ -14379,6 +14529,11 @@ export declare const routes: ((({
                                 de: "de";
                                 en: "en";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                             citationStyle: z.ZodString;
                         }, z.core.$strict>;
                         quota: z.ZodUnion<readonly [z.ZodObject<{
@@ -14552,6 +14707,11 @@ export declare const routes: ((({
                                 springer: "springer";
                                 vancouver: "vancouver";
                             }>;
+                            theme: z.ZodDefault<z.ZodEnum<{
+                                dark: "dark";
+                                light: "light";
+                                system: "system";
+                            }>>;
                         }, z.core.$strict>>;
                     }, z.core.$strict> | z.ZodObject<{
                         action: z.ZodEnum<{

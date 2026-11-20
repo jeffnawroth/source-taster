@@ -30,5 +30,5 @@ const brandFiles = [
  * the app). A query string does not change which file is meant.
  */
 export const websitePaths = new RegExp(
-  `^(?:/(?:docs|de|en|pagefind|_astro)(?:/|$)|(?:${brandFiles.map(escape).join("|")})(?:\\?|$))`,
+  `^(?:/(?:docs|de|en|pagefind|_astro|fonts|third-party)(?:/|$)|(?:${brandFiles.map(escape).join("|")})(?:\\?|$))`,
 );

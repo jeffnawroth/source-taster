@@ -97,7 +97,12 @@ export declare const GuestTokenResponse: z.ZodObject<{
     }, z.core.$strict>, z.ZodNull]>;
 }, z.core.$strip>;
 export type GuestTokenResponse = z.infer<typeof GuestTokenResponse>;
-/** Account data only: never Check content, Guest identity or theme/onboarding hooks. */
+export declare const Theme: z.ZodEnum<{
+    dark: "dark";
+    light: "light";
+    system: "system";
+}>;
+/** Account data only: never Check content, Guest identity or onboarding markers. */
 export declare const AccountPreferences: z.ZodObject<{
     language: z.ZodEnum<{
         de: "de";
@@ -116,6 +121,11 @@ export declare const AccountPreferences: z.ZodObject<{
         springer: "springer";
         vancouver: "vancouver";
     }>;
+    theme: z.ZodDefault<z.ZodEnum<{
+        dark: "dark";
+        light: "light";
+        system: "system";
+    }>>;
 }, z.core.$strict>;
 export type AccountPreferences = z.infer<typeof AccountPreferences>;
 export declare const AccountPreferencesPatch: z.ZodObject<{
@@ -136,6 +146,11 @@ export declare const AccountPreferencesPatch: z.ZodObject<{
         springer: "springer";
         vancouver: "vancouver";
     }>>;
+    theme: z.ZodOptional<z.ZodEnum<{
+        dark: "dark";
+        light: "light";
+        system: "system";
+    }>>;
 }, z.core.$strict>;
 export type AccountPreferencesPatch = z.infer<typeof AccountPreferencesPatch>;
 export declare const AccountPreferencesResponse: z.ZodObject<{
@@ -144,6 +159,11 @@ export declare const AccountPreferencesResponse: z.ZodObject<{
             de: "de";
             en: "en";
         }>;
+        theme: z.ZodDefault<z.ZodEnum<{
+            dark: "dark";
+            light: "light";
+            system: "system";
+        }>>;
         citationStyle: z.ZodString;
     }, z.core.$strict>;
     quota: z.ZodUnion<readonly [z.ZodObject<{
@@ -255,6 +275,11 @@ export declare const SignInConfirmRequest: z.ZodObject<{
             springer: "springer";
             vancouver: "vancouver";
         }>;
+        theme: z.ZodDefault<z.ZodEnum<{
+            dark: "dark";
+            light: "light";
+            system: "system";
+        }>>;
     }, z.core.$strict>>;
 }, z.core.$strict>;
 export declare const AccountSessionResponse: z.ZodObject<{
@@ -458,6 +483,11 @@ export declare const ExtensionSignInConfirmRequest: z.ZodObject<{
             springer: "springer";
             vancouver: "vancouver";
         }>;
+        theme: z.ZodDefault<z.ZodEnum<{
+            dark: "dark";
+            light: "light";
+            system: "system";
+        }>>;
     }, z.core.$strict>>;
     transactionCredential: z.ZodString;
 }, z.core.$strict>;
@@ -593,6 +623,11 @@ export declare const FreshProofConfirmRequest: z.ZodObject<{
             springer: "springer";
             vancouver: "vancouver";
         }>;
+        theme: z.ZodDefault<z.ZodEnum<{
+            dark: "dark";
+            light: "light";
+            system: "system";
+        }>>;
     }, z.core.$strict>>;
 }, z.core.$strict>;
 export declare const FreshProofResponse: z.ZodObject<{
@@ -714,6 +749,11 @@ export declare const EmailChangeConfirmRequest: z.ZodObject<{
             springer: "springer";
             vancouver: "vancouver";
         }>;
+        theme: z.ZodDefault<z.ZodEnum<{
+            dark: "dark";
+            light: "light";
+            system: "system";
+        }>>;
     }, z.core.$strict>>;
 }, z.core.$strict>;
 /** The eight-year blocked billing-retention notice must be acknowledged by value. */

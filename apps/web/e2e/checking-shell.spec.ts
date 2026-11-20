@@ -1,13 +1,64 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { expect, test } from "@playwright/test";
+import { chooseFileSource, choosePreferences } from "./support/workspace.ts";
+
+test("recognized input becomes a counted feed before search and is replaced by the real Check", async ({
+  page,
+}) => {
+  let release!: () => void;
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route("**/v2/checks", async (route) => {
+    if (route.request().method() === "POST") await held;
+    await route.continue();
+  });
+  await page.goto("/");
+  await choosePreferences(page, { language: "en" });
+  await page
+    .getByRole("textbox", { name: "Reference", exact: true })
+    .fill(
+      "Darwin, C. (1859). On the Origin of Species.\n\nAspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170",
+    );
+  await page
+    .getByRole("button", { name: "Check reference", exact: true })
+    .click();
+  const counted = page.getByTestId("counted-preview");
+  try {
+    await expect(page.locator("main.check-workspace")).toHaveAttribute(
+      "data-stage",
+      "counted",
+    );
+    await expect(counted).toContainText("2 references recognised");
+    await expect(counted.locator(".feed-cards > li")).toHaveCount(2);
+    await expect(counted.locator(".feed-cards > li").first()).toContainText(
+      "On the Origin of Species",
+    );
+    await expect(counted.locator(".feed-cards > li").last()).toContainText(
+      "Measured measurement",
+    );
+    await expect(counted.locator(".summary-counter")).toHaveCount(6);
+    await expect(
+      counted.getByRole("button", { name: "Correct: 0", exact: true }),
+    ).toBeDisabled();
+    await expect(counted.locator(".verdict-chip, .status-chip")).toHaveCount(0);
+    await expect(page.locator("form.intake")).toHaveCount(0);
+  } finally {
+    release();
+  }
+  await expect(counted).toHaveCount(0);
+  await expect(
+    page
+      .getByRole("grid", { name: "References", exact: true })
+      .getByRole("row"),
+  ).toHaveCount(2);
+});
 
 test("streamed feed has one keyboard entry, keeps slot order and returns focus from detail", async ({
   page,
 }) => {
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption("en");
+  await choosePreferences(page, { language: "en" });
   await page
     .getByRole("textbox", { name: "Reference", exact: true })
     .fill(
@@ -60,9 +111,7 @@ for (const language of ["en", "de"] as const)
     await page.setViewportSize({ width: 320, height: 700 });
     await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     const en = language === "en";
     await page
       .getByRole("textbox", {
@@ -107,9 +156,18 @@ for (const language of ["en", "de"] as const)
       .locator("svg[data-verdict] > :first-child")
       .evaluateAll((elements) => elements.map((element) => element.outerHTML));
     expect(new Set(shapes).size).toBe(6);
+    // Arrow keys skip the disabled zero counters to the next live control.
+    const status = toolbar.getByRole("button", {
+      name: en
+        ? "Technical status: Not checked 1"
+        : "Technischer Status: Nicht geprüft 1",
+      exact: true,
+    });
     await correct.focus();
     await page.keyboard.press("ArrowRight");
-    await expect(controls.nth(1)).toBeFocused();
+    await expect(status).toBeFocused();
+    await page.keyboard.press("ArrowLeft");
+    await expect(correct).toBeFocused();
     await correct.click();
     await expect(
       summary.getByRole("button", {
@@ -129,12 +187,12 @@ for (const language of ["en", "de"] as const)
       })
       .click();
     await expect(feed.getByRole("row")).toHaveCount(2);
-    await toolbar
-      .getByRole("button", {
-        name: en ? "Summary options" : "Übersichtsoptionen",
-        exact: true,
-      })
-      .click();
+    // "Show all labels" moved into the ⋯ Menu (#194 D).
+    const more = summary.getByRole("button", {
+      name: en ? "More actions" : "Weitere Aktionen",
+      exact: true,
+    });
+    await more.click();
     await page
       .getByRole("menuitem", {
         name: en ? "Show all labels" : "Alle Labels zeigen",
@@ -142,34 +200,41 @@ for (const language of ["en", "de"] as const)
       })
       .click();
     await expect(
-      toolbar.getByText(
-        en ? "Exists, with deviations:" : "Existiert, mit Abweichungen:",
-        { exact: true },
-      ),
+      summary
+        .getByRole("toolbar", {
+          name: en ? "Outcome filters" : "Ergebnisfilter",
+          exact: true,
+        })
+        .getByText(en ? "Deviations" : "Abweichungen", { exact: true }),
     ).toBeVisible();
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= window.innerWidth,
       ),
     ).toBe(true);
-    await toolbar
+    // D's own toggle beside ⋯ hides the labels and hands focus to ⋯.
+    await summary
       .getByRole("button", {
-        name: en ? "Summary options" : "Übersichtsoptionen",
+        name: en ? "Hide labels" : "Labels ausblenden",
         exact: true,
       })
       .click();
+    await expect(more).toBeFocused();
+    await more.click();
     await page
       .getByRole("menuitem", {
-        name: en ? "Compact labels" : "Kompakte Labels",
+        name: en ? "Show all labels" : "Alle Labels zeigen",
         exact: true,
       })
       .click();
-    await toolbar
-      .getByRole("button", {
-        name: en ? "Statuses: 1" : "Status: 1",
+    await more.click();
+    await page
+      .getByRole("menuitem", {
+        name: en ? "Hide labels" : "Labels ausblenden",
         exact: true,
       })
       .click();
+    await status.click();
     await page
       .getByRole("menuitem", {
         name: en ? "Not checked: 1" : "Nicht geprüft: 1",
@@ -180,18 +245,73 @@ for (const language of ["en", "de"] as const)
     await expect(feed).toContainText("On the Origin of Species");
   });
 
+test("launcher offers D's actions, filters and references of the current check", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await choosePreferences(page, { language: "en" });
+  await page
+    .getByRole("textbox", { name: "Reference", exact: true })
+    .fill(
+      "Doe, J. (2020). Held Reference. doi:10.5555/browser-held\nDarwin, C. (1859). On the Origin of Species.",
+    );
+  await page
+    .getByRole("button", { name: "Check reference", exact: true })
+    .click();
+  const feed = page.getByRole("grid", { name: "References", exact: true });
+  await expect(feed.getByRole("row")).toHaveCount(2);
+  const launcher = page.getByRole("button", {
+    name: "Search or command …",
+    exact: true,
+  });
+  const palette = page.getByRole("dialog", { name: "Commands", exact: true });
+  const item = (name: string) =>
+    palette.getByRole("menuitem", { name, exact: true });
+  await launcher.click();
+  // The held Reference keeps the Check running: Stop is offered and the
+  // list edit stays inert with its reason.
+  await expect(item("Cancel check")).toBeVisible();
+  await expect(item("Edit reference list")).toBeDisabled();
+  await expect(item("Edit reference list")).toHaveAccessibleDescription(
+    "Only while no check is running.",
+  );
+  for (const group of ["Actions", "Filter", "References"])
+    await expect(
+      palette.getByRole("group", { name: group, exact: true }),
+    ).toBeVisible();
+  await expect(item("2 · On the Origin of Species")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(
+    page.getByRole("button", { name: "Not verifiable: 1", exact: true }),
+  ).toBeVisible({ timeout: 15000 });
+  await launcher.click();
+  await item("Not verifiable (1)").click();
+  await expect(palette).toBeHidden();
+  await expect(feed.getByRole("row")).toHaveCount(1);
+  await expect(feed.getByRole("row")).toContainText("Held Reference");
+  await launcher.click();
+  await item("Clear filter").click();
+  await expect(feed.getByRole("row")).toHaveCount(2);
+  await launcher.click();
+  await item("2 · On the Origin of Species").click();
+  await expect(
+    page.getByRole("region", { name: "Reference detail", exact: true }),
+  ).toContainText("Darwin, C. (1859). On the Origin of Species.");
+  await launcher.click();
+  await item("Export").click();
+  await expect(page.getByRole("dialog", { name: /^Export/u })).toBeVisible();
+});
+
 for (const language of ["en", "de"] as const)
   test(`existing-action launcher opens intake and restores keyboard focus without account UI in standalone (${language})`, async ({
     page,
   }) => {
     await page.setViewportSize({ width: 360, height: 740 });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     const en = language === "en";
     const launcher = page.getByRole("button", {
-      name: en ? "Commands" : "Aktionen",
+      name: en ? "Search or command …" : "Suchen oder Befehl …",
       exact: true,
     });
     await launcher.focus();
@@ -202,12 +322,27 @@ for (const language of ["en", "de"] as const)
     });
     await expect(dialog).toBeVisible();
     await expect(dialog).toHaveAttribute("aria-modal", "true");
+    // #194 D: the empty intake offers Check, inert, with its reason.
+    const check = dialog.getByRole("menuitem", {
+      name: en ? "Check" : "Prüfen",
+      exact: true,
+    });
+    await expect(check).toBeDisabled();
+    await expect(check).toHaveAccessibleDescription(
+      en ? "Paste references first." : "Fügen Sie zuerst Referenzen ein.",
+    );
+    await expect(
+      dialog.getByRole("menuitem", {
+        name: en ? "How the check works" : "So funktioniert die Prüfung",
+        exact: true,
+      }),
+    ).toBeVisible();
     await expect(
       dialog.getByRole("menuitem", {
         name: en ? "New check" : "Neue Prüfung",
         exact: true,
       }),
-    ).toBeVisible();
+    ).toHaveCount(0);
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
     await expect(launcher).toBeFocused();
@@ -237,12 +372,7 @@ for (const language of ["en", "de"] as const)
         exact: true,
       }),
     ).toHaveCount(0);
-    await page
-      .getByRole("button", {
-        name: en ? "Files and selection" : "Dateien und Auswahl",
-        exact: true,
-      })
-      .click();
+    await chooseFileSource(page);
     await expect(
       page.getByLabel(
         en ? "Import BibTeX or RIS" : "BibTeX oder RIS importieren",
@@ -309,9 +439,7 @@ for (const language of ["en", "de"] as const)
       }),
     );
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     await page
       .getByRole("textbox", {
         name: en ? "Reference" : "Referenz",
@@ -370,9 +498,7 @@ for (const language of ["en", "de"] as const)
       ],
     });
     await page.goto("/");
-    await page
-      .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-      .selectOption(language);
+    await choosePreferences(page, { language: language });
     const en = language === "en";
     await page
       .getByRole("textbox", {

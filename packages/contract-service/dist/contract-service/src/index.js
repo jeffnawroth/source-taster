@@ -18,12 +18,16 @@ export const GuestTokenResponse = envelope(z.strictObject({
     expiresAt: z.iso.datetime(),
     expiresIn: z.literal(300),
 })).meta({ id: "GuestTokenResponse" });
-/** Account data only: never Check content, Guest identity or theme/onboarding hooks. */
+export const Theme = z.enum(["system", "light", "dark"]);
+/** Account data only: never Check content, Guest identity or onboarding markers. */
 export const AccountPreferences = z.strictObject({
     language: z.enum(["de", "en"]),
     citationStyle: CitationStyle,
+    theme: Theme.default("system"),
 });
-export const AccountPreferencesPatch = AccountPreferences.partial().refine((patch) => Object.values(patch).some((value) => value !== undefined), { message: "At least one Preference is required" });
+export const AccountPreferencesPatch = AccountPreferences.partial()
+    .extend({ theme: Theme.optional() })
+    .refine((patch) => Object.values(patch).some((value) => value !== undefined), { message: "At least one Preference is required" });
 // Reads tolerate a removed style so clients can display the required APA fallback notice.
 export const AccountPreferencesResponse = envelope(AccountPreferences.extend({ citationStyle: z.string().min(1).max(128) })).meta({ id: "AccountPreferencesResponse" });
 /** Browser session credentials are cookies, never fields in these responses. */

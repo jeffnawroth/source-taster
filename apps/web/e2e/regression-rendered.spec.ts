@@ -6,6 +6,7 @@
 // conformance claim and does not replace the native/human gates in
 // docs/implementation/216-regression-evidence.md.
 import { expect, test, type Page } from "@playwright/test";
+import { choosePreferences } from "./support/workspace.ts";
 import AxeBuilder from "@axe-core/playwright";
 import {
   greyscaleDifference,
@@ -40,14 +41,16 @@ const aspelmeyer =
 // Greyscale thresholds, set from measurements on this build (macOS, Chromium):
 // the strongest cell of each glyph differs from its backdrop by 333 to 642 of
 // 765 (summed over three channels), so 250 leaves about a quarter of margin
-// under the weakest; the most alike pair of silhouettes reaches an
-// intersection-over-union of 0.75 at the loosest silhouette threshold tried
-// (0.68 at the half-maximum), so 0.80 leaves 0.05 over the worst case, where
-// two identical glyphs score 1. A change of rendering engine can move these;
-// the manifest in docs/implementation/216-regression-evidence.json records the
-// observed values.
+// under the weakest. With #194 D's original silhouettes the most alike pair
+// reaches an intersection-over-union of 0.80 at the loosest silhouette
+// threshold tried (correct/mixed-citation and mixed-citation/doi-conflict,
+// light) and 0.76 at the half-maximum (correct/doi-conflict), so 0.85 leaves
+// 0.05 over the worst case, where two identical glyphs score 1. (The earlier
+// project-owned glyphs measured 0.75 and 0.68 against 0.80.) A change of
+// rendering engine can move these; the manifest in
+// docs/implementation/216-regression-evidence.json records the observed values.
 const greyscaleVisible = 250;
-const greyscaleSameShape = 0.8;
+const greyscaleSameShape = 0.85;
 // Enough rows that a short viewport scrolls content under the sticky glass.
 const references = [
   aspelmeyer,
@@ -71,9 +74,7 @@ async function openChecked(
     });
   }
   await page.goto("/");
-  await page
-    .getByRole("combobox", { name: /^(Language|Sprache)$/ })
-    .selectOption(language);
+  await choosePreferences(page, { language: language });
   const w = words[language];
   await page
     .getByRole("textbox", { name: w.input, exact: true })
@@ -149,12 +150,16 @@ for (const language of ["en", "de"] as const)
       );
     });
 
-// The sticky glass verdict header of the open detail (two panes, from 768 px).
-// Its backdrop is the detail content scrolled underneath, not the feed.
+// The sticky glass header of the open detail (two panes, from 768 px). Its
+// backdrop is the detail content scrolled underneath, not the feed. In #194 D
+// the header carries Close and "Reference n of N", which are measured here. The
+// Verdict moved below the title into the scrolling body, off the glass: axe
+// color-contrast covers its text there, and Verdict glyphs on glass are
+// measured in the strip test above.
 async function openStuckDetail(page: Page, language: Language, theme: Theme) {
   const { feed } = await openChecked(page, language, theme);
   await feed.getByRole("row").first().getByRole("button").click();
-  const header = page.locator(".detail-verdict-header");
+  const header = page.locator(".detail-head");
   await expect(header).toBeVisible();
   expect(
     await header.evaluate((el) => getComputedStyle(el).position),
@@ -167,7 +172,7 @@ async function openStuckDetail(page: Page, language: Language, theme: Theme) {
   // Scroll the detail until its content really sits under the stuck header.
   const under = await page.evaluate(() => {
     const pane = document.querySelector<HTMLElement>(".check-detail")!;
-    const head = document.querySelector<HTMLElement>(".detail-verdict-header")!;
+    const head = document.querySelector<HTMLElement>(".detail-head")!;
     pane.scrollTop = 240;
     const box = head.getBoundingClientRect();
     const covered = [...pane.querySelectorAll<HTMLElement>("p, li, td")]
@@ -188,35 +193,29 @@ async function openStuckDetail(page: Page, language: Language, theme: Theme) {
 
 for (const language of ["en", "de"] as const)
   for (const theme of ["light", "dark"] as const)
-    test(`the sticky detail verdict header keeps text and glyph contrast over scrolled detail content (${language}, ${theme})`, async ({
+    test(`the sticky detail header keeps text and glyph contrast over scrolled detail content (${language}, ${theme})`, async ({
       page,
     }) => {
       test.setTimeout(120_000);
       const header = await openStuckDetail(page, language, theme);
-      const labelText = await paintedContrast(
-        header.locator(".verdict-badge > span"),
+      // The header holds only Close/Back; the Pager and its position were
+      // removed (reconciliations.md).
+      const closeLabel = await paintedContrast(
+        header.locator(".check-back"),
         "text",
       );
-      expect(labelText.count, "Verdict label is painted").toBeGreaterThan(5);
+      expect(closeLabel.count, "Close label is painted").toBeGreaterThan(5);
       expect(
-        labelText.min,
-        "Verdict label on the detail header",
+        closeLabel.min,
+        "Close label on the detail header",
       ).toBeGreaterThanOrEqual(ratioFloor.text);
-      for (const reason of await header.locator("p").all()) {
-        const measured = await paintedContrast(reason, "text");
-        expect(measured.count, "reason text is painted").toBeGreaterThan(5);
-        expect(
-          measured.min,
-          "reason text on the detail header",
-        ).toBeGreaterThanOrEqual(ratioFloor.text);
-      }
-      const glyph = header.locator("svg[data-verdict]");
+      const glyph = header.locator(".check-back svg");
       await expect(glyph).toHaveCount(1);
       const shape = await paintedContrast(glyph, "shape");
       expect(shape.count, "fully painted glyph pixels").toBeGreaterThan(20);
       expect(
         shape.min,
-        "Verdict glyph on the detail header",
+        "Close glyph on the detail header",
       ).toBeGreaterThanOrEqual(ratioFloor.nonText);
     });
 
@@ -225,8 +224,8 @@ test("negative control: the detail header measurement rejects faint text and a f
 }) => {
   test.setTimeout(120_000);
   const header = await openStuckDetail(page, "en", "light");
-  const label = header.locator(".verdict-badge > span");
-  const glyph = header.locator("svg[data-verdict]");
+  const label = header.locator(".check-back");
+  const glyph = header.locator(".check-back svg");
   expect(
     (await paintedContrast(label, "text")).min,
     "control: the real label passes",
@@ -295,6 +294,14 @@ for (const theme of ["light", "dark"] as const)
       .getByRole("region", { name: "Check summary" })
       .locator(".summary-strip");
     await expect(strip.locator("svg[data-verdict]")).toHaveCount(6);
+    // The #194 D strip shows from the start of the check, so the six counters
+    // can be measured while they are still at 0 and disabled. A disabled counter
+    // is dimmed to 0.55 opacity exactly as in the prototype (an inactive
+    // component, outside WCAG 1.4.11). The dimming is not the glyph design
+    // this test is about, so the counters are measured at full opacity.
+    await page.addStyleTag({
+      content: ".summary-counter { opacity: 1 !important; }",
+    });
     const glyphs = strip.locator("svg[data-verdict]");
     const names: string[] = [];
     const differences: number[][] = [];
@@ -465,12 +472,16 @@ for (const theme of ["light", "dark"] as const)
       await outlineContrast(row),
       "row focus outline",
     ).toBeGreaterThanOrEqual(ratioFloor.nonText);
-    const reset = page.getByRole("button", { name: "Reset", exact: true });
+    // Reset moved into the ⋯ Menu (#194 D); its trigger is the button here.
+    const more = page.getByRole("button", {
+      name: "More actions",
+      exact: true,
+    });
     await page.keyboard.press("Tab");
-    await reset.focus();
-    await expect(reset).toBeFocused();
+    await more.focus();
+    await expect(more).toBeFocused();
     expect(
-      await outlineContrast(reset),
+      await outlineContrast(more),
       "button focus outline",
     ).toBeGreaterThanOrEqual(ratioFloor.nonText);
   });
@@ -513,6 +524,12 @@ test("reduced motion removes spinning and moving animation from a pending check"
         spins: all.filter(
           (a) => (a as CSSAnimation).animationName === "st-spin",
         ).length,
+        probeSpins: all.filter(
+          (a) =>
+            (a as CSSAnimation).animationName === "st-spin" &&
+            ((a.effect as KeyframeEffect | null)?.target as Element | null)
+              ?.id === "motion-probe",
+        ).length,
         moving: all.filter((a) =>
           (a.effect as KeyframeEffect | null)
             ?.getKeyframes()
@@ -526,8 +543,10 @@ test("reduced motion removes spinning and moving animation from a pending check"
     return result;
   };
   const normal = await measure(false);
+  // The D strip shows its own pending spinner beside the probe, so the
+  // control counts the probe itself rather than every spinner on the page.
   expect(
-    normal.spins,
+    normal.probeSpins,
     "control: the spinner rotates without the preference",
   ).toBe(1);
   const reduced = await measure(true);
@@ -604,7 +623,7 @@ for (const language of ["en", "de"] as const)
     // finished count is the last of the progress lines, after the others.
     expect(heard[0], "the recognised References are announced first").toMatch(
       language === "en"
-        ? /^8 references recognized\./u
+        ? /^8 references recognised\./u
         : /^8 Referenzen erkannt\./u,
     );
     expect(
@@ -658,7 +677,16 @@ for (const language of ["en", "de"] as const)
       expect(measured.min).toBeGreaterThanOrEqual(ratioFloor.nonText);
     }
     const row = feed.getByRole("row").first();
+    // Focus as a keyboard user gives it, so the focus indicator is what is
+    // read. Before D the outline read here was the selected row's, as the
+    // detail opened on its own; D (#194) opens no detail and selects no row,
+    // and a programmatic focus after pointer input shows no focus ring.
+    await page.keyboard.press("Shift");
     await row.focus();
+    expect(
+      await row.evaluate((el) => el.matches(":focus-visible")),
+      "the row shows keyboard focus",
+    ).toBe(true);
     expect(
       await row.evaluate((el) => getComputedStyle(el).outlineStyle),
       "focus stays visible in forced colors",

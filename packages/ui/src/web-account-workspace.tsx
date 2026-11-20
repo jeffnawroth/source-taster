@@ -1,16 +1,38 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
 import { InvoiceControls } from "./invoices.tsx";
 import type { InvoiceClient } from "@source-taster/contract-service/client";
 import { DpaControls } from "./dpa.tsx";
 import type { DpaClient } from "@source-taster/contract-service/client";
-// SPDX-License-Identifier: AGPL-3.0-or-later
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import {
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import { X } from "lucide-react";
+import { AccountPopoverCloseContext } from "./checking-top-bar.tsx";
+import { User } from "./workspace-icons.tsx";
 import {
   accountSessionClient,
   GuestTokenError,
 } from "@source-taster/contract-service/client";
 import type { AccountSession } from "@source-taster/contract-service";
 import { m } from "@source-taster/i18n";
-import { Meter, Button } from "./primitives/index.ts";
+import {
+  Meter,
+  Button,
+  Dialog,
+  DialogHeading,
+  Modal,
+  IconButton,
+  Form,
+  TextFieldRoot,
+  Label,
+  Input,
+} from "./primitives/index.ts";
 import type { VerificationClientOptions } from "@source-taster/contract-verification/client";
 import { CheckWorkspace, type SelectionIntake } from "./check-workspace.tsx";
 import {
@@ -18,7 +40,12 @@ import {
   useAccountPreferences,
   type PreferenceSyncConsent,
 } from "./account-preferences.ts";
-import type { Preferences, PreferenceStorage } from "./preferences.ts";
+import {
+  isInterfaceLanguage,
+  isTheme,
+  type Preferences,
+  type PreferenceStorage,
+} from "./preferences.ts";
 import { guestCredentials, webGuestIdentityStorage } from "./guest-identity.ts";
 import {
   AccountManagementLink,
@@ -43,23 +70,23 @@ function errorMessage(error: unknown) {
       : m.auth_unavailable();
 }
 /** Shared bundled email-code controls. Hosts choose the cookie or extension-local session transport. */
-export function AccountControls({
+function SignInDialog({
+  isOpen,
+  onOpenChange,
+  onPreferencesChange,
   client,
-  account,
   changed,
   language,
   preferences,
-  sessionEnded,
-  accountUrl,
   sendPreferences = alwaysGranted.granted,
 }: {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onPreferencesChange: (patch: Partial<Preferences>) => void;
   client: SessionClient;
-  account: AccountSession | null;
   changed: (account: AccountSession | null) => void;
   language: "de" | "en";
   preferences: Preferences;
-  sessionEnded: () => void;
-  accountUrl?: string;
   /** Read when the sign-in is confirmed, not at render: false while the host
    * lacks consent to send Preferences to the service. */
   sendPreferences?: () => boolean;
@@ -73,29 +100,50 @@ export function AccountControls({
   const [pending, setPending] = useState(false),
     [error, setError] = useState<string | null>(null),
     [now, setNow] = useState(Date.now);
+  const [transactionClient, setTransactionClient] = useState(client);
+  // A replacement transport starts a new transaction; hiding Modal does not.
+  if (transactionClient !== client) {
+    setTransactionClient(client);
+    setEmail("");
+    setCode("");
+    setChallenge(null);
+    setPending(false);
+    setError(null);
+  }
+  // Fence completions by mounted identity/transport, never modal visibility.
+  const lifecycle = useRef<object | null>(null);
+  useLayoutEffect(() => {
+    lifecycle.current = {};
+    return () => {
+      lifecycle.current = null;
+    };
+  }, [client]);
   useEffect(() => {
     if (!challenge) return;
     const timer = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(timer);
   }, [challenge]);
   async function send() {
+    const requestLifecycle = lifecycle.current;
     setPending(true);
     setError(null);
     try {
       const issued = await client.challenge({ email, language });
+      if (lifecycle.current !== requestLifecycle) return;
       setChallenge({
         challengeId: issued.challengeId,
         resendAt: Date.now() + issued.resendAfter * 1000,
       });
       setCode("");
     } catch (e) {
-      setError(errorMessage(e));
+      if (lifecycle.current === requestLifecycle) setError(errorMessage(e));
     } finally {
-      setPending(false);
+      if (lifecycle.current === requestLifecycle) setPending(false);
     }
   }
   async function confirm() {
     if (!challenge) return;
+    const requestLifecycle = lifecycle.current;
     setPending(true);
     setError(null);
     try {
@@ -107,17 +155,171 @@ export function AccountControls({
               preferences: {
                 language: preferences.language,
                 citationStyle: preferences.citationStyle,
+                theme: preferences.theme,
               },
             }
           : {}),
       });
-      changed(session);
+      if (lifecycle.current === requestLifecycle) changed(session);
     } catch (e) {
-      setError(errorMessage(e));
+      if (lifecycle.current === requestLifecycle) setError(errorMessage(e));
     } finally {
-      setPending(false);
+      if (lifecycle.current === requestLifecycle) setPending(false);
     }
   }
+  // The dialog owns the transaction outside Modal's transient children. Closing
+  // only hides it; Cancel and an identity change deliberately discard it.
+  return (
+    <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+      <Dialog className="account-dialog" aria-label={m.auth_sign_in()}>
+        <div className="account-dialog-header">
+          <DialogHeading>{m.auth_sign_in()}</DialogHeading>
+          <IconButton
+            label={m.shell_close()}
+            onPress={() => onOpenChange(false)}
+          >
+            <X aria-hidden="true" size={20} />
+          </IconButton>
+        </div>
+        <div className="account-sign-in">
+          <p>{m.auth_guest_notice()}</p>
+          <Form
+            className="account-sign-in-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void (challenge ? confirm() : send());
+            }}
+          >
+            <TextFieldRoot
+              type="email"
+              isRequired
+              value={email}
+              onChange={setEmail}
+              isDisabled={pending || !!challenge}
+            >
+              <Label>{m.auth_email()}</Label>
+              <Input
+                type="email"
+                autoComplete="email"
+                required
+                maxLength={254}
+                autoFocus
+              />
+            </TextFieldRoot>
+            {challenge && (
+              <>
+                <p role="status">{m.auth_code_sent()}</p>
+                <TextFieldRoot
+                  isRequired
+                  value={code}
+                  onChange={setCode}
+                  isDisabled={pending}
+                >
+                  <Label>{m.auth_code()}</Label>
+                  <Input
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    pattern="[0-9]{6}"
+                    minLength={6}
+                    maxLength={6}
+                    required
+                    autoFocus
+                  />
+                </TextFieldRoot>
+              </>
+            )}
+            <Button type="submit" variant="primary" isPending={pending}>
+              {pending
+                ? m.auth_pending()
+                : challenge
+                  ? m.auth_confirm()
+                  : m.auth_send_code()}
+            </Button>
+            {challenge && (
+              <Button
+                type="button"
+                {...(pending || now < challenge.resendAt
+                  ? {
+                      isDisabled: true as const,
+                      disabledReason: m.auth_code_sent(),
+                    }
+                  : { isDisabled: false as const })}
+                onPress={() => void send()}
+              >
+                {m.auth_resend()}
+              </Button>
+            )}
+            <Button
+              type="button"
+              slot="close"
+              {...(pending
+                ? {
+                    isDisabled: true as const,
+                    disabledReason: m.auth_pending(),
+                  }
+                : { isDisabled: false as const })}
+              onPress={() => {
+                setChallenge(null);
+                setCode("");
+                setError(null);
+              }}
+            >
+              {m.auth_cancel()}
+            </Button>
+          </Form>
+          {error && (
+            <p role="alert" className="mt-3 text-text">
+              {error}
+            </p>
+          )}
+        </div>
+        <div className="workspace-preferences">
+          <label className="workspace-select">
+            {m.language_label()}
+            <select
+              value={preferences.language}
+              onChange={(event) => {
+                if (isInterfaceLanguage(event.target.value))
+                  onPreferencesChange({ language: event.target.value });
+              }}
+            >
+              <option value="de">{m.language_de()}</option>
+              <option value="en">{m.language_en()}</option>
+            </select>
+          </label>
+          <label className="workspace-select">
+            {m.theme_label()}
+            <select
+              value={preferences.theme}
+              onChange={(event) => {
+                if (isTheme(event.target.value))
+                  onPreferencesChange({ theme: event.target.value });
+              }}
+            >
+              <option value="system">{m.theme_system()}</option>
+              <option value="light">{m.theme_light()}</option>
+              <option value="dark">{m.theme_dark()}</option>
+            </select>
+          </label>
+        </div>
+      </Dialog>
+    </Modal>
+  );
+}
+
+/** Sign-out is available in the compact entry and the owned Account dialog. */
+function SignOutControls({
+  client,
+  changed,
+  sessionEnded,
+}: {
+  client: SessionClient;
+  changed: (account: AccountSession | null) => void;
+  sessionEnded: () => void;
+}) {
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   async function logout(everywhere: boolean) {
     setPending(true);
     setError(null);
@@ -136,133 +338,50 @@ export function AccountControls({
     }
   }
   return (
-    <section
-      aria-label={m.auth_sign_in()}
-      className="mb-8 rounded-xl border border-border-emphasis bg-surface p-4"
+    <div className="account-sign-out">
+      <div className="account-entry-actions">
+        <Button
+          size="sm"
+          variant="ghost"
+          isPending={pending}
+          onPress={() => void logout(false)}
+        >
+          {m.auth_here()}
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          isPending={pending}
+          onPress={() => void logout(true)}
+        >
+          {m.auth_everywhere()}
+        </Button>
+      </div>
+      {error && <p role="alert">{error}</p>}
+    </div>
+  );
+}
+
+function AccountEntryAction({
+  signedIn,
+  onOpen,
+}: {
+  signedIn: boolean;
+  onOpen: () => void;
+}) {
+  const close = useContext(AccountPopoverCloseContext);
+  return (
+    <Button
+      variant={signedIn ? "ghost" : "primary"}
+      size="sm"
+      icon={signedIn ? undefined : <User />}
+      onPress={() => {
+        close();
+        requestAnimationFrame(onOpen);
+      }}
     >
-      {account ? (
-        <>
-          <p>{account.email}</p>
-          <div className="mt-3 flex flex-wrap gap-3">
-            <button
-              className="rounded border border-border-emphasis px-3 py-2"
-              disabled={pending}
-              onClick={() => void logout(false)}
-            >
-              {m.auth_here()}
-            </button>
-            <button
-              className="rounded border border-border-emphasis px-3 py-2"
-              disabled={pending}
-              onClick={() => void logout(true)}
-            >
-              {m.auth_everywhere()}
-            </button>
-          </div>
-          {client.dpa && (
-            <DpaControls
-              key={`${account.accountId}:${language}`}
-              client={client.dpa}
-              accountId={account.accountId}
-              language={language}
-            />
-          )}
-          {accountUrl && (
-            <AccountManagementLink url={accountUrl} language={language} />
-          )}
-        </>
-      ) : (
-        <>
-          <p>{m.auth_guest_notice()}</p>
-          <form
-            className="mt-4 flex max-w-md flex-col gap-3"
-            onSubmit={(event) => {
-              event.preventDefault();
-              void (challenge ? confirm() : send());
-            }}
-          >
-            <label>
-              {m.auth_email()}
-              <input
-                className="block w-full rounded border border-border-emphasis p-2"
-                type="email"
-                autoComplete="email"
-                required
-                maxLength={254}
-                value={email}
-                disabled={pending || !!challenge}
-                onChange={(event) => setEmail(event.target.value)}
-              />
-            </label>
-            {challenge && (
-              <>
-                <p role="status">{m.auth_code_sent()}</p>
-                <label>
-                  {m.auth_code()}
-                  <input
-                    className="block w-full rounded border border-border-emphasis p-2"
-                    type="text"
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
-                    pattern="[0-9]{6}"
-                    minLength={6}
-                    maxLength={6}
-                    required
-                    autoFocus
-                    value={code}
-                    onChange={(event) => setCode(event.target.value)}
-                    disabled={pending}
-                  />
-                </label>
-              </>
-            )}
-            <button
-              className="rounded bg-surface px-3 py-2 text-text"
-              disabled={pending}
-            >
-              {pending
-                ? m.auth_pending()
-                : challenge
-                  ? m.auth_confirm()
-                  : m.auth_send_code()}
-            </button>
-            {challenge && (
-              <button
-                type="button"
-                className="rounded border border-border-emphasis px-3 py-2"
-                disabled={pending || now < challenge.resendAt}
-                onClick={() => void send()}
-              >
-                {m.auth_resend()}
-              </button>
-            )}
-            <Button
-              type="button"
-              className="rounded border border-border-emphasis px-3 py-2"
-              slot="close"
-              {...(pending
-                ? {
-                    isDisabled: true as const,
-                    disabledReason: m.auth_pending(),
-                  }
-                : { isDisabled: false as const })}
-              onPress={() => {
-                setChallenge(null);
-                setCode("");
-                setError(null);
-              }}
-            >
-              {m.auth_cancel()}
-            </Button>
-          </form>
-        </>
-      )}
-      {error && (
-        <p role="alert" className="mt-3 text-text">
-          {error}
-        </p>
-      )}
-    </section>
+      {signedIn ? m.shell_account() : m.auth_sign_in()}
+    </Button>
   );
 }
 /** The visible, user-initiated control for the host's consent. The request is
@@ -285,14 +404,14 @@ function PreferenceSyncControl({
       ) : (
         <>
           <p>{m.preferences_sync_off()}</p>
-          <button
-            className="mt-3 rounded border border-border-emphasis px-3 py-2"
-            onClick={() => {
+          <Button
+            className="mt-3"
+            onPress={() => {
               void consent.request().then((answer) => setDeclined(!answer));
             }}
           >
             {m.preferences_sync_allow()}
-          </button>
+          </Button>
           {declined && <p role="status">{m.preferences_sync_declined()}</p>}
         </>
       )}
@@ -306,7 +425,11 @@ export function WebAccountWorkspace({
   serviceUrl,
   siteUrl,
   sensitiveActions = false,
+  brandMark,
 }: {
+  /** The host's brand mark URL for the top bar; the hosts ship it already. */
+  brandMark?: string;
+
   initial: { preferences: Preferences; citationStyleReset: boolean };
   preferenceStorage: PreferenceStorage;
   serviceUrl: string;
@@ -348,6 +471,7 @@ export function WebAccountWorkspace({
       client={client}
       guest={guest}
       siteUrl={siteUrl}
+      brandMark={brandMark}
       accountUrl={
         sensitiveActions
           ? `${serviceUrl.replace(/\/$/, "")}/account`
@@ -369,7 +493,11 @@ export function AccountWorkspace({
   upgradeUrl,
   accountUrl,
   preferenceSync = alwaysGranted,
+  brandMark,
 }: {
+  /** The host's brand mark URL for the top bar; the hosts ship it already. */
+  brandMark?: string;
+
   initial: { preferences: Preferences; citationStyleReset: boolean };
   preferenceStorage: PreferenceStorage;
   client: SessionClient;
@@ -388,6 +516,16 @@ export function AccountWorkspace({
     [error, setError] = useState(false),
     [generation, setGeneration] = useState(0);
   const [credentialFailure, setCredentialFailure] = useState(false);
+  // A concluded DPA's link (#dpa/<id>) lands in the Account dialog that holds it.
+  const [accountDialog, setAccountDialog] = useState<
+    "sign-in" | "account" | null
+  >(() =>
+    typeof location !== "undefined" &&
+    /^#dpa\/[0-9a-f-]{36}$/.test(location.hash)
+      ? "account"
+      : null,
+  );
+  const openSignIn = () => setAccountDialog("sign-in");
   const [sessionRevision, setSessionRevision] = useState(0);
   const accountPreferences = useAccountPreferences(
     initial,
@@ -405,6 +543,7 @@ export function AccountWorkspace({
   useEffect(
     () =>
       client.subscribe?.(() => {
+        setAccountDialog(null);
         setSession(undefined);
         setError(false);
         setCredentialFailure(false);
@@ -483,6 +622,7 @@ export function AccountWorkspace({
     };
   }, [client, session]);
   function changed(account: AccountSession | null) {
+    setAccountDialog(null);
     setSession(account);
     setCredentialFailure(false);
     setGeneration((value) => value + 1);
@@ -503,84 +643,219 @@ export function AccountWorkspace({
       </main>
     );
   return (
-    <CheckWorkspace
-      key={generation}
-      accountHistory={!!session && !credentialFailure}
-      accountLabel={session && !credentialFailure ? session.email : undefined}
-      accountNotice={
-        <>
-          {accountPreferences.failure && (
-            <p role="alert">
-              {m.preferences_unavailable()}{" "}
-              <button onClick={() => void accountPreferences.refresh()}>
-                {m.auth_retry()}
-              </button>
-            </p>
+    <>
+      <CheckWorkspace
+        key={generation}
+        onSignIn={!session || credentialFailure ? openSignIn : undefined}
+        accountHistory={!!session && !credentialFailure}
+        accountLabel={session && !credentialFailure ? session.email : undefined}
+        accountNotice={
+          <>
+            {accountPreferences.failure && (
+              <p role="alert">
+                {m.preferences_unavailable()}{" "}
+                <button onClick={() => void accountPreferences.refresh()}>
+                  {m.auth_retry()}
+                </button>
+              </p>
+            )}
+            {credentialFailure && <p role="alert">{m.auth_expired()}</p>}
+          </>
+        }
+        initial={{ ...initial, preferences }}
+        controlledPreferences={accountPreferences}
+        preferenceStorage={preferenceStorage}
+        transport={transport}
+        siteUrl={siteUrl}
+        brandMark={brandMark}
+        selectionIntake={selectionIntake}
+        upgradeUrl={localizedUpgradeUrl}
+        onPreferencesChange={accountPreferences.change}
+        accountControls={(language, quota, storage) => {
+          const signedIn = !!session && !credentialFailure;
+          const summary =
+            quota &&
+            m.quota_meter_summary({
+              remaining: String(quota.remaining),
+              granted: String(quota.granted),
+            });
+          return (
+            <>
+              {session && signedIn ? (
+                <div className="account-entry-row">
+                  <span className="account-avatar" aria-hidden="true">
+                    {session.email[0]?.toLocaleUpperCase()}
+                  </span>
+                  <div>
+                    <b className="account-entry-identity">{session.email}</b>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <p>{m.auth_guest_notice()}</p>
+                  <div className="account-entry-actions">
+                    <AccountEntryAction signedIn={false} onOpen={openSignIn} />
+                  </div>
+                </>
+              )}
+              {signedIn && quota && (
+                <div className="account-entry-row">
+                  <span className="account-entry-eyebrow">
+                    {m.account_plan()}
+                  </span>
+                  <span className="account-plan-tag">
+                    {quota.grants.some((grant) => grant.kind === "pro")
+                      ? m.account_plan_pro()
+                      : m.account_plan_free()}
+                  </span>
+                </div>
+              )}
+              {quota && summary && (
+                <Meter
+                  label={m.quota_meter_label()}
+                  valueLabel={summary}
+                  aria-valuetext={summary}
+                  warning={
+                    quota.warning === "none"
+                      ? undefined
+                      : quota.warning === "exhausted"
+                        ? m.quota_warning_exhausted()
+                        : m.quota_warning_eighty()
+                  }
+                  value={quota.remaining}
+                  maxValue={Math.max(1, quota.granted)}
+                />
+              )}
+              {storage}
+              {upgradeUrl && (
+                <>
+                  <p>{m.quota_upgrade()}</p>
+                  <div className="account-entry-actions">
+                    <a
+                      className="account-entry-pill"
+                      href={localizedUpgradeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {m.account_change_plan()}
+                    </a>
+                  </div>
+                </>
+              )}
+              {signedIn && (
+                <div className="account-entry-actions account-entry-more">
+                  <AccountEntryAction
+                    signedIn
+                    onOpen={() => setAccountDialog("account")}
+                  />
+                  {accountUrl && (
+                    <AccountManagementLink
+                      url={accountUrl}
+                      language={language}
+                    />
+                  )}
+                </div>
+              )}
+              {signedIn && (
+                <SignOutControls
+                  client={client}
+                  changed={changed}
+                  sessionEnded={() => setCredentialFailure(true)}
+                />
+              )}
+            </>
+          );
+        }}
+      />
+      <Modal
+        key={`account-dialog:${generation}`}
+        isOpen={accountDialog === "account" && !!session && !credentialFailure}
+        onOpenChange={(open) => {
+          if (!open) setAccountDialog(null);
+        }}
+      >
+        <Dialog
+          className="account-dialog"
+          aria-label={
+            accountDialog === "account" && session
+              ? `${m.shell_account()}: ${session.email}`
+              : m.auth_sign_in()
+          }
+        >
+          {({ close }) => (
+            <>
+              <div className="account-dialog-header">
+                <DialogHeading>
+                  {accountDialog === "account"
+                    ? m.shell_account()
+                    : m.auth_sign_in()}
+                </DialogHeading>
+                <IconButton label={m.shell_close()} onPress={close}>
+                  <X aria-hidden="true" size={20} />
+                </IconButton>
+              </div>
+              {session && !credentialFailure && (
+                <>
+                  <div>
+                    <b className="account-entry-identity">{session.email}</b>
+                  </div>
+                  {localizedUpgradeUrl && (
+                    <a
+                      href={localizedUpgradeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {m.commerce_open()}
+                    </a>
+                  )}
+                  {accountUrl && (
+                    <AccountManagementLink
+                      url={accountUrl}
+                      language={preferences.language}
+                    />
+                  )}
+                  {client.dpa && (
+                    <DpaControls
+                      key={`${session.accountId}:${preferences.language}`}
+                      client={client.dpa}
+                      accountId={session.accountId}
+                      language={preferences.language}
+                    />
+                  )}
+                  {client.invoices && (
+                    <InvoiceControls
+                      key={session.accountId}
+                      client={client.invoices}
+                      language={preferences.language}
+                    />
+                  )}
+                  {preferenceSync.requiresGrant && (
+                    <PreferenceSyncControl consent={preferenceSync} />
+                  )}
+                  <SignOutControls
+                    client={client}
+                    changed={changed}
+                    sessionEnded={() => setCredentialFailure(true)}
+                  />
+                </>
+              )}
+            </>
           )}
-          {credentialFailure && <p role="alert">{m.auth_expired()}</p>}
-        </>
-      }
-      initial={{ ...initial, preferences }}
-      controlledPreferences={accountPreferences}
-      preferenceStorage={preferenceStorage}
-      transport={transport}
-      siteUrl={siteUrl}
-      selectionIntake={selectionIntake}
-      upgradeUrl={localizedUpgradeUrl}
-      onPreferencesChange={accountPreferences.change}
-      accountControls={(language, quota) => (
-        <>
-          {quota && (
-            <Meter
-              label={m.quota_meter_summary({
-                remaining: String(quota.remaining),
-                granted: String(quota.granted),
-                consumed: String(quota.consumed),
-              })}
-              warning={
-                quota.warning === "none"
-                  ? undefined
-                  : quota.warning === "exhausted"
-                    ? m.quota_warning_exhausted()
-                    : m.quota_warning_eighty()
-              }
-              value={quota.remaining}
-              maxValue={Math.max(1, quota.granted)}
-            />
-          )}
-
-          {upgradeUrl && (
-            <a
-              href={localizedUpgradeUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {m.commerce_open()}
-            </a>
-          )}
-          {session && !credentialFailure && client.invoices && (
-            <InvoiceControls
-              key={session.accountId}
-              client={client.invoices}
-              language={language}
-            />
-          )}
-          {preferenceSync.requiresGrant && session && !credentialFailure && (
-            <PreferenceSyncControl consent={preferenceSync} />
-          )}
-          <AccountControls
-            key={session?.accountId ?? "guest"}
-            language={language}
-            preferences={preferences}
-            sessionEnded={() => setCredentialFailure(true)}
-            client={client}
-            account={credentialFailure ? null : session}
-            sendPreferences={preferenceSync.granted}
-            changed={changed}
-            accountUrl={accountUrl}
-          />
-        </>
+        </Dialog>
+      </Modal>
+      {(!session || credentialFailure) && (
+        <SignInDialog
+          key={`sign-in:${generation}`}
+          isOpen={accountDialog === "sign-in"}
+          onOpenChange={(open) => setAccountDialog(open ? "sign-in" : null)}
+          onPreferencesChange={accountPreferences.change}
+          language={preferences.language}
+          preferences={preferences}
+          client={client}
+          sendPreferences={preferenceSync.granted}
+          changed={changed}
+        />
       )}
-    />
+    </>
   );
 }

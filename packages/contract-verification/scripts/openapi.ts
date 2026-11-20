@@ -66,6 +66,8 @@ for (const route of [
   v2.createCheck,
   v2.getCheck,
   v2.getQuota,
+  v2.getHistoryConsent,
+  v2.setHistoryConsent,
   v2.getHistory,
   v2.setHistory,
   v2.deleteHistory,
