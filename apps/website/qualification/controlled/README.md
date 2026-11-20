@@ -1,6 +1,6 @@
 # Controlled website build
 
-This is the owned #115 build recipe, based on Pagefind 1.5.2. Repository
+This is the owned #115 build recipe, based on Pagefind 1.6.0. Repository
 maintainers own patch updates, daily advisory checks and target qualification.
 It is a local draft preview pipeline, not a publication or legal approval.
 
@@ -39,7 +39,7 @@ The two native targets are macOS arm64 and Linux amd64 GNU. The selected browser
 target is `wasm32-unknown-unknown`, separately built with no default features,
 German, and English. The native Pagefind CLI has no default/serve/extended
 features, rejects service/playground/YAML modes, and ships only the search API,
-worker and required language/index assets. Its version identity is 1.5.2.
+worker and required language/index assets. Its version identity is 1.6.0.
 The compiler uses `astro_napi --no-default-features`; Rolldown and Sätteri use
 their upstream release feature selection. Every selected normal/build closure
 and feature tree is recorded in `.tmp/pagefind/graphs.json` and `*.tree.txt`.
@@ -48,7 +48,7 @@ WASM uses a clean target directory and the owned `pagefind-rustc.ts` wrapper.
 Cargo otherwise salts the two local path-crate identities with their filesystem
 locations, changing symbol identity and linked bytes when readers extract the
 source elsewhere. The wrapper replaces only Cargo's metadata salt for
-`pagefind_web` 1.5.2 and `pagefind_stem` 1.0.0 with their name, version and exact
+`pagefind_web` 1.6.0 and `pagefind_stem` 1.0.0 with their name, version and exact
 selected feature list; it preserves every other compiler argument. Registry
 crates and all native builds keep their normal handling. The same wrapper is
 included and used by the delivered offline reproduction script.
@@ -73,8 +73,8 @@ The browser source package contains the upstream archive, modified WASM/JS
 sources, exact dependency archives, vendored sources/licenses, patches, locks,
 tool pins, build scripts, receipt and an object-to-source manifest. Its ustar/gzip
 metadata is normalized. Offline `build-wasm.sh` checks its source file hashes and
-reproduces the delivered language WASM bytes. Pagefind/microjson notices and GPL
-text are directly accessible under `/third-party/pagefind/` from both languages.
+reproduces the delivered language WASM bytes. Pagefind and dependency notices
+are directly accessible under `/third-party/pagefind/` from both languages.
 
 See `docs/implementation/115-controlled-build.md` and `qualification/evidence/`
 for dated command results and limitations. The pinned publisher Rust, CMake and

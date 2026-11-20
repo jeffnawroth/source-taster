@@ -148,7 +148,7 @@ const vendoring = spawnSync(
 );
 if (vendoring.status !== 0) throw new Error(vendoring.stderr);
 const dependencies = [];
-let notice = `Source Taster controlled Pagefind 1.5.2 build\n\nModified on 2026-10-26: minimal CLI without serve/extended; YAML configuration and unused UI/highlight/playground distribution removed; stable lock fixes and owned proc-macro diagnostics. Browser WASM built from source on stable Rust 1.99.1 (no nightly/build-std or wasm-opt).\n\nPagefind's own code: MIT. Linked pagefind_microjson 0.1.4: GPL-3.0-only (conservative manifest classification; source header says GPLv3-or-later). Legal interpretation and concrete distribution review remain pending; this preview is not publication approval.\n\n`;
+let notice = `Source Taster controlled Pagefind 1.6.0 build\n\nModified on 2026-11-20: minimal CLI without serve/extended; YAML configuration and unused UI/highlight/playground distribution removed; stable lock fixes and owned proc-macro diagnostics. Browser WASM built from source on stable Rust 1.99.1 (no nightly/build-std or wasm-opt).\n\nPagefind's own code: MIT. Every linked registry crate and its license is listed below; the browser WASM closure contains no GPL-covered component (Pagefind 1.6 replaced pagefind_microjson with hifijson). Legal interpretation and concrete distribution review remain pending; this preview is not publication approval.\n\n`;
 notice += await readFile(resolve(source, "LICENSE"), "utf8");
 notice +=
   "\nRust 1.99.1 standard library (MIT OR Apache-2.0), compiler commit 58cf8f9c35b355199727627d07ae34a4e2846d67. The publisher's full library copyright report and license catalogue are included in rust-stdlib/ in Corresponding Source; RUST-COPYRIGHT-library.txt is available beside this notice. Standard library source: https://github.com/rust-lang/rust/tree/58cf8f9c35b355199727627d07ae34a4e2846d67/library . This does not assert that every component of the publisher's general catalogue is linked into these WASM objects.\n";
@@ -197,16 +197,8 @@ for (const pkg of packages) {
       notice += `\n${file}:\n${await readFile(resolve(location, file), "utf8")}\n`;
   }
 }
-const microjson = packages.find((p) => p.name === "pagefind_microjson");
-if (!microjson || microjson.license !== "GPL-3.0-only")
-  throw new Error("GPL component identity changed");
-const gpl = await readFile(
-  resolve(dirname(resolve(work, microjson.manifestPath)), "LICENCE"),
-);
-await writeFile(resolve(delivery, "GPL-3.0.txt"), gpl);
 await writeFile(resolve(delivery, "NOTICE.txt"), notice);
 await writeFile(resolve(staging, "NOTICE.txt"), notice);
-await writeFile(resolve(staging, "GPL-3.0.txt"), gpl);
 await mkdir(resolve(staging, ".cargo"), { recursive: true });
 await writeFile(
   resolve(staging, ".cargo/config.toml"),
@@ -219,7 +211,7 @@ set -eo pipefail
 cd "$(dirname "$0")"
 node --input-type=module -e 'import{readFileSync}from"node:fs";import{createHash}from"node:crypto";for(const[path,expected]of Object.entries(JSON.parse(readFileSync("source-files.json","utf8"))))if(createHash("sha256").update(readFileSync(path)).digest("hex")!==expected)throw new Error("Source checksum mismatch: "+path);'
 : "\u0024{PAGEFIND_RUST_BIN:?Set to the bin directory of pinned stable Rust 1.99.1 with wasm32-unknown-unknown std}"
-: "\u0024{PAGEFIND_BINDGEN:?Set to checksum-pinned wasm-bindgen 0.2.117 executable}"
+: "\u0024{PAGEFIND_BINDGEN:?Set to checksum-pinned wasm-bindgen 0.2.129 executable}"
 export PATH="$PAGEFIND_RUST_BIN:$PATH"
 export CARGO_HOME="$PWD/.offline-cargo-home"
 export CARGO_TARGET_DIR="$PWD/target"
@@ -230,7 +222,7 @@ rm -rf "$CARGO_TARGET_DIR"
 export CARGO_PROFILE_RELEASE_STRIP=none
 export RUSTFLAGS="--remap-path-prefix=$PWD=/pagefind-build/source --remap-path-prefix=$PWD/vendor=/pagefind-build/cargo-home/registry/src/index.crates.io-1949cf8c6b5b557f"
 rustc --version | grep -Eq '^rustc 1\\.99\\.1 '
-"$PAGEFIND_BINDGEN" --version | grep -Eq '^wasm-bindgen 0\\.2\\.117$'
+"$PAGEFIND_BINDGEN" --version | grep -Eq '^wasm-bindgen 0\\.2\\.129$'
 mkdir -p rebuilt
 for language in unknown de en; do
   feature=()
@@ -247,7 +239,7 @@ await writeFile(
 );
 await writeFile(
   resolve(staging, "README.txt"),
-  `Corresponding Source delivery candidate for the browser Pagefind WASM/JS listed in distribution-manifest.json.\n\nOffline WASM reproduction: use build-wasm.sh with the exact Rust 1.99.1 and wasm-bindgen 0.2.117 tools listed in controlled/{inputs,toolchain}.json. Dependency sources and original checksum-bound crate archives are included. The pagefind_stem path patch refers to included source. No nightly, remote dictionary, wasm-pack, wasm-opt or AVA is used. All dependency licenses/notices are retained in vendor/ and NOTICE.txt; microjson's GPL manifest/header discrepancy is retained.\n\nFor JS/native generation: upstream-pagefind.tar.gz contains the complete source. controlled/patches and controlled/locks show the changes. pagefind-source.ts is the actual generator and pagefind-bundle.ts the browser JS bundler; their recipe, Rust target/features and the exact Rolldown 1.2.15 pin are in build-receipt.json, and bundle.json lists every bundled module. The complete fingerprinted build/qualification inputs are included in build-recipe/ in their repository layout; build-receipt.json records their hashes. For full native generation, run those tools in the public project checkout with its frozen workspace install. The offline WASM script below is self-contained apart from the pinned bootstrap tools. JS entries import only included Pagefind code (pagefind_web_js/lib), including the fflate-derived gz.js; Rolldown is a generally available build tool, not bundled client code. The site's custom UI source is public AGPL project code; this package does not pretend to determine legal combination boundaries.\n\nThis artifact provides actual local source access; concrete license/legal review and project publication gates remain pending. Build-system qualification covers only Linux amd64 GNU and macOS arm64 when their individual receipts/checks pass. Other targets are not qualified.\n`,
+  `Corresponding Source delivery candidate for the browser Pagefind WASM/JS listed in distribution-manifest.json.\n\nOffline WASM reproduction: use build-wasm.sh with the exact Rust 1.99.1 and wasm-bindgen 0.2.129 tools listed in controlled/{inputs,toolchain}.json. Dependency sources and original checksum-bound crate archives are included. The pagefind_stem path patch refers to included source. No nightly, remote dictionary, wasm-pack, wasm-opt or AVA is used. All dependency licenses/notices are retained in vendor/ and NOTICE.txt.\n\nFor JS/native generation: upstream-pagefind.tar.gz contains the complete source. controlled/patches and controlled/locks show the changes. pagefind-source.ts is the actual generator and pagefind-bundle.ts the browser JS bundler; their recipe, Rust target/features and the exact Rolldown 1.2.15 pin are in build-receipt.json, and bundle.json lists every bundled module. The complete fingerprinted build/qualification inputs are included in build-recipe/ in their repository layout; build-receipt.json records their hashes. For full native generation, run those tools in the public project checkout with its frozen workspace install. The offline WASM script below is self-contained apart from the pinned bootstrap tools. JS entries import only included Pagefind code (pagefind_web_js/lib), including the fflate-derived gz.js; Rolldown is a generally available build tool, not bundled client code. The site's custom UI source is public AGPL project code; this package does not pretend to determine legal combination boundaries.\n\nThis artifact provides actual local source access; concrete license/legal review and project publication gates remain pending. Build-system qualification covers only Linux amd64 GNU and macOS arm64 when their individual receipts/checks pass. Other targets are not qualified.\n`,
 );
 const objects: Record<string, string> = {};
 for (const language of ["de", "en"]) {
@@ -261,7 +253,7 @@ for (const language of ["de", "en"]) {
     const path = `pagefind/${language}/wasm.${wasmLanguage}.pagefind`;
     const expected =
       receipt.files[
-        `source/pagefind/vendor/wasm/pagefind_web_bg.${wasmLanguage}.1.5.2.wasm.gz`
+        `source/pagefind/vendor/wasm/pagefind_web_bg.${wasmLanguage}.1.6.0.wasm.gz`
       ];
     if (!expected || objects[path] !== expected)
       throw new Error(`Distributed WASM differs from built source: ${path}`);
@@ -333,13 +325,13 @@ tarBlocks.push(Buffer.alloc(1024));
 await writeFile(archive, gzipSync(Buffer.concat(tarBlocks), { level: 9 }));
 const manifest = {
   schemaVersion: 1,
-  version: "1.5.2",
-  modified: "2026-10-26",
+  version: "1.6.0",
+  modified: "2026-11-20",
   target: receipt.target,
   objects,
   dependencies,
   recipeSha256: receipt.recipeSha256,
-  licenses: { pagefind: "MIT", microjson: "GPL-3.0-only", gzJs: "MIT" },
+  licenses: { pagefind: "MIT", gzJs: "MIT" },
   legalReview: "pending; no publication approval",
   source: {
     path: "corresponding-source.tar.gz",
@@ -359,7 +351,6 @@ for (const language of ["de", "en"] as const) {
   const other = language === "de" ? "en" : "de";
   const links = [
     ["corresponding-source.tar.gz", t.source],
-    ["GPL-3.0.txt", t.gpl],
     ["NOTICE.txt", t.notice],
     ["RUST-COPYRIGHT-library.txt", t.rust],
     ["manifest.json", t.manifest],
