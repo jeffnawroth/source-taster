@@ -909,7 +909,7 @@ ADR-0015 names evidence that the assessment must show. Where the row text is too
 - **Applicability and rationale:** Applicable.
 - **Surfaces:** API
 - **Method:** code review
-- **Evidence:** Responses are built from contract schemas that list the returned fields (`packages/contract-verification`), parsed with `.parse(...)` before sending (for example `FreshProofChallengeResponse.parse` in the private service); The consent route returns a content-free summary; problem responses carry codes only, and internal errors log only `{ code: "internal" }`.
+- **Evidence:** Responses are built from contract schemas that list the returned fields (`packages/contract-verification`), parsed with `.parse(...)` before sending (for example `FreshProofChallengeResponse.parse` in the private service); the consent route returns a content-free summary; problem responses carry codes only, and internal errors log only `{ code: "internal" }`.
 - **Result:** Pass
 - **Findings:** None
 
