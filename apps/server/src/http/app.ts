@@ -106,6 +106,7 @@ function librarySizeIssue(issues: readonly ZodIssue[]): boolean {
 
 export interface AppDeps {
   entrance?: EntranceLimiter;
+  historyConsentOrigin?: string;
   structuring: Structuring;
   extraction?: ExtractionPort;
   configuration?: {
@@ -133,6 +134,7 @@ export function createApp(
   {
     structuring,
     entrance,
+    historyConsentOrigin,
     extraction,
     configuration,
     entitlements,
@@ -166,9 +168,12 @@ export function createApp(
     request: Request,
     permission: Permission,
     refreshHistory = true,
+    accountOnly = false,
   ): Promise<Principal> {
     const principal = await entitlements.resolve(request);
     if (!principal) fail("unauthenticated");
+    if (accountOnly && (!principal.sessionId || principal.guestContextId))
+      fail("forbidden");
     if (!principal.can(permission)) fail("forbidden");
     await guarded(principal, permission, () => Promise.resolve());
     if (refreshHistory && principal.sessionId && entitlements.quota) {
@@ -687,10 +692,45 @@ export function createApp(
       permission: Permission,
       refreshHistory = true,
     ) => {
-      const principal = await authorize(request, permission, refreshHistory);
-      if (!principal.sessionId || principal.guestContextId) fail("forbidden");
-      return principal;
+      return authorize(request, permission, refreshHistory, true);
     };
+    // Only the content-free consent surface is readable from Account's origin.
+    // Cookies never authenticate this API: Account obtains its short-lived
+    // Bearer credential through the service's existing session/CSRF checks.
+    app.use("/v2/history/consent", async (c, next) => {
+      const origin = c.req.header("origin");
+      c.header("Vary", "Origin");
+      c.header("Cache-Control", "no-store");
+      c.header("Referrer-Policy", "no-referrer");
+      c.header("X-Content-Type-Options", "nosniff");
+      if (origin && origin === historyConsentOrigin) {
+        c.header("Access-Control-Allow-Origin", origin);
+        c.header("Access-Control-Allow-Headers", "Authorization, Content-Type");
+        c.header("Access-Control-Allow-Methods", "GET, PUT, OPTIONS");
+      } else if (origin) return problemResponse("forbidden");
+      if (c.req.method === "OPTIONS") return c.body(null, 204);
+      return next();
+    });
+    app.openapi(v2.getHistoryConsent, async (c) => {
+      const principal = await account(c.req.raw, "check:read", false);
+      return guarded(principal, "check:read", async () =>
+        c.json({ data: await checks.historyConsent(principal) }, 200),
+      );
+    });
+    app.openapi(v2.setHistoryConsent, async (c) => {
+      const principal = await account(c.req.raw, "check:create", false);
+      return guarded(principal, "check:create", async () =>
+        c.json(
+          {
+            data: await checks.historyConsent(
+              principal,
+              c.req.valid("json").enabled,
+            ),
+          },
+          200,
+        ),
+      );
+    });
     app.openapi(v2.getHistory, async (c) => {
       const principal = await account(c.req.raw, "check:read");
       const data = await guarded(principal, "check:read", () =>
@@ -1526,6 +1566,7 @@ export function createApp(
       createApp(
         {
           structuring,
+          historyConsentOrigin,
           extraction,
           configuration,
           entitlements,

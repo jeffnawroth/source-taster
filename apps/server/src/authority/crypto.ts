@@ -16,6 +16,8 @@ import { fail } from "../http/problems.ts";
 export const HostedSettings = z.strictObject({
   serviceOrigin: z.url(),
   serviceIssuer: z.url(),
+  /** Account UI origin, allowed only on the content-free History consent API. */
+  accountOrigin: z.url().optional(),
   verificationAudience: z.string().min(1),
   assertionIssuer: z.url(),
   internalKey: z.strictObject({
@@ -33,23 +35,27 @@ export function loadHostedSettings(path: string | undefined): HostedSettings {
       "SOURCE_TASTER_AUTH_CONFIG is required for hosted authority",
     );
   const settings = HostedSettings.parse(JSON.parse(readFileSync(path, "utf8")));
-  const origin = new URL(settings.serviceOrigin);
-  if (
-    origin.username ||
-    origin.password ||
-    origin.search ||
-    origin.hash ||
-    origin.pathname !== "/" ||
-    (origin.protocol !== "https:" &&
-      !(
-        process.env.NODE_ENV !== "production" &&
-        origin.protocol === "http:" &&
-        ["localhost", "127.0.0.1", "[::1]"].includes(origin.hostname)
-      ))
-  )
-    throw new Error(
-      "Hosted service requires a trusted HTTPS origin (loopback only in development)",
-    );
+  for (const value of [settings.serviceOrigin, settings.accountOrigin].filter(
+    (value): value is string => value !== undefined,
+  )) {
+    const origin = new URL(value);
+    if (
+      origin.username ||
+      origin.password ||
+      origin.search ||
+      origin.hash ||
+      origin.pathname !== "/" ||
+      (origin.protocol !== "https:" &&
+        !(
+          process.env.NODE_ENV !== "production" &&
+          origin.protocol === "http:" &&
+          ["localhost", "127.0.0.1", "[::1]"].includes(origin.hostname)
+        ))
+    )
+      throw new Error(
+        "Hosted service requires a trusted HTTPS origin (loopback only in development)",
+      );
+  }
   if (
     createPrivateKey(settings.internalKey.pem).asymmetricKeyType !== "ed25519"
   )

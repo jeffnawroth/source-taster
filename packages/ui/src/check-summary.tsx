@@ -1,14 +1,20 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { useRef, useState, type ReactNode, type RefObject } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import * as Aria from "react-aria-components";
 import { useStickySize } from "./sticky-layout.ts";
 import {
   Check as CheckIcon,
-  Ellipsis,
-  ListFilter,
+  Filter,
+  More,
   Square,
   X,
-} from "lucide-react";
+} from "./workspace-icons.tsx";
 import type { Check, Verdict } from "@source-taster/contract-verification/v2";
 import { effectiveVerdict } from "./effective-verdict.ts";
 import { availability } from "./reference-fields.tsx";
@@ -66,15 +72,41 @@ export function MoreActions({
   /** D opens the Menu under the whole strip, not under its trigger. */
   anchor?: RefObject<HTMLElement | null>;
 }) {
+  const [open, setOpen] = useState(false);
+  // React Aria places the Popover in document coordinates, so it would scroll
+  // away from the sticky strip; D's Menu stays under the strip.
+  const [top, setTop] = useState<number>();
+  useEffect(() => {
+    if (!open || !anchor) return;
+    const update = () => {
+      const box = anchor.current?.getBoundingClientRect();
+      if (box) setTop(box.bottom - 5);
+    };
+    update();
+    addEventListener("scroll", update, { capture: true, passive: true });
+    return () => removeEventListener("scroll", update, { capture: true });
+  }, [open, anchor]);
   return (
-    <MenuTrigger>
+    <MenuTrigger
+      isOpen={open}
+      onOpenChange={(next) => {
+        // The trigger sits in the sticky strip, so the Menu stays put while
+        // the feed scrolls; D keeps it open. React Aria closes a non-modal
+        // Popover on any scroll of the trigger's scroll parent.
+        if (!next && globalThis.event?.type === "scroll") return;
+        setOpen(next);
+      }}
+    >
       <IconButton size="sm" variant="secondary" label={m.shell_more_actions()}>
-        <Ellipsis aria-hidden="true" size={16} />
+        <More aria-hidden="true" size={16} />
       </IconButton>
       <Popover
         placement="bottom end"
         className="strip-menu"
-        {...(anchor ? { triggerRef: anchor, offset: -4, crossOffset: -8 } : {})}
+        {...(anchor ? { triggerRef: anchor, offset: -5, crossOffset: -9 } : {})}
+        {...(anchor && top !== undefined
+          ? { style: { position: "fixed", top } }
+          : {})}
       >
         <Menu
           aria-label={m.shell_more_actions()}
@@ -113,7 +145,7 @@ export function MoreActions({
 function CounterName({ verdict }: { verdict: Verdict }) {
   return <span className="sr-only">{`${m[verdictLabels[verdict]]()}: `}</span>;
 }
-function counts(check: Check) {
+export function counts(check: Check) {
   const verdicts = (Object.keys(verdictLabels) as Verdict[]).map((verdict) => {
     const matching = check.references.filter(
       (r) => effectiveVerdict(r) === verdict,
@@ -193,41 +225,67 @@ export function CheckSummary({
   // "Show all labels" lays the narrow strip out like the wide one.
   const [labelled, setLabelled] = useState(false);
   const narrow = compact && !labelled;
+  // D moves focus to ⋯ once "Hide labels" removes the toggle itself.
+  const refocusMore = useRef(false);
+  useEffect(() => {
+    if (narrow && refocusMore.current) {
+      refocusMore.current = false;
+      const anchor = menuAnchor.current;
+      // After React Aria settles the press on the removed toggle.
+      requestAnimationFrame(() =>
+        anchor
+          ?.querySelector<HTMLElement>(
+            `.summary-row [aria-haspopup][aria-label="${m.shell_more_actions()}"]`,
+          )
+          ?.focus(),
+      );
+    }
+  }, [narrow]);
   // D leads the narrow ⋯ Menu with the label toggle.
   const menu: StripAction[] = compact
     ? [
         {
           id: "labels",
-          label: labelled ? m.shell_compact_labels() : m.shell_show_labels(),
-          icon: <ListFilter aria-hidden="true" size={16} />,
+          label: labelled ? m.shell_hide_labels() : m.shell_show_labels(),
+          icon: <Filter aria-hidden="true" size={16} />,
           onAction: () => setLabelled((value) => !value),
         },
         ...actions,
       ]
     : actions;
-  const filterRow = filter && (
-    <div className={narrow ? "active-filter compact" : "active-filter"}>
-      {narrow ? (
-        filter.startsWith("status:") ? (
+  // D: the wide strip states the filter as a plain row ("Filter on: x" +
+  // a ghost "Clear filter"); the compact strip keeps the glyph chip.
+  const filterRow =
+    filter &&
+    (narrow ? (
+      <div className="active-filter compact">
+        {filter.startsWith("status:") ? (
           <StatusIcon status={filter.slice(7) as Status} />
         ) : (
           <VerdictGlyph verdict={filter as Verdict} />
-        )
-      ) : null}
-      <span>
-        {narrow
-          ? filterLabel(filter)
-          : m.shell_active_filter({ filter: filterLabel(filter) })}
-      </span>
-      <IconButton
-        size="sm"
-        onPress={() => onFilter(null)}
-        label={m.shell_remove_filter({ filter: filterLabel(filter) })}
-      >
-        <X aria-hidden="true" size={16} />
-      </IconButton>
-    </div>
-  );
+        )}
+        <span>{filterLabel(filter)}</span>
+        <IconButton
+          size="sm"
+          onPress={() => onFilter(null)}
+          label={m.shell_remove_filter({ filter: filterLabel(filter) })}
+        >
+          <X aria-hidden="true" size={16} />
+        </IconButton>
+      </div>
+    ) : (
+      <div className="active-filter">
+        <span>{m.shell_active_filter({ filter: filterLabel(filter) })}</span>
+        <Button
+          size="sm"
+          variant="ghost"
+          icon={<X aria-hidden="true" size={16} />}
+          onPress={() => onFilter(null)}
+        >
+          {m.shell_clear_filter()}
+        </Button>
+      </div>
+    ));
   return (
     <div ref={strip} className="summary-container">
       <section
@@ -276,7 +334,7 @@ export function CheckSummary({
                 {statusCount > 0 && (
                   <MenuTrigger>
                     <Aria.Button
-                      aria-label={`${m.workspace_statuses()}: ${statuses.map((s) => `${s.count} ${m[statusLabels[s.status]]()}`).join(", ")}`}
+                      aria-label={`${m.workspace_statuses()}: ${statuses.map((s) => `${m[statusLabels[s.status]]()} ${s.count}`).join(", ")}`}
                       className="summary-status compact"
                       data-pressed={filter?.startsWith("status:") || undefined}
                     >
@@ -319,7 +377,7 @@ export function CheckSummary({
                 {running ? (
                   <>
                     <span className="summary-phase">
-                      <Spinner size={16} />
+                      <StatusIcon status="running" size={18} />
                       {m.shell_check_in_progress()}
                     </span>
                     <span className="summary-checked">
@@ -338,7 +396,7 @@ export function CheckSummary({
                 ) : (
                   <>
                     <span className="summary-phase">
-                      <CheckIcon aria-hidden="true" size={16} />
+                      <CheckIcon aria-hidden="true" size={18} />
                       {m.shell_check_complete()}
                     </span>
                     <span className="summary-sentence">
@@ -349,6 +407,20 @@ export function CheckSummary({
                     </span>
                     <span className="summary-spacer" />
                   </>
+                )}
+                {compact && (
+                  <IconButton
+                    size="sm"
+                    variant="secondary"
+                    label={m.shell_hide_labels()}
+                    aria-expanded
+                    onPress={() => {
+                      refocusMore.current = true;
+                      setLabelled(false);
+                    }}
+                  >
+                    <Filter aria-hidden="true" size={16} />
+                  </IconButton>
                 )}
                 <MoreActions actions={menu} anchor={menuAnchor} />
               </div>
@@ -397,7 +469,6 @@ export function CheckSummary({
                     {statuses.map(({ status, count }) => (
                       <Aria.ToggleButton
                         key={status}
-                        aria-label={`${m[statusLabels[status]]()}: ${count}`}
                         isSelected={filter === `status:${status}`}
                         onChange={() =>
                           onFilter(
@@ -408,10 +479,11 @@ export function CheckSummary({
                         }
                         className="summary-status"
                       >
+                        {/* The visible "Running 1" is the name (WCAG 2.5.3);
+                            label before count, as D's status chips. */}
                         <StatusIcon status={status} />
-                        <b aria-hidden="true">{count}</b>
-                        <span aria-hidden="true">
-                          {m[statusLabels[status]]()}
+                        <span>
+                          {m[statusLabels[status]]()} {count}
                         </span>
                       </Aria.ToggleButton>
                     ))}
@@ -444,7 +516,7 @@ export function SummaryLede({
       {running ? (
         <>
           <span className="feed-lede-phase">
-            <Spinner size={16} />
+            <StatusIcon status="running" size={18} />
             {m.shell_run_lede({
               completed: String(completed),
               total: String(total),

@@ -16,12 +16,15 @@ export class ReportError extends Error {
   }
 }
 export const maxPages = 2500;
-const PAGE = { top: 56, bottom: 64, left: 56, right: 56 } as const;
+// #197 C, pinned at 267624a: 48 pt side margins and a 100 pt label
+// column separated from its value by 15 pt. Keep these paper measurements
+// here, rather than deriving them from the screen's spacing scale.
+const PAGE = { top: 54, bottom: 54, left: 48, right: 48 } as const;
 // Intentional medium mapping: PDFs always use white paper, independent of the
 // application's appearance. All alpha roles come precomposited on that paper.
 const paper = opaque.white;
 const bodySize = 10.7;
-const column = 148;
+const column = 115;
 const fontFiles = {
   Regular: "Atkinson-Regular.ttf",
   Bold: "Atkinson-Bold.ttf",
@@ -116,6 +119,7 @@ export async function renderPdf(model: ReportModel): Promise<Uint8Array> {
     width: number,
     size = bodySize,
     link?: string,
+    color: string = paper.text,
   ) {
     const parts = runs(value, face);
     doc.x = x;
@@ -124,11 +128,11 @@ export async function renderPdf(model: ReportModel): Promise<Uint8Array> {
       doc
         .font(part.face)
         .fontSize(size)
-        .fillColor(link ? paper["accent-text"] : paper.text)
+        .fillColor(link ? paper["accent-text"] : color)
         .text(part.text, {
           width,
           continued: index < parts.length - 1,
-          lineGap: 2.5,
+          lineGap: 2,
           ...(link ? { link, underline: true } : {}),
         });
     }
@@ -155,25 +159,31 @@ export async function renderPdf(model: ReportModel): Promise<Uint8Array> {
         ? { Contents: new String(linkDescription) }
         : {}),
     });
-  function separator() {
+  function separator(y = doc.y - 9) {
     doc.save();
     doc.markContent("Artifact", { type: "Layout" });
     doc
-      .moveTo(PAGE.left, doc.y)
-      .lineTo(PAGE.left + width, doc.y)
+      .moveTo(PAGE.left, y)
+      .lineTo(PAGE.left + width, y)
       .lineWidth(0.6)
-      .stroke(paper["border-strong"]);
+      .stroke(paper.border);
     doc.endMarkedContent();
     doc.restore();
-    doc.y += 12;
   }
-  function heading(level: 1 | 2, value: string) {
+  function heading(level: 1 | 2, value: string, overview = false) {
     ensureRoom(level === 1 ? 120 : 110);
-    if (level === 2) separator();
+    if (level === 2 && !overview) separator();
     tagged(root, `H${level}`, () =>
-      write(value, "Bold", PAGE.left, doc.y, width, level === 1 ? 24 : 14),
+      write(
+        value,
+        "Bold",
+        PAGE.left,
+        doc.y,
+        width,
+        level === 1 ? 28 : overview ? 18 : 14,
+      ),
     );
-    doc.y += 8;
+    doc.y += 7;
   }
   function bulletList(items: string[]) {
     const list = doc.struct("L");
@@ -208,7 +218,16 @@ export async function renderPdf(model: ReportModel): Promise<Uint8Array> {
     const paragraph = doc.struct("P");
     root.add(paragraph);
     tagged(paragraph, "Span", () =>
-      write(`${label}:`, "Bold", PAGE.left, top, column - 16),
+      write(
+        label,
+        "Bold",
+        PAGE.left,
+        top,
+        100,
+        9.2,
+        undefined,
+        paper["text-secondary"],
+      ),
     );
     const labelBottom = doc.y;
     const x = PAGE.left + column;
@@ -232,66 +251,242 @@ export async function renderPdf(model: ReportModel): Promise<Uint8Array> {
     if (pages === pageBefore) doc.y = Math.max(doc.y, labelBottom);
     paragraph.end();
     doc.x = PAGE.left;
+    doc.y += 9;
   }
+  const paragraphStyle = (block: Extract<Block, { kind: "paragraph" }>) => {
+    switch (block.appearance) {
+      case "document":
+        return { face: "Bold" as const, size: 13, color: paper.text };
+      case "capture":
+        return {
+          face: "Mono" as const,
+          size: 10,
+          color: paper["text-secondary"],
+        };
+      case "snapshot":
+        return { face: "Regular" as const, size: 11, color: paper.text };
+      case "notice":
+        return {
+          face: "Regular" as const,
+          size: 9.5,
+          color: paper["text-muted"],
+        };
+      case "summary":
+        return { face: "Bold" as const, size: 12, color: paper.text };
+      case "manual":
+        return { face: "Regular" as const, size: 9.8, color: paper.text };
+      case "timestamp":
+        return { face: "Mono" as const, size: 9.4, color: paper["text-muted"] };
+      case "overview-note":
+        return { face: "Regular" as const, size: 10.5, color: paper.text };
+      default:
+        return { face: "Regular" as const, size: bodySize, color: paper.text };
+    }
+  };
   function body(block: Block) {
     switch (block.kind) {
-      case "paragraph":
+      case "paragraph": {
+        const style = paragraphStyle(block);
         ensureRoom(block.keepWithNext ? 68 : 22);
         tagged(root, "P", () =>
-          write(block.text, "Regular", PAGE.left, doc.y, width),
+          write(
+            block.text,
+            style.face,
+            PAGE.left,
+            doc.y,
+            width,
+            style.size,
+            undefined,
+            style.color,
+          ),
+        );
+        break;
+      }
+      case "outcome": {
+        ensureRoom(30);
+        const top = doc.y;
+        if (block.verdict) verdictMark(doc, block.verdict, PAGE.left, top, 15);
+        tagged(root, "P", () =>
+          write(
+            block.text,
+            "Bold",
+            PAGE.left + (block.verdict ? 23 : 0),
+            top,
+            width - 23,
+            11,
+          ),
+        );
+        break;
+      }
+      case "metadata":
+        ensureRoom(22);
+        tagged(root, "P", () =>
+          write(
+            block.text,
+            "Mono",
+            PAGE.left,
+            doc.y,
+            width,
+            9.3,
+            undefined,
+            paper["text-muted"],
+          ),
         );
         break;
       case "labelled":
         field(block.label, block.text, block.face, undefined, block.verdict);
-        break;
+        return;
       case "counts": {
-        ensureRoom(24 + block.items.length * 21);
-        tagged(root, "P", () =>
-          write(block.label, "Bold", PAGE.left, doc.y, width),
-        );
-        doc.y += 5;
+        const paired = block.items.some((item) => item.verdict);
+        const columns = paired ? 2 : 1;
+        const cellWidth = width / columns;
+        ensureRoom(24 + Math.ceil(block.items.length / columns) * 27);
+        if (!paired) {
+          separator(doc.y);
+          doc.y += 16;
+        }
+        if (block.label) {
+          tagged(root, "P", () =>
+            write(block.label, "Bold", PAGE.left, doc.y, width, 13),
+          );
+          doc.y += 7;
+        }
+        const start = doc.y;
         const list = doc.struct("L");
         root.add(list);
-        for (const item of block.items) {
-          ensureRoom(21);
-          const top = doc.y;
+        for (const [index, item] of block.items.entries()) {
+          const x = PAGE.left + (index % columns) * cellWidth;
+          const top = paired ? start + Math.floor(index / columns) * 27 : doc.y;
           const entry = doc.struct("LI");
           list.add(entry);
           // The readable label carries meaning; the redundant vector is skipped.
-          if (item.verdict) verdictMark(doc, item.verdict, PAGE.left, top - 1);
+          if (item.verdict) verdictMark(doc, item.verdict, x, top, 16);
           tagged(entry, "LBody", () =>
-            write(item.text, "Regular", PAGE.left + 22, top, width - 22),
+            write(
+              item.text,
+              "Regular",
+              x + (paired ? 24 : 0),
+              top - (paired ? 1 : 0),
+              cellWidth - (paired ? 30 : 0),
+              10.5,
+              undefined,
+              paired ? paper.text : paper["text-secondary"],
+            ),
           );
-          doc.y += 5;
+          if (!paired) doc.y += 7;
           entry.end();
         }
+        if (paired)
+          doc.y = start + Math.ceil(block.items.length / columns) * 27 + 15;
+        else doc.y += 7;
         list.end();
-        break;
+        return;
       }
       case "list":
         if (block.items.length) bulletList(block.items);
         break;
       case "link":
-        field(block.label, block.url, "Mono", block.url);
+        ensureRoom(22);
+        linkDescription = block.label;
+        root.add(
+          doc.struct("Link", { alt: block.label, lang: model.language }, () =>
+            write(block.url, "Mono", PAGE.left, doc.y, width, 9.4, block.url),
+          ),
+        );
         break;
     }
     doc.x = PAGE.left;
-    doc.y += 6;
+    doc.y += 7;
   }
-  function section(value: Section) {
-    heading(2, value.heading);
+  function textHeight(
+    value: string,
+    face: Face,
+    size: number,
+    measureWidth: number,
+  ) {
+    return doc
+      .font(face)
+      .fontSize(size)
+      .heightOfString(clean(value), { width: measureWidth, lineGap: 2 });
+  }
+  function recordHeight(value: Section) {
+    let height = 60 + textHeight(value.heading, "Bold", 14, width);
+    for (const block of value.blocks) {
+      if (block.kind === "labelled")
+        height +=
+          Math.max(
+            textHeight(block.label, "Bold", 9.2, 100),
+            textHeight(
+              block.text,
+              block.face ?? "Regular",
+              bodySize,
+              width - column,
+            ),
+          ) + 9;
+      else if (block.kind === "metadata" || block.kind === "link") height += 15;
+      else if (block.kind === "paragraph") {
+        if (block.appearance === "manual" || block.appearance === "timestamp")
+          height += 21.5;
+        else height += textHeight(block.text, "Regular", bodySize, width);
+      } else if (block.kind === "list")
+        height += block.items.reduce(
+          (sum, item) =>
+            sum + textHeight(item, "Regular", bodySize, width - 14) + 10,
+          0,
+        );
+    }
+    return height;
+  }
+  function section(value: Section, overview = false) {
+    const height = overview ? 0 : recordHeight(value);
+    // Keep a complete record together whenever it fits on one page. Oversize
+    // production records retain normal flowing paragraphs across pages.
+    if (
+      !overview &&
+      height < doc.page.height - 126 &&
+      doc.y + height > doc.page.height - 64
+    ) {
+      doc.addPage();
+      doc.y = 62;
+    }
+    const top = doc.y;
+    const firstPage = pages;
+    heading(2, value.heading, overview);
     for (const block of value.blocks) body(block);
-    doc.y += 8;
+    if (overview) doc.y += 8;
+    else {
+      if (pages === firstPage) doc.y = Math.max(doc.y, top + height - 8);
+      doc.y += 16;
+    }
   }
   // Real text, redundant with the footer; no brand artwork is embedded.
   doc.markContent("Artifact", { type: "Layout" });
-  write("Source Taster", "Bold", PAGE.left, doc.y, width, 11);
+  write("Source Taster", "Bold", PAGE.left, doc.y, width, 13);
   doc.endMarkedContent();
-  doc.y += 12;
+  doc.y = 108;
   heading(1, model.title);
   for (const block of model.front) body(block);
-  section(model.overview);
-  for (const value of model.references) section(value);
+  doc.y += 18;
+  section(model.overview, true);
+  // The accepted record sheet keeps the overview separate from the records.
+  if (model.references.length) {
+    doc.addPage();
+    doc.y = 62;
+  }
+  let unfinishedGroup = false;
+  for (const value of model.references) {
+    const outcome = value.blocks.find((block) => block.kind === "outcome");
+    // #197 C begins unfinished Status records on their own page. Slot order
+    // stays intact; a later Verdict is never regrouped or silently reordered.
+    if (outcome && !outcome.verdict && !unfinishedGroup) {
+      unfinishedGroup = true;
+      if (doc.y > 70) {
+        doc.addPage();
+        doc.y = 62;
+      }
+    }
+    section(value);
+  }
   root.end();
   const range = doc.bufferedPageRange();
   for (let index = 0; index < range.count; index++) {
@@ -302,11 +497,13 @@ export async function renderPdf(model: ReportModel): Promise<Uint8Array> {
     // White paper is the physical medium; do not paint an application canvas.
     write(
       `${model.footer} · ${model.pageLabel(index + 1, range.count)}`,
-      "Mono",
+      "Regular",
       PAGE.left,
-      doc.page.height - 40,
+      doc.page.height - 32,
       width,
-      8,
+      8.5,
+      undefined,
+      paper["text-muted"],
     );
     doc.endMarkedContent();
     doc.page.margins.bottom = bottom;

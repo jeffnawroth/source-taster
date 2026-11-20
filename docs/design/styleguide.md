@@ -66,7 +66,7 @@ Apply to fields is the accepted ADR-0027 draft-only convenience. It creates only
 
 Preserve ADR-0003 mode semantics: hosted service failures fail closed, while explicit standalone mode has no Guest/Account/Plan/Quota/purchase service UI. Visual continuity is not permission to fabricate entitlement state or downgrade an outage into Guest mode.
 
-Design both appearances and System-default CSS. Persistent manual Theme choice retains its should status; the launcher may invoke existing commands/routes without becoming a new full-text application search. The catalogue is not authorization to implement other should/deferred features. Prototype paid-account/deferred-start fixtures and in-memory DPA operations are not business implementations.
+Design both appearances and System-default CSS. The owner promoted persistent manual Theme choice on 17 November 2026 under ADR-0023; the launcher may invoke existing commands/routes without becoming a new full-text application search. The catalogue is not authorization to implement other should/deferred features. Prototype paid-account/deferred-start fixtures and in-memory DPA operations are not business implementations.
 
 ## Delivering and checking the design
 

@@ -8,7 +8,9 @@ import {
   type Ref,
 } from "react";
 import * as Aria from "react-aria-components";
-import { CircleAlert, Search, X, ChevronDown, Check } from "lucide-react";
+import { CircleAlert, X, ChevronDown, Check } from "lucide-react";
+// Prototype D (issue 194) i-search: the one search glyph of every search field.
+import { Search } from "../workspace-icons.tsx";
 import { cx, styles } from "./utils.ts";
 import { IconButton } from "./actions.tsx";
 import { Popover } from "./overlays.tsx";
@@ -140,20 +142,51 @@ export function TextField({
 }
 export function TextArea({
   ref: externalRef,
+  autoResizeMaxViewportRatio,
   ...props
-}: Aria.TextAreaProps & { ref?: Ref<HTMLTextAreaElement> }) {
+}: Aria.TextAreaProps & {
+  ref?: Ref<HTMLTextAreaElement>;
+  /** Optional viewport cap for auto-growth, independent of the CSS hard limit. */
+  autoResizeMaxViewportRatio?: number;
+}) {
   const ref = useRef<HTMLTextAreaElement>(null);
   const resize = useCallback(() => {
     if (ref.current) {
       ref.current.style.height = "auto";
-      ref.current.style.height = `${Math.min(ref.current.scrollHeight, 320)}px`;
+      const computed = getComputedStyle(ref.current);
+      const maximum = parseFloat(computed.maxHeight);
+      const border =
+        computed.boxSizing === "border-box"
+          ? parseFloat(computed.borderTopWidth) +
+            parseFloat(computed.borderBottomWidth)
+          : 0;
+      ref.current.style.height = `${Math.min(ref.current.scrollHeight + border, Number.isFinite(maximum) ? maximum : Infinity, autoResizeMaxViewportRatio === undefined ? Infinity : Math.round(document.documentElement.clientHeight * autoResizeMaxViewportRatio))}px`;
     }
-  }, []);
+  }, [autoResizeMaxViewportRatio]);
   // Context-provided values (paste/selection intake) must resize on commit too.
   useLayoutEffect(resize);
   return (
     <Aria.TextArea
       {...props}
+      onFocus={(event) => {
+        props.onFocus?.(event);
+        resize();
+      }}
+      onBlur={(event) => {
+        props.onBlur?.(event);
+        // D sizes the field only when it renders: leaving it keeps its
+        // working size (a press below is never displaced, and a Tab to the
+        // command field above leaves it open as in D). Opening a dialog
+        // re-renders D, so modal intake recomputes once focus is inside it.
+        requestAnimationFrame(() => {
+          if (
+            document.activeElement?.closest(
+              '[role="dialog"], [role="alertdialog"]',
+            )
+          )
+            resize();
+        });
+      }}
       ref={(element) => {
         ref.current = element;
         if (typeof externalRef === "function") return externalRef(element);
@@ -175,7 +208,7 @@ export type SearchFieldProps = Omit<
   "children" | "isDisabled"
 > &
   FieldContent &
-  DisabledField & { clearLabel: string };
+  DisabledField & { clearLabel: string; placeholder?: string };
 export function SearchField({
   label,
   description,
@@ -183,6 +216,7 @@ export function SearchField({
   requiredLabel,
   disabledReason,
   clearLabel,
+  placeholder,
   ...props
 }: SearchFieldProps) {
   return (
@@ -198,8 +232,8 @@ export function SearchField({
         {props.isRequired && ` (${requiredLabel ?? "required"})`}
       </Label>
       <div className="st-search-control">
-        <Search aria-hidden="true" size={20} strokeWidth={1.75} />
-        <Input />
+        <Search aria-hidden="true" size={20} />
+        <Input placeholder={placeholder} />
         <IconButton slot="clear" label={clearLabel} size="sm">
           <X aria-hidden="true" size={16} strokeWidth={1.75} />
         </IconButton>

@@ -10,5 +10,7 @@ export default defineConfig({
     fileParallelism: false,
     testTimeout: 20_000,
     hookTimeout: 60_000,
+    // #235: real API/worker transitions must tolerate shared CI runner latency.
+    expect: { poll: { timeout: 15_000 } },
   },
 });

@@ -37,6 +37,8 @@ test("help, contact and legal links follow the interface language and carry no i
   ] as const) {
     await choosePreferences(page, { language: language });
     const nav = page.getByRole("navigation", { name: navigation, exact: true });
+    // One quiet row closes the notes on every screen; it is never doubled.
+    await expect(nav).toHaveCount(1);
     await expect(nav.getByRole("link")).toHaveCount(links.length);
     for (const [name, path] of links) {
       const link = nav.getByRole("link", { name, exact: true });

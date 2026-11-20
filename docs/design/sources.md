@@ -2,6 +2,14 @@
 
 Collected for #206 on 10 November 2026. Accepted by the owner on 10 November 2026 in [#206](https://github.com/jeffnawroth/source-taster/issues/206#issuecomment-6770556807). Closed design tickets record the owner's choices; their prototypes and check seeds are primary evidence, not implemented behaviour or production acceptance. The consolidated public specifications live beside this file. Full private specifications remain in `source-taster-service`.
 
+For visual fidelity, the accepted originals' actual CSS, fonts, layout and
+renderers are authoritative. The component catalogue, tokens guide and prose
+summaries describe the system; they do not replace those sources or justify
+reconstructing a page from screenshots. Port source recipes into owned
+primitives and verify each rendered state through the
+[measured gate](fidelity/measured-gate.md). Later owner decisions are explicit,
+logged amendments; fixture alignment preserves the original visual rules.
+
 ## Decision coverage
 
 | Decision | Outcome carried forward |

@@ -87,6 +87,10 @@ await runMain(async (config) => {
     config.documentLimits,
   );
   const app = createApp({
+    historyConsentOrigin: config.hosted
+      ? new URL(config.hosted.accountOrigin ?? config.hosted.serviceIssuer)
+          .origin
+      : undefined,
     entrance,
     structuring: createParser({ referenceLimit: config.referenceLimit }),
     extraction: selection ? undefined : await activeExtraction(),

@@ -9,12 +9,16 @@ import type {
   SourceEvidence,
 } from "@source-taster/contract-verification/v2";
 import type { Verdict } from "@source-taster/contract-verification/v2";
-import { Check, ChevronRight, Info, PencilLine, Plus, X } from "lucide-react";
+import { ChevronRight, Info, Plus, X } from "lucide-react";
+import { Check, PencilLine } from "./workspace-icons.tsx";
 import {
   evidenceLabel,
   evidenceStep,
   queriedSources,
   StepIcon,
+  trailResult,
+  verdictStep,
+  EndIcon,
 } from "./evidence-steps.tsx";
 import {
   VerdictGlyph,
@@ -26,6 +30,7 @@ import {
 import { m } from "@source-taster/i18n";
 import { getLocale } from "@source-taster/i18n/runtime";
 import { JournalAbbreviationExplanation } from "./journal-abbreviation.tsx";
+import { FieldCell, type FieldEditing } from "./reference-fields.tsx";
 const reasons = {
   "url-unavailable": "reason_url_unavailable",
   "web-original-unavailable": "reason_web_original_unavailable",
@@ -478,11 +483,16 @@ function CandidateEntry({
 export function EvidenceDetails({
   outcome,
   contextLabel,
+  manualOverride,
 }: {
   outcome: ReferenceOutcome;
   contextLabel?: string;
+  manualOverride?: ManualOverride | null;
 }) {
   if (outcome.kind === "status") return null;
+  // D's trail ends like the feed track: the effective Verdict under a flag.
+  const verdict = manualOverride?.verdict ?? outcome.verdict;
+  const end = verdictStep[verdict];
   const sources = queriedSources(outcome.evidence);
   return (
     <div className="detail-evidence">
@@ -639,6 +649,15 @@ export function EvidenceDetails({
                 </time>
               </li>
             ))}
+            <li className="detail-trail" data-state={end}>
+              <span className="detail-mark">
+                <EndIcon />
+              </span>
+              <p>
+                {m[verdictLabels[verdict]]()}{" "}
+                <span className="detail-muted">· {trailResult(end)}</span>
+              </p>
+            </li>
           </ol>
         </DetailSection>
       )}
@@ -704,7 +723,11 @@ export function ReferenceOutcomeView({
       {outcome.kind === "verdict" && (
         <BestMatchComparison outcome={outcome} contextLabel={contextLabel} />
       )}
-      <EvidenceDetails outcome={outcome} contextLabel={contextLabel} />
+      <EvidenceDetails
+        outcome={outcome}
+        contextLabel={contextLabel}
+        manualOverride={manualOverride}
+      />
     </div>
   );
 }
@@ -743,11 +766,14 @@ export function BestMatchComparison({
   outcome,
   contextLabel,
   action,
+  editing,
   children,
 }: {
   outcome: VerdictResult;
   contextLabel?: string;
   action?: ReactNode;
+  /** An open field draft: D puts each input in its row's Your Reference cell. */
+  editing?: FieldEditing;
   children?: ReactNode;
 }) {
   const best = outcome.candidates.find(
@@ -803,32 +829,42 @@ export function BestMatchComparison({
             const theirs = raw(
               comparison ? comparison.candidate : best?.csl[field],
             );
-            // A field neither side has and nothing compared tells nothing.
+            // A field neither side has and nothing compared tells nothing,
+            // unless it is being edited.
             if (
+              !editing &&
               !comparison &&
               yours === m.workspace_unknown() &&
               theirs === m.workspace_unknown()
             )
               return null;
             return (
-              <tbody key={field} data-deviates={state.deviates}>
+              <tbody
+                key={field}
+                data-field={field}
+                data-deviates={state.deviates}
+              >
                 <tr>
                   <th scope="row">{m[fieldLabels[field]]()}</th>
                   <td>
                     <span className="compare-label" aria-hidden="true">
                       {m.shell_your_reference()}
                     </span>
-                    <span
-                      className={
-                        yours === m.workspace_unknown()
-                          ? "compare-unknown"
-                          : state.deviates
-                            ? "compare-deviating"
-                            : undefined
-                      }
-                    >
-                      {yours}
-                    </span>
+                    {editing ? (
+                      <FieldCell editing={editing} field={field} />
+                    ) : (
+                      <span
+                        className={
+                          yours === m.workspace_unknown()
+                            ? "compare-unknown"
+                            : state.deviates
+                              ? "compare-deviating"
+                              : undefined
+                        }
+                      >
+                        {yours}
+                      </span>
+                    )}
                     {state.deviates ? (
                       <span className="compare-differs">
                         <VerdictGlyph verdict="exists-with-deviations" />
@@ -854,7 +890,13 @@ export function BestMatchComparison({
                     >
                       {theirs}
                     </span>
-                    <small className="compare-note">{state.note}</small>
+                    {/* A field only the draft adds was never compared; D
+                        shows it as unknown without a score note. */}
+                    {(!editing ||
+                      comparison ||
+                      best?.csl[field] !== undefined) && (
+                      <small className="compare-note">{state.note}</small>
+                    )}
                   </td>
                 </tr>
               </tbody>

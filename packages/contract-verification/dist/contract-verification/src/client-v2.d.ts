@@ -1919,6 +1919,12 @@ export declare function verificationClient(options?: VerificationClientOptions):
         quotaConsumed: 0;
         referenceLimit: number;
     }>;
+    getHistoryConsent: () => Promise<{
+        enabled: boolean;
+    }>;
+    setHistoryConsent: (enabled: boolean) => Promise<{
+        enabled: boolean;
+    }>;
     getHistory: () => Promise<{
         enabled: boolean;
         entries: {

@@ -235,25 +235,26 @@ test("a layout change in the detail during a Save press does not lose the press"
     exact: true,
   });
   await save.scrollIntoViewIfNeeded();
-  // The press must not depend on where the page happened to come to rest. Put
-  // the window where it only sometimes rests: Save fully in view, the detail
-  // running on past the bottom edge.
-  // D (#194): at 360 px the detail is no scroller of its own; the window is
-  // the only one, so it anchors inside the detail. D's lower detail (sources,
+  // The press must not depend on where the detail happened to come to rest.
+  // Put the detail where it only sometimes rests: Save fully in view, the
+  // detail running on past the bottom edge.
+  // D (#194, .dscroll): at 360 px the full-cover detail is its own viewport
+  // scroller, so it anchors inside itself. D's lower detail (sources,
   // Candidates, trail) runs on well past Save, so Save is centred in the
-  // window; anchoring on the detail's end would push Save under the sticky
+  // detail; anchoring on the detail's end would push Save under the sticky
   // detail head.
   await page.evaluate(() => {
-    const save = [...document.querySelectorAll(".check-detail button")]
+    const pane = document.querySelector(".check-detail")!;
+    const save = [...pane.querySelectorAll("button")]
       .find((b) => b.textContent?.trim() === "Save manual verdict")!
       .getBoundingClientRect();
-    scrollTo(0, scrollY + save.top + save.height / 2 - innerHeight / 2);
+    const box = pane.getBoundingClientRect();
+    pane.scrollTop += save.top + save.height / 2 - (box.top + box.bottom) / 2;
   });
   const placement = await page.evaluate(() => {
-    const pane = document
-      .querySelector(".check-detail")!
-      .getBoundingClientRect();
-    const button = [...document.querySelectorAll(".check-detail button")]
+    const pane = document.querySelector(".check-detail")!;
+    const box = pane.getBoundingClientRect();
+    const button = [...pane.querySelectorAll("button")]
       .find((b) => b.textContent?.trim() === "Save manual verdict")!
       .getBoundingClientRect();
     const hit = document.elementFromPoint(
@@ -264,28 +265,29 @@ test("a layout change in the detail during a Save press does not lose the press"
       clear: !!hit
         ?.closest("button")
         ?.textContent?.includes("Save manual verdict"),
-      paneBottom: pane.bottom,
+      paneBottom: box.bottom,
       buttonTop: button.top,
       buttonBottom: button.bottom,
       viewport: innerHeight,
-      scrollMax: document.documentElement.scrollHeight - innerHeight,
-      scrollY,
+      scrollMax: pane.scrollHeight - pane.clientHeight,
+      scrollTop: pane.scrollTop,
     };
   });
   expect(
+    placement.scrollTop,
+    "the detail runs on past the bottom edge",
+  ).toBeLessThan(placement.scrollMax);
+  expect(
     placement.paneBottom,
-    "the detail runs past the viewport",
-  ).toBeGreaterThan(placement.viewport);
+    "the detail ends at the viewport",
+  ).toBeLessThanOrEqual(placement.viewport);
   expect(placement.buttonTop, "Save is fully in view").toBeGreaterThan(0);
   expect(placement.clear, "nothing sticky covers Save").toBe(true);
   expect(placement.buttonBottom, "Save is fully in view").toBeLessThan(
-    placement.viewport,
-  );
-  expect(placement.scrollY, "the window is not at its maximum").toBeLessThan(
-    placement.scrollMax,
+    placement.paneBottom,
   );
   const before = (await save.boundingBox())!;
-  const scrollBefore = placement.scrollY;
+  const scrollBefore = placement.scrollTop;
   await page.mouse.move(
     before.x + before.width / 2,
     before.y + before.height / 2,
@@ -312,13 +314,16 @@ test("a layout change in the detail during a Save press does not lose the press"
     x: expect.closeTo(before.x + before.width / 2, 0),
     y: expect.closeTo(before.y + before.height / 2, 0),
   });
-  // With one scroller there is one compensation: the window moves by exactly
-  // the inserted height while the pointer is down, never twice or not at all.
-  // (Before D the detail was the scroller, so the window had to stay put.)
+  // With the detail as the scroller there is one compensation: the detail
+  // moves by exactly the inserted height while the pointer is down, never
+  // twice or not at all, and the window stays put.
   expect(
-    (await page.evaluate(() => scrollY)) - scrollBefore,
-    "the window compensated once for the late content during the press",
+    (await page.evaluate(
+      () => document.querySelector(".check-detail")!.scrollTop,
+    )) - scrollBefore,
+    "the detail compensated once for the late content during the press",
   ).toBe(300);
+  expect(await page.evaluate(() => scrollY), "the window stays put").toBe(0);
   await page.mouse.up();
   await expect(detail).toContainText("Manual verdict: Not found");
 });

@@ -65,7 +65,7 @@ for (const language of ["en", "de"] as const)
       );
       await panel.structure();
       const recognized =
-        language === "en" ? "Recognized references" : "Erkannte Referenzen";
+        language === "en" ? "Recognised references" : "Erkannte Referenzen";
       await panel.waitForText("region", recognized, second);
       expect(await panel.text("region", recognized)).not.toContain(
         "Signal maps",

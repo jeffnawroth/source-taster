@@ -47,6 +47,10 @@ await test("the dev server forwards the documentation site and every linked bran
     "/en/",
     "/pagefind/en/pagefind.js",
     "/_astro/app.css",
+    "/fonts/AtkinsonHyperlegibleNext-Regular.ttf",
+    "/fonts/IBMPlexMono-Regular.woff2",
+    "/third-party/ui/NOTICE.txt",
+    "/third-party/pagefind/en/",
     ...links.map(({ href }) => href!),
     "/web-app-any-512.png",
     "/web-app-maskable-192.png",
@@ -62,6 +66,7 @@ await test("the dev server forwards the documentation site and every linked bran
     "/favicon-16.png/extra",
     "/store-edge-300.png",
     "/extension-128.png",
+    "/fonts-private/example.ttf",
   ])
     assert.doesNotMatch(path, websitePaths, path);
 });

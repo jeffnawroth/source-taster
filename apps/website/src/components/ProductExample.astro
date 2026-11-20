@@ -35,7 +35,7 @@ const deviation = counts.find((c) => c.verdict === 'exists-with-deviations')!;
   <figcaption id="example-caption" class="example-label">{t.example}</figcaption>
   <div class="strip">
     <div class="strip-head"><strong>{t.sampleCheck}</strong><span class="subtle">{t.sampleCount.replace('{count}', '3')}</span></div>
-    <div class="counts">{counts.map((c) => <span class={`count ${c.verdict}`}><span set:html={c.glyph} />1 {c.label}</span>)}</div>
+    <div class="counts">{counts.map((c) => <span class={`count ${c.verdict}`}><span set:html={c.glyph} />1 {c.verdict === 'exists-with-deviations' ? t.exampleDeviations : c.label}</span>)}</div>
   </div>
   <div class="reference">
     <div class="ref-label"><span set:html={deviation.glyph} />{deviation.label}</div>

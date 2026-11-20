@@ -22,12 +22,12 @@ test("summary filters current Verdicts separately from technical Statuses", asyn
   // "Check complete" and how many of all References check out instead.
   await expect(
     page.getByRole("region", { name: "Your check", exact: true }),
-  ).toContainText("2 references recognized");
+  ).toContainText("2 references recognised");
   await expect(
     summary.getByRole("button", { name: "Correct: 1", exact: true }),
   ).toBeVisible();
   await expect(
-    summary.getByRole("button", { name: "Not checked: 1", exact: true }),
+    summary.getByRole("button", { name: "Not checked 1", exact: true }),
   ).toBeVisible();
   await expect(summary).toContainText("Check complete");
   await expect(summary).toContainText("1 of 2 references check out.");
@@ -359,6 +359,14 @@ for (const language of ["en", "de"] as const)
         exact: true,
       })
       .click();
+    // The counted stage carries its own footer until the summary strip
+    // replaces it; the feed's footer is the one that stays.
+    await expect(
+      page.getByRole("region", {
+        name: language === "en" ? "Check summary" : "Prüfungsübersicht",
+        exact: true,
+      }),
+    ).toBeVisible();
     const help = page.getByRole("button", {
       name:
         language === "en"
@@ -381,8 +389,8 @@ for (const language of ["en", "de"] as const)
     });
     await expect(explanation).toContainText(
       language === "en"
-        ? "A verdict is not proof of deception. A human makes the decision."
-        : "Ein Befund ist kein Beweis für Täuschung. Die Entscheidung trifft ein Mensch.",
+        ? "A verdict is a finding from the queried data sources, not proof of deception. You make the decision."
+        : "Ein Befund stammt aus den abgefragten Datenquellen und ist kein Beweis für Täuschung. Die Entscheidung treffen Sie.",
     );
     await expect
       .poll(() =>

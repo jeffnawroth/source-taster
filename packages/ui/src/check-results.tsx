@@ -3,28 +3,28 @@ import { effectiveVerdict } from "./effective-verdict.ts";
 import {
   verdictLabels,
   statusLabels,
+  StatusIcon,
   VerdictGlyph,
 } from "./outcome-badges.tsx";
-import { Button, IconButton } from "./primitives/actions.tsx";
+import { Button } from "./primitives/actions.tsx";
 import {
   AlertDialog,
   Dialog,
-  DialogHeading,
   GlassSurface,
   Modal,
 } from "./primitives/overlays.tsx";
 import {
+  useEffect,
   useLayoutEffect,
   useRef,
   useState,
   type ReactNode,
-  type RefObject,
 } from "react";
-import { useStickySize } from "./sticky-layout.ts";
+import type { PaletteCommand } from "./checking-top-bar.tsx";
+import { useNarrow, useStickySize } from "./sticky-layout.ts";
 import type {
   Check,
   ReferenceSlot,
-  Verdict,
 } from "@source-taster/contract-verification/v2";
 import type { VerificationClientOptions } from "@source-taster/contract-verification/client-v2";
 import type { CitationStyle } from "./preferences.ts";
@@ -35,36 +35,38 @@ import {
 import { ReferenceExports } from "./reference-exports.tsx";
 import type { OwnerQuota } from "./quota.ts";
 import { ReportDownload } from "./report-download.tsx";
+import { HowItWorksDialog } from "./how-it-works.tsx";
+import { PanelRight } from "lucide-react";
 import {
-  BookOpenText,
   ChevronLeft,
-  ChevronRight,
   CircleHelp,
   Download,
   FileDown,
   FileText,
   List,
   ListPlus,
-  PanelRight,
+  Filter,
   PencilLine,
   RotateCcw,
-  Shield,
   Square,
   X,
-} from "lucide-react";
+} from "./workspace-icons.tsx";
 import { m } from "@source-taster/i18n";
 import {
+  EndIcon,
   evidenceLabel,
   evidenceStep,
   queriedSources,
   StepIcon,
-  type StepState,
+  verdictStep,
 } from "./evidence-steps.tsx";
 import { ReferenceActions } from "./reference-actions.tsx";
+import { Fields } from "./reference-fields.tsx";
 import { ReferenceListActions } from "./reference-list-actions.tsx";
 import { GridList, GridListItem } from "./primitives/grid-list.tsx";
 import {
   CheckSummary,
+  counts,
   matchesFilter,
   StopButton,
   SummaryLede,
@@ -88,30 +90,6 @@ import {
   useSnapshotGate,
 } from "./reference-work.ts";
 
-/** D switches to the compact strip and the full-cover detail below 700 px. */
-const NARROW = 700;
-function useNarrow(ref: RefObject<HTMLElement | null>) {
-  const [narrow, setNarrow] = useState(false);
-  useLayoutEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-    const measure = () => setNarrow(element.clientWidth < NARROW);
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [ref]);
-  return narrow;
-}
-
-const verdictStep: Record<Verdict, StepState> = {
-  correct: "ok",
-  "exists-with-deviations": "diff",
-  "mixed-citation": "diff",
-  "doi-conflict": "bad",
-  "not-found": "none",
-  "not-verifiable": "warn",
-};
 function runningText(reference: ReferenceSlot) {
   return reference.progress === "queued"
     ? m.reference_queued()
@@ -130,7 +108,9 @@ function EvidenceTrack({ reference }: { reference: ReferenceSlot }) {
     return (
       <div className="card-track">
         <ol className="evidence-track" aria-label={runningText(reference)}>
-          <li className="track-node" data-state={queued ? "pend" : "cur"} />
+          <li className="track-node" data-state={queued ? "pend" : "cur"}>
+            {!queued && <StatusIcon status="running" size={16} />}
+          </li>
         </ol>
         <span className="card-step">{runningText(reference)}</span>
       </div>
@@ -161,7 +141,7 @@ function EvidenceTrack({ reference }: { reference: ReferenceSlot }) {
           </li>
         ))}
         <li className="track-node" data-state={verdictStep[verdict]}>
-          <VerdictGlyph verdict={verdict} />
+          <EndIcon />
           <span className="sr-only">{m[verdictLabels[verdict]]()}</span>
         </li>
       </ol>
@@ -258,6 +238,7 @@ export function CheckResults({
   sourceLabel,
   notices,
   footer,
+  onCommands,
 }: {
   quota: OwnerQuota | null;
   upgradeUrl?: string;
@@ -278,6 +259,8 @@ export function CheckResults({
   sourceLabel: string;
   notices?: ReactNode;
   footer?: ReactNode;
+  /** Receives the launcher's Actions, Filters and References of this view. */
+  onCommands?: (commands: PaletteCommand[]) => void;
 }) {
   const firstFormat =
     check.references[0]?.revisions[0]?.reference.imported?.format;
@@ -364,7 +347,7 @@ export function CheckResults({
     {
       id: "bibliography",
       label: m.bibliography_heading(),
-      icon: <BookOpenText aria-hidden="true" size={16} />,
+      icon: <List aria-hidden="true" size={16} />,
       onAction: () => setDialog("bibliography"),
     },
     {
@@ -381,6 +364,96 @@ export function CheckResults({
       disabledReason: busy ? m.shell_edit_list_reason() : undefined,
     },
   ];
+  // #194 D cmdItems: the strip's Actions (Stop and Reset come from the
+  // workspace), one filter per Verdict and present technical status, then
+  // every Reference.
+  const tally = counts(check);
+  const commands: PaletteCommand[] = [
+    ...actions
+      // D's palette leaves the bibliography to the ⋯ Menu.
+      .filter(
+        (action) =>
+          action.id !== "stop" &&
+          action.id !== "reset" &&
+          action.id !== "bibliography",
+      )
+      .map((action) => ({
+        id: action.id,
+        group: "actions" as const,
+        label: action.label,
+        icon: action.icon,
+        onAction: action.onAction,
+        disabledReason: action.disabledReason,
+      })),
+    ...tally.verdicts.map(({ verdict, count }) => ({
+      id: `filter:${verdict}`,
+      group: "filters" as const,
+      label: m.shell_filter_command({
+        label: m[verdictLabels[verdict]](),
+        count: String(count),
+      }),
+      icon: <VerdictGlyph verdict={verdict} />,
+      onAction: () => setFilter(verdict),
+    })),
+    ...tally.statuses.map(({ status, count }) => ({
+      id: `filter:status:${status}`,
+      group: "filters" as const,
+      label: m.shell_filter_command({
+        label: m[statusLabels[status]](),
+        count: String(count),
+      }),
+      icon: <Filter aria-hidden="true" size={16} />,
+      onAction: () => setFilter(`status:${status}` as const),
+    })),
+    ...(filter
+      ? [
+          {
+            id: "filter:clear",
+            group: "filters" as const,
+            label: m.shell_clear_filter(),
+            icon: <X aria-hidden="true" size={16} />,
+            onAction: () => setFilter(null),
+          },
+        ]
+      : []),
+    ...check.references.map((reference) => ({
+      id: `reference:${reference.slot}`,
+      group: "references" as const,
+      label: m.shell_reference_command({
+        slot: String(reference.slot),
+        title: titleOf(reference),
+      }),
+      icon: <FileText aria-hidden="true" size={16} />,
+      onAction: () => {
+        if (!matchesFilter(reference, filter)) setFilter(null);
+        open(reference.slot);
+      },
+    })),
+  ];
+  // Handlers change every render; publish only when a row changes and run
+  // the latest handler through the ref.
+  const latest = useRef(commands);
+  useLayoutEffect(() => {
+    latest.current = commands;
+  });
+  const signature = JSON.stringify(
+    commands.map((command) => [
+      command.id,
+      command.label,
+      command.disabledReason ?? "",
+    ]),
+  );
+  useEffect(() => {
+    if (!onCommands) return;
+    onCommands(
+      latest.current.map((command) => ({
+        ...command,
+        onAction: () =>
+          latest.current.find((row) => row.id === command.id)?.onAction?.(),
+      })),
+    );
+  }, [signature, onCommands]);
+  useEffect(() => () => onCommands?.([]), [onCommands]);
   const SourceIcon =
     source === "file" ? FileText : source === "selection" ? PanelRight : List;
   return (
@@ -517,22 +590,7 @@ export function CheckResults({
               </Button>
             </div>
           )}
-          <footer className="feed-foot">
-            {footer}
-            <p className="feed-foot-row">
-              <Shield aria-hidden="true" size={16} />
-              <span>
-                {m.shell_feed_disclaimer()}{" "}
-                <button
-                  type="button"
-                  className="feed-link"
-                  onClick={() => setDialog("help")}
-                >
-                  {m.workspace_help()}
-                </button>
-              </span>
-            </p>
-          </footer>
+          <footer className="feed-foot">{footer}</footer>
         </div>
       </div>
       {showDetail && (
@@ -567,41 +625,6 @@ export function CheckResults({
               >
                 {narrow ? m.shell_back() : m.shell_close()}
               </Button>
-              <span className="detail-position">
-                {m.shell_reference_position({
-                  position: String(selectedIndex + 1),
-                  total: String(visible.length),
-                })}
-              </span>
-              {/* At either end the arrow gives way to a same-size gap rather
-                than a disabled control: the position already says why, and
-                every page change moves focus to the title. */}
-              <div className="detail-pager">
-                {selectedIndex > 0 ? (
-                  <IconButton
-                    size="sm"
-                    variant="secondary"
-                    label={m.shell_previous_reference()}
-                    onPress={() => open(visible[selectedIndex - 1]!.slot)}
-                  >
-                    <ChevronLeft aria-hidden="true" size={16} />
-                  </IconButton>
-                ) : (
-                  <span className="detail-pager-gap" />
-                )}
-                {selectedIndex < visible.length - 1 ? (
-                  <IconButton
-                    size="sm"
-                    variant="secondary"
-                    label={m.shell_next_reference()}
-                    onPress={() => open(visible[selectedIndex + 1]!.slot)}
-                  >
-                    <ChevronRight aria-hidden="true" size={16} />
-                  </IconButton>
-                ) : (
-                  <span className="detail-pager-gap" />
-                )}
-              </div>
             </DetailHeader>
             <div className="detail-body">
               <div>
@@ -635,24 +658,38 @@ export function CheckResults({
                 transport={transport}
                 work={work(selected.slot)}
                 gate={gate}
-                comparison={(action, editor) =>
+                comparison={(action, edit) =>
                   selected.outcome.kind === "verdict" ? (
                     <BestMatchComparison
                       outcome={selected.outcome}
                       action={action}
+                      editing={edit?.editing}
                     >
-                      {editor}
+                      {edit?.form()}
                     </BestMatchComparison>
                   ) : (
                     <DetailSection
                       title={m.shell_field_by_field()}
                       action={action}
                     >
-                      {editor}
+                      {edit?.form(
+                        <Fields
+                          fields={edit.editing.fields}
+                          onChange={edit.editing.onChange}
+                          truncated={edit.editing.truncated}
+                          onTruncated={edit.editing.onTruncated}
+                          disabled={edit.editing.disabled}
+                        />,
+                      )}
                     </DetailSection>
                   )
                 }
-                evidence={<EvidenceDetails outcome={selected.outcome} />}
+                evidence={
+                  <EvidenceDetails
+                    outcome={selected.outcome}
+                    manualOverride={selected.manualOverride}
+                  />
+                }
                 provenance={suggestionProvenance(
                   selected.outcome,
                   citationStyleLabel,
@@ -681,8 +718,10 @@ export function CheckResults({
         label={m.report_ui_heading()}
         isOpen={dialog === "report"}
         onClose={() => setDialog(null)}
+        ownActions
       >
         <ReportDownload
+          onClose={() => setDialog(null)}
           check={check}
           citationStyle={citationStyle}
           transport={transport}
@@ -714,31 +753,13 @@ export function CheckResults({
           onDone={() => setDialog(null)}
         />
       </ActionDialog>
-      <Modal
+      <HowItWorksDialog
+        quota={transport.credentials !== undefined}
         isOpen={dialog === "help"}
         onOpenChange={(isOpen) => {
           if (!isOpen) setDialog(null);
         }}
-      >
-        <Dialog className="workspace-dialog">
-          {({ close }) => (
-            <>
-              <DialogHeading>{m.workspace_help()}</DialogHeading>
-              <ol className="workspace-dialog-steps">
-                <li>{m.workspace_method()}</li>
-                <li>{m.workspace_limits()}</li>
-                <li>{m.doi_uncalibrated()}</li>
-              </ol>
-              <p className="detail-note">{m.workspace_human()}</p>
-              <div className="st-actions">
-                <Button variant="primary" onPress={close}>
-                  {m.shell_close()}
-                </Button>
-              </div>
-            </>
-          )}
-        </Dialog>
-      </Modal>
+      />
       <Modal
         isOpen={dialog === "reset"}
         onOpenChange={(isOpen) => {
@@ -749,6 +770,7 @@ export function CheckResults({
           title={m.check_reset()}
           cancelLabel={m.shell_keep()}
           actionLabel={m.check_reset()}
+          actionIcon={<RotateCcw aria-hidden="true" />}
           onAction={onReset}
         >
           {m.shell_reset_confirm()}

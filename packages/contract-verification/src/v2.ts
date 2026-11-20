@@ -360,3 +360,9 @@ export const History = z
   })
   .meta({ id: "History" });
 export const HistoryResponse = z.object({ data: History, quota: QuotaSlot });
+
+/** Account controls may receive consent only, never History entries or labels. */
+export const HistoryConsent = z.strictObject({ enabled: z.boolean() }).meta({
+  id: "HistoryConsent",
+});
+export const HistoryConsentResponse = z.strictObject({ data: HistoryConsent });

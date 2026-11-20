@@ -32,6 +32,42 @@ async function opened(firefox: NativeFirefox, open: boolean) {
   );
 }
 
+test("Firefox sidebar retains the chosen appearance after closing and reopening", async () => {
+  const firefox = await launchFirefox(build.outDir);
+  try {
+    await firefox.clickToolbarButton();
+    await opened(firefox, true);
+    const toggle = await firefox.find(
+      "pushbutton",
+      /^Switch to (light|dark) appearance$/u,
+    );
+    const next = toggle.name.includes("dark")
+      ? "Switch to light appearance"
+      : "Switch to dark appearance";
+    await firefox.click(await firefox.find("entry", "Reference"));
+    await firefox.type("Unfinished reference");
+    await until(
+      async () =>
+        (await firefox.find("entry", "Reference")).value ===
+        "Unfinished reference",
+      "The input did not arrive before changing appearance",
+    );
+    await firefox.click(toggle);
+    await firefox.find("pushbutton", next);
+    expect((await firefox.find("entry", "Reference")).value).toBe(
+      "Unfinished reference",
+    );
+    await firefox.clickToolbarButton();
+    await opened(firefox, false);
+    await firefox.clickToolbarButton();
+    await opened(firefox, true);
+    await firefox.find("pushbutton", next);
+    expect((await firefox.find("entry", "Reference")).value).toBe("");
+  } finally {
+    await firefox.close();
+  }
+});
+
 test("the toolbar button opens the real Firefox sidebar, which checks a Reference against the actual API", async () => {
   const firefox = await launchFirefox(build.outDir);
   try {

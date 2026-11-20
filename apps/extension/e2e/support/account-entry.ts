@@ -2,45 +2,37 @@
 import type { Page } from "@playwright/test";
 import type { Panel } from "./chromium.ts";
 import type { NativeFirefox } from "./firefox.ts";
-/** Explicit user navigation to the existing signed-in Account controls. */
+const signedInAccount = /^(?:Account: (?!Guest$)|Konto: (?!Gast$))/;
+const accountLabel = (language?: "en" | "de") =>
+  language ? (language === "de" ? "Konto" : "Account") : /^(Account|Konto)$/;
+
+/** Explicit navigation through the compact entry to the owned Account dialog. */
 export async function openPanelAccount(panel: Panel, language?: "en" | "de") {
-  const label = language
-    ? language === "de"
-      ? "Konto"
-      : "Account"
-    : /^(Account|Konto)$/;
-  await panel.find("button", /^(Account|Konto):/);
+  await panel.find("button", signedInAccount);
+  if ((await panel.query("dialog", signedInAccount)).length) return;
+  const label = accountLabel(language);
   if (!(await panel.query("dialog", label)).length)
-    await panel.click(
-      "button",
-      language
-        ? language === "de"
-          ? /^Konto:/
-          : /^Account:/
-        : /^(Account|Konto):/,
-    );
+    await panel.click("button", signedInAccount);
+  await panel.click("button", label);
+  await panel.find("dialog", signedInAccount);
 }
+
 export async function openFirefoxAccount(
   browser: NativeFirefox,
   language?: "en" | "de",
 ) {
-  // A successful sign-in remounts the checking workspace. Wait for its signed-in
-  // trigger before deciding whether the old sign-in dialog is still open.
-  await browser.find(
-    "pushbutton",
-    language
-      ? language === "de"
-        ? /^Konto:/
-        : /^Account:/
-      : /^(Account|Konto):/,
-  );
-  const label = language
-    ? language === "de"
-      ? "Konto"
-      : "Account"
-    : /^(Account|Konto)$/;
+  // Identity changes remount the workspace; wait for the signed-in chip first.
+  await browser.find("pushbutton", signedInAccount);
+  const tree = await browser.tree();
   if (
-    !(await browser.tree()).some(
+    tree.some(
+      (node) => node.role === "dialog" && signedInAccount.test(node.name),
+    )
+  )
+    return;
+  const label = accountLabel(language);
+  if (
+    !tree.some(
       (node) =>
         node.role === "dialog" &&
         (typeof label === "string"
@@ -48,42 +40,65 @@ export async function openFirefoxAccount(
           : label.test(node.name)),
     )
   )
-    await browser.click(
-      await browser.find(
-        "pushbutton",
-        language
-          ? language === "de"
-            ? /^Konto:/
-            : /^Account:/
-          : /^(Account|Konto):/,
-      ),
-    );
+    await browser.click(await browser.find("pushbutton", signedInAccount));
+  await browser.click(await browser.find("pushbutton", label));
+  await browser.find("dialog", signedInAccount);
 }
+
 export async function openWebAccount(page: Page, language?: "en" | "de") {
   await page
-    .getByRole("button", { name: /^(Account|Konto):/ })
+    .getByRole("button", { name: signedInAccount })
     .waitFor({ state: "visible" });
-  if (
-    !(await page
-      .getByRole("dialog", {
-        name: language
-          ? language === "de"
-            ? "Konto"
-            : "Account"
-          : /^(Account|Konto)$/,
-        exact: true,
-      })
-      .isVisible())
-  )
+  const dialog = page.getByRole("dialog", { name: signedInAccount });
+  if (await dialog.isVisible()) return;
+  const label = accountLabel(language);
+  const entry = page.getByRole("dialog", { name: label, exact: true });
+  if (!(await entry.isVisible()))
+    await page.getByRole("button", { name: signedInAccount }).click();
+  await entry.getByRole("button", { name: label, exact: true }).click();
+  await dialog.waitFor({ state: "visible" });
+}
+
+/** Guest identity opens a compact entry; sign-in itself lives in a modal. */
+export async function openWebSignIn(page: Page) {
+  const dialog = page.getByRole("dialog", { name: /^(Sign in|Anmelden)$/ });
+  if (await dialog.isVisible()) return;
+  const entry = page.locator(".account-entry");
+  if (!(await entry.isVisible()))
     await page
-      .getByRole("button", {
-        name: language
-          ? language === "de"
-            ? /^Konto:/
-            : /^Account:/
-          : /^(Account|Konto):/,
-      })
+      .getByRole("button", { name: /^(Account: Guest|Konto: Gast)$/ })
       .click();
+  await entry.getByRole("button", { name: /^(Sign in|Anmelden)$/ }).click();
+  await dialog.waitFor({ state: "visible" });
+}
+
+export async function openPanelSignIn(panel: Panel) {
+  if ((await panel.query("dialog", /^(Sign in|Anmelden)$/)).length) return;
+  if (!(await panel.query("dialog", /^(Account|Konto)$/)).length)
+    await panel.click("button", /^(Account: Guest|Konto: Gast)$/);
+  await panel.click("button", /^(Sign in|Anmelden)$/);
+  await panel.find("dialog", /^(Sign in|Anmelden)$/);
+}
+
+export async function openFirefoxSignIn(browser: NativeFirefox) {
+  const tree = await browser.tree();
+  if (
+    tree.some(
+      (node) =>
+        node.role === "dialog" && /^(Sign in|Anmelden)$/.test(node.name),
+    )
+  )
+    return;
+  if (
+    !tree.some(
+      (node) => node.role === "dialog" && /^(Account|Konto)$/.test(node.name),
+    )
+  )
+    await browser.click(
+      await browser.find("pushbutton", /^(Account: Guest|Konto: Gast)$/),
+    );
+  await browser.click(await browser.find("pushbutton", /^(Sign in|Anmelden)$/));
+  await browser.find("dialog", /^(Sign in|Anmelden)$/);
 }
 
 export function panelAccountName(email: string) {

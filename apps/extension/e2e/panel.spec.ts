@@ -66,6 +66,77 @@ test("the toolbar action opens the real native side panel with the shared Check 
 });
 
 for (const language of ["en", "de"] as const)
+  test(`native panel persists appearance and follows System in ${language}`, async () => {
+    await native(language === "en" ? "en-GB" : "de-DE", async (browser) => {
+      const panel = await browser.openPanel();
+      // The browser locale does not choose the panel language; Preferences does.
+      await panel.preferences({ language });
+      await panel.send("Emulation.setEmulatedMedia", {
+        features: [{ name: "prefers-color-scheme", value: "light" }],
+      });
+      const dark =
+        language === "en"
+          ? "Switch to dark appearance"
+          : "Zur dunklen Darstellung wechseln";
+      const light =
+        language === "en"
+          ? "Switch to light appearance"
+          : "Zur hellen Darstellung wechseln";
+      const appearance = language === "en" ? "Appearance" : "Darstellung";
+      const input = labels[language].input;
+      await panel.find("button", dark);
+      await panel.fill("textbox", input, "Unfinished reference");
+      const box = await panel.call<{ width: number; height: number }>(
+        await panel.find("button", dark),
+        "function () { const r = this.getBoundingClientRect(); return { width: r.width, height: r.height }; }",
+      );
+      expect(box.width).toBeCloseTo(36, 1);
+      expect(box.height).toBeCloseTo(36, 1);
+      await panel.click("button", dark);
+      await panel.find("button", light);
+      expect(
+        await panel.call(
+          await panel.find("textbox", input),
+          "function () { return this.value; }",
+        ),
+      ).toBe("Unfinished reference");
+      await expect
+        .poll(
+          async () =>
+            (await browser.storage())["source-taster-guest-preferences-v1"],
+        )
+        .toEqual({ language, citationStyle: "apa", theme: "dark" });
+      await panel.reload();
+      await panel.find("button", light);
+      expect(
+        await panel.evaluate("document.documentElement.dataset.theme"),
+      ).toBe("dark");
+      await panel.openPreferences();
+      await panel.select("combobox", appearance, "system");
+      await panel.closePreferences();
+      await panel.find("button", dark);
+      await panel.send("Emulation.setEmulatedMedia", {
+        features: [{ name: "prefers-color-scheme", value: "dark" }],
+      });
+      await panel.find("button", light);
+      expect(
+        await panel.evaluate(
+          "document.documentElement.hasAttribute('data-theme')",
+        ),
+      ).toBe(false);
+      await panel.reload();
+      await panel.find("button", light);
+      await expect
+        .poll(
+          async () =>
+            (await browser.storage())["source-taster-guest-preferences-v1"],
+        )
+        .toEqual({ language, citationStyle: "apa", theme: "system" });
+      expect(await panel.axe()).toEqual([]);
+    });
+  });
+
+for (const language of ["en", "de"] as const)
   test(`native panel and web keep identical server outcomes for the synthetic witnesses in ${language}`, async ({
     page,
   }) => {

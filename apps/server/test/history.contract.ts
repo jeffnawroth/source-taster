@@ -2,11 +2,16 @@
 import {
   CheckResponse,
   HistoryResponse,
+  HistoryConsentResponse,
 } from "@source-taster/contract-verification/v2";
 import { ReportResponse } from "@source-taster/contract-verification/report";
 import { backup } from "./support/backup.ts";
 import { afterEach, expect, test } from "vitest";
-import { startAccountApi, newAccount } from "./support/account-api.ts";
+import {
+  startAccountApi,
+  newAccount,
+  newGuest,
+} from "./support/account-api.ts";
 const checkData = async (response: Response) =>
   CheckResponse.parse(await response.json()).data;
 const historyData = async (response: Response) =>
@@ -104,6 +109,106 @@ async function historyApi(options: Parameters<typeof startAccountApi>[0] = {}) {
   };
   return { api, account, request, history, create, paid };
 }
+
+test("content-free consent isolates Accounts and completes withdrawal without Quota or Check metadata", async () => {
+  let unavailable = false;
+  const { api, request, create } = await historyApi({
+    service: (req) =>
+      unavailable && req.url === "/internal/quota/snapshot"
+        ? { status: 503 }
+        : undefined,
+  });
+  const consent = async (
+    method = "GET",
+    body?: unknown,
+    identity?: ReturnType<typeof newAccount>,
+  ) => {
+    const response = await request("history/consent", method, body, identity);
+    expect(response.status).toBe(200);
+    const json: unknown = await response.json();
+    return HistoryConsentResponse.parse(json).data;
+  };
+  const before = api.state.quotaCalls.length;
+  expect(await consent()).toEqual({ enabled: false });
+  expect(await consent("PUT", { enabled: true })).toEqual({ enabled: true });
+  expect(await consent("GET", undefined, newAccount())).toEqual({
+    enabled: false,
+  });
+  expect(api.state.quotaCalls).toHaveLength(before);
+  const id = await create(
+    "Private History title must stay in the checking program",
+  );
+  unavailable = true;
+  const settled = api.state.quotaCalls.length;
+  expect(await consent()).toEqual({ enabled: true });
+  expect(await consent("PUT", { enabled: false })).toEqual({ enabled: false });
+  expect(await consent()).toEqual({ enabled: false });
+  expect(api.state.quotaCalls).toHaveLength(settled);
+  unavailable = false;
+  expect((await request(`checks/${id}`)).status).toBe(410);
+  expect(
+    (await request("history/consent", "PUT", { enabled: true, entries: [] }))
+      .status,
+  ).toBe(400);
+  api.state.allowed = false;
+  expect((await request("history/consent")).status).toBe(403);
+});
+
+test("content-free consent permits only the configured Account origin and Account Bearer authority", async () => {
+  const { api, account, request } = await historyApi();
+  const endpoint = `${api.apiUrl}/v2/history/consent`;
+  const preflight = await fetch(endpoint, {
+    method: "OPTIONS",
+    headers: { origin: api.serviceUrl },
+  });
+  expect(preflight.status).toBe(204);
+  expect(preflight.headers.get("access-control-allow-origin")).toBe(
+    api.serviceUrl,
+  );
+  expect(preflight.headers.get("access-control-allow-credentials")).toBeNull();
+  expect(
+    (
+      await fetch(endpoint, {
+        headers: {
+          origin: "https://other.invalid",
+          authorization: `Bearer ${api.token(account)}`,
+        },
+      })
+    ).status,
+  ).toBe(403);
+  expect(
+    (
+      await fetch(endpoint, {
+        headers: {
+          origin: api.serviceUrl,
+          cookie: "session=not-api-authority",
+        },
+      })
+    ).status,
+  ).toBe(401);
+  expect(
+    (
+      await fetch(endpoint, {
+        headers: { authorization: `Bearer ${api.guestToken(newGuest())}` },
+      })
+    ).status,
+  ).toBe(403);
+  const permitted = await fetch(endpoint, {
+    headers: {
+      origin: api.serviceUrl,
+      authorization: `Bearer ${api.token(account)}`,
+    },
+  });
+  expect(permitted.status).toBe(200);
+  expect(permitted.headers.get("access-control-allow-origin")).toBe(
+    api.serviceUrl,
+  );
+  expect(await permitted.json()).toEqual({ data: { enabled: false } });
+  expect(
+    (await request("history")).headers.get("access-control-allow-origin"),
+  ).toBeNull();
+});
+
 test("Free keeps only the last five Checks; deadlines stay fixed through upgrades and Re-checks", async () => {
   const { api, request, history, create, paid } = await historyApi();
   await request("history", "PUT", { enabled: true });

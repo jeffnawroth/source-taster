@@ -4,7 +4,10 @@ import { createRoot } from "react-dom/client";
 import { AccountWorkspace } from "@source-taster/ui/web-account-workspace";
 import { extensionAccountSession } from "./account-session.ts";
 import { CheckWorkspace } from "@source-taster/ui/check-workspace";
-import { loadGuestPreferences } from "@source-taster/ui/preferences";
+import {
+  applyTheme,
+  loadGuestPreferences,
+} from "@source-taster/ui/preferences";
 import { guestCredentials } from "@source-taster/ui/guest-identity";
 import { setLocale } from "@source-taster/i18n/runtime";
 import {
@@ -24,6 +27,7 @@ const initial = await loadGuestPreferences(
   preferenceStorage,
   navigator.languages,
 );
+applyTheme(initial.preferences.theme);
 void setLocale(initial.preferences.language, { reload: false });
 // Tokens, Check input and results stay in this page's memory.
 const guest =

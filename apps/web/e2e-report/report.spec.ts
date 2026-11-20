@@ -109,10 +109,11 @@ for (const language of ["en", "de"] as const)
     expect(roles(pdf.pages[0]!.tree).slice(0, 2)).toEqual(["Document", "H1"]);
     expect(pdf.text).toContain("Aspelmeyer, M. (2008)");
     expect(pdf.text).not.toContain("UNSAVED REPORT DRAFT");
+    // The #197 sheet names each differing field with both original values.
     expect(pdf.text.replace(/\s+/gu, " ")).toContain(
       language === "de"
-        ? "Veröffentlichungsdatum: 2008"
-        : "Publication date: 2008",
+        ? "Veröffentlichungsdatum. Referenz: 2008. Bester Treffer: 2009-01"
+        : "Publication date. Reference: 2008. Best match: 2009-01",
     );
     // Nothing of the report is kept in browser storage.
     const storage = await page.evaluate(() => ({

@@ -34,5 +34,13 @@ for (const language of ["en", "de"] as const)
     await expect(region).toContainText(
       language === "en" ? "not available" : "nicht verfügbar",
     );
-    await expect(region.getByRole("button")).toHaveCount(0);
+    // The Dialog closes with its own Close button (#194 D); nothing else is
+    // offered, least of all a Create button that cannot work.
+    await expect(region.getByRole("button")).toHaveCount(1);
+    await expect(
+      region.getByRole("button", {
+        name: language === "en" ? "Close" : "Schließen",
+        exact: true,
+      }),
+    ).toBeVisible();
   });

@@ -171,12 +171,19 @@ for (const language of ["de", "en"] as const)
         },
       ]);
       await page.goto(url);
+      // #194 D: signing out lives in the Account chip's popover.
+      await page
+        .getByRole("button", {
+          name: language === "de" ? /^Konto:/ : /^Account:/,
+        })
+        .click();
       await expect(
         page.getByRole("button", {
           name: language === "de" ? "Hier abmelden" : "Sign out here",
           exact: true,
         }),
       ).toBeVisible();
+      await page.keyboard.press("Escape");
       await expect(
         page.getByRole("link", { name: label, exact: true }),
       ).toBeVisible();
@@ -216,13 +223,40 @@ for (const language of ["de", "en"] as const)
           { exact: true },
         )
         .fill("statutory-browser@example.invalid");
+      // #198 S: the form continues to a review step that carries the action.
+      await page
+        .getByRole("button", {
+          name: language === "de" ? "Weiter" : "Continue",
+          exact: true,
+        })
+        .click();
+      await expect(
+        page.getByRole("heading", {
+          name:
+            language === "de" ? "Kündigung prüfen" : "Review your cancellation",
+        }),
+      ).toBeVisible();
       await page
         .getByRole("button", {
           name: language === "de" ? "jetzt kündigen" : "Cancel now",
           exact: true,
         })
         .click();
-      await expect(page.getByRole("status")).toContainText(
+      // #198 S: the receipt is its own step; the exact receipt time travels
+      // in the saved confirmation, the card shows it formatted.
+      await expect(
+        page.getByRole("heading", {
+          name: language === "de" ? "Erklärung eingegangen" : "Notice received",
+          exact: true,
+        }),
+      ).toBeVisible();
+      const saved = await page
+        .getByRole("link", {
+          name:
+            language === "de" ? "Bestätigung speichern" : "Save confirmation",
+        })
+        .getAttribute("href");
+      expect(decodeURIComponent(saved!.replace(/^data:[^,]*,/, ""))).toContain(
         new Date(both.now()).toISOString(),
       );
       const receipts = (await both.mail()).filter((m) =>

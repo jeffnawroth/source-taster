@@ -17,6 +17,7 @@ import { Form, TextField } from "./primitives/fields.tsx";
 import { Checkbox, CheckboxGroup } from "./primitives/selection.tsx";
 import { availability, Fields } from "./reference-fields.tsx";
 import { errorMessage } from "./reference-work.ts";
+import "./reference-list-actions.css";
 
 /** Edits which References a Check contains: remove some, add one, then apply. */
 export function ReferenceListActions({
@@ -86,7 +87,10 @@ export function ReferenceListActions({
     }
   }
   return (
-    <section aria-label={m.revision_list()} className="workspace-panel">
+    <section
+      aria-label={m.revision_list()}
+      className="workspace-panel reference-list-actions"
+    >
       {autoStart && <h3>{m.revision_list()}</h3>}
       {(!autoStart || !draft) && (
         <Button
@@ -115,7 +119,7 @@ export function ReferenceListActions({
       )}
       {draft && (
         <Form
-          className="mt-3 space-y-3"
+          className="reference-list-form"
           onSubmit={(event) => {
             event.preventDefault();
             setPreview(true);
@@ -124,6 +128,7 @@ export function ReferenceListActions({
           {!preview ? (
             <>
               <CheckboxGroup
+                className="reference-list-removals"
                 label={m.revision_remove()}
                 isDisabled={listBusy}
                 value={draft.remove.map(String)}
@@ -138,8 +143,8 @@ export function ReferenceListActions({
                   </Checkbox>
                 ))}
               </CheckboxGroup>
-              <fieldset disabled={listBusy} className="min-w-0 space-y-3">
-                <legend className="font-semibold">{m.revision_add()}</legend>
+              <fieldset disabled={listBusy}>
+                <legend>{m.revision_add()}</legend>
                 <TextField
                   multiline
                   label={m.revision_original()}
@@ -166,7 +171,10 @@ export function ReferenceListActions({
               </Button>
             </>
           ) : (
-            <section aria-label={m.revision_preview()} className="space-y-3">
+            <section
+              aria-label={m.revision_preview()}
+              className="reference-list-preview"
+            >
               <p>
                 {m.revision_preview_counts({
                   added: addition.length,
@@ -195,7 +203,7 @@ export function ReferenceListActions({
                 ))}
               </ul>
               <p>{m.revision_no_refund()}</p>
-              <div className="flex flex-wrap gap-3">
+              <div className="reference-list-row">
                 <Button
                   variant="primary"
                   {...availability(listBusy, m.revision_list_busy)}

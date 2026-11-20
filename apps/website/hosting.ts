@@ -16,6 +16,7 @@ const mime: Record<string, string> = {
   ".txt": "text/plain; charset=utf-8",
   ".gz": "application/gzip",
   ".woff2": "font/woff2",
+  ".ttf": "font/ttf",
 };
 /**
  * ADR-0020: the bare apex negotiates from Accept-Language on the server, so

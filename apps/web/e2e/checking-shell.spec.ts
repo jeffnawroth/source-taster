@@ -2,6 +2,58 @@
 import { expect, test } from "@playwright/test";
 import { chooseFileSource, choosePreferences } from "./support/workspace.ts";
 
+test("recognized input becomes a counted feed before search and is replaced by the real Check", async ({
+  page,
+}) => {
+  let release!: () => void;
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route("**/v2/checks", async (route) => {
+    if (route.request().method() === "POST") await held;
+    await route.continue();
+  });
+  await page.goto("/");
+  await choosePreferences(page, { language: "en" });
+  await page
+    .getByRole("textbox", { name: "Reference", exact: true })
+    .fill(
+      "Darwin, C. (1859). On the Origin of Species.\n\nAspelmeyer, M. (2009). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170",
+    );
+  await page
+    .getByRole("button", { name: "Check reference", exact: true })
+    .click();
+  const counted = page.getByTestId("counted-preview");
+  try {
+    await expect(page.locator("main.check-workspace")).toHaveAttribute(
+      "data-stage",
+      "counted",
+    );
+    await expect(counted).toContainText("2 references recognised");
+    await expect(counted.locator(".feed-cards > li")).toHaveCount(2);
+    await expect(counted.locator(".feed-cards > li").first()).toContainText(
+      "On the Origin of Species",
+    );
+    await expect(counted.locator(".feed-cards > li").last()).toContainText(
+      "Measured measurement",
+    );
+    await expect(counted.locator(".summary-counter")).toHaveCount(6);
+    await expect(
+      counted.getByRole("button", { name: "Correct: 0", exact: true }),
+    ).toBeDisabled();
+    await expect(counted.locator(".verdict-chip, .status-chip")).toHaveCount(0);
+    await expect(page.locator("form.intake")).toHaveCount(0);
+  } finally {
+    release();
+  }
+  await expect(counted).toHaveCount(0);
+  await expect(
+    page
+      .getByRole("grid", { name: "References", exact: true })
+      .getByRole("row"),
+  ).toHaveCount(2);
+});
+
 test("streamed feed has one keyboard entry, keeps slot order and returns focus from detail", async ({
   page,
 }) => {
@@ -107,8 +159,8 @@ for (const language of ["en", "de"] as const)
     // Arrow keys skip the disabled zero counters to the next live control.
     const status = toolbar.getByRole("button", {
       name: en
-        ? "Technical status: 1 Not checked"
-        : "Technischer Status: 1 Nicht geprüft",
+        ? "Technical status: Not checked 1"
+        : "Technischer Status: Nicht geprüft 1",
       exact: true,
     });
     await correct.focus();
@@ -160,10 +212,25 @@ for (const language of ["en", "de"] as const)
         () => document.documentElement.scrollWidth <= window.innerWidth,
       ),
     ).toBe(true);
+    // D's own toggle beside ⋯ hides the labels and hands focus to ⋯.
+    await summary
+      .getByRole("button", {
+        name: en ? "Hide labels" : "Labels ausblenden",
+        exact: true,
+      })
+      .click();
+    await expect(more).toBeFocused();
     await more.click();
     await page
       .getByRole("menuitem", {
-        name: en ? "Compact labels" : "Kompakte Labels",
+        name: en ? "Show all labels" : "Alle Labels zeigen",
+        exact: true,
+      })
+      .click();
+    await more.click();
+    await page
+      .getByRole("menuitem", {
+        name: en ? "Hide labels" : "Labels ausblenden",
         exact: true,
       })
       .click();
@@ -177,6 +244,63 @@ for (const language of ["en", "de"] as const)
     await expect(feed.getByRole("row")).toHaveCount(1);
     await expect(feed).toContainText("On the Origin of Species");
   });
+
+test("launcher offers D's actions, filters and references of the current check", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await choosePreferences(page, { language: "en" });
+  await page
+    .getByRole("textbox", { name: "Reference", exact: true })
+    .fill(
+      "Doe, J. (2020). Held Reference. doi:10.5555/browser-held\nDarwin, C. (1859). On the Origin of Species.",
+    );
+  await page
+    .getByRole("button", { name: "Check reference", exact: true })
+    .click();
+  const feed = page.getByRole("grid", { name: "References", exact: true });
+  await expect(feed.getByRole("row")).toHaveCount(2);
+  const launcher = page.getByRole("button", {
+    name: "Search or command …",
+    exact: true,
+  });
+  const palette = page.getByRole("dialog", { name: "Commands", exact: true });
+  const item = (name: string) =>
+    palette.getByRole("menuitem", { name, exact: true });
+  await launcher.click();
+  // The held Reference keeps the Check running: Stop is offered and the
+  // list edit stays inert with its reason.
+  await expect(item("Cancel check")).toBeVisible();
+  await expect(item("Edit reference list")).toBeDisabled();
+  await expect(item("Edit reference list")).toHaveAccessibleDescription(
+    "Only while no check is running.",
+  );
+  for (const group of ["Actions", "Filter", "References"])
+    await expect(
+      palette.getByRole("group", { name: group, exact: true }),
+    ).toBeVisible();
+  await expect(item("2 · On the Origin of Species")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(
+    page.getByRole("button", { name: "Not verifiable: 1", exact: true }),
+  ).toBeVisible({ timeout: 15000 });
+  await launcher.click();
+  await item("Not verifiable (1)").click();
+  await expect(palette).toBeHidden();
+  await expect(feed.getByRole("row")).toHaveCount(1);
+  await expect(feed.getByRole("row")).toContainText("Held Reference");
+  await launcher.click();
+  await item("Clear filter").click();
+  await expect(feed.getByRole("row")).toHaveCount(2);
+  await launcher.click();
+  await item("2 · On the Origin of Species").click();
+  await expect(
+    page.getByRole("region", { name: "Reference detail", exact: true }),
+  ).toContainText("Darwin, C. (1859). On the Origin of Species.");
+  await launcher.click();
+  await item("Export").click();
+  await expect(page.getByRole("dialog", { name: /^Export/u })).toBeVisible();
+});
 
 for (const language of ["en", "de"] as const)
   test(`existing-action launcher opens intake and restores keyboard focus without account UI in standalone (${language})`, async ({
@@ -198,12 +322,27 @@ for (const language of ["en", "de"] as const)
     });
     await expect(dialog).toBeVisible();
     await expect(dialog).toHaveAttribute("aria-modal", "true");
+    // #194 D: the empty intake offers Check, inert, with its reason.
+    const check = dialog.getByRole("menuitem", {
+      name: en ? "Check" : "Prüfen",
+      exact: true,
+    });
+    await expect(check).toBeDisabled();
+    await expect(check).toHaveAccessibleDescription(
+      en ? "Paste references first." : "Fügen Sie zuerst Referenzen ein.",
+    );
+    await expect(
+      dialog.getByRole("menuitem", {
+        name: en ? "How the check works" : "So funktioniert die Prüfung",
+        exact: true,
+      }),
+    ).toBeVisible();
     await expect(
       dialog.getByRole("menuitem", {
         name: en ? "New check" : "Neue Prüfung",
         exact: true,
       }),
-    ).toBeVisible();
+    ).toHaveCount(0);
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
     await expect(launcher).toBeFocused();

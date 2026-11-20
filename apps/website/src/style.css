@@ -1,9 +1,16 @@
 /* SPDX-License-Identifier: AGPL-3.0-or-later */
 @font-face {
   font-family: "Atkinson Hyperlegible Next";
-  src: url("/fonts/AtkinsonHyperlegibleNext.woff2") format("woff2");
+  src: url("/fonts/AtkinsonHyperlegibleNext-Regular.ttf") format("truetype");
   font-style: normal;
-  font-weight: 200 800;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("/fonts/AtkinsonHyperlegibleNext-Bold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 700;
   font-display: swap;
 }
 @font-face {
@@ -42,6 +49,7 @@
     overflow-wrap: anywhere;
   }
   h1 {
+    overflow-wrap: normal;
     hyphens: none;
     font-size: var(--st-text-3xl);
     line-height: 1.13;
@@ -93,8 +101,8 @@
   input:focus-visible,
   summary:focus-visible,
   [tabindex]:focus-visible {
-    outline: var(--st-focus-width) solid var(--st-focus-ring);
-    outline-offset: var(--st-focus-offset);
+    outline: 3px solid var(--st-focus-ring);
+    outline-offset: 3px;
   }
 }
 [hidden] {
@@ -415,6 +423,9 @@ kbd {
   padding: 12px 16px;
   border-top: 1px solid var(--st-border);
   background: var(--st-surface);
+  /* #198 reserves a 32px action row inside 12px vertical padding. Keep the
+     accepted card frame even while the prototype-only app-design link is absent. */
+  min-height: calc(32px + 24px + 1px);
 }
 .verdict-glyph {
   flex: none;
@@ -443,15 +454,10 @@ kbd {
 .docs-C {
   max-width: 940px;
   margin: 0 auto;
+  padding-top: 36px;
 }
 .intro {
   padding: 56px 0 40px;
-}
-.intro .lead + p {
-  max-width: 68ch;
-}
-.docs-C > .btn {
-  margin-bottom: 8px;
 }
 .topic-grid {
   display: grid;
@@ -483,7 +489,6 @@ kbd {
 }
 .index-note {
   margin-top: 28px;
-  margin-bottom: 8px;
 }
 
 /* Documentation article */
@@ -533,12 +538,12 @@ kbd {
   padding: 4px 0 40px;
   min-width: 0;
 }
-.article h1,
-.simple h1 {
+.article h1 {
   font-size: var(--st-text-2xl);
   max-width: 26ch;
 }
 .article .lead {
+  font-size: var(--st-text-lg);
   margin-top: 20px;
 }
 .article-section {
@@ -580,6 +585,7 @@ kbd {
   display: none;
   border-block: 1px solid var(--st-border-strong);
   padding: 12px 0;
+  margin-bottom: 28px;
 }
 .chapter-disclosure summary {
   cursor: pointer;
@@ -598,6 +604,8 @@ kbd {
   padding-bottom: 48px;
 }
 .simple h1 {
+  font-size: var(--st-text-2xl);
+  max-width: 21ch;
   margin-bottom: 20px;
 }
 .simple .lead {
@@ -696,7 +704,7 @@ dialog[data-search] {
   overflow: auto;
 }
 dialog[data-search]::backdrop {
-  background: color-mix(in srgb, var(--st-prim-neutral-50) 48%, transparent);
+  background: rgb(8 11 18 / 0.48);
 }
 .dialog-head {
   display: flex;
@@ -732,6 +740,7 @@ dialog[data-search] input {
   margin: 20px 0 0;
 }
 #search-prompt {
+  color: var(--st-text-muted);
   font-size: var(--st-text-sm);
 }
 #search-status {
@@ -799,13 +808,19 @@ dialog[data-search] input {
     margin-left: auto;
   }
   .mobile-menu {
-    display: contents;
+    display: block;
+  }
+  .site-header > .wrap {
+    position: relative;
   }
   .header-row {
-    flex-wrap: wrap;
+    padding-right: 42px;
   }
-  .brand {
-    min-height: 76px;
+  .mobile-menu summary.btn {
+    position: absolute;
+    top: 20px;
+    right: 40px;
+    margin: 0;
   }
   .docs-A {
     grid-template-columns: 1fr;
@@ -820,7 +835,7 @@ dialog[data-search] input {
     max-width: 680px;
   }
   .header-row {
-    gap: 8px;
+    column-gap: 8px;
   }
   .hero-note {
     margin-top: 16px;
@@ -832,9 +847,9 @@ dialog[data-search] input {
   }
   .header-row {
     min-height: 68px;
+    padding-right: 33px;
   }
   .brand {
-    min-height: 68px;
     font-size: 15px;
     gap: 6px;
   }
@@ -855,7 +870,8 @@ dialog[data-search] input {
     width: 32px;
   }
   .mobile-menu summary.btn {
-    margin-left: -7px;
+    top: 16px;
+    right: 20px;
   }
   h1,
   .article h1,
@@ -883,7 +899,8 @@ dialog[data-search] input {
   .intro {
     padding-top: 36px;
   }
-  .docs-A {
+  .docs-A,
+  .docs-C {
     padding-top: 24px;
   }
   .example-top {
@@ -892,12 +909,24 @@ dialog[data-search] input {
   .command {
     font-size: var(--st-text-2xs);
   }
+  dialog[data-search] form {
+    flex-wrap: wrap;
+  }
+  dialog[data-search] input {
+    flex-basis: 160px;
+  }
+  dialog[data-search] form .btn {
+    flex: none;
+  }
   .reference {
     padding: 12px;
   }
   .example-bottom {
     align-items: flex-start;
     flex-direction: column;
+    /* Original two-row footer: text line + 12px gap + 32px action,
+       12px padding at each edge and the one-pixel top rule. */
+    min-height: calc(var(--st-text-sm) * 1.55 + 12px + 32px + 24px + 1px);
   }
   .site-footer {
     margin-top: 24px;
@@ -910,6 +939,14 @@ dialog[data-search] input {
   }
   .pager a {
     max-width: 100%;
+  }
+}
+/* Below the smallest accepted #198 frame, keep long legal titles and enlarged
+   landing headings inside their column. Emergency breaks also lower the hero
+   grid's intrinsic minimum without changing type size or hiding any content. */
+@media (width < 360px) {
+  h1 {
+    overflow-wrap: anywhere;
   }
 }
 @media (prefers-reduced-motion: reduce) {

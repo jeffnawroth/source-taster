@@ -121,6 +121,11 @@ for (const language of ["en", "de"] as const)
         .getByLabel("Sign-in code", { exact: true })
         .fill(await latestCode());
       await page.getByRole("button", { name: "Sign in", exact: true }).click();
+      // #196 OC: exports are their own Operator area.
+      await page
+        .getByRole("navigation", { name: "Operator areas" })
+        .getByRole("button", { name: "Exports", exact: true })
+        .click();
       await page
         .getByLabel("Target Account ID (including deleted Accounts)")
         .fill(recipient.data.accountId);
@@ -156,9 +161,17 @@ for (const language of ["en", "de"] as const)
       const id = await section
         .getByLabel("Data-subject request ID", { exact: true })
         .inputValue();
+      // #196 OC: the language lives in the banner's Operator dialog.
       await page
+        .getByRole("banner")
+        .getByRole("button", { name: "Operator", exact: true })
+        .click();
+      const operatorDialog = page.getByRole("dialog", { name: "Operator" });
+      await operatorDialog
         .getByRole("combobox", { name: "Language", exact: true })
         .selectOption(language);
+      await page.keyboard.press("Escape");
+      await expect(operatorDialog).toHaveCount(0);
       expect(
         (
           await new AxeBuilder({ page })
@@ -208,6 +221,9 @@ for (const language of ["en", "de"] as const)
         `https://service.test.invalid/privacy?language=${language}`,
       );
       const en = language === "en";
+      // #196: the page sits in the service shell, whose banner also offers
+      // Sign in; the recipient's controls are the main landmark's.
+      const privacyMain = userPage.getByRole("main");
       await userPage
         .getByLabel(en ? "Data-subject request ID" : "ID der Datenauskunft", {
           exact: true,
@@ -217,14 +233,14 @@ for (const language of ["en", "de"] as const)
         .getByLabel(en ? "Email address" : "E-Mail-Adresse", { exact: true })
         .fill("recipient-browser@example.invalid");
       await both.advance(61000);
-      await userPage
+      await privacyMain
         .getByRole("button", {
           name: en ? "Send sign-in code" : "Anmeldecode senden",
           exact: true,
         })
         .click();
       await expect(
-        userPage.getByRole("button", {
+        privacyMain.getByRole("button", {
           name: en ? "Sign in" : "Anmelden",
           exact: true,
         }),
@@ -232,10 +248,10 @@ for (const language of ["en", "de"] as const)
       await userPage
         .getByLabel(en ? "Sign-in code" : "Anmeldecode", { exact: true })
         .fill(await latestCode());
-      await userPage
+      await privacyMain
         .getByRole("button", { name: en ? "Sign in" : "Anmelden", exact: true })
         .click();
-      await userPage
+      await privacyMain
         .getByRole("button", {
           name: en
             ? "Send data-subject access code"
@@ -249,13 +265,13 @@ for (const language of ["en", "de"] as const)
       await userPage
         .getByLabel(en ? "Sign-in code" : "Anmeldecode", { exact: true })
         .fill(await latestCode());
-      await userPage
+      await privacyMain
         .getByRole("button", {
           name: en ? "Verify recipient access" : "Empfängerzugriff bestätigen",
           exact: true,
         })
         .click();
-      const privateDownload = userPage.getByRole("button", {
+      const privateDownload = privacyMain.getByRole("button", {
         name: en
           ? "Download Account and billing data"
           : "Account- und Abrechnungsdaten herunterladen",
@@ -283,7 +299,7 @@ for (const language of ["en", "de"] as const)
           "source-taster-verification-data-subject-v1",
         ],
       ] as const) {
-        const button = userPage.getByRole("button", {
+        const button = privacyMain.getByRole("button", {
           name: buttonName,
           exact: true,
         });
@@ -358,34 +374,28 @@ for (const language of ["en", "de"] as const)
           : "Buchhaltungs- und Datenauskünfte",
         exact: true,
       });
+      // #196 OC: accounting is exported per calendar month (UTC); the seeded
+      // invoices were issued in November 2026.
       await accountingSection
-        .getByRole("combobox", {
-          name: en ? "Export type" : "Exportart",
-          exact: true,
-        })
-        .selectOption("accounting-export");
-      await accountingSection
-        .getByLabel(
-          en
-            ? "Period start (inclusive, UTC)"
-            : "Zeitraumbeginn (einschließlich, UTC)",
-          { exact: true },
-        )
-        .fill("2025-01-01");
-      await accountingSection
-        .getByLabel(
-          en
-            ? "Period end (exclusive, UTC)"
-            : "Zeitraumende (ausschließlich, UTC)",
-          { exact: true },
-        )
-        .fill("2027-01-01");
+        .getByLabel(en ? "Month" : "Monat", { exact: true })
+        .fill("2026-11");
       await accountingSection
         .getByRole("button", {
-          name: en ? "Review export" : "Export prüfen",
+          name: en ? "Create export" : "Export erstellen",
           exact: true,
         })
         .press("Enter");
+      await expect(
+        accountingSection.getByText(
+          en
+            ? "Monthly accounting · 2026-11"
+            : "Buchhaltung pro Monat · 2026-11",
+          { exact: false },
+        ),
+      ).toBeVisible();
+      await accountingSection
+        .getByLabel(en ? "Email address" : "E-Mail-Adresse", { exact: true })
+        .fill("operator-browser@example.invalid");
       await both.advance(61000);
       await accountingSection
         .getByRole("button", {

@@ -31,7 +31,7 @@ test("switches between library and document input without checking stale Referen
     buffer: Buffer.from(library),
   });
   await expect(
-    page.getByRole("region", { name: "Recognized references" }),
+    page.getByRole("region", { name: "Recognised references" }),
   ).toContainText("Library witness");
   // The Structuring preview is a modal Dialog over the intake (#194 D).
   await closeStructuringPreview(page);
@@ -72,7 +72,7 @@ test("switches between library and document input without checking stale Referen
     buffer: Buffer.from(library),
   });
   await expect(
-    page.getByRole("region", { name: "Recognized references" }),
+    page.getByRole("region", { name: "Recognised references" }),
   ).toContainText("Library witness");
   await expect(documentInput).toHaveValue("");
   await expect(upload).toBeDisabled();

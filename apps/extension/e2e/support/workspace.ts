@@ -2,6 +2,7 @@
 // Drives one Check through the shared workspace in the native panel or on web.
 import { readFile } from "node:fs/promises";
 import { expect, type Page } from "@playwright/test";
+import type { Theme } from "@source-taster/ui/preferences";
 import { until, type Panel } from "./chromium.ts";
 
 export type Language = "en" | "de";
@@ -11,7 +12,7 @@ export const labels = {
     check: "Check reference",
     open: /^Open reference 1:/,
     detail: "Reference detail",
-    candidates: /^All candidates \(\d+\)$/,
+    candidates: /^More candidates \(\d+\)$/,
     suggestionLoading:
       "Apply to fields becomes available once the suggestion for the current result has loaded.",
     correct: "Correct",
@@ -24,7 +25,7 @@ export const labels = {
     check: "Referenz prüfen",
     open: /^Referenz 1 öffnen:/,
     detail: "Referenzdetails",
-    candidates: /^Alle Kandidaten \(\d+\)$/,
+    candidates: /^Weitere Kandidaten \(\d+\)$/,
     suggestionLoading:
       "In Felder übernehmen wird verfügbar, sobald der Vorschlag für das aktuelle Ergebnis geladen ist.",
     correct: "Korrekt",
@@ -34,10 +35,22 @@ export const labels = {
   },
 } as const;
 
-/** Runs a launcher command on the web page by its accessible name. */
-export async function runCommandOnWeb(page: Page, name: string | RegExp) {
+/** A modal Dialog (for example Account) blocks the launcher; Escape closes it first. */
+async function openLauncherOnWeb(page: Page) {
+  const modal = page.getByRole("dialog");
+  for (let i = 0; i < 3 && (await modal.count()) > 0; i++) {
+    await page.keyboard.press("Escape");
+    await expect(modal)
+      .toHaveCount(0, { timeout: 2_000 })
+      .catch(() => {});
+  }
   const launcher = /^(Search or command|Suchen oder Befehl) …$/u;
   await page.getByRole("button", { name: launcher }).click();
+}
+
+/** Runs a launcher command on the web page by its accessible name. */
+export async function runCommandOnWeb(page: Page, name: string | RegExp) {
+  await openLauncherOnWeb(page);
   const palette = page.getByRole("dialog", { name: /^(Commands|Aktionen)$/u });
   await palette
     .getByRole("menuitem", {
@@ -54,10 +67,9 @@ export async function runCommandOnWeb(page: Page, name: string | RegExp) {
  */
 export async function choosePreferencesOnWeb(
   page: Page,
-  choice: { language?: string; citationStyle?: string },
+  choice: { language?: string; citationStyle?: string; theme?: Theme },
 ) {
-  const launcher = /^(Search or command|Suchen oder Befehl) …$/u;
-  await page.getByRole("button", { name: launcher }).click();
+  await openLauncherOnWeb(page);
   await page
     .getByRole("dialog", { name: /^(Commands|Aktionen)$/u })
     .getByRole("menuitem", { name: /^(Preferences|Einstellungen)$/u })
@@ -75,6 +87,10 @@ export async function choosePreferencesOnWeb(
         name: /^(Preferred citation style|Bevorzugter Zitierstil)$/u,
       })
       .selectOption(choice.citationStyle);
+  if (choice.theme)
+    await dialog
+      .getByRole("combobox", { name: /^(Appearance|Darstellung)$/u })
+      .selectOption(choice.theme);
   await dialog.getByRole("button", { name: /^(Close|Schließen)$/u }).click();
   await expect(dialog).toBeHidden();
 }
@@ -85,7 +101,7 @@ export async function choosePreferencesOnWeb(
  */
 export async function expectPreferencesOnWeb(
   page: Page,
-  expected: { language?: string; citationStyle?: string },
+  expected: { language?: string; citationStyle?: string; theme?: Theme },
 ) {
   await runCommandOnWeb(page, /^(Preferences|Einstellungen)$/u);
   const dialog = page.getByRole("dialog", {
@@ -102,6 +118,10 @@ export async function expectPreferencesOnWeb(
         name: /^(Preferred citation style|Bevorzugter Zitierstil)$/u,
       }),
     ).toHaveValue(expected.citationStyle);
+  if (expected.theme)
+    await expect(
+      dialog.getByRole("combobox", { name: /^(Appearance|Darstellung)$/u }),
+    ).toHaveValue(expected.theme);
   await dialog.getByRole("button", { name: /^(Close|Schließen)$/u }).click();
   await expect(dialog).toBeHidden();
 }
@@ -203,6 +223,14 @@ export async function checkInPanel(
 ): Promise<Outcome> {
   const l = labels[language];
   // Results replace the intake (#194 D): a later witness starts a new Check.
+  // Wait for the rendered workspace first; a panel still loading has no
+  // textbox either, and its empty intake offers no New check (D).
+  await until(
+    async () =>
+      (await panel.query("button", /^(Search or command|Suchen oder Befehl)/u))
+        .length > 0,
+    "The side panel workspace never rendered",
+  );
   if ((await panel.query("textbox", l.input)).length === 0)
     await panel.newCheck();
   await panel.fill("textbox", l.input, witness.text);
@@ -237,6 +265,8 @@ export async function checkInWeb(
 ): Promise<Outcome> {
   const l = labels[language];
   // Results replace the intake (#194 D): a later witness starts a new Check.
+  // The empty intake offers no New check (D), so wait for the workspace.
+  await page.locator(".command-trigger").waitFor();
   if (!(await page.getByRole("textbox").isVisible()))
     await runCommandOnWeb(page, /^(New check|Neue Prüfung)$/u);
   await page.getByRole("textbox").fill(witness.text);

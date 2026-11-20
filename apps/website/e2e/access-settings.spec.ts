@@ -18,8 +18,8 @@ test("every guide remains usable at 320px with JavaScript disabled", async ({
         .getByRole("link", {
           name:
             language === "en"
-              ? "What does a verdict tell me?"
-              : "Was sagt ein Befund aus?",
+              ? "What do the verdicts mean?"
+              : "Was bedeuten die Befunde?",
         })
         .click();
       await expect(page).toHaveURL(

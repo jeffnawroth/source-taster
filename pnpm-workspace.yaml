@@ -13,8 +13,12 @@ allowBuilds:
 # eslint's @eslint/config-array and typescript-estree still range ^10, so the
 # patched release is forced exact until they publish a fixed range; drop this
 # override then. The audit blocks on every actual advisory and has no waiver.
+# GHSA-7589-6fvf-x4pw: effect <=3.22.0 has a ReDoS in Schema.TemplateLiteral.
+# @prisma/config 7.10.1 pins effect 3.20.0 exactly, so the patched 3.x release
+# is forced until Prisma ships a fixed pin; drop this override then.
 overrides:
   minimatch: 11.0.3
+  effect: 3.22.4
 minimumReleaseAgeExclude:
   - "@tanstack/query-core@5.105.0"
   - "@tanstack/react-query@5.105.0"

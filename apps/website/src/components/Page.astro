@@ -80,15 +80,15 @@ const legalHref = legal ? site(`${page.id.split('/versions/')[0]}/versions/${leg
             <a class="btn ghost" href={switchHref} lang={other} hreflang={other}>{other.toUpperCase()}<span class="sr-only"> {other === 'de' ? 'Deutsch' : 'English'}</span></a>
             <button type="button" class="btn icon theme-toggle" data-theme-toggle aria-label={t.themeSwitch} hidden><Icon name="moon" class="theme-moon" /><Icon name="swatch" class="theme-swatch" /></button>
           </div>
-          <details class="mobile-menu">
-            <summary class="btn icon" aria-label={t.menu}><Icon name="list" /></summary>
-            <nav class="mobile-nav" aria-label={t.nav}>
-              <a href={docsHref} aria-current={current('docs')}>{t.docs}</a>
-              <a href={site('faq')} aria-current={current('faq')}>{t.faq}</a>
-              <a href={site('contact')} aria-current={current('contact')}>{t.contact}</a>
-            </nav>
-          </details>
         </div>
+        <details class="mobile-menu">
+          <summary class="btn icon" aria-label={t.menu}><Icon name="list" /></summary>
+          <nav class="mobile-nav" aria-label={t.nav}>
+            <a href={docsHref} aria-current={current('docs')}>{t.docs}</a>
+            <a href={site('faq')} aria-current={current('faq')}>{t.faq}</a>
+            <a href={site('contact')} aria-current={current('contact')}>{t.contact}</a>
+          </nav>
+        </details>
       </div>
     </header>
     {isHome && <main id="content" class="wrap" tabindex="-1">

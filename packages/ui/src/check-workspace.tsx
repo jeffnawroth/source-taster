@@ -1,10 +1,11 @@
 import { MaintenanceNotice } from "./maintenance.tsx";
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { HistoryPanel } from "./history.tsx";
+import { HistoryPanel, historyDate } from "./history.tsx";
 import { ContinuationTime } from "./abuse-message.tsx";
 import type { AiStructuringResult as StructuringResult } from "@source-taster/contract-verification/ai";
 import type { ReactNode } from "react";
 import {
+  useCallback,
   useDeferredValue,
   useEffect,
   useEffectEvent,
@@ -37,16 +38,25 @@ import { GuestTokenError } from "@source-taster/contract-service/client";
 import { setLocale } from "@source-taster/i18n/runtime";
 import * as Aria from "react-aria-components";
 import {
+  ArrowUpLeft,
   Check as CheckIcon,
-  FileText,
   Info,
-  List,
+  Lock,
   PanelRight,
   Plus,
-  Search,
   Upload,
-  X,
 } from "lucide-react";
+import {
+  FileText,
+  CircleHelp,
+  List,
+  RotateCcw,
+  Search,
+  Settings,
+  Square,
+  X,
+} from "./workspace-icons.tsx";
+import { FeedDisclaimer, HowItWorksDialog } from "./how-it-works.tsx";
 import {
   Banner,
   Button,
@@ -65,25 +75,29 @@ import {
   TextArea,
   TextFieldRoot,
 } from "./primitives/fields.tsx";
-import { CheckingTopBar } from "./checking-top-bar.tsx";
+import { ThemeToggle } from "./theme-toggle.tsx";
+import { CheckingTopBar, type PaletteCommand } from "./checking-top-bar.tsx";
+import { CountedPreview } from "./counted-preview.tsx";
 import { recognizedCount } from "./recognized-count.ts";
 import {
   citationStyles,
   isCitationStyle,
   isInterfaceLanguage,
+  isTheme,
+  applyTheme,
   saveGuestPreferences,
   type CitationStyle,
   type Preferences,
   type PreferenceStorage,
 } from "./preferences.ts";
 import { GuestIdentityError } from "./guest-identity.ts";
-import { InformationLinks } from "./information.tsx";
+import { InformationLinks, informationLinks } from "./information.tsx";
 import {
   StructuringResults,
   structuringSummary,
 } from "./structuring-results.tsx";
 import { CheckResults, type IntakeSource } from "./check-results.tsx";
-import { QuotaChoice, QuotaMeter, QuotaPending } from "./quota-panel.tsx";
+import { QuotaChoice, QuotaBalance, QuotaPending } from "./quota-panel.tsx";
 import { ownerQuota, planStart, type OwnerQuota } from "./quota.ts";
 const apple =
   typeof navigator !== "undefined" &&
@@ -139,6 +153,7 @@ export function CheckWorkspace({
   accountLabel,
   accountNotice,
   onPreferencesChange,
+  onSignIn,
   controlledPreferences,
   selectionIntake,
   upgradeUrl,
@@ -155,12 +170,15 @@ export function CheckWorkspace({
   siteUrl?: string;
   accountLabel?: string;
   accountNotice?: ReactNode;
+  /** The Account host owns the real sign-in modal; shared intake invokes the same action. */
+  onSignIn?: () => void;
   accountControls?: (
     language: "de" | "en",
     quota: OwnerQuota | null,
+    storage: ReactNode,
   ) => ReactNode;
   onPreferencesChange?: (
-    patch: Partial<Pick<Preferences, "language" | "citationStyle">>,
+    patch: Partial<Pick<Preferences, "language" | "citationStyle" | "theme">>,
   ) => void;
   controlledPreferences?: {
     preferences: Preferences;
@@ -192,6 +210,9 @@ export function CheckWorkspace({
   );
   const documentFileInput = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
+  // The launcher rows CheckResults publishes for the current Check.
+  const [resultCommands, setResultCommands] = useState<PaletteCommand[]>([]);
+  const [howOpen, setHowOpen] = useState(false);
   const [documentNotice, setDocumentNotice] = useState(false);
   const [localPreferences, updatePreferences] = useState(initial.preferences);
   const preferences = controlledPreferences?.preferences ?? localPreferences;
@@ -199,6 +220,7 @@ export function CheckWorkspace({
   const styleReset =
     controlledPreferences?.citationStyleReset ?? localStyleReset;
   const locale = preferences.language;
+  useEffect(() => applyTheme(preferences.theme), [preferences.theme]);
   const [text, setText] = useState("");
   const [inputKind, setInputKind] = useState<"text" | "selection">("text");
   const [filesOpen, setFilesOpen] = useState(false);
@@ -206,7 +228,6 @@ export function CheckWorkspace({
   const [previewOpen, setPreviewOpen] = useState(false);
   // Only an explicit structuring or library import opens the preview dialog.
   const structureRequested = useRef(false);
-  const languageInput = useRef<HTMLSelectElement>(null);
   const fileId = useId();
   const fileInput = useRef<HTMLInputElement>(null);
   const [library, setLibrary] = useState<LibraryInput | null>(null);
@@ -299,7 +320,8 @@ export function CheckWorkspace({
     StructuringResult | ImportResult | null
   >(null);
   // A Structuring that opens no preview is still announced (D checks directly).
-  const [structuredNote, setStructuredNote] = useState("");
+  // The result, not its text: the note follows a language switch.
+  const [structuredNote, setStructuredNote] = useState<typeof preview>(null);
   const [requestError, setRequestError] = useState<unknown>(null);
   const [cancelling, setCancelling] = useState(false);
   const [cancelRequested, setCancelRequested] = useState(false);
@@ -329,6 +351,10 @@ export function CheckWorkspace({
     after: number;
     skipped: number;
   } | null>(null);
+  const countedPreview =
+    !check &&
+    !!preview?.references.length &&
+    (pending === "create" || quotaChoice !== null);
   /** Reads the acting identity's balance; throws when the read fails. */
   async function readQuota() {
     try {
@@ -442,9 +468,7 @@ export function CheckWorkspace({
   // A requested Structuring opens its preview dialog; any other preview stays closed.
   function showPreview(result: typeof preview) {
     setPreview(result);
-    setStructuredNote(
-      result && !structureRequested.current ? structuringSummary(result) : "",
-    );
+    setStructuredNote(result && !structureRequested.current ? result : null);
     setPreviewOpen(!!result && structureRequested.current);
     structureRequested.current = false;
   }
@@ -504,7 +528,7 @@ export function CheckWorkspace({
     const structuringController = new AbortController();
     controller.current = structuringController;
     setCheck(null);
-    setStructuredNote("");
+    setStructuredNote(null);
     if (!library) setPreview(null);
     setStreamError(null);
     setRequestError(null);
@@ -880,7 +904,7 @@ export function CheckWorkspace({
     )
       void cancelDetached(check.id);
     setText(selectionWaiting ?? "");
-    setStructuredNote("");
+    setStructuredNote(null);
     setInputKind(selectionWaiting ? "selection" : "text");
     setSelectionWaiting(null);
     setSelectionUndo(null);
@@ -910,6 +934,39 @@ export function CheckWorkspace({
   const running = check?.references.some(
     (r) => r.outcome.kind === "status" && r.outcome.status === "running",
   );
+  const isRunning = !!running;
+  const [storage, setStorage] = useState<{
+    enabled: boolean;
+    expiresAt?: string;
+  } | null>(null);
+  const currentCheckId = check?.id;
+  const storageFrom = useCallback(
+    (history: {
+      enabled: boolean;
+      entries: { id: string; expiresAt: string }[];
+    }) =>
+      setStorage({
+        enabled: history.enabled,
+        expiresAt: history.entries.find((entry) => entry.id === currentCheckId)
+          ?.expiresAt,
+      }),
+    [currentCheckId],
+  );
+  useEffect(() => {
+    if (!accountHistory) return;
+    let live = true;
+    api.getHistory().then(
+      (history) => {
+        if (live) storageFrom(history);
+      },
+      () => {
+        if (live) setStorage(null);
+      },
+    );
+    return () => {
+      live = false;
+    };
+  }, [api, accountHistory, storageFrom, isRunning]);
   const busy = pending !== null || running;
   // Debits settle shortly after the last Verdict; look again a few times.
   const checkId = check?.id;
@@ -937,7 +994,7 @@ export function CheckWorkspace({
         reference.outcome.status !== "running",
     ).length ?? 0;
   function changePreferences(
-    patch: Partial<Pick<Preferences, "language" | "citationStyle">>,
+    patch: Partial<Pick<Preferences, "language" | "citationStyle" | "theme">>,
   ) {
     const next = { ...preferences, ...patch };
     void setLocale(next.language, { reload: false });
@@ -967,6 +1024,7 @@ export function CheckWorkspace({
     : selectionBlocked
       ? m.shell_selection_blocked()
       : m.shell_empty_input();
+  const checkDisabledReason = canCheck ? undefined : checkReason;
   const notices = (
     <>
       {styleReset && <Banner>{m.citation_style_reset()}</Banner>}
@@ -985,7 +1043,7 @@ export function CheckWorkspace({
           {m.selection_limit({ limit: selectionLimit })}
         </Banner>
       )}
-      {quotaChoice && (
+      {quotaChoice && !countedPreview && (
         <QuotaChoice
           required={quotaChoice.required}
           available={quotaChoice.available}
@@ -995,7 +1053,7 @@ export function CheckWorkspace({
         />
       )}
       {/* Standalone has no Owner Quota: no Quota line, note or upgrade. */}
-      {hostedQuota && quotaNote && (
+      {hostedQuota && quotaNote && !countedPreview && (
         <Banner data-testid="quota-note">
           {quotaNote.skipped > 0
             ? m.quota_started({
@@ -1058,18 +1116,95 @@ export function CheckWorkspace({
       )}
     </>
   );
+  const guestNote = hostedQuota && !accountLabel && onSignIn && (
+    <p className="note-row">
+      <Info aria-hidden="true" size={16} />
+      <span>
+        {m.auth_guest_notice()}{" "}
+        <Button variant="ghost" className="feed-link" onPress={onSignIn}>
+          {m.auth_sign_in()}
+        </Button>
+      </span>
+    </p>
+  );
+  // #194 D storageLine: where this Check's content lives and when it goes
+  // (ADR-0005). Without History every hosted Check follows the 24-hour rule.
+  const storageText = !hostedQuota
+    ? undefined
+    : accountHistory && storage?.enabled
+      ? storage.expiresAt &&
+        m.storage_history({ date: historyDate(storage.expiresAt) })
+      : m.storage_temporary();
+  const storageNote = storageText && (
+    <p className="note-row">
+      <Lock aria-hidden="true" size={16} />
+      <span>{storageText}</span>
+    </p>
+  );
+  const quotaLine =
+    hostedQuota &&
+    (quota ? (
+      <QuotaBalance quota={quota} upgradeUrl={upgradeUrl} />
+    ) : (
+      quotaState !== "ready" && <QuotaPending state={quotaState} />
+    ));
+  const devNote = (
+    <p className="note-row dev-note">
+      <Info aria-hidden="true" size={16} />
+      <span>{m.skeleton_notice()}</span>
+    </p>
+  );
+  // #194 D notes(withAi): on the intake a Guest also learns that AI
+  // extraction is a paid-Plan feature before anything is structured.
+  const guestAiNote = guestNote && (
+    <p className="note-row">
+      <Info aria-hidden="true" size={16} />
+      <span>
+        {m.ai_guest()} {m.ai_upgrade_hint()}
+      </span>
+    </p>
+  );
+  // D has no legal links; the product keeps them reachable on every screen
+  // as a quiet row closing the notes (web-gaps section 6, Footer).
+  const legalRow = (
+    <InformationLinks
+      language={locale}
+      siteUrl={siteUrl}
+      className="workspace-legal"
+    />
+  );
   const notes = (
+    <div className="workspace-notes intake-notes">
+      {guestNote}
+      {guestAiNote}
+      {devNote}
+      {storageNote}
+      {quotaLine}
+      {legalRow}
+    </div>
+  );
+  // In the feed the guest notice sits above the cards, as in #194 D.
+  // #194 D feed .foot: storage, the Verdict disclaimer, then the open
+  // Check's consumption beside the balance. Statuses are never billed
+  // (ADR-0005), so a Verdict marks a debited slot.
+  const consumed =
+    check?.references.filter((r) => r.outcome.kind === "verdict").length ?? 0;
+  const feedNotes = (
     <div className="workspace-notes">
-      <p className="note-row">
-        <Info aria-hidden="true" size={16} />
-        <span>{m.skeleton_notice()}</span>
-      </p>
+      {devNote}
+      {storageNote}
+      <FeedDisclaimer quota={hostedQuota} />
       {hostedQuota &&
         (quota ? (
-          <QuotaMeter quota={quota} upgradeUrl={upgradeUrl} />
+          <QuotaBalance
+            quota={quota}
+            upgradeUrl={upgradeUrl}
+            consumed={consumed}
+          />
         ) : (
           quotaState !== "ready" && <QuotaPending state={quotaState} />
         ))}
+      {legalRow}
     </div>
   );
   const fileInputs = (
@@ -1204,58 +1339,153 @@ export function CheckWorkspace({
     if (fileInput.current) fileInput.current.value = "";
     if (documentFileInput.current) documentFileInput.current.value = "";
   }
+  // #194 D cmdItems, Actions group: the intake offers Check (with its reason
+  // when it cannot run), a Check offers Stop, New check and the strip's
+  // actions. Preferences closes the group (product addition, section 2).
+  const preferencesCommand: PaletteCommand = {
+    id: "preferences",
+    group: "actions",
+    label: m.shell_preferences(),
+    icon: <Settings aria-hidden="true" size={16} />,
+  };
+  const paletteCommands: PaletteCommand[] = check
+    ? [
+        ...(running
+          ? [
+              {
+                id: "stop",
+                group: "actions" as const,
+                label: m.check_cancel(),
+                icon: <Square aria-hidden="true" size={16} />,
+              },
+            ]
+          : []),
+        {
+          id: "reset",
+          group: "actions",
+          label: m.shell_new_check(),
+          icon: <RotateCcw aria-hidden="true" size={16} />,
+        },
+        ...resultCommands.filter((command) => command.group === "actions"),
+        preferencesCommand,
+        ...resultCommands.filter((command) => command.group !== "actions"),
+      ]
+    : [
+        {
+          id: "check",
+          group: "actions",
+          label: m.shell_check_short(),
+          icon: <CheckIcon aria-hidden="true" size={16} />,
+          disabledReason: checkDisabledReason,
+        },
+        // Structuring is offered only while it can run: its unavailability
+        // is the Check's reason, which the row above already states.
+        ...((!!text.trim() || !!library) && !selectionBlocked && !busy
+          ? [
+              {
+                id: "structure",
+                group: "actions" as const,
+                label: m.structuring_action(),
+                icon: <ArrowUpLeft aria-hidden="true" size={16} />,
+              },
+            ]
+          : []),
+        ...(!countedPreview && preview && !previewOpen
+          ? [
+              {
+                id: "structuring-preview",
+                group: "actions" as const,
+                label: m.shell_structuring_preview(),
+                icon: <ArrowUpLeft aria-hidden="true" size={16} />,
+              },
+            ]
+          : []),
+        // D's empty intake has nothing to reset; once text, a file, a notice
+        // or a pending request exists, New check stays reachable (SU-SH-05).
+        ...(busy ||
+        !!text.trim() ||
+        !!library ||
+        !!file ||
+        !!fileName ||
+        !!fileError ||
+        !!sourceDocument ||
+        !!preview ||
+        !!pending ||
+        !!quotaChoice ||
+        !!quotaNote ||
+        !!requestError ||
+        !!streamError ||
+        !!selectionWaiting ||
+        !!selectionNotice ||
+        documentNotice ||
+        !!accountNotice
+          ? [
+              {
+                id: "reset",
+                group: "actions" as const,
+                label: m.shell_new_check(),
+                icon: <RotateCcw aria-hidden="true" size={16} />,
+              },
+            ]
+          : []),
+        {
+          id: "help",
+          group: "actions",
+          label: m.workspace_help(),
+          icon: <CircleHelp aria-hidden="true" size={16} />,
+        },
+        preferencesCommand,
+      ];
   return (
-    <main className="check-workspace" data-stage={check ? "check" : "intake"}>
+    <main
+      className="check-workspace"
+      data-stage={check ? "check" : countedPreview ? "counted" : "intake"}
+    >
       <MaintenanceNotice baseUrl={transport.baseUrl} language={locale} />
       <CheckingTopBar
         brandMark={brandMark}
         documentName={file?.name ?? (fileName || undefined)}
-        account={accountControls?.(locale, quota)}
+        account={accountControls?.(locale, quota, storageNote)}
         accountLabel={accountLabel}
-        onInput={() => inputRef.current?.focus()}
-        onReset={reset}
-        onPreferences={() => setPreferencesOpen(true)}
-        commands={[
-          // Structuring is offered only while it can run: its unavailability
-          // is the Check's reason, which the intake already states once.
-          ...(!check &&
-          (!!text.trim() || !!library) &&
-          !selectionBlocked &&
-          !busy
-            ? [
-                {
-                  id: "structure",
-                  label: m.structuring_action(),
-                  onAction: () => {
-                    structureRequested.current = true;
-                    void start("structure");
-                  },
-                },
-              ]
-            : []),
-          ...(!check && preview && !previewOpen
-            ? [
-                {
-                  id: "structuring-preview",
-                  label: m.shell_structuring_preview(),
-                  onAction: () => setPreviewOpen(true),
-                },
-              ]
-            : []),
-        ]}
-        onStop={
-          running
-            ? () => {
-                void cancel();
-              }
-            : undefined
+        tools={
+          <>
+            <a
+              className="checking-help"
+              href={informationLinks(locale, siteUrl)[0]!.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={m.information_help()}
+            >
+              <CircleHelp aria-hidden="true" size={20} />
+            </a>
+            <ThemeToggle
+              theme={preferences.theme}
+              onChange={(theme) => changePreferences({ theme })}
+            />
+          </>
         }
+        onInput={() => inputRef.current?.focus()}
+        onPreferences={() => setPreferencesOpen(true)}
+        commands={paletteCommands}
+        onCommand={(id) => {
+          if (id === "preferences") setPreferencesOpen(true);
+          else if (id === "stop") void cancel();
+          else if (id === "reset") reset();
+          else if (id === "check" && canCheck) void start("create");
+          else if (id === "structure") {
+            structureRequested.current = true;
+            void start("structure");
+          } else if (id === "structuring-preview") setPreviewOpen(true);
+          else if (id === "help") setHowOpen(true);
+        }}
         history={
           accountHistory
             ? (close) => (
                 <HistoryPanel
                   api={api}
                   busy={!!busy || !!quotaChoice}
+                  currentId={check?.id}
+                  onData={storageFrom}
                   refreshKey={`${check?.id ?? ""}:${!!running}`}
                   upgradeUrl={upgradeUrl}
                   onCheck={(snapshot) => {
@@ -1273,6 +1503,13 @@ export function CheckWorkspace({
         }
       />
       {accountNotice}
+      {!check && (
+        <HowItWorksDialog
+          isOpen={howOpen}
+          onOpenChange={setHowOpen}
+          quota={hostedQuota}
+        />
+      )}
       <Modal isOpen={preferencesOpen} onOpenChange={setPreferencesOpen}>
         <Dialog className="workspace-dialog">
           {({ close }) => (
@@ -1280,10 +1517,23 @@ export function CheckWorkspace({
               <DialogHeading>{m.shell_preferences()}</DialogHeading>
               <div className="workspace-preferences">
                 <label className="workspace-select">
+                  {m.theme_label()}
+                  <select
+                    autoFocus
+                    value={preferences.theme}
+                    onChange={(event) => {
+                      if (isTheme(event.target.value))
+                        changePreferences({ theme: event.target.value });
+                    }}
+                  >
+                    <option value="system">{m.theme_system()}</option>
+                    <option value="light">{m.theme_light()}</option>
+                    <option value="dark">{m.theme_dark()}</option>
+                  </select>
+                </label>
+                <label className="workspace-select">
                   {m.language_label()}
                   <select
-                    ref={languageInput}
-                    autoFocus
                     value={locale}
                     onChange={(event) => {
                       if (isInterfaceLanguage(event.target.value))
@@ -1322,7 +1572,59 @@ export function CheckWorkspace({
           )}
         </Dialog>
       </Modal>
-      {!check && (
+      {countedPreview && preview && (
+        <CountedPreview
+          result={preview}
+          source={intakeSource}
+          sourceLabel={sourceLabel}
+          consumption={
+            quotaChoice
+              ? quotaChoice.available > 0
+                ? m.quota_choice_body({
+                    required: String(quotaChoice.required),
+                    available: String(quotaChoice.available),
+                  })
+                : m.quota_choice_none({
+                    required: String(quotaChoice.required),
+                  })
+              : hostedQuota && quotaNote
+                ? `${m.quota_preview_fits({
+                    required: String(quotaNote.required),
+                    remaining: String(quotaNote.remaining),
+                    after: String(quotaNote.after),
+                  })} ${m.shell_auto_start()}`
+                : undefined
+          }
+          choice={
+            quotaChoice && (
+              <QuotaChoice
+                required={quotaChoice.required}
+                available={quotaChoice.available}
+                upgradeUrl={upgradeUrl}
+                pending={pending === "create"}
+                layout="strip"
+                onFirst={() => {
+                  if (pending !== "create") void startFirst();
+                }}
+                onDismiss={() => {
+                  if (pending === "create") return;
+                  setQuotaChoice(null);
+                  requestAnimationFrame(() => inputRef.current?.focus());
+                }}
+              />
+            )
+          }
+          notices={
+            <>
+              {guestNote}
+              {notices}
+            </>
+          }
+          footer={feedNotes}
+          onReset={reset}
+        />
+      )}
+      {!check && !countedPreview && (
         <form
           className="intake"
           onSubmit={(event) => {
@@ -1336,7 +1638,7 @@ export function CheckWorkspace({
             </h2>
             <p className="intake-lead">{m.shell_intake_lead()}</p>
           </div>
-          <div className="intake-command">
+          <div className="intake-command st-glass">
             {sourceDocument || intakeSource === "file" ? (
               <div className="intake-file-card">
                 <FileText aria-hidden="true" size={20} />
@@ -1384,6 +1686,7 @@ export function CheckWorkspace({
                   className="intake-textarea"
                   autoFocus
                   rows={1}
+                  autoResizeMaxViewportRatio={0.42}
                   onKeyDown={(event) => {
                     if (
                       event.key === "Enter" &&
@@ -1409,7 +1712,7 @@ export function CheckWorkspace({
                   </span>
                 ) : (
                   !!recognized && (
-                    <span className="intake-count">
+                    <span className="sr-only">
                       {recognized === 1
                         ? m.workspace_recognized_one()
                         : m.workspace_recognized({ count: recognized })}
@@ -1558,7 +1861,7 @@ export function CheckWorkspace({
         </form>
       )}
       <Modal
-        isOpen={!!preview && previewOpen && !check}
+        isOpen={!!preview && previewOpen && !check && !countedPreview}
         onOpenChange={setPreviewOpen}
       >
         <Dialog
@@ -1601,7 +1904,7 @@ export function CheckWorkspace({
       {/* A polite live region like the progress line: role=status stays with
           the visible notices, so each of them is the one status it names. */}
       <p className="sr-only" aria-live="polite" aria-atomic="true">
-        {structuredNote}
+        {structuredNote ? structuringSummary(structuredNote) : ""}
       </p>
       {check && (
         <section aria-labelledby="results-title" className="workspace-results">
@@ -1630,6 +1933,7 @@ export function CheckWorkspace({
             </p>
             <CheckResults
               key={check.id}
+              onCommands={setResultCommands}
               check={check}
               completed={completed}
               running={!!running}
@@ -1666,9 +1970,10 @@ export function CheckWorkspace({
                       )}
                     {notices}
                   </div>
+                  {guestNote}
                 </>
               }
-              footer={notes}
+              footer={feedNotes}
               onSnapshot={(snapshot) => {
                 if (
                   generation.current === workspaceGeneration &&
@@ -1680,7 +1985,6 @@ export function CheckWorkspace({
           </div>
         </section>
       )}
-      <InformationLinks language={locale} siteUrl={siteUrl} />
     </main>
   );
 }
