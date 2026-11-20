@@ -99,6 +99,7 @@ import {
 import { CheckResults, type IntakeSource } from "./check-results.tsx";
 import { QuotaChoice, QuotaBalance, QuotaPending } from "./quota-panel.tsx";
 import { ownerQuota, planStart, type OwnerQuota } from "./quota.ts";
+import { renewWithRetry } from "./lease-renewal.ts";
 const apple =
   typeof navigator !== "undefined" &&
   /Mac|iPhone|iPad/u.test(navigator.platform);
@@ -427,11 +428,16 @@ export function CheckWorkspace({
     const token = generation.current;
     let alive = true;
     let renewing = false;
+    const stopped = new AbortController();
     const timer = setInterval(() => {
       if (renewing || !alive) return;
       renewing = true;
-      void api
-        .renewCheckLease(activeId)
+      // One failed renewal is not the end of the connection (#224): it is
+      // retried inside the lease that is left, and only a final failure gives up.
+      void renewWithRetry(() => api.renewCheckLease(activeId), {
+        renewAfterMs: renewalInterval,
+        signal: stopped.signal,
+      })
         .then((snapshot) => {
           if (!alive || generation.current !== token) return;
           setCheck((current) =>
@@ -455,6 +461,7 @@ export function CheckWorkspace({
     }, renewalInterval);
     return () => {
       alive = false;
+      stopped.abort();
       clearInterval(timer);
     };
   }, [activeId, renewalInterval, api]);
@@ -935,6 +942,9 @@ export function CheckWorkspace({
     (r) => r.outcome.kind === "status" && r.outcome.status === "running",
   );
   const isRunning = !!running;
+  // The workspace gave up on this Check's connection (a final lease or stream
+  // failure): its running slots can no longer be reported as running (#224).
+  const connectionLost = accessStopped && !cancelRequested && !!running;
   const [storage, setStorage] = useState<{
     enabled: boolean;
     expiresAt?: string;
@@ -1937,6 +1947,7 @@ export function CheckWorkspace({
               check={check}
               completed={completed}
               running={!!running}
+              connectionLost={connectionLost}
               citationStyle={preferences.citationStyle}
               citationStyleLabel={m[styleMessages[preferences.citationStyle]]()}
               transport={transport}
