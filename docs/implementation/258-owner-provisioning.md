@@ -64,6 +64,7 @@ The wizard sends only the approval public key to GitHub. Neither private key is 
 - `bash -n` passes. ShellCheck 0.11 reports one finding, SC1087, in the unchanged wizard library (a false positive on a colour escape); none in the stage code. The library part is byte-identical to the template.
 - A full `--dry-run` with scripted input ran all 13 stages to the summary and exit 0. Dry-run writes nothing to GitHub and generates no keys.
 - The key generation code was run separately: Ed25519 sign and verify round-trips with the same `verify` call as `deployment.mjs`, and the RSA public key reports 3072 bits.
+- Known limit: `--dry-run` still opens the provider pages in the browser (each stage calls `open_url` before it asks for a value). It writes nothing to GitHub and generates no keys, but expect tabs to open.
 - Not verified: the third-party dashboards. Steps for Scalingo, Scaleway, Stripe, Better Stack and the three browser stores describe intent and mark "labels may differ"; nobody checked them against a live account. The GitHub environment API call was not run against the real repository.
 
 ## What only the owner can do
