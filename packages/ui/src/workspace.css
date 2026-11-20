@@ -86,7 +86,8 @@ body {
   background: transparent;
   color: var(--st-text);
 }
-.st-control[data-variant="secondary"]:not(.st-icon-button, .st-disabled) {
+/* D .btn.icon (the ⋯ trigger) keeps the raised shadow of .btn. */
+.st-control[data-variant="secondary"]:not(.st-disabled) {
   box-shadow: var(--st-shadow-raised), var(--st-highlight-inset);
 }
 

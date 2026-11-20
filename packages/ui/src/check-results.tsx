@@ -754,6 +754,7 @@ export function CheckResults({
         />
       </ActionDialog>
       <HowItWorksDialog
+        quota={transport.credentials !== undefined}
         isOpen={dialog === "help"}
         onOpenChange={(isOpen) => {
           if (!isOpen) setDialog(null);

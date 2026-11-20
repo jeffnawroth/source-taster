@@ -228,7 +228,6 @@ export function CheckWorkspace({
   const [previewOpen, setPreviewOpen] = useState(false);
   // Only an explicit structuring or library import opens the preview dialog.
   const structureRequested = useRef(false);
-  const languageInput = useRef<HTMLSelectElement>(null);
   const fileId = useId();
   const fileInput = useRef<HTMLInputElement>(null);
   const [library, setLibrary] = useState<LibraryInput | null>(null);
@@ -321,7 +320,8 @@ export function CheckWorkspace({
     StructuringResult | ImportResult | null
   >(null);
   // A Structuring that opens no preview is still announced (D checks directly).
-  const [structuredNote, setStructuredNote] = useState("");
+  // The result, not its text: the note follows a language switch.
+  const [structuredNote, setStructuredNote] = useState<typeof preview>(null);
   const [requestError, setRequestError] = useState<unknown>(null);
   const [cancelling, setCancelling] = useState(false);
   const [cancelRequested, setCancelRequested] = useState(false);
@@ -468,9 +468,7 @@ export function CheckWorkspace({
   // A requested Structuring opens its preview dialog; any other preview stays closed.
   function showPreview(result: typeof preview) {
     setPreview(result);
-    setStructuredNote(
-      result && !structureRequested.current ? structuringSummary(result) : "",
-    );
+    setStructuredNote(result && !structureRequested.current ? result : null);
     setPreviewOpen(!!result && structureRequested.current);
     structureRequested.current = false;
   }
@@ -530,7 +528,7 @@ export function CheckWorkspace({
     const structuringController = new AbortController();
     controller.current = structuringController;
     setCheck(null);
-    setStructuredNote("");
+    setStructuredNote(null);
     if (!library) setPreview(null);
     setStreamError(null);
     setRequestError(null);
@@ -906,7 +904,7 @@ export function CheckWorkspace({
     )
       void cancelDetached(check.id);
     setText(selectionWaiting ?? "");
-    setStructuredNote("");
+    setStructuredNote(null);
     setInputKind(selectionWaiting ? "selection" : "text");
     setSelectionWaiting(null);
     setSelectionUndo(null);
@@ -1195,7 +1193,7 @@ export function CheckWorkspace({
     <div className="workspace-notes">
       {devNote}
       {storageNote}
-      <FeedDisclaimer />
+      <FeedDisclaimer quota={hostedQuota} />
       {hostedQuota &&
         (quota ? (
           <QuotaBalance
@@ -1506,7 +1504,11 @@ export function CheckWorkspace({
       />
       {accountNotice}
       {!check && (
-        <HowItWorksDialog isOpen={howOpen} onOpenChange={setHowOpen} />
+        <HowItWorksDialog
+          isOpen={howOpen}
+          onOpenChange={setHowOpen}
+          quota={hostedQuota}
+        />
       )}
       <Modal isOpen={preferencesOpen} onOpenChange={setPreferencesOpen}>
         <Dialog className="workspace-dialog">
@@ -1517,6 +1519,7 @@ export function CheckWorkspace({
                 <label className="workspace-select">
                   {m.theme_label()}
                   <select
+                    autoFocus
                     value={preferences.theme}
                     onChange={(event) => {
                       if (isTheme(event.target.value))
@@ -1531,8 +1534,6 @@ export function CheckWorkspace({
                 <label className="workspace-select">
                   {m.language_label()}
                   <select
-                    ref={languageInput}
-                    autoFocus
                     value={locale}
                     onChange={(event) => {
                       if (isInterfaceLanguage(event.target.value))
@@ -1903,7 +1904,7 @@ export function CheckWorkspace({
       {/* A polite live region like the progress line: role=status stays with
           the visible notices, so each of them is the one status it names. */}
       <p className="sr-only" aria-live="polite" aria-atomic="true">
-        {structuredNote}
+        {structuredNote ? structuringSummary(structuredNote) : ""}
       </p>
       {check && (
         <section aria-labelledby="results-title" className="workspace-results">

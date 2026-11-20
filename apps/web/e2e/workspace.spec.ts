@@ -389,8 +389,8 @@ for (const language of ["en", "de"] as const)
     });
     await expect(explanation).toContainText(
       language === "en"
-        ? "A verdict is not proof of deception. A human makes the decision."
-        : "Ein Befund ist kein Beweis für Täuschung. Die Entscheidung trifft ein Mensch.",
+        ? "A verdict is a finding from the queried data sources, not proof of deception. You make the decision."
+        : "Ein Befund stammt aus den abgefragten Datenquellen und ist kein Beweis für Täuschung. Die Entscheidung treffen Sie.",
     );
     await expect
       .poll(() =>
