@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 ---
 
 # Let an agent review ground truth under an auditable, two-pass method
