@@ -139,11 +139,15 @@ test("content-free consent isolates Accounts and completes withdrawal without Qu
     "Private History title must stay in the checking program",
   );
   unavailable = true;
-  const settled = api.state.quotaCalls.length;
+  // The ended Check may still settle its Quota after this point; only calls
+  // that are not that Check's own settlement belong to the consent routes.
+  const unrelated = () =>
+    api.state.quotaCalls.filter((call) => call.body.checkId !== id);
+  const settled = unrelated().length;
   expect(await consent()).toEqual({ enabled: true });
   expect(await consent("PUT", { enabled: false })).toEqual({ enabled: false });
   expect(await consent()).toEqual({ enabled: false });
-  expect(api.state.quotaCalls).toHaveLength(settled);
+  expect(unrelated()).toHaveLength(settled);
   unavailable = false;
   expect((await request(`checks/${id}`)).status).toBe(410);
   expect(
