@@ -196,6 +196,39 @@ test("modal and sheet trap focus, Escape returns it, destructive confirmation st
   }
 });
 
+// React Aria unmounts a closing modal only when every animation running on it
+// has finished. A cancelled transition used to leave the modal mounted and
+// `data-exiting` for good, which failed the test above on webkit in CI (#227).
+for (const ending of ["never finishes", "is cancelled"] as const) {
+  test(`a modal still closes when an animation on it ${ending}`, async ({
+    page,
+  }) => {
+    await open(page);
+    const trigger = page.getByRole("button", {
+      name: "Show details",
+      exact: true,
+    });
+    await trigger.click();
+    const modal = page.locator(".st-modal");
+    await expect(modal).toBeVisible();
+    // React Aria samples the running animations when the exit starts.
+    await modal.evaluate((el) => {
+      el.animate([{ outlineOffset: "0px" }, { outlineOffset: "1px" }], {
+        duration: 600_000,
+      });
+    });
+    await page.keyboard.press("Escape");
+    await expect(modal).toHaveAttribute("data-exiting", "true");
+    if (ending === "is cancelled")
+      await modal.evaluate((el) =>
+        el.getAnimations().forEach((animation) => animation.cancel()),
+      );
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect(modal).toHaveCount(0);
+    await expect(trigger).toBeFocused();
+  });
+}
+
 test("menu and non-modal popover restore focus and icon tooltip matches its name", async ({
   page,
 }) => {
