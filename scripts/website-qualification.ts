@@ -101,9 +101,6 @@ const policyLicenses = new Set([
 ]);
 // MPL-2.0 build tooling the policy and ADR-0002/0020 name: exactly Lightning CSS.
 const mplBuildTooling = new Set(["lightningcss", "lightningcss-derive"]);
-// GPL browser WASM component of the selected Pagefind route (ADR-0020): delivered
-// with Corresponding Source and notices; legal review remains pending.
-const copyleftWasm = new Set(["pagefind_microjson"]);
 const licenseIssues: string[] = [];
 const electedLicenses: Record<string, string> = {};
 const nativeLicenseEvidence: LicenseEvidence[] = [];
@@ -144,8 +141,7 @@ for (const pkg of packages) {
           pkg.license,
           (id) =>
             policyLicenses.has(id) ||
-            (id === "MPL-2.0" && mplBuildTooling.has(pkg.name)) ||
-            (id === "GPL-3.0-only" && copyleftWasm.has(pkg.name)),
+            (id === "MPL-2.0" && mplBuildTooling.has(pkg.name)),
         )
       : undefined);
   if (elected) electedLicenses[identity] = elected;
@@ -292,7 +288,7 @@ const proof = {
   scanLockSha256: hash(scanLock),
   licenseIssues,
   legalStatus:
-    "BLOCKED: concrete GPL/AGPL boundaries, microjson manifest/header interpretation, source offer and human legal review remain pending; no license waiver",
+    "BLOCKED: concrete AGPL boundaries (the selected Pagefind browser WASM closure contains no GPL component), source offer and human legal review remain pending; no license waiver",
   sourceLocks: await json<SourceProvenance>(
     resolve(root, "apps/website/qualification/upstream/provenance.json"),
   ),

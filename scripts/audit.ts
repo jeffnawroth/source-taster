@@ -238,7 +238,7 @@ for (const result of report.results ?? []) {
           : raw?.includes("pagefind-js")
             ? "upstream npm tooling never installed or executed; browser bundles built from pinned pagefind_web_js/lib sources only by the controlled Rolldown 1.2.15 binding (module list in bundle.json)"
             : identity === "crates.io:pagefind@0.0.0"
-              ? "upstream placeholder corrected to controlled 1.5.2 release identity; actual JS built from pinned fixed source"
+              ? "upstream placeholder corrected to controlled 1.6.0 release identity; actual JS built from pinned fixed source"
               : "absent version/component from the frozen controlled normal+build target/feature closure of the executed native/WASM artifacts; removal or stable replacement verified in the exact artifact recipe",
         evidence: ".tmp/pagefind/evidence/qualification.json",
       });

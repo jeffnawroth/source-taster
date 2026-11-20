@@ -7,35 +7,35 @@
       "folder": "pagefind-native",
       "file": "Cargo.lock",
       "repository": "https://github.com/Pagefind/pagefind",
-      "tag": "v1.5.2",
-      "commit": "bf17396721be637cc67c8ed7ead1dc7b8ac43d96",
+      "tag": "v1.6.0",
+      "commit": "860a4ea87e7a52379520f9eaefd0f8a6b23eb462",
       "upstreamPath": "Cargo.lock",
-      "sha256": "ba1c71466148a0241c2124c02407925af16a0e71028553bb7ff02d7113480b55"
+      "sha256": "d3074929dbfbf47607e2a08e71445bfbc84ccff8a20bd00414100564ae044b76"
     },
     {
       "folder": "pagefind-web",
       "file": "Cargo.lock",
       "repository": "https://github.com/Pagefind/pagefind",
-      "tag": "v1.5.2",
-      "commit": "bf17396721be637cc67c8ed7ead1dc7b8ac43d96",
+      "tag": "v1.6.0",
+      "commit": "860a4ea87e7a52379520f9eaefd0f8a6b23eb462",
       "upstreamPath": "pagefind_web/Cargo.lock",
-      "sha256": "d762f97d4dc284014c284f2b2147d0d29bb4add334df4bdc14eaf4e84201a5c3"
+      "sha256": "aa1cd15ad6ee869c8d5f38fdadbda786322b479d03ec987b393877dcb229554d"
     },
     {
       "folder": "pagefind-js",
       "file": "package-lock.json",
       "repository": "https://github.com/Pagefind/pagefind",
-      "tag": "v1.5.2",
-      "commit": "bf17396721be637cc67c8ed7ead1dc7b8ac43d96",
+      "tag": "v1.6.0",
+      "commit": "860a4ea87e7a52379520f9eaefd0f8a6b23eb462",
       "upstreamPath": "pagefind_web_js/package-lock.json",
-      "sha256": "f73ed2a5308157f992cb6979bed5a7275d6fcb6942cd707da204ce49c19c5b2b"
+      "sha256": "88d3628fbed6ffa66037196c37ced954a8d196a82ea67c45fea834eac4125f07"
     },
     {
       "folder": ".",
       "file": "Pagefind-LICENSE",
       "repository": "https://github.com/Pagefind/pagefind",
-      "tag": "v1.5.2",
-      "commit": "bf17396721be637cc67c8ed7ead1dc7b8ac43d96",
+      "tag": "v1.6.0",
+      "commit": "860a4ea87e7a52379520f9eaefd0f8a6b23eb462",
       "upstreamPath": "LICENSE",
       "sha256": "4736929bfded122bd969f0621a0d917484b126d981270d68a63ed42cb55503d5"
     },

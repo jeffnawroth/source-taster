@@ -8,7 +8,7 @@ const [rustc, ...args] = process.argv.slice(2);
 if (!rustc) throw new Error("Expected Cargo's pinned rustc invocation");
 const name = args[args.indexOf("--crate-name") + 1];
 const versions: Record<string, string> = {
-  pagefind_web: "1.5.2",
+  pagefind_web: "1.6.0",
   pagefind_stem: "1.0.0",
 };
 let forwarded = args;
