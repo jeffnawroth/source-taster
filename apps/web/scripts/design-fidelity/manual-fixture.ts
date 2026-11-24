@@ -142,7 +142,17 @@ export async function readManualFixture(
     const actions = actionRow ? [...actionRow.childNodes].flatMap(content) : [];
     const parent = section.parentElement!;
     const preceding: ManualFixture["preceding"] = [];
-    for (const node of [...parent.children]) {
+    // The sizing slot is transparent data ownership; the accepted source still
+    // renders its actual section through D's original .dsec recipe. Never copy
+    // the product's reservation geometry or hidden stand-in into the oracle.
+    const precedingNodes = [...parent.children].flatMap((node) =>
+      node.matches(".detail-suggestion")
+        ? [...node.children].filter(
+            (child) => !child.matches('[aria-hidden="true"]'),
+          )
+        : [node],
+    );
+    for (const node of precedingNodes) {
       if (node === section) break;
       // Comparison and all evidence retain their own original source renderer.
       if (node.querySelector(".detail-compare,.detail-original")) continue;

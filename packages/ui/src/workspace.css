@@ -542,6 +542,28 @@ body {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+/* The suggestion's place: the stand-in (hidden, in the same grid cell as the
+   loading line) is as tall as the section will be, and its text is generated
+   from the original so that no text node exists for assistive technology or
+   text queries. */
+.detail-suggestion {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+.detail-suggestion > * {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+.detail-suggestion-sizer {
+  visibility: hidden;
+  pointer-events: none;
+}
+.detail-suggestion-sizer [data-text]::before {
+  content: attr(data-text);
+}
+.detail-suggestion-sizer .detail-eyebrow::before {
+  content: "\200b";
+}
 .detail-note {
   font-size: var(--st-text-sm);
   color: var(--st-text-secondary);
@@ -1933,9 +1955,9 @@ body {
 .detail-compare th[scope="row"] {
   font-weight: 700;
   color: var(--st-text-secondary);
-  /* Long German field names break at a syllable (D .cnt .l). */
-  overflow-wrap: break-word;
-  hyphens: auto;
+  /* D's comparison labels use the row's normal wrapping; its automatic
+     hyphenation recipe belongs to count labels, not comparison fields. */
+  overflow-wrap: anywhere;
 }
 .compare-deviating {
   text-decoration: underline wavy var(--st-verdict-deviations-mark);
