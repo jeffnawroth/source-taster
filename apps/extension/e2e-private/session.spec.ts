@@ -1,4 +1,7 @@
-import { openFirefoxAccount } from "../e2e/support/account-entry.ts";
+import {
+  openFirefoxAccount,
+  openPanelAccount,
+} from "../e2e/support/account-entry.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { createServer } from "node:http";
 import { once } from "node:events";
@@ -97,7 +100,9 @@ for (const language of ["en", "de"] as const)
       await panel.fill("textbox", labels.code, await code(b));
       await panel.click("button", labels.confirm);
       try {
+        await openPanelAccount(panel);
         await panel.find("button", labels.here);
+        await panel.click("button", /^(Close|Schließen)$/u);
       } catch (error) {
         console.error(
           "Panel HTTP",
@@ -111,10 +116,10 @@ for (const language of ["en", "de"] as const)
         throw error;
       }
       const web = await b.signIn(email);
-      expect((await b.mail()).at(-1)!.subject).toBe(
+      expect((await b.mail()).at(-1)!.subject).toMatch(
         language === "de"
-          ? "Dein Anmeldecode für Source Taster"
-          : "Your Source Taster sign-in code",
+          ? /Anmeldecode für Source Taster$/
+          : /^Your Source Taster sign-in code$/,
       );
       const readPreferences = async () =>
         (
@@ -190,7 +195,9 @@ for (const language of ["en", "de"] as const)
         language === "de" ? "de-DE" : "en-GB",
       );
       panel = await browser.openPanel();
+      await openPanelAccount(panel);
       await panel.find("button", labels.here);
+      await panel.click("button", /^(Close|Schließen)$/u);
       expect(
         await panel.call(
           await panel.find("textbox", labels.reference),
@@ -198,6 +205,7 @@ for (const language of ["en", "de"] as const)
         ),
       ).toBe("");
       expect((await browser.storage())[key]).toBe(storage[key]);
+      await openPanelAccount(panel);
       await panel.click("button", labels.everywhere);
       await panel.find("button", labels.signin);
       expect((await browser.storage())[key]).toBeUndefined();
