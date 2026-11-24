@@ -264,7 +264,7 @@ test("web and extension keep separate Guest IDs and Preferences in the same nati
     expect(stored[preferencesKey]).toBeUndefined();
     expect(JSON.stringify(local)).not.toContain(extension.guestId);
     // The panel keeps its own language; the web choice does not reach it.
-    expect(await panel.query("button", "Check reference")).not.toEqual([]);
+    expect(await panel.evaluate("document.documentElement.lang")).toBe("en");
   });
 });
 
@@ -292,6 +292,7 @@ async function renewal(browser: NativeChromium) {
     );
     const [structure] = bearer(panel, "/v2/structurings");
     expect(structure).toMatch(/^Bearer /);
+    await panel.closeStructuringPreview();
     await new Promise((r) => setTimeout(r, 11_000));
     await both.advance(60_000);
     await check(panel);
