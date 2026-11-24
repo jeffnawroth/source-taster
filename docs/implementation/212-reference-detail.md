@@ -668,6 +668,44 @@ hyphenation applied to comparison-field labels: D only applies that recipe to
 count labels. Removing it restores the source row heights and prevents the
 suggestion and subsequent action rows from drifting by a line.
 
+The same scroll gate exposed other existing detail/feed differences: terminal
+Status cards dropped the empty track row (32 px), closed Candidates retained a
+phantom content gap, candidate-toggle type/icon sizes differed from D's small
+button, evidence marks spanned an extra row, and source names missed D's 0.94
+monospace scale. Those now use the original recipes. Quiet provenance/history
+Disclosures keep their chevrons and native keyboard semantics with full-width
+note-row triggers and D's section spacing.
+
+The fixture reader retains actual observation times using D's original
+three-column source-row recipe and removes fictional provider latencies the
+service does not supply. It does not copy product styles or dimensions into
+the oracle. Additional probes pin the candidate section/toggle, evidence row
+and source-name typography, and quiet disclosure trigger. A cancellation
+regression first measured the 32 px card collapse and now pins its footprint.
+
+The complete editor matrix additionally required native block flow for the
+structured-author controls and the original wrapping Checkbox row. Full API
+field labels (including long German words absent from the source's short
+fixtures) use D's existing comparison value-cell wrapping/minimum-size recipe
+in the source projection. This copies only the original source's own recipe,
+not product measurements or styles, and retains every full label and value.
+
+The #226 typography amendment retains the self-hosted true italic fonts for
+unknown values instead of the prototype's synthesized slant. The oracle loads
+those bytes from the same independent historical font commit; its evidence
+metadata records the amendment. Scroll screenshots wait two animation frames
+on both sides after scrolling, to capture newly exposed painted content.
+Geometry and pixel thresholds remain unchanged.
+
+Final local functional validation: root lint/typecheck (with #290's controlled
+locks temporarily applied and restored), the cancellation footprint regression,
+6 Chromium detail cases, 5 WebKit cases and all 6 native revision cases pass.
+The scoped detail fidelity matrix passes all 32 EN/DE, light/dark,
+desktop/360, normal/end/edit/manual states, including every scroll slice and
+added geometry/type probe. Initial-view differences are 0.096–0.402% against
+the unchanged 1% threshold. This is scoped evidence, not complete product or
+private-surface qualification. The ten fidelity-driver unit checks pass.
+
 ## Resolved in #220
 
 - A Check could end "Cancelled" before any verdict (#220). Cause: the e2e

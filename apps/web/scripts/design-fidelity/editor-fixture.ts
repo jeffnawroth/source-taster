@@ -431,6 +431,8 @@ export async function normalizeEditorFixture(
           (item) => item.group === group,
         ))
           fieldset.append(makeInput(control));
+        const actions = document.createElement("div");
+        actions.className = "row";
         for (const action of fixture.actions.filter(
           (item) => item.group === group,
         )) {
@@ -440,8 +442,9 @@ export async function normalizeEditorFixture(
           button.textContent = action.label;
           button.disabled = action.disabled;
           button.dataset.editorSnapshotAction = "author-remove";
-          fieldset.append(button);
+          actions.append(button);
         }
+        if (actions.children.length) fieldset.append(actions);
         authorCell.append(fieldset);
       }
       const add = fixture.actions.find(
@@ -457,7 +460,10 @@ export async function normalizeEditorFixture(
         button.textContent = add.label;
         button.disabled = add.disabled;
         button.dataset.editorSnapshotAction = "author-add";
-        authorCell.append(button);
+        const actions = document.createElement("div");
+        actions.className = "row";
+        actions.append(button);
+        authorCell.append(actions);
       }
       const truncation = fixture.controls.find(
         (control) => control.path === "authorsTruncated",

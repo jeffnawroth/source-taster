@@ -41,7 +41,13 @@ export interface ManualFixture {
   /** D's lower detail, read from the built evidence block. */
   evidence: null | {
     notice: string;
-    trail: { state: string; source: boolean; name: string; rest: string }[];
+    trail: {
+      state: string;
+      source: boolean;
+      name: string;
+      rest: string;
+      time: string;
+    }[];
     disclosures: Content[];
   };
 }
@@ -221,6 +227,7 @@ export async function readManualFixture(
                 ? text(name)
                 : text(line).slice(0, -muted.length).trim(),
               rest: muted.replace(/^·\s*/, ""),
+              time: text(row.querySelector("time")),
             };
           }),
           disclosures: [...block.children]
@@ -319,7 +326,7 @@ export async function normalizeManualFixture(
       if (data.tag === "details")
         return `<details class="dsec"${data.open ? " open" : ""}${attrs}>${inner}</details>`;
       if (data.tag === "summary")
-        return `<summary class="row note"${attrs}>${inner}</summary>`;
+        return `<summary class="row note"${attrs}>${ST.ico("i-chev")}${inner}</summary>`;
       if (data.tag === "h3" || data.tag === "h2")
         return `<h3 class="eyebrow"${attrs}>${inner}</h3>`;
       if (data.tag === "p")
@@ -428,6 +435,19 @@ export async function normalizeManualFixture(
           "Release gate notice (releaseQualified false) projected through D's own .nrow recipe before the Data sources.",
         );
       }
+      // The service has observation times, not the prototype's fictional
+      // provider latency. Preserve actual time data through D's original
+      // three-column .src/.ms recipe, with no product dimensions or CSS.
+      const latency = [...body.querySelectorAll(".srcs .ms")];
+      if (latency.length) {
+        record(
+          "detail.source-latency",
+          latency.map((node) => node.textContent),
+          null,
+          "The actual service supplies no latency value; remove fictional fixture timings while preserving each source row and its original recipe.",
+        );
+        latency.forEach((node) => node.remove());
+      }
       const trail = body.querySelector("ol.trail");
       if (trail && ev.trail.length) {
         const before = trail.textContent;
@@ -441,14 +461,14 @@ export async function normalizeManualFixture(
         trail.innerHTML = ev.trail
           .map(
             (row) =>
-              `<li class="te is-${row.state}">${ST.ico(row.source ? (icons[row.state] ?? "e-none") : "e-end")}<span><span class="${row.source ? "mono" : ""}">${esc(row.name)}</span> <span class="muted">· ${esc(row.rest)}</span></span></li>`,
+              `<li class="${row.source ? "src" : "te"} is-${row.state}">${row.source ? `<span class="rs is-${row.state}">${ST.ico(icons[row.state] ?? "e-none")}</span>` : ST.ico("e-end")}<span><span class="${row.source ? "mono" : ""}">${esc(row.name)}</span> <span class="muted">· ${esc(row.rest)}</span></span>${row.time ? `<time class="ms mono">${esc(row.time)}</time>` : ""}</li>`,
           )
           .join("");
         record(
           "detail.evidence-trail",
           before,
           ev.trail,
-          "One row per actual evidence step (operation and outcome), then the Verdict row, through D's own .te recipe. The fixture trail drives D's feed track, so it keeps one node per queried Data source there.",
+          "One row per actual evidence step (operation, outcome and observation time) through D's original three-column .src/.ms recipe, then its two-column .te Verdict row. The fixture trail drives D's feed track, so it keeps one node per queried Data source there.",
         );
       }
       for (const [index, data] of ev.disclosures.entries()) {

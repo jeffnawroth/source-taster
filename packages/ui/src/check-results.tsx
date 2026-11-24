@@ -103,7 +103,10 @@ function runningText(reference: ReferenceSlot) {
 function EvidenceTrack({ reference }: { reference: ReferenceSlot }) {
   const { outcome } = reference;
   if (outcome.kind === "status") {
-    if (outcome.status !== "running") return null;
+    if (outcome.status !== "running")
+      // D retains the track's footprint for every card. A terminal Status
+      // has no evidence to invent, but must not pull the following cards up.
+      return <div className="card-track" aria-hidden="true" />;
     const queued = reference.progress === "queued";
     return (
       <div className="card-track">
