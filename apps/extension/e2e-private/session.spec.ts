@@ -1,5 +1,6 @@
 import {
   openFirefoxAccount,
+  openFirefoxSignIn,
   openPanelAccount,
 } from "../e2e/support/account-entry.ts";
 // SPDX-License-Identifier: AGPL-3.0-or-later
@@ -273,7 +274,7 @@ test("native Firefox real mail with one observed dynamic origin; deployment qual
       description: `Firefox ${browser.version}, manually allowlisted observed dynamic origin ${origin}; no deployment qualification`,
     });
     await allow(b, origin);
-    await browser.click(await browser.find("pushbutton", "Sign in"));
+    await openFirefoxSignIn(browser);
     await browser.click(await browser.find("entry", "Email address"));
     await browser.type("firefox-real@example.invalid");
     await browser.click(await browser.find("pushbutton", "Send code"));
