@@ -159,9 +159,12 @@ rule. Reasons:
   durable Owner fence checked. A revocation acknowledgement therefore waits for
   every response whose decision and serialization were under the guard; it does
   not wait for the network.
-- The write needs no bound of its own: after the hand-off the guard holds
-  nothing. Before the hand-off the existing 3 s lock timeout and the build
-  failure path already bound the hold.
+- A stalled socket needs no additional guard timeout: the guard is released
+  after the hand-off. The 3 s PostgreSQL `lock_timeout` bounds lock acquisition,
+  not the duration of `build` or serialization after acquisition. The build
+  callback must therefore remain local work and must not make service calls,
+  as the `deliver()` contract above requires. A build failure releases the
+  guard; it is not a time limit on successful or stalled work.
 
 What stays under the guard until the lock is released: the authority decision,
 the Owner fence check, `build` and the serialization, and the hand-off. A client
