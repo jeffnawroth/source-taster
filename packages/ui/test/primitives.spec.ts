@@ -196,6 +196,33 @@ test("modal and sheet trap focus, Escape returns it, destructive confirmation st
   }
 });
 
+test("a sheet closes and restores focus when reduced motion cancels its exit", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await open(page);
+  const trigger = page.getByRole("button", {
+    name: "Open history sheet",
+    exact: true,
+  });
+  await trigger.click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.locator(".st-sheet")).toHaveAttribute(
+    "data-exiting",
+    "true",
+  );
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(dialog).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+  await trigger.click();
+  await expect(dialog).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+});
+
 test("menu and non-modal popover restore focus and icon tooltip matches its name", async ({
   page,
 }) => {
