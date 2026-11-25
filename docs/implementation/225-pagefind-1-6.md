@@ -32,8 +32,10 @@ website source offer and license policy follow the new pin.
 
 ## Controlled lock changes
 
-Only `version` and `checksum` lines change against the raw upstream locks, and
-every change is a stable semver-compatible patch bump:
+The table lists the security updates applied on top of the minimal controlled
+recipe. These are stable semver-compatible updates; the Tokio update also moves
+the minor version. The complete patch additionally prunes unselected packages
+and adjusts dependency lists for the controlled recipe.
 
 | Crate (controlled native lock) | Raw 1.6.0 upstream | Controlled | Checksum (SHA-256, Cargo registry) |
 | ------------------------------ | ------------------ | ---------- | ---------------------------------- |
@@ -117,3 +119,18 @@ Receipt SHA-256 (macOS arm64 run):
   deployed-environment gates remain in force. The `provenance.json` `verifiedAt`
   date was deliberately not changed because no human re-verification took place.
 - `qualification/inventory.json` is a retained snapshot and was not regenerated here.
+
+## Merge-steward update — 25 November 2026
+
+The controlled native and Rolldown locks also carry #288/#290's `url` 2.5.9 and
+required `form_urlencoded` 1.2.3, fixing RUSTSEC-2026-0592. Upstream provenance
+snapshots remain unchanged. `controlled/lock-changes.diff` was regenerated from
+all five upstream/controlled pairs; applying it reproduces the controlled locks
+byte for byte.
+
+The pinned Pagefind archive checksum and every Pagefind upstream snapshot hash
+were independently checked against the archive. Its browser manifest depends on
+`hifijson`, not `pagefind_microjson`. The older receipts above describe the
+20 November recipe: they do not qualify this security update. Fresh controlled
+fetch/build/verify, advisory scan, refusal controls and Linux CI must pass before
+merge. The GitHub incident currently prevents a reliable CI/merge decision.
