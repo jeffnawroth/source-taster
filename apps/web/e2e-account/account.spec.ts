@@ -246,3 +246,103 @@ for (const language of ["en", "de"] as const)
       await context.close();
     }
   });
+
+for (const language of ["en", "de"] as const)
+  for (const width of [1280, 360])
+    test(`Account action stays under a held pointer when delayed Quota arrives: ${language}, ${width}px`, async ({
+      browser,
+    }, testInfo) => {
+      const context = await browser.newContext({
+        locale: language,
+        viewport: { width, height: 800 },
+      });
+      const page = await context.newPage();
+      let releaseQuota = () => {};
+      try {
+        await page.goto(url);
+        await openWebSignIn(page);
+        const email = `quota-layout-${language}-${width}-${testInfo.repeatEachIndex}@example.invalid`;
+        await page
+          .getByLabel(language === "en" ? "Email address" : "E-Mail-Adresse", {
+            exact: true,
+          })
+          .fill(email);
+        await page
+          .getByRole("button", {
+            name: language === "en" ? "Send code" : "Code senden",
+            exact: true,
+          })
+          .click();
+        await expect(
+          page.getByLabel(
+            language === "en" ? "Six-digit code" : "Sechsstelliger Code",
+          ),
+        ).toBeVisible();
+        const code = (await both.mail()).at(-1)!.text.match(/\b[0-9]{6}\b/)![0];
+        await page
+          .getByLabel(
+            language === "en" ? "Six-digit code" : "Sechsstelliger Code",
+          )
+          .fill(code);
+        await page
+          .getByRole("button", {
+            name: language === "en" ? "Confirm code" : "Code bestätigen",
+            exact: true,
+          })
+          .click();
+        const chip = page.getByRole("button", {
+          name: `${language === "en" ? "Account" : "Konto"}: ${email}`,
+          exact: true,
+        });
+        await expect(chip).toBeVisible();
+        const quotaReady = new Promise<void>((resolve) => {
+          releaseQuota = resolve;
+        });
+        let quotaStarted = () => {};
+        const quotaRequest = new Promise<void>((resolve) => {
+          quotaStarted = resolve;
+        });
+        await page.route("**/v2/quota", async (route) => {
+          quotaStarted();
+          await quotaReady;
+          await route.continue();
+        });
+        await page.reload();
+        await quotaRequest;
+        await chip.click();
+        const entry = page.locator(".account-entry");
+        await expect(entry.getByRole("meter")).toHaveCount(0);
+        await expect(entry.getByText("Free", { exact: true })).toHaveCount(0);
+        const action = entry.getByRole("button", {
+          name: language === "en" ? "Account" : "Konto",
+          exact: true,
+        });
+        await page.screenshot({
+          path: testInfo.outputPath("quota-pending.png"),
+          fullPage: true,
+        });
+        const box = await action.boundingBox();
+        expect(box).not.toBeNull();
+        await page.mouse.move(
+          box!.x + box!.width / 2,
+          box!.y + box!.height / 2,
+        );
+        await page.mouse.down();
+        releaseQuota();
+        await expect(entry.getByRole("meter")).toBeVisible();
+        await page.screenshot({
+          path: testInfo.outputPath("quota-ready.png"),
+          fullPage: true,
+        });
+        await page.mouse.up();
+        await expect(
+          page.getByRole("dialog", {
+            name: `${language === "en" ? "Account" : "Konto"}: ${email}`,
+            exact: true,
+          }),
+        ).toBeVisible();
+      } finally {
+        releaseQuota();
+        await context.close();
+      }
+    });
