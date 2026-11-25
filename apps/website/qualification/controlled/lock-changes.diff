@@ -1,7 +1,7 @@
 --- upstream/pagefind-native/Cargo.lock
 +++ controlled/locks/native.Cargo.lock
 @@ -296,9 +296,9 @@
- 
+
  [[package]]
  name = "anyhow"
 -version = "1.0.102"
@@ -10,7 +10,7 @@
 +version = "1.0.103"
 +source = "registry+https://github.com/rust-lang/crates.io-index"
 +checksum = "2a4385e2e34eb35d6b3efe798b9eb88096925d87726c0798709bf56d9ed84af3"
- 
+
  [[package]]
  name = "async-compression"
 @@ -311,12 +311,6 @@
@@ -23,11 +23,11 @@
 -version = "1.5.0"
 -source = "registry+https://github.com/rust-lang/crates.io-index"
 -checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
- 
+
  [[package]]
  name = "base64"
 @@ -658,9 +652,9 @@
- 
+
  [[package]]
  name = "crossbeam-epoch"
 -version = "0.9.18"
@@ -40,7 +40,7 @@
   "crossbeam-utils",
  ]
 @@ -889,9 +883,9 @@
- 
+
  [[package]]
  name = "form_urlencoded"
 -version = "1.2.2"
@@ -69,11 +69,11 @@
 -version = "0.12.3"
 -source = "registry+https://github.com/rust-lang/crates.io-index"
 -checksum = "8a9ee70c43aaf417c914396645a0fa852624801b24ebb7ae78fe8272889ac888"
- 
+
  [[package]]
  name = "hashbrown"
 @@ -1098,12 +1086,9 @@
- 
+
  [[package]]
  name = "html-escape"
 -version = "0.2.13"
@@ -85,11 +85,11 @@
 +version = "0.3.1"
 +source = "registry+https://github.com/rust-lang/crates.io-index"
 +checksum = "d45ed4d99334da2a2f221504e8ffc8ad09baf2a452b154465a976bfde697b004"
- 
+
  [[package]]
  name = "http"
 @@ -1326,16 +1311,6 @@
- 
+
  [[package]]
  name = "indexmap"
 -version = "1.9.3"
@@ -115,11 +115,11 @@
 -version = "0.5.6"
 -source = "registry+https://github.com/rust-lang/crates.io-index"
 -checksum = "0717cef1bc8b636c6e1c1bbdefc09e6322da8a9321966e8928ef80d20f7f770f"
- 
+
  [[package]]
  name = "litemap"
 @@ -1642,7 +1611,7 @@
- 
+
  [[package]]
  name = "pagefind"
 -version = "0.0.0"
@@ -138,7 +138,7 @@
   "portpicker",
 @@ -1690,12 +1659,6 @@
  version = "1.0.0"
- 
+
  [[package]]
 -name = "pagefind_stem"
 -version = "1.0.0"
@@ -151,7 +151,7 @@
  source = "registry+https://github.com/rust-lang/crates.io-index"
 @@ -1865,30 +1828,6 @@
  ]
- 
+
  [[package]]
 -name = "proc-macro-error"
 -version = "1.0.4"
@@ -194,7 +194,7 @@
   "syn 1.0.109",
 @@ -2167,18 +2103,6 @@
  ]
- 
+
  [[package]]
 -name = "serde_yaml"
 -version = "0.8.26"
@@ -212,7 +212,7 @@
  version = "0.4.3"
  source = "registry+https://github.com/rust-lang/crates.io-index"
 @@ -2444,9 +2368,9 @@
- 
+
  [[package]]
  name = "tokio"
 -version = "1.50.0"
@@ -225,7 +225,7 @@
   "bytes",
   "libc",
 @@ -2461,13 +2385,13 @@
- 
+
  [[package]]
  name = "tokio-macros"
 -version = "2.6.1"
@@ -240,7 +240,7 @@
 - "syn 2.0.117",
 + "syn 3.0.5",
  ]
- 
+
  [[package]]
 @@ -2507,7 +2431,7 @@
  source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -260,7 +260,7 @@
   "toml",
  ]
 @@ -2638,9 +2561,9 @@
- 
+
  [[package]]
  name = "url"
 -version = "2.5.8"
@@ -274,7 +274,7 @@
   "idna",
 @@ -2649,12 +2572,6 @@
  ]
- 
+
  [[package]]
 -name = "utf8-width"
 -version = "0.1.8"
@@ -302,7 +302,7 @@
 + "indexmap",
   "semver",
  ]
- 
+
 @@ -2904,7 +2821,7 @@
  dependencies = [
   "anyhow",
@@ -332,7 +332,7 @@
   "serde",
 @@ -2971,15 +2888,6 @@
  checksum = "3ad82d2a33cdc9674dc7465672f271e096168fcdbe0f799d9e6db8c5892679dc"
- 
+
  [[package]]
 -name = "yaml-rust"
 -version = "0.4.5"
@@ -354,7 +354,7 @@
  version = "1.0.0"
 -source = "registry+https://github.com/rust-lang/crates.io-index"
 -checksum = "8dfa810b158f3ac364e5acd43ca4a6020a6e729d40c15ce1bed1d911237a52e5"
- 
+
  [[package]]
  name = "pagefind_web"
 -version = "0.0.0"
@@ -365,7 +365,7 @@
 --- upstream/astro-compiler/Cargo.lock
 +++ controlled/locks/compiler.Cargo.lock
 @@ -2260,9 +2260,9 @@
- 
+
  [[package]]
  name = "rustix"
 -version = "1.1.4"
@@ -378,7 +378,7 @@
   "bitflags",
   "errno",
 @@ -2616,9 +2616,9 @@
- 
+
  [[package]]
  name = "tokio"
 -version = "1.52.3"
@@ -399,7 +399,7 @@
 - "windows-sys 0.61.2",
 + "windows-sys 0.59.0",
  ]
- 
+
  [[package]]
 @@ -590,7 +590,7 @@
  checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
@@ -408,10 +408,10 @@
 - "windows-sys 0.61.2",
 + "windows-sys 0.59.0",
  ]
- 
+
  [[package]]
 @@ -601,11 +601,10 @@
- 
+
  [[package]]
  name = "event-listener"
 -version = "5.4.1"
@@ -427,7 +427,7 @@
   "pin-project-lite",
  ]
 @@ -713,9 +712,9 @@
- 
+
  [[package]]
  name = "form_urlencoded"
 -version = "1.2.2"
@@ -446,10 +446,10 @@
 - "windows-sys 0.61.2",
 + "windows-sys 0.59.0",
  ]
- 
+
  [[package]]
 @@ -3394,15 +3393,15 @@
- 
+
  [[package]]
  name = "rustix"
 -version = "1.1.4"
@@ -466,7 +466,7 @@
 - "windows-sys 0.61.2",
 + "windows-sys 0.59.0",
  ]
- 
+
  [[package]]
 @@ -3741,7 +3740,7 @@
   "getrandom 0.4.3",
@@ -475,7 +475,7 @@
 - "windows-sys 0.61.2",
 + "windows-sys 0.59.0",
  ]
- 
+
  [[package]]
 @@ -3760,7 +3759,7 @@
  checksum = "230a1b821ccbd75b185820a1f1ff7b14d21da1e442e22c0863ea5f08771a8874"
@@ -484,10 +484,10 @@
 - "windows-sys 0.61.2",
 + "windows-sys 0.59.0",
  ]
- 
+
  [[package]]
 @@ -3821,9 +3820,9 @@
- 
+
  [[package]]
  name = "tokio"
 -version = "1.53.2"
@@ -500,7 +500,7 @@
   "libc",
   "mio",
 @@ -4006,9 +4005,9 @@
- 
+
  [[package]]
  name = "url"
 -version = "2.5.8"
@@ -519,12 +519,12 @@
 - "windows-sys 0.61.2",
 + "windows-sys 0.59.0",
  ]
- 
+
  [[package]]
 --- upstream/satteri/Cargo.lock
 +++ controlled/locks/satteri.Cargo.lock
 @@ -1151,9 +1151,9 @@
- 
+
  [[package]]
  name = "rustix"
 -version = "1.1.4"
