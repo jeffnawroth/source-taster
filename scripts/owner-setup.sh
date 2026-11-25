@@ -254,8 +254,16 @@ done
 
 local OUTDIR="$OUTDIR_DEFAULT"
 if (( DRY_RUN )); then OUTDIR=$(mktemp -d); fi
+if [[ -L "$OUTDIR" ]]; then
+  warn "Refusing a symbolic-link output directory: $OUTDIR"; return 1
+fi
 (umask 077 && mkdir -p "$OUTDIR")
+chmod 700 "$OUTDIR"
 ENV_FILE="$OUTDIR/owner-values.env"
+if [[ -L "$ENV_FILE" || ( -e "$ENV_FILE" && ! -f "$ENV_FILE" ) ]]; then
+  warn "Refusing a symbolic-link or non-regular values file: $ENV_FILE"; return 1
+fi
+if [[ -f "$ENV_FILE" ]]; then chmod 600 "$ENV_FILE"; fi
 
 TOTAL_STAGES=13
 
