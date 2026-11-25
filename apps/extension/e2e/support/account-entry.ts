@@ -9,10 +9,15 @@ const accountLabel = (language?: "en" | "de") =>
 /** Explicit navigation through the compact entry to the owned Account dialog. */
 export async function openPanelAccount(panel: Panel, language?: "en" | "de") {
   if ((await panel.query("dialog", signedInAccount)).length) return;
-  await panel.find("button", signedInAccount);
+  const chip = await panel.find("button", signedInAccount);
   const label = accountLabel(language);
-  if (!(await panel.query("dialog", label)).length)
-    await panel.click("button", signedInAccount);
+  // The outgoing entry can remain in the accessibility tree during an overlay
+  // handoff. Read the trigger's actual state before deciding to toggle it.
+  const expanded = await panel.call<boolean>(
+    chip,
+    "function () { return this.getAttribute('aria-expanded') === 'true'; }",
+  );
+  if (!expanded) await panel.click("button", signedInAccount);
   // The first Quota reply can move the compact entry after pointer coordinates
   // are measured. Exercise its accessible keyboard action with trusted CDP
   // input, so this navigation does not race that asynchronous layout change.
@@ -27,6 +32,7 @@ export async function openPanelAccount(panel: Panel, language?: "en" | "de") {
       windowsVirtualKeyCode: 13,
     });
   await panel.find("dialog", signedInAccount);
+  await panel.gone("dialog", label);
 }
 
 export async function openFirefoxAccount(
