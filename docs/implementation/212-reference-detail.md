@@ -584,9 +584,9 @@ the section below the rows. There are two ways to lose the press:
    paragraph at the old position (an event log of 12 throttled runs showed this
    in all 5 losses). This is the natural flake. Nothing can know a press is
    coming, so `afterPress` cannot cover it, and a person who presses Edit fields
-   as the suggestion lands loses the press the same way. Avoiding that needs a
-   design decision (reserve the section's space while it loads, or change the
-   order), #226. The test waits for the page to settle.
+   as the suggestion lands loses the press the same way. Avoiding that needed a
+   design decision, taken in #226 (see "Resolved in #226"). The test still waits
+   for the page to settle.
 
 **Fix.**
 
@@ -613,6 +613,49 @@ the section below the rows. There are two ways to lose the press:
   (5 "No textbox named Titel"), product change only 20 of 30 (10 the same),
   with the wait in the test 30 of 30.
 
+## Resolved in #226
+
+The Correction suggestion section (235 px in the native test) arrives after the
+detail opens and sits above the field editor, Re-check and Manual judgment. A
+pointer aimed at one of those rows, or a press that began before the response,
+could land on the section instead. **Decision:** keep the documented order and
+reserve the room while the suggestion loads. Alternatives and why not:
+
+- Move the suggestion below the rows: breaks the accepted design (#194 D).
+- Scroll compensation: Chrome suspends anchoring at the top of a scroller and
+  WebKit has none, so it would differ per browser, and it moves everything
+  above the rows instead.
+
+**Mechanism.** `suggestionExpected` (`correction-suggestions.tsx`) mirrors the
+server's `suggestionFields` gate (a resolved identity on a Correct, Deviations
+or DOI-conflict verdict, with a Candidate that has a title). While one is
+expected and no operation runs, `SuggestionSlot` renders a hidden stand-in
+(`visibility: hidden`, `aria-hidden`) beside the "Formatting…" line, in the
+same grid cell. It copies the section's structure; the original's text reaches
+its tracked-change paragraph as generated content (`attr()`), so no text node
+exists for assistive technology, `toContainText` or `getByText`, and the stand-in
+has no region name, so waits on the "Correction suggestion" region keep meaning
+"arrived". The slot keeps the stand-in's measured height as `min-height`, so the
+section replaces it without moving anything below. A suggestion that turns out
+longer than the stand-in (the tracked change shows deleted and inserted words)
+still grows the slot; one that never arrives leaves the room until the result
+changes. These are the only residual shifts.
+
+**Tests.** Web: "the action rows keep their place while a late suggestion
+arrives" (1280 and 360 px; nothing applied, and a correction applied to Reference
+1 while Reference 2's suggestion is held). Native: "native action rows keep their
+place while a late suggestion arrives" (en and de). Both measure Edit fields,
+Re-check and Judge manually before and after the response and allow 1 px.
+
+**Audit.** The web presses that follow an Open of a Reference and aim at a row
+below the suggestion are in `manual-overrides.spec.ts` (Confirm verdict, Judge
+manually, Re-check), `revisions.spec.ts` and `revision-save-only.spec.ts` (Edit
+fields, Re-check). Each used to depend on the suggestion having rendered or on
+Playwright's stability check catching the move. With the room reserved the rows
+no longer move, so they are stable by construction and need no wait of their own;
+the native `revisions` test keeps its wait on the section, which still means
+"arrived" because the stand-in carries no region name.
+
 ## Resolved in #220
 
 - A Check could end "Cancelled" before any verdict (#220). Cause: the e2e
@@ -627,14 +670,6 @@ the section below the rows. There are two ways to lose the press:
 
 ## Tracked
 
-- A visible control still moves when the Correction suggestion lands after the
-  pointer has been aimed but before it is down (mechanism 2 of "Edit fields
-  press lost"). Fixing it needs a design decision, either reserving the
-  section's space while it loads or changing the documented order of the
-  detail: #226. The same issue covers an audit of the web suite's presses that
-  follow an Open without waiting for the suggestion; the extension `revisions`
-  test now waits, and the extension suite's other such presses follow a wait or
-  sit at the end of the scroller.
 - Three native side-panel failures that #220 did not reproduce, with what was
   ruled out for each: #227. They are the `revisions` de "Feldrevision 2" failure
   after the Save press, the `manual-overrides` de "No region named Historisches

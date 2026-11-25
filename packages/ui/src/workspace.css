@@ -542,6 +542,39 @@ body {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+/* The suggestion's place: the stand-in (hidden, in the same grid cell as the
+   loading line) is as tall as the section will be, and its text is generated
+   from the original so that no text node exists for assistive technology or
+   text queries. */
+.detail-suggestion {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+.detail-suggestion > * {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+.detail-suggestion-sizer {
+  visibility: hidden;
+  pointer-events: none;
+}
+.detail-suggestion-sizer .detail-tc::before {
+  content: attr(data-text);
+}
+.detail-suggestion-sizer .detail-eyebrow::before,
+.detail-suggestion-sizer .detail-tc-meta::before,
+.detail-suggestion-check::before {
+  content: "\200b";
+}
+.detail-suggestion-check {
+  display: block;
+  font-size: var(--st-text-sm);
+  line-height: 1.5;
+}
+.detail-suggestion-button {
+  display: block;
+  min-height: 34px;
+}
 .detail-note {
   font-size: var(--st-text-sm);
   color: var(--st-text-secondary);

@@ -1119,3 +1119,123 @@ test("on two panes a filter keeps the open detail only while its Reference still
   await expect(detail).toBeHidden();
   await expect(grid.getByRole("row")).toHaveCount(1);
 });
+
+// #226: the Correction suggestion renders above the Re-check and Manual verdict
+// rows. Its request is sent as soon as the Reference opens, so its response can
+// land while a pointer is aimed at one of those rows. The rows must keep their
+// place when it does: the space is reserved while the suggestion loads.
+const actionRows = [
+  { name: "Edit fields" },
+  { name: "Re-check this reference" },
+  { name: "Judge manually" },
+] as const;
+async function rowTops(detail: ReturnType<Page["locator"]>) {
+  const tops: Record<string, number> = {};
+  for (const { name } of actionRows) {
+    const box = await detail
+      .getByRole("button", { name, exact: true })
+      .boundingBox();
+    expect(box, `${name} is on the page`).not.toBeNull();
+    tops[name] = box!.y;
+  }
+  return tops;
+}
+async function settleFrames(page: Page) {
+  await page.evaluate(
+    () =>
+      new Promise((resolve) => {
+        let frames = 0;
+        const tick = () =>
+          ++frames === 20 ? resolve(null) : requestAnimationFrame(tick);
+        requestAnimationFrame(tick);
+      }),
+  );
+}
+for (const width of [1280, 360])
+  for (const applied of [false, true])
+    test(`the action rows keep their place while a late suggestion arrives at ${width}px, ${applied ? "with a correction applied" : "with nothing applied"}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 800 });
+      // Only a response that carries the slot's proven suggestion is held;
+      // the renderings while the Check runs carry none.
+      let held: number | null = applied ? null : 1;
+      let release!: () => void;
+      let arrived!: () => void;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      const entered = new Promise<void>((resolve) => {
+        arrived = resolve;
+      });
+      await page.route("**/bibliography", async (route) => {
+        const response = await route.fetch();
+        const body = (await response.json()) as {
+          data: { entries: { slot: number; suggestion: unknown }[] };
+        };
+        if (
+          held !== null &&
+          body.data.entries.some(
+            (entry) => entry.slot === held && entry.suggestion,
+          )
+        ) {
+          arrived();
+          await gate;
+        }
+        await route.fulfill({ response });
+      });
+      const check = await start(page, `${deviating}\n${correct}`);
+      await expect(check.grid).toContainText("Correct", { timeout: 15000 });
+      await expect(check.grid).toContainText("Exists, with deviations");
+      const open = async (slot: number) => {
+        const back = page.getByRole("button", {
+          name: "Back to references",
+          exact: true,
+        });
+        if (await back.isVisible()) await back.click();
+        await check.grid
+          .getByRole("button", {
+            name: new RegExp(`^Open reference ${slot}:`, "u"),
+          })
+          .click();
+      };
+      if (applied) {
+        await open(1);
+        await expect(
+          check.detail.getByRole("region", {
+            name: "Correction suggestion",
+            exact: true,
+          }),
+        ).toBeVisible();
+        await check.detail
+          .getByRole("checkbox", { name: "Apply for export only", exact: true })
+          .check();
+        held = 2;
+      }
+      await open(applied ? 2 : 1);
+      await entered;
+      await expect(check.detail).toContainText(
+        "Apply to fields becomes available once the suggestion for the current result has loaded.",
+      );
+      await expect(
+        check.detail.getByRole("region", { name: "Correction suggestion" }),
+      ).toHaveCount(0);
+      // The detail slides in; measure once it has stopped.
+      await settleFrames(page);
+      const before = await rowTops(check.detail);
+      release();
+      await expect(
+        check.detail.getByRole("region", {
+          name: "Correction suggestion",
+          exact: true,
+        }),
+      ).toBeVisible();
+      await settleFrames(page);
+      const after = await rowTops(check.detail);
+      for (const { name } of actionRows)
+        expect(
+          Math.abs(after[name]! - before[name]!),
+          `${name} moved when the suggestion arrived`,
+        ).toBeLessThanOrEqual(1);
+      await page.unrouteAll({ behavior: "ignoreErrors" });
+    });

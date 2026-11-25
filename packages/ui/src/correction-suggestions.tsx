@@ -1,5 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import type {
   Check,
   ReferenceSlot,
@@ -361,6 +368,92 @@ export function trackedChanges(before: string, after: string) {
   }
   return parts;
 }
+/**
+ * Whether the server will prove a suggestion for this slot: the same gate as
+ * its `suggestionFields` (a resolved identity on a verdict that has a
+ * Candidate with a title). It only decides whether to reserve room while the
+ * response is on its way; the response stays the authority on what is shown.
+ */
+export function suggestionExpected(reference: ReferenceSlot) {
+  const outcome = reference.outcome;
+  if (
+    outcome.kind !== "verdict" ||
+    outcome.identity.kind === "unresolved" ||
+    !["correct", "exists-with-deviations", "doi-conflict"].includes(
+      outcome.verdict,
+    )
+  )
+    return false;
+  const candidateId = outcome.identity.candidateId;
+  return outcome.candidates.some(
+    (candidate) => candidate.id === candidateId && !!candidate.csl.title,
+  );
+}
+/**
+ * The suggestion's place in the detail. The section renders above the field
+ * editor, Re-check and Manual judgment, so one that arrives late would push
+ * them away from a pointer already aimed at them. While a suggestion is
+ * expected, a hidden stand-in with the section's structure and the original's
+ * text holds its room during loading; the height it measures stays as the
+ * slot's minimum once the section has replaced it, so the rows below keep
+ * their place. The stand-in has no text of its own: the original reaches it
+ * as generated content, which neither assistive technology nor text queries
+ * see.
+ */
+function SuggestionSlot({
+  reserve,
+  loading,
+  originalText,
+  hasMeta,
+  children,
+}: {
+  reserve: boolean;
+  loading: boolean;
+  originalText: string;
+  hasMeta: boolean;
+  children: ReactNode;
+}) {
+  const slot = useRef<HTMLDivElement>(null);
+  const sizer = useRef<HTMLDivElement>(null);
+  const sizing = reserve && loading;
+  useLayoutEffect(() => {
+    const element = slot.current;
+    const stand = sizer.current;
+    if (!element) return;
+    if (!reserve) element.style.minHeight = "";
+    if (!stand) return;
+    const measure = () => {
+      element.style.minHeight = `${Math.ceil(stand.getBoundingClientRect().height)}px`;
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(stand);
+    return () => observer.disconnect();
+  }, [reserve, sizing]);
+  return (
+    <div ref={slot} className="detail-suggestion">
+      {children}
+      {sizing && (
+        <div ref={sizer} className="detail-suggestion-sizer" aria-hidden="true">
+          <div className="detail-section">
+            <div className="detail-section-head">
+              <span className="detail-eyebrow" />
+            </div>
+            <div
+              className="tracked-change detail-tc"
+              data-text={originalText}
+            />
+            {hasMeta && <div className="detail-tc-meta" />}
+            <div className="detail-row">
+              <span className="detail-suggestion-button" />
+            </div>
+            <span className="detail-suggestion-check" />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 export function CorrectionSuggestion({
   slot,
   rendered,
@@ -369,6 +462,7 @@ export function CorrectionSuggestion({
   unavailableReason,
   operationRunning,
   provenance,
+  expected,
 }: {
   slot: number;
   rendered: Rendered;
@@ -379,19 +473,34 @@ export function CorrectionSuggestion({
   /** A save, re-check or verdict change runs, so there is no current result. */
   operationRunning: boolean;
   provenance?: string;
+  /** The server will prove a suggestion for this result (`suggestionExpected`). */
+  expected: boolean;
 }) {
   const [notice, setNotice] = useState<"copied" | "failed" | null>(null);
   const entry = rendered.data?.entries.find((entry) => entry.slot === slot);
-  if (!entry?.suggestion)
-    return (
+  const suggestion = entry?.suggestion;
+  const reserve = expected && !operationRunning;
+  const frame = (loading: boolean, content: ReactNode) => (
+    <SuggestionSlot
+      reserve={reserve}
+      loading={loading}
+      originalText={originalText}
+      hasMeta={!!provenance}
+    >
+      {content}
+    </SuggestionSlot>
+  );
+  if (!suggestion)
+    return frame(
+      !rendered.data,
       <p className="detail-note">
         {rendered.data && !operationRunning
           ? m.correction_none_current()
           : (unavailableReason ?? m.correction_loading())}
-      </p>
+      </p>,
     );
-  const suggestion = entry.suggestion;
-  return (
+  return frame(
+    false,
     <DetailSection
       title={m.correction_heading()}
       label={m.correction_heading()}
@@ -452,6 +561,6 @@ export function CorrectionSuggestion({
             : m.correction_copy_failed()}
         </p>
       )}
-    </DetailSection>
+    </DetailSection>,
   );
 }
