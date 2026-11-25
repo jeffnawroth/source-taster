@@ -196,6 +196,47 @@ test("modal and sheet trap focus, Escape returns it, destructive confirmation st
   }
 });
 
+// #228: react-aria unmounts an exiting modal only after every animation it
+// collected has finished. WebKit once left a dialog in data-exiting after an
+// Escape during the entry transition, i.e. an animation that was cancelled
+// instead of finished. This test makes that deterministic in every engine by
+// cancelling the running animations right after `data-exiting` is set, which is
+// after react-aria has collected them.
+test("a modal or sheet still closes when its animations are cancelled during exit", async ({
+  page,
+}) => {
+  await open(page);
+  await page.evaluate(() => {
+    new MutationObserver((records) => {
+      for (const record of records) {
+        const target = record.target;
+        if (target instanceof Element && target.hasAttribute("data-exiting"))
+          for (const animation of target.getAnimations({ subtree: true }))
+            animation.cancel();
+      }
+    }).observe(document.body, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["data-exiting"],
+    });
+  });
+  for (const name of ["Show details", "Open history sheet"]) {
+    const trigger = page.getByRole("button", { name, exact: true });
+    await trigger.click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    // Escape while the entry transition is still running.
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0, { timeout: 3_000 });
+    await expect(trigger).toBeFocused();
+    // The page is usable again: nothing keeps the rest inert.
+    await expect(page.getByRole("heading", { level: 1 })).not.toHaveAttribute(
+      "aria-hidden",
+      "true",
+    );
+  }
+});
+
 test("a sheet closes and restores focus when reduced motion cancels its exit", async ({
   page,
 }) => {
