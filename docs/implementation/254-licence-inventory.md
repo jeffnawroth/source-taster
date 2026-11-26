@@ -2,6 +2,8 @@
 
 Part of #70. This is the engineering input to the launch licence review that [ADR-0001](../adr/0001-open-core-boundary.md), [ADR-0002](../adr/0002-tech-stack.md) (FA-UEB-23) and [ADR-0020](../adr/0020-website-documentation-help.md) require. It records what is shipped, under which licence, which obligation follows, and where the repository does not yet meet it. It is not legal advice. Every legal conclusion below is marked **pending lawyer confirmation (#257)**.
 
+> **Status 2026-11-26:** #280 moved the controlled website build to Pagefind 1.6.0 (#225, option A in section 6). Its browser WASM uses `hifijson` 0.5.0 (MIT) and contains no `pagefind_microjson`, and the website no longer ships `GPL-3.0.txt`. Row 3, section 6 and question 3 below describe the 1.5.2 state when this note was written. The legal review and the publication gate stay open.
+
 ## How this was made
 
 - Source: `origin/main` at `0536aa6`. The private service repository was read only to see which public packages it consumes (`package.json`, lockfile and imports). Nothing from it is reproduced.
