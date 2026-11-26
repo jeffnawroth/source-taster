@@ -208,7 +208,7 @@ const binaries: {
 }[] = [];
 for (const [path, component] of [
   [
-    "node_modules/.pnpm/@pagefind+darwin-arm64@1.5.2/node_modules/@pagefind/darwin-arm64/bin/pagefind",
+    "node_modules/.pnpm/@pagefind+darwin-arm64@1.6.0/node_modules/@pagefind/darwin-arm64/bin/pagefind",
     "Pagefind native indexer",
   ],
   [

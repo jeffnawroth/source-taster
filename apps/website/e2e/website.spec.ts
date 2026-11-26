@@ -332,8 +332,14 @@ test("readers can download licenses and Corresponding Source bound to the served
     .click();
   await expect(page).toHaveURL(/\/third-party\/pagefind\/en\/$/);
   await expect(
-    page.getByRole("link", { name: "GNU GPL version 3", exact: true }),
+    page.getByRole("link", {
+      name: "Copyright and third-party notices",
+      exact: true,
+    }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "GNU GPL version 3" }),
+  ).toHaveCount(0);
   const source = await request.get(
     "/third-party/pagefind/corresponding-source.tar.gz",
   );
@@ -343,12 +349,12 @@ test("readers can download licenses and Corresponding Source bound to the served
   expect(response.status()).toBe(200);
   const manifest = (await response.json()) as {
     version: string;
-    licenses: { microjson: string };
+    licenses: Record<string, string>;
     source: { sha256: string };
     objects: Record<string, string>;
   };
-  expect(manifest.version).toBe("1.5.2");
-  expect(manifest.licenses.microjson).toBe("GPL-3.0-only");
+  expect(manifest.version).toBe("1.6.0");
+  expect(manifest.licenses).toEqual({ pagefind: "MIT", gzJs: "MIT" });
   expect(manifest.source.sha256).toBe(
     createHash("sha256")
       .update(await source.body())
@@ -367,10 +373,7 @@ test("readers can download licenses and Corresponding Source bound to the served
         .digest("hex"),
     );
   }
-  for (const path of [
-    "/third-party/pagefind/GPL-3.0.txt",
-    "/third-party/pagefind/NOTICE.txt",
-  ]) {
+  for (const path of ["/third-party/pagefind/NOTICE.txt"]) {
     const text = await request.get(path);
     expect(text.status()).toBe(200);
     expect((await text.text()).length).toBeGreaterThan(100);
