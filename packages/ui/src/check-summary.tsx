@@ -70,8 +70,10 @@ export interface StripAction {
 export function MoreActions({
   actions,
   anchor,
+  onOpenChange,
 }: {
   actions: StripAction[];
+  onOpenChange?: (open: boolean) => void;
   /** D opens the Menu under the whole strip, not under its trigger. */
   anchor?: RefObject<HTMLElement | null>;
 }) {
@@ -98,6 +100,7 @@ export function MoreActions({
         // Popover on any scroll of the trigger's scroll parent.
         if (!next && globalThis.event?.type === "scroll") return;
         setOpen(next);
+        onOpenChange?.(next);
       }}
     >
       <IconButton size="sm" variant="secondary" label={m.shell_more_actions()}>

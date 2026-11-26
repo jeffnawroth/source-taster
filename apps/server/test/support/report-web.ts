@@ -12,6 +12,7 @@ import { listenForEvents } from "../../src/checks/events.ts";
 import { createPrisma } from "../../src/db/prisma.ts";
 import { loadConfig } from "../../src/config.ts";
 import { createApp } from "../../src/http/app.ts";
+import { mountMaintenanceNotice } from "../../src/http/maintenance.ts";
 import {
   reportFeature,
   standaloneEntitlements,
@@ -60,6 +61,8 @@ const app = createApp({
     },
   },
 });
+// The maintenance banner polls this route; production defines it the same way.
+mountMaintenanceNotice(app);
 const server = serve({
   fetch: app.fetch,
   hostname: "127.0.0.1",
