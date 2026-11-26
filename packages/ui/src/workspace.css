@@ -644,10 +644,13 @@ body {
   line-height: 1.5;
   color: var(--st-text);
 }
-/* Entered text keeps the field open: growing only on focus-within would move
-   Check under the pointer when a press focuses it, and the click is lost. */
+/* Entered text keeps the field open: growing only on focus would move Check
+   under the pointer when a press focuses it, and the click is lost. Focus
+   opens it through data-open, which waits for a pointer that is already down
+   and then stays (use-open-on-focus.ts), so focus that lands mid-press, or
+   leaves with one, cannot move a control below the field. */
 .intake-command:is(
-    :focus-within,
+    [data-open],
     :has(.intake-textarea:not(:placeholder-shown))
   )
   .intake-textarea {

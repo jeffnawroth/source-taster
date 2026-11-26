@@ -79,6 +79,7 @@ import { ThemeToggle } from "./theme-toggle.tsx";
 import { CheckingTopBar, type PaletteCommand } from "./checking-top-bar.tsx";
 import { CountedPreview } from "./counted-preview.tsx";
 import { recognizedCount } from "./recognized-count.ts";
+import { useOpenOnFocus } from "./use-open-on-focus.ts";
 import {
   citationStyles,
   isCitationStyle,
@@ -313,6 +314,7 @@ export function CheckWorkspace({
   const controller = useRef<AbortController | null>(null);
   const generation = useRef(0);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const intakeFocus = useOpenOnFocus();
   const intakeHeading = useRef<HTMLHeadingElement>(null);
   const [pending, setPending] = useState<
     "create" | "structure" | "document" | null
@@ -1684,7 +1686,11 @@ export function CheckWorkspace({
             </h2>
             <p className="intake-lead">{m.shell_intake_lead()}</p>
           </div>
-          <div className="intake-command st-glass">
+          <div
+            className="intake-command st-glass"
+            data-open={intakeFocus.open || undefined}
+            onFocus={intakeFocus.onFocus}
+          >
             {sourceDocument || intakeSource === "file" ? (
               <div className="intake-file-card">
                 <FileText aria-hidden="true" size={20} />
@@ -1727,7 +1733,10 @@ export function CheckWorkspace({
                 />
                 <Label className="sr-only">{m.input_label()}</Label>
                 <TextArea
-                  ref={inputRef}
+                  ref={(field) => {
+                    inputRef.current = field;
+                    intakeFocus.claim(field);
+                  }}
                   placeholder={m.shell_intake_placeholder()}
                   className="intake-textarea"
                   autoFocus
