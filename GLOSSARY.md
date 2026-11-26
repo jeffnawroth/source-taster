@@ -174,6 +174,9 @@ _Avoid_: Benchmark (as a competing domain name)
 A collection built like the reference test set on which the operator calibrates the verdict thresholds.
 _Avoid_: Training set, test set
 
+**Ground-truth review**:
+The check of a record's accepted identifiers, expected fields and existence or non-existence against the canonical entry before it enters a set, by a human or by an agent under an auditable method.
+
 **Falsified reference**:
 A reference to a real work with deliberately changed components, such as a wrong DOI or a swapped title.
 _Avoid_: Hallucination (which also covers entirely invented works)

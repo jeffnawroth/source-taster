@@ -27,6 +27,8 @@ export function CountedPreview({
   notices,
   footer,
   onReset,
+  onMenuOpenChange,
+  onResetOpenChange,
 }: {
   result: AiStructuringResult | ImportResult;
   source: IntakeSource;
@@ -36,6 +38,8 @@ export function CountedPreview({
   notices?: ReactNode;
   footer?: ReactNode;
   onReset: () => void;
+  onMenuOpenChange: (open: boolean) => void;
+  onResetOpenChange: (open: boolean) => void;
 }) {
   const sticky = useStickySize("--checking-strip-height");
   const anchor = useRef<HTMLDivElement>(null);
@@ -95,12 +99,16 @@ export function CountedPreview({
                   )}
                   <MoreActions
                     anchor={anchor}
+                    onOpenChange={onMenuOpenChange}
                     actions={[
                       {
                         id: "reset",
                         label: m.check_reset(),
                         icon: <RotateCcw aria-hidden="true" size={16} />,
-                        onAction: () => setConfirmReset(true),
+                        onAction: () => {
+                          setConfirmReset(true);
+                          onResetOpenChange(true);
+                        },
                       },
                     ]}
                   />
@@ -192,7 +200,13 @@ export function CountedPreview({
           </div>
         </div>
       </div>
-      <Modal isOpen={confirmReset} onOpenChange={setConfirmReset}>
+      <Modal
+        isOpen={confirmReset}
+        onOpenChange={(open) => {
+          setConfirmReset(open);
+          onResetOpenChange(open);
+        }}
+      >
         <AlertDialog
           title={m.check_reset()}
           cancelLabel={m.shell_keep()}
