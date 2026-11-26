@@ -1,0 +1,24 @@
+{
+  "language": "en",
+  "id": "terms",
+  "version": "draft-2026-11-20.1",
+  "status": "draft",
+  "approval": null,
+  "title": "Terms",
+  "summary": "Structured draft of the terms. It is not a contract offer. Seller, prices and clauses in brackets await legal review.",
+  "paragraphs": [
+    "This is a legal-content draft, version draft-2026-11-20.1. No legally approved terms or seller details exist. This preview offers no paid service and cannot conclude an Order. Bracketed values are placeholders.",
+    "1. Contracting party and scope. The contracting party is [seller, see the legal notice], and the contract is concluded with it. These terms apply to the Free use of the web app and API, to Pro and to Check packs. [Business customers, if offered, and any deviation for them: reviewer to decide.]",
+    "2. Service. Source Taster checks References against public data sources and reports a Verdict with a Score and the evidence found. A Verdict is an automated assessment and is not a guarantee of correctness. The user remains responsible for every conclusion drawn from it.",
+    "3. Guest and Account. A Guest can use the service within the Free Quota. An Account is created with an e-mail address and a one-time code. The user must keep access to that mailbox.",
+    "4. Plans, Quota and prices. Pro is a recurring subscription for [period, price including VAT]. A Check pack is a one-time purchase of [number of Check References, price including VAT], valid for [30 days] from activation. Quota is allocated and consumed as shown in the Account. Prices are gross prices. [Taxes and the invoicing currency to be confirmed.]",
+    "5. Order and conclusion of the contract. The contract is concluded on the service’s own order page by the button “zahlungspflichtig bestellen” after the user has accepted these terms and, separately, the withdrawal consent below. The hosted payment step only collects the payment means. An Order whose payment fails or is abandoned expires and grants nothing.",
+    "6. Withdrawal and early start. A consumer has a statutory right of withdrawal, described in the withdrawal instructions. The service starts immediately only if the consumer separately consents and acknowledges the effect on the withdrawal right. Without that consent, Pro is charged and the Check pack starts when the withdrawal period ends or earlier on later consent. [Wording of the consent and of the loss of the right: legal reviewer.]",
+    "7. Cancellation. Pro can be cancelled at any time through the public route “Verträge hier kündigen”, without a login, with an immediate text-form receipt that states the time of receipt and the contract end. The contract ends at the end of the paid period. Remaining paid terms and Check packs lapse when an Account is deleted, with no pro-rata refund. [Legal review of this lapse is pending.]",
+    "8. Changes. Changed quotas and scope apply from the next period and to new purchases. Running periods and bought Check packs keep their values. [Reviewer to check against the rules on unilateral changes.]",
+    "9. Acceptable use. The service may limit requests that abuse it or exceed the rate limits. No attempt may be made to disturb or bypass the service.",
+    "10. Liability and warranty. [Clauses to be drafted by the legal reviewer. None is invented here.]",
+    "11. Applicable law, language and disputes. [Governing law, place of jurisdiction for business customers, contract language and the dispute-resolution statement, see the legal notice: to be supplied.]",
+    "12. Versions. An Order is bound to the immutable version of these terms, the consent text and the catalog entry accepted at the time. Replacing a website page does not rewrite an earlier Order."
+  ]
+}

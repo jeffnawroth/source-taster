@@ -1,0 +1,19 @@
+{
+  "language": "en",
+  "id": "withdrawal",
+  "version": "draft-2026-11-20.1",
+  "status": "draft",
+  "approval": null,
+  "title": "Withdrawal instructions",
+  "summary": "Consumer withdrawal instructions and model form following the statutory model structure. Awaiting specialist legal approval.",
+  "paragraphs": [
+    "This is a legal-content draft, version draft-2026-11-20.1. It is not a legally approved withdrawal notice. No consumer purchase can be made through this preview. Bracketed values are placeholders.",
+    "Right of withdrawal. You have the right to withdraw from this contract within fourteen days without giving any reason. The withdrawal period is fourteen days from the day of the conclusion of the contract. [Wording per the statutory model, to be adopted by the legal reviewer.]",
+    "How to exercise it. To exercise your right of withdrawal you must inform [seller name, address, e-mail address] of your decision by a clear statement, for example by e-mail. You may use the model withdrawal form below, but you do not have to. It is enough to send the notice before the withdrawal period has expired.",
+    "Withdrawal function. [Pending decision (candidate C05): a “Vertrag widerrufen” function with a confirmation step and a receipt on a durable medium that states the content, date and time of the withdrawal, which § 356a BGB requires for contracts concluded online since 19 June 2026. This page does not say that the function exists, because it does not exist yet.]",
+    "Consequences of withdrawal. If you withdraw, we will refund all payments received from you without undue delay and at the latest within fourteen days of receiving your notice, using the payment means you used for the original transaction. For Pro, nothing is charged if you withdraw before activation. For a Check pack, the amount charged at ordering is refunded in full if you withdraw before activation.",
+    "Immediate start. If you have asked for the service to start during the withdrawal period, you must pay a reasonable amount for what has been provided up to the notice of withdrawal. [Wording and the loss of the right of withdrawal after full performance with your consent and acknowledgment: to be approved by the legal reviewer. No waiver or consent is collected here.]",
+    "Model withdrawal form. To [seller name, address, e-mail address]: I hereby withdraw from the contract concluded by me for the provision of the following service: [Pro or Check pack]. Ordered on [date]. Name of the consumer: [name]. Address of the consumer: [address]. Date: [date]. Signature, only for notification on paper: [signature].",
+    "The mandatory cancellation function and, if adopted, the withdrawal function belong to the private purchase service and are not implemented by this static page. This draft does not replace them or promise their availability."
+  ]
+}
