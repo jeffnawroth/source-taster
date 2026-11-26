@@ -132,6 +132,11 @@ for (const language of ["en", "de"] as const) {
       page.getByRole("button", { name: t.enable, exact: true }),
     ).toBeVisible();
     await page.getByRole("button", { name: t.enable, exact: true }).click();
+    // Revoke appears once the service has stored the opt-in. A Check created
+    // before that is not kept in History.
+    await expect(
+      page.getByRole("button", { name: t.revoke, exact: true }),
+    ).toBeVisible();
     const created = await fetch(`${api.apiUrl}/v2/checks`, {
       method: "POST",
       headers: {

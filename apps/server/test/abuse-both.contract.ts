@@ -25,8 +25,8 @@ test("actual verification and private entrances share one origin budget and reta
         shared: budgets,
       },
       origin: {
-        ipv4Prefix: 24,
-        ipv6Prefix: 56,
+        ipv4Prefix: 32,
+        ipv6Prefix: 64,
         keys: [
           {
             id: "both",

@@ -391,9 +391,9 @@ test("unavailable Account writes remain separate from Guest storage; retry reads
   await choosePreferencesOnWeb(page, { language: "en" });
   const preferenceAlert = page
     .getByRole("alert")
-    .filter({ hasText: /Account Preferences|Kontoeinstellungen/ });
+    .filter({ hasText: /Account preferences|Kontoeinstellungen/ });
   await expect(preferenceAlert).toContainText(
-    "Account Preferences could not be synchronised.",
+    "Account preferences could not be synchronised.",
   );
   expect(
     await page.evaluate((key) => localStorage.getItem(key), guestKey),

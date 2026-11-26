@@ -100,7 +100,9 @@ for (const language of ["en", "de"] as const) {
               ).data.entries.length,
           )
           .toBe(1);
-        await panel.click("button", t.refresh);
+        // Reopening History loads the current list; Refresh is an error retry.
+        await panel.click("button", language === "en" ? "Close" : "Schließen");
+        await panel.click("button", language === "en" ? "History" : "Verlauf");
         await panel.click("button", t.open);
         await panel.waitForText("main", undefined, "Native History sentinel");
         expect(
