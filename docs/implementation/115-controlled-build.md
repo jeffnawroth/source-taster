@@ -91,7 +91,7 @@ expressions are in the qualification JSON. No unapproved selected prerelease
 was observed; the two compiler prereleases remain the exact approved versions.
 
 Bootstrap tools are a separate, explicit evidence boundary. Rust 1.99.1,
-wasm-bindgen 0.2.117 and CMake 4.4.4 are publisher tools pinned by archive digest
+wasm-bindgen 0.2.129 and CMake 4.4.4 are publisher tools pinned by archive digest
 and target. Host compiler/SDK identity is recorded. This is not an independent
 source rebuild or complete transitive binary SBOM of those bootstrap tools or
 the OS SDK. Cargo package advisories do not establish that broader clearance.

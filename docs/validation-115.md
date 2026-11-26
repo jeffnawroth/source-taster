@@ -47,7 +47,7 @@ The pnpm lockfile graph has no OSV findings. All 73 findings come from the upstr
 - **Pagefind bundled JS build lock (`pagefind-js`):** `tar`, `brace-expansion`, `js-yaml`, `esbuild`.
 - **Astro compiler (`@astrojs/compiler-rs` 0.5.2):** `anyhow`, `tokio`. **satteri** 0.10.5: unmaintained `bincode`.
 - **Prereleases outside the get-tsconfig decision:** `lightningcss 1.0.0-alpha.72` and `lightningcss-derive 1.0.0-alpha.43` in the Astro compiler's Cargo lock.
-- **License:** `pagefind_microjson 0.1.4` (GPL-3.0-only per crates.io) is a direct dependency of `pagefind_web`, i.e. the WASM served to browsers. Compatibility with this project's AGPL-3.0-or-later and notice obligations need review.
+- **License:** `pagefind_microjson 0.1.4` (GPL-3.0-only per crates.io) is a direct dependency of `pagefind_web`, i.e. the WASM served to browsers. Compatibility with this project's AGPL-3.0-or-later and notice obligations need review. **Update 2026-11-20 (#225):** Pagefind 1.6.0 replaced `pagefind_microjson` with permissive `hifijson`; the current WASM closure has no GPL component, see [225-pagefind-1-6.md](implementation/225-pagefind-1-6.md).
 
 `get-tsconfig@5.0.0-beta.6` is MIT and builds/works as recorded in the decision; the overall website dependency graph is **not** cleared. `reviews.dependencies` stays `null`, so the gate stays closed.
 
