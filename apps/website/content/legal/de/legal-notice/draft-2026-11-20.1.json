@@ -1,0 +1,18 @@
+{
+  "language": "de",
+  "id": "legal-notice",
+  "version": "draft-2026-11-20.1",
+  "status": "draft",
+  "approval": null,
+  "title": "Impressum",
+  "summary": "Struktur der Anbieterkennzeichnung nach § 5 DDG. Alle Werte in Klammern sind Platzhalter und warten auf den Betreiber und die rechtliche Prüfung.",
+  "paragraphs": [
+    "Dies ist ein rechtlicher Inhaltsentwurf, Version draft-2026-11-20.1. Er ist kein freigegebenes Impressum, und kein Wert in Klammern ist eine Tatsache. Es wurden keine Anbieteridentität, Anschrift und Registernummer erfunden.",
+    "Anbieter (§ 5 Abs. 1 Nr. 1 DDG): [Name oder Firma], [Rechtsform], [Straße, Postleitzahl, Ort, Land]. Bei juristischen Personen zusätzlich: [Vertretungsberechtigte] sowie, wenn das Kapital angegeben wird, das Stamm- oder Grundkapital mit ausstehenden Einlagen.",
+    "Kontakt (§ 5 Abs. 1 Nr. 2 DDG): [überwachte Support-E-Mail-Adresse]. Die E-Mail-Adresse ist der schnelle elektronische Kontakt. Ob ein zweiter Weg zur unmittelbaren Kommunikation nötig ist, klärt die rechtliche Prüfung.",
+    "Register und Steuerkennzeichen (§ 5 Abs. 1 Nr. 4 und 6 DDG): [Handelsregister, Registergericht und Nummer, falls eingetragen] und [Umsatzsteuer-Identifikationsnummer, falls vorhanden]. Aufsichtsbehörde (Nr. 3) und reglementierter Beruf (Nr. 5): voraussichtlich keine, die Prüfung bestätigt das.",
+    "Verbraucherstreitbeilegung (§ 36 VSBG): [Erklärung, ob der Anbieter bereit oder verpflichtet ist, an Verfahren vor einer Verbraucherschlichtungsstelle teilzunehmen, und gegebenenfalls welche Stelle mit Anschrift und Website]. Die EU-Plattform zur Online-Streitbeilegung wurde am 20. Juli 2025 nach der Verordnung (EU) 2024/3228 eingestellt. Dieses Impressum enthält deshalb bewusst keinen Link darauf.",
+    "Geltungsbereich: Das Impressum ist für die Informationsseite, die Web-App, die Browser-Erweiterung, die API und die Kaufseiten gedacht. Ob ein Impressum für alle genügt, klärt die rechtliche Prüfung.",
+    "Die echte Domain und die überwachte Support-Adresse fehlen noch. Solange sie nicht eingetragen sind und keine rechtliche Prüfung diesen Text freigegeben hat, darf er nicht als Impressum eines Live-Dienstes dienen."
+  ]
+}

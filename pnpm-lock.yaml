@@ -167,7 +167,7 @@ overrides:
   effect: 3.22.4
 
 patchedDependencies:
-  react-aria@3.53.1: 82c03283eeaee7df24545412236a4a6f79239488bcb931aaca9de0311f86f070
+  react-aria@3.53.1: fbc51ebeaaea0ab03d7dc42acefeddf5a1d8d19f2724c8059e8b9b25ab310e82
 
 importers:
 
@@ -6498,12 +6498,12 @@ snapshots:
       '@swc/helpers': 0.5.23
       client-only: 0.0.1
       react: 19.3.1
-      react-aria: 3.53.1(patch_hash=82c03283eeaee7df24545412236a4a6f79239488bcb931aaca9de0311f86f070)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      react-aria: 3.53.1(patch_hash=fbc51ebeaaea0ab03d7dc42acefeddf5a1d8d19f2724c8059e8b9b25ab310e82)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       react-dom: 19.3.1(react@19.3.1)
       react-stately: 3.51.0(react@19.3.1)
       use-sync-external-store: 1.7.0(react@19.3.1)
 
-  react-aria@3.53.1(patch_hash=82c03283eeaee7df24545412236a4a6f79239488bcb931aaca9de0311f86f070)(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
+  react-aria@3.53.1(patch_hash=fbc51ebeaaea0ab03d7dc42acefeddf5a1d8d19f2724c8059e8b9b25ab310e82)(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
     dependencies:
       '@internationalized/date': 3.12.4
       '@internationalized/number': 3.6.9

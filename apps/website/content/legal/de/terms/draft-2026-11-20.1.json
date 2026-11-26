@@ -1,0 +1,24 @@
+{
+  "language": "de",
+  "id": "terms",
+  "version": "draft-2026-11-20.1",
+  "status": "draft",
+  "approval": null,
+  "title": "Allgemeine Geschäftsbedingungen",
+  "summary": "Strukturierter Entwurf der Bedingungen. Er ist kein Vertragsangebot. Verkäufer, Preise und Klauseln in Klammern warten auf die rechtliche Prüfung.",
+  "paragraphs": [
+    "Dies ist ein rechtlicher Inhaltsentwurf, Version draft-2026-11-20.1. Es gibt weder rechtlich freigegebene Bedingungen noch Verkäuferangaben. Diese Vorschau bietet keinen bezahlten Dienst an und kann keine Bestellung abschließen. Werte in Klammern sind Platzhalter.",
+    "1. Vertragspartner und Geltungsbereich. Der Vertrag kommt mit [Verkäufer, siehe Impressum] zustande. Diese Bedingungen gelten für die Free-Nutzung der Web-App und API, für Pro und für Check-Pakete. [Geschäftskunden, falls angeboten, und Abweichungen für sie: durch die Prüfung zu entscheiden.]",
+    "2. Dienst. Source Taster prüft Referenzen gegen öffentliche Datenquellen und meldet einen Befund mit einem Score und den gefundenen Belegen. Ein Befund ist eine automatische Einschätzung und keine Garantie für Richtigkeit. Für jede daraus gezogene Folgerung bleiben die Nutzenden verantwortlich.",
+    "3. Gast und Konto. Gäste können den Dienst im Rahmen des Free-Kontingents nutzen. Ein Konto wird mit einer E-Mail-Adresse und einem Einmalcode angelegt. Die Nutzenden müssen den Zugang zu diesem Postfach behalten.",
+    "4. Pläne, Kontingent und Preise. Pro ist ein wiederkehrendes Abonnement für [Zeitraum, Preis inklusive Umsatzsteuer]. Ein Check-Paket ist ein einmaliger Kauf von [Anzahl Check-Referenzen, Preis inklusive Umsatzsteuer], gültig [30 Tage] ab Aktivierung. Das Kontingent wird so zugeteilt und verbraucht, wie es im Konto angezeigt wird. Preise sind Bruttopreise. [Steuern und Rechnungswährung zu bestätigen.]",
+    "5. Bestellung und Vertragsschluss. Der Vertrag kommt auf der eigenen Bestellseite des Dienstes durch die Schaltfläche „zahlungspflichtig bestellen“ zustande, nachdem die Nutzenden diese Bedingungen und gesondert die Widerrufseinwilligung unten akzeptiert haben. Der gehostete Zahlungsschritt erfasst nur das Zahlungsmittel. Eine Bestellung, deren Zahlung scheitert oder abgebrochen wird, verfällt und gewährt nichts.",
+    "6. Widerruf und vorzeitiger Beginn. Verbraucher haben ein gesetzliches Widerrufsrecht, das in der Widerrufsbelehrung beschrieben ist. Der Dienst beginnt sofort nur, wenn Verbraucher gesondert einwilligen und die Folge für das Widerrufsrecht bestätigen. Ohne diese Einwilligung wird Pro belastet und das Check-Paket startet, wenn die Widerrufsfrist endet oder früher bei späterer Einwilligung. [Wortlaut der Einwilligung und des Verlusts des Rechts: rechtliche Prüfung.]",
+    "7. Kündigung. Pro kann jederzeit über den öffentlichen Weg „Verträge hier kündigen“ gekündigt werden, ohne Anmeldung und mit einer sofortigen Bestätigung in Textform, die den Zeitpunkt des Eingangs und das Vertragsende nennt. Der Vertrag endet mit dem Ende des bezahlten Zeitraums. Restliche bezahlte Laufzeiten und Check-Pakete verfallen bei Löschung des Kontos ohne anteilige Erstattung. [Rechtliche Prüfung dieses Verfalls steht aus.]",
+    "8. Änderungen. Geänderte Kontingente und Leistungsumfänge gelten ab der nächsten Periode und für neue Käufe. Laufende Perioden und gekaufte Check-Pakete behalten ihre Werte. [Prüfung gegen die Regeln zu einseitigen Änderungen.]",
+    "9. Zulässige Nutzung. Der Dienst darf Anfragen begrenzen, die ihn missbrauchen oder die Ratenbegrenzung überschreiten. Der Dienst darf weder gestört noch umgangen werden.",
+    "10. Haftung und Gewährleistung. [Klauseln durch die rechtliche Prüfung zu entwerfen. Hier ist keine erfunden.]",
+    "11. Anwendbares Recht, Sprache und Streitigkeiten. [Recht, Gerichtsstand für Geschäftskunden, Vertragssprache und Streitbeilegungserklärung, siehe Impressum: nachzutragen.]",
+    "12. Versionen. Eine Bestellung ist an die unveränderliche Fassung dieser Bedingungen, des Einwilligungstexts und des Katalogeintrags gebunden, die zum Zeitpunkt akzeptiert wurden. Das Ersetzen einer Website-Seite ändert eine frühere Bestellung nicht."
+  ]
+}
