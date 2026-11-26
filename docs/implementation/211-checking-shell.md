@@ -177,3 +177,17 @@ run missing those required environment values failed at fixture setup and is
 not passing evidence. Changed-file lint/format, extension typecheck and source
 whitespace checks pass. These targeted native regressions do not complete the
 broader OS/browser/assistive release matrix or human acceptance.
+
+## Counted-stage handover (#246)
+
+The Counted preview stays mounted while its More actions Menu, Reset
+confirmation, or How the check works Dialog is open. Receiving the created
+Check still starts its event stream and lease renewal immediately; only the
+visible handover waits. Dismissing the overlay reveals the current summary and
+returns focus to its More actions trigger, since the original trigger belongs
+to the removed stage. Confirming Reset instead clears the Check normally.
+No colours, spacing, order, or transition tokens change.
+
+`apps/web/e2e/counted-overlay.spec.ts` gates the Check response until each
+interaction is open. Before the fix all three overlays disappeared after the
+response. The regression also pins focus after dismissal.
