@@ -5,6 +5,9 @@ name: st-verification-dev
 services:
   postgres:
     image: postgres:18
+    # Parallel test services share this database: one holds up to about 60
+    # connections (Prisma 10, Owner guard 25, abuse limiter 4, worker ~20).
+    command: ["postgres", "-c", "max_connections=300"]
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres

@@ -3,6 +3,7 @@ import type {
   Verdict,
   ReferenceOutcome,
 } from "@source-taster/contract-verification/v2";
+import { createContext, useContext } from "react";
 import { CircleDashed, CircleOff, TriangleAlert } from "lucide-react";
 import { m } from "@source-taster/i18n";
 export const verdictLabels = {
@@ -30,6 +31,20 @@ export const statusLabels = {
   "not-checked": "status_not_checked",
 } as const;
 export type Status = Extract<ReferenceOutcome, { kind: "status" }>["status"];
+/**
+ * True while the workspace no longer follows the Check (its lease or stream
+ * gave up). A slot the service still lists as running is then of unknown
+ * progress; saying "Running" would be stale (#224).
+ */
+export const ConnectionLostContext = createContext(false);
+/** The label of a status, with a running slot reported as lost when it is. */
+export function useStatusLabel() {
+  const lost = useContext(ConnectionLostContext);
+  return (status: Status) =>
+    lost && status === "running"
+      ? m.status_connection_lost()
+      : m[statusLabels[status]]();
+}
 /** Original #194 D silhouettes and path recipes; only the mark carries Verdict colour. */
 export function VerdictGlyph({ verdict }: { verdict: Verdict }) {
   const marks = {
