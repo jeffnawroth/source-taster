@@ -27,8 +27,8 @@ const rolldown = (await import(
 if (rolldown.VERSION !== "1.2.15") throw new Error("Rolldown 1.2.15 required");
 const modules: Record<string, string[]> = {};
 for (const [entry, format, name] of [
-  ["public_search_api", "esm", "pagefind_public_search_api.1.5.2.js"],
-  ["pagefind_worker", "iife", "pagefind_worker.1.5.2.js"],
+  ["public_search_api", "esm", "pagefind_public_search_api.1.6.0.js"],
+  ["pagefind_worker", "iife", "pagefind_worker.1.6.0.js"],
 ] as const) {
   const result = await rolldown.build({
     input: resolve(source, `pagefind_web_js/lib/${entry}.ts`),
