@@ -43,3 +43,25 @@ test("the intake field changes size only after a press has ended, from where foc
   // The press is over and focus is outside the field.
   expect(states.after).toBeNull();
 });
+
+test("the intake field stays open when the window loses focus with the field still active", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const command = page.locator(".intake-command");
+  await expect(command.locator("textarea")).toBeFocused();
+  await expect(command).toHaveAttribute("data-open", "true");
+
+  // Another tab or window taking focus blurs the field without moving the
+  // document's active element. Closing the field then would move the controls
+  // below it, and the press that brings focus back would land on a moved target.
+  const open = await page.evaluate(async () => {
+    const command = document.querySelector(".intake-command")!;
+    const field = command.querySelector("textarea")!;
+    field.dispatchEvent(new FocusEvent("blur"));
+    field.dispatchEvent(new FocusEvent("focusout", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    return command.getAttribute("data-open");
+  });
+  expect(open).toBe("true");
+});
