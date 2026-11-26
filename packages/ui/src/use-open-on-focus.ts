@@ -13,28 +13,44 @@ import { afterPress } from "./after-press.ts";
  * move the controls below it away from the pointer, and the press would land on
  * whatever moved underneath.
  *
- * The field therefore opens as soon as it is the document's active element,
- * whether or not the document itself is active (`claim`, from the field's ref),
- * and opens on focus otherwise. Focus that arrives while a pointer is down
- * waits for its release. Once open, the field stays open: closing on blur would
- * move the controls below it under the pointer that is pressing one of them,
- * because that press is what takes focus away from the field.
+ * Three rules keep the field from moving under a pointer:
+ *
+ * - It opens as soon as it is the document's active element, whether or not
+ *   the document itself is active (`claim`, from the field's ref).
+ * - A change after that (the field gains or loses focus) waits for a pointer
+ *   that is down, and is decided once the press has ended, from where focus is
+ *   then. Pressing a control below the field takes focus away from it, and
+ *   closing at that moment would move the control away from the press.
+ * - Focus that leaves the window while the field is still the active element
+ *   does not close it: the field closes when focus lands somewhere else in
+ *   the document, not when the window loses the pointer or the keyboard.
  */
 export function useOpenOnFocus() {
   const [open, setOpen] = useState(false);
+  const wrapper = useRef<HTMLElement | null>(null);
   const cancel = useRef<() => void>(() => {});
   useEffect(() => () => cancel.current(), []);
+  const holdsFocus = () => {
+    const element = wrapper.current;
+    return !!element && element.contains(element.ownerDocument.activeElement);
+  };
+  // The active element is only settled once the focus change that fired the
+  // event has finished, so read it on the next task.
+  const settle = () => {
+    cancel.current();
+    cancel.current = afterPress(() => {
+      const timer = setTimeout(() => setOpen(holdsFocus()), 0);
+      cancel.current = () => clearTimeout(timer);
+    });
+  };
   return {
     open,
-    /** Ref callback of the field: opens it if it already holds the focus. */
-    claim: (field: HTMLElement | null) => {
-      if (field && !open && field.ownerDocument.activeElement === field)
-        setOpen(true);
+    /** Ref callback of the wrapper: opens it if the field already holds focus. */
+    claim: (element: HTMLElement | null) => {
+      wrapper.current = element;
+      if (element && !open && holdsFocus()) setOpen(true);
     },
-    onFocus: () => {
-      if (open) return;
-      cancel.current();
-      cancel.current = afterPress(() => setOpen(true));
-    },
+    onFocus: settle,
+    onBlur: settle,
   };
 }

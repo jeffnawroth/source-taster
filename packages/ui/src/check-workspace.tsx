@@ -1687,9 +1687,11 @@ export function CheckWorkspace({
             <p className="intake-lead">{m.shell_intake_lead()}</p>
           </div>
           <div
+            ref={intakeFocus.claim}
             className="intake-command st-glass"
             data-open={intakeFocus.open || undefined}
             onFocus={intakeFocus.onFocus}
+            onBlur={intakeFocus.onBlur}
           >
             {sourceDocument || intakeSource === "file" ? (
               <div className="intake-file-card">
@@ -1733,10 +1735,7 @@ export function CheckWorkspace({
                 />
                 <Label className="sr-only">{m.input_label()}</Label>
                 <TextArea
-                  ref={(field) => {
-                    inputRef.current = field;
-                    intakeFocus.claim(field);
-                  }}
+                  ref={inputRef}
                   placeholder={m.shell_intake_placeholder()}
                   className="intake-textarea"
                   autoFocus
