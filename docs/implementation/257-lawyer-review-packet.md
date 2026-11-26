@@ -91,7 +91,7 @@ Liability and warranty clauses, the clause on changing quotas and scope (ADR-000
 
 1. Does a server that combines AGPL-3.0-or-later citeproc-js with first-party code require an AGPL §13 offer to every remote user even though the owner holds the copyright in the first-party code? Is a link to the source of the running build, shown in the web app, the extension and the website, a sufficient "prominent offer" (#270)?
 2. For the extension, which §6 route do the project and the browser stores allow? Is §6(d) together with the store listing text sufficient?
-3. Is the Pagefind source package a sufficient GPL-3.0 §6 offer for the WASM while Pagefind 1.5.2 is shipped? Is the `GPL-3.0-only` manifest versus "or later" header mismatch relevant (#225)?
+3. Resolved by #280 (2026-11-26), no longer a question. The website now ships Pagefind 1.6.0, whose browser WASM uses `hifijson` 0.5.0 (MIT) instead of the GPL-3.0 `pagefind_microjson`, so no GPL-3.0 §6 offer for the WASM is needed. The original question was whether the Pagefind source package was a sufficient GPL-3.0 §6 offer while Pagefind 1.5.2 was shipped, and whether the manifest-versus-header mismatch mattered (#225).
 4. Is it correct that the private service, which depends only on the dual-licensed contract packages under MIT, is not a work based on the AGPL program?
 5. Does the missing CLA make the MIT branch of the contract and token packages unsafe to rely on until #207 is resolved?
 
