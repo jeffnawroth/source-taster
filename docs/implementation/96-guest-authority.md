@@ -121,11 +121,11 @@ Every JSON envelope now goes through one function, `deliver()` in
 2. Inside it the data is built and serialized. Nothing has been committed to the
    response yet, so a failed decision, a lock timeout or a failing build is the
    response: `503 authority-unavailable` (or the build's own problem).
-3. Only then are status and headers committed and the body written. The guard
-   stays held until that write has drained or the client went away, so a
-   revocation acknowledgement still waits for output exactly as before.
+3. Only then are status and headers committed and the body is handed to the
+   response stream. The guard stays held until that hand-off is complete (see the
+   amendment for #175 below for what that does and does not cover).
 
-The body is therefore still written under the Owner guard; only the order changed.
+The body is therefore still handed off under the Owner guard; only the order changed.
 There is no separate "check again before headers" decision any more, since the
 guard that wraps the write is that check. `build` runs under the Owner lock and
 must not take the guard again or make service calls (`aiEligibility` and the
@@ -135,6 +135,51 @@ A failure after the hand-off (for example the COMMIT that ends the guard) cannot
 change a response that is already on its way and is logged as `output-guard`.
 A client that disconnects after a successful hand-off leaves the Check to the
 normal lease expiry (ADR-0005).
+
+### Amendment (#175): the Owner lock ends at the hand-off, not at the socket
+
+The #171 text above said the guard stays held "until the write has drained". The
+implementation never did that, and it is not wanted. `deliver()` releases the
+Owner lock when the serialized body has been accepted by the response stream
+(Hono's `stream()`, one chunk), which happens as soon as the response is started.
+The lock is **not** held while the bytes travel through the socket to the client.
+Measured with a real HTTP server and a client that never read: the lock was
+released about 150 ms after the request arrived, for a 7.5 MB response.
+
+Decision (owner may override): "decided and serialized under the guard" is the
+rule. Reasons:
+
+- A reader that stalls or reads slowly must not hold the Owner lock. Otherwise
+  the Owner's other requests wait and hit the 3 s `lock_timeout`
+  (`503 authority-unavailable`), and every held lock also occupies a connection
+  of the 25-connection guard pool.
+- Waiting for the socket would not make revocation stronger. Bytes that have
+  left the process cannot be recalled in any design, and the content that is
+  written was authorized by a decision taken under the same lock, with the
+  durable Owner fence checked. A revocation acknowledgement therefore waits for
+  every response whose decision and serialization were under the guard; it does
+  not wait for the network.
+- A stalled socket needs no additional guard timeout: the guard is released
+  after the hand-off. The 3 s PostgreSQL `lock_timeout` bounds lock acquisition,
+  not the duration of `build` or serialization after acquisition. The build
+  callback must therefore remain local work and must not make service calls,
+  as the `deliver()` contract above requires. A build failure releases the
+  guard; it is not a time limit on successful or stalled work.
+
+What stays under the guard until the lock is released: the authority decision,
+the Owner fence check, `build` and the serialization, and the hand-off. A client
+that disconnects before the hand-off releases the lock through `onAbort`. A
+client that disconnects after it leaves the Check to the normal lease expiry
+(ADR-0005), unchanged.
+
+This concerns the JSON envelope (`deliver()`). Streams (SSE replay and live
+frames) and report/citation downloads keep their own per-frame or per-write
+authority checks, described above and in
+[87-citation-exports](87-citation-exports.md); nothing about them changes.
+
+`apps/server/test/output-guard-release.test.ts` pins the behavior against a real
+socket: a client leaves a response of more than 20 MB unread, and a second request
+from the same Owner is answered without a lock timeout.
 
 Every allow decision carries the current authority version. A decision is
 obtained **outside** the local Owner lock, then checked against a durable Owner
@@ -150,7 +195,7 @@ remains denied across process restart.
 Local lock order is Owner guard before #81's Check lock. A separate bounded
 25-connection PG guard pool avoids nested Prisma pool starvation. Lock acquisition
 has a three-second timeout; failure leaves invalidation pending, never completed.
-Guarded writes drain before lock release. Actual upstream invocation is guarded,
+Guarded writes (database commits and effects) complete before lock release; a JSON response is handed off, not drained, before it (amendment #175). Actual upstream invocation is guarded,
 but the remote response is awaited outside the Owner lock, so held I/O cannot
 deadlock revocation. Abort saves I/O; Check/attempt generation, claim, revision
 and lease checks remain the correctness fence for immutable result/event commits.
