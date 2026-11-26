@@ -117,7 +117,8 @@ PR description links that run.
 ## Build output of the apps
 
 Vite 8.3.8 changes how the web app and the extension are bundled. Both apps were
-built on main 47c0bec and on this branch, and the results compared:
+built on main 47c0bec and on this branch at 270d8da (before #237), and the results
+compared:
 
 - **Identical:** the CSS (`index-CeSj-8kd.css`), the fonts, and every other asset
   except the entry chunks. The web `index.html` and the extension `panel.html`
