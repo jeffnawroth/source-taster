@@ -39,7 +39,7 @@
     "rolldown": "1.2.15",
     "turbo": "2.11.10",
     "typescript": "npm:@typescript/typescript6@6.0.2",
-    "typescript-eslint": "8.72.0",
+    "typescript-eslint": "8.73.0",
     "yaml": "2.9.1"
   }
 }

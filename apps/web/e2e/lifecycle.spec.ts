@@ -247,6 +247,96 @@ test("a Check keeps running while every lease renewal is answered slowly", async
   ).toBeVisible();
   await page.unrouteAll({ behavior: "ignoreErrors" });
 });
+// #224: one failed renewal used to end the workspace's connection for good
+// (the stream aborted, an alert shown) although the lease had two intervals left.
+test("a single failed lease renewal is retried and the Check keeps running", async ({
+  page,
+}) => {
+  let calls = 0;
+  let recovered!: () => void;
+  const enough = new Promise<void>((resolve) => {
+    recovered = resolve;
+  });
+  await page.route("**/v2/checks/*/lease", async (route) => {
+    if (++calls === 1) {
+      await route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: "{}",
+      });
+      return;
+    }
+    await route.continue();
+    // The failed attempt, its retry, and the next scheduled renewal.
+    if (calls === 3) recovered();
+  });
+  await page.goto("/");
+  await choosePreferences(page, { language: "en" });
+  await page
+    .getByRole("textbox")
+    .fill("Doe, J. (2020). Held Reference. doi:10.5555/browser-held");
+  await page
+    .getByRole("button", { name: "Check reference", exact: true })
+    .click();
+  await enough;
+  await expect(page.getByRole("alert")).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Cancel check", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByRole("grid", { name: "References", exact: true })
+      .getByText("Running", { exact: true }),
+  ).toBeVisible();
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+});
+for (const language of ["en", "de"] as const) {
+  test(`when every lease renewal fails, running slots report a lost connection in ${language}`, async ({
+    page,
+  }) => {
+    const en = language === "en";
+    await page.route("**/v2/checks/*/lease", (route) =>
+      route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: "{}",
+      }),
+    );
+    await page.goto("/");
+    await choosePreferences(page, { language });
+    await page
+      .getByRole("textbox")
+      .fill("Doe, J. (2020). Held Reference. doi:10.5555/browser-held");
+    await page
+      .getByRole("button", {
+        name: en ? "Check reference" : "Referenz prüfen",
+        exact: true,
+      })
+      .click();
+    const grid = page.getByRole("grid", {
+      name: en ? "References" : "Referenzen",
+      exact: true,
+    });
+    const lost = en ? "Connection lost" : "Verbindung unterbrochen";
+    // Retries run inside the lease, so giving up takes a few renewal intervals.
+    await expect(grid.getByText(lost, { exact: true })).toBeVisible({
+      timeout: e2eClientLeaseMs * 2,
+    });
+    await expect(
+      grid.getByText(en ? "Running" : "Läuft", { exact: true }),
+    ).toHaveCount(0);
+    await expect(
+      grid.getByRole("row", { name: new RegExp(` · ${lost}$`, "u") }),
+    ).toBeVisible();
+    await expect(page.getByRole("alert")).toBeVisible();
+    await expect(
+      page.getByRole("button", {
+        name: en ? "Reconnect" : "Verbindung wiederherstellen",
+      }),
+    ).toBeVisible();
+    await page.unrouteAll({ behavior: "ignoreErrors" });
+  });
+}
 test("an unconfirmed Cancel reports uncertainty and stops this workspace renewing the lease", async ({
   page,
 }) => {
