@@ -237,6 +237,53 @@ test("a modal or sheet still closes when its animations are cancelled during exi
   }
 });
 
+// #298: CI WebKit can stop rendering frames for seconds. Then a CSS exit
+// transition does not finish and a requestAnimationFrame callback does not run.
+// Closing a modal and returning focus must not wait for either. This test pauses
+// the collected exit animations (their `finished` never settles) and stops
+// requestAnimationFrame while the modal closes.
+test("a modal or sheet closes and returns focus while no frame is rendered", async ({
+  page,
+}) => {
+  await open(page);
+  await page.evaluate(() => {
+    new MutationObserver((records) => {
+      for (const record of records) {
+        const target = record.target;
+        if (target instanceof Element && target.hasAttribute("data-exiting"))
+          for (const animation of target.getAnimations({ subtree: true }))
+            animation.pause();
+      }
+    }).observe(document.body, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["data-exiting"],
+    });
+  });
+  for (const name of ["Show details", "Open history sheet"]) {
+    const trigger = page.getByRole("button", { name, exact: true });
+    await trigger.click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    await page.evaluate(() => {
+      const frames = window as Window & {
+        renderFrame?: typeof requestAnimationFrame;
+      };
+      frames.renderFrame = window.requestAnimationFrame.bind(window);
+      window.requestAnimationFrame = () => 0;
+    });
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0, { timeout: 1_500 });
+    await expect(trigger).toBeFocused({ timeout: 1_500 });
+    await page.evaluate(() => {
+      const frames = window as Window & {
+        renderFrame?: typeof requestAnimationFrame;
+      };
+      window.requestAnimationFrame = frames.renderFrame!;
+    });
+  }
+});
+
 test("a sheet closes and restores focus when reduced motion cancels its exit", async ({
   page,
 }) => {
