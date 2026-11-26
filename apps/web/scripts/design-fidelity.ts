@@ -1247,12 +1247,23 @@ try {
             scrollCoverage[prototype ? "prototype" : "built"] =
               await captureScrollCoverage(
                 (request) => page.evaluate(scrollCoverageDom, request),
-                (path) =>
-                  page.screenshot({
+                async (path) => {
+                  // A scroll assignment updates geometry before Chromium has
+                  // necessarily painted newly exposed content on either side.
+                  await page.evaluate(
+                    () =>
+                      new Promise<void>((resolve) =>
+                        requestAnimationFrame(() =>
+                          requestAnimationFrame(() => resolve()),
+                        ),
+                      ),
+                  );
+                  return page.screenshot({
                     path,
                     animations: "disabled",
                     caret: "hide",
-                  }),
+                  });
+                },
                 out,
                 state.id,
                 prototype,
