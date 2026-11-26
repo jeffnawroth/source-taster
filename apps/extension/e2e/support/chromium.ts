@@ -44,6 +44,13 @@ export async function until<T>(
   throw new Error(`${message}${last ? `: ${reason}` : ""}`);
 }
 
+/** The two ways a call fails once its panel is gone: the browser no longer
+ * knows the session, or the harness detached while the call was in flight. */
+function ignoreClosedPanel(error: Error) {
+  if (!/No session with given id|Side panel detached/u.test(error.message))
+    throw error;
+}
+
 export interface Request {
   url: string;
   method: string;
@@ -253,7 +260,10 @@ export class Panel {
       };
       if (!released && request.method === "POST" && match.test(request.url))
         held.push(requestId);
-      else void resume(requestId);
+      // Nothing awaits a pass-through, so its failure has no caller to reach.
+      // A request paused as the panel closes has nowhere left to continue, and
+      // that is the only failure that is not the test's to see.
+      else resume(requestId).catch(ignoreClosedPanel);
     });
     await this.send("Fetch.enable", {
       patterns: [{ urlPattern: "*", requestStage: "Request" }],
