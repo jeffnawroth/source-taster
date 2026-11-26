@@ -53,7 +53,7 @@ selected feature list; it preserves every other compiler argument. Registry
 crates and all native builds keep their normal handling. The same wrapper is
 included and used by the delivered offline reproduction script.
 
-Pagefind JS is bundled through the frozen Rolldown 1.2.15 API and its controlled
+Pagefind JS is bundled through the frozen Rolldown 1.2.19 API and its controlled
 binding. ES2022 preserves class fields without injected runtime helpers; the
 classic worker explicitly uses the existing base-path fallback. Module lists
 must contain only the pinned Pagefind inputs. The preload hook records native
