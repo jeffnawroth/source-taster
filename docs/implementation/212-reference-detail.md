@@ -718,6 +718,49 @@ private-surface qualification. The ten fidelity-driver unit checks pass.
   renewal is answered slowly" holds each renewal for 1.1 s at the route: 5 of 5
   red at 1.5 s, 10 of 10 green at 6 s.
 
+## Resolved in #224
+
+- One failed lease renewal ended the workspace's connection for good, and the
+  feed stayed at "Running" after the workspace gave up. In the local trace that
+  found it, one renewal returned 500 (the shared test Postgres was at its
+  connection limit, error `53300`).
+- **Retry policy** (`packages/ui/src/lease-renewal.ts`). The service grants a
+  lease of three renewal intervals, so a renewal that fails one interval after
+  the last good one leaves about two. The workspace retries inside that window:
+  three retries, 0.25, 0.5 and 0.5 intervals apart, and none starts later than
+  1.5 intervals after the first attempt. A definitive answer (a 4xx other than
+  408 and 429: the Check is gone, ended or refused) is not retried; a network
+  failure, 5xx, 408 and 429 are. Only a final failure stops the renewals,
+  aborts the stream and shows the connection alert with Reconnect, as before.
+  At the production lease (75 s, renewed every 25 s) the last retry starts at
+  most 37.5 s after the first attempt; at the e2e lease (6 s, every 2 s) at
+  most 3 s.
+- **Truthful state after giving up.** While the workspace has stopped following
+  a Check that still lists running slots (a final lease failure, or a stream
+  that gave up), each such slot's chip reads "Connection lost" (neutral dashed
+  chip, still glyph, as any status the service is not working on), its step
+  line reads "Progress unknown", the row's accessible name ends in "Connection
+  lost", and the strip's phase reads "Connection lost" instead of "Check in
+  progress". The slot's stored status is unchanged: Reconnect re-reads the
+  Check, resumes renewing, and the slots show what the service reports (still
+  running, or cancelled if the lease lapsed meanwhile). No new colour, no new
+  layout: the existing chip and step line change their text.
+- **Tests.** `packages/ui/test/lease-renewal.test.mjs` pins the policy.
+  "a single failed lease renewal is retried and the Check keeps running" fails
+  one renewal at the route (503) and expects no alert and a still running
+  Check: red without the retries, green with them. "when every lease renewal
+  fails, running slots report a lost connection" fails every renewal, in en
+  and de.
+- **Pool sizing.** Each web process can hold up to 39 PostgreSQL connections
+  (the Prisma pool 10, the Owner guard pool 25, the abuse limiter 4) and a
+  worker about 20, so one test service can approach 60 and two running at once
+  reach the default `max_connections = 100` of the shared test database. That is
+  how `53300` appeared, not a production sizing problem (one web and one worker
+  process stay near 60 on a database that provisions more). The pools stay as
+  they are; `compose.yaml` now starts the local PostgreSQL with
+  `max_connections=300`. An existing container picks this up when it is
+  recreated (`docker compose up -d --force-recreate postgres`).
+
 ## Tracked
 
 - Three native side-panel failures that #220 did not reproduce, with what was
@@ -731,13 +774,6 @@ private-surface qualification. The ten fidelity-driver unit checks pass.
   earlier Discard → Edit fields focus handling remains; whether `.check-list`
   holds absolutely positioned hidden content was not checked.
 
-- A failed lease renewal still ends the workspace's connection for good, and the
-  feed can stay at "Running" after the workspace gives up: #224. In a local
-  trace one renewal returned 500 (the shared test Postgres was at its connection
-  limit, error `53300`); the client stopped renewing, aborted the event stream
-  and showed the alert, while the server would have let the Check lapse. Seen
-  once, with an overloaded shared database. Whether one failed renewal should be
-  fatal is a product decision taken in #224, not here.
 - Human screen-reader, Safari/Firefox, native Firefox and release acceptance:
   #217.
 
