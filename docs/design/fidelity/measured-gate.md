@@ -53,6 +53,13 @@ SHA-256 is `d28d0fd169f8191edc3fa04c53a4b60809e5547b228cf03757ed5c0630080dc6`.
 
 The owner's 17 November amendments are explicit: the launcher shares the content column's centre, persistent appearance controls are required, AccountPopover uses the source's calm floating glass treatment, and the QuotaMeter fill has round ends as in #196 KA (#194 D left its leading edge square). The harness asserts round track and fill ends and a circular 36 px appearance toggle on every hosted app state. ADR-0023 and ADR-0027 record these corrections. Standalone mode retains ADR-0003's absence of Account/Plan/Quota service UI.
 
+The #226 implementation decision retains the independently pinned true italic
+font faces used by the self-hosted product, instead of synthesizing a slant
+from the prototype's upright-only Google Fonts request. The owner may override
+this typography amendment. It is recorded on #226 and as `source-fonts.amendment`
+in every comparison; the same historical font commit supplies the reference
+bytes. Pixel and geometry tolerances remain unchanged.
+
 ## Local review links
 
 The Vite development server exposes the original public artifacts and public comparison files without copying prototype pages into production:

@@ -359,12 +359,41 @@ export async function normalizeAppFixture(
     },
     { fixture, id },
   );
-  return [
-    ...changes,
-    ...(await normalizeEditorFixture(
-      page,
-      fixture.editor,
-      fixture.detail?.rows ?? [],
-    )),
-  ];
+  const editorChanges = await normalizeEditorFixture(
+    page,
+    fixture.editor,
+    fixture.detail?.rows ?? [],
+  );
+  const fieldLabelChanges = await page.evaluate(() => {
+    const value = document.querySelector<HTMLElement>(".v-D .cmp .cy");
+    const labels = [
+      ...document.querySelectorAll<HTMLElement>(
+        '.v-D .cmp .cf[role="rowheader"]',
+      ),
+    ];
+    if (!value || !labels.length) return [];
+    // Full API field names exceed the original short fixture labels. Extend
+    // them with the original comparison cells' own wrapping recipe, never
+    // with product styles or measured product dimensions.
+    const recipe = getComputedStyle(value);
+    const wrapping = {
+      overflowWrap: recipe.overflowWrap,
+      minWidth: recipe.minWidth,
+    };
+    const before = labels.map((label) => label.textContent);
+    for (const label of labels) {
+      label.style.overflowWrap = wrapping.overflowWrap;
+      label.style.minWidth = wrapping.minWidth;
+    }
+    return [
+      {
+        field: "detail.full-api-label-wrapping",
+        before,
+        after: wrapping,
+        reason:
+          "Additional full API field labels, absent from the short source fixtures, use D's original comparison value-cell wrapping/minimum-size recipe. Source fonts, columns and renderer remain unchanged; no product styles or dimensions enter the oracle.",
+      },
+    ];
+  });
+  return [...changes, ...editorChanges, ...fieldLabelChanges];
 }
