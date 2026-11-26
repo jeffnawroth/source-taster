@@ -1,0 +1,18 @@
+{
+  "language": "en",
+  "id": "legal-notice",
+  "version": "draft-2026-11-20.1",
+  "status": "draft",
+  "approval": null,
+  "title": "Legal notice",
+  "summary": "Provider identification structure under § 5 DDG. All bracketed values are placeholders awaiting the owner and legal review.",
+  "paragraphs": [
+    "This is a legal-content draft, version draft-2026-11-20.1. It is not an approved legal notice, and no bracketed value is a fact. No seller identity, address or register number has been invented.",
+    "Provider (§ 5 (1) no. 1 DDG): [legal name or company], [legal form], [street, postcode, city, country]. For a legal entity also: [authorized representatives], and the share capital with any outstanding contributions if the capital is stated.",
+    "Contact (§ 5 (1) no. 2 DDG): [monitored support e-mail address]. The e-mail address is the fast electronic contact. Whether a second means of direct communication is needed is a question for the legal reviewer.",
+    "Register and tax identifiers (§ 5 (1) nos. 4 and 6 DDG): [commercial register, register court and number, if registered] and [VAT identification number, if one exists]. Supervisory authority (no. 3) and regulated profession (no. 5): none expected, the reviewer confirms.",
+    "Consumer dispute resolution (§ 36 VSBG): [statement whether the provider is willing or obliged to take part in proceedings before a consumer arbitration body and, if so, which body with its address and website]. The EU online dispute resolution platform was discontinued on 20 July 2025 under Regulation (EU) 2024/3228, so this notice deliberately contains no link to it.",
+    "Scope: the notice is meant for the information site, the web app, the browser extension, the API and the purchase pages. Whether one notice serves all of them is a question for the legal reviewer.",
+    "The real domain and the monitored support address are still missing. Until they are supplied and a legal reviewer has approved this text, it cannot be used as a live service’s legal notice."
+  ]
+}

@@ -99,6 +99,7 @@ import {
 import { CheckResults, type IntakeSource } from "./check-results.tsx";
 import { QuotaChoice, QuotaBalance, QuotaPending } from "./quota-panel.tsx";
 import { ownerQuota, planStart, type OwnerQuota } from "./quota.ts";
+import { renewWithRetry } from "./lease-renewal.ts";
 const apple =
   typeof navigator !== "undefined" &&
   /Mac|iPhone|iPad/u.test(navigator.platform);
@@ -351,10 +352,39 @@ export function CheckWorkspace({
     after: number;
     skipped: number;
   } | null>(null);
+  const [countedMenuOpen, setCountedMenuOpen] = useState(false);
+  const [countedResetOpen, setCountedResetOpen] = useState(false);
+  const [countedHelpOpen, setCountedHelpOpen] = useState(false);
+  const countedOverlayOpen =
+    countedMenuOpen || countedResetOpen || countedHelpOpen;
   const countedPreview =
-    !check &&
+    (!check || countedOverlayOpen) &&
     !!preview?.references.length &&
-    (pending === "create" || quotaChoice !== null);
+    (pending === "create" || quotaChoice !== null || countedOverlayOpen);
+  const hasCheck = !!check;
+  const resultsRef = useRef<HTMLElement>(null);
+  const wasCounted = useRef(false);
+  const countedHadOverlay = useRef(false);
+  useEffect(() => {
+    if (countedOverlayOpen) countedHadOverlay.current = true;
+  }, [countedOverlayOpen]);
+  useEffect(() => {
+    const handover =
+      wasCounted.current &&
+      !countedPreview &&
+      hasCheck &&
+      countedHadOverlay.current;
+    wasCounted.current = countedPreview;
+    if (!handover) return;
+    countedHadOverlay.current = false;
+    // Restore focus after React Aria releases the removed trigger's FocusScope.
+    const frame = requestAnimationFrame(() => {
+      resultsRef.current
+        ?.querySelector<HTMLButtonElement>('button[aria-haspopup="true"]')
+        ?.focus();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [countedPreview, hasCheck]);
   /** Reads the acting identity's balance; throws when the read fails. */
   async function readQuota() {
     try {
@@ -427,11 +457,16 @@ export function CheckWorkspace({
     const token = generation.current;
     let alive = true;
     let renewing = false;
+    const stopped = new AbortController();
     const timer = setInterval(() => {
       if (renewing || !alive) return;
       renewing = true;
-      void api
-        .renewCheckLease(activeId)
+      // One failed renewal is not the end of the connection (#224): it is
+      // retried inside the lease that is left, and only a final failure gives up.
+      void renewWithRetry(() => api.renewCheckLease(activeId), {
+        renewAfterMs: renewalInterval,
+        signal: stopped.signal,
+      })
         .then((snapshot) => {
           if (!alive || generation.current !== token) return;
           setCheck((current) =>
@@ -455,6 +490,7 @@ export function CheckWorkspace({
     }, renewalInterval);
     return () => {
       alive = false;
+      stopped.abort();
       clearInterval(timer);
     };
   }, [activeId, renewalInterval, api]);
@@ -920,6 +956,10 @@ export function CheckWorkspace({
     setSelectionLimit(null);
     setCheck(null);
     setPreview(null);
+    setCountedMenuOpen(false);
+    setCountedResetOpen(false);
+    setCountedHelpOpen(false);
+    countedHadOverlay.current = false;
     setPending(null);
     setQuotaChoice(null);
     setQuotaNote(null);
@@ -935,6 +975,9 @@ export function CheckWorkspace({
     (r) => r.outcome.kind === "status" && r.outcome.status === "running",
   );
   const isRunning = !!running;
+  // The workspace gave up on this Check's connection (a final lease or stream
+  // failure): its running slots can no longer be reported as running (#224).
+  const connectionLost = accessStopped && !cancelRequested && !!running;
   const [storage, setStorage] = useState<{
     enabled: boolean;
     expiresAt?: string;
@@ -1193,7 +1236,10 @@ export function CheckWorkspace({
     <div className="workspace-notes">
       {devNote}
       {storageNote}
-      <FeedDisclaimer quota={hostedQuota} />
+      <FeedDisclaimer
+        quota={hostedQuota}
+        onOpenChange={countedPreview ? setCountedHelpOpen : undefined}
+      />
       {hostedQuota &&
         (quota ? (
           <QuotaBalance
@@ -1503,13 +1549,11 @@ export function CheckWorkspace({
         }
       />
       {accountNotice}
-      {!check && (
-        <HowItWorksDialog
-          isOpen={howOpen}
-          onOpenChange={setHowOpen}
-          quota={hostedQuota}
-        />
-      )}
+      <HowItWorksDialog
+        isOpen={howOpen}
+        onOpenChange={setHowOpen}
+        quota={hostedQuota}
+      />
       <Modal isOpen={preferencesOpen} onOpenChange={setPreferencesOpen}>
         <Dialog className="workspace-dialog">
           {({ close }) => (
@@ -1622,6 +1666,8 @@ export function CheckWorkspace({
           }
           footer={feedNotes}
           onReset={reset}
+          onMenuOpenChange={setCountedMenuOpen}
+          onResetOpenChange={setCountedResetOpen}
         />
       )}
       {!check && !countedPreview && (
@@ -1906,8 +1952,12 @@ export function CheckWorkspace({
       <p className="sr-only" aria-live="polite" aria-atomic="true">
         {structuredNote ? structuringSummary(structuredNote) : ""}
       </p>
-      {check && (
-        <section aria-labelledby="results-title" className="workspace-results">
+      {check && !countedPreview && (
+        <section
+          ref={resultsRef}
+          aria-labelledby="results-title"
+          className="workspace-results"
+        >
           <h2 id="results-title" className="sr-only">
             {m.results_heading()}
           </h2>
@@ -1937,6 +1987,7 @@ export function CheckWorkspace({
               check={check}
               completed={completed}
               running={!!running}
+              connectionLost={connectionLost}
               citationStyle={preferences.citationStyle}
               citationStyleLabel={m[styleMessages[preferences.citationStyle]]()}
               transport={transport}

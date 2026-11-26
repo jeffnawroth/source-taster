@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "pagefind": {
-    "version": "1.5.2",
-    "commit": "bf17396721be637cc67c8ed7ead1dc7b8ac43d96",
-    "url": "https://codeload.github.com/Pagefind/pagefind/tar.gz/bf17396721be637cc67c8ed7ead1dc7b8ac43d96",
-    "sha256": "d167959cc2a5acd47c9cb619b10bec7938ec4405622d234524dabd83bfdc62c6"
+    "version": "1.6.0",
+    "commit": "860a4ea87e7a52379520f9eaefd0f8a6b23eb462",
+    "url": "https://codeload.github.com/Pagefind/pagefind/tar.gz/860a4ea87e7a52379520f9eaefd0f8a6b23eb462",
+    "sha256": "027c4517ed4e19f7cda9f72801224e8af5d054c30547c8af8eb38b44cbb48f08"
   },
   "rustPatchDerive": {
     "url": "https://static.crates.io/crates/rust-patch-derive/rust-patch-derive-0.1.3.crate",
@@ -14,13 +14,13 @@
   "wasmBindgen": [
     {
       "target": "aarch64-apple-darwin",
-      "url": "https://github.com/wasm-bindgen/wasm-bindgen/releases/download/0.2.117/wasm-bindgen-0.2.117-aarch64-apple-darwin.tar.gz",
-      "sha256": "d7691b221163d68884ef0a893cb57d3372f1100789dbf0cc2c9260a7f253a497"
+      "url": "https://github.com/wasm-bindgen/wasm-bindgen/releases/download/0.2.129/wasm-bindgen-0.2.129-aarch64-apple-darwin.tar.gz",
+      "sha256": "81d4a23d56b3c3eb8187658329116d50e0b228a93b343825fb71f70179051cd1"
     },
     {
       "target": "x86_64-unknown-linux-gnu",
-      "url": "https://github.com/wasm-bindgen/wasm-bindgen/releases/download/0.2.117/wasm-bindgen-0.2.117-x86_64-unknown-linux-musl.tar.gz",
-      "sha256": "97f527f7c7956f69a88a4bdb5176142ebc4e255c2dbe3805ec4f373421028240"
+      "url": "https://github.com/wasm-bindgen/wasm-bindgen/releases/download/0.2.129/wasm-bindgen-0.2.129-x86_64-unknown-linux-musl.tar.gz",
+      "sha256": "82d12bb940e2d4e72e0d5605387fc1b8ca179044e012b620f0ce4e7440e8320e"
     }
   ],
   "vendoredGzip": {

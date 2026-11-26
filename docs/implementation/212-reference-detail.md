@@ -584,9 +584,9 @@ the section below the rows. There are two ways to lose the press:
    paragraph at the old position (an event log of 12 throttled runs showed this
    in all 5 losses). This is the natural flake. Nothing can know a press is
    coming, so `afterPress` cannot cover it, and a person who presses Edit fields
-   as the suggestion lands loses the press the same way. Avoiding that needs a
-   design decision (reserve the section's space while it loads, or change the
-   order), #226. The test waits for the page to settle.
+   as the suggestion lands loses the press the same way. Avoiding that needed a
+   design decision, taken in #226 (see "Resolved in #226"). The test still waits
+   for the page to settle.
 
 **Fix.**
 
@@ -613,6 +613,99 @@ the section below the rows. There are two ways to lose the press:
   (5 "No textbox named Titel"), product change only 20 of 30 (10 the same),
   with the wait in the test 30 of 30.
 
+## Resolved in #226
+
+The Correction suggestion section (235 px in the native test) arrives after the
+detail opens and sits above the field editor, Re-check and Manual judgment. A
+pointer aimed at one of those rows, or a press that began before the response,
+could land on the section instead. **Decision:** keep the documented order and
+reserve the room while the suggestion loads. Alternatives and why not:
+
+- Move the suggestion below the rows: breaks the accepted design (#194 D).
+- Rely only on browser scroll anchoring: the original failure occurs at the
+  top of the scroller, where the browser does not compensate. Reserving the
+  section avoids relying on its choice of anchor for the ordinary response.
+
+**Mechanism.** `suggestionExpected` (`correction-suggestions.tsx`) mirrors the
+server's `suggestionFields` gate (a resolved identity on a Correct, Deviations
+or DOI-conflict verdict, with a Candidate that has a title). While one is
+expected and no operation runs, `SuggestionSlot` renders a hidden stand-in
+(`visibility: hidden`, `aria-hidden`) beside the "Formatting…" line, in the
+same grid cell. It uses the section's structure and the real Button and Checkbox recipes,
+including localized label wrapping and the current provenance text; the original's text reaches
+its tracked-change paragraph as generated content (`attr()`), so no text node
+exists for assistive technology, `toContainText` or `getByText`, and the stand-in
+has no region name, so waits on the "Correction suggestion" region keep meaning
+"arrived". The slot keeps the stand-in's measured height as `min-height`, so the
+section replaces it without moving anything below. A suggestion that turns out
+longer than the stand-in (the tracked change shows deleted and inserted words)
+still grows the slot; one that never arrives leaves the room until the result
+changes. The aimed-control regression also covers an unusually long response after
+scrolling Re-check into view in Chromium and WebKit; its viewport position
+stays stable. No suggestion content is clipped or moved below the rows.
+
+**Tests.** Web: "the action rows keep their place while a late suggestion
+arrives" (1280 and 360 px; nothing applied, and a correction applied to Reference
+1 while Reference 2's suggestion is held). Native: "native action rows keep their
+place while a late suggestion arrives" (en and de). Both measure Edit fields,
+Re-check and Judge manually before and after the response and allow 1 px. The native German case exposed a 42 px underestimate in an early
+placeholder; measuring the real localized controls and provenance fixed it.
+
+**Audit.** The web presses that follow an Open of a Reference and aim at a row
+below the suggestion are in `manual-overrides.spec.ts` (Confirm verdict, Judge
+manually, Re-check), `revisions.spec.ts` and `revision-save-only.spec.ts` (Edit
+fields, Re-check). Each used to depend on the suggestion having rendered or on
+Playwright's stability check catching the move. With the room reserved the rows
+no longer move, so they are stable by construction and need no wait of their own;
+the native `revisions` test keeps its wait on the section, which still means
+"arrived" because the stand-in carries no region name.
+
+The prototype fixture reader treats the suggestion slot as a transparent
+content wrapper. It projects its visible section through the original D
+recipes; neither the hidden stand-in nor measured reservation geometry is
+copied to the visual oracle. The scroll comparison also caught automatic
+hyphenation applied to comparison-field labels: D only applies that recipe to
+count labels. Removing it restores the source row heights and prevents the
+suggestion and subsequent action rows from drifting by a line.
+
+The same scroll gate exposed other existing detail/feed differences: terminal
+Status cards dropped the empty track row (32 px), closed Candidates retained a
+phantom content gap, candidate-toggle type/icon sizes differed from D's small
+button, evidence marks spanned an extra row, and source names missed D's 0.94
+monospace scale. Those now use the original recipes. Quiet provenance/history
+Disclosures keep their chevrons and native keyboard semantics with full-width
+note-row triggers and D's section spacing.
+
+The fixture reader retains actual observation times using D's original
+three-column source-row recipe and removes fictional provider latencies the
+service does not supply. It does not copy product styles or dimensions into
+the oracle. Additional probes pin the candidate section/toggle, evidence row
+and source-name typography, and quiet disclosure trigger. A cancellation
+regression first measured the 32 px card collapse and now pins its footprint.
+
+The complete editor matrix additionally required native block flow for the
+structured-author controls and the original wrapping Checkbox row. Full API
+field labels (including long German words absent from the source's short
+fixtures) use D's existing comparison value-cell wrapping/minimum-size recipe
+in the source projection. This copies only the original source's own recipe,
+not product measurements or styles, and retains every full label and value.
+
+The #226 typography amendment retains the self-hosted true italic fonts for
+unknown values instead of the prototype's synthesized slant. The oracle loads
+those bytes from the same independent historical font commit; its evidence
+metadata records the amendment. Scroll screenshots wait two animation frames
+on both sides after scrolling, to capture newly exposed painted content.
+Geometry and pixel thresholds remain unchanged.
+
+Final local functional validation: root lint/typecheck (with #290's controlled
+locks temporarily applied and restored), the cancellation footprint regression,
+6 Chromium detail cases, 5 WebKit cases and all 6 native revision cases pass.
+The scoped detail fidelity matrix passes all 32 EN/DE, light/dark,
+desktop/360, normal/end/edit/manual states, including every scroll slice and
+added geometry/type probe. Initial-view differences are 0.096–0.402% against
+the unchanged 1% threshold. This is scoped evidence, not complete product or
+private-surface qualification. The ten fidelity-driver unit checks pass.
+
 ## Resolved in #220
 
 - A Check could end "Cancelled" before any verdict (#220). Cause: the e2e
@@ -625,16 +718,51 @@ the section below the rows. There are two ways to lose the press:
   renewal is answered slowly" holds each renewal for 1.1 s at the route: 5 of 5
   red at 1.5 s, 10 of 10 green at 6 s.
 
+## Resolved in #224
+
+- One failed lease renewal ended the workspace's connection for good, and the
+  feed stayed at "Running" after the workspace gave up. In the local trace that
+  found it, one renewal returned 500 (the shared test Postgres was at its
+  connection limit, error `53300`).
+- **Retry policy** (`packages/ui/src/lease-renewal.ts`). The service grants a
+  lease of three renewal intervals, so a renewal that fails one interval after
+  the last good one leaves about two. The workspace retries inside that window:
+  three retries, 0.25, 0.5 and 0.5 intervals apart, and none starts later than
+  1.5 intervals after the first attempt. A definitive answer (a 4xx other than
+  408 and 429: the Check is gone, ended or refused) is not retried; a network
+  failure, 5xx, 408 and 429 are. Only a final failure stops the renewals,
+  aborts the stream and shows the connection alert with Reconnect, as before.
+  At the production lease (75 s, renewed every 25 s) the last retry starts at
+  most 37.5 s after the first attempt; at the e2e lease (6 s, every 2 s) at
+  most 3 s.
+- **Truthful state after giving up.** While the workspace has stopped following
+  a Check that still lists running slots (a final lease failure, or a stream
+  that gave up), each such slot's chip reads "Connection lost" (neutral dashed
+  chip, still glyph, as any status the service is not working on), its step
+  line reads "Progress unknown", the row's accessible name ends in "Connection
+  lost", and the strip's phase reads "Connection lost" instead of "Check in
+  progress". The slot's stored status is unchanged: Reconnect re-reads the
+  Check, resumes renewing, and the slots show what the service reports (still
+  running, or cancelled if the lease lapsed meanwhile). No new colour, no new
+  layout: the existing chip and step line change their text.
+- **Tests.** `packages/ui/test/lease-renewal.test.mjs` pins the policy.
+  "a single failed lease renewal is retried and the Check keeps running" fails
+  one renewal at the route (503) and expects no alert and a still running
+  Check: red without the retries, green with them. "when every lease renewal
+  fails, running slots report a lost connection" fails every renewal, in en
+  and de.
+- **Pool sizing.** Each web process can hold up to 39 PostgreSQL connections
+  (the Prisma pool 10, the Owner guard pool 25, the abuse limiter 4) and a
+  worker about 20, so one test service can approach 60 and two running at once
+  reach the default `max_connections = 100` of the shared test database. That is
+  how `53300` appeared, not a production sizing problem (one web and one worker
+  process stay near 60 on a database that provisions more). The pools stay as
+  they are; `compose.yaml` now starts the local PostgreSQL with
+  `max_connections=300`. An existing container picks this up when it is
+  recreated (`docker compose up -d --force-recreate postgres`).
+
 ## Tracked
 
-- A visible control still moves when the Correction suggestion lands after the
-  pointer has been aimed but before it is down (mechanism 2 of "Edit fields
-  press lost"). Fixing it needs a design decision, either reserving the
-  section's space while it loads or changing the documented order of the
-  detail: #226. The same issue covers an audit of the web suite's presses that
-  follow an Open without waiting for the suggestion; the extension `revisions`
-  test now waits, and the extension suite's other such presses follow a wait or
-  sit at the end of the scroller.
 - Three native side-panel failures that #220 did not reproduce, with what was
   ruled out for each: #227. They are the `revisions` de "Feldrevision 2" failure
   after the Save press, the `manual-overrides` de "No region named Historisches
@@ -646,13 +774,6 @@ the section below the rows. There are two ways to lose the press:
   earlier Discard → Edit fields focus handling remains; whether `.check-list`
   holds absolutely positioned hidden content was not checked.
 
-- A failed lease renewal still ends the workspace's connection for good, and the
-  feed can stay at "Running" after the workspace gives up: #224. In a local
-  trace one renewal returned 500 (the shared test Postgres was at its connection
-  limit, error `53300`); the client stopped renewing, aborted the event stream
-  and showed the alert, while the server would have let the Check lapse. Seen
-  once, with an overloaded shared database. Whether one failed renewal should be
-  fatal is a product decision taken in #224, not here.
 - Human screen-reader, Safari/Firefox, native Firefox and release acceptance:
   #217.
 

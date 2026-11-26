@@ -1,0 +1,19 @@
+{
+  "language": "de",
+  "id": "withdrawal",
+  "version": "draft-2026-11-20.1",
+  "status": "draft",
+  "approval": null,
+  "title": "Widerrufsbelehrung",
+  "summary": "Widerrufsbelehrung und Muster-Widerrufsformular nach der gesetzlichen Mustergliederung. Wartet auf die fachliche rechtliche Freigabe.",
+  "paragraphs": [
+    "Dies ist ein rechtlicher Inhaltsentwurf, Version draft-2026-11-20.1. Er ist keine rechtlich freigegebene Widerrufsbelehrung. Über diese Vorschau kann kein Verbraucherkauf erfolgen. Werte in Klammern sind Platzhalter.",
+    "Widerrufsrecht. Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen. Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses. [Wortlaut nach dem gesetzlichen Muster, von der rechtlichen Prüfung zu übernehmen.]",
+    "Ausübung. Um Ihr Widerrufsrecht auszuüben, müssen Sie [Name, Anschrift und E-Mail-Adresse des Verkäufers] mittels einer eindeutigen Erklärung, zum Beispiel per E-Mail, über Ihren Entschluss informieren. Sie können dafür das beigefügte Muster-Widerrufsformular verwenden, es ist aber nicht vorgeschrieben. Zur Wahrung der Widerrufsfrist reicht es aus, dass Sie die Mitteilung vor Ablauf der Widerrufsfrist absenden.",
+    "Widerrufsfunktion. [Offene Entscheidung (Kandidat C05): eine Funktion „Vertrag widerrufen“ mit Bestätigungsschritt und einer Eingangsbestätigung auf einem dauerhaften Datenträger, die Inhalt, Datum und Uhrzeit des Widerrufs nennt und die § 356a BGB seit dem 19. Juni 2026 für online geschlossene Verträge verlangt. Diese Seite behauptet nicht, dass die Funktion besteht, denn sie besteht noch nicht.]",
+    "Folgen des Widerrufs. Wenn Sie widerrufen, erstatten wir alle Zahlungen, die wir von Ihnen erhalten haben, unverzüglich und spätestens binnen vierzehn Tagen ab dem Eingang Ihrer Mitteilung, mit demselben Zahlungsmittel, das Sie bei der ursprünglichen Transaktion eingesetzt haben. Bei Pro wird nichts belastet, wenn Sie vor der Aktivierung widerrufen. Bei einem Check-Paket wird der bei der Bestellung belastete Betrag vollständig erstattet, wenn Sie vor der Aktivierung widerrufen.",
+    "Vorzeitiger Beginn. Haben Sie verlangt, dass der Dienst während der Widerrufsfrist beginnt, müssen Sie einen angemessenen Betrag für das zahlen, was bis zur Mitteilung des Widerrufs erbracht wurde. [Wortlaut und Verlust des Widerrufsrechts nach vollständiger Leistung mit Ihrer Einwilligung und Bestätigung: von der rechtlichen Prüfung freizugeben. Hier wird weder ein Verzicht noch eine Einwilligung eingeholt.]",
+    "Muster-Widerrufsformular. An [Name, Anschrift und E-Mail-Adresse des Verkäufers]: Hiermit widerrufe ich den von mir abgeschlossenen Vertrag über die Erbringung der folgenden Dienstleistung: [Pro oder Check-Paket]. Bestellt am [Datum]. Name des Verbrauchers: [Name]. Anschrift des Verbrauchers: [Anschrift]. Datum: [Datum]. Unterschrift, nur bei Mitteilung auf Papier: [Unterschrift].",
+    "Die verpflichtende Kündigungsfunktion und, falls beschlossen, die Widerrufsfunktion gehören zum privaten Kaufdienst und werden von dieser statischen Seite nicht umgesetzt. Dieser Entwurf ersetzt sie nicht und verspricht ihre Verfügbarkeit nicht."
+  ]
+}

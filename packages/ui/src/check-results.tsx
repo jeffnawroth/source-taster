@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { effectiveVerdict } from "./effective-verdict.ts";
 import {
+  ConnectionLostContext,
   verdictLabels,
-  statusLabels,
   StatusIcon,
   VerdictGlyph,
+  useStatusLabel,
 } from "./outcome-badges.tsx";
 import { Button } from "./primitives/actions.tsx";
 import {
@@ -14,10 +15,12 @@ import {
   Modal,
 } from "./primitives/overlays.tsx";
 import {
+  useContext,
   useEffect,
   useLayoutEffect,
   useRef,
   useState,
+  type ComponentProps,
   type ReactNode,
 } from "react";
 import type { PaletteCommand } from "./checking-top-bar.tsx";
@@ -102,17 +105,23 @@ function runningText(reference: ReferenceSlot) {
 /** The card's evidence trail: one node per consulted Data source, then the Verdict. */
 function EvidenceTrack({ reference }: { reference: ReferenceSlot }) {
   const { outcome } = reference;
+  const lost = useContext(ConnectionLostContext);
   if (outcome.kind === "status") {
-    if (outcome.status !== "running") return null;
-    const queued = reference.progress === "queued";
+    if (outcome.status !== "running")
+      // D retains the track's footprint for every card. A terminal Status
+      // has no evidence to invent, but must not pull the following cards up.
+      return <div className="card-track" aria-hidden="true" />;
+    // Without the connection the step is not known: no current node, no step.
+    const queued = lost || reference.progress === "queued";
+    const text = lost ? m.reference_connection_lost() : runningText(reference);
     return (
       <div className="card-track">
-        <ol className="evidence-track" aria-label={runningText(reference)}>
+        <ol className="evidence-track" aria-label={text}>
           <li className="track-node" data-state={queued ? "pend" : "cur"}>
             {!queued && <StatusIcon status="running" size={16} />}
           </li>
         </ol>
-        <span className="card-step">{runningText(reference)}</span>
+        <span className="card-step">{text}</span>
       </div>
     );
   }
@@ -220,7 +229,7 @@ function ActionDialog({
 }
 export type IntakeSource = "text" | "file" | "selection";
 /** Selection is a stable slot, never an outcome, array index or sorted result. */
-export function CheckResults({
+function CheckResultsStage({
   check,
   completed,
   running,
@@ -246,6 +255,8 @@ export function CheckResults({
   completed: number;
   /** The Check still has a running Reference and can be stopped. */
   running: boolean;
+  /** The workspace stopped following this Check: running slots are unknown, not running. */
+  connectionLost?: boolean;
   citationStyle: CitationStyle;
   citationStyleLabel: string;
   transport: VerificationClientOptions;
@@ -272,6 +283,7 @@ export function CheckResults({
     )
       ? firstFormat
       : undefined;
+  const statusLabel = useStatusLabel();
   const [dialog, setDialog] = useState<MenuDialog | null>(null);
   const [filter, setFilter] = useState<OutcomeFilter>(null);
   const [selectedSlot, selectSlot] = useState(check.references[0]?.slot);
@@ -399,7 +411,7 @@ export function CheckResults({
       id: `filter:status:${status}`,
       group: "filters" as const,
       label: m.shell_filter_command({
-        label: m[statusLabels[status]](),
+        label: statusLabel(status),
         count: String(count),
       }),
       icon: <Filter aria-hidden="true" size={16} />,
@@ -523,7 +535,7 @@ export function CheckResults({
                     if (element) cards.current.set(reference.slot, element);
                     else cards.current.delete(reference.slot);
                   }}
-                  aria-label={`${m.workspace_open({ slot: reference.slot, title: titleOf(reference) })} · ${reference.outcome.kind === "status" ? m[statusLabels[reference.outcome.status]]() : m[verdictLabels[verdict!]]()}${unsaved ? ` · ${m.feed_unsaved_draft()}` : ""}`}
+                  aria-label={`${m.workspace_open({ slot: reference.slot, title: titleOf(reference) })} · ${reference.outcome.kind === "status" ? statusLabel(reference.outcome.status) : m[verdictLabels[verdict!]]()}${unsaved ? ` · ${m.feed_unsaved_draft()}` : ""}`}
                   className="feed-card"
                   data-verdict={verdict}
                   data-current={
@@ -777,5 +789,13 @@ export function CheckResults({
         </AlertDialog>
       </Modal>
     </div>
+  );
+}
+/** The Check's feed and detail, which report a lost connection as one fact. */
+export function CheckResults(props: ComponentProps<typeof CheckResultsStage>) {
+  return (
+    <ConnectionLostContext value={props.connectionLost ?? false}>
+      <CheckResultsStage {...props} />
+    </ConnectionLostContext>
   );
 }

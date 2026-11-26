@@ -412,7 +412,7 @@ const bindgenFolder = basename(
   inputs.wasmBindgen.find((p) => p.target === target)!.url,
 ).replace(/\.tar\.gz$/, "");
 const bindgen = resolve(tools, bindgenFolder, "wasm-bindgen");
-if (run(bindgen, ["--version"], source, true).trim() !== "wasm-bindgen 0.2.117")
+if (run(bindgen, ["--version"], source, true).trim() !== "wasm-bindgen 0.2.129")
   throw new Error("Unexpected wasm-bindgen");
 if (
   hash(await readFile(resolve(source, inputs.vendoredGzip.path))) !==
@@ -463,16 +463,16 @@ for (const language of ["unknown", "de", "en"]) {
   );
   const bytes = await readFile(resolve(web, "pkg/pagefind_web_bg.wasm"));
   await writeFile(
-    resolve(vendor, `wasm/pagefind_web_bg.${language}.1.5.2.wasm.gz`),
+    resolve(vendor, `wasm/pagefind_web_bg.${language}.1.6.0.wasm.gz`),
     gzipSync(Buffer.concat([Buffer.from("pagefind_dcd"), bytes]), { level: 9 }),
   );
   const js = (
     await readFile(resolve(web, "pkg/pagefind_web.js"), "utf8")
   ).replace(/document\..?currentScript\..?src/, '"UNHANDLED"');
   if (language === "unknown")
-    await writeFile(resolve(vendor, "pagefind_web.1.5.2.js"), js);
+    await writeFile(resolve(vendor, "pagefind_web.1.6.0.js"), js);
   else if (
-    js !== (await readFile(resolve(vendor, "pagefind_web.1.5.2.js"), "utf8"))
+    js !== (await readFile(resolve(vendor, "pagefind_web.1.6.0.js"), "utf8"))
   )
     throw new Error("Language bindings differ");
 }
@@ -753,7 +753,7 @@ for (const file of [
       .map((f) => `source/pagefind/vendor/${f}`),
   )),
   ...["unknown", "de", "en"].map(
-    (l) => `source/pagefind/vendor/wasm/pagefind_web_bg.${l}.1.5.2.wasm.gz`,
+    (l) => `source/pagefind/vendor/wasm/pagefind_web_bg.${l}.1.6.0.wasm.gz`,
   ),
 ])
   files[file] = hash(await readFile(resolve(work, file)));

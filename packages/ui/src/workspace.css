@@ -547,6 +547,28 @@ body {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+/* The suggestion's place: the stand-in (hidden, in the same grid cell as the
+   loading line) is as tall as the section will be, and its text is generated
+   from the original so that no text node exists for assistive technology or
+   text queries. */
+.detail-suggestion {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+.detail-suggestion > * {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+.detail-suggestion-sizer {
+  visibility: hidden;
+  pointer-events: none;
+}
+.detail-suggestion-sizer [data-text]::before {
+  content: attr(data-text);
+}
+.detail-suggestion-sizer .detail-eyebrow::before {
+  content: "\200b";
+}
 .detail-note {
   font-size: var(--st-text-sm);
   color: var(--st-text-secondary);
@@ -1938,9 +1960,9 @@ body {
 .detail-compare th[scope="row"] {
   font-weight: 700;
   color: var(--st-text-secondary);
-  /* Long German field names break at a syllable (D .cnt .l). */
-  overflow-wrap: break-word;
-  hyphens: auto;
+  /* D's comparison labels use the row's normal wrapping; its automatic
+     hyphenation recipe belongs to count labels, not comparison fields. */
+  overflow-wrap: anywhere;
 }
 .compare-deviating {
   text-decoration: underline wavy var(--st-verdict-deviations-mark);
@@ -2110,7 +2132,13 @@ body {
 .detail-authors .detail-field {
   justify-self: stretch;
 }
+.detail-compare .detail-authors {
+  /* Additional structured authors use D's native block field/control flow. */
+  display: block;
+  margin-top: 0;
+}
 .detail-author {
+  display: block;
   margin: 0;
   padding: 0;
   border: 0;
@@ -2120,10 +2148,6 @@ body {
 .detail-author legend {
   padding: 0;
   color: var(--st-text);
-}
-.detail-authors .detail-check.st-checkbox {
-  flex-wrap: nowrap;
-  align-items: flex-start;
 }
 /* D's lower detail (.nrow, .tc, .srcs, .cand, .trail): sections between
    Manual judgment and the history read as bordered lists, never as boxes. */
@@ -2185,7 +2209,6 @@ body {
   height: 20px;
   align-items: center;
   justify-content: center;
-  grid-row: span 2;
 }
 [data-state="ok"] > .detail-mark {
   color: var(--st-verdict-correct-mark);
@@ -2204,6 +2227,7 @@ body {
 }
 .detail-src-name {
   font-family: var(--st-font-mono);
+  font-size: calc(var(--st-font-mono-scale) * 1em);
   font-weight: 600;
 }
 .detail-src-text {
@@ -2292,7 +2316,8 @@ body {
 /* D's toggle button ("More candidates (2)", + closed, × open). */
 .detail-candidates {
   display: grid;
-  gap: 8px;
+  /* Closed details has no visible content row to separate from its trigger. */
+  gap: 0;
 }
 .detail-candidates[open] {
   gap: 10px;
@@ -2309,9 +2334,14 @@ body {
   background: var(--st-surface);
   box-shadow: var(--st-shadow-raised), var(--st-highlight-inset);
   font-size: var(--st-text-sm);
-  font-weight: 600;
+  font-weight: 700;
+  line-height: 1.2;
   cursor: pointer;
   list-style: none;
+}
+.detail-toggle > svg {
+  width: 1.1em;
+  height: 1.1em;
 }
 .detail-toggle::-webkit-details-marker,
 .detail-disclosure > summary::-webkit-details-marker {
@@ -2325,13 +2355,18 @@ body {
   display: none;
 }
 /* Quiet Disclosure: provenance, field comparison and history. */
+.detail-disclosure {
+  display: grid;
+  gap: 8px;
+}
 .detail-disclosure > summary {
-  display: inline-flex;
+  /* D's quiet note row keeps its intrinsic line height. The full-width
+     target and the surrounding section gap keep adjacent targets separate. */
+  display: flex;
   align-items: center;
-  gap: 6px;
-  min-height: 32px;
+  gap: 8px;
   font-size: var(--st-text-sm);
-  font-weight: 600;
+  font-weight: 400;
   color: var(--st-text-secondary);
   cursor: pointer;
   list-style: none;
@@ -2340,6 +2375,8 @@ body {
   color: var(--st-text);
 }
 .detail-disclosure > summary > svg {
+  width: 1.1em;
+  height: 1.1em;
   flex: none;
   transition: transform var(--st-duration-fast);
 }
