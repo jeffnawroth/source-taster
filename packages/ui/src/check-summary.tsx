@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import {
+  useContext,
   useEffect,
   useRef,
   useState,
@@ -33,6 +34,8 @@ import {
   verdictLabels,
   shortVerdictLabels,
   statusLabels,
+  ConnectionLostContext,
+  useStatusLabel,
   VerdictGlyph,
   StatusIcon,
   type Status,
@@ -67,8 +70,10 @@ export interface StripAction {
 export function MoreActions({
   actions,
   anchor,
+  onOpenChange,
 }: {
   actions: StripAction[];
+  onOpenChange?: (open: boolean) => void;
   /** D opens the Menu under the whole strip, not under its trigger. */
   anchor?: RefObject<HTMLElement | null>;
 }) {
@@ -95,6 +100,7 @@ export function MoreActions({
         // Popover on any scroll of the trigger's scroll parent.
         if (!next && globalThis.event?.type === "scroll") return;
         setOpen(next);
+        onOpenChange?.(next);
       }}
     >
       <IconButton size="sm" variant="secondary" label={m.shell_more_actions()}>
@@ -218,6 +224,8 @@ export function CheckSummary({
   actions: StripAction[];
 }) {
   const strip = useStickySize("--checking-strip-height");
+  const lost = useContext(ConnectionLostContext);
+  const statusLabel = useStatusLabel();
   const menuAnchor = useRef<HTMLDivElement>(null);
   const { verdicts, statuses } = counts(check);
   const total = check.references.length;
@@ -334,7 +342,7 @@ export function CheckSummary({
                 {statusCount > 0 && (
                   <MenuTrigger>
                     <Aria.Button
-                      aria-label={`${m.workspace_statuses()}: ${statuses.map((s) => `${m[statusLabels[s.status]]()} ${s.count}`).join(", ")}`}
+                      aria-label={`${m.workspace_statuses()}: ${statuses.map((s) => `${statusLabel(s.status)} ${s.count}`).join(", ")}`}
                       className="summary-status compact"
                       data-pressed={filter?.startsWith("status:") || undefined}
                     >
@@ -349,11 +357,11 @@ export function CheckSummary({
                           <MenuItem
                             key={status}
                             id={status}
-                            textValue={`${m[statusLabels[status]]()}: ${count}`}
+                            textValue={`${statusLabel(status)}: ${count}`}
                             onAction={() => onFilter(`status:${status}`)}
                           >
                             <StatusIcon status={status} />
-                            {m[statusLabels[status]]()}: {count}
+                            {statusLabel(status)}: {count}
                           </MenuItem>
                         ))}
                       </Menu>
@@ -377,8 +385,13 @@ export function CheckSummary({
                 {running ? (
                   <>
                     <span className="summary-phase">
-                      <StatusIcon status="running" size={18} />
-                      {m.shell_check_in_progress()}
+                      <StatusIcon
+                        status={lost ? "not-checked" : "running"}
+                        size={18}
+                      />
+                      {lost
+                        ? m.status_connection_lost()
+                        : m.shell_check_in_progress()}
                     </span>
                     <span className="summary-checked">
                       {m.shell_checked({
@@ -483,7 +496,7 @@ export function CheckSummary({
                             label before count, as D's status chips. */}
                         <StatusIcon status={status} />
                         <span>
-                          {m[statusLabels[status]]()} {count}
+                          {statusLabel(status)} {count}
                         </span>
                       </Aria.ToggleButton>
                     ))}
@@ -510,17 +523,20 @@ export function SummaryLede({
   completed: number;
   stop?: ReactNode;
 }) {
+  const lost = useContext(ConnectionLostContext);
   const total = check.references.length;
   return (
     <p className="feed-lede">
       {running ? (
         <>
           <span className="feed-lede-phase">
-            <StatusIcon status="running" size={18} />
-            {m.shell_run_lede({
-              completed: String(completed),
-              total: String(total),
-            })}
+            <StatusIcon status={lost ? "not-checked" : "running"} size={18} />
+            {lost
+              ? m.status_connection_lost()
+              : m.shell_run_lede({
+                  completed: String(completed),
+                  total: String(total),
+                })}
           </span>
           {stop}
         </>
