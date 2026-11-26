@@ -251,3 +251,70 @@ for (const language of ["en", "de"] as const)
       await rm(directory, { recursive: true, force: true });
     }
   });
+
+// #226: the suggestion renders above the Re-check and Manual verdict rows, so
+// a response that lands while a pointer is aimed at one of them must not move
+// it. The room is reserved while the suggestion loads.
+for (const language of ["en", "de"] as const)
+  test(`native action rows keep their place while a late suggestion arrives in ${language}`, async () => {
+    const en = language === "en";
+    const directory = await mkdtemp(join(tmpdir(), "st226-panel-"));
+    const browser = await launchChromium(
+      build.outDir,
+      directory,
+      en ? "en-GB" : "de-DE",
+    );
+    try {
+      const panel = await browser.openPanel();
+      await panel.preferences({ language: language });
+      await panel.fill(
+        "textbox",
+        en ? "Reference" : "Referenz",
+        "Aspelmeyer, M. (2008). Measured measurement. Nature Physics, 5, 11–12. https://doi.org/10.1038/nphys1170",
+      );
+      const suggestion = await panel.holdRequests(/\/bibliography$/);
+      await panel.click("button", en ? "Check reference" : "Referenz prüfen");
+      await panel.waitForText(
+        "grid",
+        en ? "References" : "Referenzen",
+        en ? "Exists, with deviations" : "Existiert, mit Abweichungen",
+      );
+      await until(
+        () => suggestion.held() > 0,
+        "The suggestion request was never sent",
+      );
+      await panel.click(
+        "button",
+        en ? /^Open reference 1:/ : /^Referenz 1 öffnen:/,
+      );
+      const rows = [
+        en ? "Edit fields" : "Felder bearbeiten",
+        en ? "Re-check this reference" : "Diese Referenz erneut prüfen",
+        en ? "Judge manually" : "Manuell beurteilen",
+      ];
+      const tops = async () =>
+        Promise.all(
+          rows.map(async (name) => (await panel.centreOf("button", name))?.y),
+        );
+      const before = await tops();
+      await suggestion.release();
+      await panel.find(
+        "region",
+        en ? "Correction suggestion" : "Korrekturvorschlag",
+      );
+      await panel.evaluate(
+        `(async () => { for (let i = 0; i < 30; i++) await new Promise((r) => requestAnimationFrame(r)); })()`,
+      );
+      const after = await tops();
+      rows.forEach((name, index) => {
+        expect(before[index], `${name} is on the page`).toBeDefined();
+        expect(
+          Math.abs(after[index]! - before[index]!),
+          `${name} moved when the suggestion arrived`,
+        ).toBeLessThanOrEqual(1);
+      });
+    } finally {
+      await browser.close();
+      await rm(directory, { recursive: true, force: true });
+    }
+  });

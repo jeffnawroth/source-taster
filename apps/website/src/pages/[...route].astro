@@ -49,7 +49,6 @@ const { language, page, legal, sourceLanding, alternateHref } = Astro.props;
 const sourceText = sourceAccess[language];
 const downloads = [
   ['corresponding-source.tar.gz', sourceText.source],
-  ['GPL-3.0.txt', sourceText.gpl],
   ['NOTICE.txt', sourceText.notice],
   ['RUST-COPYRIGHT-library.txt', sourceText.rust],
   ['manifest.json', sourceText.manifest],
