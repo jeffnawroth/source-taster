@@ -38,10 +38,16 @@ export function useOpenOnFocus() {
   // event has finished, so read it on the next task.
   const settle = () => {
     cancel.current();
-    cancel.current = afterPress(() => {
-      const timer = setTimeout(() => setOpen(holdsFocus()), 0);
-      cancel.current = () => clearTimeout(timer);
-    });
+    // The task runs first, so a press that began in between is seen by
+    // afterPress and holds the change until it ends. Both stay cancellable.
+    let cancelPress = () => {};
+    const timer = setTimeout(() => {
+      cancelPress = afterPress(() => setOpen(holdsFocus()));
+    }, 0);
+    cancel.current = () => {
+      clearTimeout(timer);
+      cancelPress();
+    };
   };
   return {
     open,
