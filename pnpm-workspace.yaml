@@ -30,3 +30,5 @@ ignoredOptionalDependencies:
   - fsevents
   # ADR-0011: PDF.js text extraction runs without the optional native canvas.
   - "@napi-rs/canvas"
+patchedDependencies:
+  react-aria@3.53.1: patches/react-aria@3.53.1.patch
