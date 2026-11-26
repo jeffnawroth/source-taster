@@ -1,75 +1,216 @@
+diff --git a/dist/private/focus/FocusScope.cjs b/dist/private/focus/FocusScope.cjs
+index 7fb60ed6f28eebe225cd89179ff7771d2bc74521..a652ff810936681470f2720ba3ee0ea255a6d5fa 100644
+--- a/dist/private/focus/FocusScope.cjs
++++ b/dist/private/focus/FocusScope.cjs
+@@ -9,6 +9,19 @@ var $429333cab433657c$exports = require("../utils/useLayoutEffect.cjs");
+ var $gYMUj$react = require("react");
+ 
+ 
++// Runs on the next frame, or after 100 ms when the browser renders none (#298).
++function $st298$nextFrame(callback) {
++    let done = false;
++    let run = ()=>{
++        if (done) return;
++        done = true;
++        cancelAnimationFrame(frame);
++        clearTimeout(timer);
++        callback();
++    };
++    let frame = requestAnimationFrame(run);
++    let timer = setTimeout(run, 100);
++}
+ function $parcel$interopDefault(a) {
+   return a && a.__esModule ? a.default : a;
+ }
+@@ -544,7 +557,7 @@ function $9fb4ac1cc58342cc$var$useRestoreFocus(scopeRef, restoreFocus, contain)
+             if (restoreFocus && nodeToRestore && (activeElement && $9fb4ac1cc58342cc$var$isElementInChildScope(activeElement, scopeRef) || activeElement === ownerDocument.body && $9fb4ac1cc58342cc$var$shouldRestoreFocus(scopeRef))) {
+                 // freeze the focusScopeTree so it persists after the raf, otherwise during unmount nodes are removed from it
+                 let clonedTree = $9fb4ac1cc58342cc$export$d06fae2ee68b101e.clone();
+-                requestAnimationFrame(()=>{
++                $st298$nextFrame(()=>{
+                     // Only restore focus if we've lost focus to the body, the alternative is that focus has been purposefully moved elsewhere
+                     if (ownerDocument.activeElement === ownerDocument.body) {
+                         // look up the tree starting with our scope to find a nodeToRestore still in the DOM
+diff --git a/dist/private/focus/FocusScope.js b/dist/private/focus/FocusScope.js
+index 939af4469d9d1d2b78285eb230693c9786f5e827..a75ba1813ab643c3d9a3086a69559255bf5fbd00 100644
+--- a/dist/private/focus/FocusScope.js
++++ b/dist/private/focus/FocusScope.js
+@@ -30,6 +30,19 @@ import $6Aaq1$react, {useRef as $6Aaq1$useRef, useContext as $6Aaq1$useContext,
+ const $903814aeb7d53b38$var$FocusContext = /*#__PURE__*/ (0, $6Aaq1$react).createContext(null);
+ const $903814aeb7d53b38$var$RESTORE_FOCUS_EVENT = 'react-aria-focus-scope-restore';
+ let $903814aeb7d53b38$var$activeScope = null;
++// Runs on the next frame, or after 100 ms when the browser renders none (#298).
++function $st298$nextFrame(callback) {
++    let done = false;
++    let run = ()=>{
++        if (done) return;
++        done = true;
++        cancelAnimationFrame(frame);
++        clearTimeout(timer);
++        callback();
++    };
++    let frame = requestAnimationFrame(run);
++    let timer = setTimeout(run, 100);
++}
+ function $903814aeb7d53b38$export$20e40289641fbbb6(props) {
+     let { children: children, contain: contain, restoreFocus: restoreFocus, autoFocus: autoFocus } = props;
+     let startRef = (0, $6Aaq1$useRef)(null);
+@@ -538,7 +551,7 @@ function $903814aeb7d53b38$var$useRestoreFocus(scopeRef, restoreFocus, contain)
+             if (restoreFocus && nodeToRestore && (activeElement && $903814aeb7d53b38$var$isElementInChildScope(activeElement, scopeRef) || activeElement === ownerDocument.body && $903814aeb7d53b38$var$shouldRestoreFocus(scopeRef))) {
+                 // freeze the focusScopeTree so it persists after the raf, otherwise during unmount nodes are removed from it
+                 let clonedTree = $903814aeb7d53b38$export$d06fae2ee68b101e.clone();
+-                requestAnimationFrame(()=>{
++                $st298$nextFrame(()=>{
+                     // Only restore focus if we've lost focus to the body, the alternative is that focus has been purposefully moved elsewhere
+                     if (ownerDocument.activeElement === ownerDocument.body) {
+                         // look up the tree starting with our scope to find a nodeToRestore still in the DOM
+diff --git a/dist/private/focus/FocusScope.mjs b/dist/private/focus/FocusScope.mjs
+index 4c5f0410ff15361b3c856f1a9e485f2ca92ad541..dd9fe3683e5d8237a1bd7b1877eee35d4cbbe46e 100644
+--- a/dist/private/focus/FocusScope.mjs
++++ b/dist/private/focus/FocusScope.mjs
+@@ -30,6 +30,19 @@ import $jmfRy$react, {useRef as $jmfRy$useRef, useContext as $jmfRy$useContext,
+ const $535772f9d2c1f38d$var$FocusContext = /*#__PURE__*/ (0, $jmfRy$react).createContext(null);
+ const $535772f9d2c1f38d$var$RESTORE_FOCUS_EVENT = 'react-aria-focus-scope-restore';
+ let $535772f9d2c1f38d$var$activeScope = null;
++// Runs on the next frame, or after 100 ms when the browser renders none (#298).
++function $st298$nextFrame(callback) {
++    let done = false;
++    let run = ()=>{
++        if (done) return;
++        done = true;
++        cancelAnimationFrame(frame);
++        clearTimeout(timer);
++        callback();
++    };
++    let frame = requestAnimationFrame(run);
++    let timer = setTimeout(run, 100);
++}
+ function $535772f9d2c1f38d$export$20e40289641fbbb6(props) {
+     let { children: children, contain: contain, restoreFocus: restoreFocus, autoFocus: autoFocus } = props;
+     let startRef = (0, $jmfRy$useRef)(null);
+@@ -530,7 +543,7 @@ function $535772f9d2c1f38d$var$useRestoreFocus(scopeRef, restoreFocus, contain)
+             if (restoreFocus && nodeToRestore && (activeElement && $535772f9d2c1f38d$var$isElementInChildScope(activeElement, scopeRef) || activeElement === ownerDocument.body && $535772f9d2c1f38d$var$shouldRestoreFocus(scopeRef))) {
+                 // freeze the focusScopeTree so it persists after the raf, otherwise during unmount nodes are removed from it
+                 let clonedTree = $535772f9d2c1f38d$export$d06fae2ee68b101e.clone();
+-                requestAnimationFrame(()=>{
++                $st298$nextFrame(()=>{
+                     // Only restore focus if we've lost focus to the body, the alternative is that focus has been purposefully moved elsewhere
+                     if (ownerDocument.activeElement === ownerDocument.body) {
+                         // look up the tree starting with our scope to find a nodeToRestore still in the DOM
 diff --git a/dist/private/utils/animation.cjs b/dist/private/utils/animation.cjs
-index d1d39f1d01864649688fc18a7b95d08cc7210908..77ed5f8e68e6c4a3ae2a09876e853b9483b1edba 100644
+index d1d39f1d01864649688fc18a7b95d08cc7210908..bef10903882fb9b815e69c5eea28344bca203389 100644
 --- a/dist/private/utils/animation.cjs
 +++ b/dist/private/utils/animation.cjs
-@@ -95,6 +95,7 @@ function $f77f64616fa97613$var$useAnimation(ref, isActive, onStart, onEnd) {
+@@ -95,14 +95,29 @@ function $f77f64616fa97613$var$useAnimation(ref, isActive, onStart, onEnd) {
                  onEnd();
                  return;
              }
-+            // A cancelled animation also completes its pending lifecycle.
-             Promise.all([
-                 startPromise,
-                 ...animations.map((a)=>a.finished)
-@@ -102,7 +103,11 @@ function $f77f64616fa97613$var$useAnimation(ref, isActive, onStart, onEnd) {
+-            Promise.all([
+-                startPromise,
+-                ...animations.map((a)=>a.finished)
+-            ]).then(()=>{
++            // The lifecycle ends when the animations finish or are cancelled, and at
++            // the latest when their timing says they are over: a browser that renders
++            // no frame does not advance them (#298).
++            let ended = false;
++            let end = ()=>{
++                if (ended) return;
++                ended = true;
++                clearTimeout(timer);
                  (0, $9Rk9E$reactdom.flushSync)(()=>{
                      onEnd();
                  });
 -            }).catch(()=>{});
-+            }, ()=>{
-+                (0, $9Rk9E$reactdom.flushSync)(()=>{
-+                    onEnd();
-+                });
-+            });
++            };
++            let remaining = Math.max(0, ...animations.map((a)=>{
++                let timing = a.effect?.getComputedTiming();
++                return timing ? Number(timing.endTime) - Number(timing.localTime ?? 0) : Infinity;
++            }));
++            let timer = Number.isFinite(remaining) ? setTimeout(()=>{
++                Promise.resolve(startPromise).then(end, end);
++            }, remaining + 50) : undefined;
++            Promise.all([
++                startPromise,
++                ...animations.map((a)=>a.finished)
++            ]).then(end, end);
          }
          isActiveRef.current = isActive;
      }, [
 diff --git a/dist/private/utils/animation.js b/dist/private/utils/animation.js
-index fd68f6ee38d80041dda176f276a428a90c817da6..b7366050b5a2408b74bf80459e6ca3f778195c8e 100644
+index fd68f6ee38d80041dda176f276a428a90c817da6..6e8301a7da8e20b58a46982a37b66966294f4aff 100644
 --- a/dist/private/utils/animation.js
 +++ b/dist/private/utils/animation.js
-@@ -88,6 +88,7 @@ function $3c19e3d939575a21$var$useAnimation(ref, isActive, onStart, onEnd) {
+@@ -88,14 +88,29 @@ function $3c19e3d939575a21$var$useAnimation(ref, isActive, onStart, onEnd) {
                  onEnd();
                  return;
              }
-+            // A cancelled animation also completes its pending lifecycle.
-             Promise.all([
-                 startPromise,
-                 ...animations.map((a)=>a.finished)
-@@ -95,7 +96,11 @@ function $3c19e3d939575a21$var$useAnimation(ref, isActive, onStart, onEnd) {
+-            Promise.all([
+-                startPromise,
+-                ...animations.map((a)=>a.finished)
+-            ]).then(()=>{
++            // The lifecycle ends when the animations finish or are cancelled, and at
++            // the latest when their timing says they are over: a browser that renders
++            // no frame does not advance them (#298).
++            let ended = false;
++            let end = ()=>{
++                if (ended) return;
++                ended = true;
++                clearTimeout(timer);
                  (0, $7ueWv$flushSync)(()=>{
                      onEnd();
                  });
 -            }).catch(()=>{});
-+            }, ()=>{
-+                (0, $7ueWv$flushSync)(()=>{
-+                    onEnd();
-+                });
-+            });
++            };
++            let remaining = Math.max(0, ...animations.map((a)=>{
++                let timing = a.effect?.getComputedTiming();
++                return timing ? Number(timing.endTime) - Number(timing.localTime ?? 0) : Infinity;
++            }));
++            let timer = Number.isFinite(remaining) ? setTimeout(()=>{
++                Promise.resolve(startPromise).then(end, end);
++            }, remaining + 50) : undefined;
++            Promise.all([
++                startPromise,
++                ...animations.map((a)=>a.finished)
++            ]).then(end, end);
          }
          isActiveRef.current = isActive;
      }, [
 diff --git a/dist/private/utils/animation.mjs b/dist/private/utils/animation.mjs
-index 19ec347e71c6fdd6a7a1ed6a71212d485f77c945..947ccb1da9cb36b6f140e93b38fc6dc4afb796e7 100644
+index 19ec347e71c6fdd6a7a1ed6a71212d485f77c945..ce5630abe0bbd80f289edd0affe32479d5a5d0cf 100644
 --- a/dist/private/utils/animation.mjs
 +++ b/dist/private/utils/animation.mjs
-@@ -88,6 +88,7 @@ function $fcc7165e876206c6$var$useAnimation(ref, isActive, onStart, onEnd) {
+@@ -88,14 +88,29 @@ function $fcc7165e876206c6$var$useAnimation(ref, isActive, onStart, onEnd) {
                  onEnd();
                  return;
              }
-+            // A cancelled animation also completes its pending lifecycle.
-             Promise.all([
-                 startPromise,
-                 ...animations.map((a)=>a.finished)
-@@ -95,7 +96,11 @@ function $fcc7165e876206c6$var$useAnimation(ref, isActive, onStart, onEnd) {
+-            Promise.all([
+-                startPromise,
+-                ...animations.map((a)=>a.finished)
+-            ]).then(()=>{
++            // The lifecycle ends when the animations finish or are cancelled, and at
++            // the latest when their timing says they are over: a browser that renders
++            // no frame does not advance them (#298).
++            let ended = false;
++            let end = ()=>{
++                if (ended) return;
++                ended = true;
++                clearTimeout(timer);
                  (0, $5MIG0$flushSync)(()=>{
                      onEnd();
                  });
 -            }).catch(()=>{});
-+            }, ()=>{
-+                (0, $5MIG0$flushSync)(()=>{
-+                    onEnd();
-+                });
-+            });
++            };
++            let remaining = Math.max(0, ...animations.map((a)=>{
++                let timing = a.effect?.getComputedTiming();
++                return timing ? Number(timing.endTime) - Number(timing.localTime ?? 0) : Infinity;
++            }));
++            let timer = Number.isFinite(remaining) ? setTimeout(()=>{
++                Promise.resolve(startPromise).then(end, end);
++            }, remaining + 50) : undefined;
++            Promise.all([
++                startPromise,
++                ...animations.map((a)=>a.finished)
++            ]).then(end, end);
          }
          isActiveRef.current = isActive;
      }, [

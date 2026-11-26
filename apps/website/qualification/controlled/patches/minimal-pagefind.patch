@@ -4,7 +4,7 @@
  [package]
  name = "pagefind"
 -version = "0.0.0"
-+version = "1.5.2"
++version = "1.6.0"
  edition = "2021"
  include = ["/src", "/vendor", "/features", "/tests"]
  description = "Implement search on any static website."
@@ -17,12 +17,12 @@
  ] }
  portpicker = { version = "0.1", optional = true }
 @@ -98,6 +97,6 @@
- tikv-jemallocator = "0.6"
+ tikv-jemallocator = "0.7"
  
  [features]
 -default = ["serve"]
 +default = []
- extended = ["dep:charabia"]
+ extended = ["dep:icu_segmenter"]
  serve = ["dep:actix-web", "dep:actix-files", "dep:portpicker"]
 --- a/Cargo.toml
 +++ b/Cargo.toml
@@ -40,7 +40,7 @@
  [package]
  name = "pagefind_web"
 -version = "0.0.0"
-+version = "1.5.2"
++version = "1.6.0"
  edition = "2021"
  description = "WebAssembly search implementation for Pagefind"
  repository = "https://github.com/Pagefind/pagefind"
