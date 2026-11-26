@@ -8,21 +8,37 @@ const accountLabel = (language?: "en" | "de") =>
 
 /** Explicit navigation through the compact entry to the owned Account dialog. */
 export async function openPanelAccount(panel: Panel, language?: "en" | "de") {
-  await panel.find("button", signedInAccount);
   if ((await panel.query("dialog", signedInAccount)).length) return;
+  const chip = await panel.find("button", signedInAccount);
   const label = accountLabel(language);
-  if (!(await panel.query("dialog", label)).length)
-    await panel.click("button", signedInAccount);
-  await panel.click("button", label);
+  // The outgoing entry can remain in the accessibility tree during an overlay
+  // handoff. Read the trigger's actual state before deciding to toggle it.
+  const expanded = await panel.call<boolean>(
+    chip,
+    "function () { return this.getAttribute('aria-expanded') === 'true'; }",
+  );
+  if (!expanded) await panel.click("button", signedInAccount);
+  // The first Quota reply can move the compact entry after pointer coordinates
+  // are measured. Exercise its accessible keyboard action with trusted CDP
+  // input, so this navigation does not race that asynchronous layout change.
+  await panel.send("DOM.focus", {
+    backendNodeId: await panel.find("button", label),
+  });
+  for (const type of ["keyDown", "keyUp"])
+    await panel.send("Input.dispatchKeyEvent", {
+      type,
+      key: "Enter",
+      code: "Enter",
+      windowsVirtualKeyCode: 13,
+    });
   await panel.find("dialog", signedInAccount);
+  await panel.gone("dialog", label);
 }
 
 export async function openFirefoxAccount(
   browser: NativeFirefox,
   language?: "en" | "de",
 ) {
-  // Identity changes remount the workspace; wait for the signed-in chip first.
-  await browser.find("pushbutton", signedInAccount);
   const tree = await browser.tree();
   if (
     tree.some(
@@ -30,6 +46,8 @@ export async function openFirefoxAccount(
     )
   )
     return;
+  // An already-open modal hides the chip; inspect it before waiting for the chip.
+  await browser.find("pushbutton", signedInAccount);
   const label = accountLabel(language);
   if (
     !tree.some(
@@ -46,17 +64,19 @@ export async function openFirefoxAccount(
 }
 
 export async function openWebAccount(page: Page, language?: "en" | "de") {
+  const dialog = page.getByRole("dialog", { name: signedInAccount });
+  if (await dialog.isVisible()) return;
   await page
     .getByRole("button", { name: signedInAccount })
     .waitFor({ state: "visible" });
-  const dialog = page.getByRole("dialog", { name: signedInAccount });
-  if (await dialog.isVisible()) return;
   const label = accountLabel(language);
   const entry = page.getByRole("dialog", { name: label, exact: true });
   if (!(await entry.isVisible()))
     await page.getByRole("button", { name: signedInAccount }).click();
   await entry.getByRole("button", { name: label, exact: true }).click();
   await dialog.waitFor({ state: "visible" });
+  // RAC keeps the outgoing compact entry mounted during its exit transition.
+  await entry.waitFor({ state: "hidden" });
 }
 
 /** Guest identity opens a compact entry; sign-in itself lives in a modal. */
