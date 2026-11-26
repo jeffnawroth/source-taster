@@ -308,7 +308,7 @@ for (const language of ["unknown", "de", "en"]) {
   if (
     actual !==
     receipt.files[
-      `source/pagefind/vendor/wasm/pagefind_web_bg.${language}.1.5.2.wasm.gz`
+      `source/pagefind/vendor/wasm/pagefind_web_bg.${language}.1.6.0.wasm.gz`
     ]
   )
     throw new Error(

@@ -335,6 +335,8 @@ Esc closes DetailPane and returns focus to the card; Back does the same for Deta
 > **Accepted in ADR-0027.** Accepted by the owner on 10 November 2026 in [#206](https://github.com/jeffnawroth/source-taster/issues/206#issuecomment-6770556807). Apply to fields is a draft-only convenience; explicit Save and re-check alone commits/runs. Copy and transient export selection remain separate. Implementation and qualification are still required.
 
 **TrackedChange** — a preview of the Correction suggestion against the original, never an editor.
+
+**Correction suggestion slot** — the suggestion sits above the field editor, Re-check and Manual judgment, and its response arrives after the detail opens. While the server is expected to prove a suggestion, the slot holds the section's room (a hidden stand-in with the section's own structure and the original's text, no colour, no motion) next to the single "Formatting…" line, and it keeps that height once the section replaces the stand-in. The controls below therefore keep their viewport position when the suggestion arrives, with nothing applied and with a correction applied. The documented order stays; the section is not moved below the rows, and no scroll is corrected (scroll anchoring is absent in WebKit and suspended at the top of a scroller).
 - Deletions: `correction-delete-text` with a neutral strike (`correction-delete-line`) on `correction-delete-bg`.
 - Insertions: `text` on the neutral `correction-insert-bg` with a 2 px `correction-insert-line` underline. Never green.
 - Screen readers get "gelöscht: …" / "eingefügt: …" through visually hidden text.

@@ -19,6 +19,7 @@ import { Form } from "./primitives/fields.tsx";
 import { AlertDialog, Modal } from "./primitives/overlays.tsx";
 import {
   CorrectionSuggestion,
+  suggestionExpected,
   type Rendered,
 } from "./correction-suggestions.tsx";
 import { availability, type FieldEditing } from "./reference-fields.tsx";
@@ -294,6 +295,7 @@ export function ReferenceActions({
         unavailableReason={unavailableReason}
         operationRunning={operationRunning}
         provenance={provenance}
+        expected={suggestionExpected(reference)}
       />
       <Modal
         isOpen={replacement !== null}

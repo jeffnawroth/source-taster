@@ -427,6 +427,72 @@ export function probesFor(id: string): Probe[] {
         built: ".detail-compare",
         geometry: ["x", "width"],
       },
+      {
+        name: "detail-candidates-section",
+        prototype: '.v-D .dsec:has([data-act^="exp:cand"])',
+        built: ".detail-section:has(.detail-candidates)",
+        geometry: ["x", "width", "height"],
+      },
+      {
+        name: "detail-candidates-toggle",
+        prototype: '.v-D .detail [data-act^="exp:cand"]',
+        built: ".detail-toggle",
+        geometry: ["x", "width", "height"],
+        styles: ["font-size", "font-weight", "line-height"],
+      },
+      {
+        name: "detail-evidence-row",
+        prototype: ".v-D .detail .trail li:first-child",
+        built: ".detail-trail:first-child",
+        geometry: ["x", "width", "height"],
+        styles: ["font-size", "line-height", "padding-top", "row-gap"],
+      },
+      {
+        name: "detail-evidence-source-name",
+        prototype: ".v-D .detail .trail li:first-child .mono",
+        built: ".detail-trail:first-child .detail-src-name",
+        geometry: ["x", "width", "height"],
+        styles: ["font-size", "font-weight", "line-height"],
+      },
+      {
+        name: "detail-disclosure-chevron",
+        prototype: ".v-D .detail details[data-manual-fixture] > summary > .ico",
+        built:
+          ".detail-actions > .detail-evidence > .detail-disclosure > summary > svg",
+        geometry: ["x", "width", "height"],
+      },
+      {
+        name: "detail-disclosure-summary",
+        prototype: ".v-D .detail details[data-manual-fixture] > summary",
+        built:
+          ".detail-actions > .detail-evidence > .detail-disclosure > summary",
+        geometry: ["x", "width", "height"],
+        styles: ["font-size", "font-weight", "line-height"],
+      },
+    );
+  if (id.includes("detail-edit"))
+    probes.push(
+      {
+        name: "editor-author-add",
+        prototype: '[data-editor-snapshot-action="author-add"]',
+        built: ".detail-authors > .detail-row button",
+        geometry: ["x", "y", "width", "height"],
+        styles: ["font-size", "line-height", "padding-top", "padding-bottom"],
+      },
+      {
+        name: "editor-author-truncation",
+        prototype: '[data-editor-path="authorsTruncated"]',
+        built: '.detail-authors input[type="checkbox"]',
+        geometry: ["x", "y", "width", "height"],
+        styles: ["margin-top", "margin-bottom", "border-top-width"],
+      },
+      {
+        name: "editor-author-truncation-label",
+        prototype: '.v-D .cmp label:has([data-editor-path="authorsTruncated"])',
+        built: ".detail-authors > .detail-check",
+        geometry: ["x", "y", "width", "height"],
+        styles: ["font-size", "line-height", "row-gap"],
+      },
     );
   // D's active filter: a chip in the compact strip, a row beside the wide one.
   if (id.includes("-filter-"))
