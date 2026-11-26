@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Bundle Pagefind's browser JS from pinned source with the project's Rolldown
-// 1.2.15 JS API. Run only by pagefind-source.ts under website-native-trace.ts,
+// 1.2.19 JS API. Run only by pagefind-source.ts under website-native-trace.ts,
 // so the Rolldown native binding executed here is the controlled source build.
 import { writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
@@ -24,7 +24,7 @@ const rolldownPackage = resolveFrom(vite, "rolldown/package.json");
 const rolldown = (await import(
   pathToFileURL(resolve(rolldownPackage, "../dist/index.mjs")).href
 )) as typeof Rolldown;
-if (rolldown.VERSION !== "1.2.15") throw new Error("Rolldown 1.2.15 required");
+if (rolldown.VERSION !== "1.2.19") throw new Error("Rolldown 1.2.19 required");
 const modules: Record<string, string[]> = {};
 for (const [entry, format, name] of [
   ["public_search_api", "esm", "pagefind_public_search_api.1.6.0.js"],
