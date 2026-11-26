@@ -770,7 +770,7 @@ await writeFile(
       cc,
       hostTools,
       cmake: cmakeInput.version,
-      rolldown: "1.2.15",
+      rolldown: "1.2.19",
       nativeFeatures: [],
       wasmFeatures: ["de", "en"],
       files,

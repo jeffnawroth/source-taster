@@ -61,10 +61,10 @@
       "folder": "rolldown",
       "file": "Cargo.lock",
       "repository": "https://github.com/rolldown/rolldown",
-      "tag": "v1.2.15",
-      "commit": "89d821ca07cf9ccd84dd92bd3f48af0f579ab21a",
+      "tag": "v1.2.19",
+      "commit": "b9c75ddc8bd50f2c1a4c7be0b548bdab5cba85ab",
       "upstreamPath": "Cargo.lock",
-      "sha256": "bf58f901950f80c21e00dffa4953f61c366bcca53f80c526177ba0dad14debe5"
+      "sha256": "53b61b7076839e2c9c4d906eeeee4d49509be6b93d6ce93a6d1388a467b81657"
     }
   ]
 }
