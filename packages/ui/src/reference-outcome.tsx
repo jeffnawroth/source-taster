@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import type { ReactNode } from "react";
+import { useContext, type ReactNode } from "react";
 import type {
   ManualOverride,
   ReferenceOutcome,
@@ -23,7 +23,8 @@ import {
 import {
   VerdictGlyph,
   StatusIcon,
-  statusLabels,
+  ConnectionLostContext,
+  useStatusLabel,
   verdictLabels,
   type Status,
 } from "./outcome-badges.tsx";
@@ -254,10 +255,17 @@ export function VerdictChip({
   );
 }
 export function StatusChip({ status }: { status: Status }) {
+  const label = useStatusLabel();
+  // A running slot of a lost connection is neutral and still, like any status
+  // the service is not working on.
+  const lost = useContext(ConnectionLostContext) && status === "running";
   return (
-    <span className="status-chip" data-status={status}>
-      <StatusIcon status={status} />
-      <span>{m[statusLabels[status]]()}</span>
+    <span
+      className="status-chip"
+      data-status={lost ? "connection-lost" : status}
+    >
+      <StatusIcon status={lost ? "not-checked" : status} />
+      <span>{label(status)}</span>
     </span>
   );
 }
