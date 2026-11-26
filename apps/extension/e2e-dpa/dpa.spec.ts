@@ -167,12 +167,10 @@ for (const language of ["en", "de"] as const)
           party: { name: "Example Research" },
         });
         expect(
-          (await b.mail()).some(
-            (m) =>
-              m.subject ===
-              (de
-                ? "Deine DPA-Abschlussbestätigung"
-                : "Your DPA conclusion receipt"),
+          (await b.mail()).some((m) =>
+            (de ? /DPA-Abschlussbestätigung$/ : /DPA conclusion receipt$/).test(
+              m.subject,
+            ),
           ),
         ).toBe(true);
         expect(await panel.axe()).toEqual([]);

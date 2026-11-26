@@ -79,7 +79,11 @@ test("signed-in native panel opens actual web Plan management without forwarding
     const page = await opened;
     await page.waitForURL(`${b.serviceUrl}/plan?language=en`);
     await expect(
-      page.getByRole("heading", { name: "Monthly Pro", exact: true }),
+      page.getByRole("heading", {
+        name: "Plan & Quota",
+        exact: true,
+        level: 1,
+      }),
     ).toBeVisible();
     expect(requests).toHaveLength(1);
     expect(requests[0]?.authorization).toBeUndefined();

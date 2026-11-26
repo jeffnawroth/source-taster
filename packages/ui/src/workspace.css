@@ -385,6 +385,11 @@ body {
 .account-entry .st-progress {
   gap: 0;
 }
+/* Quota arrives independently of the signed-in identity. Keep the Account
+   actions in place without displaying a guessed Plan, meter or balance. */
+.account-entry .account-entry-placeholder {
+  visibility: hidden;
+}
 .account-entry .st-progress > :is(label, .react-aria-Label) {
   font-size: var(--st-text-2xs);
   font-weight: 600; /* #194 .eyebrow */

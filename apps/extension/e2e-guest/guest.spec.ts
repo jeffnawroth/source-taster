@@ -264,7 +264,7 @@ test("web and extension keep separate Guest IDs and Preferences in the same nati
     expect(stored[preferencesKey]).toBeUndefined();
     expect(JSON.stringify(local)).not.toContain(extension.guestId);
     // The panel keeps its own language; the web choice does not reach it.
-    expect(await panel.query("button", "Check reference")).not.toEqual([]);
+    expect(await panel.evaluate("document.documentElement.lang")).toBe("en");
   });
 });
 
@@ -292,6 +292,7 @@ async function renewal(browser: NativeChromium) {
     );
     const [structure] = bearer(panel, "/v2/structurings");
     expect(structure).toMatch(/^Bearer /);
+    await panel.closeStructuringPreview();
     await new Promise((r) => setTimeout(r, 11_000));
     await both.advance(60_000);
     await check(panel);
@@ -506,9 +507,9 @@ for (const language of ["en", "de"] as const) {
   });
 }
 
-test("a Guest without Check creation permission is refused by the API in the native panel, keeping the same Guest ID", async () => {
+test("withdrawn Guest Check permission refuses Quota admission on native panel reopen without replacing the Guest ID", async () => {
   await native(async (browser) => {
-    const panel = await browser.openPanel();
+    let panel = await browser.openPanel();
     await check(panel);
     await results(panel);
     const id = issued(panel)[0]!.guestId;
@@ -516,22 +517,28 @@ test("a Guest without Check creation permission is refused by the API in the nat
       permissions: withoutCheckCreation,
       client: "extension",
     });
-    await panel.newCheck();
-    const mark = panel.responses.length;
-    await check(panel);
-    // The fail-closed Quota read before the Check is already refused, so the
-    // refusal may come from it instead of POST /v2/checks.
+    // Reopening makes the actual Quota admission read observe the withdrawn
+    // permission. The host can refuse access before an intake exists; do not
+    // try to fill a control after that fail-closed response has removed it.
+    panel.detach();
+    await browser.triggerAction();
     await until(
-      () => refused(panel.responses.slice(mark)),
+      async () => (await browser.panelTargets()).length === 0,
+      "The side panel did not close",
+    );
+    panel = await browser.openPanel();
+    await until(
+      () => refused(panel.responses),
       "The API accepted a Check without permission",
     );
     await until(
-      async () =>
-        (await alerts(panel)).includes(
-          "Check that you are signed in to the right account. You do not have permission for this action.",
+      () =>
+        panel.evaluate<boolean>(
+          `document.querySelector('[data-testid="quota-unavailable"]')?.textContent?.includes("A check starts only once your balance can be read.") ?? false`,
         ),
-      "The refused Check was not reported",
+      "The refused Quota admission was not reported",
     );
+    expect(await panel.query("meter")).toEqual([]);
     expect(issued(panel).every((r) => r.guestId === id)).toBe(true);
     expect((await browser.storage())[identityKey]).toBe(id);
     expect(

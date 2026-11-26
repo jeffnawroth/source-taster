@@ -698,19 +698,28 @@ export function AccountWorkspace({
                   </div>
                 </>
               )}
-              {signedIn && quota && (
+              {signedIn && (
                 <div className="account-entry-row">
                   <span className="account-entry-eyebrow">
                     {m.account_plan()}
                   </span>
-                  <span className="account-plan-tag">
-                    {quota.grants.some((grant) => grant.kind === "pro")
-                      ? m.account_plan_pro()
-                      : m.account_plan_free()}
-                  </span>
+                  {quota ? (
+                    <span className="account-plan-tag">
+                      {quota.grants.some((grant) => grant.kind === "pro")
+                        ? m.account_plan_pro()
+                        : m.account_plan_free()}
+                    </span>
+                  ) : (
+                    <span
+                      className="account-plan-tag account-entry-placeholder"
+                      aria-hidden="true"
+                    >
+                      —
+                    </span>
+                  )}
                 </div>
               )}
-              {quota && summary && (
+              {quota && summary ? (
                 <Meter
                   label={m.quota_meter_label()}
                   valueLabel={summary}
@@ -725,6 +734,19 @@ export function AccountWorkspace({
                   value={quota.remaining}
                   maxValue={Math.max(1, quota.granted)}
                 />
+              ) : (
+                // Reserve the real label/track/value line boxes. This is not a
+                // Meter and declares no balance while its authority is absent.
+                <div
+                  className="st-progress flex flex-col gap-1 text-sm text-text account-entry-placeholder"
+                  aria-hidden="true"
+                >
+                  <span className="react-aria-Label">
+                    {m.quota_meter_label()}
+                  </span>
+                  <div className="st-track" />
+                  <span className="st-meter-value">—</span>
+                </div>
               )}
               {storage}
               {upgradeUrl && (
