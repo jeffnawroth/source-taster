@@ -107,7 +107,10 @@ function EvidenceTrack({ reference }: { reference: ReferenceSlot }) {
   const { outcome } = reference;
   const lost = useContext(ConnectionLostContext);
   if (outcome.kind === "status") {
-    if (outcome.status !== "running") return null;
+    if (outcome.status !== "running")
+      // D retains the track's footprint for every card. A terminal Status
+      // has no evidence to invent, but must not pull the following cards up.
+      return <div className="card-track" aria-hidden="true" />;
     // Without the connection the step is not known: no current node, no step.
     const queued = lost || reference.progress === "queued";
     const text = lost ? m.reference_connection_lost() : runningText(reference);
