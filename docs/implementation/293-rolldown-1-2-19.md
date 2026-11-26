@@ -95,7 +95,7 @@ closure of the executed artifacts. No advisory is suppressed or excepted.
 | Scan                                     | Packages | Findings | Blocking |
 | ---------------------------------------- | -------- | -------- | -------- |
 | Main 47c0bec (Vite 8.3.5, Rolldown 1.2.15) | n/a    | n/a      | 0 (GHSA-p4f5-76q4-ffq7 is not in OSV, see above) |
-| This branch (macOS arm64, DB 2026-11-26) | 2,755    | 45       | 0        |
+| Branch at 270d8da (macOS arm64, DB 2026-11-26) | 2,755    | 45       | 0        |
 
 Graph sizes on macOS arm64:
 
@@ -111,8 +111,8 @@ Graph sizes on macOS arm64:
 license issue. The new crates in the Rolldown graph resolve to entries already in
 `licenses/policy.json`, so the policy is unchanged.
 
-The Linux amd64 receipt comes from the CI `dependencies` job and is linked from
-this PR's description.
+The Linux amd64 receipt comes from the CI `dependencies` job of the merged head; the
+PR description links that run.
 
 ## Build output of the apps
 
@@ -136,7 +136,9 @@ The built UI is therefore visually unchanged.
 
 ## Validation
 
-Branch `chore/293-rolldown-1.2.19`. Host: macOS 27.2 arm64, Node 24, pnpm 12.15.0.
+Branch `chore/293-rolldown-1.2.19` at `270d8da` (base main `47c0bec`), before main was
+merged in. Later merges from main did not touch the Rolldown pin or the controlled
+recipe. Host: macOS 27.2 arm64, Node 24, pnpm 12.15.0.
 The scan used OSV-Scanner 2.7.0 (`osv-scanner_darwin_arm64`, SHA-256
 `d4926ef8…f70b`, as listed in the release `SHA256SUMS`), offline. Advisory
 database `Last-Modified`: npm 2026-11-26 13:33:21 GMT, crates.io 2026-11-26
