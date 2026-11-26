@@ -6,5 +6,8 @@ export default defineConfig({
     fileParallelism: false,
     testTimeout: 60000,
     hookTimeout: 60000,
+    // Real API/worker transitions must tolerate shared CI runner latency, as in
+    // vitest.config.ts (#235).
+    expect: { poll: { timeout: 15_000 } },
   },
 });
