@@ -56,10 +56,16 @@ export function HowItWorksDialog({
 }
 
 /** #194 D feed .foot: the Verdict disclaimer with its inline method link. */
-export function FeedDisclaimer({ quota = false }: { quota?: boolean }) {
+export function FeedDisclaimer({
+  quota = false,
+  onOpenChange,
+}: {
+  quota?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) {
   // A DialogTrigger moves focus into the Dialog and back to the link on close.
   return (
-    <Aria.DialogTrigger>
+    <Aria.DialogTrigger onOpenChange={onOpenChange}>
       <p className="note-row">
         <Shield aria-hidden="true" size={16} />
         <span>
