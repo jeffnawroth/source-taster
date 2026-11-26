@@ -351,10 +351,39 @@ export function CheckWorkspace({
     after: number;
     skipped: number;
   } | null>(null);
+  const [countedMenuOpen, setCountedMenuOpen] = useState(false);
+  const [countedResetOpen, setCountedResetOpen] = useState(false);
+  const [countedHelpOpen, setCountedHelpOpen] = useState(false);
+  const countedOverlayOpen =
+    countedMenuOpen || countedResetOpen || countedHelpOpen;
   const countedPreview =
-    !check &&
+    (!check || countedOverlayOpen) &&
     !!preview?.references.length &&
-    (pending === "create" || quotaChoice !== null);
+    (pending === "create" || quotaChoice !== null || countedOverlayOpen);
+  const hasCheck = !!check;
+  const resultsRef = useRef<HTMLElement>(null);
+  const wasCounted = useRef(false);
+  const countedHadOverlay = useRef(false);
+  useEffect(() => {
+    if (countedOverlayOpen) countedHadOverlay.current = true;
+  }, [countedOverlayOpen]);
+  useEffect(() => {
+    const handover =
+      wasCounted.current &&
+      !countedPreview &&
+      hasCheck &&
+      countedHadOverlay.current;
+    wasCounted.current = countedPreview;
+    if (!handover) return;
+    countedHadOverlay.current = false;
+    // Restore focus after React Aria releases the removed trigger's FocusScope.
+    const frame = requestAnimationFrame(() => {
+      resultsRef.current
+        ?.querySelector<HTMLButtonElement>('button[aria-haspopup="true"]')
+        ?.focus();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [countedPreview, hasCheck]);
   /** Reads the acting identity's balance; throws when the read fails. */
   async function readQuota() {
     try {
@@ -920,6 +949,10 @@ export function CheckWorkspace({
     setSelectionLimit(null);
     setCheck(null);
     setPreview(null);
+    setCountedMenuOpen(false);
+    setCountedResetOpen(false);
+    setCountedHelpOpen(false);
+    countedHadOverlay.current = false;
     setPending(null);
     setQuotaChoice(null);
     setQuotaNote(null);
@@ -1193,7 +1226,10 @@ export function CheckWorkspace({
     <div className="workspace-notes">
       {devNote}
       {storageNote}
-      <FeedDisclaimer quota={hostedQuota} />
+      <FeedDisclaimer
+        quota={hostedQuota}
+        onOpenChange={countedPreview ? setCountedHelpOpen : undefined}
+      />
       {hostedQuota &&
         (quota ? (
           <QuotaBalance
@@ -1503,13 +1539,11 @@ export function CheckWorkspace({
         }
       />
       {accountNotice}
-      {!check && (
-        <HowItWorksDialog
-          isOpen={howOpen}
-          onOpenChange={setHowOpen}
-          quota={hostedQuota}
-        />
-      )}
+      <HowItWorksDialog
+        isOpen={howOpen}
+        onOpenChange={setHowOpen}
+        quota={hostedQuota}
+      />
       <Modal isOpen={preferencesOpen} onOpenChange={setPreferencesOpen}>
         <Dialog className="workspace-dialog">
           {({ close }) => (
@@ -1622,6 +1656,8 @@ export function CheckWorkspace({
           }
           footer={feedNotes}
           onReset={reset}
+          onMenuOpenChange={setCountedMenuOpen}
+          onResetOpenChange={setCountedResetOpen}
         />
       )}
       {!check && !countedPreview && (
@@ -1906,8 +1942,12 @@ export function CheckWorkspace({
       <p className="sr-only" aria-live="polite" aria-atomic="true">
         {structuredNote ? structuringSummary(structuredNote) : ""}
       </p>
-      {check && (
-        <section aria-labelledby="results-title" className="workspace-results">
+      {check && !countedPreview && (
+        <section
+          ref={resultsRef}
+          aria-labelledby="results-title"
+          className="workspace-results"
+        >
           <h2 id="results-title" className="sr-only">
             {m.results_heading()}
           </h2>
