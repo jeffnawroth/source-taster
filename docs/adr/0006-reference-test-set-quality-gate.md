@@ -4,7 +4,7 @@ The client accepted this decision on 24 October 2026 in [Reference test set and 
 
 The quality targets of section 14.4 are measured on a frozen Reference test set. The set is never used to tune thresholds and is kept in a private, versioned dataset repository. In the gate, Data source responses are replayed, while AI extraction runs live three times. A configuration that has not passed cannot be released or activated, whether it is changed by a release or in the Operator area.
 
-This makes the Data source side of every measurement reproducible and independent of drifting external metadata, and keeps the targets hard to game. The cost is a second, separately built Development set and human review of every record's ground truth.
+This makes the Data source side of every measurement reproducible and independent of drifting external metadata, and keeps the targets hard to game. The cost is a second, separately built Development set and a reviewed ground truth for every record ([ADR-0028](0028-agent-ground-truth-review.md) allows an agent to do the review).
 
 This ADR fixes the protocol only. Two things are out of scope:
 
@@ -73,10 +73,10 @@ On top of the section 14.4 launch minimums, the launch version of the Reference 
 
 - **Real records.**
   - An agent may prepare a record.
-  - A human checks the accepted identifiers and expected fields against the canonical entry before the record enters a set. The canonical entry is the DOI landing page, the publisher page or a library catalog.
+  - A reviewer, human or agent under the method of [ADR-0028](0028-agent-ground-truth-review.md), checks the accepted identifiers and expected fields against the canonical entry before the record enters a set. The canonical entry is the DOI landing page, the publisher page or a library catalog.
   - The canonical entry proves identity and existence. Expected field values stay as written in the Reference ([ADR-0010](0010-ai-provider-model.md)).
 - **Invented records.**
-  - Before entering a set, each one is confirmed as non-existent against all Data sources and by web search.
+  - Before entering a set, each one is confirmed as non-existent against all Data sources and by web search, with the queries logged (ADR-0028).
   - If the work does exist, the record is reclassified: as falsified if the citation contains errors, otherwise as real.
 
 ## Pass rule
@@ -184,7 +184,7 @@ Separate suites live in the same private repository, each with its acceptance cr
 
 ## Consequences
 
-- **More corpus work.** A second, Development set of the same build quality is needed, together with human review of every record and 11 styles at launch.
+- **More corpus work.** A second, Development set of the same build quality is needed, together with reviewed ground truth for every record (ADR-0028) and 11 styles at launch.
 - **Gate cost.** Each gate run makes three live AI passes over the full set.
 - **Operator activation depends on measurement.** A model or threshold switch takes as long as a gate run.
 - **Handed-off interfaces:**
