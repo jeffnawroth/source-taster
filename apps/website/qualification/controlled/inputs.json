@@ -36,11 +36,11 @@
     "sha256": "2455866699fddb245c400010fd0b5341151ee14d6cf3b076e5dd17f74a336ebf"
   },
   "rolldown": {
-    "version": "1.2.15",
-    "tag": "v1.2.15",
-    "commit": "89d821ca07cf9ccd84dd92bd3f48af0f579ab21a",
-    "url": "https://codeload.github.com/rolldown/rolldown/tar.gz/89d821ca07cf9ccd84dd92bd3f48af0f579ab21a",
-    "sha256": "54437dbfdf9030fc0aca4b1c1d3869147c4f5b49739fd6c4a6af2c7beacaf1ff"
+    "version": "1.2.19",
+    "tag": "v1.2.19",
+    "commit": "b9c75ddc8bd50f2c1a4c7be0b548bdab5cba85ab",
+    "url": "https://codeload.github.com/rolldown/rolldown/tar.gz/b9c75ddc8bd50f2c1a4c7be0b548bdab5cba85ab",
+    "sha256": "43b03063f86d0010194ac9d77d40e39c5c819839b5066758f1ee5f37fc38b549"
   },
   "satteri": {
     "version": "0.10.5",
