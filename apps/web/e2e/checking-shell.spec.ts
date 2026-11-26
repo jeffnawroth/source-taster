@@ -557,3 +557,25 @@ for (const language of ["en", "de"] as const)
       ),
     ).toBe(true);
   });
+
+test("cancelling a Reference keeps its feed card footprint", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page
+    .getByRole("textbox", { name: "Reference", exact: true })
+    .fill("Doe, J. (2020). Held Reference. doi:10.5555/browser-held");
+  await page
+    .getByRole("button", { name: "Check reference", exact: true })
+    .click();
+  const row = page
+    .getByRole("grid", { name: "References", exact: true })
+    .getByRole("row");
+  await expect(row).toBeVisible();
+  const before = (await row.boundingBox())!.height;
+  await page.getByRole("button", { name: "Cancel check", exact: true }).click();
+  await expect(row).toContainText("Cancelled");
+  expect(
+    Math.abs((await row.boundingBox())!.height - before),
+  ).toBeLessThanOrEqual(1);
+});
