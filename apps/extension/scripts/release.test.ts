@@ -33,10 +33,19 @@ function unzip(bytes: Buffer) {
     const nameLength = bytes.readUInt16LE(cursor + 28);
     const local = bytes.readUInt32LE(cursor + 42);
     const name = bytes.toString("utf8", cursor + 46, cursor + 46 + nameLength);
-    const start = local + 30 + bytes.readUInt16LE(local + 26);
+    // The local header repeats the name and may carry its own extra field.
+    const start =
+      local +
+      30 +
+      bytes.readUInt16LE(local + 26) +
+      bytes.readUInt16LE(local + 28);
     const body = bytes.subarray(start, start + size);
     entries.set(name, method === 8 ? inflateRawSync(body) : Buffer.from(body));
-    cursor += 46 + nameLength;
+    cursor +=
+      46 +
+      nameLength +
+      bytes.readUInt16LE(cursor + 30) +
+      bytes.readUInt16LE(cursor + 32);
   }
   return entries;
 }
