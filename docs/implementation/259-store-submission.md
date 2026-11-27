@@ -64,8 +64,10 @@ pnpm --filter @source-taster/extension release          # both zips
 pnpm --filter @source-taster/extension release:source   # AMO source package, clean HEAD only
 ```
 
-`pnpm --filter @source-taster/extension release:rehearsal` runs the same flow with
-reserved `.invalid` hosts and writes `*-rehearsal.zip` files. Use it to check the
+`pnpm --filter @source-taster/extension release:rehearsal` builds both packages with
+reserved `.invalid` hosts and writes `*-rehearsal.zip` files (add
+`node scripts/release.ts source --rehearsal` for a rehearsal source package, which
+needs a clean git checkout). Use it to check the
 toolchain. A rehearsal package cannot be uploaded by mistake: its API host never
 resolves, and a real run rejects reserved hosts.
 
@@ -397,8 +399,8 @@ can do it.
 
 ## 9. Known gaps and what was not verified
 
-- Builds were verified on macOS only. The AMO README does not claim an Ubuntu
-  result. The `git archive` source package rebuild check is recorded in section 10.
+- Reproducibility was verified on macOS arm64 and on Ubuntu 24.04 arm64 (section 10).
+  x86-64 Linux was not run.
 - The panel has not been run in Edge. The Chromium zip is the one used for Chrome
   and uses the `sidePanel` API; whether Edge honours it was not tested.
   **Owner:** open the Chromium build in Edge before submitting there. If it fails,
@@ -416,6 +418,17 @@ twice gave identical SHA-256 sums for both zips. The repository test
 (`apps/extension/scripts/release.test.ts`) repeats the check with real Vite
 builds and asserts the manifest, the locales, the version, the Gecko ID and the
 absence of loopback addresses and source maps.
+
+Source package round trip, same machine: `release:source` (rehearsal) was extracted
+into an empty directory under `/tmp`, then `pnpm install --frozen-lockfile`, the
+`turbo run build --filter='@source-taster/extension^...'` step and the release
+build from the README ran there. Both the Firefox zip and the Chromium zip had
+the same SHA-256 as the build in the repository checkout. The same round trip ran
+in a fresh `ubuntu:24.04` container (arm64, Node 24.14.0 from nodejs.org, npm
+11.9.0, pnpm 12.15.0) and gave the same SHA-256 for both zips again. That is the
+AMO reviewers' default environment, so the source package is complete, the build
+does not depend on the checkout, and the Firefox zip reproduces byte for byte
+on both macOS and Ubuntu. Not run: x86-64 Linux and Windows.
 
 ## 11. Sources
 

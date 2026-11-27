@@ -9,10 +9,10 @@ with Vite.
 
 ## Environment
 
-- Ubuntu 24.04 (the AMO default builder). The maintainers verified that two builds
-  give identical bytes on macOS; the Ubuntu result is whatever your rebuild shows.
-  If it differs from the uploaded package, `release.json` lists the SHA-256 of every
-  file inside, so the differing file can be found.
+- Ubuntu 24.04 (the AMO default builder). The maintainers rebuilt this archive on
+  Ubuntu 24.04 arm64 and on macOS arm64 and got the same bytes. If your rebuild differs
+  from the uploaded package, `release.json` lists the SHA-256 of every file inside,
+  so the differing file can be found.
 - Node.js 24.14.0 (`.nvmrc`; `engines` requires 24.14.0 or newer).
 - npm 11.9.0 (the AMO default) only to install pnpm.
 - pnpm 12.15.0, the version in the `packageManager` field of `package.json`.
