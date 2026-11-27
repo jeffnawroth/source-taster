@@ -18,6 +18,6 @@
   },
   "devDependencies": {
     "@inlang/paraglide-js": "3.2.2",
-    "@inlang/plugin-message-format": "4.5.5"
+    "@inlang/plugin-message-format": "4.6.1"
   }
 }
