@@ -105,7 +105,7 @@ await test("the built Firefox manifest keeps its permissions and CSP and maps th
     manifest_version: 3,
     default_locale: "en",
     name: "Source Taster (development)",
-    version: "0.0.0",
+    version: "0.1.0",
     description: "Development build of the Source Taster check workspace.",
     host_permissions: ["http://127.0.0.1/*"],
     content_security_policy: {
@@ -161,7 +161,7 @@ await test("the built Chromium manifest keeps its permissions and CSP, adds only
     manifest_version: 3,
     default_locale: "en",
     name: "Source Taster (development)",
-    version: "0.0.0",
+    version: "0.1.0",
     description: "Development build of the Source Taster check workspace.",
     host_permissions: ["http://127.0.0.1:3100/*"],
     content_security_policy: {

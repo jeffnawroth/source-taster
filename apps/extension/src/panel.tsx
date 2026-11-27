@@ -40,7 +40,7 @@ const guest =
     : undefined;
 const transport = {
   baseUrl: config.apiUrl,
-  client: "extension/0.0.0",
+  client: `extension/${__SOURCE_TASTER_VERSION__}`,
   credentials: guest?.credentials,
 };
 // Firefox only: Preferences sync waits for the data collection permission. The

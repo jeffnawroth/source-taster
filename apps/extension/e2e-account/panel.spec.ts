@@ -698,7 +698,7 @@ test("Account streams reconnect with memory tokens and generic permission cannot
       {
         headers: {
           authorization: `Bearer ${other}`,
-          "Source-Taster-Client": "extension/0.0.0",
+          "Source-Taster-Client": "extension/0.1.0",
         },
       },
     );
