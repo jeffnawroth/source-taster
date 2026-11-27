@@ -334,54 +334,56 @@ All five were dead and are removed from both catalogs (#236).
 
 The original heuristic reported 44 rows without a test hit. This historical table is not the current website coverage assessment; see the reconciled WS rows above.
 
+Issue #236 added the Test column. Each cited test fails when its feature breaks.
+
 At the baseline, WS-03, WS-04 and WS-10 had only axe/reflow hits. Current whole-page visual coverage additionally measures their rendered pages, with the explicit amendments in website-gaps.md. This does not convert screenshot coverage into proof of every interaction.
 
-| Surface | ID | Description |
-|---|---|---|
-| Extension side panel | EX-12 | The panel refuses to run outside a trusted extension page. This guard has no UI. |
-| Shared UI | SU-SH-03 | The command search field filters the commands and has a clear button. |
-| Shared UI | SU-SH-06 | The command "Preferences" focuses the language select. |
-| Shared UI | SU-IN-02 | A drop zone accepts dropped PDF, DOCX, BibTeX or RIS files. |
-| Shared UI | SU-IN-03 | The "Choose file" button (FileTrigger) accepts pdf, docx, bib, bibtex and ris. |
-| Shared UI | SU-IN-07 | A client-side size check rejects documents that are too large before upload. The alert names the limit. |
-| Shared UI | SU-ER-D-unsupported | Document upload error shown in the error alert: unsupported file type. The server sends the key and the alert renders it. |
-| Shared UI | SU-ER-D-no_text | Document upload error shown in the error alert: no extractable text. The server sends the key and the alert renders it. |
-| Shared UI | SU-ER-D-encrypted | Document upload error shown in the error alert: encrypted document. The server sends the key and the alert renders it. |
-| Shared UI | SU-ER-D-unreadable | Document upload error shown in the error alert: unreadable or corrupt document. The server sends the key and the alert renders it. |
-| Shared UI | SU-ER-D-page_limit | Document upload error shown in the error alert: page limit exceeded. The server sends the key and the alert renders it. |
-| Shared UI | SU-ER-D-expansion_limit | Document upload error shown in the error alert: expansion limit exceeded. The server sends the key and the alert renders it. |
-| Shared UI | SU-ER-D-time_limit | Document upload error shown in the error alert: extraction time limit exceeded. The server sends the key and the alert renders it. |
-| Shared UI | SU-ER-D-resource_limit | Document upload error shown in the error alert: extraction resource limit exceeded. The server sends the key and the alert renders it. |
-| Shared UI | SU-ER-D-aborted | Document upload error shown in the error alert: extraction aborted. The server sends the key and the alert renders it. |
-| Shared UI | SU-ER-D-unavailable | Document upload error shown in the error alert: extraction service unavailable. The server sends the key and the alert renders it. |
-| Shared UI | SU-IN-14 | An alert appears when the number of selected regions reaches the limit. |
-| Shared UI | SU-QU-03 | A permanent notice describes this development version. |
-| Shared UI | SU-QU-06 | The upgrade link opens the plan page in a new tab. |
-| Shared UI | SU-QU-09 | The server rejects a start when the quota is insufficient. |
-| Shared UI | SU-RU-02 | The live connection state is shown as connecting, connected or reconnecting (SSE). |
-| Shared UI | SU-RU-06 | An alert appears when a cancel or cleanup failed and cleanup is still pending. |
-| Shared UI | SU-RU-07 | Each reference shows its running step: queued, asking a source, or checking. |
-| Shared UI | SU-RU-08 | A sentence in the feed says that the Check is done. |
-| Shared UI | SU-ER-03 | An error appears when the abuse protection service is unavailable. |
-| Shared UI | SU-ER-06 | An error appears for an invalid request, for example a bad selection. |
-| Shared UI | SU-ER-07 | An error appears when the Check is not found. |
-| Shared UI | SU-ER-09 | An error appears when the quota authority is unavailable. |
-| Shared UI | SU-ER-10 | An error appears when the feature is not in the plan. |
-| Shared UI | SU-RE-13 | The reasons list explains why the verdict was given. |
-| Shared UI | SU-RE-21 | Web evidence shows the original URL, the observed URL and title, the redirect target and the archive capture. |
-| Shared UI | SU-RL-02 | A checkbox group picks references to remove. |
-| Shared UI | SU-OU-09 | The report job states are working, ready, cancelled, expired and error. |
-| Shared UI | SU-OU-10 | The report failures are unsupported, limit reached and unavailable. |
-| Shared UI | SU-OU-11 | Server problems for the report: not found, not ready, busy and expired. |
-| Shared UI | SU-AC-11 | An activity ping runs on pointer and key events, at most once a minute. It has no UI. |
-| Shared UI | SU-DP-05 | Recover or restart an interrupted conclusion. A recovery-pending notice shows meanwhile. |
-| Shared UI | SU-DP-07 | Errors: conflict, proof failed, rate limited or failed. |
-| Shared UI | SU-DP-09 | Intended subprocessor changes show their dates and the route link. The user can record an objection, and the notice says whether it was sent, queued or put on hold. |
-| Shared UI | SU-DP-10 | Close the agreement view. |
-| Website | WS-22 | The header brand link goes to the home page in the same language. |
-| Website | WS-31 | Documentation pages show a noscript note that search needs JavaScript. |
-| Website | WS-32 | A skip link jumps to the content. |
-| Website | WS-34 | The footer legal navigation starts with "Cancel contracts here" to {cancellation origin}/cancel?language={lang}. It appears only when the cancellation origin is set, and publication requires it. No website test sets the origin. The web app's own hosted cancellation link is tested in `apps/web/e2e-guest/cancellation.spec.ts`, which does not cover this footer link. |
+| Surface | ID | Description | Test (#236) |
+|---|---|---|---|
+| Extension side panel | EX-12 | The panel refuses to run outside a trusted extension page. This guard has no UI. | `apps/extension/src/platform.test.ts:40` |
+| Shared UI | SU-SH-03 | The command search field filters the commands and has a clear button. | `apps/web/e2e/intake-shell.spec.ts:29` |
+| Shared UI | SU-SH-06 | The command "Preferences" focuses the language select. | `apps/web/e2e/intake-shell.spec.ts:65`. The dialog focuses the appearance select, and the language select is one Tab away (web-gaps SU-SH-06). |
+| Shared UI | SU-IN-02 | A drop zone accepts dropped PDF, DOCX, BibTeX or RIS files. | `apps/web/e2e/intake-shell.spec.ts:194` (native drop of a DOCX and a BibTeX file) |
+| Shared UI | SU-IN-03 | The "Choose file" button (FileTrigger) accepts pdf, docx, bib, bibtex and ris. | `apps/web/e2e/intake-shell.spec.ts:226` |
+| Shared UI | SU-IN-07 | A client-side size check rejects documents that are too large before upload. The alert names the limit. | `apps/web/e2e/intake-shell.spec.ts:273` |
+| Shared UI | SU-ER-D-unsupported | Document upload error shown in the error alert: unsupported file type. The server sends the key and the alert renders it. | `apps/web/e2e/problem-alerts.spec.ts:41` |
+| Shared UI | SU-ER-D-no_text | Document upload error shown in the error alert: no extractable text. The server sends the key and the alert renders it. | `apps/web/e2e/problem-alerts.spec.ts:41` |
+| Shared UI | SU-ER-D-encrypted | Document upload error shown in the error alert: encrypted document. The server sends the key and the alert renders it. | `apps/web/e2e/problem-alerts.spec.ts:41` |
+| Shared UI | SU-ER-D-unreadable | Document upload error shown in the error alert: unreadable or corrupt document. The server sends the key and the alert renders it. | `apps/web/e2e/problem-alerts.spec.ts:41` |
+| Shared UI | SU-ER-D-page_limit | Document upload error shown in the error alert: page limit exceeded. The server sends the key and the alert renders it. | `apps/web/e2e/problem-alerts.spec.ts:41` |
+| Shared UI | SU-ER-D-expansion_limit | Document upload error shown in the error alert: expansion limit exceeded. The server sends the key and the alert renders it. | `apps/web/e2e/problem-alerts.spec.ts:41` |
+| Shared UI | SU-ER-D-time_limit | Document upload error shown in the error alert: extraction time limit exceeded. The server sends the key and the alert renders it. | `apps/web/e2e/problem-alerts.spec.ts:41` |
+| Shared UI | SU-ER-D-resource_limit | Document upload error shown in the error alert: extraction resource limit exceeded. The server sends the key and the alert renders it. | `apps/web/e2e/problem-alerts.spec.ts:41` |
+| Shared UI | SU-ER-D-aborted | Document upload error shown in the error alert: extraction aborted. The server sends the key and the alert renders it. | `apps/web/e2e/problem-alerts.spec.ts:41` |
+| Shared UI | SU-ER-D-unavailable | Document upload error shown in the error alert: extraction service unavailable. The server sends the key and the alert renders it. | `apps/web/e2e/problem-alerts.spec.ts:41` |
+| Shared UI | SU-IN-14 | An alert appears when the number of selected regions reaches the limit. | `apps/web/e2e/intake-shell.spec.ts:118` |
+| Shared UI | SU-QU-03 | A permanent notice describes this development version. | `apps/web/e2e/intake-shell.spec.ts:94` |
+| Shared UI | SU-QU-06 | The upgrade link opens the plan page in a new tab. | `packages/ui/test/quota-upgrade-link.test.mjs` |
+| Shared UI | SU-QU-09 | The server rejects a start when the quota is insufficient. | `apps/web/e2e/problem-alerts.spec.ts:115` (alert) and `:140` (choice of the first references) |
+| Shared UI | SU-RU-02 | The live connection state is shown as connecting, connected or reconnecting (SSE). | `apps/web/e2e/running-check.spec.ts:29` and `:50` |
+| Shared UI | SU-RU-06 | An alert appears when a cancel or cleanup failed and cleanup is still pending. | `apps/web/e2e/running-check.spec.ts:71` |
+| Shared UI | SU-RU-07 | Each reference shows its running step: queued, asking a source, or checking. | `apps/web/e2e/running-check.spec.ts:96` |
+| Shared UI | SU-RU-08 | A sentence in the feed says that the Check is done. | `apps/web/e2e/workspace.spec.ts:33` (already covered at the time of #236) |
+| Shared UI | SU-ER-03 | An error appears when the abuse protection service is unavailable. | `apps/web/e2e/problem-alerts.spec.ts:115` |
+| Shared UI | SU-ER-06 | An error appears for an invalid request, for example a bad selection. | `apps/web/e2e/problem-alerts.spec.ts:115` and `:209` |
+| Shared UI | SU-ER-07 | An error appears when the Check is not found. | `apps/web/e2e/problem-alerts.spec.ts:182` |
+| Shared UI | SU-ER-09 | An error appears when the quota authority is unavailable. | `apps/web/e2e/problem-alerts.spec.ts:115` |
+| Shared UI | SU-ER-10 | An error appears when the feature is not in the plan. | `apps/web/e2e/problem-alerts.spec.ts:115` |
+| Shared UI | SU-RE-13 | The reasons list explains why the verdict was given. | `packages/ui/test/outcome-reasons.test.mjs` |
+| Shared UI | SU-RE-21 | Web evidence shows the original URL, the observed URL and title, the redirect target and the archive capture. | `apps/web/e2e-bibliographic/web-pages.spec.ts:11` and `:106` (redirect target) |
+| Shared UI | SU-RL-02 | A checkbox group picks references to remove. | `apps/web/e2e/revisions.spec.ts:112` |
+| Shared UI | SU-OU-09 | The report job states are working, ready, cancelled, expired and error. | `apps/web/e2e-report/report-states.spec.ts:63` |
+| Shared UI | SU-OU-10 | The report failures are unsupported, limit reached and unavailable. | `apps/web/e2e-report/report-states.spec.ts:130` |
+| Shared UI | SU-OU-11 | Server problems for the report: not found, not ready, busy and expired. | `apps/web/e2e-report/report-states.spec.ts:173` |
+| Shared UI | SU-AC-11 | An activity ping runs on pointer and key events, at most once a minute. It has no UI. | `apps/extension/e2e-account/panel.spec.ts:827` |
+| Shared UI | SU-DP-05 | Recover or restart an interrupted conclusion. A recovery-pending notice shows meanwhile. | `apps/web/e2e-dpa/dpa.spec.ts:403`. Runs only with the private service worktree, not in CI. |
+| Shared UI | SU-DP-07 | Errors: conflict, proof failed, rate limited or failed. | `apps/web/e2e-dpa/dpa.spec.ts:385`. Runs only with the private service worktree, not in CI. |
+| Shared UI | SU-DP-09 | Intended subprocessor changes show their dates and the route link. The user can record an objection, and the notice says whether it was sent, queued or put on hold. | `apps/web/e2e-dpa/dpa.spec.ts:435`. Runs only with the private service worktree, not in CI. |
+| Shared UI | SU-DP-10 | Close the agreement view. | `apps/web/e2e-dpa/dpa.spec.ts:385`. Runs only with the private service worktree, not in CI. |
+| Website | WS-22 | The header brand link goes to the home page in the same language. | `apps/website/e2e/page-chrome.spec.ts:44` |
+| Website | WS-31 | Documentation pages show a noscript note that search needs JavaScript. | `apps/website/e2e/page-chrome.spec.ts:57` |
+| Website | WS-32 | A skip link jumps to the content. | `apps/website/e2e/page-chrome.spec.ts:30` |
+| Website | WS-34 | The footer legal navigation starts with "Cancel contracts here" to {cancellation origin}/cancel?language={lang}. It appears only when the cancellation origin is set, and publication requires it. No website test sets the origin. The web app's own hosted cancellation link is tested in `apps/web/e2e-guest/cancellation.spec.ts`, which does not cover this footer link. | Partial: `apps/website/e2e/page-chrome.spec.ts:76` covers only the unconfigured build, with no link. The configured link is tracked in #323. |
 
 ## Baseline items tested only by server tests
 

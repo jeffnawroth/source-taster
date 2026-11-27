@@ -8,7 +8,7 @@
     "build": "vite build --mode chromium && vite build --mode firefox",
     "typecheck": "tsc -p tsconfig.json",
     "lint": "eslint .",
-    "test": "node --test manifest.test.ts scripts/release.test.ts src/preference-sync.test.ts scripts/design-fidelity/native-page.test.ts",
+    "test": "node --test manifest.test.ts scripts/release.test.ts src/preference-sync.test.ts src/platform.test.ts scripts/design-fidelity/native-page.test.ts",
     "release": "node scripts/release.ts build",
     "release:source": "node scripts/release.ts source",
     "release:rehearsal": "node scripts/release.ts build --rehearsal",
