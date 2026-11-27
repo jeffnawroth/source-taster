@@ -398,6 +398,26 @@ test("native sign-in persists only the opaque extension credential, clears Guest
   });
 });
 
+// #303: a second tab takes window focus before the panel has laid out. The
+// Reference field must still open, or it grows when the Sign in press refocuses
+// the panel and pushes Sign in out from under the pointer.
+test("a panel blurred while it loads keeps Sign in under the pointer", async () => {
+  await withPanel(async ({ panel, browser }) => {
+    const other = await browser.context.newPage();
+    try {
+      await other.bringToFront();
+      await until(
+        () => panel.evaluate<boolean>("!document.hasFocus()"),
+        "The second tab never took focus from the side panel",
+      );
+      await panel.click("button", "Sign in");
+      await panel.find("textbox", "Email address");
+    } finally {
+      await other.close();
+    }
+  });
+});
+
 test("Account verification uses an in-memory access token; sign-out everywhere drops Account content", async () => {
   await withPanel(async ({ panel, browser, requests }) => {
     await signIn(panel);
