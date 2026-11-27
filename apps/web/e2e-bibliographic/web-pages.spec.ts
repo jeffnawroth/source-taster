@@ -6,6 +6,7 @@ import {
   openEvidence,
   openReference,
 } from "../e2e/support/workspace.ts";
+import { message } from "../e2e/support/catalog.ts";
 for (const language of ["en", "de"] as const)
   test(`explains a dead original URL and archive provenance in ${language}`, async ({
     page,
@@ -78,5 +79,22 @@ for (const language of ["en", "de"] as const)
     await expect(
       result.getByText("20260102030405", { exact: true }),
     ).toBeVisible();
+    // Each web step names what it saw: the cited URL, the URL it ended on and
+    // its title, and (for the archive step) the capture time.
+    const web = result.locator("dl.detail-web");
+    await expect(web).toHaveCount(2);
+    for (const key of [
+      "web_original_url",
+      "web_observed_url",
+      "web_archive_capture",
+    ])
+      await expect(
+        web.locator("dt", { hasText: message(language, key) }).first(),
+      ).toBeVisible();
+    await expect(
+      web
+        .locator("dt", { hasText: message(language, "web_observed_title") })
+        .locator("xpath=following-sibling::dd[1]"),
+    ).toHaveText("Web route witness");
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   });

@@ -138,6 +138,16 @@ for (const language of ["en", "de"] as const)
       .filter({ hasText: /1\. Measured measurement/ })
       .click();
     await expect(removal).toBeChecked();
+    // The removals are one named checkbox group, one checkbox per Reference.
+    await expect(
+      page
+        .getByRole("group", {
+          name:
+            language === "en" ? "Remove from check" : "Aus Prüfung entfernen",
+          exact: true,
+        })
+        .getByRole("checkbox"),
+    ).toHaveCount(1);
     await page
       .getByRole("textbox", {
         name:
