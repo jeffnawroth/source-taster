@@ -115,10 +115,10 @@ for (const language of ["en", "de"] as const)
         .getByRole("button", { name: "Send sign-in code", exact: true })
         .click();
       await expect(
-        page.getByLabel("Sign-in code", { exact: true }),
+        page.getByLabel("Sign-in code (6 digits)", { exact: true }),
       ).toBeVisible();
       await page
-        .getByLabel("Sign-in code", { exact: true })
+        .getByLabel("Sign-in code (6 digits)", { exact: true })
         .fill(await latestCode());
       await page.getByRole("button", { name: "Sign in", exact: true }).click();
       // #196 OC: exports are their own Operator area.
