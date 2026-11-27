@@ -84,6 +84,12 @@ export async function registerPreviewFixtures(
   // Independently authored web protocol witnesses; no provider recordings.
   if (options.web) {
     fixtures.respond("/web80-dead", 410, {});
+    fixtures.respond(
+      "/web80-moved",
+      301,
+      {},
+      { location: "https://example.com/web80-dead" },
+    );
     fixtures.respond("/wayback/available", 200, {
       archived_snapshots: {
         closest: {

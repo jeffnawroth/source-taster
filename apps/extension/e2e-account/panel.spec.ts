@@ -844,6 +844,100 @@ test("the actual web UI keeps #97 cookie transport while the native extension si
   });
 });
 
+test("a signed-in web page pings Account activity on key and pointer events, at most once a minute", async () => {
+  await withPanel(async ({ browser, allowOrigin }) => {
+    allowOrigin(`http://127.0.0.1:${webPort}`);
+    const vite = spawn(
+      process.execPath,
+      [
+        "node_modules/vite/bin/vite.js",
+        "--config",
+        "account-web.vite.config.ts",
+      ],
+      {
+        cwd: new URL("..", import.meta.url),
+        env: {
+          PATH: process.env.PATH,
+          SOURCE_TASTER_ACCOUNT_TEST_SERVICE_PORT: String(servicePort),
+          SOURCE_TASTER_ACCOUNT_TEST_API_PORT: String(apiPort),
+          SOURCE_TASTER_ACCOUNT_TEST_WEB_PORT: String(webPort),
+        },
+        stdio: ["ignore", "pipe", "pipe"],
+      },
+    );
+    let output = "";
+    vite.stdout.on("data", (b) => (output += String(b)));
+    vite.stderr.on("data", (b) => (output += String(b)));
+    const page = await browser.context.newPage();
+    const pings: string[] = [];
+    page.on("request", (request) => {
+      if (
+        request.method() === "POST" &&
+        new URL(request.url()).pathname === "/v1/session/activity"
+      )
+        pings.push(request.url());
+    });
+    // Browser events reach the test in the order the page issued them, so a
+    // request made after an event is a barrier: a ping the event caused would
+    // already be counted when it returns.
+    const settle = () =>
+      page.evaluate(() =>
+        fetch("/", { cache: "no-store" }).then((response) => response.text()),
+      );
+    try {
+      await until(async () => {
+        if (vite.exitCode !== null) throw new Error(output);
+        return fetch(`http://127.0.0.1:${webPort}`).then(
+          (r) => r.ok,
+          () => false,
+        );
+      }, "Web UI did not start");
+      await page.goto(`http://127.0.0.1:${webPort}`);
+      await page.getByRole("button", { name: "Sign in", exact: true }).click();
+      await page
+        .getByRole("textbox", { name: "Email address" })
+        .fill(account.email);
+      await page
+        .getByRole("button", { name: "Send code", exact: true })
+        .click();
+      await page
+        .getByRole("textbox", { name: "Six-digit code" })
+        .fill("123456");
+      await page
+        .getByRole("textbox", { name: "Six-digit code" })
+        .press("Enter");
+      await openWebAccount(page);
+      await page.bringToFront();
+      await page.clock.install();
+      // The first event of a visible, signed-in page pings at once.
+      await page.keyboard.press("Shift");
+      await expect.poll(() => pings.length).toBeGreaterThanOrEqual(1);
+      await settle();
+      const first = pings.length;
+      // Further key and pointer events inside the minute send nothing.
+      await page.keyboard.press("Shift");
+      await page.mouse.click(2, 2);
+      await settle();
+      expect(pings).toHaveLength(first);
+      // After a minute the next event pings once more, and only once.
+      await page.clock.fastForward(61_000);
+      await page.keyboard.press("Shift");
+      await expect.poll(() => pings.length).toBe(first + 1);
+      await page.keyboard.press("Shift");
+      await page.mouse.click(2, 2);
+      await settle();
+      expect(pings).toHaveLength(first + 1);
+    } finally {
+      await page.close();
+      if (vite.exitCode === null) {
+        const exited = once(vite, "exit");
+        vite.kill("SIGTERM");
+        await exited;
+      }
+    }
+  });
+});
+
 test("full extension-local storage cannot turn confirmation into successful sign-in", async () => {
   await withPanel(async ({ panel, browser, requests }) => {
     await (
