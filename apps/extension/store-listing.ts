@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Store-facing manifest text, one source for the store channel's `_locales`
 // and for the listing texts in docs/implementation/259-store-submission.md
-// (store-listing.test.ts keeps both equal). Product vocabulary follows
+// (scripts/release.test.ts keeps both equal). Product vocabulary follows
 // GLOSSARY.md; the development-preview wording follows `skeleton_notice`.
 export const storeLocales = ["en", "de"] as const;
 export type StoreLocale = (typeof storeLocales)[number];

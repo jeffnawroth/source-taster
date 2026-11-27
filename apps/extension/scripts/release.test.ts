@@ -10,6 +10,7 @@ import {
   assertStoreConfig,
   extensionConfig,
   extensionVersion,
+  hostPermissions,
   storeGeckoId,
 } from "../extension-config.ts";
 import {
@@ -114,6 +115,22 @@ await test("the store channel fails closed on missing, insecure and reserved ori
     "the release script refuses a rehearsal-only origin",
   );
   assert.doesNotThrow(() => storeEnv(rehearsal, true));
+});
+
+await test("a hosted store build still asks for host access to the API origin only", () => {
+  const env = {
+    ...rehearsal,
+    SOURCE_TASTER_EXTENSION_STORE_REHEARSAL: "1",
+    SOURCE_TASTER_EXTENSION_MODE: "hosted",
+    SOURCE_TASTER_EXTENSION_SERVICE_URL: "https://service.example.invalid",
+    SOURCE_TASTER_EXTENSION_ACCOUNT_SIGN_IN: "enabled",
+  };
+  const config = extensionConfig(env);
+  assert.doesNotThrow(() => assertStoreConfig(env, config));
+  for (const target of ["chromium", "firefox"] as const)
+    assert.deepEqual(hostPermissions(target, config), [
+      "https://api.example.invalid/*",
+    ]);
 });
 
 await test("the store listing text fits the store limits and says what the product is", () => {

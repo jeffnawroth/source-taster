@@ -120,7 +120,7 @@ This is a development preview. Its comparison rules are not calibrated, some sou
 
 How it works
 - Paste references into the side panel, or select text on a page and choose "Check selected text" from the context menu.
-- Each Reference is compared with sources such as OpenAlex and Crossref. The panel shows a Verdict per Reference, for example Correct, Exists with deviations, or DOI conflict. Each Verdict is shown with a symbol and a label and lists the fields that matched or differed.
+- Each Reference is compared with sources such as OpenAlex and Crossref. The panel shows a Verdict per Reference, for example Correct, Exists, with deviations, or DOI conflict. Each Verdict is shown with a symbol and a label and lists the fields that matched or differed.
 - A Verdict states what the comparison found. It does not state that a Reference is true, and it does not replace reading the source.
 
 What leaves your browser
