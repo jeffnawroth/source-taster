@@ -14,6 +14,7 @@ import {
   startAccountApi,
   type GuestIdentity,
 } from "../../server/test/support/account-api.ts";
+import { withOrphanGuard } from "../../server/test/support/orphan-guard.ts";
 
 let api: Awaited<ReturnType<typeof startAccountApi>>, vite: ChildProcess;
 const port = process.env.SOURCE_TASTER_REGRESSION_WEB_PORT ?? "5617";
@@ -128,12 +129,12 @@ test.beforeAll(async () => {
     ],
     {
       cwd: new URL("..", import.meta.url),
-      env: {
+      env: withOrphanGuard({
         PATH: process.env.PATH,
         SOURCE_TASTER_API_URL: api.apiUrl,
         VITE_SOURCE_TASTER_MODE: "hosted",
         VITE_SOURCE_TASTER_SERVICE_URL: api.serviceUrl,
-      },
+      }),
       stdio: "pipe",
     },
   );

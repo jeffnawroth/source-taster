@@ -9,6 +9,7 @@ import {
 import { readSseFrames } from "@source-taster/contract-verification/client";
 import { bothPrograms } from "./support/both-programs.ts";
 import { physicsReference } from "./support/doi-fixtures.ts";
+import { withOrphanGuard } from "./support/orphan-guard.ts";
 const cleanup: (() => Promise<void>)[] = [];
 afterEach(async () => {
   await Promise.all(cleanup.splice(0).map((f) => f()));
@@ -812,12 +813,12 @@ test("reachable authority and valid Guests cannot activate the deployable unmeas
       );
     const child = spawn(process.execPath, [entry], {
       cwd: new URL("..", import.meta.url),
-      env: {
+      env: withOrphanGuard({
         PATH: process.env.PATH,
         NODE_ENV: "test",
         ...both.venv,
         SOURCE_TASTER_MODE: "hosted",
-      },
+      }),
       stdio: ["ignore", "pipe", "pipe"],
     });
     let output = "";

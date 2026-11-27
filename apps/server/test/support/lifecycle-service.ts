@@ -4,6 +4,7 @@ import { once } from "node:events";
 import pg from "pg";
 import { setupDatabase } from "../../scripts/db-setup.ts";
 import { testDatabase } from "./processes.ts";
+import { withOrphanGuard } from "./orphan-guard.ts";
 export async function lifecycleService(
   env: Record<string, string>,
   options: {
@@ -33,7 +34,7 @@ export async function lifecycleService(
       ["test/support/clocked-process.ts", kind],
       {
         cwd: new URL("../..", import.meta.url),
-        env: {
+        env: withOrphanGuard({
           PATH: process.env.PATH,
           ...env,
           NODE_ENV: "test",
@@ -42,7 +43,7 @@ export async function lifecycleService(
           SOURCE_TASTER_PORT: port,
           SOURCE_TASTER_PLACEHOLDER_DELAY_MS: "0",
           TEST_CLOCK: String(now),
-        },
+        }),
         stdio: ["ignore", "pipe", "pipe", "ipc"],
       },
     );

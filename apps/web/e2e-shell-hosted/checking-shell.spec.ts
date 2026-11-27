@@ -12,6 +12,7 @@ import {
   startAccountApi,
   newAccount,
 } from "../../server/test/support/account-api.ts";
+import { withOrphanGuard } from "../../server/test/support/orphan-guard.ts";
 let api: Awaited<ReturnType<typeof startAccountApi>>, vite: ChildProcess;
 const identity = { ...newAccount(), email: "shell-contract@example.invalid" };
 const port = process.env.SOURCE_TASTER_SHELL_WEB_PORT ?? "5616";
@@ -109,13 +110,13 @@ test.beforeAll(async () => {
     ],
     {
       cwd: new URL("..", import.meta.url),
-      env: {
+      env: withOrphanGuard({
         PATH: process.env.PATH,
         SOURCE_TASTER_API_URL: api.apiUrl,
         VITE_SOURCE_TASTER_MODE: "hosted",
         VITE_SOURCE_TASTER_SERVICE_URL: api.serviceUrl,
         VITE_SOURCE_TASTER_SENSITIVE_ACCOUNT_ACTIONS: "enabled",
-      },
+      }),
       stdio: "pipe",
     },
   );
@@ -432,12 +433,12 @@ test("explicit standalone mode exposes no private service UI even when a service
     ],
     {
       cwd: new URL("..", import.meta.url),
-      env: {
+      env: withOrphanGuard({
         PATH: process.env.PATH,
         SOURCE_TASTER_API_URL: api.apiUrl,
         VITE_SOURCE_TASTER_MODE: "standalone",
         VITE_SOURCE_TASTER_SERVICE_URL: api.serviceUrl,
-      },
+      }),
       stdio: "pipe",
     },
   );

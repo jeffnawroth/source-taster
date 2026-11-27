@@ -24,6 +24,7 @@ import { startBibliographicFixtures } from "../test/support/bibliographic-fixtur
 import { bothPrograms } from "../test/support/both-programs.ts";
 import { physicsReference } from "../test/support/doi-fixtures.ts";
 import { registerPreviewFixtures } from "../test/support/preview-fixtures.ts";
+import { withOrphanGuard } from "../test/support/orphan-guard.ts";
 
 const loopback = "127.0.0.1";
 const setting = (name: string) => {
@@ -155,11 +156,11 @@ async function main() {
       {
         cwd: join(privatePath, "apps/server"),
         // Nothing from the shell: no real provider key can reach the fake.
-        env: {
+        env: withOrphanGuard({
           PATH: process.env.PATH,
           NODE_ENV: "test",
           SERVICE_TEST_EN16931_CONFIG: process.env.SERVICE_TEST_EN16931_CONFIG,
-        },
+        }),
         stdio: ["ignore", "pipe", "pipe", "ipc"],
       },
     );
@@ -437,13 +438,13 @@ ${code ? `<div class="code">${code}</div>` : ""}<pre>${escapeHtml(mail.text)}</p
     ],
     {
       cwd: new URL("../../web", import.meta.url),
-      env: {
+      env: withOrphanGuard({
         PATH: process.env.PATH,
         NODE_ENV: "test",
         SOURCE_TASTER_API_URL: both.apiUrl,
         VITE_SOURCE_TASTER_MODE: "hosted",
         VITE_SOURCE_TASTER_SERVICE_URL: tapUrl,
-      },
+      }),
       stdio: ["ignore", "pipe", "pipe"],
     },
   );

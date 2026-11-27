@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { spawn, type ChildProcess } from "node:child_process";
 import { once } from "node:events";
 import { fileURLToPath } from "node:url";
+import { withOrphanGuard } from "./orphan-guard.ts";
 
 const serverDir = fileURLToPath(new URL("../..", import.meta.url));
 
@@ -45,7 +46,7 @@ export function startProcess(
       : { PATH: process.env.PATH };
   const child = spawn(process.execPath, [options.script ?? `src/${entry}.ts`], {
     cwd: serverDir,
-    env: { ...baseEnv, ...env },
+    env: withOrphanGuard({ ...baseEnv, ...env }),
     stdio: ["ignore", "pipe", "pipe"],
   });
   let output = "";

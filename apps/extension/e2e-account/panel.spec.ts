@@ -29,6 +29,7 @@ import {
   extensionFixtureToken,
   extensionFixtureQuota,
 } from "../../server/test/support/extension-api.ts";
+import { withOrphanGuard } from "../../server/test/support/orphan-guard.ts";
 let api: Awaited<ReturnType<typeof startExtensionVerificationApi>>;
 test.beforeAll(async () => {
   api = await startExtensionVerificationApi();
@@ -769,12 +770,12 @@ test("the actual web UI keeps #97 cookie transport while the native extension si
       ],
       {
         cwd: new URL("..", import.meta.url),
-        env: {
+        env: withOrphanGuard({
           PATH: process.env.PATH,
           SOURCE_TASTER_ACCOUNT_TEST_SERVICE_PORT: String(servicePort),
           SOURCE_TASTER_ACCOUNT_TEST_API_PORT: String(apiPort),
           SOURCE_TASTER_ACCOUNT_TEST_WEB_PORT: String(webPort),
-        },
+        }),
         stdio: ["ignore", "pipe", "pipe"],
       },
     );

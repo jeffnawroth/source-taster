@@ -2,6 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import { withOrphanGuard } from "../support/orphan-guard.ts";
 import { createServer } from "node:http";
 import { mkdtemp, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -56,7 +57,7 @@ test(
       OPS_LOOPBACK_FIXTURES: "1",
     };
     const p = spawn(process.execPath, [cli, "serve"], {
-      env,
+      env: withOrphanGuard(env),
       stdio: ["ignore", "pipe", "pipe"],
     });
     let output = "";

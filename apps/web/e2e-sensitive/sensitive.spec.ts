@@ -13,6 +13,7 @@ import {
   startAccountApi,
 } from "../../server/test/support/account-api.ts";
 import { sensitiveService } from "../../server/test/support/sensitive-service.ts";
+import { withOrphanGuard } from "../../server/test/support/orphan-guard.ts";
 
 const secret = randomUUID();
 const identity = { ...newAccount(), email: "reader@example.org" };
@@ -46,14 +47,14 @@ async function vite(flag: "enabled" | "disabled") {
     ],
     {
       cwd: new URL("..", import.meta.url),
-      env: {
+      env: withOrphanGuard({
         PATH: process.env.PATH,
         NODE_ENV: "test",
         SOURCE_TASTER_API_URL: api.apiUrl,
         VITE_SOURCE_TASTER_MODE: "hosted",
         VITE_SOURCE_TASTER_SERVICE_URL: api.serviceUrl,
         VITE_SOURCE_TASTER_SENSITIVE_ACCOUNT_ACTIONS: flag,
-      },
+      }),
       stdio: ["ignore", "pipe", "pipe"],
     },
   );

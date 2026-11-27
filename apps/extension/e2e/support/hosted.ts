@@ -9,6 +9,7 @@ import {
   freePort,
 } from "../../../server/test/support/both-programs.ts";
 import { Permission } from "../../../../packages/contract-common/src/index.ts";
+import { withOrphanGuard } from "../../../server/test/support/orphan-guard.ts";
 
 export type Both = Awaited<ReturnType<typeof bothPrograms>>;
 export { bothPrograms };
@@ -36,13 +37,13 @@ export async function startHostedWeb(both: Both) {
     ],
     {
       cwd: web,
-      env: {
+      env: withOrphanGuard({
         PATH: process.env.PATH,
         NODE_ENV: "test",
         SOURCE_TASTER_API_URL: both.apiUrl,
         VITE_SOURCE_TASTER_MODE: "hosted",
         VITE_SOURCE_TASTER_SERVICE_URL: both.serviceUrl,
-      },
+      }),
       stdio: ["ignore", "pipe", "pipe"],
     },
   );

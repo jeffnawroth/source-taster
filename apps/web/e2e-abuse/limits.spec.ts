@@ -12,6 +12,7 @@ import {
 import { abuseService } from "../../server/test/support/abuse-service.ts";
 import { buildExtension } from "../../extension/e2e/support/build.ts";
 import { launchChromium, until } from "../../extension/e2e/support/chromium.ts";
+import { withOrphanGuard } from "../../server/test/support/orphan-guard.ts";
 const apiUrl = `http://127.0.0.1:${process.env.SOURCE_TASTER_TEST_API_PORT ?? 4701}`;
 const webUrl = `http://127.0.0.1:${process.env.SOURCE_TASTER_TEST_WEB_PORT ?? 5371}`;
 let service: Awaited<ReturnType<typeof abuseService>>, vite: ChildProcess;
@@ -27,11 +28,11 @@ test.beforeAll(async () => {
     ],
     {
       cwd: new URL("..", import.meta.url),
-      env: {
+      env: withOrphanGuard({
         PATH: process.env.PATH,
         SOURCE_TASTER_TEST_API_PORT: process.env.SOURCE_TASTER_TEST_API_PORT,
         SOURCE_TASTER_TEST_WEB_PORT: process.env.SOURCE_TASTER_TEST_WEB_PORT,
-      },
+      }),
       stdio: "ignore",
     },
   );

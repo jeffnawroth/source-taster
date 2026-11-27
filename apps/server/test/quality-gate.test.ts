@@ -24,6 +24,7 @@ import {
   measureConfiguration,
   type ExtractionPort,
 } from "../scripts/quality/runner.ts";
+import { withOrphanGuard } from "./support/orphan-guard.ts";
 
 const port = Number(
   process.env.SOURCE_TASTER_TEST_SERVICE_PORT ??
@@ -455,11 +456,11 @@ async function cli(args: string[]) {
     ],
     {
       cwd: fileURLToPath(new URL("..", import.meta.url)),
-      env: {
+      env: withOrphanGuard({
         PATH: process.env.PATH,
         DATABASE_ADMIN_URL: process.env.DATABASE_ADMIN_URL,
         DATABASE_TEST_URL: process.env.DATABASE_TEST_URL,
-      },
+      }),
       stdio: ["ignore", "pipe", "pipe"],
     },
   );

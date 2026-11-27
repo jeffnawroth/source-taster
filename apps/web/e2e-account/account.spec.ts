@@ -10,6 +10,7 @@ import {
   eventually,
 } from "../../server/test/support/both-programs.ts";
 import { physicsReference } from "../../server/test/support/doi-fixtures.ts";
+import { withOrphanGuard } from "../../server/test/support/orphan-guard.ts";
 let both: Awaited<ReturnType<typeof bothPrograms>>, vite: ChildProcess;
 const port = process.env.SOURCE_TASTER_ACCOUNT_TEST_WEB_PORT ?? "5274";
 const url = `http://127.0.0.1:${port}`;
@@ -30,13 +31,13 @@ test.beforeAll(async () => {
     ],
     {
       cwd: new URL("..", import.meta.url),
-      env: {
+      env: withOrphanGuard({
         PATH: process.env.PATH,
         NODE_ENV: "test",
         SOURCE_TASTER_API_URL: both.apiUrl,
         VITE_SOURCE_TASTER_MODE: "hosted",
         VITE_SOURCE_TASTER_SERVICE_URL: both.serviceUrl,
-      },
+      }),
       stdio: ["ignore", "pipe", "pipe"],
     },
   );

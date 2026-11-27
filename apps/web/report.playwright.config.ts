@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { defineConfig } from "@playwright/test";
+import { withOrphanGuard } from "../server/test/support/orphan-guard.ts";
 // Ticket-owned ports. The server runs with a fake Quota that grants the
 // report feature, because the real grant belongs to the private service.
 const apiPort = process.env.SOURCE_TASTER_E2E_API_PORT ?? "5101";
@@ -15,11 +16,12 @@ export default defineConfig({
   },
   webServer: {
     command: "pnpm --filter @source-taster/server e2e:serve",
-    env: {
+    env: withOrphanGuard({
+      NODE_OPTIONS: process.env.NODE_OPTIONS,
       SOURCE_TASTER_E2E_API_PORT: apiPort,
       SOURCE_TASTER_E2E_WEB_PORT: webPort,
       SOURCE_TASTER_E2E_REPORTS: "granted",
-    },
+    }),
     url: `http://127.0.0.1:${webPort}`,
     reuseExistingServer: false,
     timeout: 60_000,

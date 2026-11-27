@@ -10,6 +10,7 @@ import {
   eventually,
   freePort,
 } from "../../server/test/support/both-programs.ts";
+import { withOrphanGuard } from "../../server/test/support/orphan-guard.ts";
 for (const language of ["en", "de"] as const)
   for (const scenario of ["management", "identity-isolation"] as const)
     test(`private Account ${scenario} preserves proof, failure and deletion boundaries (${language})`, async ({
@@ -70,11 +71,11 @@ for (const language of ["en", "de"] as const)
           ],
           {
             cwd: join(both.privatePath, "apps/web"),
-            env: {
+            env: withOrphanGuard({
               PATH: process.env.PATH,
               NODE_ENV: "test",
               SERVICE_TEST_PROXY: both.serviceUrl,
-            },
+            }),
             stdio: "pipe",
           },
         );
