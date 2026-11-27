@@ -580,6 +580,7 @@
   "account_plan_pro": "Pro",
   "account_change_plan": "Plan wechseln",
   "shell_close": "Schließen",
+  "shell_close_shortcut": "Mit Esc schließen",
   "shell_find_command": "Aktion finden",
   "shell_clear_command": "Aktionsfilter entfernen",
   "shell_enter_references": "Referenzen eingeben",

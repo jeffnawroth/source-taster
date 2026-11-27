@@ -580,6 +580,7 @@
   "account_plan_pro": "Pro",
   "account_change_plan": "Change plan",
   "shell_close": "Close",
+  "shell_close_shortcut": "Close with Esc",
   "shell_find_command": "Find a command",
   "shell_clear_command": "Clear command filter",
   "shell_enter_references": "Enter references",

@@ -212,7 +212,7 @@ export function CheckingTopBar({
                   <Button
                     variant="ghost"
                     size="sm"
-                    aria-label={m.shell_close()}
+                    aria-label={m.shell_close_shortcut()}
                     onPress={close}
                     className="command-palette-close"
                   >
