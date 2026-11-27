@@ -1,0 +1,4791 @@
+{
+  "generated": "2026-11-27",
+  "base": "http://127.0.0.1:5493",
+  "tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22aa"
+  ],
+  "matrix": {
+    "intake|en|light|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 26
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Paste your reference list"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Reference"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF or Word document"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "Import BibTeX or RIS"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "counted|en|light|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 26
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Paste your reference list"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Reference"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF or Word document"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "Import BibTeX or RIS"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-preferences|en|light|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 23
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Paste your reference list",
+          "h2:Preferences"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Reference"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF or Word document"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "Import BibTeX or RIS"
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-commands|en|light|desktop": {
+      "axe": {
+        "violations": [
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "nodes": [
+              "#react-aria5035505653-_r_35_ :: <div class=\"st-option st-focus o...\" data-rac=\"\" id=\"react-aria5035505653...\" aria-disabled=\"true\" role=\"menuitem\" aria-labelledby=\"react-aria5035505653...\" aria-describedby=\"react-aria5035505653...\" data-collection=\"react-aria5035505653...\" data-key=\"check\" data-react-aria-pres...=\"true\" ...>"
+            ]
+          }
+        ],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 28
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Help and legal information",
+          "header[presentation]",
+          "header[presentation]"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Paste your reference list",
+          "h2:Commands"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Reference"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF or Word document"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "Import BibTeX or RIS"
+          },
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Find a command"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-how-it-works|en|light|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 23
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Paste your reference list",
+          "h2:How the check works"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Reference"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF or Word document"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "Import BibTeX or RIS"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "done|en|light|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 28
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Your check",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence"
+        ],
+        "fields": [],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "detail|en|light|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 34
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Your check",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h2:Measured measurement",
+          "h3:Correct",
+          "h3:Your original input",
+          "h3:Field by field",
+          "h3:Correction suggestion",
+          "h3:Field revision 1",
+          "h3:Manual judgment",
+          "h3:Data sources queried",
+          "h3:More candidates",
+          "h3:Measured measurement (2009-01)",
+          "h3:Evidence trail"
+        ],
+        "fields": [
+          {
+            "type": "checkbox",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-export|en|light|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 24
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Your check",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h3:Export references"
+        ],
+        "fields": [
+          {
+            "type": "radio",
+            "name": "react-aria107885426-_r_4n_",
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "radio",
+            "name": "react-aria107885426-_r_4n_",
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-report|en|light|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 24
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Your check",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h3:Accessible PDF report"
+        ],
+        "fields": [
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "input",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "intake|en|light|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 26
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Paste your reference list"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Reference"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF or Word document"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "Import BibTeX or RIS"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "counted|en|light|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 26
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Paste your reference list"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Reference"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF or Word document"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "Import BibTeX or RIS"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-preferences|en|light|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 24
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Paste your reference list",
+          "h2:Preferences"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Reference"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF or Word document"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "Import BibTeX or RIS"
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-commands|en|light|reflow-320": {
+      "axe": {
+        "violations": [
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "nodes": [
+              "#react-aria9428326700-_r_35_ :: <div class=\"st-option st-focus o...\" data-rac=\"\" id=\"react-aria9428326700...\" aria-disabled=\"true\" role=\"menuitem\" aria-labelledby=\"react-aria9428326700...\" aria-describedby=\"react-aria9428326700...\" data-collection=\"react-aria9428326700...\" data-key=\"check\" data-react-aria-pres...=\"true\" ...>"
+            ]
+          },
+          {
+            "id": "scrollable-region-focusable",
+            "impact": "serious",
+            "nodes": [
+              "#react-aria9428326700-_r_2d_ :: <div id=\"react-aria9428326700-_r_2d_\" class=\"st-menu outline-none command-palette-list\" data-rac=\"\" aria-label=\"Commands\" role=\"menu\" data-collection=\"react-aria9428326700-_r_2r_\">"
+            ]
+          }
+        ],
+        "incomplete": [],
+        "passes": 28
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Help and legal information",
+          "header[presentation]",
+          "header[presentation]"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Paste your reference list",
+          "h2:Commands"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Reference"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF or Word document"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "Import BibTeX or RIS"
+          },
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Find a command"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-how-it-works|en|light|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 24
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Paste your reference list",
+          "h2:How the check works"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Reference"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF or Word document"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "Import BibTeX or RIS"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "done|en|light|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 28
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Your check",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence"
+        ],
+        "fields": [],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "detail|en|light|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 32
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Your check",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h2:Measured measurement",
+          "h3:Correct",
+          "h3:Your original input",
+          "h3:Field by field",
+          "h3:Correction suggestion",
+          "h3:Field revision 1",
+          "h3:Manual judgment",
+          "h3:Data sources queried",
+          "h3:More candidates",
+          "h3:Measured measurement (2009-01)",
+          "h3:Evidence trail"
+        ],
+        "fields": [
+          {
+            "type": "checkbox",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-export|en|light|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 25
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Your check",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h3:Export references"
+        ],
+        "fields": [
+          {
+            "type": "radio",
+            "name": "react-aria431521029-_r_5f_",
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "radio",
+            "name": "react-aria431521029-_r_5f_",
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-report|en|light|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 25
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Your check",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h3:Accessible PDF report"
+        ],
+        "fields": [
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "input",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "intake|en|dark|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 26
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Paste your reference list"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Reference"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF or Word document"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "Import BibTeX or RIS"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "counted|en|dark|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 26
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Paste your reference list"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Reference"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF or Word document"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "Import BibTeX or RIS"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-preferences|en|dark|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 23
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Paste your reference list",
+          "h2:Preferences"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Reference"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF or Word document"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "Import BibTeX or RIS"
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-commands|en|dark|desktop": {
+      "axe": {
+        "violations": [
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "nodes": [
+              "#react-aria5620817600-_r_35_ :: <div class=\"st-option st-focus o...\" data-rac=\"\" id=\"react-aria5620817600...\" aria-disabled=\"true\" role=\"menuitem\" aria-labelledby=\"react-aria5620817600...\" aria-describedby=\"react-aria5620817600...\" data-collection=\"react-aria5620817600...\" data-key=\"check\" data-react-aria-pres...=\"true\" ...>"
+            ]
+          }
+        ],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 28
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Help and legal information",
+          "header[presentation]",
+          "header[presentation]"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Paste your reference list",
+          "h2:Commands"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Reference"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF or Word document"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "Import BibTeX or RIS"
+          },
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Find a command"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-how-it-works|en|dark|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 23
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Paste your reference list",
+          "h2:How the check works"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Reference"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF or Word document"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "Import BibTeX or RIS"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "done|en|dark|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 28
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Your check",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence"
+        ],
+        "fields": [],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "detail|en|dark|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 34
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Your check",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h2:Measured measurement",
+          "h3:Correct",
+          "h3:Your original input",
+          "h3:Field by field",
+          "h3:Correction suggestion",
+          "h3:Field revision 1",
+          "h3:Manual judgment",
+          "h3:Data sources queried",
+          "h3:More candidates",
+          "h3:Measured measurement (2009-01)",
+          "h3:Evidence trail"
+        ],
+        "fields": [
+          {
+            "type": "checkbox",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-export|en|dark|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 24
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Your check",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h3:Export references"
+        ],
+        "fields": [
+          {
+            "type": "radio",
+            "name": "react-aria6786607214-_r_4n_",
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "radio",
+            "name": "react-aria6786607214-_r_4n_",
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-report|en|dark|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 24
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Your check",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h3:Accessible PDF report"
+        ],
+        "fields": [
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "input",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "intake|en|dark|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 26
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Paste your reference list"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Reference"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF or Word document"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "Import BibTeX or RIS"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "counted|en|dark|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 26
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Paste your reference list"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Reference"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF or Word document"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "Import BibTeX or RIS"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-preferences|en|dark|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 24
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Paste your reference list",
+          "h2:Preferences"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Reference"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF or Word document"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "Import BibTeX or RIS"
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-commands|en|dark|reflow-320": {
+      "axe": {
+        "violations": [
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "nodes": [
+              "#react-aria1892611102-_r_35_ :: <div class=\"st-option st-focus o...\" data-rac=\"\" id=\"react-aria1892611102...\" aria-disabled=\"true\" role=\"menuitem\" aria-labelledby=\"react-aria1892611102...\" aria-describedby=\"react-aria1892611102...\" data-collection=\"react-aria1892611102...\" data-key=\"check\" data-react-aria-pres...=\"true\" ...>"
+            ]
+          },
+          {
+            "id": "scrollable-region-focusable",
+            "impact": "serious",
+            "nodes": [
+              "#react-aria1892611102-_r_2d_ :: <div id=\"react-aria1892611102-_r_2d_\" class=\"st-menu outline-none command-palette-list\" data-rac=\"\" aria-label=\"Commands\" role=\"menu\" data-collection=\"react-aria1892611102-_r_2r_\">"
+            ]
+          }
+        ],
+        "incomplete": [],
+        "passes": 28
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Help and legal information",
+          "header[presentation]",
+          "header[presentation]"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Paste your reference list",
+          "h2:Commands"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Reference"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF or Word document"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "Import BibTeX or RIS"
+          },
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Find a command"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-how-it-works|en|dark|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 24
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Paste your reference list",
+          "h2:How the check works"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Reference"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF or Word document"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "Import BibTeX or RIS"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "done|en|dark|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 28
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Your check",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence"
+        ],
+        "fields": [],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "detail|en|dark|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 32
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Your check",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h2:Measured measurement",
+          "h3:Correct",
+          "h3:Your original input",
+          "h3:Field by field",
+          "h3:Correction suggestion",
+          "h3:Field revision 1",
+          "h3:Manual judgment",
+          "h3:Data sources queried",
+          "h3:More candidates",
+          "h3:Measured measurement (2009-01)",
+          "h3:Evidence trail"
+        ],
+        "fields": [
+          {
+            "type": "checkbox",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-export|en|dark|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 25
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Your check",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h3:Export references"
+        ],
+        "fields": [
+          {
+            "type": "radio",
+            "name": "react-aria8235319713-_r_5f_",
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "radio",
+            "name": "react-aria8235319713-_r_5f_",
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-report|en|dark|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 25
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Help and legal information"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Your check",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h3:Accessible PDF report"
+        ],
+        "fields": [
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "input",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "intake|de|light|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 26
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Literaturliste einfügen"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Referenz"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF- oder Word-Dokument"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "BibTeX oder RIS importieren"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "counted|de|light|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 26
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Literaturliste einfügen"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Referenz"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF- oder Word-Dokument"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "BibTeX oder RIS importieren"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-preferences|de|light|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 23
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Literaturliste einfügen",
+          "h2:Einstellungen"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Referenz"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF- oder Word-Dokument"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "BibTeX oder RIS importieren"
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-commands|de|light|desktop": {
+      "axe": {
+        "violations": [
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "nodes": [
+              "#react-aria430503042-_r_35_ :: <div class=\"st-option st-focus o...\" data-rac=\"\" id=\"react-aria430503042-...\" aria-disabled=\"true\" role=\"menuitem\" aria-labelledby=\"react-aria430503042-...\" aria-describedby=\"react-aria430503042-...\" data-collection=\"react-aria430503042-...\" data-key=\"check\" data-react-aria-pres...=\"true\" ...>"
+            ]
+          }
+        ],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 28
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Hilfe und Rechtliches",
+          "header[presentation]",
+          "header[presentation]"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Literaturliste einfügen",
+          "h2:Aktionen"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Referenz"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF- oder Word-Dokument"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "BibTeX oder RIS importieren"
+          },
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Aktion finden"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-how-it-works|de|light|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 23
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Literaturliste einfügen",
+          "h2:So funktioniert die Prüfung"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Referenz"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF- oder Word-Dokument"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "BibTeX oder RIS importieren"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "done|de|light|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 28
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Ihre Prüfung",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence"
+        ],
+        "fields": [],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "detail|de|light|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 34
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Ihre Prüfung",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h2:Measured measurement",
+          "h3:Korrekt",
+          "h3:Ihre ursprüngliche Eingabe",
+          "h3:Feld für Feld",
+          "h3:Korrekturvorschlag",
+          "h3:Feldrevision 1",
+          "h3:Manuelle Beurteilung",
+          "h3:Abgefragte Datenquellen",
+          "h3:Weitere Kandidaten",
+          "h3:Measured measurement (2009-01)",
+          "h3:Nachweisspur"
+        ],
+        "fields": [
+          {
+            "type": "checkbox",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-export|de|light|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 24
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Ihre Prüfung",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h3:Referenzen exportieren"
+        ],
+        "fields": [
+          {
+            "type": "radio",
+            "name": "react-aria2460690870-_r_4n_",
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "radio",
+            "name": "react-aria2460690870-_r_4n_",
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-report|de|light|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 24
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Ihre Prüfung",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h3:Barrierefreier PDF-Bericht"
+        ],
+        "fields": [
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "input",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "intake|de|light|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 26
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Literaturliste einfügen"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Referenz"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF- oder Word-Dokument"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "BibTeX oder RIS importieren"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "counted|de|light|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 26
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Literaturliste einfügen"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Referenz"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF- oder Word-Dokument"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "BibTeX oder RIS importieren"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-preferences|de|light|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 24
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Literaturliste einfügen",
+          "h2:Einstellungen"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Referenz"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF- oder Word-Dokument"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "BibTeX oder RIS importieren"
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-commands|de|light|reflow-320": {
+      "axe": {
+        "violations": [
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "nodes": [
+              "#react-aria5262218769-_r_35_ :: <div class=\"st-option st-focus o...\" data-rac=\"\" id=\"react-aria5262218769...\" aria-disabled=\"true\" role=\"menuitem\" aria-labelledby=\"react-aria5262218769...\" aria-describedby=\"react-aria5262218769...\" data-collection=\"react-aria5262218769...\" data-key=\"check\" data-react-aria-pres...=\"true\" ...>"
+            ]
+          },
+          {
+            "id": "scrollable-region-focusable",
+            "impact": "serious",
+            "nodes": [
+              "#react-aria5262218769-_r_2d_ :: <div id=\"react-aria5262218769-_r_2d_\" class=\"st-menu outline-none command-palette-list\" data-rac=\"\" aria-label=\"Aktionen\" role=\"menu\" data-collection=\"react-aria5262218769-_r_2r_\">"
+            ]
+          }
+        ],
+        "incomplete": [],
+        "passes": 28
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Hilfe und Rechtliches",
+          "header[presentation]",
+          "header[presentation]"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Literaturliste einfügen",
+          "h2:Aktionen"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Referenz"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF- oder Word-Dokument"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "BibTeX oder RIS importieren"
+          },
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Aktion finden"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-how-it-works|de|light|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 24
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Literaturliste einfügen",
+          "h2:So funktioniert die Prüfung"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Referenz"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF- oder Word-Dokument"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "BibTeX oder RIS importieren"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "done|de|light|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 28
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Ihre Prüfung",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence"
+        ],
+        "fields": [],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "detail|de|light|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 32
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Ihre Prüfung",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h2:Measured measurement",
+          "h3:Korrekt",
+          "h3:Ihre ursprüngliche Eingabe",
+          "h3:Feld für Feld",
+          "h3:Korrekturvorschlag",
+          "h3:Feldrevision 1",
+          "h3:Manuelle Beurteilung",
+          "h3:Abgefragte Datenquellen",
+          "h3:Weitere Kandidaten",
+          "h3:Measured measurement (2009-01)",
+          "h3:Nachweisspur"
+        ],
+        "fields": [
+          {
+            "type": "checkbox",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-export|de|light|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 25
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Ihre Prüfung",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h3:Referenzen exportieren"
+        ],
+        "fields": [
+          {
+            "type": "radio",
+            "name": "react-aria5135726740-_r_5f_",
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "radio",
+            "name": "react-aria5135726740-_r_5f_",
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-report|de|light|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 25
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Ihre Prüfung",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h3:Barrierefreier PDF-Bericht"
+        ],
+        "fields": [
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "input",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "intake|de|dark|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 26
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Literaturliste einfügen"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Referenz"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF- oder Word-Dokument"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "BibTeX oder RIS importieren"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "counted|de|dark|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 26
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Literaturliste einfügen"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Referenz"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF- oder Word-Dokument"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "BibTeX oder RIS importieren"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-preferences|de|dark|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 23
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Literaturliste einfügen",
+          "h2:Einstellungen"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Referenz"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF- oder Word-Dokument"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "BibTeX oder RIS importieren"
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-commands|de|dark|desktop": {
+      "axe": {
+        "violations": [
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "nodes": [
+              "#react-aria7835618741-_r_35_ :: <div class=\"st-option st-focus o...\" data-rac=\"\" id=\"react-aria7835618741...\" aria-disabled=\"true\" role=\"menuitem\" aria-labelledby=\"react-aria7835618741...\" aria-describedby=\"react-aria7835618741...\" data-collection=\"react-aria7835618741...\" data-key=\"check\" data-react-aria-pres...=\"true\" ...>"
+            ]
+          }
+        ],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 28
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Hilfe und Rechtliches",
+          "header[presentation]",
+          "header[presentation]"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Literaturliste einfügen",
+          "h2:Aktionen"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Referenz"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF- oder Word-Dokument"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "BibTeX oder RIS importieren"
+          },
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Aktion finden"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-how-it-works|de|dark|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 23
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Literaturliste einfügen",
+          "h2:So funktioniert die Prüfung"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Referenz"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF- oder Word-Dokument"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "BibTeX oder RIS importieren"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "done|de|dark|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 28
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Ihre Prüfung",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence"
+        ],
+        "fields": [],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "detail|de|dark|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 34
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Ihre Prüfung",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h2:Measured measurement",
+          "h3:Korrekt",
+          "h3:Ihre ursprüngliche Eingabe",
+          "h3:Feld für Feld",
+          "h3:Korrekturvorschlag",
+          "h3:Feldrevision 1",
+          "h3:Manuelle Beurteilung",
+          "h3:Abgefragte Datenquellen",
+          "h3:Weitere Kandidaten",
+          "h3:Measured measurement (2009-01)",
+          "h3:Nachweisspur"
+        ],
+        "fields": [
+          {
+            "type": "checkbox",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-export|de|dark|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 24
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Ihre Prüfung",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h3:Referenzen exportieren"
+        ],
+        "fields": [
+          {
+            "type": "radio",
+            "name": "react-aria1148217667-_r_4n_",
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "radio",
+            "name": "react-aria1148217667-_r_4n_",
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-report|de|dark|desktop": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 24
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Ihre Prüfung",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h3:Barrierefreier PDF-Bericht"
+        ],
+        "fields": [
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "input",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "intake|de|dark|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 26
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Literaturliste einfügen"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Referenz"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF- oder Word-Dokument"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "BibTeX oder RIS importieren"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "counted|de|dark|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "color-contrast"
+        ],
+        "passes": 26
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Literaturliste einfügen"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Referenz"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF- oder Word-Dokument"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "BibTeX oder RIS importieren"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-preferences|de|dark|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 24
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Literaturliste einfügen",
+          "h2:Einstellungen"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Referenz"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF- oder Word-Dokument"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "BibTeX oder RIS importieren"
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-commands|de|dark|reflow-320": {
+      "axe": {
+        "violations": [
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "nodes": [
+              "#react-aria7358089157-_r_35_ :: <div class=\"st-option st-focus o...\" data-rac=\"\" id=\"react-aria7358089157...\" aria-disabled=\"true\" role=\"menuitem\" aria-labelledby=\"react-aria7358089157...\" aria-describedby=\"react-aria7358089157...\" data-collection=\"react-aria7358089157...\" data-key=\"check\" data-react-aria-pres...=\"true\" ...>"
+            ]
+          },
+          {
+            "id": "scrollable-region-focusable",
+            "impact": "serious",
+            "nodes": [
+              "#react-aria7358089157-_r_2d_ :: <div id=\"react-aria7358089157-_r_2d_\" class=\"st-menu outline-none command-palette-list\" data-rac=\"\" aria-label=\"Aktionen\" role=\"menu\" data-collection=\"react-aria7358089157-_r_2r_\">"
+            ]
+          }
+        ],
+        "incomplete": [],
+        "passes": 28
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Hilfe und Rechtliches",
+          "header[presentation]",
+          "header[presentation]"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Literaturliste einfügen",
+          "h2:Aktionen"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Referenz"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF- oder Word-Dokument"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "BibTeX oder RIS importieren"
+          },
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Aktion finden"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-how-it-works|de|dark|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 24
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Literaturliste einfügen",
+          "h2:So funktioniert die Prüfung"
+        ],
+        "fields": [
+          {
+            "type": "textarea",
+            "name": null,
+            "autocomplete": null,
+            "label": "Referenz"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "PDF- oder Word-Dokument"
+          },
+          {
+            "type": "file",
+            "name": null,
+            "autocomplete": null,
+            "label": "BibTeX oder RIS importieren"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "done|de|dark|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 28
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Ihre Prüfung",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence"
+        ],
+        "fields": [],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "detail|de|dark|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 32
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Ihre Prüfung",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h2:Measured measurement",
+          "h3:Korrekt",
+          "h3:Ihre ursprüngliche Eingabe",
+          "h3:Feld für Feld",
+          "h3:Korrekturvorschlag",
+          "h3:Feldrevision 1",
+          "h3:Manuelle Beurteilung",
+          "h3:Abgefragte Datenquellen",
+          "h3:Weitere Kandidaten",
+          "h3:Measured measurement (2009-01)",
+          "h3:Nachweisspur"
+        ],
+        "fields": [
+          {
+            "type": "checkbox",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-export|de|dark|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 25
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Ihre Prüfung",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h3:Referenzen exportieren"
+        ],
+        "fields": [
+          {
+            "type": "radio",
+            "name": "react-aria7419212917-_r_5f_",
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "radio",
+            "name": "react-aria7419212917-_r_5f_",
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "dialog-report|de|dark|reflow-320": {
+      "axe": {
+        "violations": [],
+        "incomplete": [],
+        "passes": 25
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "main",
+          "header",
+          "footer",
+          "nav:Hilfe und Rechtliches"
+        ],
+        "headings": [
+          "h1:Source Taster",
+          "h2:Ihre Prüfung",
+          "h3:Measured measurement",
+          "h3:A reference whose DOI does not exist",
+          "h3:Unavailable evidence",
+          "h3:Barrierefreier PDF-Bericht"
+        ],
+        "fields": [
+          {
+            "type": "select",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          },
+          {
+            "type": "input",
+            "name": null,
+            "autocomplete": null,
+            "label": null
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    }
+  },
+  "keyboard": {
+    "intake": {
+      "stops": 13,
+      "focusIndicatorMissing": [
+        {
+          "tag": "textarea",
+          "role": null,
+          "name": "Reference",
+          "focusVisible": true,
+          "indicator": false,
+          "obscured": "none",
+          "width": 612,
+          "height": 96,
+          "x": 351,
+          "y": 239.8,
+          "absX": 351,
+          "absY": 239.8,
+          "inline": false,
+          "visibleChange": true
+        }
+      ],
+      "notFocusVisible": 0,
+      "obscured": [],
+      "noVisibleChange": [],
+      "smallTargets": [
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Help",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 27.8,
+          "height": 20.3,
+          "x": 304,
+          "y": 491.6,
+          "absX": 304,
+          "absY": 491.6,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Contact",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 46,
+          "height": 20.3,
+          "x": 347.8,
+          "y": 491.6,
+          "absX": 347.8,
+          "absY": 491.6,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Legal notice",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 72.7,
+          "height": 20.3,
+          "x": 409.8,
+          "y": 491.6,
+          "absX": 409.8,
+          "absY": 491.6,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Terms",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 36.3,
+          "height": 20.3,
+          "x": 498.5,
+          "y": 491.6,
+          "absX": 498.5,
+          "absY": 491.6,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Privacy policy",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 80.6,
+          "height": 20.3,
+          "x": 550.8,
+          "y": 491.6,
+          "absX": 550.8,
+          "absY": 491.6,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Withdrawal instructions",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 139,
+          "height": 20.3,
+          "x": 647.5,
+          "y": 491.6,
+          "absX": 647.5,
+          "absY": 491.6,
+          "inline": false,
+          "visibleChange": true
+        }
+      ],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Help",
+        "button:Switch to dark appearance",
+        "button:Preferences",
+        "textarea:Reference",
+        "button:Text",
+        "button:Insert example",
+        "a:Help",
+        "a:Contact",
+        "a:Legal notice",
+        "a:Terms",
+        "a:Privacy policy",
+        "a:Withdrawal instructions",
+        "button:Search or command … ⌘K"
+      ]
+    },
+    "intake:text-spacing": {
+      "newlyClipped": [],
+      "scrollWidth": 1280,
+      "clientWidth": 1280
+    },
+    "counted": {
+      "stops": 14,
+      "focusIndicatorMissing": [
+        {
+          "tag": "textarea",
+          "role": null,
+          "name": "Reference",
+          "focusVisible": true,
+          "indicator": false,
+          "obscured": "none",
+          "width": 612,
+          "height": 136,
+          "x": 351,
+          "y": 239.8,
+          "absX": 351,
+          "absY": 239.8,
+          "inline": false,
+          "visibleChange": true
+        }
+      ],
+      "notFocusVisible": 0,
+      "obscured": [],
+      "noVisibleChange": [],
+      "smallTargets": [
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Help",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 27.8,
+          "height": 20.3,
+          "x": 304,
+          "y": 593.6,
+          "absX": 304,
+          "absY": 593.6,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Contact",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 46,
+          "height": 20.3,
+          "x": 347.8,
+          "y": 593.6,
+          "absX": 347.8,
+          "absY": 593.6,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Legal notice",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 72.7,
+          "height": 20.3,
+          "x": 409.8,
+          "y": 593.6,
+          "absX": 409.8,
+          "absY": 593.6,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Terms",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 36.3,
+          "height": 20.3,
+          "x": 498.5,
+          "y": 593.6,
+          "absX": 498.5,
+          "absY": 593.6,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Privacy policy",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 80.6,
+          "height": 20.3,
+          "x": 550.8,
+          "y": 593.6,
+          "absX": 550.8,
+          "absY": 593.6,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Withdrawal instructions",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 139,
+          "height": 20.3,
+          "x": 647.5,
+          "y": 593.6,
+          "absX": 647.5,
+          "absY": 593.6,
+          "inline": false,
+          "visibleChange": true
+        }
+      ],
+      "targetSpacingFailures": [],
+      "names": [
+        "button:Search or command … ⌘K",
+        "a:Help",
+        "button:Switch to dark appearance",
+        "button:Preferences",
+        "textarea:Reference",
+        "button:Check reference",
+        "button:Text",
+        "button:Insert example",
+        "a:Help",
+        "a:Contact",
+        "a:Legal notice",
+        "a:Terms",
+        "a:Privacy policy",
+        "a:Withdrawal instructions"
+      ]
+    },
+    "counted:text-spacing": {
+      "newlyClipped": [],
+      "scrollWidth": 1280,
+      "clientWidth": 1280
+    },
+    "done": {
+      "stops": 14,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [],
+      "noVisibleChange": [],
+      "smallTargets": [
+        {
+          "tag": "button",
+          "role": null,
+          "name": "How the check works",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 133.8,
+          "height": 20.3,
+          "x": 837.3,
+          "y": 678.2,
+          "absX": 837.3,
+          "absY": 678.2,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Help",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 27.8,
+          "height": 20.3,
+          "x": 224,
+          "y": 706.4,
+          "absX": 224,
+          "absY": 706.4,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Contact",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 46,
+          "height": 20.3,
+          "x": 267.8,
+          "y": 706.4,
+          "absX": 267.8,
+          "absY": 706.4,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Legal notice",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 72.7,
+          "height": 20.3,
+          "x": 329.8,
+          "y": 706.4,
+          "absX": 329.8,
+          "absY": 706.4,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Terms",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 36.3,
+          "height": 20.3,
+          "x": 418.5,
+          "y": 706.4,
+          "absX": 418.5,
+          "absY": 706.4,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Privacy policy",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 80.6,
+          "height": 20.3,
+          "x": 470.8,
+          "y": 706.4,
+          "absX": 470.8,
+          "absY": 706.4,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Withdrawal instructions",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 139,
+          "height": 20.3,
+          "x": 567.5,
+          "y": 706.4,
+          "absX": 567.5,
+          "absY": 706.4,
+          "inline": false,
+          "visibleChange": true
+        }
+      ],
+      "targetSpacingFailures": [],
+      "names": [
+        "button:More actions",
+        "button:Correct: 1 Correct",
+        "div:Open reference 1: Measured measurement · Correct",
+        "button:How the check works",
+        "a:Help",
+        "a:Contact",
+        "a:Legal notice",
+        "a:Terms",
+        "a:Privacy policy",
+        "a:Withdrawal instructions",
+        "button:Search or command … ⌘K",
+        "a:Help",
+        "button:Switch to dark appearance",
+        "button:Preferences"
+      ]
+    },
+    "done:text-spacing": {
+      "newlyClipped": [],
+      "scrollWidth": 1280,
+      "clientWidth": 1280
+    },
+    "detail": {
+      "stops": 28,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [],
+      "noVisibleChange": [],
+      "smallTargets": [
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Open source",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 79.1,
+          "height": 20.3,
+          "x": 1121.2,
+          "y": 451,
+          "absX": 1122.2,
+          "absY": 497,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "input",
+          "role": null,
+          "name": "",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 454.4,
+          "height": 20.3,
+          "x": 809.6,
+          "y": 486.1,
+          "absX": 810.6,
+          "absY": 1394.1,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "summary",
+          "role": null,
+          "name": "Explanation and source evidence",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 454.4,
+          "height": 20.3,
+          "x": 809.6,
+          "y": 605.1,
+          "absX": 810.6,
+          "absY": 2346.1,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "summary",
+          "role": null,
+          "name": "Field revisions and provenance",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 454.4,
+          "height": 20.3,
+          "x": 809.6,
+          "y": 651.4,
+          "absX": 810.6,
+          "absY": 2392.4,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "How the check works",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 133.8,
+          "height": 20.3,
+          "x": 48,
+          "y": 698.4,
+          "absX": 48,
+          "absY": 698.4,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Help",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 27.8,
+          "height": 20.3,
+          "x": 24,
+          "y": 726.7,
+          "absX": 24,
+          "absY": 726.7,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Contact",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 46,
+          "height": 20.3,
+          "x": 67.8,
+          "y": 726.7,
+          "absX": 67.8,
+          "absY": 726.7,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Legal notice",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 72.7,
+          "height": 20.3,
+          "x": 129.8,
+          "y": 726.7,
+          "absX": 129.8,
+          "absY": 726.7,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Terms",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 36.3,
+          "height": 20.3,
+          "x": 218.5,
+          "y": 726.7,
+          "absX": 218.5,
+          "absY": 726.7,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Privacy policy",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 80.6,
+          "height": 20.3,
+          "x": 270.8,
+          "y": 726.7,
+          "absX": 270.8,
+          "absY": 726.7,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Withdrawal instructions",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 139,
+          "height": 20.3,
+          "x": 367.5,
+          "y": 726.7,
+          "absX": 367.5,
+          "absY": 726.7,
+          "inline": false,
+          "visibleChange": true
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Open source",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 79.1,
+          "height": 20.3,
+          "x": 1121.2,
+          "y": 497,
+          "absX": 1122.2,
+          "absY": 497,
+          "inline": false,
+          "visibleChange": true
+        }
+      ],
+      "targetSpacingFailures": [],
+      "names": [
+        "button:Edit fields",
+        "a:Open source",
+        "button:Copy suggestion",
+        "button:Apply to fields",
+        "input:",
+        "button:Re-check this reference",
+        "button:Confirm verdict",
+        "button:Judge manually",
+        "summary:More candidates (1)",
+        "summary:Explanation and source evidence",
+        "summary:Field revisions and provenance",
+        "button:Search or command … ⌘K",
+        "a:Help",
+        "button:Switch to dark appearance",
+        "button:Preferences",
+        "button:More actions",
+        "button:Correct: 1 Correct",
+        "div:Open reference 1: Measured measurement · Correct",
+        "button:How the check works",
+        "a:Help",
+        "a:Contact",
+        "a:Legal notice",
+        "a:Terms",
+        "a:Privacy policy",
+        "a:Withdrawal instructions",
+        "button:Close",
+        "button:Edit fields",
+        "a:Open source"
+      ]
+    },
+    "detail:text-spacing": {
+      "newlyClipped": [],
+      "scrollWidth": 1280,
+      "clientWidth": 1280
+    }
+  },
+  "dialogs": {
+    "dialog-preferences": {
+      "stops": 4,
+      "focusEscapedDialog": false,
+      "closedByEscape": true,
+      "focusAfterClose": "button",
+      "focusAfterCloseNotBody": true,
+      "smallTargets": []
+    },
+    "dialog-commands": {
+      "stops": 2,
+      "focusEscapedDialog": false,
+      "closedByEscape": true,
+      "focusAfterClose": "button",
+      "focusAfterCloseNotBody": true,
+      "smallTargets": []
+    },
+    "dialog-how-it-works": {
+      "stops": 1,
+      "focusEscapedDialog": false,
+      "closedByEscape": true,
+      "focusAfterClose": "button",
+      "focusAfterCloseNotBody": true,
+      "smallTargets": []
+    },
+    "dialog-export": {
+      "stops": 4,
+      "focusEscapedDialog": false,
+      "closedByEscape": true,
+      "focusAfterClose": "button",
+      "focusAfterCloseNotBody": true,
+      "smallTargets": []
+    },
+    "dialog-report": {
+      "stops": 4,
+      "focusEscapedDialog": false,
+      "closedByEscape": true,
+      "focusAfterClose": "button",
+      "focusAfterCloseNotBody": true,
+      "smallTargets": []
+    }
+  },
+  "tooltip": {
+    "hoverShown": 1,
+    "hoverable": true,
+    "focusShown": 1,
+    "dismissedByEscape": true,
+    "focusKept": true
+  },
+  "toast": {
+    "appeared": 0,
+    "stillThereWhileHovered": false,
+    "goneAfterLeaving": false
+  },
+  "paletteAxe": {
+    "violations": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "nodes": [
+          "#react-aria7276256783-_r_35_ :: <div class=\"st-option st-focus o...\" data-rac=\"\" id=\"react-aria7276256783...\" aria-disabled=\"true\" role=\"menuitem\" aria-labelledby=\"react-aria7276256783...\" aria-describedby=\"react-aria7276256783...\" data-collection=\"react-aria7276256783...\" data-key=\"check\" data-react-aria-pres...=\"true\" ...>"
+        ]
+      }
+    ],
+    "incomplete": [
+      "color-contrast"
+    ],
+    "passes": 28
+  },
+  "paletteKeyboardScroll": {
+    "total": 4,
+    "last": {
+      "activeLabel": "Enter references",
+      "inView": true,
+      "scrolls": true
+    }
+  },
+  "orientation": {
+    "portrait-390x844": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "axe": []
+    },
+    "landscape-844x390": {
+      "scrollWidth": 844,
+      "clientWidth": 844,
+      "axe": []
+    }
+  }
+}

@@ -1,0 +1,3286 @@
+{
+  "generated": "2026-11-27",
+  "base": "http://127.0.0.1:5497",
+  "tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22aa"
+  ],
+  "pages": {
+    "/en/|light|desktop": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 20
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "References deserve a closer look · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:References deserve a closer look",
+          "h2:Understand before you decide",
+          "h3:How the check works",
+          "h3:Structuring references",
+          "h3:Availability and limits",
+          "h2:The limits are part of the picture",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/en/|light|reflow-320": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "References deserve a closer look · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:References deserve a closer look",
+          "h2:Understand before you decide",
+          "h3:How the check works",
+          "h3:Structuring references",
+          "h3:Availability and limits",
+          "h2:The limits are part of the picture",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/en/|dark|desktop": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 20
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "References deserve a closer look · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:References deserve a closer look",
+          "h2:Understand before you decide",
+          "h3:How the check works",
+          "h3:Structuring references",
+          "h3:Availability and limits",
+          "h2:The limits are part of the picture",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/en/|dark|reflow-320": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "References deserve a closer look · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:References deserve a closer look",
+          "h2:Understand before you decide",
+          "h3:How the check works",
+          "h3:Structuring references",
+          "h3:Availability and limits",
+          "h2:The limits are part of the picture",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/de/|light|desktop": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 20
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Referenzen verdienen einen genaueren Blick · Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "header",
+          "nav:Hauptnavigation",
+          "nav:Hauptnavigation",
+          "main",
+          "footer",
+          "nav:Rechtliche Informationen",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Referenzen verdienen einen genaueren Bli",
+          "h2:Verstehen, bevor Sie entscheiden",
+          "h3:So funktioniert die Prüfung",
+          "h3:Referenzen strukturieren",
+          "h3:Verfügbarkeit und Grenzen",
+          "h2:Die Grenzen gehören dazu",
+          "h2:Dokumentation durchsuchen"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Dokumentation durchsuchen"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/de/|light|reflow-320": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Referenzen verdienen einen genaueren Blick · Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "header",
+          "nav:Hauptnavigation",
+          "nav:Hauptnavigation",
+          "main",
+          "footer",
+          "nav:Rechtliche Informationen",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Referenzen verdienen einen genaueren Bli",
+          "h2:Verstehen, bevor Sie entscheiden",
+          "h3:So funktioniert die Prüfung",
+          "h3:Referenzen strukturieren",
+          "h3:Verfügbarkeit und Grenzen",
+          "h2:Die Grenzen gehören dazu",
+          "h2:Dokumentation durchsuchen"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Dokumentation durchsuchen"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/de/|dark|desktop": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 20
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Referenzen verdienen einen genaueren Blick · Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "header",
+          "nav:Hauptnavigation",
+          "nav:Hauptnavigation",
+          "main",
+          "footer",
+          "nav:Rechtliche Informationen",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Referenzen verdienen einen genaueren Bli",
+          "h2:Verstehen, bevor Sie entscheiden",
+          "h3:So funktioniert die Prüfung",
+          "h3:Referenzen strukturieren",
+          "h3:Verfügbarkeit und Grenzen",
+          "h2:Die Grenzen gehören dazu",
+          "h2:Dokumentation durchsuchen"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Dokumentation durchsuchen"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/de/|dark|reflow-320": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Referenzen verdienen einen genaueren Blick · Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "header",
+          "nav:Hauptnavigation",
+          "nav:Hauptnavigation",
+          "main",
+          "footer",
+          "nav:Rechtliche Informationen",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Referenzen verdienen einen genaueren Bli",
+          "h2:Verstehen, bevor Sie entscheiden",
+          "h3:So funktioniert die Prüfung",
+          "h3:Referenzen strukturieren",
+          "h3:Verfügbarkeit und Grenzen",
+          "h2:Die Grenzen gehören dazu",
+          "h2:Dokumentation durchsuchen"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Dokumentation durchsuchen"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/en/faq/|light|desktop": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Frequently asked questions · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Breadcrumb",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Frequently asked questions",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/en/faq/|light|reflow-320": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Frequently asked questions · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Breadcrumb",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Frequently asked questions",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/en/faq/|dark|desktop": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Frequently asked questions · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Breadcrumb",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Frequently asked questions",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/en/faq/|dark|reflow-320": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Frequently asked questions · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Breadcrumb",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Frequently asked questions",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/en/contact/|light|desktop": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 20
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Contact · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Breadcrumb",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Contact",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/en/contact/|light|reflow-320": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Contact · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Breadcrumb",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Contact",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/en/contact/|dark|desktop": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 20
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Contact · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Breadcrumb",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Contact",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/en/contact/|dark|reflow-320": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Contact · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Breadcrumb",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Contact",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/en/privacy/|light|desktop": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 20
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Privacy policy · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Breadcrumb",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Privacy policy",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/en/privacy/|light|reflow-320": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Privacy policy · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Breadcrumb",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Privacy policy",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/en/privacy/|dark|desktop": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 20
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Privacy policy · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Breadcrumb",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Privacy policy",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/en/privacy/|dark|reflow-320": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Privacy policy · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Breadcrumb",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Privacy policy",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/en/accessibility/|light|desktop": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 20
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Accessibility · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Breadcrumb",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Accessibility",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/en/accessibility/|light|reflow-320": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Accessibility · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Breadcrumb",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Accessibility",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/en/accessibility/|dark|desktop": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 20
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Accessibility · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Breadcrumb",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Accessibility",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/en/accessibility/|dark|reflow-320": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Accessibility · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Breadcrumb",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Accessibility",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/de/accessibility/|light|desktop": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 20
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Barrierefreiheit · Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "header",
+          "nav:Hauptnavigation",
+          "nav:Hauptnavigation",
+          "main",
+          "nav:Brotkrumennavigation",
+          "footer",
+          "nav:Rechtliche Informationen",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Barrierefreiheit",
+          "h2:Dokumentation durchsuchen"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Dokumentation durchsuchen"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/de/accessibility/|light|reflow-320": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Barrierefreiheit · Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "header",
+          "nav:Hauptnavigation",
+          "nav:Hauptnavigation",
+          "main",
+          "nav:Brotkrumennavigation",
+          "footer",
+          "nav:Rechtliche Informationen",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Barrierefreiheit",
+          "h2:Dokumentation durchsuchen"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Dokumentation durchsuchen"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/de/accessibility/|dark|desktop": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 20
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Barrierefreiheit · Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "header",
+          "nav:Hauptnavigation",
+          "nav:Hauptnavigation",
+          "main",
+          "nav:Brotkrumennavigation",
+          "footer",
+          "nav:Rechtliche Informationen",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Barrierefreiheit",
+          "h2:Dokumentation durchsuchen"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Dokumentation durchsuchen"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/de/accessibility/|dark|reflow-320": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Barrierefreiheit · Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "header",
+          "nav:Hauptnavigation",
+          "nav:Hauptnavigation",
+          "main",
+          "nav:Brotkrumennavigation",
+          "footer",
+          "nav:Rechtliche Informationen",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Barrierefreiheit",
+          "h2:Dokumentation durchsuchen"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Dokumentation durchsuchen"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/docs/en/|light|desktop": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 20
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Documentation · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "header",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Documentation",
+          "h2:What do the verdicts mean?",
+          "h2:How do I structure references?",
+          "h2:How do I change language and style?",
+          "h2:What if my connection fails?",
+          "h2:What is available today?",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/docs/en/|light|reflow-320": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Documentation · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "header",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Documentation",
+          "h2:What do the verdicts mean?",
+          "h2:How do I structure references?",
+          "h2:How do I change language and style?",
+          "h2:What if my connection fails?",
+          "h2:What is available today?",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/docs/en/|dark|desktop": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 20
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Documentation · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "header",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Documentation",
+          "h2:What do the verdicts mean?",
+          "h2:How do I structure references?",
+          "h2:How do I change language and style?",
+          "h2:What if my connection fails?",
+          "h2:What is available today?",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/docs/en/|dark|reflow-320": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Documentation · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "header",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Documentation",
+          "h2:What do the verdicts mean?",
+          "h2:How do I structure references?",
+          "h2:How do I change language and style?",
+          "h2:What if my connection fails?",
+          "h2:What is available today?",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/docs/de/|light|desktop": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 20
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Dokumentation · Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "header",
+          "nav:Hauptnavigation",
+          "nav:Hauptnavigation",
+          "main",
+          "header",
+          "footer",
+          "nav:Rechtliche Informationen",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Dokumentation",
+          "h2:Was bedeuten die Befunde?",
+          "h2:Wie strukturiere ich Referenzen?",
+          "h2:Wie ändere ich Sprache und Stil?",
+          "h2:Was tun bei Verbindungsfehlern?",
+          "h2:Was ist bereits verfügbar?",
+          "h2:Dokumentation durchsuchen"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Dokumentation durchsuchen"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/docs/de/|light|reflow-320": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Dokumentation · Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "header",
+          "nav:Hauptnavigation",
+          "nav:Hauptnavigation",
+          "main",
+          "header",
+          "footer",
+          "nav:Rechtliche Informationen",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Dokumentation",
+          "h2:Was bedeuten die Befunde?",
+          "h2:Wie strukturiere ich Referenzen?",
+          "h2:Wie ändere ich Sprache und Stil?",
+          "h2:Was tun bei Verbindungsfehlern?",
+          "h2:Was ist bereits verfügbar?",
+          "h2:Dokumentation durchsuchen"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Dokumentation durchsuchen"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/docs/de/|dark|desktop": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 20
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Dokumentation · Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "header",
+          "nav:Hauptnavigation",
+          "nav:Hauptnavigation",
+          "main",
+          "header",
+          "footer",
+          "nav:Rechtliche Informationen",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Dokumentation",
+          "h2:Was bedeuten die Befunde?",
+          "h2:Wie strukturiere ich Referenzen?",
+          "h2:Wie ändere ich Sprache und Stil?",
+          "h2:Was tun bei Verbindungsfehlern?",
+          "h2:Was ist bereits verfügbar?",
+          "h2:Dokumentation durchsuchen"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Dokumentation durchsuchen"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/docs/de/|dark|reflow-320": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Dokumentation · Source Taster",
+        "lang": "de",
+        "landmarks": [
+          "header",
+          "nav:Hauptnavigation",
+          "nav:Hauptnavigation",
+          "main",
+          "header",
+          "footer",
+          "nav:Rechtliche Informationen",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Dokumentation",
+          "h2:Was bedeuten die Befunde?",
+          "h2:Wie strukturiere ich Referenzen?",
+          "h2:Wie ändere ich Sprache und Stil?",
+          "h2:Was tun bei Verbindungsfehlern?",
+          "h2:Was ist bereits verfügbar?",
+          "h2:Dokumentation durchsuchen"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Dokumentation durchsuchen"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/docs/en/how-the-check-works/|light|desktop": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 20
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "How the check works · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Chapters",
+          "nav:Chapters",
+          "nav:Breadcrumb",
+          "nav:More chapters",
+          "aside",
+          "nav:On this page",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:How the check works",
+          "h2:The current checking path",
+          "h2:Status and verdict",
+          "h2:Human judgment",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/docs/en/how-the-check-works/|light|reflow-320": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "How the check works · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Chapters",
+          "nav:Chapters",
+          "nav:Breadcrumb",
+          "nav:More chapters",
+          "aside",
+          "nav:On this page",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:How the check works",
+          "h2:The current checking path",
+          "h2:Status and verdict",
+          "h2:Human judgment",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/docs/en/how-the-check-works/|dark|desktop": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 20
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "How the check works · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Chapters",
+          "nav:Chapters",
+          "nav:Breadcrumb",
+          "nav:More chapters",
+          "aside",
+          "nav:On this page",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:How the check works",
+          "h2:The current checking path",
+          "h2:Status and verdict",
+          "h2:Human judgment",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/docs/en/how-the-check-works/|dark|reflow-320": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "How the check works · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Chapters",
+          "nav:Chapters",
+          "nav:Breadcrumb",
+          "nav:More chapters",
+          "aside",
+          "nav:On this page",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:How the check works",
+          "h2:The current checking path",
+          "h2:Status and verdict",
+          "h2:Human judgment",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/docs/en/errors-and-retry/|light|desktop": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 20
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Errors and retrying · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Chapters",
+          "nav:Chapters",
+          "nav:Breadcrumb",
+          "nav:More chapters",
+          "aside",
+          "nav:On this page",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Errors and retrying",
+          "h2:Check your connection",
+          "h2:Reconnecting",
+          "h2:Trying again",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/docs/en/errors-and-retry/|light|reflow-320": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Errors and retrying · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Chapters",
+          "nav:Chapters",
+          "nav:Breadcrumb",
+          "nav:More chapters",
+          "aside",
+          "nav:On this page",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Errors and retrying",
+          "h2:Check your connection",
+          "h2:Reconnecting",
+          "h2:Trying again",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/docs/en/errors-and-retry/|dark|desktop": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 20
+      },
+      "overflow": {
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      },
+      "structure": {
+        "title": "Errors and retrying · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Chapters",
+          "nav:Chapters",
+          "nav:Breadcrumb",
+          "nav:More chapters",
+          "aside",
+          "nav:On this page",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Errors and retrying",
+          "h2:Check your connection",
+          "h2:Reconnecting",
+          "h2:Trying again",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    },
+    "/docs/en/errors-and-retry/|dark|reflow-320": {
+      "status": 200,
+      "axe": {
+        "violations": [],
+        "incomplete": [
+          "aria-valid-attr-value"
+        ],
+        "passes": 21
+      },
+      "overflow": {
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "structure": {
+        "title": "Errors and retrying · Source Taster",
+        "lang": "en",
+        "landmarks": [
+          "header",
+          "nav:Main navigation",
+          "nav:Main navigation",
+          "main",
+          "nav:Chapters",
+          "nav:Chapters",
+          "nav:Breadcrumb",
+          "nav:More chapters",
+          "aside",
+          "nav:On this page",
+          "footer",
+          "nav:Legal information",
+          "form[search]"
+        ],
+        "headings": [
+          "h1:Errors and retrying",
+          "h2:Check your connection",
+          "h2:Reconnecting",
+          "h2:Trying again",
+          "h2:Search documentation"
+        ],
+        "fields": [
+          {
+            "type": "search",
+            "name": null,
+            "autocomplete": "off",
+            "label": "Search documentation"
+          }
+        ],
+        "infiniteAnimations": 0,
+        "embeddedMedia": 0,
+        "positiveTabindex": 0,
+        "linksWithoutText": 0
+      }
+    }
+  },
+  "keyboard": {
+    "/en/|desktop": {
+      "stops": 24,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [],
+      "noVisibleChange": [],
+      "smallTargets": [],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Skip to content",
+        "a:Source Taster",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "button:Search documentation",
+        "a:DE Deutsch",
+        "button:Switch color scheme",
+        "a:How the check works",
+        "a:Availability and limits",
+        "a:Read more",
+        "a:Read more",
+        "a:Read more",
+        "a:Read the documentation",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "a:Legal notice",
+        "a:Terms",
+        "a:Privacy policy",
+        "a:Withdrawal instructions",
+        "a:Accessibility",
+        "a:Search licenses and source",
+        "a:Interface licenses and notices"
+      ],
+      "skip": {
+        "firstStop": "Skip to content",
+        "focusAfterActivate": "content",
+        "mainReached": true
+      },
+      "textSpacing": {
+        "newlyClipped": [],
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      }
+    },
+    "/en/|reflow-320": {
+      "stops": 22,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [
+        {
+          "tag": "summary",
+          "role": null,
+          "name": "Menu",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "partly",
+          "width": 32,
+          "height": 36,
+          "x": 268,
+          "y": 16,
+          "absX": 268,
+          "absY": 16,
+          "inline": false,
+          "visibleChange": true
+        }
+      ],
+      "noVisibleChange": [],
+      "smallTargets": [],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Skip to content",
+        "a:Source Taster",
+        "button:Search documentation",
+        "a:DE Deutsch",
+        "button:Switch color scheme",
+        "summary:Menu",
+        "a:How the check works",
+        "a:Availability and limits",
+        "a:Read more",
+        "a:Read more",
+        "a:Read more",
+        "a:Read the documentation",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "a:Legal notice",
+        "a:Terms",
+        "a:Privacy policy",
+        "a:Withdrawal instructions",
+        "a:Accessibility",
+        "a:Search licenses and source",
+        "a:Interface licenses and notices"
+      ],
+      "skip": {
+        "firstStop": "Skip to content",
+        "focusAfterActivate": "content",
+        "mainReached": true
+      },
+      "textSpacing": {
+        "newlyClipped": [],
+        "scrollWidth": 320,
+        "clientWidth": 320
+      }
+    },
+    "/de/|desktop": {
+      "stops": 24,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [],
+      "noVisibleChange": [],
+      "smallTargets": [],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Zum Inhalt",
+        "a:Source Taster",
+        "a:Dokumentation",
+        "a:Häufige Fragen",
+        "a:Kontakt",
+        "button:Dokumentation durchsuchen",
+        "a:EN English",
+        "button:Farbschema wechseln",
+        "a:So funktioniert die Prüfung",
+        "a:Verfügbarkeit und Grenzen",
+        "a:Weiterlesen",
+        "a:Weiterlesen",
+        "a:Weiterlesen",
+        "a:Dokumentation lesen",
+        "a:Dokumentation",
+        "a:Häufige Fragen",
+        "a:Kontakt",
+        "a:Impressum",
+        "a:Nutzungsbedingungen",
+        "a:Datenschutzerklärung",
+        "a:Widerrufsbelehrung",
+        "a:Barrierefreiheit",
+        "a:Suchlizenzen und Quellcode",
+        "a:Oberflächenlizenzen und Hinweise"
+      ],
+      "skip": {
+        "firstStop": "Zum Inhalt",
+        "focusAfterActivate": "content",
+        "mainReached": true
+      },
+      "textSpacing": {
+        "newlyClipped": [],
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      }
+    },
+    "/de/|reflow-320": {
+      "stops": 22,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [
+        {
+          "tag": "summary",
+          "role": null,
+          "name": "Menü",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "partly",
+          "width": 32,
+          "height": 36,
+          "x": 268,
+          "y": 16,
+          "absX": 268,
+          "absY": 16,
+          "inline": false,
+          "visibleChange": true
+        }
+      ],
+      "noVisibleChange": [],
+      "smallTargets": [],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Zum Inhalt",
+        "a:Source Taster",
+        "button:Dokumentation durchsuchen",
+        "a:EN English",
+        "button:Farbschema wechseln",
+        "summary:Menü",
+        "a:So funktioniert die Prüfung",
+        "a:Verfügbarkeit und Grenzen",
+        "a:Weiterlesen",
+        "a:Weiterlesen",
+        "a:Weiterlesen",
+        "a:Dokumentation lesen",
+        "a:Dokumentation",
+        "a:Häufige Fragen",
+        "a:Kontakt",
+        "a:Impressum",
+        "a:Nutzungsbedingungen",
+        "a:Datenschutzerklärung",
+        "a:Widerrufsbelehrung",
+        "a:Barrierefreiheit",
+        "a:Suchlizenzen und Quellcode",
+        "a:Oberflächenlizenzen und Hinweise"
+      ],
+      "skip": {
+        "firstStop": "Zum Inhalt",
+        "focusAfterActivate": "content",
+        "mainReached": true
+      },
+      "textSpacing": {
+        "newlyClipped": [],
+        "scrollWidth": 320,
+        "clientWidth": 320
+      }
+    },
+    "/en/faq/|desktop": {
+      "stops": 25,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [],
+      "noVisibleChange": [],
+      "smallTargets": [],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Skip to content",
+        "a:Source Taster",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "button:Search documentation",
+        "a:DE Deutsch",
+        "button:Switch color scheme",
+        "a:Home",
+        "summary:Can I check my bibliography here?",
+        "summary:Does a verdict establish misconduct?",
+        "summary:Where does a documentation search go?",
+        "summary:Can I buy a plan or install the extension?",
+        "a:Documentation",
+        "a:Availability and limits",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "a:Legal notice",
+        "a:Terms",
+        "a:Privacy policy",
+        "a:Withdrawal instructions",
+        "a:Accessibility",
+        "a:Search licenses and source",
+        "a:Interface licenses and notices"
+      ],
+      "skip": {
+        "firstStop": "Skip to content",
+        "focusAfterActivate": "content",
+        "mainReached": true
+      },
+      "textSpacing": {
+        "newlyClipped": [],
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      }
+    },
+    "/en/faq/|reflow-320": {
+      "stops": 23,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [
+        {
+          "tag": "summary",
+          "role": null,
+          "name": "Menu",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "partly",
+          "width": 32,
+          "height": 36,
+          "x": 268,
+          "y": 16,
+          "absX": 268,
+          "absY": 16,
+          "inline": false,
+          "visibleChange": true
+        }
+      ],
+      "noVisibleChange": [],
+      "smallTargets": [],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Skip to content",
+        "a:Source Taster",
+        "button:Search documentation",
+        "a:DE Deutsch",
+        "button:Switch color scheme",
+        "summary:Menu",
+        "a:Home",
+        "summary:Can I check my bibliography here?",
+        "summary:Does a verdict establish misconduct?",
+        "summary:Where does a documentation search go?",
+        "summary:Can I buy a plan or install the extension?",
+        "a:Documentation",
+        "a:Availability and limits",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "a:Legal notice",
+        "a:Terms",
+        "a:Privacy policy",
+        "a:Withdrawal instructions",
+        "a:Accessibility",
+        "a:Search licenses and source",
+        "a:Interface licenses and notices"
+      ],
+      "skip": {
+        "firstStop": "Skip to content",
+        "focusAfterActivate": "content",
+        "mainReached": true
+      },
+      "textSpacing": {
+        "newlyClipped": [],
+        "scrollWidth": 320,
+        "clientWidth": 320
+      }
+    },
+    "/en/contact/|desktop": {
+      "stops": 21,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [],
+      "noVisibleChange": [],
+      "smallTargets": [],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Skip to content",
+        "a:Source Taster",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "button:Search documentation",
+        "a:DE Deutsch",
+        "button:Switch color scheme",
+        "a:Home",
+        "a:Documentation",
+        "a:Availability and limits",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "a:Legal notice",
+        "a:Terms",
+        "a:Privacy policy",
+        "a:Withdrawal instructions",
+        "a:Accessibility",
+        "a:Search licenses and source",
+        "a:Interface licenses and notices"
+      ],
+      "skip": {
+        "firstStop": "Skip to content",
+        "focusAfterActivate": "content",
+        "mainReached": true
+      },
+      "textSpacing": {
+        "newlyClipped": [],
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      }
+    },
+    "/en/contact/|reflow-320": {
+      "stops": 19,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [
+        {
+          "tag": "summary",
+          "role": null,
+          "name": "Menu",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "partly",
+          "width": 32,
+          "height": 36,
+          "x": 268,
+          "y": 16,
+          "absX": 268,
+          "absY": 16,
+          "inline": false,
+          "visibleChange": true
+        }
+      ],
+      "noVisibleChange": [],
+      "smallTargets": [],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Skip to content",
+        "a:Source Taster",
+        "button:Search documentation",
+        "a:DE Deutsch",
+        "button:Switch color scheme",
+        "summary:Menu",
+        "a:Home",
+        "a:Documentation",
+        "a:Availability and limits",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "a:Legal notice",
+        "a:Terms",
+        "a:Privacy policy",
+        "a:Withdrawal instructions",
+        "a:Accessibility",
+        "a:Search licenses and source",
+        "a:Interface licenses and notices"
+      ],
+      "skip": {
+        "firstStop": "Skip to content",
+        "focusAfterActivate": "content",
+        "mainReached": true
+      },
+      "textSpacing": {
+        "newlyClipped": [],
+        "scrollWidth": 320,
+        "clientWidth": 320
+      }
+    },
+    "/en/privacy/|desktop": {
+      "stops": 22,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [],
+      "noVisibleChange": [],
+      "smallTargets": [
+        {
+          "tag": "a",
+          "role": null,
+          "name": "draft-2026-11-20.1",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "none",
+          "width": 145.8,
+          "height": 18,
+          "x": 430.5,
+          "y": 266.1,
+          "absX": 430.5,
+          "absY": 266.1,
+          "inline": true,
+          "visibleChange": true
+        }
+      ],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Skip to content",
+        "a:Source Taster",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "button:Search documentation",
+        "a:DE Deutsch",
+        "button:Switch color scheme",
+        "a:Home",
+        "a:draft-2026-11-20.1",
+        "a:Documentation",
+        "a:Availability and limits",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "a:Legal notice",
+        "a:Terms",
+        "a:Privacy policy",
+        "a:Withdrawal instructions",
+        "a:Accessibility",
+        "a:Search licenses and source",
+        "a:Interface licenses and notices"
+      ],
+      "skip": {
+        "firstStop": "Skip to content",
+        "focusAfterActivate": "content",
+        "mainReached": true
+      },
+      "textSpacing": {
+        "newlyClipped": [],
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      }
+    },
+    "/en/privacy/|reflow-320": {
+      "stops": 20,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [
+        {
+          "tag": "summary",
+          "role": null,
+          "name": "Menu",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "partly",
+          "width": 32,
+          "height": 36,
+          "x": 268,
+          "y": 16,
+          "absX": 268,
+          "absY": 16,
+          "inline": false,
+          "visibleChange": true
+        }
+      ],
+      "noVisibleChange": [],
+      "smallTargets": [],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Skip to content",
+        "a:Source Taster",
+        "button:Search documentation",
+        "a:DE Deutsch",
+        "button:Switch color scheme",
+        "summary:Menu",
+        "a:Home",
+        "a:draft-2026-11-20.1",
+        "a:Documentation",
+        "a:Availability and limits",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "a:Legal notice",
+        "a:Terms",
+        "a:Privacy policy",
+        "a:Withdrawal instructions",
+        "a:Accessibility",
+        "a:Search licenses and source",
+        "a:Interface licenses and notices"
+      ],
+      "skip": {
+        "firstStop": "Skip to content",
+        "focusAfterActivate": "content",
+        "mainReached": true
+      },
+      "textSpacing": {
+        "newlyClipped": [],
+        "scrollWidth": 320,
+        "clientWidth": 320
+      }
+    },
+    "/en/accessibility/|desktop": {
+      "stops": 21,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [],
+      "noVisibleChange": [],
+      "smallTargets": [],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Skip to content",
+        "a:Source Taster",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "button:Search documentation",
+        "a:DE Deutsch",
+        "button:Switch color scheme",
+        "a:Home",
+        "a:Documentation",
+        "a:Availability and limits",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "a:Legal notice",
+        "a:Terms",
+        "a:Privacy policy",
+        "a:Withdrawal instructions",
+        "a:Accessibility",
+        "a:Search licenses and source",
+        "a:Interface licenses and notices"
+      ],
+      "skip": {
+        "firstStop": "Skip to content",
+        "focusAfterActivate": "content",
+        "mainReached": true
+      },
+      "textSpacing": {
+        "newlyClipped": [],
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      }
+    },
+    "/en/accessibility/|reflow-320": {
+      "stops": 19,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [
+        {
+          "tag": "summary",
+          "role": null,
+          "name": "Menu",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "partly",
+          "width": 32,
+          "height": 36,
+          "x": 268,
+          "y": 16,
+          "absX": 268,
+          "absY": 16,
+          "inline": false,
+          "visibleChange": true
+        }
+      ],
+      "noVisibleChange": [],
+      "smallTargets": [],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Skip to content",
+        "a:Source Taster",
+        "button:Search documentation",
+        "a:DE Deutsch",
+        "button:Switch color scheme",
+        "summary:Menu",
+        "a:Home",
+        "a:Documentation",
+        "a:Availability and limits",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "a:Legal notice",
+        "a:Terms",
+        "a:Privacy policy",
+        "a:Withdrawal instructions",
+        "a:Accessibility",
+        "a:Search licenses and source",
+        "a:Interface licenses and notices"
+      ],
+      "skip": {
+        "firstStop": "Skip to content",
+        "focusAfterActivate": "content",
+        "mainReached": true
+      },
+      "textSpacing": {
+        "newlyClipped": [],
+        "scrollWidth": 320,
+        "clientWidth": 320
+      }
+    },
+    "/de/accessibility/|desktop": {
+      "stops": 21,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [],
+      "noVisibleChange": [],
+      "smallTargets": [],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Zum Inhalt",
+        "a:Source Taster",
+        "a:Dokumentation",
+        "a:Häufige Fragen",
+        "a:Kontakt",
+        "button:Dokumentation durchsuchen",
+        "a:EN English",
+        "button:Farbschema wechseln",
+        "a:Startseite",
+        "a:Dokumentation",
+        "a:Verfügbarkeit und Grenzen",
+        "a:Dokumentation",
+        "a:Häufige Fragen",
+        "a:Kontakt",
+        "a:Impressum",
+        "a:Nutzungsbedingungen",
+        "a:Datenschutzerklärung",
+        "a:Widerrufsbelehrung",
+        "a:Barrierefreiheit",
+        "a:Suchlizenzen und Quellcode",
+        "a:Oberflächenlizenzen und Hinweise"
+      ],
+      "skip": {
+        "firstStop": "Zum Inhalt",
+        "focusAfterActivate": "content",
+        "mainReached": true
+      },
+      "textSpacing": {
+        "newlyClipped": [],
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      }
+    },
+    "/de/accessibility/|reflow-320": {
+      "stops": 19,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [
+        {
+          "tag": "summary",
+          "role": null,
+          "name": "Menü",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "partly",
+          "width": 32,
+          "height": 36,
+          "x": 268,
+          "y": 16,
+          "absX": 268,
+          "absY": 16,
+          "inline": false,
+          "visibleChange": true
+        }
+      ],
+      "noVisibleChange": [],
+      "smallTargets": [],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Zum Inhalt",
+        "a:Source Taster",
+        "button:Dokumentation durchsuchen",
+        "a:EN English",
+        "button:Farbschema wechseln",
+        "summary:Menü",
+        "a:Startseite",
+        "a:Dokumentation",
+        "a:Verfügbarkeit und Grenzen",
+        "a:Dokumentation",
+        "a:Häufige Fragen",
+        "a:Kontakt",
+        "a:Impressum",
+        "a:Nutzungsbedingungen",
+        "a:Datenschutzerklärung",
+        "a:Widerrufsbelehrung",
+        "a:Barrierefreiheit",
+        "a:Suchlizenzen und Quellcode",
+        "a:Oberflächenlizenzen und Hinweise"
+      ],
+      "skip": {
+        "firstStop": "Zum Inhalt",
+        "focusAfterActivate": "content",
+        "mainReached": true
+      },
+      "textSpacing": {
+        "newlyClipped": [],
+        "scrollWidth": 320,
+        "clientWidth": 320
+      }
+    },
+    "/docs/en/|desktop": {
+      "stops": 24,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [],
+      "noVisibleChange": [],
+      "smallTargets": [],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Skip to content",
+        "a:Source Taster",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "button:Search documentation",
+        "a:DE Deutsch",
+        "button:Switch color scheme",
+        "button:Search documentation",
+        "a:01 What do the verdicts mean? Understand the distinction bet",
+        "a:02 How do I structure references? Preview how a pasted bibli",
+        "a:03 How do I change language and style? Choose your language,",
+        "a:04 What if my connection fails? What to do when the local wo",
+        "a:05 What is available today? What is available in this develo",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "a:Legal notice",
+        "a:Terms",
+        "a:Privacy policy",
+        "a:Withdrawal instructions",
+        "a:Accessibility",
+        "a:Search licenses and source",
+        "a:Interface licenses and notices"
+      ],
+      "skip": {
+        "firstStop": "Skip to content",
+        "focusAfterActivate": "content",
+        "mainReached": true
+      },
+      "textSpacing": {
+        "newlyClipped": [],
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      }
+    },
+    "/docs/en/|reflow-320": {
+      "stops": 22,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [
+        {
+          "tag": "summary",
+          "role": null,
+          "name": "Menu",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "partly",
+          "width": 32,
+          "height": 36,
+          "x": 268,
+          "y": 16,
+          "absX": 268,
+          "absY": 16,
+          "inline": false,
+          "visibleChange": true
+        }
+      ],
+      "noVisibleChange": [],
+      "smallTargets": [],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Skip to content",
+        "a:Source Taster",
+        "button:Search documentation",
+        "a:DE Deutsch",
+        "button:Switch color scheme",
+        "summary:Menu",
+        "button:Search documentation",
+        "a:01 What do the verdicts mean? Understand the distinction bet",
+        "a:02 How do I structure references? Preview how a pasted bibli",
+        "a:03 How do I change language and style? Choose your language,",
+        "a:04 What if my connection fails? What to do when the local wo",
+        "a:05 What is available today? What is available in this develo",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "a:Legal notice",
+        "a:Terms",
+        "a:Privacy policy",
+        "a:Withdrawal instructions",
+        "a:Accessibility",
+        "a:Search licenses and source",
+        "a:Interface licenses and notices"
+      ],
+      "skip": {
+        "firstStop": "Skip to content",
+        "focusAfterActivate": "content",
+        "mainReached": true
+      },
+      "textSpacing": {
+        "newlyClipped": [],
+        "scrollWidth": 320,
+        "clientWidth": 320
+      }
+    },
+    "/docs/de/|desktop": {
+      "stops": 24,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [],
+      "noVisibleChange": [],
+      "smallTargets": [],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Zum Inhalt",
+        "a:Source Taster",
+        "a:Dokumentation",
+        "a:Häufige Fragen",
+        "a:Kontakt",
+        "button:Dokumentation durchsuchen",
+        "a:EN English",
+        "button:Farbschema wechseln",
+        "button:Dokumentation durchsuchen",
+        "a:01 Was bedeuten die Befunde? Fortschritt und Belege sind unt",
+        "a:02 Wie strukturiere ich Referenzen? Vorschau, wie ein eingef",
+        "a:03 Wie ändere ich Sprache und Stil? Wählen Sie Sprache, Farb",
+        "a:04 Was tun bei Verbindungsfehlern? Wenn der lokale Arbeitsbe",
+        "a:05 Was ist bereits verfügbar? Was in dieser Entwicklungswell",
+        "a:Dokumentation",
+        "a:Häufige Fragen",
+        "a:Kontakt",
+        "a:Impressum",
+        "a:Nutzungsbedingungen",
+        "a:Datenschutzerklärung",
+        "a:Widerrufsbelehrung",
+        "a:Barrierefreiheit",
+        "a:Suchlizenzen und Quellcode",
+        "a:Oberflächenlizenzen und Hinweise"
+      ],
+      "skip": {
+        "firstStop": "Zum Inhalt",
+        "focusAfterActivate": "content",
+        "mainReached": true
+      },
+      "textSpacing": {
+        "newlyClipped": [],
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      }
+    },
+    "/docs/de/|reflow-320": {
+      "stops": 22,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [
+        {
+          "tag": "summary",
+          "role": null,
+          "name": "Menü",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "partly",
+          "width": 32,
+          "height": 36,
+          "x": 268,
+          "y": 16,
+          "absX": 268,
+          "absY": 16,
+          "inline": false,
+          "visibleChange": true
+        }
+      ],
+      "noVisibleChange": [],
+      "smallTargets": [],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Zum Inhalt",
+        "a:Source Taster",
+        "button:Dokumentation durchsuchen",
+        "a:EN English",
+        "button:Farbschema wechseln",
+        "summary:Menü",
+        "button:Dokumentation durchsuchen",
+        "a:01 Was bedeuten die Befunde? Fortschritt und Belege sind unt",
+        "a:02 Wie strukturiere ich Referenzen? Vorschau, wie ein eingef",
+        "a:03 Wie ändere ich Sprache und Stil? Wählen Sie Sprache, Farb",
+        "a:04 Was tun bei Verbindungsfehlern? Wenn der lokale Arbeitsbe",
+        "a:05 Was ist bereits verfügbar? Was in dieser Entwicklungswell",
+        "a:Dokumentation",
+        "a:Häufige Fragen",
+        "a:Kontakt",
+        "a:Impressum",
+        "a:Nutzungsbedingungen",
+        "a:Datenschutzerklärung",
+        "a:Widerrufsbelehrung",
+        "a:Barrierefreiheit",
+        "a:Suchlizenzen und Quellcode",
+        "a:Oberflächenlizenzen und Hinweise"
+      ],
+      "skip": {
+        "firstStop": "Zum Inhalt",
+        "focusAfterActivate": "content",
+        "mainReached": true
+      },
+      "textSpacing": {
+        "newlyClipped": [],
+        "scrollWidth": 320,
+        "clientWidth": 320
+      }
+    },
+    "/docs/en/how-the-check-works/|desktop": {
+      "stops": 31,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [],
+      "noVisibleChange": [],
+      "smallTargets": [],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Skip to content",
+        "a:Source Taster",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "button:Search documentation",
+        "a:DE Deutsch",
+        "button:Switch color scheme",
+        "a:Overview",
+        "a:How the check works",
+        "a:Structuring references",
+        "a:Language and citation style",
+        "a:Errors and retrying",
+        "a:Availability and limits",
+        "a:Home",
+        "a:Documentation",
+        "a:← Overview",
+        "a:Structuring references →",
+        "a:The current checking path",
+        "a:Status and verdict",
+        "a:Human judgment",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "a:Legal notice",
+        "a:Terms",
+        "a:Privacy policy",
+        "a:Withdrawal instructions",
+        "a:Accessibility",
+        "a:Search licenses and source",
+        "a:Interface licenses and notices"
+      ],
+      "skip": {
+        "firstStop": "Skip to content",
+        "focusAfterActivate": "content",
+        "mainReached": true
+      },
+      "textSpacing": {
+        "newlyClipped": [],
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      }
+    },
+    "/docs/en/how-the-check-works/|reflow-320": {
+      "stops": 21,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [
+        {
+          "tag": "summary",
+          "role": null,
+          "name": "Menu",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "partly",
+          "width": 32,
+          "height": 36,
+          "x": 268,
+          "y": 16,
+          "absX": 268,
+          "absY": 16,
+          "inline": false,
+          "visibleChange": true
+        }
+      ],
+      "noVisibleChange": [],
+      "smallTargets": [],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Skip to content",
+        "a:Source Taster",
+        "button:Search documentation",
+        "a:DE Deutsch",
+        "button:Switch color scheme",
+        "summary:Menu",
+        "summary:Choose a chapter",
+        "a:Home",
+        "a:Documentation",
+        "a:← Overview",
+        "a:Structuring references →",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "a:Legal notice",
+        "a:Terms",
+        "a:Privacy policy",
+        "a:Withdrawal instructions",
+        "a:Accessibility",
+        "a:Search licenses and source",
+        "a:Interface licenses and notices"
+      ],
+      "skip": {
+        "firstStop": "Skip to content",
+        "focusAfterActivate": "content",
+        "mainReached": true
+      },
+      "textSpacing": {
+        "newlyClipped": [],
+        "scrollWidth": 320,
+        "clientWidth": 320
+      }
+    },
+    "/docs/en/errors-and-retry/|desktop": {
+      "stops": 31,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [],
+      "noVisibleChange": [],
+      "smallTargets": [],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Skip to content",
+        "a:Source Taster",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "button:Search documentation",
+        "a:DE Deutsch",
+        "button:Switch color scheme",
+        "a:Overview",
+        "a:How the check works",
+        "a:Structuring references",
+        "a:Language and citation style",
+        "a:Errors and retrying",
+        "a:Availability and limits",
+        "a:Home",
+        "a:Documentation",
+        "a:← Language and citation style",
+        "a:Availability and limits →",
+        "a:Check your connection",
+        "a:Reconnecting",
+        "a:Trying again",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "a:Legal notice",
+        "a:Terms",
+        "a:Privacy policy",
+        "a:Withdrawal instructions",
+        "a:Accessibility",
+        "a:Search licenses and source",
+        "a:Interface licenses and notices"
+      ],
+      "skip": {
+        "firstStop": "Skip to content",
+        "focusAfterActivate": "content",
+        "mainReached": true
+      },
+      "textSpacing": {
+        "newlyClipped": [],
+        "scrollWidth": 1280,
+        "clientWidth": 1280
+      }
+    },
+    "/docs/en/errors-and-retry/|reflow-320": {
+      "stops": 21,
+      "focusIndicatorMissing": [],
+      "notFocusVisible": 0,
+      "obscured": [
+        {
+          "tag": "summary",
+          "role": null,
+          "name": "Menu",
+          "focusVisible": true,
+          "indicator": true,
+          "obscured": "partly",
+          "width": 32,
+          "height": 36,
+          "x": 268,
+          "y": 16,
+          "absX": 268,
+          "absY": 16,
+          "inline": false,
+          "visibleChange": true
+        }
+      ],
+      "noVisibleChange": [],
+      "smallTargets": [],
+      "targetSpacingFailures": [],
+      "names": [
+        "a:Skip to content",
+        "a:Source Taster",
+        "button:Search documentation",
+        "a:DE Deutsch",
+        "button:Switch color scheme",
+        "summary:Menu",
+        "summary:Choose a chapter",
+        "a:Home",
+        "a:Documentation",
+        "a:← Language and citation style",
+        "a:Availability and limits →",
+        "a:Documentation",
+        "a:FAQ",
+        "a:Contact",
+        "a:Legal notice",
+        "a:Terms",
+        "a:Privacy policy",
+        "a:Withdrawal instructions",
+        "a:Accessibility",
+        "a:Search licenses and source",
+        "a:Interface licenses and notices"
+      ],
+      "skip": {
+        "firstStop": "Skip to content",
+        "focusAfterActivate": "content",
+        "mainReached": true
+      },
+      "textSpacing": {
+        "newlyClipped": [],
+        "scrollWidth": 320,
+        "clientWidth": 320
+      }
+    }
+  },
+  "textZoom200": {
+    "/en/": {
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "axe": []
+    },
+    "/docs/en/": {
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "axe": []
+    },
+    "/en/faq/": {
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "axe": []
+    }
+  },
+  "reducedMotion": {
+    "running": 0,
+    "scrollBehavior": "auto"
+  },
+  "search": {
+    "open": 1,
+    "stops": 3,
+    "focusInsideAfterTabbing": true,
+    "closedByEscape": true,
+    "focusReturnedToTrigger": true
+  },
+  "languageLinks": [
+    {
+      "text": "DE Deutsch",
+      "lang": "de",
+      "hreflang": "de"
+    }
+  ]
+}

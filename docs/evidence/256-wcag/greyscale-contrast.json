@@ -1,0 +1,1521 @@
+{
+  "filter": "grayscale(1): Y' = 0.2126 R' + 0.7152 G' + 0.0722 B'",
+  "pairs": 158,
+  "failing": [],
+  "tightest": [
+    {
+      "mode": "light",
+      "foreground": "border-emphasis (over glass-overlay)",
+      "background": "glass-overlay worst case (scrim over bg)",
+      "minimum": 3,
+      "colour": 3.26,
+      "greyscale": 3.27,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "border-emphasis (over glass)",
+      "background": "glass worst case (surface-sunken)",
+      "minimum": 3,
+      "colour": 3.45,
+      "greyscale": 3.46,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "border-emphasis (over surface)",
+      "background": "surface",
+      "minimum": 3,
+      "colour": 3.48,
+      "greyscale": 3.48,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-deviations-mark",
+      "background": "glass-overlay worst case (scrim over bg)",
+      "minimum": 3,
+      "colour": 3.5,
+      "greyscale": 3.93,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "border-emphasis (over glass)",
+      "background": "glass worst case (surface)",
+      "minimum": 3,
+      "colour": 4.08,
+      "greyscale": 4.09,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "border-emphasis (over glass-overlay)",
+      "background": "glass-overlay worst case (scrim over surface)",
+      "minimum": 3,
+      "colour": 4.09,
+      "greyscale": 4.1,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "border-emphasis (over surface)",
+      "background": "surface",
+      "minimum": 3,
+      "colour": 4.09,
+      "greyscale": 4.1,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-deviations-mark",
+      "background": "bg",
+      "minimum": 3,
+      "colour": 3.82,
+      "greyscale": 4.29,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "feedback-warning",
+      "background": "feedback-warning-tint",
+      "minimum": 4.5,
+      "colour": 5.35,
+      "greyscale": 5.93,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-deviations-mark",
+      "background": "glass worst case (surface-sunken)",
+      "minimum": 3,
+      "colour": 4,
+      "greyscale": 4.49,
+      "pass": true
+    }
+  ],
+  "rows": [
+    {
+      "mode": "light",
+      "foreground": "text",
+      "background": "bg",
+      "minimum": 4.5,
+      "colour": 17.02,
+      "greyscale": 17.12,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "text",
+      "background": "surface",
+      "minimum": 4.5,
+      "colour": 18.13,
+      "greyscale": 18.24,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "text",
+      "background": "surface-sunken",
+      "minimum": 4.5,
+      "colour": 16.43,
+      "greyscale": 16.52,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "text",
+      "background": "glass-base over bg (no blur)",
+      "minimum": 4.5,
+      "colour": 17.93,
+      "greyscale": 18.03,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "text-secondary",
+      "background": "bg",
+      "minimum": 4.5,
+      "colour": 9.81,
+      "greyscale": 9.87,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "text-secondary",
+      "background": "surface",
+      "minimum": 4.5,
+      "colour": 10.45,
+      "greyscale": 10.52,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "text-secondary",
+      "background": "surface-sunken",
+      "minimum": 4.5,
+      "colour": 9.47,
+      "greyscale": 9.53,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "text-secondary",
+      "background": "glass-base over bg (no blur)",
+      "minimum": 4.5,
+      "colour": 10.33,
+      "greyscale": 10.4,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "text-muted",
+      "background": "bg",
+      "minimum": 4.5,
+      "colour": 6.41,
+      "greyscale": 6.44,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "text-muted",
+      "background": "surface",
+      "minimum": 4.5,
+      "colour": 6.83,
+      "greyscale": 6.86,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "text-muted",
+      "background": "surface-sunken",
+      "minimum": 4.5,
+      "colour": 6.19,
+      "greyscale": 6.22,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "text-muted",
+      "background": "glass-base over bg (no blur)",
+      "minimum": 4.5,
+      "colour": 6.76,
+      "greyscale": 6.78,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "accent-text",
+      "background": "surface",
+      "minimum": 4.5,
+      "colour": 7.2,
+      "greyscale": 8.68,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "accent-text",
+      "background": "accent-tint (over surface)",
+      "minimum": 4.5,
+      "colour": 6.4,
+      "greyscale": 7.71,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "on-accent",
+      "background": "accent",
+      "minimum": 4.5,
+      "colour": 6.29,
+      "greyscale": 7.54,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "feedback-danger",
+      "background": "surface",
+      "minimum": 4.5,
+      "colour": 6.62,
+      "greyscale": 11.19,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "feedback-danger",
+      "background": "feedback-danger-tint",
+      "minimum": 4.5,
+      "colour": 5.69,
+      "greyscale": 9.6,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "feedback-warning",
+      "background": "surface",
+      "minimum": 4.5,
+      "colour": 6.2,
+      "greyscale": 6.87,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "feedback-warning",
+      "background": "feedback-warning-tint",
+      "minimum": 4.5,
+      "colour": 5.35,
+      "greyscale": 5.93,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "feedback-success",
+      "background": "surface",
+      "minimum": 4.5,
+      "colour": 6.17,
+      "greyscale": 7.15,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "feedback-success",
+      "background": "feedback-success-tint",
+      "minimum": 4.5,
+      "colour": 5.33,
+      "greyscale": 6.17,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "feedback-info",
+      "background": "surface",
+      "minimum": 4.5,
+      "colour": 7.2,
+      "greyscale": 8.68,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "feedback-info",
+      "background": "feedback-info-tint",
+      "minimum": 4.5,
+      "colour": 6.17,
+      "greyscale": 7.43,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "text",
+      "background": "correction-insert-bg (over surface)",
+      "minimum": 4.5,
+      "colour": 16.26,
+      "greyscale": 16.35,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "correction-delete-text",
+      "background": "correction-delete-bg (over surface)",
+      "minimum": 4.5,
+      "colour": 8.27,
+      "greyscale": 8.3,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "text",
+      "background": "glass worst case (surface-sunken)",
+      "minimum": 4.5,
+      "colour": 17.82,
+      "greyscale": 17.92,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "text-on-glass-secondary",
+      "background": "glass worst case (surface-sunken)",
+      "minimum": 4.5,
+      "colour": 8.33,
+      "greyscale": 8.37,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-correct-mark",
+      "background": "glass worst case (surface-sunken)",
+      "minimum": 3,
+      "colour": 4.28,
+      "greyscale": 5.37,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-deviations-mark",
+      "background": "glass worst case (surface-sunken)",
+      "minimum": 3,
+      "colour": 4,
+      "greyscale": 4.49,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-mixed-mark",
+      "background": "glass worst case (surface-sunken)",
+      "minimum": 3,
+      "colour": 5.56,
+      "greyscale": 9.19,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-doi-conflict-mark",
+      "background": "glass worst case (surface-sunken)",
+      "minimum": 3,
+      "colour": 5.54,
+      "greyscale": 10.46,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-not-found-mark",
+      "background": "glass worst case (surface-sunken)",
+      "minimum": 3,
+      "colour": 7.43,
+      "greyscale": 14.44,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-not-verifiable-mark",
+      "background": "glass worst case (surface-sunken)",
+      "minimum": 3,
+      "colour": 5.42,
+      "greyscale": 5.43,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "accent",
+      "background": "glass worst case (surface-sunken)",
+      "minimum": 3,
+      "colour": 6.18,
+      "greyscale": 7.41,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "feedback-danger",
+      "background": "glass worst case (surface-sunken)",
+      "minimum": 3,
+      "colour": 6.51,
+      "greyscale": 11,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "feedback-warning",
+      "background": "glass worst case (surface-sunken)",
+      "minimum": 3,
+      "colour": 6.09,
+      "greyscale": 6.75,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "feedback-success",
+      "background": "glass worst case (surface-sunken)",
+      "minimum": 3,
+      "colour": 6.07,
+      "greyscale": 7.03,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "feedback-info",
+      "background": "glass worst case (surface-sunken)",
+      "minimum": 3,
+      "colour": 7.08,
+      "greyscale": 8.53,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "focus-ring",
+      "background": "glass worst case (surface-sunken)",
+      "minimum": 3,
+      "colour": 6.18,
+      "greyscale": 7.41,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "border-emphasis (over glass)",
+      "background": "glass worst case (surface-sunken)",
+      "minimum": 3,
+      "colour": 3.45,
+      "greyscale": 3.46,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "text",
+      "background": "glass-overlay worst case (scrim over bg)",
+      "minimum": 4.5,
+      "colour": 15.59,
+      "greyscale": 15.68,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "text-on-glass-secondary",
+      "background": "glass-overlay worst case (scrim over bg)",
+      "minimum": 4.5,
+      "colour": 7.29,
+      "greyscale": 7.32,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-correct-mark",
+      "background": "glass-overlay worst case (scrim over bg)",
+      "minimum": 3,
+      "colour": 3.74,
+      "greyscale": 4.7,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-deviations-mark",
+      "background": "glass-overlay worst case (scrim over bg)",
+      "minimum": 3,
+      "colour": 3.5,
+      "greyscale": 3.93,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-mixed-mark",
+      "background": "glass-overlay worst case (scrim over bg)",
+      "minimum": 3,
+      "colour": 4.86,
+      "greyscale": 8.04,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-doi-conflict-mark",
+      "background": "glass-overlay worst case (scrim over bg)",
+      "minimum": 3,
+      "colour": 4.85,
+      "greyscale": 9.15,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-not-found-mark",
+      "background": "glass-overlay worst case (scrim over bg)",
+      "minimum": 3,
+      "colour": 6.5,
+      "greyscale": 12.63,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-not-verifiable-mark",
+      "background": "glass-overlay worst case (scrim over bg)",
+      "minimum": 3,
+      "colour": 4.74,
+      "greyscale": 4.75,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "accent",
+      "background": "glass-overlay worst case (scrim over bg)",
+      "minimum": 3,
+      "colour": 5.41,
+      "greyscale": 6.48,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "feedback-danger",
+      "background": "glass-overlay worst case (scrim over bg)",
+      "minimum": 3,
+      "colour": 5.69,
+      "greyscale": 9.62,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "feedback-warning",
+      "background": "glass-overlay worst case (scrim over bg)",
+      "minimum": 3,
+      "colour": 5.33,
+      "greyscale": 5.91,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "feedback-success",
+      "background": "glass-overlay worst case (scrim over bg)",
+      "minimum": 3,
+      "colour": 5.31,
+      "greyscale": 6.15,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "feedback-info",
+      "background": "glass-overlay worst case (scrim over bg)",
+      "minimum": 3,
+      "colour": 6.19,
+      "greyscale": 7.46,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "focus-ring",
+      "background": "glass-overlay worst case (scrim over bg)",
+      "minimum": 3,
+      "colour": 5.41,
+      "greyscale": 6.48,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "border-emphasis (over glass-overlay)",
+      "background": "glass-overlay worst case (scrim over bg)",
+      "minimum": 3,
+      "colour": 3.26,
+      "greyscale": 3.27,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-correct-mark",
+      "background": "surface",
+      "minimum": 3,
+      "colour": 4.35,
+      "greyscale": 5.47,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-correct-mark",
+      "background": "bg",
+      "minimum": 3,
+      "colour": 4.08,
+      "greyscale": 5.13,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "on-verdict-mark",
+      "background": "verdict-correct-mark",
+      "minimum": 3,
+      "colour": 4.35,
+      "greyscale": 5.47,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-deviations-mark",
+      "background": "surface",
+      "minimum": 3,
+      "colour": 4.07,
+      "greyscale": 4.57,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-deviations-mark",
+      "background": "bg",
+      "minimum": 3,
+      "colour": 3.82,
+      "greyscale": 4.29,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "on-verdict-mark",
+      "background": "verdict-deviations-mark",
+      "minimum": 3,
+      "colour": 4.07,
+      "greyscale": 4.57,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-mixed-mark",
+      "background": "surface",
+      "minimum": 3,
+      "colour": 5.65,
+      "greyscale": 9.35,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-mixed-mark",
+      "background": "bg",
+      "minimum": 3,
+      "colour": 5.31,
+      "greyscale": 8.77,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "on-verdict-mark",
+      "background": "verdict-mixed-mark",
+      "minimum": 3,
+      "colour": 5.65,
+      "greyscale": 9.35,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-doi-conflict-mark",
+      "background": "surface",
+      "minimum": 3,
+      "colour": 5.64,
+      "greyscale": 10.64,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-doi-conflict-mark",
+      "background": "bg",
+      "minimum": 3,
+      "colour": 5.29,
+      "greyscale": 9.99,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "on-verdict-mark",
+      "background": "verdict-doi-conflict-mark",
+      "minimum": 3,
+      "colour": 5.64,
+      "greyscale": 10.64,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-not-found-mark",
+      "background": "surface",
+      "minimum": 3,
+      "colour": 7.56,
+      "greyscale": 14.7,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-not-found-mark",
+      "background": "bg",
+      "minimum": 3,
+      "colour": 7.1,
+      "greyscale": 13.79,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "on-verdict-mark",
+      "background": "verdict-not-found-mark",
+      "minimum": 3,
+      "colour": 7.56,
+      "greyscale": 14.7,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-not-verifiable-mark",
+      "background": "surface",
+      "minimum": 3,
+      "colour": 5.51,
+      "greyscale": 5.53,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "verdict-not-verifiable-mark",
+      "background": "bg",
+      "minimum": 3,
+      "colour": 5.17,
+      "greyscale": 5.19,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "on-verdict-mark",
+      "background": "verdict-not-verifiable-mark",
+      "minimum": 3,
+      "colour": 5.51,
+      "greyscale": 5.53,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "focus-ring",
+      "background": "bg",
+      "minimum": 3,
+      "colour": 5.91,
+      "greyscale": 7.08,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "focus-ring",
+      "background": "surface",
+      "minimum": 3,
+      "colour": 6.29,
+      "greyscale": 7.54,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "focus-ring",
+      "background": "surface-sunken",
+      "minimum": 3,
+      "colour": 5.7,
+      "greyscale": 6.83,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "focus-ring",
+      "background": "accent-tint (over surface)",
+      "minimum": 3,
+      "colour": 5.59,
+      "greyscale": 6.7,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "border-emphasis (over surface)",
+      "background": "surface",
+      "minimum": 3,
+      "colour": 3.48,
+      "greyscale": 3.48,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "foreground": "correction-insert-line (composited)",
+      "background": "correction-insert-bg (over surface)",
+      "minimum": 3,
+      "colour": 6.33,
+      "greyscale": 6.35,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "text",
+      "background": "bg",
+      "minimum": 4.5,
+      "colour": 18.04,
+      "greyscale": 18.06,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "text",
+      "background": "surface",
+      "minimum": 4.5,
+      "colour": 16.78,
+      "greyscale": 16.8,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "text",
+      "background": "surface-sunken",
+      "minimum": 4.5,
+      "colour": 17.48,
+      "greyscale": 17.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "text",
+      "background": "glass-base over bg (no blur)",
+      "minimum": 4.5,
+      "colour": 16.66,
+      "greyscale": 16.69,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "text-secondary",
+      "background": "bg",
+      "minimum": 4.5,
+      "colour": 11.65,
+      "greyscale": 11.66,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "text-secondary",
+      "background": "surface",
+      "minimum": 4.5,
+      "colour": 10.83,
+      "greyscale": 10.85,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "text-secondary",
+      "background": "surface-sunken",
+      "minimum": 4.5,
+      "colour": 11.29,
+      "greyscale": 11.3,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "text-secondary",
+      "background": "glass-base over bg (no blur)",
+      "minimum": 4.5,
+      "colour": 10.76,
+      "greyscale": 10.78,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "text-muted",
+      "background": "bg",
+      "minimum": 4.5,
+      "colour": 7.64,
+      "greyscale": 7.65,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "text-muted",
+      "background": "surface",
+      "minimum": 4.5,
+      "colour": 7.11,
+      "greyscale": 7.11,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "text-muted",
+      "background": "surface-sunken",
+      "minimum": 4.5,
+      "colour": 7.41,
+      "greyscale": 7.41,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "text-muted",
+      "background": "glass-base over bg (no blur)",
+      "minimum": 4.5,
+      "colour": 7.06,
+      "greyscale": 7.07,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "accent-text",
+      "background": "surface",
+      "minimum": 4.5,
+      "colour": 9.76,
+      "greyscale": 9.57,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "accent-text",
+      "background": "accent-tint (over surface)",
+      "minimum": 4.5,
+      "colour": 8.05,
+      "greyscale": 7.93,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "on-accent",
+      "background": "accent",
+      "minimum": 4.5,
+      "colour": 9.19,
+      "greyscale": 8.97,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "feedback-danger",
+      "background": "surface",
+      "minimum": 4.5,
+      "colour": 7.72,
+      "greyscale": 6.83,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "feedback-danger",
+      "background": "feedback-danger-tint",
+      "minimum": 4.5,
+      "colour": 6.8,
+      "greyscale": 6.08,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "feedback-warning",
+      "background": "surface",
+      "minimum": 4.5,
+      "colour": 11.08,
+      "greyscale": 10.63,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "feedback-warning",
+      "background": "feedback-warning-tint",
+      "minimum": 4.5,
+      "colour": 9.42,
+      "greyscale": 9.09,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "feedback-success",
+      "background": "surface",
+      "minimum": 4.5,
+      "colour": 10.37,
+      "greyscale": 9.61,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "feedback-success",
+      "background": "feedback-success-tint",
+      "minimum": 4.5,
+      "colour": 8.82,
+      "greyscale": 8.23,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "feedback-info",
+      "background": "surface",
+      "minimum": 4.5,
+      "colour": 9.76,
+      "greyscale": 9.57,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "feedback-info",
+      "background": "feedback-info-tint",
+      "minimum": 4.5,
+      "colour": 8.39,
+      "greyscale": 8.25,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "text",
+      "background": "correction-insert-bg (over surface)",
+      "minimum": 4.5,
+      "colour": 14.86,
+      "greyscale": 14.88,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "correction-delete-text",
+      "background": "correction-delete-bg (over surface)",
+      "minimum": 4.5,
+      "colour": 8.1,
+      "greyscale": 8.11,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "text",
+      "background": "glass worst case (surface)",
+      "minimum": 4.5,
+      "colour": 16.48,
+      "greyscale": 16.51,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "text-on-glass-secondary",
+      "background": "glass worst case (surface)",
+      "minimum": 4.5,
+      "colour": 12.52,
+      "greyscale": 12.54,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-correct-mark",
+      "background": "glass worst case (surface)",
+      "minimum": 3,
+      "colour": 10.26,
+      "greyscale": 9.22,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-deviations-mark",
+      "background": "glass worst case (surface)",
+      "minimum": 3,
+      "colour": 10.55,
+      "greyscale": 9.97,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-mixed-mark",
+      "background": "glass worst case (surface)",
+      "minimum": 3,
+      "colour": 7.21,
+      "greyscale": 6.2,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-doi-conflict-mark",
+      "background": "glass worst case (surface)",
+      "minimum": 3,
+      "colour": 6.73,
+      "greyscale": 5.59,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-not-found-mark",
+      "background": "glass worst case (surface)",
+      "minimum": 3,
+      "colour": 6.16,
+      "greyscale": 4.81,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-not-verifiable-mark",
+      "background": "glass worst case (surface)",
+      "minimum": 3,
+      "colour": 7.24,
+      "greyscale": 7.25,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "accent",
+      "background": "glass worst case (surface)",
+      "minimum": 3,
+      "colour": 8.62,
+      "greyscale": 8.38,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "feedback-danger",
+      "background": "glass worst case (surface)",
+      "minimum": 3,
+      "colour": 7.58,
+      "greyscale": 6.71,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "feedback-warning",
+      "background": "glass worst case (surface)",
+      "minimum": 3,
+      "colour": 10.88,
+      "greyscale": 10.45,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "feedback-success",
+      "background": "glass worst case (surface)",
+      "minimum": 3,
+      "colour": 10.19,
+      "greyscale": 9.45,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "feedback-info",
+      "background": "glass worst case (surface)",
+      "minimum": 3,
+      "colour": 9.59,
+      "greyscale": 9.4,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "focus-ring",
+      "background": "glass worst case (surface)",
+      "minimum": 3,
+      "colour": 9.59,
+      "greyscale": 9.4,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "border-emphasis (over glass)",
+      "background": "glass worst case (surface)",
+      "minimum": 3,
+      "colour": 4.08,
+      "greyscale": 4.09,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "text",
+      "background": "glass-overlay worst case (scrim over surface)",
+      "minimum": 4.5,
+      "colour": 16.91,
+      "greyscale": 16.94,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "text-on-glass-secondary",
+      "background": "glass-overlay worst case (scrim over surface)",
+      "minimum": 4.5,
+      "colour": 12.84,
+      "greyscale": 12.87,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-correct-mark",
+      "background": "glass-overlay worst case (scrim over surface)",
+      "minimum": 3,
+      "colour": 10.53,
+      "greyscale": 9.46,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-deviations-mark",
+      "background": "glass-overlay worst case (scrim over surface)",
+      "minimum": 3,
+      "colour": 10.82,
+      "greyscale": 10.23,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-mixed-mark",
+      "background": "glass-overlay worst case (scrim over surface)",
+      "minimum": 3,
+      "colour": 7.39,
+      "greyscale": 6.35,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-doi-conflict-mark",
+      "background": "glass-overlay worst case (scrim over surface)",
+      "minimum": 3,
+      "colour": 6.9,
+      "greyscale": 5.73,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-not-found-mark",
+      "background": "glass-overlay worst case (scrim over surface)",
+      "minimum": 3,
+      "colour": 6.32,
+      "greyscale": 4.93,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-not-verifiable-mark",
+      "background": "glass-overlay worst case (scrim over surface)",
+      "minimum": 3,
+      "colour": 7.43,
+      "greyscale": 7.44,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "accent",
+      "background": "glass-overlay worst case (scrim over surface)",
+      "minimum": 3,
+      "colour": 8.85,
+      "greyscale": 8.59,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "feedback-danger",
+      "background": "glass-overlay worst case (scrim over surface)",
+      "minimum": 3,
+      "colour": 7.78,
+      "greyscale": 6.89,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "feedback-warning",
+      "background": "glass-overlay worst case (scrim over surface)",
+      "minimum": 3,
+      "colour": 11.16,
+      "greyscale": 10.72,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "feedback-success",
+      "background": "glass-overlay worst case (scrim over surface)",
+      "minimum": 3,
+      "colour": 10.45,
+      "greyscale": 9.69,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "feedback-info",
+      "background": "glass-overlay worst case (scrim over surface)",
+      "minimum": 3,
+      "colour": 9.83,
+      "greyscale": 9.64,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "focus-ring",
+      "background": "glass-overlay worst case (scrim over surface)",
+      "minimum": 3,
+      "colour": 9.83,
+      "greyscale": 9.64,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "border-emphasis (over glass-overlay)",
+      "background": "glass-overlay worst case (scrim over surface)",
+      "minimum": 3,
+      "colour": 4.09,
+      "greyscale": 4.1,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-correct-mark",
+      "background": "surface",
+      "minimum": 3,
+      "colour": 10.45,
+      "greyscale": 9.38,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-correct-mark",
+      "background": "bg",
+      "minimum": 3,
+      "colour": 11.23,
+      "greyscale": 10.08,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "on-verdict-mark",
+      "background": "verdict-correct-mark",
+      "minimum": 3,
+      "colour": 11.09,
+      "greyscale": 9.96,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-deviations-mark",
+      "background": "surface",
+      "minimum": 3,
+      "colour": 10.74,
+      "greyscale": 10.15,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-deviations-mark",
+      "background": "bg",
+      "minimum": 3,
+      "colour": 11.55,
+      "greyscale": 10.9,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "on-verdict-mark",
+      "background": "verdict-deviations-mark",
+      "minimum": 3,
+      "colour": 11.4,
+      "greyscale": 10.77,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-mixed-mark",
+      "background": "surface",
+      "minimum": 3,
+      "colour": 7.34,
+      "greyscale": 6.3,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-mixed-mark",
+      "background": "bg",
+      "minimum": 3,
+      "colour": 7.89,
+      "greyscale": 6.77,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "on-verdict-mark",
+      "background": "verdict-mixed-mark",
+      "minimum": 3,
+      "colour": 7.79,
+      "greyscale": 6.69,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-doi-conflict-mark",
+      "background": "surface",
+      "minimum": 3,
+      "colour": 6.85,
+      "greyscale": 5.69,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-doi-conflict-mark",
+      "background": "bg",
+      "minimum": 3,
+      "colour": 7.36,
+      "greyscale": 6.11,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "on-verdict-mark",
+      "background": "verdict-doi-conflict-mark",
+      "minimum": 3,
+      "colour": 7.27,
+      "greyscale": 6.04,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-not-found-mark",
+      "background": "surface",
+      "minimum": 3,
+      "colour": 6.27,
+      "greyscale": 4.89,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-not-found-mark",
+      "background": "bg",
+      "minimum": 3,
+      "colour": 6.74,
+      "greyscale": 5.26,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "on-verdict-mark",
+      "background": "verdict-not-found-mark",
+      "minimum": 3,
+      "colour": 6.65,
+      "greyscale": 5.19,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-not-verifiable-mark",
+      "background": "surface",
+      "minimum": 3,
+      "colour": 7.37,
+      "greyscale": 7.38,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "verdict-not-verifiable-mark",
+      "background": "bg",
+      "minimum": 3,
+      "colour": 7.93,
+      "greyscale": 7.93,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "on-verdict-mark",
+      "background": "verdict-not-verifiable-mark",
+      "minimum": 3,
+      "colour": 7.82,
+      "greyscale": 7.83,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "focus-ring",
+      "background": "bg",
+      "minimum": 3,
+      "colour": 10.5,
+      "greyscale": 10.28,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "focus-ring",
+      "background": "surface",
+      "minimum": 3,
+      "colour": 9.76,
+      "greyscale": 9.57,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "focus-ring",
+      "background": "surface-sunken",
+      "minimum": 3,
+      "colour": 10.17,
+      "greyscale": 9.97,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "focus-ring",
+      "background": "accent-tint (over surface)",
+      "minimum": 3,
+      "colour": 8.05,
+      "greyscale": 7.93,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "border-emphasis (over surface)",
+      "background": "surface",
+      "minimum": 3,
+      "colour": 4.09,
+      "greyscale": 4.1,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "foreground": "correction-insert-line (composited)",
+      "background": "correction-insert-bg (over surface)",
+      "minimum": 3,
+      "colour": 6.24,
+      "greyscale": 6.25,
+      "pass": true
+    }
+  ]
+}
