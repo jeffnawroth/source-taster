@@ -224,6 +224,9 @@ async function appendEvent(tx: Tx, checkId: string, event: EventPayload) {
   });
   await tx.$queryRaw`SELECT pg_notify(${EVENT_CHANNEL}, ${checkId})::text`;
 }
+/** How long the content sweep and Owner deletion may hold the exclusive
+ * content lock (advisory 910012). */
+const exclusiveContentTimeoutMs = 30_000;
 async function lock(tx: Tx, id: string) {
   await tx.$queryRaw`SELECT id FROM verification.checks WHERE id=${id}::uuid FOR UPDATE`;
   return tx.check.findUnique({ where: { id } });
@@ -304,13 +307,20 @@ export function createCheckStore(
   const settings = { ...defaultLifecycleSettings, ...options.settings };
   const renewalInterval = Math.max(1, Math.floor(settings.clientLeaseMs / 3));
   const rawTransactions = new WeakMap<Tx, Tx>();
+  // The shared content lock queues behind the sweep's exclusive one, and that
+  // wait counts against the interactive-transaction timeout. So a content
+  // transaction gets the sweep's whole exclusive window plus Prisma's default
+  // 5 s for its own work, never less than the work it waits for (#308).
   const transaction = <T>(operation: (tx: Tx) => Promise<T>) =>
-    db.$transaction(async (raw) => {
-      await raw.$queryRaw`SELECT pg_advisory_xact_lock_shared(910012)::text`;
-      const tx = contentTransaction(raw, () => clock.now());
-      rawTransactions.set(tx, raw);
-      return operation(tx);
-    });
+    db.$transaction(
+      async (raw) => {
+        await raw.$queryRaw`SELECT pg_advisory_xact_lock_shared(910012)::text`;
+        const tx = contentTransaction(raw, () => clock.now());
+        rawTransactions.set(tx, raw);
+        return operation(tx);
+      },
+      { timeout: exclusiveContentTimeoutMs + 5_000 },
+    );
   async function wake(tx: Tx, checkId: string, slot = 0) {
     await boss.send(
       REFERENCE_QUEUE,
@@ -910,7 +920,7 @@ export function createCheckStore(
         }
         await raw.$executeRaw`DELETE FROM verification.transient_keys WHERE day<${day}`;
       },
-      { timeout: 30_000 },
+      { timeout: exclusiveContentTimeoutMs },
     );
   }
   async function ownerSnapshot(
@@ -2234,7 +2244,7 @@ export function createCheckStore(
             if (check) await purgeLocked(tx, check);
           }
         },
-        { timeout: 30000 },
+        { timeout: exclusiveContentTimeoutMs },
       );
     },
     async invalidateOwner(ownerId: string) {
