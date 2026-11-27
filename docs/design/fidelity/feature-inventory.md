@@ -375,7 +375,7 @@ At the baseline, WS-03, WS-04 and WS-10 had only axe/reflow hits. Current whole-
 | Shared UI | SU-OU-09 | The report job states are working, ready, cancelled, expired and error. | `apps/web/e2e-report/report-states.spec.ts:63` |
 | Shared UI | SU-OU-10 | The report failures are unsupported, limit reached and unavailable. | `apps/web/e2e-report/report-states.spec.ts:130` |
 | Shared UI | SU-OU-11 | Server problems for the report: not found, not ready, busy and expired. | `apps/web/e2e-report/report-states.spec.ts:173` |
-| Shared UI | SU-AC-11 | An activity ping runs on pointer and key events, at most once a minute. It has no UI. | `apps/extension/e2e-account/panel.spec.ts:826` |
+| Shared UI | SU-AC-11 | An activity ping runs on pointer and key events, at most once a minute. It has no UI. | `apps/extension/e2e-account/panel.spec.ts:827` |
 | Shared UI | SU-DP-05 | Recover or restart an interrupted conclusion. A recovery-pending notice shows meanwhile. | `apps/web/e2e-dpa/dpa.spec.ts:403`. Runs only with the private service worktree, not in CI. |
 | Shared UI | SU-DP-07 | Errors: conflict, proof failed, rate limited or failed. | `apps/web/e2e-dpa/dpa.spec.ts:385`. Runs only with the private service worktree, not in CI. |
 | Shared UI | SU-DP-09 | Intended subprocessor changes show their dates and the route link. The user can record an objection, and the notice says whether it was sent, queued or put on hold. | `apps/web/e2e-dpa/dpa.spec.ts:435`. Runs only with the private service worktree, not in CI. |
