@@ -6,15 +6,24 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { readFileSync } from "node:fs";
 import {
+  assertStoreConfig,
   extensionConfig,
+  extensionVersion,
   manifest,
   manifestIcons,
+  parseChannel,
   parseTarget,
+  storeMessages,
+  type Channel,
   type ExtensionConfig,
   type Target,
 } from "./extension-config.ts";
 
-function extensionPackage(target: Target, config: ExtensionConfig): Plugin {
+function extensionPackage(
+  target: Target,
+  config: ExtensionConfig,
+  channel: Channel,
+): Plugin {
   return {
     name: "source-taster-extension",
     generateBundle(_, bundle) {
@@ -35,7 +44,7 @@ function extensionPackage(target: Target, config: ExtensionConfig): Plugin {
         )
           throw new Error(`Remote code reference in ${output.fileName}`);
       }
-      const generated = manifest(target, config);
+      const generated = manifest(target, config, channel);
       this.emitFile({
         type: "asset",
         fileName: "manifest.json",
@@ -76,9 +85,11 @@ function extensionPackage(target: Target, config: ExtensionConfig): Plugin {
         this.emitFile({
           type: "asset",
           fileName: `_locales/${locale}/messages.json`,
-          source: JSON.stringify({
-            check_selected_text: { message: catalog.selection_menu },
-          }),
+          source: JSON.stringify(
+            channel === "store"
+              ? storeMessages(locale as "de" | "en", catalog.selection_menu!)
+              : { check_selected_text: { message: catalog.selection_menu } },
+          ),
         });
       }
     },
@@ -88,18 +99,21 @@ function extensionPackage(target: Target, config: ExtensionConfig): Plugin {
 export default defineConfig(({ mode }) => {
   const target = parseTarget(mode);
   const config = extensionConfig(process.env);
+  const channel = parseChannel(process.env);
+  if (channel === "store") assertStoreConfig(process.env, config);
   return {
     base: "./",
     plugins: [
       fontNotices(),
       react(),
       tailwindcss(),
-      extensionPackage(target, config),
+      extensionPackage(target, config, channel),
     ],
     define: {
       __SOURCE_TASTER_EXTENSION__: JSON.stringify(config),
       // A bare constant, so the other target's code is removed from the bundle.
       __SOURCE_TASTER_TARGET__: JSON.stringify(target),
+      __SOURCE_TASTER_VERSION__: JSON.stringify(extensionVersion),
     },
     build: {
       outDir: process.env.SOURCE_TASTER_EXTENSION_OUT_DIR ?? `dist/${target}`,

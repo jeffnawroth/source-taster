@@ -1,7 +1,31 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Build-time configuration and per-browser manifests. Every value is explicit
 // development configuration; no public domain, listing or download is implied.
+import { readFileSync } from "node:fs";
+import {
+  storeListing,
+  storeMessageKeys,
+  type storeLocales,
+} from "./store-listing.ts";
+
 export type Target = "chromium" | "firefox";
+/** `development` is the default build; `store` is the release build that the
+ * browser stores receive (docs/implementation/259-store-submission.md). */
+export type Channel = "development" | "store";
+
+/** The one version source: the manifest, the Check client string and the
+ * release file names all read this field. */
+export const extensionVersion = (
+  JSON.parse(
+    readFileSync(new URL("./package.json", import.meta.url), "utf8"),
+  ) as { version: string }
+).version;
+
+/** Permanent Firefox add-on ID of the store build. AMO ties an add-on to this
+ * ID at the first upload and it cannot change afterwards. A GUID keeps it
+ * independent of any domain; it is public and no secret. Changing it is only
+ * possible before the first AMO upload. */
+export const storeGeckoId = "{052624ed-a1ee-4aea-9c15-6630ffbef314}";
 export interface ExtensionConfig {
   apiUrl: string;
   mode: "standalone" | "hosted";
@@ -32,6 +56,52 @@ function origin(name: string, value: string) {
 export function parseTarget(mode: string): Target {
   if (mode === "chromium" || mode === "firefox") return mode;
   throw new Error(`Extension target must be chromium or firefox, not ${mode}`);
+}
+
+export function parseChannel(env: Record<string, string | undefined>): Channel {
+  const channel = env.SOURCE_TASTER_EXTENSION_CHANNEL ?? "development";
+  if (channel === "development" || channel === "store") return channel;
+  throw new Error(
+    "SOURCE_TASTER_EXTENSION_CHANNEL must be development or store",
+  );
+}
+
+/** The store channel never falls back to a development default: the owner
+ * names every origin, each must be public HTTPS, and only a rehearsal
+ * (SOURCE_TASTER_EXTENSION_STORE_REHEARSAL=1) may use the reserved `.invalid`
+ * host that can never resolve and so can never be uploaded by mistake. */
+export function assertStoreConfig(
+  env: Record<string, string | undefined>,
+  config: ExtensionConfig,
+) {
+  const rehearsal = env.SOURCE_TASTER_EXTENSION_STORE_REHEARSAL === "1";
+  const required = [
+    ["SOURCE_TASTER_EXTENSION_API_URL", config.apiUrl],
+    ["SOURCE_TASTER_EXTENSION_WEBSITE_URL", config.websiteUrl],
+    ...(config.serviceUrl
+      ? [["SOURCE_TASTER_EXTENSION_SERVICE_URL", config.serviceUrl]]
+      : []),
+  ] as const;
+  for (const [name, value] of required) {
+    if (!env[name]) throw new Error(`The store channel needs ${name}`);
+    const host = new URL(value).hostname;
+    if (new URL(value).protocol !== "https:")
+      throw new Error(`${name} must be HTTPS in the store channel`);
+    const reserved =
+      host === "invalid" ||
+      host.endsWith(".invalid") ||
+      host === "example.com" ||
+      host.endsWith(".example") ||
+      host.endsWith(".test");
+    if (reserved && !rehearsal)
+      throw new Error(
+        `${name} names a reserved host (${host}); the store channel needs the real origin`,
+      );
+    if (!reserved && rehearsal)
+      throw new Error(
+        `${name} is a real host (${host}); a rehearsal uses reserved hosts only`,
+      );
+  }
 }
 
 export function extensionConfig(
@@ -157,13 +227,24 @@ export function manifestIcons(generated: ReturnType<typeof manifest>) {
   ];
 }
 
-export function manifest(target: Target, config: ExtensionConfig) {
+export function manifest(
+  target: Target,
+  config: ExtensionConfig,
+  channel: Channel = "development",
+) {
+  const store = channel === "store";
   const common = {
     manifest_version: 3,
     default_locale: "en",
-    name: "Source Taster (development)",
-    version: "0.0.0",
-    description: "Development build of the Source Taster check workspace.",
+    // The store listing reads the localised name and description, and Edge
+    // finds a package's languages only through these placeholders.
+    name: store
+      ? `__MSG_${storeMessageKeys.name}__`
+      : "Source Taster (development)",
+    version: extensionVersion,
+    description: store
+      ? `__MSG_${storeMessageKeys.description}__`
+      : "Development build of the Source Taster check workspace.",
     icons: packageIcons,
     host_permissions: hostPermissions(target, config),
     content_security_policy: {
@@ -183,7 +264,7 @@ export function manifest(target: Target, config: ExtensionConfig) {
         ...common,
         browser_specific_settings: {
           gecko: {
-            id: "development@source-taster.invalid",
+            id: store ? storeGeckoId : "development@source-taster.invalid",
             // 140 is the first desktop release with the built-in data
             // collection consent prompt; see docs/research/extension-platform.md 5.5.
             strict_min_version: "140.0",
@@ -207,4 +288,18 @@ export function manifest(target: Target, config: ExtensionConfig) {
         background: { scripts: ["background.js"] },
         permissions: ["storage", "menus"],
       };
+}
+
+/** `_locales/<locale>/messages.json` of the store channel. */
+export function storeMessages(
+  locale: (typeof storeLocales)[number],
+  menuTitle: string,
+) {
+  return {
+    [storeMessageKeys.name]: { message: storeListing[locale].name },
+    [storeMessageKeys.description]: {
+      message: storeListing[locale].description,
+    },
+    check_selected_text: { message: menuTitle },
+  };
 }

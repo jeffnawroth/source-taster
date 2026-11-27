@@ -18,6 +18,7 @@ import { spawn } from "node:child_process";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { extensionVersion } from "../extension-config.ts";
 import { buildExtension } from "../e2e/support/build.ts";
 import { launchFirefox } from "../e2e/support/firefox.ts";
 import { launchChromium, until, type Panel } from "../e2e/support/chromium.ts";
@@ -698,7 +699,7 @@ test("Account streams reconnect with memory tokens and generic permission cannot
       {
         headers: {
           authorization: `Bearer ${other}`,
-          "Source-Taster-Client": "extension/0.0.0",
+          "Source-Taster-Client": `extension/${extensionVersion}`,
         },
       },
     );
