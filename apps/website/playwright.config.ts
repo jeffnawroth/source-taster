@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { defineConfig } from "@playwright/test";
+import { withOrphanGuard } from "../server/test/support/orphan-guard.ts";
 const port = process.env.SOURCE_TASTER_WEBSITE_E2E_PORT ?? "53115";
 const baseURL = `http://127.0.0.1:${port}`;
 export default defineConfig({
@@ -7,6 +8,7 @@ export default defineConfig({
   workers: 1,
   use: { baseURL, trace: "retain-on-failure" },
   webServer: {
+    env: withOrphanGuard({ NODE_OPTIONS: process.env.NODE_OPTIONS }),
     // Turbo owns the single build dependency. A second build here races the
     // app's website dependency and destroys shared source-delivery staging.
     command: `pnpm preview --port ${port}`,

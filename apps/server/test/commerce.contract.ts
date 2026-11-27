@@ -18,6 +18,7 @@ import {
 import { bothPrograms, eventually } from "./support/both-programs.ts";
 import { ReportResponse } from "@source-taster/contract-verification/report";
 import { physicsReference } from "./support/doi-fixtures.ts";
+import { withOrphanGuard } from "./support/orphan-guard.ts";
 test.each(["check-pack", "pro"])(
   "a web-paid %s is visible and consumed through the verification API Quota seam",
   async (plan) => {
@@ -30,11 +31,11 @@ test.each(["check-pack", "pro"])(
       ["test/commerce-provider-process.ts"],
       {
         cwd: join(privatePath, "apps/server"),
-        env: {
+        env: withOrphanGuard({
           PATH: process.env.PATH,
           NODE_ENV: "test",
           SERVICE_TEST_EN16931_CONFIG: process.env.SERVICE_TEST_EN16931_CONFIG,
-        },
+        }),
         stdio: ["ignore", "pipe", "pipe", "ipc"],
       },
     );

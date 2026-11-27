@@ -14,6 +14,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, expect, it } from "vitest";
 import { LoadReport } from "../src/load/analysis.ts";
+import { withOrphanGuard } from "./support/orphan-guard.ts";
 
 const serverDir = fileURLToPath(new URL("..", import.meta.url));
 let directory: string | undefined;
@@ -35,12 +36,12 @@ async function cli(args: string[], env: Record<string, string> = {}) {
     ],
     {
       cwd: serverDir,
-      env: {
+      env: withOrphanGuard({
         ...env,
         PATH: process.env.PATH,
         DATABASE_ADMIN_URL: process.env.DATABASE_ADMIN_URL,
         DATABASE_TEST_URL: process.env.DATABASE_TEST_URL,
-      },
+      }),
       stdio: ["ignore", "pipe", "pipe"],
     },
   );

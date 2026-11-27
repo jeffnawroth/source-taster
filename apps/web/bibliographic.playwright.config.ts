@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { defineConfig } from "@playwright/test";
+import { withOrphanGuard } from "../server/test/support/orphan-guard.ts";
 import { browserProjects } from "./browser-projects.ts";
 const baseURL = `http://127.0.0.1:${process.env.SOURCE_TASTER_E2E_WEB_PORT ?? "5174"}`;
 export default defineConfig({
@@ -11,10 +12,11 @@ export default defineConfig({
   webServer: {
     command:
       "SOURCE_TASTER_E2E_BIBLIOGRAPHIC=true pnpm --filter @source-taster/server e2e:serve",
-    env: {
+    env: withOrphanGuard({
+      NODE_OPTIONS: process.env.NODE_OPTIONS,
       SOURCE_TASTER_E2E_WEB_FIXTURES:
         process.env.SOURCE_TASTER_E2E_WEB_FIXTURES ?? "true",
-    },
+    }),
     url: baseURL,
     reuseExistingServer: false,
     timeout: 60000,

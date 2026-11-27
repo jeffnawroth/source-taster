@@ -16,6 +16,7 @@ import {
   SubscriptionsResponse,
 } from "@source-taster/contract-service";
 import { pages, pathFor } from "../../website/src/content.ts";
+import { withOrphanGuard } from "../../server/test/support/orphan-guard.ts";
 
 for (const language of ["de", "en"] as const)
   test(`actual programs: ${language} statutory route survives Account frontend failure and provider outage`, async ({
@@ -30,7 +31,7 @@ for (const language of ["de", "en"] as const)
       ["test/commerce-provider-process.ts"],
       {
         cwd: join(privatePath, "apps/server"),
-        env: { PATH: process.env.PATH, NODE_ENV: "test" },
+        env: withOrphanGuard({ PATH: process.env.PATH, NODE_ENV: "test" }),
         stdio: ["ignore", "pipe", "pipe", "ipc"],
       },
     );
@@ -118,13 +119,13 @@ for (const language of ["de", "en"] as const)
         ],
         {
           cwd: new URL("..", import.meta.url),
-          env: {
+          env: withOrphanGuard({
             PATH: process.env.PATH,
             NODE_ENV: "test",
             SOURCE_TASTER_API_URL: both.apiUrl,
             VITE_SOURCE_TASTER_MODE: "hosted",
             VITE_SOURCE_TASTER_SERVICE_URL: both.serviceUrl,
-          },
+          }),
           stdio: ["ignore", "pipe", "pipe"],
         },
       );

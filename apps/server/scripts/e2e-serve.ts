@@ -6,6 +6,7 @@ import { registerPreviewFixtures } from "../test/support/preview-fixtures.ts";
 import { startDoiFixtures } from "../test/support/doi-fixtures.ts";
 import { e2eClientLeaseMs } from "../test/support/e2e-lease.ts";
 import { startTestService } from "../test/support/service.ts";
+import { withOrphanGuard } from "../test/support/orphan-guard.ts";
 
 const fixtures = await startDoiFixtures();
 const bibliographic =
@@ -37,7 +38,10 @@ const vite = spawn(
   ["--filter", "@source-taster/web", "dev", "--port", webPort, "--strictPort"],
   {
     cwd: new URL("../../..", import.meta.url),
-    env: { PATH: process.env.PATH, SOURCE_TASTER_API_URL: service.apiUrl },
+    env: withOrphanGuard({
+      PATH: process.env.PATH,
+      SOURCE_TASTER_API_URL: service.apiUrl,
+    }),
     stdio: "inherit",
   },
 );

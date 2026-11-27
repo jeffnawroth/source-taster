@@ -20,6 +20,7 @@ import pg from "pg";
 import { setupDatabase } from "../../scripts/db-setup.ts";
 import { startDoiFixtures } from "./doi-fixtures.ts";
 import { testDatabase } from "./processes.ts";
+import { withOrphanGuard } from "./orphan-guard.ts";
 
 export const apiPort = Number(process.env.SOURCE_TASTER_TEST_API_PORT ?? 4901);
 export const servicePort = Number(
@@ -293,7 +294,7 @@ export async function startAccountApi(
       ["test/support/guest-process.ts", ...args],
       {
         cwd: new URL("../..", import.meta.url),
-        env: {
+        env: withOrphanGuard({
           PATH: process.env.PATH,
           NODE_ENV: "test",
           TEST_CLOCK: String(now),
@@ -304,7 +305,7 @@ export async function startAccountApi(
             ? { SOURCE_TASTER_TEST_MAINTAIN_ON_START: "1" }
             : {}),
           ...fixtures.env,
-        },
+        }),
         stdio: ["ignore", "pipe", "pipe", "ipc"],
       },
     );

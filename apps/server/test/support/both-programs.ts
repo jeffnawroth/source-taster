@@ -11,6 +11,7 @@ import pg from "pg";
 import type { AbusePolicy } from "@source-taster/contract-internal";
 import { GuestTokenResponse } from "@source-taster/contract-service";
 import { startDoiFixtures } from "./doi-fixtures.ts";
+import { withOrphanGuard } from "./orphan-guard.ts";
 export async function freePort() {
   const server = createServer();
   server.listen(0, "127.0.0.1");
@@ -149,12 +150,12 @@ export async function bothPrograms(
   ) {
     const child = spawn(process.execPath, [entry, ...args], {
       cwd,
-      env: {
+      env: withOrphanGuard({
         PATH: process.env.PATH,
         NODE_ENV: "test",
         TEST_CLOCK: String(now),
         ...env,
-      },
+      }),
       stdio: ["ignore", "pipe", "pipe", "ipc"],
     });
     let output = "";

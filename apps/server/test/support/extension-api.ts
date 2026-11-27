@@ -21,6 +21,7 @@ import {
   QuotaSnapshotRequest,
   QuotaSnapshotResponse,
 } from "@source-taster/contract-internal";
+import { withOrphanGuard } from "./orphan-guard.ts";
 const fixtureNow = Date.now();
 const issuer = `http://127.0.0.1:${process.env.SOURCE_TASTER_ACCOUNT_TEST_SERVICE_PORT ?? "4602"}`;
 const audience = `http://127.0.0.1:${process.env.SOURCE_TASTER_ACCOUNT_TEST_API_PORT ?? "4601"}`;
@@ -120,7 +121,7 @@ export async function startExtensionVerificationApi() {
   const launch = async () => {
     child = spawn(process.execPath, ["test/support/guest-process.ts"], {
       cwd: new URL("../..", import.meta.url),
-      env: {
+      env: withOrphanGuard({
         PATH: process.env.PATH,
         NODE_ENV: "test",
         TEST_CLOCK: String(fixtureNow),
@@ -128,7 +129,7 @@ export async function startExtensionVerificationApi() {
         SOURCE_TASTER_PORT:
           process.env.SOURCE_TASTER_ACCOUNT_TEST_API_PORT ?? "4601",
         SOURCE_TASTER_AUTH_CONFIG: auth,
-      },
+      }),
       stdio: ["ignore", "pipe", "pipe", "ipc"],
     });
     let output = "";
