@@ -10,6 +10,10 @@ import {
   closeStructuringPreview,
   runCommand,
 } from "./support/workspace.ts";
+import { randomBytes } from "node:crypto";
+import { mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { docx } from "../../server/test/support/documents.ts";
 
 const launcherName = /^(Search or command|Suchen oder Befehl) …$/u;
@@ -43,11 +47,10 @@ for (const language of ["en", "de"] as const) {
     // A query matches case-insensitively and keeps only the matching commands.
     await search.fill(preferences.slice(0, 5).toUpperCase());
     await expect(items).toHaveText([preferences]);
+    // With no match the list shows only its empty state, which React Aria
+    // renders in the place of the items.
     await search.fill("zzzz-no-command");
-    await expect(items).toHaveCount(0);
-    await expect(palette).toContainText(
-      message(language, "shell_command_empty"),
-    );
+    await expect(items).toHaveText([message(language, "shell_command_empty")]);
     // The clear button empties the field and brings every command back.
     await palette
       .getByRole("button", {
@@ -70,11 +73,15 @@ for (const language of ["en", "de"] as const) {
       exact: true,
     });
     await expect(dialog).toBeVisible();
-    // The Dialog takes focus on its first control; the language select is
-    // one tab stop away, so a keyboard user can change the language at once.
-    const focused = dialog.locator(":focus");
-    await expect(focused).toHaveCount(1);
-    await expect(focused).toHaveJSProperty("tagName", "SELECT");
+    // The dialog takes focus on its first control, the appearance select; the
+    // language select is one tab stop away, so a keyboard user can change the
+    // language at once (web-gaps SU-SH-06).
+    await expect(
+      dialog.getByRole("combobox", {
+        name: message(language, "theme_label"),
+        exact: true,
+      }),
+    ).toBeFocused();
     await page.keyboard.press("Tab");
     await expect(
       dialog.getByRole("combobox", {
@@ -147,23 +154,27 @@ for (const language of ["en", "de"] as const) {
   });
 }
 
-/** Dispatches the drag sequence a browser sends when a file is dropped. */
+/**
+ * Drops a file from disk the way a browser does. A synthetic DataTransfer is
+ * not enough: React Aria reads dropped files through `webkitGetAsEntry()`,
+ * which only a native drag provides, so the drop goes through the DevTools
+ * protocol.
+ */
 async function dropFile(
   page: Page,
   zone: Locator,
-  file: { name: string; type: string; bytes: number[] },
+  file: { name: string; bytes: Uint8Array },
 ) {
-  const transfer = await page.evaluateHandle((file) => {
-    const data = new DataTransfer();
-    data.items.add(
-      new File([new Uint8Array(file.bytes)], file.name, { type: file.type }),
-    );
-    data.effectAllowed = "copy";
-    return data;
-  }, file);
-  await zone.dispatchEvent("dragenter", { dataTransfer: transfer });
-  await zone.dispatchEvent("dragover", { dataTransfer: transfer });
-  await zone.dispatchEvent("drop", { dataTransfer: transfer });
+  const path = join(await mkdtemp(join(tmpdir(), "intake-drop-")), file.name);
+  await writeFile(path, file.bytes);
+  const box = await zone.boundingBox();
+  if (!box) throw new Error("The drop zone is not on screen");
+  const cdp = await page.context().newCDPSession(page);
+  const at = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  const data = { items: [], files: [path], dragOperationsMask: 1 };
+  for (const type of ["dragEnter", "dragOver", "drop"] as const)
+    await cdp.send("Input.dispatchDragEvent", { type, ...at, data });
+  await cdp.detach();
 }
 
 for (const language of ["en", "de"] as const) {
@@ -186,14 +197,13 @@ for (const language of ["en", "de"] as const) {
     await page.goto("/");
     await choosePreferences(page, { language });
     await chooseFileSource(page);
-    const zone = page.getByRole("button", {
-      name: message(language, "shell_drop"),
+    const zone = page.getByText(message(language, "shell_drop"), {
+      exact: true,
     });
     await expect(upload(page)).toBeDisabled();
     await dropFile(page, zone, {
       name: "references.docx",
-      type: docxType,
-      bytes: [...(await docx([reference]))],
+      bytes: await docx([reference]),
     });
     await expect(upload(page)).toBeEnabled();
     await upload(page).click();
@@ -202,8 +212,7 @@ for (const language of ["en", "de"] as const) {
     // A BibTeX file is not uploaded as a document: it is imported at once.
     await dropFile(page, zone, {
       name: "library.bib",
-      type: "application/x-bibtex",
-      bytes: [...Buffer.from(bibtex)],
+      bytes: Buffer.from(bibtex),
     });
     await expect(preview(page)).toContainText("Signal maps");
     await expect(
@@ -220,19 +229,19 @@ for (const language of ["en", "de"] as const) {
     await page.goto("/");
     await choosePreferences(page, { language });
     await chooseFileSource(page);
-    // The button's hidden input names the accepted types.
-    await expect(
-      page.locator("#intake-files input[type=file][accept*='.ris']").nth(0),
-    ).toHaveAttribute("accept", ".pdf,.docx,.bib,.bibtex,.ris");
     const choose = page.getByRole("button", {
       name: message(language, "shell_choose_file"),
       exact: true,
     });
     const first = page.waitForEvent("filechooser");
     await choose.click();
-    await (
-      await first
-    ).setFiles({
+    const chooser = await first;
+    // The chooser offers documents and libraries alike.
+    expect(await chooser.element().getAttribute("accept")).toBe(
+      ".pdf,.docx,.bib,.bibtex,.ris",
+    );
+    expect(chooser.isMultiple()).toBe(false);
+    await chooser.setFiles({
       name: "references.docx",
       mimeType: docxType,
       buffer: Buffer.from(await docx([reference])),
@@ -257,5 +266,70 @@ for (const language of ["en", "de"] as const) {
         { exact: true },
       ),
     ).toBeVisible();
+  });
+}
+
+for (const language of ["en", "de"] as const) {
+  test(`a document over the operator's size limit is refused before upload (${language})`, async ({
+    page,
+  }) => {
+    let uploads = 0;
+    page.on("request", (request) => {
+      if (
+        request.method() === "POST" &&
+        new URL(request.url()).pathname === "/v2/document-structurings"
+      )
+        uploads++;
+    });
+    // The operator allows 1.5 MB; the browser compares the file with that
+    // limit before it sends a byte.
+    await page.route("**/v2/document-settings", async (route) => {
+      const response = await route.fetch();
+      const body = (await response.json()) as { data: { inputBytes: number } };
+      body.data.inputBytes = 1_572_864;
+      await route.fulfill({ response, json: body });
+    });
+    await page.goto("/");
+    await choosePreferences(page, { language });
+    await chooseFileSource(page);
+    const chooser = page.waitForEvent("filechooser");
+    await page
+      .getByRole("button", {
+        name: message(language, "shell_choose_file"),
+        exact: true,
+      })
+      .click();
+    await (
+      await chooser
+    ).setFiles({
+      name: "large.docx",
+      mimeType: docxType,
+      buffer: Buffer.from(
+        await docx([reference], {
+          stored: [
+            {
+              name: "word/media/padding.bin",
+              // Random bytes do not compress, so the file stays over 1.5 MB.
+              bytes: randomBytes(2_000_000),
+            },
+          ],
+        }),
+      ),
+    });
+    await page
+      .getByRole("button", {
+        name:
+          language === "en"
+            ? "Upload and structure"
+            : "Hochladen und strukturieren",
+        exact: true,
+      })
+      .click();
+    await expect(page.getByRole("alert")).toContainText(
+      message(language, "problem_document_size_limit", {
+        limit: language === "en" ? "1.5" : "1,5",
+      }),
+    );
+    expect(uploads).toBe(0);
   });
 }

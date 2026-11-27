@@ -11,6 +11,7 @@ const copy = {
     docs: "/docs/en/how-the-check-works/",
     home: "/en/",
     legal: "Legal information",
+    cancellation: "Cancel contracts here",
   },
   de: {
     skip: "Zum Inhalt",
@@ -19,6 +20,7 @@ const copy = {
     docs: "/docs/de/how-the-check-works/",
     home: "/de/",
     legal: "Rechtliche Informationen",
+    cancellation: "Verträge hier kündigen",
   },
 } as const;
 
@@ -36,15 +38,16 @@ for (const language of ["en", "de"] as const) {
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/#content$/u);
     // The target is the focusable main landmark: the next Tab starts inside it.
-    const content = page.locator("main#content");
-    await expect(content).toBeFocused();
+    await expect(page.getByRole("main")).toBeFocused();
   });
 
   test(`the header brand link goes to the home page in the same language (${language})`, async ({
     page,
   }) => {
     await page.goto(t.docs);
-    const brand = page.locator("a.brand");
+    const brand = page
+      .getByRole("banner")
+      .getByRole("link", { name: "Source Taster", exact: true });
     await expect(brand).toHaveAttribute("href", t.home);
     await brand.click();
     await expect(page).toHaveURL(new RegExp(`${t.home}$`, "u"));
@@ -59,7 +62,7 @@ for (const language of ["en", "de"] as const) {
       target.getByText(t.noScript, { exact: true });
     // With scripts on, the note stays out of the page.
     await page.goto(t.docs);
-    await expect(page.locator("main#content")).toBeVisible();
+    await expect(page.getByRole("main")).toBeVisible();
     await expect(note(page)).toBeHidden();
     const context = await browser.newContext({ javaScriptEnabled: false });
     const plain = await context.newPage();
@@ -78,6 +81,8 @@ for (const language of ["en", "de"] as const) {
     await page.goto(t.home);
     const legal = page.getByRole("navigation", { name: t.legal });
     await expect(legal.getByRole("link").first()).toBeVisible();
-    await expect(page.locator('a[href*="/cancel"]')).toHaveCount(0);
+    await expect(
+      page.getByRole("link", { name: t.cancellation, exact: true }),
+    ).toHaveCount(0);
   });
 }

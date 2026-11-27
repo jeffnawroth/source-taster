@@ -171,7 +171,9 @@ for (const language of ["en", "de"] as const) {
     await expect(choice).toContainText(
       message(language, "quota_choice_heading"),
     );
-    await expect(choice).toContainText(
+    // The counted strip states the shortfall; the choice names it as its
+    // description.
+    await expect(choice).toHaveAccessibleDescription(
       message(language, "quota_choice_body", { required: 3, available: 1 }),
     );
     await expect(page.getByRole("alert")).toHaveCount(0);

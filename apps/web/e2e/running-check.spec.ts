@@ -23,7 +23,7 @@ async function startHeldCheck(page: Page, language: Language) {
 
 /** The announcement of the live connection while the Check runs. */
 const announced = (page: Page, text: string) =>
-  page.getByRole("status").filter({ hasText: text });
+  page.getByRole("status").getByText(text, { exact: true });
 
 for (const language of ["en", "de"] as const) {
   test(`announces connecting, then connected live updates (${language})`, async ({
@@ -97,6 +97,9 @@ for (const language of ["en", "de"] as const) {
     page,
   }) => {
     let progress = "queued";
+    // The live stream would replace the step with the real one (doi.org), so
+    // it stays pending: the page shows the step the Check was started with.
+    await page.route("**/v2/checks/*/events", () => new Promise(() => {}));
     await page.route("**/v2/checks", async (route) => {
       if (route.request().method() !== "POST") return route.continue();
       const response = await route.fetch();
@@ -128,7 +131,7 @@ for (const language of ["en", "de"] as const) {
             })
             .click();
         }
-        await expect(page.locator(".card-step")).toHaveText(text);
+        await expect(page.getByText(text, { exact: true })).toBeVisible();
       });
     }
   });

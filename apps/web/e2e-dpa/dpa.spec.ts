@@ -299,7 +299,7 @@ async function signInToAccount(page: Page, language: "en" | "de") {
     .getByRole("button", { name: de ? /^Konto: / : /^Account: / })
     .click();
   await page
-    .locator(".account-entry")
+    .getByRole("dialog", { name: de ? "Konto" : "Account", exact: true })
     .getByRole("button", { name: de ? "Konto" : "Account", exact: true })
     .click();
 }
@@ -439,7 +439,7 @@ for (const language of ["en", "de"] as const)
           section.getByRole("heading", { name: t("dpa_notices"), exact: true }),
         ).toBeVisible();
         const change = section
-          .locator("article")
+          .getByRole("article")
           .filter({ hasText: "subprocessors-v2" });
         await expect(change).toContainText(notice().change);
         await expect(change).toContainText(
